@@ -1,0 +1,70 @@
+name: Validate and build Android
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  godot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.1-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Cache pinned Godot and templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.1-linux-android-v1
+      - name: Install Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import project
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Simulation regression tests
+        run: '"$GODOT_BIN" --headless --script tests/run.gd'
+      - name: Scene and touch tests
+        run: '"$GODOT_BIN" --headless --script tests/scene.gd'
+      - name: Scene smoke test
+        run: '"$GODOT_BIN" --headless -- --smoke-test'
+      - name: Install Android SDK components
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
+          subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
+          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'build-tools;35.0.0'], check=True)
+          PY
+      - name: Keep debug signing identity between builds
+        uses: actions/cache@v4
+        with:
+          path: build/export-config/skizones-debug.keystore
+          key: skizones-ci-debug-keystore-v1
+      - name: Export Android APK
+        run: python3 tools/export_android.py
+      - name: Verify APK signature and archive
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones-debug.apk
+          unzip -t build/android/SkiZones-debug.apk | tail -1
+          sha256sum build/android/SkiZones-debug.apk > build/android/SkiZones-debug.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SkiZones-Android-debug
+          path: |
+            build/android/SkiZones-debug.apk
+            build/android/SkiZones-debug.apk.sha256
+          if-no-files-found: error
+          retention-days: 30
