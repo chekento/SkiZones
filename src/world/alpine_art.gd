@@ -1,5 +1,7 @@
 extends RefCounted
 ## Small original 3D models, baked into one colored mesh per asset.
+const Catalog = preload("res://src/core/catalog.gd")
+const Fleet = preload("res://src/core/lift_fleet.gd")
 
 var surface := SurfaceTool.new()
 
@@ -222,36 +224,88 @@ func snow_cannon(level: int) -> ArrayMesh:
 	return finish()
 
 func station(kind: String, level: int) -> ArrayMesh:
-	var small := kind == "drag"
-	var width := 14.0 if small else 24.0 + level * 2
-	box(Vector3(0, 0.2 if small else 1, 0), Vector3(width + 4, 0.4 if small else 2, 21), Color("9ca4a4"))
-	for x in [-1, 1]:
-		box(Vector3(x * width * 0.38, 7.5, 0), Vector3(2, 13, 2), Color("556e73"))
-	box(Vector3(0, 13.3, 0), Vector3(width, 3.5, 18), Color("bf7850") if small else Color("3b6d76"))
-	box(Vector3(0, 15.7, 0), Vector3(width + 3, 1.4, 21), Color("e8efed"))
-	box(Vector3(-width * 0.43, 5.4, 5), Vector3(8, 9, 9), Color("8d7251"))
-	box(Vector3(-width * 0.43, 7.5, 9.7), Vector3(6.5, 3.5, 0.5), Color("678c96"))
-	box(Vector3(-width * 0.43, 10.3, 5), Vector3(10, 1, 11), Color("e7eeec"))
-	cone(Vector3(0, 12.4, 0), 4.2, 1.3, Color("3d555b"), 4.2)
+	var lift := {"kind": kind, "level": level}
+	var family := Fleet.family(lift)
+	var r := Fleet.rope_offset(lift)
+	if family == "drag":
+		# Open drive tower and bullwheel, with a small wooden operator hut.
+		box(Vector3(0, 3.4, 0), Vector3(0.75, 6.8, 0.75), Color("526a70"))
+		cone(Vector3(0, 7.3, 0), r, 0.35, Color("c69745"), r)
+		cone(Vector3(0, 7.6, 0), 0.8, 1.2, Color("3d535c"), 0.8)
+		for side in [-1, 1]:
+			link(Vector3(0, 7.3, 0), Vector3(side * r, 7.3, 0), 0.13, Color("435e65"))
+		box(Vector3(8.5, 2.5, -4), Vector3(5, 5, 6), Color("a67c50"))
+		box(Vector3(8.5, 3, -0.95), Vector3(3.7, 2, 0.2), Color("a6c8ca"))
+		box(Vector3(8.5, 5.2, -4), Vector3(6.5, 0.9, 7.3), Color("edf2ed"))
+		box(Vector3(1.8, 2, 0), Vector3(2, 2, 3), Color("ca9948"))
+		return finish()
+	var width := r * 2 + 5
+	var accent := Color("657981") if Fleet.seats(lift) == 1 else (Color("4a998f") if Fleet.seats(lift) == 2 else Color("417e96"))
+	if family == "gondola":
+		accent = Color("cc7c4e")
+	box(Vector3(0, 0.15, 0), Vector3(width + 2, 0.3, 16), Color("abb1ac"))
+	for side in [-1, 1]:
+		box(Vector3(side * (r + 1.4), 3.65, 0), Vector3(0.65, 7.3, 0.9), Color("536f78"))
+		box(Vector3(side * (r + 1.4), 3.65, -5), Vector3(0.65, 7.3, 0.9), Color("536f78"))
+	cone(Vector3(0, 7.3, 0), r, 0.45, Color("475f67"), r)
+	box(Vector3(0, 8.1, 0), Vector3(width, 1.5, 14), accent)
+	box(Vector3(0, 9.0, 0), Vector3(width + 1.6, 0.8, 15.4), Color("eaf0ed"))
+	box(Vector3(r + 3, 2.5, -3), Vector3(4.5, 5, 7), Color("8b9c9c"))
+	box(Vector3(r + 3, 3, 0.6), Vector3(3.7, 2.5, 0.2), Color("b4d3d2"))
+	if family == "gondola":
+		for side in [-1, 1]:
+			box(Vector3(side * (r + 2), 1.8, 0), Vector3(0.4, 3.3, 14), accent)
+			for z in [-6, -2, 2, 6]:
+				box(Vector3(side * (r + 2), 4.2, z), Vector3(0.45, 5, 0.45), Color("d4ddda"))
 	return finish()
 
 func chair(kind: String) -> ArrayMesh:
-	if kind == "drag":
-		box(Vector3(0, -2.5, 0), Vector3(0.3, 13.4, 0.3), Color("536b70"))
-		box(Vector3(0, -9.2, 0), Vector3(4, 0.5, 0.6), Color("8c7557"))
-	elif kind == "gondola":
-		box(Vector3(0, 1.4, 0), Vector3(5.5, 4.6, 4.5), Color("326b80"))
-		box(Vector3(0, 2.2, 2.3), Vector3(4.5, 2.6, 0.2), Color("9fc2cc"))
-		box(Vector3(0, -1.0, 0), Vector3(5.8, 0.8, 4.8), Color("c08a51"))
-		box(Vector3(0, 4.0, 0), Vector3(0.4, 2.5, 0.4), Color("4b6268"))
+	var lift := {"kind": kind}
+	var family := Fleet.family(lift)
+	var count := Fleet.seats(lift)
+	if family == "drag":
+		# The telescopic tow rope is a separate instance with terrain-dependent length.
+		cone(Vector3.ZERO, 0.6, 0.14, Color("c69745"), 0.6)
+		box(Vector3(0, 0.35, 0), Vector3(0.16, 0.7, 0.16), Color("526870"))
+	elif family == "gondola":
+		box(Vector3(0, -1.15, 0), Vector3(7.4, 0.3, 6.4), Color("c67e4b"))
+		box(Vector3(0, -0.5, 0), Vector3(7.4, 1.0, 6.4), Color("417e96"))
+		# Open window frames let the actual occupants remain visible through glass.
+		for x in [-3.55, 3.55]:
+			for z in [-3, 3]:
+				box(Vector3(x, 1.8, z), Vector3(0.3, 3.6, 0.3), Color("b9c9ce"))
+		for z in [-3, 3]:
+			box(Vector3(0, 2.8, z), Vector3(7.2, 0.24, 0.24), Color("b9c9ce"))
+		box(Vector3(0, 3.5, 0), Vector3(7.7, 0.5, 6.7), Color("e9efed"))
+		for z in [-1.35, 1.35]:
+			box(Vector3(0, 0, z), Vector3(6.3, 0.35, 1.35), Color("51727e"))
+			box(Vector3(0, 0.65, z * 1.55), Vector3(6.3, 1.15, 0.3), Color("51727e"))
+		link(Vector3(0, 3.7, 0), Vector3(0, 6, 0), 0.25, Color("526870"))
+		for x in [-2.7, -0.9, 0.9, 2.7]:
+			box(Vector3(x, 0.4, 3.45), Vector3(0.28, 3.4, 0.14), Color("d5a85b"))
 	else:
-		box(Vector3(0, 0, 0), Vector3(5, 0.7, 3.0), Color("b08452"))
-		box(Vector3(0, 1.3, -1.3), Vector3(5, 2.6, 0.55), Color("597984"))
-		box(Vector3(0, 2.5, 0), Vector3(0.35, 4, 0.35), Color("52696f"))
-		box(Vector3(0, 1.1, 1.2), Vector3(5, 0.3, 0.3), Color("52696f"))
+		var width := count * Fleet.SEAT_SPACING + 0.45
+		box(Vector3(0, -0.22, 0), Vector3(width, 0.35, 1.8), Color("4b6872"))
+		for seat in range(count):
+			var x := (seat - (count - 1) * 0.5) * Fleet.SEAT_SPACING
+			box(Vector3(x, 0.0, 0.15), Vector3(1.5, 0.35, 1.55), Color("bd8b54"))
+			box(Vector3(x, 1.1, -0.8), Vector3(1.5, 2.0, 0.45), Color("517b8e"))
+		for side in [-1, 1]:
+			box(Vector3(side * width * 0.5, 0.5, 0), Vector3(0.15, 1.3, 1.7), Color("526b74"))
+		link(Vector3(0, 1.9, -1.1), Vector3(0, 6, 0), 0.19, Color("526b74"))
+		box(Vector3(0, 1, 1.3), Vector3(width, 0.18, 0.18), Color("84989d"))
+		for side in [-1, 1]:
+			link(Vector3(side * width * 0.5, 1, 1.3), Vector3(side * width * 0.5, 0.7, -0.8), 0.09, Color("84989d"))
 	return finish()
 
-func skier() -> ArrayMesh:
+func gondola_glass() -> ArrayMesh:
+	for x in [-3.52, 3.52]:
+		box(Vector3(x, 1.8, 0), Vector3(0.05, 2.4, 5.8), Color("a9d6e4"))
+	for z in [-3.02, 3.02]:
+		box(Vector3(0, 1.8, z), Vector3(6.9, 2.4, 0.05), Color("a9d6e4"))
+	return finish()
+
+func skier(on_skis: bool = true) -> ArrayMesh:
 	box(Vector3(-0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
 	box(Vector3(0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
 	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
@@ -262,18 +316,21 @@ func skier() -> ArrayMesh:
 	for side in [-1, 1]:
 		sphere(Vector3(side * 0.68, 1.55, 0.15), 0.24, Color("f7f7f2"), Vector3(0.7, 1.7, 0.8))
 		box(Vector3(side * 0.3, 0.25, 0.1), Vector3(0.4, 0.38, 0.7), Color("273e4b"))
-		box(Vector3(side * 0.35, 0.13, 0.4), Vector3(0.24, 0.16, 3.4), Color("4f6670"))
-		box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
+		if on_skis:
+			box(Vector3(side * 0.35, 0.13, 0.4), Vector3(0.24, 0.16, 3.4), Color("4f6670"))
+			box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
 	return finish()
 
-func seated_skier() -> ArrayMesh:
+func seated_skier(on_skis: bool = true) -> ArrayMesh:
+	box(Vector3(0, 0.35, 0.15), Vector3(0.8, 0.4, 0.8), Color("344b59"))
 	sphere(Vector3(0, 1.1, 0), 0.6, Color("f8f9f6"), Vector3(0.9, 1.1, 0.65))
 	sphere(Vector3(0, 2.0, 0), 0.43, Color("d9e1dd"))
 	box(Vector3(0, 2.0, 0.4), Vector3(0.7, 0.2, 0.15), Color("273e4b"))
 	for side in [-1, 1]:
 		box(Vector3(side * 0.3, 0.4, 0.5), Vector3(0.35, 0.4, 1.2), Color("344b59"))
 		box(Vector3(side * 0.3, -0.2, 1.0), Vector3(0.35, 1.2, 0.4), Color("344b59"))
-		box(Vector3(side * 0.35, -0.8, 1.2), Vector3(0.22, 0.15, 3), Color("4f6670"))
+		if on_skis:
+			box(Vector3(side * 0.35, -0.8, 1.2), Vector3(0.22, 0.15, 3), Color("4f6670"))
 	return finish()
 
 func groomer() -> ArrayMesh:

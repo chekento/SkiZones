@@ -148,7 +148,7 @@ func _grooming_and_saves() -> void:
 	check(not model.groom_piste(model.pistes[0].id).ok, "An active grooming service needs research and a garage")
 	model.campaign.research.append("snowcraft")
 	model.money = 1000000
-	model.build_building("maintenance", Vector2(15, 245))
+	model.build_building("maintenance", Vector2(80, 280))
 	var id: int = model.pistes[0].id
 	var quote: Dictionary = model.groom_check(id)
 	before = model.money

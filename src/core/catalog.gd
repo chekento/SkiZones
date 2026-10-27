@@ -1,11 +1,14 @@
 extends RefCounted
 
 const LIFTS := {
-	"carpet": {"name": "Zauberteppich", "cost": 18000, "per_m": 38, "capacity": 600, "speed": 42.0, "upkeep": 160, "wind_limit": 85.0},
-	"drag": {"name": "Schlepplift", "cost": 42000, "per_m": 72, "capacity": 420, "speed": 135.0, "upkeep": 410, "wind_limit": 62.0},
-	"chair": {"name": "4er-Sessellift", "cost": 82000, "per_m": 120, "capacity": 960, "speed": 210.0, "upkeep": 780, "wind_limit": 48.0},
-	"gondola": {"name": "Gondelbahn", "cost": 155000, "per_m": 175, "capacity": 1800, "speed": 300.0, "upkeep": 1250, "wind_limit": 70.0},
-	"chair6": {"name": "6er-Panoramasessel", "cost": 126000, "per_m": 145, "capacity": 1500, "speed": 270.0, "upkeep": 1050, "wind_limit": 53.0}
+	"carpet": {"name": "Zauberteppich", "family": "carpet", "seats": 1, "max_length": 250.0, "cost": 18000, "per_m": 38, "capacity": 600, "speed": 42.0, "upkeep": 160, "wind_limit": 85.0},
+	"drag": {"name": "Teller-Schlepplift", "family": "drag", "seats": 1, "max_length": 700.0, "cost": 42000, "per_m": 72, "capacity": 420, "speed": 90.0, "upkeep": 410, "wind_limit": 62.0},
+	"chair1": {"name": "1er-Sessellift", "family": "chair", "seats": 1, "max_length": 1400.0, "cost": 48000, "per_m": 86, "capacity": 360, "speed": 126.0, "upkeep": 450, "wind_limit": 46.0},
+	"chair2": {"name": "2er-Sessellift", "family": "chair", "seats": 2, "max_length": 1800.0, "cost": 64000, "per_m": 100, "capacity": 600, "speed": 168.0, "upkeep": 590, "wind_limit": 47.0},
+	"chair": {"name": "4er-Sessellift", "family": "chair", "seats": 4, "max_length": 2400.0, "cost": 82000, "per_m": 120, "capacity": 960, "speed": 210.0, "upkeep": 780, "wind_limit": 48.0},
+	"chair6": {"name": "6er-Panoramasessel", "family": "chair", "seats": 6, "max_length": 2800.0, "cost": 126000, "per_m": 145, "capacity": 1500, "speed": 270.0, "upkeep": 1050, "wind_limit": 53.0},
+	"chair8": {"name": "8er-Panoramasessel", "family": "chair", "seats": 8, "max_length": 3000.0, "cost": 188000, "per_m": 172, "capacity": 2400, "speed": 300.0, "upkeep": 1480, "wind_limit": 55.0},
+	"gondola": {"name": "8er-Gondelbahn", "family": "gondola", "seats": 8, "max_length": 3200.0, "cost": 155000, "per_m": 175, "capacity": 1800, "speed": 300.0, "upkeep": 1250, "wind_limit": 70.0}
 }
 
 const BUILDINGS := {

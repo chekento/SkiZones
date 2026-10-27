@@ -6,6 +6,20 @@ const LANES := 8
 const STEP := 8.0
 const MAX_TRACKS := 64
 
+static func base_height(piste: Dictionary, fraction: float) -> float:
+	var blend := 1.0
+	if piste.get("plaza_start", false):
+		blend *= smoothstep(0, 20, fraction * piste.length)
+	if piste.get("plaza_end", false):
+		blend *= smoothstep(0, 20, (1 - fraction) * piste.length)
+	return lerpf(0.37, 1.3, blend)
+
+static func mesh_height(piste: Dictionary, fraction: float, lateral: float) -> float:
+	var count := ceili(piste.length / 4)
+	var at := clampf(fraction, 0, 1) * count
+	var lower := mini(count - 1, floori(at))
+	return lerpf(base_height(piste, float(lower) / count), base_height(piste, float(lower + 1) / count), at - lower) + mesh_relief(piste, fraction, lateral)
+
 static func rows(piste: Dictionary) -> int:
 	return ceili(piste.length / STEP) + 1
 
@@ -17,6 +31,30 @@ static func ensure(piste: Dictionary) -> void:
 		piste.surface.fill(0.0)
 	if not piste.has("tracks"):
 		piste.tracks = []
+
+static func migrate_length(piste: Dictionary, new_length: float) -> bool:
+	# Moving old endpoints out of a terminal preserves the local snow history.
+	if not piste.has("surface"):
+		piste.length = new_length
+		return true
+	if not piste.surface is Array or piste.surface.size() % (LANES + 1) != 0 or piste.surface.size() < (LANES + 1) * 2:
+		return false
+	for value in piste.surface:
+		if not Terrain.number(value) or value < -0.35 or value > 0.6:
+			return false
+	var previous: Array = piste.surface
+	var old_rows := previous.size() / (LANES + 1)
+	piste.length = new_length
+	var result: Array = []
+	var count := rows(piste)
+	for row in range(count):
+		var at := float(row) / maxf(1, count - 1) * (old_rows - 1)
+		var lower := floori(at)
+		var upper := mini(old_rows - 1, lower + 1)
+		for lane in range(LANES + 1):
+			result.append(lerpf(previous[lower * (LANES + 1) + lane], previous[upper * (LANES + 1) + lane], at - lower))
+	piste.surface = result
+	return true
 
 static func start(piste: Dictionary, guest: Dictionary, from_fraction: float = 0.0, end_fraction: float = 1.0) -> void:
 	ensure(piste)

@@ -60,7 +60,7 @@ func _init() -> void:
 			else:
 				suffix = leg
 	check(prefix.get("first") == 0 and prefix.get("last") == 1 and suffix.get("first") == 3 and suffix.get("last") == 4, "The guest only travels the required portions of the blue piste")
-	check(is_equal_approx(Resort.ski_fraction(suffix, 0), model.terrain.waypoint_fraction(BLUE, 3)) and is_equal_approx(Resort.ski_fraction(suffix, 1), 1), "Partial leg progress maps to the correct whole-piste coordinates")
+	check(is_equal_approx(Resort.ski_fraction(suffix, 0), model.terrain.waypoint_fraction(blue.points, 3)) and is_equal_approx(Resort.ski_fraction(suffix, 1), 1), "Partial leg progress maps to the correct whole-piste coordinates")
 	check(model.build_piste([[350, 35], [480, 100], [350, 165]]).ok, "A second, red alternative can dock at the same junctions")
 	var red: Dictionary = model.pistes[2]
 	check(red.difficulty == 1 and model.routes_for(0).size() == 1 and model.routes_for(1).size() == 2 and model.routes_for(2).size() == 3, "Every ability gets exactly the compatible alternatives")
@@ -86,7 +86,7 @@ func _init() -> void:
 	check(Vector2(at_start.x, at_start.z).distance_to(Vector2(350, 165)) < 0.01, "Rejoining a piste starts at the junction, not at its summit")
 	guest.elapsed = guest.duration
 	var at_end := model.guest_position(guest)
-	check(Vector2(at_end.x, at_end.z).distance_to(Vector2(200, 205)) < 0.01, "The partial skiing leg ends at its actual exit")
+	check(Vector2(at_end.x, at_end.z).distance_to(Terrain.unpack(blue.points.back())) < 0.01, "The partial skiing leg ends at its actual plaza exit")
 	Snow.touch(model.terrain, blue, guest, start, finish)
 	var track: Dictionary = blue.tracks[-1]
 	check(is_equal_approx(track.from, start) and is_equal_approx(track.to, finish), "A returning skier records tracks only on the ridden portion")
@@ -151,7 +151,7 @@ func _large_network() -> void:
 	for index in range(36):
 		var points: Array = []
 		for step in range(64):
-			points.append([150 + index * 4 + sin(step * 0.1) * 10, -299 + step * 8])
+			points.append([200 if step == 0 or step == 63 else 176 + index * 1.3 + sin(step * 0.1) * 5, -278 + step * (462.0 / 63)])
 		model.build_piste(points)
 	var started := Time.get_ticks_msec()
 	var beginners: Array = model.routes_for(0)

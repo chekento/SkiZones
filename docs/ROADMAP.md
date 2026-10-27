@@ -22,11 +22,11 @@ Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereich
 
 ## Mehr Planung am Berg
 
-Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Ein- und Ausstiegsbereiche sowie eine sichtbare Netz- und Engpassansicht.
+Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Eine sichtbare Netz- und Engpassansicht sowie frei bearbeitbare Fußwege.
 
 ## Gäste und verlässlicher Betrieb
 
-Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Tatsächliche Gebäudewege und Servicewarteschlangen. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Beschneiung mit Wasser- und Energieverbrauch sowie eine vollständig räumliche Einsatzplanung der Pistenraupen.
+Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Servicewarteschlangen und mehrere bedarfsabhängige Gebäudebesuche. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Beschneiung mit Wasser- und Energieverbrauch sowie eine vollständig räumliche Einsatzplanung der Pistenraupen.
 
 ## Weitere Karriereziele und Präsentation
 
@@ -38,8 +38,14 @@ Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spie
 
 ## Aktuelle Grenzen
 
-Vier feste Landschaften ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude wirken über Kennzahlen; es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.
+Vier feste Landschaften ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude sind über Vorplätze und tatsächliche Besuche erreichbar; Nachfrage und Komfort bleiben teilweise Kennzahlen. Es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.
 
 ## Erledigt in 0.4.0
 
 Verschiebbare und einzeln löschbare Planungspunkte, automatische Schwierigkeit aus dem tatsächlichen Verlauf, Höhenprofil und runde nummerierte Schilder. Echte Anschlüsse an inneren Pistenwegpunkten, rote und schwarze Abkürzungen, nach Können gefilterte Rundwege über Teilstrecken und passende Teilspuren. Vier Kameraperspektiven mit Blickwinkel sowie Höhenlinien, Höhenangaben und Pfeilen bergab. 272 automatisierte Prüfungen, einschließlich eines Netzes mit 2.304 Wegpunkten.
+
+## Erledigt in 0.5.0
+
+Tellerlift mit eigenem Zugteller und deutlich geringerem Tempo, Einer-, Zweier-, Vierer- und später freischaltbare Achtersessel. Acht verschiedene Anlagen mit eigenen Längengrenzen. Tatsächliche Fahrzeug- und Sitzzuordnung, gemeinsame Halteuhr, sichtbare Warteschlangen und gemessene Belegung.
+
+Begehbare Plätze an beiden Stationen, Pistenanschlüsse mit Abstand zur Lifttechnik und weiterhin direkte Pistenverbindungen. Gebäude erweitern das Wegenetz über Vorplätze. Gäste steigen zu anderen Liften um und gehen für tatsächliche Besuche bis zur Tür. Format 5, Migration alter Resorts und insgesamt 362 automatisierte Prüfungen einschließlich gerenderter Sitzpositionen.

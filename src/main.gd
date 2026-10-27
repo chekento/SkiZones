@@ -60,6 +60,7 @@ func _process(delta: float) -> void:
 	simulation_fraction = _accumulator
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
+	view.motion_rate = float(speed)
 	if has_game and model.minute >= Resort.CLOSING and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
@@ -203,7 +204,7 @@ func delete_waypoint() -> void:
 	_update_plan()
 
 func _snap_point(point: Vector2) -> Vector2:
-	snap_target = model.snap_anchor(point) if tool in ["piste", "lift"] else {}
+	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty())) if tool == "piste" else {}
 	return snap_target.point if not snap_target.is_empty() else point
 
 func _begin_waypoint_drag(index: int) -> void:
@@ -233,7 +234,7 @@ func _plan_check() -> Dictionary:
 		if access != "":
 			return {"ok": false, "message": access, "cost": 0}
 	if tool == "piste":
-		return model.terrain.analyse(points)
+		return model.preview_piste(points)
 	if tool == "lift" and points.size() == 2:
 		return model.preview_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	if tool == "building" and points.size() == 1:
@@ -248,8 +249,12 @@ func _update_plan() -> void:
 		view.preview([], Color.WHITE)
 		return
 	var check := _plan_check()
+	if tool == "piste" and check.has("points") and _drag_waypoint < 0:
+		points = check.points.duplicate(true)
+		if selected_waypoint >= points.size():
+			selected_waypoint = -1
 	last_plan_check = check
-	hud.palette.route_profile.update_profile(check if tool == "piste" else {})
+	hud.palette.route_profile.update_profile(check if tool in ["piste", "building"] else {})
 	var cost: float = check.get("cost", 0)
 	var affordable: bool = cost <= model.money
 	var message: String = check.message
@@ -264,7 +269,7 @@ func _update_plan() -> void:
 	if not affordable:
 		message += "  Das Budget reicht noch nicht."
 	hud.plan(message, check.ok and affordable, points.size(), cost)
-	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool == "piste" else {})
+	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste", "building"] else {})
 	hud._refresh_context_text()
 
 func confirm_plan() -> void:
@@ -547,6 +552,35 @@ func _junction_showcase() -> void:
 	set_tool("inspect")
 	hud.refresh()
 
+func _lift_showcase(kind: String) -> void:
+	# Reproducible QA traffic: visitors use the real boarding/seat assignment.
+	model.new_game(false)
+	model.money = 3000000
+	model.build_lift(kind, Vector2(200, 205), Vector2(245, -130))
+	model.build_piste([[245, -130], [275, -30], [255, 95], [200, 205]])
+	model.build_building("lodge", Vector2(235, 252))
+	model.build_building("restaurant", Vector2(145, 235))
+	model.build_building("kiosk", Vector2(80, 280))
+	model.build_building("shelter", Vector2(18, 306))
+	for i in range(80):
+		model.admit_guest(i % 3)
+		var guest: Dictionary = model.guests[-1]
+		for index in range(guest.route.legs.size()):
+			if guest.route.legs[index].kind == "lift":
+				guest.leg = index
+				break
+		model._start_leg(guest)
+	for i in range(30):
+		model.advance_minute(false)
+	view.rebuild()
+	view.focus = Vector2(170, 220)
+	view.zoom = 190
+	view.yaw = 0.55
+	view.set_camera_mode(2)
+	set_tool("inspect")
+	hud.show_context("inspect", model.lifts[0].id)
+	hud.refresh()
+
 func _capture(path: String) -> void:
 	if OS.get_cmdline_user_args().has("--capture-game"):
 		start_game(true)
@@ -556,6 +590,27 @@ func _capture(path: String) -> void:
 		hud.refresh()
 	if OS.get_cmdline_user_args().has("--capture-junctions"):
 		_junction_showcase()
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--capture-lift-kind="):
+			_lift_showcase(argument.trim_prefix("--capture-lift-kind="))
+	if OS.get_cmdline_user_args().has("--capture-lift-riders"):
+		for guest in model.guests:
+			if guest.phase == "moving" and guest.route.legs[guest.leg].kind == "lift":
+				view.follow_guest = guest.id
+				view._follow_position = model.guest_position(guest)
+				view.focus = Vector2(view._follow_position.x, view._follow_position.z)
+				view.zoom = 55
+				var direction := Terrain.unpack(model.lifts[0].top) - Terrain.unpack(model.lifts[0].bottom)
+				view.yaw = atan2(direction.x, direction.y) + 0.35
+				view.set_camera_mode(1)
+				hud.set_map_focus(true)
+				break
+	if OS.get_cmdline_user_args().has("--capture-lift-menu"):
+		hud.palette.select_category("lifts")
+		view.focus = Vector2(165, 190)
+		view.zoom = 260
+		view._update_camera()
+
 	if OS.get_cmdline_user_args().has("--capture-showcase"):
 		_showcase()
 	if OS.get_cmdline_user_args().has("--capture-ski"):

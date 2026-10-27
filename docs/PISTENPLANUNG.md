@@ -12,13 +12,15 @@ Ziehen auf freier Karte bewegt weiterhin die Kamera. Zwei Finger bewegen und zoo
 
 ## Von der Serpentine zur Abkürzung
 
-Kleine Kreise markieren die Wegpunkte vorhandener Pisten und die Liftstationen. Setze einen neuen Startpunkt dort; innerhalb von 18 m rastet er genau am Anschluss ein. Ende an einem weiter unten gelegenen Wegpunkt. Auch innere Wegpunkte einer langen Piste können so Abzweigungen werden.
+Kleine Kreise markieren die Wegpunkte vorhandener Pisten sowie die Anschlüsse der Stationsplätze und Gebäudevorplätze. Setze einen neuen Startpunkt dort; innerhalb von 18 m rastet er genau am Anschluss ein. Ende an einem weiter unten gelegenen Wegpunkt oder auf einem angeschlossenen Platz. Auch innere Wegpunkte einer langen Piste können so Abzweigungen werden.
+
+An beiden Liftstationen liegt ein eigener begehbarer Platz. Eine Piste beginnt oder endet auf diesem Platz, mit Abstand zur Lifttechnik. Beim Planen direkt an der Maschine wird der Endpunkt nach außen auf den Platz gelegt. Auch die Pistenbreite muss außerhalb der Maschine bleiben. Die Gäste gehen über den Platz zwischen Abfahrt und Einstieg. [Stationsplätze, Gebäude und Umsteigen](LIFTE_UND_PLAETZE.md) erklärt das Fußwegenetz.
 
 Ein Anfänger kann die gesamte blaue Route fahren. Ein geübter Gast kann die blaue Anfahrt, eine rote Verbindung und anschließend die blaue Ausfahrt nutzen. Ein Profi bekommt zusätzlich schwarze Alternativen. Innerhalb ihres Könnens wählen die Gäste unterschiedliche passende Rundwege.
 
 Die Simulation behandelt diese Anfahrten und Ausfahrten als tatsächliche Teilstücke. Die Gäste starten beim Wiedereinfädeln am Anschluss und ihre Spuren verändern nur den gefahrenen Schnee. Teilrouten und laufende Gäste werden gespeichert. Das Schließen einer Verbindung entfernt diese Alternative aus neuen Routen.
 
-An inneren Wegpunkten müssen die Routen tatsächlich zusammentreffen; die Verbindungstoleranz beträgt 2 m. Die größere Fußweg-Toleranz von 42 m gilt weiterhin zwischen Stationen und Pistenenden. Im Tal sind dort Fußwege bis 220 m möglich. Benachbarte Kehren werden dadurch nicht zu unsichtbaren Fußweg-Abkürzungen. Reine Kreuzungen zwischen zwei Wegpunkten bilden keinen zusätzlichen Anschluss.
+An inneren Wegpunkten müssen die Routen tatsächlich zusammentreffen; die Verbindungstoleranz beträgt 2 m. Fußwege gibt es auf den sichtbaren Plätzen und deren Verbindungswegen. Benachbarte Kehren werden dadurch nicht zu unsichtbaren Fußweg-Abkürzungen. Reine Kreuzungen zwischen zwei Wegpunkten bilden keinen zusätzlichen Anschluss.
 
 ## Die Route bestimmt die Farbe
 
@@ -48,4 +50,6 @@ Die Gestaltung orientiert sich an [Sitour Österreich: Pistenmarkierungen](https
 
 ## Vorhandene Spielstände
 
-Formate 1 bis 3 bleiben lesbar. Beim Laden werden alte manuell gewählte Farben anhand des tatsächlichen Verlaufs neu bestimmt und die Pisten in ihrer bisherigen Reihenfolge nummeriert. Die bezahlten Kosten, Geld, Anlagen, Forschung und Schneezustände bleiben erhalten. Das neue Format 4 speichert Nummern sowie ganze und teilweise laufende Gästerouten; unbekannte oder beschädigte Teilstücke werden beim Laden abgelehnt.
+Formate 1 bis 4 bleiben lesbar. Beim Laden werden alte manuell gewählte Farben anhand des tatsächlichen Verlaufs neu bestimmt und noch nicht nummerierte Pisten in ihrer bisherigen Reihenfolge nummeriert. Alte Endpunkte an der Liftmaschine werden auf den Stationsplatz gelegt; der Schnee wird auf die angepasste Streckenlänge übertragen. Die bezahlten Kosten, Geld, Forschung und Rekorde bleiben erhalten.
+
+Format 5 speichert ganze und teilweise laufende Gästerouten sowie feste Liftplätze, Fahrzeuguhren, Warteschlangen und Gebäudebesuche. Beim Wechsel von einer älteren Version werden laufende Gäste auf die neue Wegeführung verteilt. Unbekannte oder beschädigte Teilstücke werden beim Laden abgelehnt.

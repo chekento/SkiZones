@@ -81,7 +81,7 @@ func _test_network() -> void:
 	# A summit lift connected only through the lower lift must not be reachable alone.
 	var chained = fresh()
 	chained.money = 1000000
-	var upper_bottom := Vector2(245, -130)
+	var upper_bottom := Vector2(210, -130)
 	var upper_top := Vector2(250, -310)
 	check(chained.build_lift("drag", upper_bottom, upper_top).ok, "A lift can extend another lift uphill")
 	check(chained.build_piste([[250, -310], [290, -220], [245, -130]], 1).ok, "An intermediate descent can return to another station")
@@ -97,8 +97,11 @@ func _test_capacity() -> void:
 	for i in range(60):
 		model.admit_guest(1)
 		var guest: Dictionary = model.guests.back()
-		guest.leg = 1
-		guest.phase = "queue"
+		for index in range(guest.route.legs.size()):
+			if guest.route.legs[index].kind == "lift":
+				guest.leg = index
+				break
+		model._start_leg(guest)
 	for i in range(30):
 		model.advance_minute(false)
 	check(model.lifts[0].boarded == 7 and model.queue_size() == 53, "Shared lift boards seven guests per real minute at normal speed, across all pistes")

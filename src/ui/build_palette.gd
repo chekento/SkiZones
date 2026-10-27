@@ -1,6 +1,7 @@
 extends VBoxContainer
 const Catalog = preload("res://src/core/catalog.gd")
 const RouteProfile = preload("res://src/ui/route_profile.gd")
+const LiftIcon = preload("res://src/ui/lift_icon.gd")
 var hud: CanvasLayer
 var game: Node
 var category := "pistes"
@@ -39,7 +40,7 @@ func setup(interface: CanvasLayer) -> void:
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
-	button.custom_minimum_size.y = 86
+	button.custom_minimum_size.y = 112 if type == "lift" else 86
 	button.focus_mode = Control.FOCUS_NONE
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	content.add_child(button)
@@ -51,6 +52,13 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 	body.offset_top = 9
 	body.offset_bottom = -7
 	button.add_child(body)
+	if type == "lift":
+		body.offset_left = 61
+		var icon := LiftIcon.new()
+		icon.kind = key
+		icon.position = Vector2(8, 9)
+		icon.size = Vector2(44, 70)
+		button.add_child(icon)
 	var heading: Label = hud._label(body, title, 16, color, true)
 	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var detail: Label = hud._label(body, description, 13, hud.MUTED, true)
@@ -75,7 +83,7 @@ func _make_cards() -> void:
 	_card("piste", "Abfahrt planen", "Farbe automatisch · ab 32 €/m", 1280, 0, "piste", hud.TEAL)
 	for key in Catalog.LIFTS:
 		var spec: Dictionary = Catalog.LIFTS[key]
-		_card(key, spec.name, "%s € + %d €/m · %d Gäste/h" % [hud.money_text(spec.cost), spec.per_m, spec.capacity], spec.cost, spec.upkeep, "lift", hud.ACCENT)
+		_card(key, spec.name, "%.1f m/s · max. %.0f m\n%s € + %d €/m" % [spec.speed / 60, spec.max_length, hud.money_text(spec.cost), spec.per_m], spec.cost, spec.upkeep, "lift", hud.ACCENT)
 	for key in Catalog.BUILDINGS:
 		var spec: Dictionary = Catalog.BUILDINGS[key]
 		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).lightened(0.2))

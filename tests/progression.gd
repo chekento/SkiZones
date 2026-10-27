@@ -60,7 +60,7 @@ func _upgrades() -> void:
 	model.campaign.research.append("lifttech")
 	var quoted: Dictionary = model.upgrade_check(id)
 	check(model.upgrade_asset(id).ok and model.money == balance - quoted.cost and model.lifts[0].level == 2, "Lift upgrade charges its quote and advances one level")
-	check(model.lift_capacity(model.lifts[0]) == 525 and model.lift_speed(model.lifts[0]) > 135, "Lift upgrades increase real capacity and speed")
+	check(model.lift_capacity(model.lifts[0]) == 525 and model.lift_speed(model.lifts[0]) > 90, "Lift upgrades increase real capacity and speed")
 	check(not model.upgrade_asset(id).ok, "Level three needs master research")
 	model.campaign.research.append("mastercraft")
 	check(model.upgrade_asset(id).ok and model.lift_capacity(model.lifts[0]) == 630, "Master research allows the third lift level")
@@ -72,9 +72,11 @@ func _upgrades() -> void:
 	upgraded.upgrade_asset(upgraded.pistes[0].id)
 	original.admit_guest(0)
 	upgraded.admit_guest(0)
-	for i in range(180):
+	var elapsed := 0
+	while (original.total_rides == 0 or upgraded.total_rides == 0) and elapsed < 500:
 		original.advance_minute(false)
 		upgraded.advance_minute(false)
+		elapsed += 1
 	check(original.total_rides == upgraded.total_rides and upgraded.pistes[0].condition > original.pistes[0].condition, "Piste upgrades reduce wear under the same skier traffic")
 	var rental: Dictionary = upgraded.buildings[1]
 	var costs: float = upgraded.operating_costs()

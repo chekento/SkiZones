@@ -7,6 +7,8 @@ const Progression = preload("res://src/core/progression.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
+const Fleet = preload("res://src/core/lift_fleet.gd")
+const Foot = preload("res://src/core/foot_network.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const MINUTES_PER_SECOND := 0.5
 const TRANSPORT_SCALE := 30.0
@@ -42,6 +44,12 @@ var _routes: Dictionary = {}
 var _anchor_revision := -1
 var _anchors: Array = []
 var _cable_profiles: Dictionary = {}
+var _foot_revision := -1
+var _foot_layout: Dictionary = {}
+var _foot_graph: Dictionary = {}
+var _fleet_layouts: Dictionary = {}
+var _queue_cache: Dictionary = {}
+var _queue_slots: Dictionary = {}
 var campaign: Dictionary = {}
 
 func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang") -> void:
@@ -83,11 +91,40 @@ func _invalidate() -> void:
 	revision += 1
 	_routes.clear()
 	_cable_profiles.clear()
+	_fleet_layouts.clear()
+	_queue_slots.clear()
+	_queue_cache.clear()
 
 func cable_profile(lift: Dictionary) -> Dictionary:
 	if not _cable_profiles.has(lift.id):
-		_cable_profiles[lift.id] = terrain.cable_profile(Terrain.unpack(lift.bottom), Terrain.unpack(lift.top))
+		_cable_profiles[lift.id] = _lift_profile(lift.kind, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top))
 	return _cable_profiles[lift.id]
+
+func _lift_profile(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
+	var ground_lift: bool = Catalog.LIFTS[kind].family in ["drag", "carpet"]
+	return terrain.cable_profile(bottom, top, 8.0 if ground_lift else 16.0, 7.3, 5.0 if ground_lift else 7.0)
+
+func fleet_layout(lift: Dictionary) -> Dictionary:
+	if not _fleet_layouts.has(lift.id):
+		_fleet_layouts[lift.id] = Fleet.layout(lift)
+	return _fleet_layouts[lift.id]
+
+func carrier_pose(lift: Dictionary, carrier: int, fraction_tick: float = 0.0) -> Dictionary:
+	return Fleet.pose(terrain, lift, cable_profile(lift), lift.get("clock", 0.0) + (fraction_tick if lift_open(lift) else 0.0), carrier)
+
+func rider_pose(guest: Dictionary, fraction_tick: float = 0.0) -> Dictionary:
+	var leg: Dictionary = guest.route.legs[guest.leg]
+	var lift := asset(leg.id)
+	var pose := carrier_pose(lift, int(guest.get("ride_car", 0)), fraction_tick)
+	var transform_value: Transform3D = pose.transform
+	if Fleet.family(lift) in ["drag", "carpet"]:
+		transform_value.origin = terrain.world(Vector2(transform_value.origin.x, transform_value.origin.z), 0.15 if Fleet.family(lift) == "drag" else 0.65)
+	else:
+		var seat: int = guest.get("ride_seat", 0)
+		transform_value.origin += transform_value.basis * Fleet.seat_offset(lift, seat)
+		if Fleet.family(lift) == "gondola" and seat >= 4:
+			transform_value.basis = transform_value.basis.rotated(Vector3.UP, PI)
+	return {"transform": transform_value, "carrier": guest.get("ride_car", 0), "seat": guest.get("ride_seat", 0), "seated": Fleet.family(lift) in ["chair", "gondola"]}
 
 func cable_position(lift: Dictionary, fraction: float) -> Vector3:
 	var profile := cable_profile(lift)
@@ -114,10 +151,28 @@ func _spend(cost: float) -> bool:
 		Progression.sync_finances(self)
 	return true
 
+func preview_piste(points: Array) -> Dictionary:
+	var prepared := Foot.prepare_piste(points, lifts)
+	var check := terrain.analyse(prepared)
+	check.points = prepared
+	if check.ok and not Foot.clear_piste(prepared, lifts):
+		check.ok = false
+		check.message = "Die Liftanlage freihalten. Die Piste am Stationsplatz anschließen."
+	if check.ok:
+		for building in buildings:
+			if building.kind == "snowmaker":
+				continue
+			var footprint := Foot.building_size(building)
+			for index in range(1, prepared.size()):
+				if Foot._crosses(Terrain.unpack(prepared[index - 1]), Terrain.unpack(prepared[index]), Rect2(Terrain.unpack(building.point) - footprint * 0.5, footprint).grow(3)):
+					check.ok = false
+					check.message = "Das Gebäude freihalten. Die Piste auf dem Vorplatz anschließen."
+	return check
+
 func build_piste(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	if pistes.size() >= 80:
 		return _result(false, "Maximal 80 Pisten in diesem Prototyp.")
-	var check := terrain.analyse(points)
+	var check := preview_piste(points)
 	if not check.ok:
 		return check
 	if not _spend(check.cost):
@@ -126,22 +181,33 @@ func build_piste(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	for piste in pistes:
 		number = maxi(number, int(piste.number) + 1)
 	var difficulty: int = check.difficulty
-	pistes.append({"id": next_id, "number": number, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], number], "points": points.duplicate(true), "difficulty": difficulty, "length": check.length, "horizontal": check.horizontal, "drop": check.drop, "average": check.average, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0 * Maps.spec(map_id).snow, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
+	pistes.append({"id": next_id, "number": number, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], number], "points": check.points.duplicate(true), "difficulty": difficulty, "length": check.length, "horizontal": check.horizontal, "drop": check.drop, "average": check.average, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0 * Maps.spec(map_id).snow, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
 	next_id += 1
 	_invalidate()
 	return _result(true, "%s %d gebaut und beschildert. Öffnet mit einem erreichbaren Lift-Rundweg." % [Terrain.PISTE_NAMES[difficulty], number])
 
-func preview_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
+func preview_lift(kind: String, bottom: Vector2, top: Vector2, check_spacing: bool = true) -> Dictionary:
 	if not Catalog.LIFTS.has(kind) or not terrain.contains(bottom) or not terrain.contains(top):
 		return _result(false, "Beide Stationen müssen im Baugebiet liegen.")
-	var distance: float = terrain.cable_profile(bottom, top).length
-	if kind == "carpet" and distance > 250:
-		return _result(false, "Ein Zauberteppich ist für kurze Übungshänge bis 250 m gedacht.")
+	var distance: float = _lift_profile(kind, bottom, top).length
+	var spec: Dictionary = Catalog.LIFTS[kind]
 	var rise := terrain.height(top) - terrain.height(bottom)
-	var cost := roundi(Catalog.LIFTS[kind].cost + distance * Catalog.LIFTS[kind].per_m)
-	if distance < 65.0 or distance > 2400.0 or rise < 9.0:
-		return _result(false, "Talstation zuerst: 65–2.400 m Länge und mindestens 9 m Höhengewinn.", {"cost": cost})
-	return _result(true, "%.0f m · +%.0f Höhenmeter · %d Gäste/h" % [distance, rise, Catalog.LIFTS[kind].capacity], {"cost": cost, "length": distance})
+	var cost := roundi(spec.cost + distance * spec.per_m)
+	if distance < 65 or distance > spec.max_length or rise < 9:
+		return _result(false, "%s: 65–%.0f m und mindestens 9 m Höhengewinn. Talstation zuerst setzen." % [spec.name, spec.max_length], {"cost": cost})
+	if check_spacing:
+		var proposed := {"kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top)}
+		for lift in lifts:
+			for a in [bottom, top]:
+				for b in [lift.bottom, lift.top]:
+					if a.distance_to(Terrain.unpack(b)) < Foot.machine_radius(lift) + Foot.machine_radius(proposed) + 4:
+						return _result(false, "Die Station braucht einen eigenen Standort neben der bestehenden Anlage. Die Plätze verbinden sich zu Fuß.", {"cost": cost})
+		for piste in pistes:
+			var adjusted := Foot.prepare_piste(piste.points, [proposed])
+			if not terrain.analyse(adjusted).ok or not Foot.clear_piste(adjusted, [proposed]):
+				return _result(false, "Die Lifttechnik neben die Piste setzen. Pistenenden werden am Stationsplatz angeschlossen.", {"cost": cost})
+
+	return _result(true, "%.0f m · %.1f m/s · %.1f Min. Fahrt · %d Pers./Fahrzeug · %d Gäste/h" % [distance, spec.speed / 60, distance / spec.speed, spec.seats, spec.capacity], {"cost": cost, "length": distance})
 
 func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 	var access := build_access_message(kind, true)
@@ -154,10 +220,29 @@ func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für diesen Lift noch nicht.")
-	lifts.append({"id": next_id, "kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top), "length": check.length, "cost": check.cost, "enabled": true, "credit": 0.0, "boarded": 0, "level": 1, "upgrade_total": 0.0, "name": "%s %d" % [Catalog.LIFTS[kind].name, next_id]})
+	lifts.append({"id": next_id, "kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top), "length": check.length, "cost": check.cost, "enabled": true, "credit": 0.0, "clock": 0.0, "boarded": 0, "last_load": 0, "recent_departures": [], "level": 1, "upgrade_total": 0.0, "name": "%s %d" % [Catalog.LIFTS[kind].name, next_id]})
+	var changed_pistes := false
+	for piste in pistes:
+		var prepared := Foot.prepare_piste(piste.points, [lifts[-1]])
+		if prepared != piste.points:
+			var analysis := terrain.analyse(prepared)
+			if analysis.ok:
+				changed_pistes = true
+				Snow.migrate_length(piste, analysis.length)
+				piste.points = prepared
+				if piste.name.begins_with(Terrain.PISTE_NAMES[int(piste.difficulty)]):
+					piste.name = "%s %d" % [Terrain.PISTE_NAMES[analysis.difficulty], piste.number]
+				piste.difficulty = analysis.difficulty
+				piste.grade = analysis.grade
+				piste.drop = analysis.drop
+				piste.average = analysis.average
+				piste.horizontal = analysis.horizontal
+
 	next_id += 1
 	_invalidate()
-	return _result(true, "Lift gebaut. Eine passende Abfahrt mit Rückweg ins Tal ergänzen.")
+	if changed_pistes:
+		_reroute_guests()
+	return _result(true, "Lift und Stationsplätze gebaut. Pisten an die Plätze anschließen; Gebäude erweitern das Fußwegenetz.")
 
 func preview_building(kind: String, point: Vector2) -> Dictionary:
 	if not Catalog.BUILDINGS.has(kind) or not terrain.contains(point):
@@ -167,22 +252,38 @@ func preview_building(kind: String, point: Vector2) -> Dictionary:
 			return _result(false, "Hier steht bereits ein Gebäude. Mindestens 32 m Abstand halten.")
 	if kind == "bus" and point.y < 165:
 		return _result(false, "Den Skibus-Terminal im Tal bauen.")
+	var footprint := Foot.building_size({"kind": kind})
+	var rect := Rect2(point - footprint * 0.5, footprint).grow(2)
+	var proposed_door := Foot.door({"kind": kind, "point": Terrain.pack(point)})
+	var entrance := Rect2(proposed_door - Vector2(4, 1), Vector2(8, 12))
+	for building in buildings:
+		var size := Foot.building_size(building)
+		var previous := Rect2(Terrain.unpack(building.point) - size * 0.5, size)
+		var previous_entrance := Rect2(Foot.door(building) - Vector2(4, 1), Vector2(8, 12))
+		if rect.intersects(previous.grow(2)) or rect.intersects(previous_entrance) or entrance.intersects(previous.grow(2)):
+			return _result(false, "Gebäude und Eingangsvorplatz freihalten. Einen Standort mit freiem Zugang wählen.")
+
+	for lift in lifts:
+		for station in [lift.bottom, lift.top]:
+			var center := Terrain.unpack(station)
+			var closest := rect.position + (center - rect.position).clamp(Vector2.ZERO, rect.size)
+			if closest.distance_to(center) < Foot.machine_radius(lift) + 3:
+				return _result(false, "Die Lifttechnik und den Einstieg freihalten. Das Gebäude am Rand des Stationsplatzes anschließen.")
+
 	var local_grade := 0.0
 	for direction in [Vector2.RIGHT, Vector2.DOWN]:
 		local_grade = maxf(local_grade, absf(terrain.height(point + direction * 8) - terrain.height(point - direction * 8)) / 16.0)
 	if local_grade > 0.42:
 		return _result(false, "Dieser Bauplatz ist zu steil. Einen flacheren Standort wählen.")
-	var near_station := point.y >= 165
-	for lift in lifts:
-		near_station = near_station or point.distance_to(Terrain.unpack(lift.bottom)) < 70 or point.distance_to(Terrain.unpack(lift.top)) < 70
-	if not near_station and kind != "snowmaker":
-		return _result(false, "Im Tal oder höchstens 70 m von einer Liftstation bauen.")
+	var connection: Dictionary = {} if kind == "snowmaker" else Foot.connection(terrain, pedestrian_layout(), buildings, kind, point)
+	if kind != "snowmaker" and connection.is_empty():
+		return _result(false, "An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen.")
 	for piste in pistes:
 		for i in range(1, piste.points.size()):
 			var nearest := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]))
 			if nearest.distance_to(point) < 15.0:
 				return _result(false, "Die Piste freihalten: Mindestens 15 m Abstand zur Mittellinie.")
-	return _result(true, Catalog.BUILDINGS[kind].description, {"cost": Catalog.BUILDINGS[kind].cost})
+	return _result(true, Catalog.BUILDINGS[kind].description + (" · Fußweg wird angeschlossen." if not connection.is_empty() else ""), {"cost": Catalog.BUILDINGS[kind].cost, "connection": connection})
 
 func build_building(kind: String, point: Vector2) -> Dictionary:
 	var access := build_access_message(kind, false)
@@ -195,7 +296,7 @@ func build_building(kind: String, point: Vector2) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für dieses Gebäude noch nicht.")
-	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "level": 1, "upgrade_total": 0.0, "name": Catalog.BUILDINGS[kind].name})
+	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "level": 1, "upgrade_total": 0.0, "name": Catalog.BUILDINGS[kind].name, "visits": 0, "revenue": 0.0})
 	next_id += 1
 	_invalidate()
 	return _result(true, "%s gebaut." % Catalog.BUILDINGS[kind].name)
@@ -271,10 +372,10 @@ func building_power(kind: String) -> float:
 	return power
 
 func lift_capacity(lift: Dictionary) -> int:
-	return roundi(Catalog.LIFTS[lift.kind].capacity * (1.0 + 0.25 * (lift.get("level", 1) - 1)))
+	return Fleet.capacity(lift)
 
 func lift_speed(lift: Dictionary) -> float:
-	return Catalog.LIFTS[lift.kind].speed * (1.0 + 0.1 * (lift.get("level", 1) - 1))
+	return Fleet.speed(lift)
 
 func build_access_message(kind: String, is_lift: bool) -> String:
 	return Progression.access_message(self, kind, is_lift)
@@ -297,6 +398,55 @@ func upgrade_asset(id: int) -> Dictionary:
 func _edge(from_key: String, to_key: String, kind: String, id: int, points: Array, minutes: float) -> Dictionary:
 	return {"from": from_key, "to": to_key, "kind": kind, "id": id, "points": points, "minutes": maxf(minutes, 0.15)}
 
+func pedestrian_layout() -> Dictionary:
+	if _foot_revision != revision:
+		_foot_revision = revision
+		_foot_layout = Foot.layout(terrain, lifts, buildings)
+		for piste in pistes:
+			piste.plaza_start = not Foot.attachments(_foot_layout, Terrain.unpack(piste.points[0])).is_empty()
+			piste.plaza_end = not Foot.attachments(_foot_layout, Terrain.unpack(piste.points[-1])).is_empty()
+		_foot_graph = {}
+	return _foot_layout
+
+func pedestrian_graph() -> Dictionary:
+	var layout_value := pedestrian_layout()
+	if not _foot_graph.is_empty():
+		return _foot_graph
+	var nodes: Dictionary = {}
+	var edges: Dictionary = {}
+	for area in layout_value.areas:
+		nodes[area.key] = Terrain.pack(area.point)
+		edges[area.key] = []
+	for link in layout_value.links:
+		_foot_link(edges, link.from, link.to, link.points)
+	for building in buildings:
+		if building.kind == "snowmaker":
+			continue
+		var key := "d%d" % building.id
+		var hub := "f%dg" % building.id
+		nodes[key] = Terrain.pack(Foot.door(building))
+		edges[key] = []
+		_foot_link(edges, hub, key, [nodes[hub], nodes[key]])
+	for lift in lifts:
+		for top in [false, true]:
+			var key := "l%d%s" % [lift.id, "t" if top else "b"]
+			var hub := "f%d%s" % [lift.id, "t" if top else "b"]
+			nodes[key] = Terrain.pack(Fleet.station_point(lift, top))
+			edges[key] = []
+			var path := Foot.path_between(Terrain.unpack(nodes[key]), Terrain.unpack(nodes[hub]), buildings)
+			_foot_link(edges, key, hub, path)
+	_foot_graph = {"nodes": nodes, "edges": edges}
+	return _foot_graph
+
+func _foot_link(edges: Dictionary, from: String, to: String, points: Array) -> void:
+	if points.size() < 2:
+		return
+	var time := terrain.polyline_length(points) / Foot.WALK_SPEED
+	edges[from].append(_edge(from, to, "walk", 0, points.duplicate(true), time))
+	var reversed := points.duplicate(true)
+	reversed.reverse()
+	edges[to].append(_edge(to, from, "walk", 0, reversed, time))
+
 func connection_anchors() -> Array:
 	if _anchor_revision == revision:
 		return _anchors
@@ -306,16 +456,29 @@ func connection_anchors() -> Array:
 			result.append({"point": Terrain.unpack(piste.points[index]), "id": piste.id, "waypoint": index, "difficulty": piste.difficulty, "label": "Piste %d · Wegpunkt %d" % [piste.number, index + 1]})
 	for lift in lifts:
 		for index in range(2):
-			result.append({"point": Terrain.unpack(lift.bottom if index == 0 else lift.top), "id": lift.id, "waypoint": index, "difficulty": -1, "label": "%s · %s" % [lift.name, "Talstation" if index == 0 else "Bergstation"]})
+			var center := Terrain.unpack(lift.bottom if index == 0 else lift.top)
+			var downhill := Vector2(terrain.height(center - Vector2(3, 0)) - terrain.height(center + Vector2(3, 0)), terrain.height(center - Vector2(0, 3)) - terrain.height(center + Vector2(0, 3))).normalized()
+			if downhill.length() < 0.5:
+				downhill = (Terrain.unpack(lift.bottom) - Terrain.unpack(lift.top)).normalized()
+			for side in [-1, 1]:
+				result.append({"point": center + downhill * side * (Foot.machine_radius(lift) + 14), "id": lift.id, "waypoint": index, "difficulty": -1, "label": "Stationsplatz · %s" % ("Tal" if index == 0 else "Berg"), "gate": "downhill" if side == 1 else "uphill", "station": center, "machine_radius": Foot.machine_radius(lift)})
+	for building in buildings:
+		if building.kind != "snowmaker":
+			result.append({"point": Foot.door(building) + Vector2(0, 5), "id": building.id, "waypoint": 0, "difficulty": -1, "label": "Vorplatz · %s" % building.name})
 	_anchor_revision = revision
 	_anchors = result
 	return result
 
-func snap_anchor(point: Vector2, radius: float = 18) -> Dictionary:
+func snap_anchor(point: Vector2, radius: float = 18, start: bool = false) -> Dictionary:
 	var best: Dictionary = {}
 	var distance := radius
 	for anchor in connection_anchors():
 		var candidate: float = point.distance_to(anchor.point)
+		if anchor.has("gate"):
+			if point.distance_to(anchor.station) < anchor.machine_radius + 3:
+				candidate -= 14
+			if anchor.gate != ("downhill" if start else "uphill"):
+				candidate += 0.75
 		if candidate < distance:
 			distance = candidate
 			best = anchor
@@ -335,31 +498,31 @@ static func ski_fraction(leg: Dictionary, progress: float) -> float:
 	return lerpf(leg.get("start_fraction", 0.0), leg.get("end_fraction", 1.0), clampf(progress, 0, 1))
 
 func _graph(skill: int) -> Dictionary:
-	var nodes := {"base": Terrain.pack(Terrain.BASE)}
-	var edges: Dictionary = {"base": []}
-	var walkable := {"base": true}
+	var foot := pedestrian_graph()
+	var nodes: Dictionary = foot.nodes.duplicate(true)
+	var edges: Dictionary = foot.edges.duplicate(true)
 	for lift in lifts:
 		if lift_open(lift):
 			var b := "l%db" % lift.id
 			var t := "l%dt" % lift.id
-			nodes[b] = lift.bottom
-			nodes[t] = lift.top
-			walkable[b] = true
-			walkable[t] = true
-			edges[b] = [_edge(b, t, "lift", lift.id, [lift.bottom, lift.top], lift.length / lift_speed(lift) * TRANSPORT_SCALE)]
-			edges[t] = []
+			edges[b].push_front(_edge(b, t, "lift", lift.id, [nodes[b], nodes[t]], fleet_layout(lift).ride))
+	var piste_nodes: Array = []
 	for piste in pistes:
 		if piste.difficulty <= skill and piste_open(piste):
 			for index in range(piste.points.size()):
 				var key := _piste_node(piste, index)
 				nodes[key] = piste.points[index]
-				walkable[key] = index == 0 or index == piste.points.size() - 1
+				piste_nodes.append(key)
 				edges[key] = [_ski_edge(piste, index, index + 1, skill)] if index < piste.points.size() - 1 else []
-	# Exact docks and broader endpoint walks use separate spatial indexes.
-	# Interior waypoints never enter the broad search around a station.
+				if index == 0 or index == piste.points.size() - 1:
+					var point := Terrain.unpack(piste.points[index])
+					for area in Foot.attachments(pedestrian_layout(), point):
+						var path := Foot.path_between(point, area.point, buildings)
+						if not path.is_empty():
+							_foot_link(edges, key, area.key, path)
+	# Direct piste-to-piste junctions remain exact, including internal waypoints.
 	var docks: Dictionary = {}
-	var walks: Dictionary = {}
-	for key in nodes:
+	for key in piste_nodes:
 		var point := Terrain.unpack(nodes[key])
 		var cell := Vector2i(floori(point.x / 2), floori(point.y / 2))
 		for x in range(-1, 2):
@@ -371,20 +534,6 @@ func _graph(skill: int) -> Dictionary:
 		if not docks.has(cell):
 			docks[cell] = []
 		docks[cell].append(key)
-		if not walkable[key]:
-			continue
-		cell = Vector2i(floori(point.x / 220), floori(point.y / 220))
-		for x in range(-1, 2):
-			for y in range(-1, 2):
-				for other in walks.get(cell + Vector2i(x, y), []):
-					var at := Terrain.unpack(nodes[other])
-					var distance := point.distance_to(at)
-					var valley_walk := point.y >= 165 and at.y >= 165 and distance < 220
-					if distance > 2 and (distance <= Terrain.CONNECTION_RADIUS or valley_walk):
-						_walk_link(nodes, edges, key, other, distance)
-		if not walks.has(cell):
-			walks[cell] = []
-		walks[cell].append(key)
 	return {"nodes": nodes, "edges": edges}
 
 func _walk_link(nodes: Dictionary, edges: Dictionary, a: String, b: String, distance: float) -> void:
@@ -514,11 +663,48 @@ func reachable_piste_ids() -> Array:
 		ids.append(route.target)
 	return ids
 
+func _with_service(source: Dictionary, visitor_id: int, spent: bool) -> Dictionary:
+	if spent:
+		return source
+	var graph := pedestrian_graph()
+	var candidates: Array = []
+	var anchors: Dictionary = {}
+	for index in range(source.legs.size()):
+		var leg: Dictionary = source.legs[index]
+		if leg.kind == "walk" and graph.nodes.has(leg.to) and not anchors.has(leg.to):
+			anchors[leg.to] = index
+	for building in buildings:
+		if not building.enabled or building.kind in ["snowmaker", "maintenance", "first_aid", "bus"]:
+			continue
+		var door_key := "d%d" % building.id
+		for anchor in anchors:
+			var outward := _shortest(graph, anchor, door_key)
+			var back := _shortest(graph, door_key, anchor)
+			if not outward.ok or not back.ok:
+				continue
+			var walk_time := 0.0
+			for leg in outward.legs:
+				walk_time += leg.minutes
+			if walk_time > 65:
+				continue
+			var score := walk_time + float((visitor_id * 37 + int(building.id) * 23) % 80)
+			candidates.append({"index": anchors[anchor], "building": building, "outward": outward.legs, "back": back.legs, "score": score})
+	if candidates.is_empty():
+		return source
+	candidates.sort_custom(func(a, b): return a.score < b.score)
+	var choice: Dictionary = candidates[0]
+	var result := source.duplicate(true)
+	var building: Dictionary = choice.building
+	var entrance := Terrain.pack(Foot.door(building))
+	var pause := _edge("d%d" % building.id, "d%d" % building.id, "visit", building.id, [entrance, entrance], 12 + visitor_id % 9)
+	result.legs = source.legs.slice(0, choice.index + 1).duplicate(true) + choice.outward.duplicate(true) + [pause] + choice.back.duplicate(true) + source.legs.slice(choice.index + 1).duplicate(true)
+	return result
+
 func admit_guest(skill: int) -> bool:
 	var routes := routes_for(skill)
 	if guests.size() >= MAX_GUESTS or routes.is_empty() or minute >= CLOSING:
 		return false
-	var route: Dictionary = routes[rng.randi_range(0, routes.size() - 1)]
+	var route: Dictionary = _with_service(routes[rng.randi_range(0, routes.size() - 1)], guest_id, false)
 	var guest := {"id": guest_id, "ability": skill, "age": 0, "stay": rng.randi_range(200, 420), "loops": 0, "leg": 0, "elapsed": 0.0, "phase": "moving", "wait": 0, "total_wait": 0, "spent": false, "route": route}
 	guest_id += 1
 	guests.append(guest)
@@ -533,6 +719,9 @@ func admit_guest(skill: int) -> bool:
 func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
+	for key in ["ride_car", "ride_seat", "ride_departure", "queue_since"]:
+		guest.erase(key)
+	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	guest.duration = leg.minutes
 	if leg.kind == "ski":
@@ -542,6 +731,8 @@ func _start_leg(guest: Dictionary) -> void:
 	elif leg.kind == "walk":
 		guest.duration *= 0.9 + float((int(guest.id) * 23) % 100) / 500
 	guest.phase = "queue" if leg.kind == "lift" else "moving"
+	if leg.kind == "lift":
+		guest.queue_since = (day - 1) * 600 + minute - OPENING
 
 func _finish_leg(guest: Dictionary) -> void:
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -559,26 +750,23 @@ func _finish_leg(guest: Dictionary) -> void:
 			total_rides += 1
 			report.rides += 1
 			campaign.xp += 1
+	if leg.kind == "visit":
+		var building := asset(leg.id)
+		if not building.is_empty() and building.enabled and not guest.spent:
+			var revenue: float = Catalog.BUILDINGS[building.kind].income * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
+			building.visits = building.get("visits", 0) + 1
+			building.revenue = building.get("revenue", 0.0) + revenue
+			money += revenue
+			report.services += revenue
+			campaign.turnover += revenue
+			guest.spent = true
+
 	guest.leg += 1
 	if guest.leg < guest.route.legs.size():
 		_start_leg(guest)
 		return
 	guest.loops += 1
-	if not guest.spent:
-		var spending := 0.0
-		for kind in Catalog.BUILDINGS:
-			var best := 0
-			for building in buildings:
-				if building.enabled and building.kind == kind:
-					best = maxi(best, building.get("level", 1))
-			if best > 0:
-				spending += Catalog.BUILDINGS[kind].income * (1.0 + (best - 1) * 0.35)
-		if Progression.has(self, "service"):
-			spending *= 1.15
-		money += spending
-		report.services += spending
-		campaign.turnover += spending
-		guest.spent = true
+
 	if guest.age >= guest.stay or guest.total_wait > 240:
 		guest.phase = "leaving"
 	else:
@@ -586,7 +774,7 @@ func _finish_leg(guest: Dictionary) -> void:
 		if routes.is_empty():
 			guest.phase = "leaving"
 		else:
-			guest.route = routes[rng.randi_range(0, routes.size() - 1)]
+			guest.route = _with_service(routes[rng.randi_range(0, routes.size() - 1)], guest.id, guest.spent)
 			guest.leg = 0
 			_start_leg(guest)
 
@@ -609,7 +797,7 @@ func _reroute_guests() -> void:
 		if routes.is_empty():
 			guest.phase = "leaving"
 		else:
-			guest.route = routes[0]
+			guest.route = _with_service(routes[0], guest.id, guest.spent)
 			guest.leg = 0
 			_start_leg(guest)
 
@@ -617,6 +805,10 @@ func advance_minute(arrivals: bool = true) -> void:
 	if minute >= CLOSING:
 		return
 	minute += 1
+	_queue_cache.clear()
+	for lift in lifts:
+		if lift_open(lift):
+			lift.clock = lift.get("clock", 0.0) + 1.0
 	var changed_open := false
 	for piste in pistes:
 		if piste.get("grooming_until", 0) > 0 and minute >= piste.grooming_until:
@@ -658,7 +850,10 @@ func advance_minute(arrivals: bool = true) -> void:
 			var leg: Dictionary = guest.route.legs[guest.leg]
 			var duration: float = guest.get("duration", leg.minutes)
 			var previous: float = guest.elapsed / duration
-			guest.elapsed += 1.0
+			if leg.kind == "lift":
+				guest.elapsed = maxf(0, asset(leg.id).get("clock", 0.0) - guest.get("ride_departure", 0.0))
+			else:
+				guest.elapsed += 1.0
 			if leg.kind == "ski":
 				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg, previous), ski_fraction(leg, guest.elapsed / duration))
 				snow_revision += 1
@@ -666,24 +861,118 @@ func advance_minute(arrivals: bool = true) -> void:
 				_finish_leg(guest)
 	for guest in departures:
 		guests.erase(guest)
-	# Capacity is consumed once per lift, shared by every piste and ability.
+	# Board the real vehicle that crossed the loading point, with unique seats.
 	for lift in lifts:
-		if not lift_open(lift):
-			continue
-		var per_minute: float = lift_capacity(lift) / (60.0 * TRANSPORT_SCALE)
-		lift.credit = minf(lift.credit + per_minute, maxf(4, per_minute * 2.0))
-		for guest in guests:
-			if lift.credit + 0.0000001 < 1.0:
-				break
-			if guest.phase == "queue" and guest.route.legs[guest.leg].id == lift.id:
-				guest.phase = "moving"
-				guest.elapsed = 0.0
-				lift.credit = maxf(0, lift.credit - 1.0)
-				lift.boarded += 1
+		if lift_open(lift):
+			_board_lift(lift)
+	_queue_cache.clear()
 	_check_achievements()
 	Progression.refresh(self)
 	if minute >= CLOSING:
 		_close_day()
+
+func queued_guests(id: int) -> Array:
+	if _queue_cache.has(id):
+		return _queue_cache[id]
+	var result: Array = []
+	for guest in guests:
+		if guest.phase == "queue" and guest.route.legs[guest.leg].id == id:
+			result.append(guest)
+	result.sort_custom(func(a, b):
+		var a_time: float = a.get("queue_since", a.age - a.wait)
+		var b_time: float = b.get("queue_since", b.age - b.wait)
+		return a.id < b.id if is_equal_approx(a_time, b_time) else a_time < b_time
+	)
+	_queue_cache[id] = result
+	return result
+
+func _board_lift(lift: Dictionary) -> void:
+	var schedule := fleet_layout(lift)
+	var clock: float = lift.clock
+	var first := floori((clock - 1.0 + 0.000001) / schedule.interval) + 1
+	var last := floori((clock + 0.000001) / schedule.interval)
+	var queue := queued_guests(lift.id).duplicate()
+	for serial in range(first, last + 1):
+		var boarded := 0
+		var departure: float = serial * schedule.interval
+		for seat in range(schedule.seats):
+			if queue.is_empty():
+				break
+			var departed_at: float = (day - 1) * 600 + minute - OPENING - (clock - departure)
+			if queue[0].get("queue_since", 0) > departed_at + 0.000001:
+				break
+			var guest: Dictionary = queue.pop_front()
+			guest.phase = "moving"
+			guest.ride_car = serial % schedule.count
+			guest.ride_seat = seat
+			guest.ride_departure = departure
+			guest.duration = schedule.ride
+			guest.elapsed = clock - departure
+			lift.boarded += 1
+			boarded += 1
+		lift.last_load = boarded
+		lift.recent_departures.append({"clock": departure, "load": boarded})
+		while lift.recent_departures.size() > 24:
+			lift.recent_departures.pop_front()
+
+func queue_position(lift: Dictionary, index: int) -> Vector3:
+	if not _queue_slots.has(lift.id):
+		var slots: Array[Vector2] = []
+		var r := Fleet.rope_offset(lift)
+		for i in range(5):
+			slots.append(Vector2(-r, -2.3 * (i + 1)))
+		for row in range(7):
+			for i in range(16):
+				var col := i if row % 2 == 0 else 15 - i
+				var point := Vector2(-r + col * 1.8, -14 - row * 2.4)
+				if point.length() < Foot.station_radius(lift, false) - 1 and _queue_local_free(lift, point):
+					slots.append(point)
+		# Overflow uses the remaining plaza surface, keeping even stress queues
+		# out of the machinery and giving every visitor a distinct standing place.
+		var radius := Foot.station_radius(lift, false)
+		for row in range(-18, 19):
+			for column in range(-18, 19):
+				if slots.size() >= MAX_GUESTS:
+					break
+				var point := Vector2(column * 2.4, row * 2.4)
+				if point.length() > radius - 1 or point.length() < Foot.machine_radius(lift) + 3 or not _queue_local_free(lift, point):
+					continue
+				var clear := true
+				for previous in slots:
+					if previous.distance_to(point) < 1.65:
+						clear = false
+						break
+				if clear:
+					slots.append(point)
+		_queue_slots[lift.id] = slots
+	var slots: Array = _queue_slots[lift.id]
+	var local: Vector2 = slots[clampi(index, 0, slots.size() - 1)]
+	var offset := Fleet.basis(lift) * Vector3(local.x, 0, local.y)
+	return terrain.world(Terrain.unpack(lift.bottom) + Vector2(offset.x, offset.z), 0.3)
+
+func _queue_local_free(lift: Dictionary, point: Vector2) -> bool:
+	var offset := Fleet.basis(lift) * Vector3(point.x, 0, point.y)
+	var at := Terrain.unpack(lift.bottom) + Vector2(offset.x, offset.z)
+	if not Foot.free_of_buildings(at, buildings, 2):
+		return false
+	for other in lifts:
+		if other.id == lift.id:
+			continue
+		for station in [other.bottom, other.top]:
+			if at.distance_to(Terrain.unpack(station)) < Foot.machine_radius(other) + 2:
+				return false
+	return true
+
+func lift_load(lift: Dictionary) -> Dictionary:
+	var occupied := 0
+	for guest in guests:
+		if guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "lift" and guest.route.legs[guest.leg].id == lift.id:
+			occupied += 1
+	var loaded := 0
+	for departure in lift.get("recent_departures", []):
+		loaded += departure.load
+	var count: int = lift.get("recent_departures", []).size()
+	return {"riders": occupied, "queue": queue_size(lift.id), "fill": float(loaded) / maxf(count * Fleet.seats(lift), 1), "wait": queue_size(lift.id) / maxf(float(lift_capacity(lift)), 1) * 60, "seats": Fleet.seats(lift), "carriers": fleet_layout(lift).count}
 
 func _check_achievements() -> void:
 	var all_colors: Array = []
@@ -762,25 +1051,25 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	var fraction := clampf((guest.elapsed + fraction_tick) / guest.get("duration", leg.minutes), 0, 1)
 	if guest.phase == "queue":
-		var point := Terrain.unpack(leg.points[0]) + Vector2((guest.id % 5) * 2 - 5, (guest.id % 7) * 2)
 		var lift := asset(leg.id)
-		return terrain.world(point, 0.35 if lift.kind in ["drag", "carpet"] else 2.0)
+		var queue := queued_guests(lift.id)
+		return queue_position(lift, maxi(0, queue.find(guest)))
 	var point := terrain.point_on_path(leg.points, fraction)
+	if leg.kind == "visit":
+		return terrain.world(Foot.door(asset(leg.id)))
 	if leg.kind == "lift":
-		var lift := asset(leg.id)
-		if lift.kind in ["drag", "carpet"]:
-			return terrain.world(point, 0.15 if lift.kind == "drag" else 0.65)
-		return cable_position(lift, fraction) + Vector3(-3, -3.85, 0)
+		return rider_pose(guest, fraction_tick).transform.origin
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		fraction = ski_fraction(leg, fraction)
 		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 		var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
-		return terrain.world(point, 1.25 + Snow.mesh_relief(piste, fraction, (point - center).dot(side)))
+		return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(side)) - 0.05)
 	return terrain.world(point, 0.3)
 
 func snapshot() -> Dictionary:
+	pedestrian_layout()
 	var visitor_data: Array = []
 	var itineraries: Array = []
 	var route_ids: Dictionary = {}
@@ -798,7 +1087,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version": 4, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version": 5, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -807,7 +1096,7 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	var has_lift := false
 	var has_target := false
 	for leg in value.legs:
-		if not leg is Dictionary or leg.get("kind") not in ["walk", "lift", "ski"] or not Terrain.number(leg.get("id")) or leg.id != floorf(leg.id) or leg.id < 0 or not leg.get("points") is Array or leg.points.size() < 2 or leg.points.size() > 64 or not Terrain.number(leg.get("minutes")) or leg.minutes < 0.15 or leg.minutes > 1000000:
+		if not leg is Dictionary or leg.get("kind") not in ["walk", "lift", "ski", "visit"] or not Terrain.number(leg.get("id")) or leg.id != floorf(leg.id) or leg.id < 0 or not leg.get("points") is Array or leg.points.size() < 2 or leg.points.size() > 64 or not Terrain.number(leg.get("minutes")) or leg.minutes < 0.15 or leg.minutes > 1000000:
 			return {}
 		for point in leg.points:
 			if not terrain.contains(Terrain.unpack(point)):
@@ -816,8 +1105,7 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 			return {}
 		previous = Terrain.unpack(leg.points.back())
 		if leg.kind == "walk":
-			var a := Terrain.unpack(leg.points[0])
-			if leg.id != 0 or leg.points.size() != 2 or (a.distance_to(previous) > Terrain.CONNECTION_RADIUS + 0.01 and not (a.y >= 165 and previous.y >= 165 and a.distance_to(previous) < 220.01)):
+			if leg.id != 0 or not Foot.valid_walk(pedestrian_layout(), leg.points, buildings):
 				return {}
 		else:
 			var item := asset(int(leg.id))
@@ -827,8 +1115,13 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 			if leg.kind == "lift":
 				if not item.has("bottom"):
 					return {}
-				expected = [item.bottom, item.top]
+				expected = [Terrain.pack(Fleet.station_point(item, false)), Terrain.pack(Fleet.station_point(item, true))]
 				has_lift = true
+			elif leg.kind == "visit":
+				if not item.has("kind") or item.has("bottom") or item.kind == "snowmaker":
+					return {}
+				var entrance := Terrain.pack(Foot.door(item))
+				expected = [entrance, entrance]
 			else:
 				if not item.has("difficulty") or item.difficulty > skill:
 					return {}
@@ -867,7 +1160,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, "Der Spielstand ist unvollständig oder beschädigt.")
-	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3 and data.get("version") != 4:
+	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3 and data.get("version") != 4 and data.get("version") != 5:
 		return _result(false, "Diese Spielstand-Version wird nicht unterstützt.")
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -886,6 +1179,13 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 	if data.pistes.size() > 80 or data.lifts.size() > 24 or data.buildings.size() > 60 or data.guests.size() > MAX_GUESTS:
 		return invalid
+	for lift in data.lifts:
+		if not lift is Dictionary or not Terrain.number(lift.get("id")) or not lift.get("name") is String or not lift.get("kind") is String or not Catalog.LIFTS.has(lift.kind) or not terrain.contains(Terrain.unpack(lift.get("bottom"))) or not terrain.contains(Terrain.unpack(lift.get("top"))):
+			return invalid
+		if data.version < 5 and lift.kind == "drag" and _lift_profile("drag", Terrain.unpack(lift.bottom), Terrain.unpack(lift.top)).length > Catalog.LIFTS.drag.max_length:
+			lift.kind = "chair"
+			lift.name = "4er-Sessellift %d" % lift.id
+
 	var used_ids: Array = []
 	var piste_numbers: Array = []
 	for key in ["pistes", "lifts", "buildings"]:
@@ -906,6 +1206,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			if key == "pistes":
 				if not item.get("points") is Array or not Terrain.number(item.get("difficulty")) or int(item.difficulty) != item.difficulty or item.difficulty < 0 or item.difficulty > 2:
 					return invalid
+				if data.version < 5:
+					item.points = Foot.prepare_piste(item.points, data.lifts)
 				var analysis := terrain.analyse(item.points)
 				if not analysis.ok:
 					return invalid
@@ -913,17 +1215,21 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 					if not Terrain.number(item.get(field)) or item[field] < 0 or item[field] > (1000000000 if field == "rides" else 110):
 						return invalid
 				if data.version >= 4:
-					if not Terrain.number(item.get("number")) or item.number != floorf(item.number) or item.number < 1 or item.number > 1000000 or piste_numbers.has(int(item.number)) or item.difficulty != analysis.difficulty:
+					if not Terrain.number(item.get("number")) or item.number != floorf(item.number) or item.number < 1 or item.number > 1000000 or piste_numbers.has(int(item.number)) or (data.version >= 5 and item.difficulty != analysis.difficulty):
 						return invalid
 				else:
 					item.number = piste_numbers.size() + 1
 					if item.name.begins_with(Terrain.PISTE_NAMES[int(item.difficulty)]):
 						item.name = "%s %d" % [Terrain.PISTE_NAMES[analysis.difficulty], item.number]
+				if data.version < 5 and item.name.begins_with(Terrain.PISTE_NAMES[int(item.difficulty)]):
+					item.name = "%s %d" % [Terrain.PISTE_NAMES[analysis.difficulty], item.number]
 				piste_numbers.append(int(item.number))
 				item.difficulty = analysis.difficulty
 				item.horizontal = analysis.horizontal
 				item.drop = analysis.drop
 				item.average = analysis.average
+				if data.version < 5 and not Snow.migrate_length(item, analysis.length):
+					return invalid
 				item.length = analysis.length
 				if not Terrain.number(item.get("grooming_until", 0)) or item.get("grooming_until", 0) < 0 or item.get("grooming_until", 0) > CLOSING:
 					return invalid
@@ -931,16 +1237,31 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 					return invalid
 				item.grade = analysis.grade
 			elif key == "lifts":
-				if not item.get("kind") is String or not preview_lift(item.kind, Terrain.unpack(item.get("bottom")), Terrain.unpack(item.get("top"))).ok:
+				if not item.get("kind") is String or not preview_lift(item.kind, Terrain.unpack(item.get("bottom")), Terrain.unpack(item.get("top")), false).ok:
 					return invalid
 				for field in ["credit", "boarded"]:
 					if not Terrain.number(item.get(field)) or item[field] < 0 or item[field] > 1000000000:
 						return invalid
-				item.length = terrain.cable_profile(Terrain.unpack(item.bottom), Terrain.unpack(item.top)).length
-				item.credit = minf(item.credit, maxf(4, lift_capacity(item) / 900.0))
+				item.length = _lift_profile(item.kind, Terrain.unpack(item.bottom), Terrain.unpack(item.top)).length
+				if data.version >= 5:
+					if not Terrain.number(item.get("clock")) or item.clock < 0 or item.clock > 60000000 or not item.get("recent_departures") is Array or item.recent_departures.size() > 24:
+						return invalid
+					for departure in item.recent_departures:
+						if not departure is Dictionary or not Terrain.number(departure.get("clock")) or departure.clock < 0 or departure.clock > item.clock or not Terrain.number(departure.get("load")) or departure.load < 0 or departure.load > Fleet.seats(item) or departure.load != floorf(departure.load):
+							return invalid
+				else:
+					item.clock = 0.0
+					item.last_load = 0
+					item.recent_departures = []
+				item.credit = 0.0
 			else:
 				if not item.get("kind") is String or not Catalog.BUILDINGS.has(item.kind) or not terrain.contains(Terrain.unpack(item.get("point"))):
 					return invalid
+				for field in ["visits", "revenue"]:
+					if not Terrain.number(item.get(field, 0)) or item.get(field, 0) < 0 or item.get(field, 0) > 1000000000:
+						return invalid
+				item.visits = item.get("visits", 0)
+				item.revenue = item.get("revenue", 0.0)
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
@@ -968,6 +1289,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	report.investments = report.get("investments", 0.0)
 	last_report = data.last_report.duplicate(true)
 	_invalidate()
+	if not Progression.restore(self, data.get("campaign")):
+		return invalid
+	var occupied_seats: Dictionary = {}
 	var saved_routes: Variant = data.get("itineraries", [])
 	if not saved_routes is Array or saved_routes.size() > MAX_GUESTS:
 		return invalid
@@ -983,7 +1307,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		visitor_ids.append(visitor.id)
 		var route: Dictionary = {}
-		if data.version >= 3:
+		if data.version >= 5:
 			var index: Variant = visitor.get("route_index")
 			if not Terrain.number(index) or index != floorf(index):
 				return invalid
@@ -1003,7 +1327,16 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				if option.target == visitor.target:
 					route = option
 			if route.is_empty():
-				continue # Legacy formats did not store itineraries for a closed piste.
+				continue # Legacy visitors are reassigned after terminals gain plazas.
+		if data.version < 5:
+			var migrated: Dictionary = visitor.duplicate(true)
+			migrated.route = _with_service(route, int(visitor.id), visitor.spent)
+			migrated.leg = 0
+			migrated.erase("target")
+			_start_leg(migrated)
+			guests.append(migrated)
+			continue
+
 		if int(visitor.leg) != visitor.leg or visitor.leg > route.legs.size() or (visitor.leg == route.legs.size() and visitor.phase != "leaving"):
 			return invalid
 		if visitor.phase == "queue" and route.legs[int(visitor.leg)].kind != "lift":
@@ -1020,6 +1353,25 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			copy.elapsed = minf(copy.duration, copy.elapsed * scale)
 			if leg.kind == "ski":
 				Snow.start(asset(leg.id), copy)
+		if copy.phase == "queue":
+			if not Terrain.number(copy.get("queue_since")) or copy.queue_since < 0 or copy.queue_since > (day - 1) * 600 + minute - OPENING:
+				return invalid
+		elif copy.phase == "moving" and route.legs[int(copy.leg)].kind == "lift":
+			var lift := asset(int(route.legs[int(copy.leg)].id))
+			var schedule := fleet_layout(lift)
+			for field in ["ride_car", "ride_seat", "ride_departure"]:
+				if not Terrain.number(copy.get(field)) or copy[field] < 0:
+					return invalid
+			if copy.ride_car != floorf(copy.ride_car) or copy.ride_seat != floorf(copy.ride_seat) or copy.ride_car >= schedule.count or copy.ride_seat >= schedule.seats or copy.ride_departure > lift.clock or absf(copy.elapsed - (lift.clock - copy.ride_departure)) > 0.001 or copy.elapsed >= schedule.ride + 0.001 or absf(copy.duration - schedule.ride) > 0.001:
+				return invalid
+			var serial := roundi(copy.ride_departure / schedule.interval)
+			if absf(copy.ride_departure - serial * schedule.interval) > 0.001 or int(copy.ride_car) != serial % schedule.count:
+				return invalid
+			var seat_key := "%d/%d/%d" % [lift.id, copy.ride_car, copy.ride_seat]
+			if occupied_seats.has(seat_key):
+				return invalid
+			occupied_seats[seat_key] = true
+
 		copy.erase("target")
 		guests.append(copy)
 	rng.seed = int(data.rng_seed)

@@ -8,17 +8,17 @@
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
-### [⬇ Android-APK direkt herunterladen · v0.4.0](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk)
+### [⬇ Android-APK direkt herunterladen · v0.5.0](https://github.com/chekento/SkiZones/releases/download/v0.5.0/SkiZones-0.5.0-android-arm64.apk)
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.4.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.5.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.5.0/SkiZones-0.5.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
 
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
 </div>
 
-![SkiZones 0.4.0: eine blaue Abfahrt mit roten und schwarzen Abkürzungen auf dem Sonnenhang](docs/screenshots/junctions.webp)
+![SkiZones 0.5.0: begehbarer Stationsplatz mit sichtbarer Warteschlange und angeschlossenen Gebäuden](docs/screenshots/station-plaza.webp)
 
-*Direkt aus dem Spiel: ein Testresort mit einer blauen Route und angedockten roten und schwarzen Abkürzungen. Die Karriere beginnt mit einem kleineren blauen Rundweg.*
+*Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste stehen in der tatsächlichen Liftwarteschlange; die Gebäude und Pisten sind an die Stationsplätze angeschlossen. Die Karriere startet mit einem kleineren Resort.*
 
 ## Jetzt anspielen
 
@@ -31,12 +31,44 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.4.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.5.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.4.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.5.0.md).
 
-## Neu in 0.4.0: dein Verlauf entscheidet
+## Neu in 0.5.0: richtige Lifte, lebendige Stationsplätze
+
+**Schlepplift, Sessel und Gondel sind jetzt klar unterschiedliche Anlagen.** Jeder mitfahrende Gast hat ein konkretes Fahrzeug und einen festen Platz. Die Darstellung verwendet dieselbe Zuordnung wie die Simulation: keine nachträgliche Suche nach dem nächstgelegenen Sessel und keine Doppelbelegung.
+
+![Vier Gäste sitzen in ihrem tatsächlichen Vierersessel](docs/screenshots/chair-four.webp)
+
+| Änderung | Im Spiel |
+|---|---|
+| **Teller-Schlepplift** | Offene Antriebsstation mit Umlenkscheibe, Zugseil und einzelnen Tellern. Die Gäste bleiben mit ihren Ski auf dem Boden. Grundtempo 1,5 m/s, maximal 700 m. |
+| **Einer, Zweier und Vierer** | Eigene schmale beziehungsweise breitere Sessel, einzelne Polster und passende Sitzplätze. Unterschiedliche Geschwindigkeiten, Kosten und Streckenlängen. |
+| **Größere Anlagen freischalten** | Der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeltechnik öffnet die Achtergondeln. Im freien Aufbau sind alle Typen direkt verfügbar. |
+| **Sichtbare Warteschlangen** | Die Gäste stehen in Ankunftsreihenfolge am jeweiligen Lift an und rücken nach. Die tatsächliche Fahrzeugbelegung, Wartezeit und Zahl der Mitfahrenden sind ablesbar. |
+| **Begehbare Stationsplätze** | Tal- und Bergstation besitzen eigene geräumte Bereiche. Die Pisten beginnen und enden auf diesen Plätzen mit Abstand zur Lifttechnik. |
+| **Gebäude erweitern das Gebiet** | Neue Gebäude docken mit Vorplätzen und Fußwegen an. Auch über weitere angeschlossene Gebäude kann der Fußgängerbereich wachsen. |
+| **Umsteigen und einkehren** | Gäste gehen zu benachbarten Liften und zu Gebäudeeingängen. Besuche dauern tatsächlich eine Weile; Serviceerlöse entstehen nach dem Besuch. Wege führen um Gebäudewände herum. |
+| **Durchgängige Darstellung** | Ruhigerer Schlepplift, variable Seillängen an den Tellern, getrennte Antriebsmodelle, geräumte Liftkorridore und sanftere Übergänge vom Schnee in den Stationsplatz. |
+
+![Acht tatsächliche Plätze im freischaltbaren Panoramasessel](docs/screenshots/chair-eight.webp)
+
+**Pisten schließen am Platz an.** Die kleinen Anschlusskreise zeigen die möglichen Andockpunkte. Die Strecke fährt nicht in die Liftmaschine hinein. Direkte Verbindungen zwischen Pisten bleiben möglich, auch als schwierigere Zwischenstücke einer leichteren Route.
+
+[Alle Liftwerte und Stationsplätze erklärt](docs/LIFTE_UND_PLAETZE.md) · [Pisten planen und verbinden](docs/PISTENPLANUNG.md)
+
+<details>
+<summary>Schlepplift, Baukatalog und Gondeln ansehen</summary>
+
+![Unterschiedliche Liftkarten mit Tempo und Längenbegrenzung sowie tatsächlicher Auslastung](docs/screenshots/drag-lift.webp)
+
+![Achtergondeln mit zugeordneten Gästen im Kabineninneren](docs/screenshots/gondola-riders.webp)
+
+</details>
+
+## Seit 0.4.0: dein Verlauf entscheidet
 
 **Plane ein Pistennetz mit echten Abzweigungen.** Eine lange Querung kann blau sein, während die direkte Abkürzung am selben Berg schwarz wird. Gäste wählen passende Rundwege für ihr Können und fahren nur die benötigten Teilstücke der verbundenen Pisten.
 
@@ -107,14 +139,14 @@ Die Karriere aus 0.2 bleibt dabei erhalten: **fünf Resort-Sterne, neun Forschun
 | System | Bereits spielbar |
 |---|---|
 | Pisten | Verschiebbare Wegpunkte · Andockpunkte und Abzweigungen · automatische Farben und Schilder · Höhenprofil · Ausbau |
-| Lifte | Zauberteppich, Schlepplift, 4er-Sessel, 6er-Panoramasessel und Gondel · echte gemeinsame Förderkapazität · Windgrenzen · Ausbau |
+| Lifte | Acht Typen: Zauberteppich, Tellerlift, Einer-, Zweier-, Vierer-, Sechser-, Achtersessel und Achtergondel · feste Fahrzeugplätze · gemeinsame Förderkapazität · Windgrenzen · Ausbau |
 | Gebäude | Hütte, Restaurant, Skiverleih, Skischule, Beschneiung, Garage, Hotel, Bergwacht und sechs neue Dorfangebote |
-| Gäste | Können, Rundwege, Warteschlangen, Skirunden, Ausgaben und Zufriedenheit |
+| Gäste | Können, Rundwege, geordnete Warteschlangen, konkrete Sitzplätze, Fußwege, Gebäudebesuche, Skirunden, Ausgaben und Zufriedenheit |
 | Wirtschaft | Tageskarten, Bau- und Betriebskosten, Forschungskosten, Kredit, Prämien und Ergebnis nach Investitionen |
 | Berg und Wetter | Schnee, Tauwetter, Windschließungen, Verschleiß, Präparierung und Forschungsprognose |
-| Spielstände | Separate Gebiete · volle Gästerouten · Spuren und Schneerelief · Prüfsumme · Sicherung · Migration aus 0.1.x bis 0.3.x |
+| Spielstände | Separate Gebiete · volle Gästerouten · Spuren und Schneerelief · Prüfsumme · Sicherung · Migration aus 0.1.x bis 0.4.x |
 
-Gebäude wirken derzeit über Kennzahlen. Die lokale Schneeschicht verändert sich durch Skifahrer; das darunterliegende Berggelände lässt sich noch nicht frei bearbeiten. Einzelne Hotelbuchungen, Personal und die langfristige Feinabstimmung der Wirtschaft folgen im [Ausbauplan](docs/ROADMAP.md).
+Gebäude besitzen angeschlossene Vorplätze, tatsächliche Besuche und Serviceerlöse. Nachfrage- und Komforteffekte bleiben teilweise über Kennzahlen abgebildet. Die lokale Schneeschicht verändert sich durch Skifahrer; das darunterliegende Berggelände lässt sich noch nicht frei bearbeiten. Einzelne Hotelbuchungen, Personal und die langfristige Feinabstimmung der Wirtschaft folgen im [Ausbauplan](docs/ROADMAP.md).
 
 <details>
 <summary>Gefälleansicht und Hauptmenü ansehen</summary>
@@ -133,7 +165,7 @@ Das Panorama ist das Titelmotiv im Hauptmenü. Die anderen Bilder zeigen die tat
 
 Im Baukatalog **Abfahrt planen** wählen, oben am Hang beginnen und weitere Wegpunkte bergab setzen. Nummerierte Punkte lassen sich ziehen und einzeln löschen; die Schwierigkeit entsteht automatisch. **Bauen** bestätigt die Route. Beim Lift zuerst die Talstation und dann die Bergstation setzen. Gäste benötigen einen vollständigen Rundweg vom Talzugang und zurück.
 
-Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können Gäste zwischen Anlagen bis **220 m** zu Fuß gehen. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
+Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäudeplätzen an. Sichtbare Wege verbinden die vorbereiteten Bereiche; die Bauvorschau zeigt neue Gebäudeanschlüsse. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
 
 | Aktion | Touch | Maus / Tastatur |
 |---|---|---|
@@ -156,7 +188,7 @@ Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können 
 
 Das Projekt verwendet **Godot 4.5.1**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
 
-**272 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen und die Liftbewegung im Compatibility-Renderer. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
+**362 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit
@@ -165,8 +197,10 @@ godot --headless --script tests/progression.gd
 godot --headless --script tests/mountain_life.gd
 godot --headless --script tests/piste_planning.gd
 godot --headless --script tests/junctions.gd
+godot --headless --script tests/lifts_and_plazas.gd
 godot --script tests/scene.gd
 godot --script tests/planning_scene.gd
+godot --script tests/lift_scene.gd
 godot --headless -- --smoke-test
 ```
 

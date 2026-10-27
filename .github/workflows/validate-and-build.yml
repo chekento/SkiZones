@@ -52,6 +52,8 @@ jobs:
         run: |
           "$GODOT_BIN" --headless --script tests/piste_planning.gd
           "$GODOT_BIN" --headless --script tests/junctions.gd
+      - name: Lift seats, pedestrian areas and migration tests
+        run: '"$GODOT_BIN" --headless --script tests/lifts_and_plazas.gd'
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -60,6 +62,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Camera, terrain and editable waypoint tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/planning_scene.gd
+      - name: Rendered lift occupants and station plazas
+        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Independent region save slots
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-regions

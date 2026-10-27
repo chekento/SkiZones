@@ -23,12 +23,12 @@ func world(point: Vector2, offset: float = 0.0) -> Vector3:
 func slope_percent(point: Vector2) -> float:
 	return Vector2(height(point + Vector2(3, 0)) - height(point - Vector2(3, 0)), height(point + Vector2(0, 3)) - height(point - Vector2(0, 3))).length() / 6.0 * 100.0
 
-func cable_profile(bottom: Vector2, top: Vector2) -> Dictionary:
+func cable_profile(bottom: Vector2, top: Vector2, rope_height: float = 15, station_height: float = 15, clearance: float = 9) -> Dictionary:
 	var points: Array = []
 	var lengths: Array = [0.0]
-	var count := ceili(bottom.distance_to(top) / 50)
+	var count := maxi(1, ceili(bottom.distance_to(top) / 50))
 	for i in range(count + 1):
-		points.append(world(bottom.lerp(top, float(i) / count), 15))
+		points.append(world(bottom.lerp(top, float(i) / count), station_height if i == 0 or i == count else rope_height))
 	for iteration in range(2):
 		var refined: Array = [points[0]]
 		for i in range(1, points.size()):
@@ -37,10 +37,10 @@ func cable_profile(bottom: Vector2, top: Vector2) -> Dictionary:
 			var split := false
 			for fraction in [0.25, 0.5, 0.75]:
 				var sample := a.lerp(b, fraction)
-				split = split or sample.y < height(Vector2(sample.x, sample.z)) + 9
+				split = split or sample.y < height(Vector2(sample.x, sample.z)) + clearance
 			if split:
 				var midpoint := (a + b) * 0.5
-				refined.append(world(Vector2(midpoint.x, midpoint.z), 15))
+				refined.append(world(Vector2(midpoint.x, midpoint.z), rope_height))
 			refined.append(b)
 		points = refined
 	for i in range(1, points.size()):

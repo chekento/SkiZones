@@ -14,7 +14,7 @@ const RESEARCH := {
 	"efficient_snow": {"name": "Effiziente Präparierung", "cost": 32000, "points": 4, "days": 2, "requires": ["snowcraft"], "effect": "15 % weniger Betriebskosten und 12 zusätzliche Zustandspunkte bei der Nachtpräparierung."},
 	"gondola": {"name": "Gondeltechnik", "cost": 68000, "points": 8, "days": 3, "requires": ["lifttech"], "effect": "Windstabile Gondelbahnen mit hoher Förderleistung erschließen neue Hänge."},
 	"marketing": {"name": "Destinationsmarketing", "cost": 35000, "points": 5, "days": 2, "requires": ["service"], "effect": "15 % mehr Nachfrage. Gute Pisten und kurze Wartezeiten bleiben entscheidend."},
-	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
+	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "8er-Sessel werden verfügbar; Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
 }
 const CONTRACTS := {
 	"visitors": {"name": "Der Berg ruft", "text": "Begrüße neue Tagesgäste.", "base": 80, "per_rank": 30, "money": 9000},
@@ -57,6 +57,8 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	var needed := ""
 	if is_lift and kind == "chair6":
 		needed = "lifttech"
+	elif is_lift and kind == "chair8":
+		needed = "mastercraft"
 	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:

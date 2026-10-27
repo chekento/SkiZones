@@ -7,6 +7,8 @@ const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
+const Fleet = preload("res://src/core/lift_fleet.gd")
+const Foot = preload("res://src/core/foot_network.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
@@ -15,13 +17,22 @@ var terrain: Mountain
 var landscape := Node3D.new()
 var simulation_fraction := 0.0
 var motion_running := false
+var motion_rate := 1.0
 var follow_guest := -1
+var _follow_position := Vector3.INF
 var _terrain_id := ""
 var _snow_timer := 0.0
 var _snow_seen := -1
 var _piste_meshes: Dictionary = {}
 var _track_mesh := MeshInstance3D.new()
 var _riders := MultiMeshInstance3D.new()
+var _cabin_riders := MultiMeshInstance3D.new()
+var _walkers := MultiMeshInstance3D.new()
+var _tow_lines := MultiMeshInstance3D.new()
+var _vehicle_glass: Dictionary = {}
+var _queue_labels: Dictionary = {}
+var _pedestrian_snapshot: Dictionary = {}
+var foot_mesh: MeshInstance3D
 var _groomers := MultiMeshInstance3D.new()
 var _track_timer := 0.0
 var _track_seen := -1
@@ -72,7 +83,7 @@ func setup(resort: RefCounted) -> void:
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _groomers, _track_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _tow_lines, _groomers, _track_mesh]:
 		add_child(node)
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(), model.MAX_GUESTS)
 	visitor_mesh.multimesh.mesh.surface_set_material(0, _solid)
@@ -81,6 +92,20 @@ func setup(resort: RefCounted) -> void:
 	_riders.multimesh = _multimesh(Art.new().seated_skier(), model.MAX_GUESTS)
 	_riders.multimesh.mesh.surface_set_material(0, _solid)
 	_riders.multimesh.visible_instance_count = 0
+	_cabin_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS)
+	_cabin_riders.multimesh.mesh.surface_set_material(0, _solid)
+	_cabin_riders.multimesh.visible_instance_count = 0
+	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS)
+	_walkers.multimesh.mesh.surface_set_material(0, _solid)
+	_walkers.multimesh.visible_instance_count = 0
+	var tow := CylinderMesh.new()
+	tow.height = 1
+	tow.top_radius = 0.055
+	tow.bottom_radius = 0.055
+	tow.radial_segments = 5
+	_tow_lines.multimesh = _multimesh(tow, 24 * Fleet.MAX_CARRIERS)
+	_tow_lines.material_override = _material(Color("495c60"))
+	_tow_lines.multimesh.visible_instance_count = 0
 	_groomers.multimesh = _multimesh(Art.new().groomer(), 80)
 	_groomers.multimesh.mesh.surface_set_material(0, _solid)
 	_groomers.multimesh.visible_instance_count = 0
@@ -381,12 +406,19 @@ func _multimesh(mesh: Mesh, count: int) -> MultiMesh:
 	return instances
 
 func _clear_ground(point: Vector2, margin: float) -> bool:
+	for area in _pedestrian_snapshot.get("areas", []):
+		if point.distance_to(area.center) < area.radius + 3:
+			return false
+	for path in _pedestrian_snapshot.get("links", []):
+		for j in range(1, path.points.size()):
+			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(path.points[j - 1]), Terrain.unpack(path.points[j])).distance_to(point) < 7:
+				return false
 	for piste in model.pistes:
 		for j in range(1, piste.points.size()):
 			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[j - 1]), Terrain.unpack(piste.points[j])).distance_to(point) < margin:
 				return false
 	for lift in model.lifts:
-		if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top)).distance_to(point) < 10:
+		if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top)).distance_to(point) < maxf(12, Fleet.rope_offset(lift) + (3.8 if Fleet.family(lift) == "gondola" else Fleet.seats(lift) * Fleet.SEAT_SPACING * 0.5) + 10):
 			return false
 	for building in model.buildings:
 		if Terrain.unpack(building.point).distance_to(point) < (29 if building.kind == "hotel" else 23):
@@ -462,6 +494,10 @@ func rebuild() -> void:
 	chairs.clear()
 	_vehicles.clear()
 	_vehicle_counts.clear()
+	_vehicle_glass.clear()
+	_queue_labels.clear()
+	_pedestrian_snapshot = model.pedestrian_layout()
+	_build_foot_areas()
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = 20 + (piste.get("level", 1) - 1) * 4
@@ -507,52 +543,131 @@ func rebuild() -> void:
 	_build_trees()
 	_guest_tick = ""
 
+func _build_foot_areas() -> void:
+	# One shared grid avoids z-fighting where plazas grow into one another.
+	var cells: Dictionary = {}
+	const STEP := 4
+	for area in _pedestrian_snapshot.areas:
+		var center: Vector2 = area.center
+		var radius: float = area.radius
+		for x in range(floori((center.x - radius) / STEP), ceili((center.x + radius) / STEP)):
+			for z in range(floori((center.y - radius) / STEP), ceili((center.y + radius) / STEP)):
+				if (Vector2(x, z) * STEP + Vector2.ONE * STEP * 0.5).distance_to(center) <= radius:
+					cells[Vector2i(x, z)] = true
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for cell in cells:
+		var point := Vector2(cell) * STEP
+		for offset in [Vector2.ZERO, Vector2(STEP, 0), Vector2(0, STEP), Vector2(STEP, 0), Vector2(STEP, STEP), Vector2(0, STEP)]:
+			var at: Vector2 = point + offset
+			var edge := 0.0
+			for area in _pedestrian_snapshot.areas:
+				edge = maxf(edge, clampf((area.radius - at.distance_to(area.center)) / 6, 0, 1))
+			surface.set_color(_ground_color(at, terrain.height(at)).lerp(Color("ccd6d3"), edge * 0.9))
+			surface.add_vertex(terrain.world(at, 0.32))
+	surface.generate_normals()
+	foot_mesh = _baked(asset_root, surface.commit(), Vector3.ZERO)
+	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for link in _pedestrian_snapshot.links:
+		_ribbon(asset_root, link.points, 7, Color("c8d2cf"), 0.39)
+		_ribbon(asset_root, link.points, 4.6, Color("becbc9"), 0.42)
+	for area in _pedestrian_snapshot.areas:
+		if area.kind == "station":
+			var furnishings := Art.new()
+			var bench := terrain.world(area.point + Vector2(6, 4), 0.5)
+			furnishings.box(bench + Vector3.UP, Vector3(5, 0.4, 1.7), Color("ac8a60"))
+			furnishings.box(bench + Vector3(0, 1.8, -0.6), Vector3(5, 1.3, 0.3), Color("9c7b53"))
+			for side in [-1, 1]:
+				furnishings.box(bench + Vector3(side * 1.8, 0.45, 0), Vector3(0.3, 1, 1.4), Color("516e74"))
+			_baked(asset_root, furnishings.finish(), Vector3.ZERO)
+
 func _build_lift(lift: Dictionary) -> void:
-	if lift.kind == "carpet":
+	var bottom := Terrain.unpack(lift.bottom)
+	var top := Terrain.unpack(lift.top)
+	var orientation := Fleet.basis(lift)
+	var angle := orientation.get_euler().y
+	var r := Fleet.rope_offset(lift)
+	if Fleet.family(lift) == "carpet":
 		_ribbon(asset_root, [lift.bottom, lift.top], 4, Color("3f626b"), 0.7)
 		for endpoint in [lift.bottom, lift.top]:
 			_baked(asset_root, Art.new().chalet("shelter", 1, Color("769aa3")), terrain.world(Terrain.unpack(endpoint)))
-		return
-	if lift.kind == "drag":
-		_ribbon(asset_root, [lift.bottom, lift.top], 4, Color("d9e6ef"), 0.2)
-	var bottom := Terrain.unpack(lift.bottom)
-	var top := Terrain.unpack(lift.top)
-	var a := terrain.world(bottom, 15)
-	var b := terrain.world(top, 15)
-	var angle := atan2(top.x - bottom.x, top.y - bottom.y)
-	var station_mesh := Art.new().station(lift.kind, int(lift.get("level", 1)))
-	for point in [bottom, top]:
-		var instance := _baked(asset_root, station_mesh, terrain.world(point))
-		instance.rotation.y = angle
-		_occluders.append(instance)
-	var profile: Dictionary = model.cable_profile(lift)
-	var steel := Art.new()
-	for i in range(1, profile.points.size() - 1):
-		var head: Vector3 = profile.points[i]
-		var ground := Vector2(head.x, head.z)
-		steel.link( terrain.world(ground), head, 0.9, Color("536c72"))
-		steel.box( head, Vector3(11, 1.2, 2.5), Color("455d64"))
-	for i in range(1, profile.points.size()):
-		for offset in [-3.0, 3.0]:
-			steel.link( profile.points[i - 1] + Vector3(offset, 0, 0), profile.points[i] + Vector3(offset, 0, 0), 0.19, Color("3c5159"))
-	_baked(asset_root, steel.finish(), Vector3.ZERO)
-	if not _vehicles.has(lift.kind):
-		var vehicle_mesh := Art.new().chair(lift.kind)
-		vehicle_mesh.surface_set_material(0, _solid)
-		var group := MultiMeshInstance3D.new()
-		group.multimesh = _multimesh(vehicle_mesh, 24 * 72)
-		group.multimesh.visible_instance_count = 0
-		asset_root.add_child(group)
-		_vehicles[lift.kind] = group
-		_vehicle_counts[lift.kind] = 0
-	var count := clampi(ceili(lift.length / 18) * 2, 12, 72)
-	for i in range(count):
-		var index: int = _vehicle_counts[lift.kind]
-		_vehicle_counts[lift.kind] += 1
-		chairs.append({"kind": lift.kind, "index": index, "angle": angle, "a": a, "b": b, "offset": float(i) / count, "id": lift.id})
-		_vehicles[lift.kind].multimesh.set_instance_color(index, Color.WHITE)
-		_vehicles[lift.kind].multimesh.set_instance_transform(index, Transform3D(Basis(Vector3.UP, angle), model.cable_position(lift, float(i) / count) + Vector3(-3, -4, 0)))
-	_vehicles[lift.kind].multimesh.visible_instance_count = _vehicle_counts[lift.kind]
+	else:
+		if Fleet.family(lift) == "drag":
+			var track_a := bottom - Vector2(orientation.x.x, orientation.x.z) * r
+			var track_b := top - Vector2(orientation.x.x, orientation.x.z) * r
+			_ribbon(asset_root, [Terrain.pack(track_a), Terrain.pack(track_b)], 3.2, Color("e4edf0"), 0.22)
+		var station_mesh := Art.new().station(lift.kind, int(lift.get("level", 1)))
+		for point in [bottom, top]:
+			var instance := _baked(asset_root, station_mesh, terrain.world(point))
+			instance.rotation.y = angle
+			_occluders.append(instance)
+		var profile: Dictionary = model.cable_profile(lift)
+		var steel := Art.new()
+		for i in range(1, profile.points.size() - 1):
+			var head: Vector3 = profile.points[i]
+			var ground := Vector2(head.x, head.z)
+			steel.link(terrain.world(ground), head, 0.3 if Fleet.family(lift) == "drag" else 0.65, Color("536c72"))
+			steel.box(head, Vector3(r * 2 + 2, 0.6, 1.5), Color("455d64"), Vector3(0, angle, 0))
+			for side in [-1, 1]:
+				var wheel: Vector3 = head + orientation.x * (r * side)
+				steel.box(wheel, Vector3(0.7, 0.7, 2.0), Color("a5b6b9"), Vector3(0, angle, 0))
+		for i in range(1, profile.points.size()):
+			for side in [-1, 1]:
+				steel.link(profile.points[i - 1] + orientation.x * (r * side), profile.points[i] + orientation.x * (r * side), 0.09, Color("3c5159"))
+		_baked(asset_root, steel.finish(), Vector3.ZERO)
+		if not _vehicles.has(lift.kind):
+			var vehicle_mesh := Art.new().chair(lift.kind)
+			vehicle_mesh.surface_set_material(0, _solid)
+			var group := MultiMeshInstance3D.new()
+			group.multimesh = _multimesh(vehicle_mesh, 24 * Fleet.MAX_CARRIERS)
+			group.multimesh.visible_instance_count = 0
+			asset_root.add_child(group)
+			_vehicles[lift.kind] = group
+			_vehicle_counts[lift.kind] = 0
+			if Fleet.family(lift) == "gondola":
+				var glass := MultiMeshInstance3D.new()
+				glass.multimesh = _multimesh(Art.new().gondola_glass(), 24 * Fleet.MAX_CARRIERS)
+				var material := _material(Color(0.88, 0.96, 1.0, 0.08), true)
+				material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				material.cull_mode = BaseMaterial3D.CULL_DISABLED
+				glass.material_override = material
+				glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				asset_root.add_child(glass)
+				_vehicle_glass[lift.kind] = glass
+		for carrier in range(model.fleet_layout(lift).count):
+			var index: int = _vehicle_counts[lift.kind]
+			_vehicle_counts[lift.kind] += 1
+			chairs.append({"kind": lift.kind, "index": index, "carrier": carrier, "angle": angle, "id": lift.id})
+			_vehicles[lift.kind].multimesh.set_instance_color(index, Color.WHITE)
+			_vehicles[lift.kind].multimesh.set_instance_transform(index, model.carrier_pose(lift, carrier).transform)
+			if _vehicle_glass.has(lift.kind):
+				_vehicle_glass[lift.kind].multimesh.set_instance_color(index, Color.WHITE)
+		_vehicles[lift.kind].multimesh.visible_instance_count = _vehicle_counts[lift.kind]
+		if _vehicle_glass.has(lift.kind):
+			_vehicle_glass[lift.kind].multimesh.visible_instance_count = _vehicle_counts[lift.kind]
+	var queue_sign := Label3D.new()
+	queue_sign.position = terrain.world(Foot.station_hub(lift, false, model.buildings), 6)
+	queue_sign.font_size = 36
+	queue_sign.pixel_size = 0.045
+	queue_sign.outline_size = 9
+	queue_sign.outline_modulate = Color("193843")
+	queue_sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	queue_sign.visibility_range_end = 1100
+	asset_root.add_child(queue_sign)
+	_queue_labels[lift.id] = queue_sign
+	var rails := Art.new()
+	var front := Fleet.station_point(lift, false)
+	for row in range(4):
+		for col in [0, 15]:
+			var local := orientation * Vector3(col * 1.8, 0, -12.8 - row * 2.4)
+			var at := terrain.world(front + Vector2(local.x, local.z))
+			rails.box(at + Vector3.UP * 0.75, Vector3(0.15, 1.5, 0.15), Color("657c7f"))
+		var first := orientation * Vector3(0, 0, -12.8 - row * 2.4)
+		var last := orientation * Vector3(27, 0, -12.8 - row * 2.4)
+		var a := terrain.world(front + Vector2(first.x, first.z), 1.25)
+		var b := terrain.world(front + Vector2(last.x, last.z), 1.25)
+		rails.link(a, b, 0.055, Color("b5a17b"))
+	_baked(asset_root, rails.finish(), Vector3.ZERO)
 
 func _build_building(building: Dictionary) -> void:
 	var point := Terrain.unpack(building.point)
@@ -560,15 +675,9 @@ func _build_building(building: Dictionary) -> void:
 	_occluders.append(instance)
 	if building.kind == "snowmaker":
 		return
-	var endpoint := Terrain.BASE
-	var nearest := point.distance_to(endpoint)
-	for lift in model.lifts:
-		for station in [lift.bottom, lift.top]:
-			if Terrain.unpack(station).distance_to(point) < nearest:
-				nearest = Terrain.unpack(station).distance_to(point)
-				endpoint = Terrain.unpack(station)
-	if point.distance_to(endpoint) > 4:
-		_ribbon(asset_root, [Terrain.pack(point), Terrain.pack(endpoint)], 3.5, Color("c3c4b9"), 0.21)
+	var entrance := Foot.door(building)
+	var hub := entrance + Vector2(0, 5)
+	_ribbon(asset_root, [Terrain.pack(entrance), Terrain.pack(hub)], 4.5, Color("bbc7c6"), 0.4)
 
 func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: float) -> void:
 	if points.size() < 2:
@@ -622,6 +731,8 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 			var arrow := _baked(preview_root, Art.new().downhill_arrow(), terrain.world(a.lerp(b, 0.5), 2.5))
 			arrow.rotation.y = atan2(-direction.x, -direction.y)
 	if building_kind != "":
+		if not analysis.get("connection", {}).is_empty():
+			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
 		_baked(preview_root, Art.new().chalet(building_kind, 1, color), terrain.world(Terrain.unpack(points.back())))
 
 func _update_atmosphere() -> void:
@@ -646,28 +757,40 @@ func _process(delta: float) -> void:
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + simulation_fraction
 	_car_positions.clear()
+	var tows := 0
 	for chair in chairs:
 		var lift: Dictionary = model.asset(chair.id)
-		var distance: float = (_visual_minute - model.OPENING) * model.lift_speed(lift) / model.TRANSPORT_SCALE
-		var t := fposmod(distance / maxf(lift.length * 2, 1) + chair.offset, 1)
-		var outbound := t < 0.5
-		var position_value: Vector3 = model.cable_position(lift, t * 2 if outbound else (1 - t) * 2) + Vector3(-3 if outbound else 3, -4, 0)
-		if not model.lift_open(lift):
-			continue
-		_vehicles[chair.kind].multimesh.set_instance_transform(chair.index, Transform3D(Basis(Vector3.UP, chair.angle + (0 if outbound else PI)), position_value))
-		if outbound:
-			if not _car_positions.has(lift.id):
-				_car_positions[lift.id] = []
-			_car_positions[lift.id].append({"fraction": t * 2, "point": position_value})
+		var pose: Dictionary = model.carrier_pose(lift, chair.carrier, simulation_fraction)
+		_vehicles[chair.kind].multimesh.set_instance_transform(chair.index, pose.transform)
+		if _vehicle_glass.has(chair.kind):
+			_vehicle_glass[chair.kind].multimesh.set_instance_transform(chair.index, pose.transform)
+		if Fleet.family(lift) == "drag":
+			var from: Vector3 = pose.transform.origin + Vector3.UP * 0.55
+			var to: Vector3 = pose.grip
+			var length := from.distance_to(to)
+			var line_basis := Basis(Quaternion(Vector3.UP, (to - from).normalized())).scaled(Vector3(1, length, 1))
+			_tow_lines.multimesh.set_instance_transform(tows, Transform3D(line_basis, (from + to) * 0.5))
+			_tow_lines.multimesh.set_instance_color(tows, Color.WHITE)
+			tows += 1
+	_tow_lines.multimesh.visible_instance_count = tows
+	for lift in model.lifts:
+		if _queue_labels.has(lift.id):
+			var load: Dictionary = model.lift_load(lift)
+			_queue_labels[lift.id].text = "%d warten · %.0f %% belegt" % [load.queue, load.fill * 100]
+			_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	var next_positions: Dictionary = {}
 	var walking := 0
 	var riding := 0
+	var cabin_riding := 0
+	var foot_visitors := 0
 	for guest in model.guests:
 		var position_value: Vector3 = model.guest_position(guest, simulation_fraction)
 		var angle := 0.0
 		var lean := 0.0
 		var pitch := 0.0
 		var seated := false
+		var in_cabin := false
+		var on_foot: bool = guest.phase == "queue"
 		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 			var leg: Dictionary = guest.route.legs[guest.leg]
 			var fraction: float = clampf((guest.elapsed + simulation_fraction) / guest.get("duration", leg.minutes), 0, 1)
@@ -681,42 +804,55 @@ func _process(delta: float) -> void:
 				var ahead: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, minf(1, fraction + 0.004), guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1)))
 				pitch = atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())
 			elif leg.kind == "lift" and guest.phase == "moving":
-				var lift: Dictionary = model.asset(leg.id)
-				var direction := Terrain.unpack(lift.top) - Terrain.unpack(lift.bottom)
-				angle = atan2(direction.x, direction.y)
-				if lift.kind in ["chair", "chair6", "gondola"]:
-					seated = true
-					var nearest := INF
-					for car in _car_positions.get(lift.id, []):
-						if absf(car.fraction - fraction) < nearest:
-							nearest = absf(car.fraction - fraction)
-							var seats := 6 if lift.kind == "chair6" else (8 if lift.kind == "gondola" else 4)
-							var seat: int = int(guest.id) % seats
-							var x: float = (seat % 4 - 1.5) if lift.kind == "gondola" else (seat - (seats - 1) * 0.5) * (0.7 if seats == 6 else 1.0)
-							var z: float = (floori(seat / 4.0) - 0.5) * 1.6 if lift.kind == "gondola" else 0
-							position_value = car.point + Basis(Vector3.UP, angle) * Vector3(x, 0.15, z)
+				var pose: Dictionary = model.rider_pose(guest, simulation_fraction)
+				position_value = pose.transform.origin
+				angle = pose.transform.basis.get_euler().y
+				seated = pose.seated
+				in_cabin = Fleet.family(model.asset(leg.id)) == "gondola"
+			elif leg.kind == "visit":
+				if follow_guest == int(guest.id):
+					focus = Vector2(position_value.x, position_value.z)
+					_follow_position = position_value
+					_update_camera()
+				continue
 			else:
+				on_foot = true
 				var a := Terrain.unpack(leg.points[0])
 				var b := Terrain.unpack(leg.points.back())
 				angle = atan2(b.x - a.x, b.y - a.y)
+		if guest.phase == "queue":
+			angle = Fleet.basis(model.asset(guest.route.legs[guest.leg].id)).get_euler().y
+			if _guest_positions.has(guest.id) and delta > 0:
+				position_value = _guest_positions[guest.id].move_toward(position_value, delta * 1.6 * motion_rate if motion_running else 0)
 		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
 		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
-		if seated:
+		if in_cabin:
+			_cabin_riders.multimesh.set_instance_transform(cabin_riding, transform_value)
+			_cabin_riders.multimesh.set_instance_color(cabin_riding, color)
+			cabin_riding += 1
+		elif seated:
 			_riders.multimesh.set_instance_transform(riding, transform_value)
 			_riders.multimesh.set_instance_color(riding, color)
 			riding += 1
+		elif on_foot:
+			_walkers.multimesh.set_instance_transform(foot_visitors, transform_value)
+			_walkers.multimesh.set_instance_color(foot_visitors, color)
+			foot_visitors += 1
 		else:
 			visitor_mesh.multimesh.set_instance_transform(walking, transform_value)
 			visitor_mesh.multimesh.set_instance_color(walking, color)
 			walking += 1
 		next_positions[guest.id] = position_value
 		if follow_guest == int(guest.id):
+			_follow_position = position_value
 			focus = Vector2(position_value.x, position_value.z)
 			_update_camera()
 	_guest_positions = next_positions
 	_update_occlusion(delta)
 	visitor_mesh.multimesh.visible_instance_count = walking
 	_riders.multimesh.visible_instance_count = riding
+	_cabin_riders.multimesh.visible_instance_count = cabin_riding
+	_walkers.multimesh.visible_instance_count = foot_visitors
 	var machines := 0
 	for piste in model.pistes:
 		if piste.get("grooming_until", 0) <= model.minute:
@@ -787,7 +923,7 @@ func _draw_snow(piste: Dictionary) -> void:
 			for lane in range(Snow.LANES + 1):
 				var lateral := (float(lane) / Snow.LANES - 0.5) * width
 				var relief := Snow.relief(piste, fraction, lateral)
-				vertices.append(terrain.world(center + side * lateral, 1.3 + relief))
+				vertices.append(terrain.world(center + side * lateral, Snow.base_height(piste, fraction) + relief))
 				var color := Color("e4edf4").lerp(Color("b8cedc"), clampf(-relief, 0, 0.35))
 				if lane in [0, Snow.LANES]:
 					color = PISTE_COLORS[piste.difficulty].lightened(0.2)
@@ -808,7 +944,7 @@ func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run
 	var point: Vector2 = frame.point + side * side_offset
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var road_side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	return terrain.world(point, 1.35 + Snow.mesh_relief(piste, fraction, (point - center).dot(road_side)))
+	return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(road_side)) + 0.05)
 
 func _trace_quad(surface: SurfaceTool, a: Vector3, b: Vector3, width: float, color: Color) -> void:
 	var side := Vector3(b.z - a.z, 0, a.x - b.x).normalized() * width
@@ -901,6 +1037,8 @@ func _update_camera() -> void:
 	camera.size = zoom
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
 	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
+	if follow_guest != -1 and _follow_position.is_finite():
+		target = _follow_position + Vector3.UP
 	if camera_mode == 3:
 		camera.position = target + Vector3.UP * maxf(zoom * 1.6, 1500)
 		camera.look_at(target, Vector3(-sin(yaw), 0, -cos(yaw)))
