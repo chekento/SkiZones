@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="220" viewBox="0 0 1280 220" role="img" aria-label="Download APK — SkiZones — Android ARM64 Preview">
+<defs><linearGradient id="bg"><stop stop-color="#122e3b"/><stop offset="1" stop-color="#255c6a"/></linearGradient></defs>
+<rect width="1280" height="220" rx="24" fill="url(#bg)"/>
+<path d="M760 220 905 45 1030 180 1112 83 1280 220Z" fill="#8ad6da" opacity=".14"/>
+<path d="m875 82 30-37 36 39-24-7-14 11-13-10Z" fill="#e6f7f5" opacity=".7"/>
+<text x="48" y="53" fill="#9ddfdb" font-family="Arial,sans-serif" font-size="18" letter-spacing="4">SKIZONES / ANDROID PREVIEW</text>
+<text x="46" y="126" fill="#ffffff" font-family="Arial,sans-serif" font-size="58" font-weight="700">↓ Download APK</text>
+<text x="49" y="177" fill="#d0e6e9" font-family="Arial,sans-serif" font-size="22">Dein Berg. Dein Resort. Dein nächster Winter.</text>
+<rect x="1045" y="85" width="178" height="54" rx="27" fill="#eab582"/>
+<text x="1134" y="120" text-anchor="middle" fill="#142e39" font-family="Arial,sans-serif" font-size="20" font-weight="700">ARM64 · 7.0+</text>
+</svg>

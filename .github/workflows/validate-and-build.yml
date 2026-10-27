@@ -3,6 +3,11 @@ name: Validate and build Android
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'tools/sync_releases.py'
+      - '.github/workflows/sync-release-presentation.yml'
   pull_request:
   workflow_dispatch:
 

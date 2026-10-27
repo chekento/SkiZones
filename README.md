@@ -8,9 +8,17 @@
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
-### [⬇ Android-APK direkt herunterladen · v0.6.0](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk)
+<!-- APK-DOWNLOAD:START -->
+[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk)
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.6.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
+**Aktueller Download: v0.6.0 · Android ARM64 · Preview**
+
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.6.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
+
+![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
+
+*Nur APK-Dateien werden gezählt, einschließlich Previews. Prüfsummen und Metadaten sind ausgeschlossen. Downloads sind keine eindeutigen Installationen. Der Download-Link wird nach dem Build und zusätzlich stündlich aktualisiert; GitHub-Bildcaches können verzögern.*
+<!-- APK-DOWNLOAD:END -->
 
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
@@ -19,6 +27,18 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 ![SkiZones 0.6.0: größere Stationsplätze, Hütten, Fußwege und eine separat gebaute Gehfläche](docs/screenshots/resort-060.webp)
 
 *Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste nutzen die tatsächlichen Wege und Lifte. Große Stationsplätze und eine zusätzlich gebaute Gehfläche verbinden die Gebäude. Die Karriere startet mit einem kleineren Resort.*
+
+## In-Game Screenshots
+
+Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Das illustrierte Menüpanorama ist gesondert gekennzeichnet.
+
+| Pisten und Skispuren · 0.6.0 | Besetzter Vierersessel · 0.5.0 |
+|---|---|
+| [![Verbundene Pisten und echte Skispuren](docs/screenshots/curves-060.webp)](docs/screenshots/curves-060.webp) | [![Vier Gäste in ihren zugewiesenen Liftplätzen](docs/screenshots/chair-four.webp)](docs/screenshots/chair-four.webp) |
+| Bauplanung · 0.6.0 | Gehflächen bauen · 0.6.0 |
+| [![Planung mit Bauen und Abbrechen](docs/screenshots/build-flow-060.webp)](docs/screenshots/build-flow-060.webp) | [![Gehflächen im Baukatalog](docs/screenshots/walking-tool-060.webp)](docs/screenshots/walking-tool-060.webp) |
+
+Alle Bilder lassen sich für die volle Ansicht anklicken.
 
 ## Jetzt anspielen
 
@@ -60,6 +80,9 @@ Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release.
 **Alte Resorts bleiben spielbar.** Versionen bis 0.5 werden auf die sicheren Fußwege übertragen; Geld, gebaute Anlagen, Forschung, Schnee und Rekorde bleiben erhalten. Laufende Gäste erhalten beim Versionswechsel angepasste Wege. Format 6 speichert die zusätzlich gebauten Gehflächen.
 
 [Bedienung und Bauablauf](docs/BAUEN_UND_BEDIENUNG.md) · [Release-Notizen](docs/releases/0.6.0.md)
+
+<details>
+<summary>Frühere Updates: Lifte, Pisten und Bergleben</summary>
 
 ## Seit 0.5.0: richtige Lifte, lebendige Stationsplätze
 
@@ -158,6 +181,8 @@ Die Karriere aus 0.2 bleibt dabei erhalten: **fünf Resort-Sterne, neun Forschun
 ![Neuer Baukatalog mit Punschstand, Panoramaterrasse und Wärmeunterstand](docs/screenshots/catalogue.png)
 
 **Karriere** schaltet fortgeschrittene Technik durch Forschung frei. **Freier Aufbau** stellt die Anlagentypen und Ausbaustufen direkt bereit; neue Gebiete werden weiterhin über den Bergpass freigeschaltet. Ältere Spielstände behalten ihre bisherigen Baumöglichkeiten.
+
+</details>
 
 ## Baue dein Skigebiet
 
