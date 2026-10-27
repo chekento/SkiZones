@@ -32,6 +32,13 @@ var current_tool := "inspect"
 var price_label: Label
 var _toast := "Willkommen am Sonnenhang. Erweitere dein Resort."
 var _toast_until := 0.0
+var map_focus := false
+var map_focus_button: Button
+var slopes_button: Button
+var tools_panel: PanelContainer
+var inspector_panel: PanelContainer
+var plan_panel: PanelContainer
+var slope_legend: PanelContainer
 
 func setup(controller: Node) -> void:
 	game = controller
@@ -57,10 +64,33 @@ func setup(controller: Node) -> void:
 	_build_inspector()
 	_build_plan_bar()
 	_build_camera_bar()
+	_build_slope_legend()
 	_build_menu()
 	_build_dialogs()
 	show_context("inspect")
 	refresh()
+	get_viewport().size_changed.connect(_update_safe_area)
+	_update_safe_area()
+
+static func safe_content_rect(display_size: Vector2, viewport_size: Vector2, safe_area: Rect2) -> Rect2:
+	var full := Rect2(Vector2.ZERO, viewport_size)
+	if display_size.x <= 0 or display_size.y <= 0 or viewport_size.x <= 0 or viewport_size.y <= 0:
+		return full
+	var clipped := safe_area.intersection(Rect2(Vector2.ZERO, display_size))
+	if not clipped.has_area():
+		return full
+	var scale_value := viewport_size / display_size
+	return Rect2(clipped.position * scale_value, clipped.size * scale_value)
+
+func _update_safe_area() -> void:
+	var size_value := get_viewport().get_visible_rect().size
+	var content := Rect2(Vector2.ZERO, size_value)
+	if OS.has_feature("android") or OS.has_feature("ios"):
+		content = safe_content_rect(Vector2(DisplayServer.screen_get_size()), size_value, Rect2(DisplayServer.get_display_safe_area()))
+	root.offset_left = content.position.x
+	root.offset_top = content.position.y
+	root.offset_right = content.end.x - size_value.x
+	root.offset_bottom = content.end.y - size_value.y
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -143,6 +173,7 @@ func _build_header() -> void:
 
 func _build_tools() -> void:
 	var panel := _panel(root, 24, 170, 268, -24, 0, 1)
+	tools_panel = panel
 	var box := _vbox(panel, 10)
 	_label(box, "BAUPLANUNG", 13, TEAL)
 	_label(box, "Dein Resort wächst.", 21)
@@ -172,6 +203,7 @@ func _build_tools() -> void:
 
 func _build_inspector() -> void:
 	var panel := _panel(root, -304, 170, -24, -180, 1, 1)
+	inspector_panel = panel
 	var box := _vbox(panel, 12)
 	_label(box, "RESORT-KOMPASS", 13, TEAL)
 	box.add_child(inspector_title)
@@ -194,6 +226,7 @@ func _build_inspector() -> void:
 
 func _build_plan_bar() -> void:
 	var panel := _panel(root, 292, -156, -24, -24, 1, 1)
+	plan_panel = panel
 	var box := _vbox(panel, 8)
 	box.add_child(plan_text)
 	plan_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -218,12 +251,46 @@ func _build_camera_bar() -> void:
 	panel.add_child(box)
 	labels.weather = _label(box, "", 16, INK)
 	_spacer(box, false)
+	slopes_button = _button(box, "Gefälle", toggle_slopes)
+	slopes_button.custom_minimum_size.y = 40
+	slopes_button.tooltip_text = "Zeigt die stärkste Neigung am Bauplatz. Serpentinen können mildere Abfahrten ermöglichen."
+	map_focus_button = _button(box, "Mehr Karte", func(): set_map_focus(not map_focus))
+	map_focus_button.custom_minimum_size.y = 40
 	pause_button = _button(box, "Pause", game.toggle_pause)
 	for speed in [1, 4]:
 		speed_buttons.append(_button(box, "%d×" % speed, func(): game.set_speed(speed)))
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], ["↶", func(): game.view.rotate_view(-0.2)], ["↷", func(): game.view.rotate_view(0.2)], ["Zentrieren", func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
 		button.custom_minimum_size = Vector2(48, 40)
+
+func _build_slope_legend() -> void:
+	slope_legend = _panel(root, 292, 176, -328, 224, 1)
+	slope_legend.add_theme_stylebox_override("panel", _style(Color("204657"), 9, 10))
+	_label(slope_legend, "Hanggefälle: Grün <8 % · Blau ≤30 % · Rot ≤55 % · Grau >55 %", 15, INK, true)
+	slope_legend.hide()
+
+func toggle_slopes() -> void:
+	game.view.toggle_slopes()
+	slopes_button.modulate = ACCENT if game.view.slopes_visible else Color.WHITE
+	_apply_panel_visibility()
+
+func set_map_focus(enabled: bool) -> void:
+	map_focus = enabled
+	map_focus_button.text = "Werkzeuge" if map_focus else "Mehr Karte"
+	_apply_panel_visibility()
+
+func _apply_panel_visibility() -> void:
+	var show_game := not menu.visible
+	for panel in map_panels:
+		if panel.get_parent() == root:
+			panel.visible = show_game
+	tools_panel.visible = show_game and not map_focus
+	inspector_panel.visible = show_game and not map_focus
+	# Keep a pending plan and its confirmation available in the wider map view.
+	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
+	slope_legend.visible = show_game and game.view.slopes_visible
+	slope_legend.offset_left = 24 if map_focus else 292
+	slope_legend.offset_right = -24 if map_focus else -328
 
 func _build_menu() -> void:
 	root.add_child(menu)
@@ -244,7 +311,7 @@ func _build_menu() -> void:
 	continue_button = _button(box, "Fortsetzen", game.continue_game, true)
 	_button(box, "Neues Resort · Sonnenhang", func(): game.start_game(true))
 	_button(box, "Freier Aufbau · leeres Gelände", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Prototyp 0.1\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_label(box, "Ski Resort Tycoon  /  Version 0.1.1\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -262,17 +329,13 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
-	for panel in map_panels:
-		if panel.get_parent() == root:
-			panel.hide()
 	menu.show()
+	_apply_panel_visibility()
 	continue_button.disabled = not game.has_game and not FileAccess.file_exists("user://skizones_save.json") and not FileAccess.file_exists("user://skizones_save.json.bak")
 
 func hide_menu() -> void:
-	for panel in map_panels:
-		if panel.get_parent() == root:
-			panel.show()
 	menu.hide()
+	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
 	if menu.visible or daily_dialog.visible or help_dialog.visible:
@@ -291,6 +354,8 @@ func building_kind() -> String:
 func show_context(tool: String, id: int = -1) -> void:
 	current_tool = tool
 	selected_id = id
+	if tool != "inspect" or id != -1:
+		set_map_focus(false)
 	price_label = null
 	for child in inspector_actions.get_children():
 		inspector_actions.remove_child(child)
@@ -345,7 +410,9 @@ func _refresh_context_text() -> void:
 		var goal_text := ""
 		for i in range(goals.size()):
 			goal_text += ("[color=#75cdc7]✓ " if model.achievements.has(i) else "[color=#91b0bc]○ ") + goals[i] + "[/color]\n"
-		inspector_text.text = "[b]%d Pisten · %d Lifte[/b]\n%d erreichbare Abfahrten\n%d Gäste in Warteschlangen\n\n[color=#efb17d]HEUTE[/color]\nEintritte: %s €\nServices: %s €\nBetrieb: ~%s €/Tag\n\n[color=#efb17d]DEINE MEILENSTEINE[/color]\n%s\nAnlagen auf der Karte antippen, um Betrieb und Zustand zu prüfen." % [model.pistes.size(), model.lifts.size(), model.reachable_piste_ids().size(), model.queue_size(), money_text(model.report.tickets), money_text(model.report.services), money_text(model.operating_costs()), goal_text]
+		var piste_word := "Piste" if model.pistes.size() == 1 else "Pisten"
+		var lift_word := "Lift" if model.lifts.size() == 1 else "Lifte"
+		inspector_text.text = "[b]%d %s · %d %s[/b]\n%d erreichbare Abfahrten\n%d Gäste in Warteschlangen\n\n[color=#efb17d]HEUTE[/color]\nEintritte: %s €\nServices: %s €\nBetrieb: ~%s €/Tag\n\n[color=#efb17d]DEINE MEILENSTEINE[/color]\n%s\nAnlagen antippen, um den Betrieb zu prüfen. Gefälle blendet die Hangneigung ein; Mehr Karte vergrößert die freie Ansicht." % [model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), money_text(model.report.tickets), money_text(model.report.services), money_text(model.operating_costs()), goal_text]
 	elif current_tool == "lift":
 		var spec: Dictionary = Catalog.LIFTS[lift_kind()]
 		inspector_text.text = "[color=#efb17d]%s € + %d €/m[/color]\n\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nDie Abfahrt muss von der Bergstation erreichbar sein und wieder ins Tal führen." % [money_text(spec.cost), spec.per_m, spec.capacity, spec.upkeep, spec.wind_limit]

@@ -66,6 +66,7 @@ func start_game(starter: bool) -> void:
 	_day_report_shown = false
 	view.home()
 	hud.hide_menu()
+	hud.set_map_focus(false)
 	set_tool("inspect")
 	hud.toast("Dein Sonnenhang ist eröffnet. Der blaue Rundweg ist bereits in Betrieb." if starter else "Freies Gelände: Plane zuerst einen Lift und einen blauen Rundweg.")
 	hud.refresh()
@@ -278,6 +279,7 @@ func _input(event: InputEvent) -> void:
 				KEY_L: set_tool("lift")
 				KEY_G: set_tool("building")
 				KEY_F1: hud.show_help()
+				KEY_TAB: hud.set_map_focus(not hud.map_focus)
 				KEY_S:
 					if event.ctrl_pressed:
 						save_game()
@@ -354,6 +356,9 @@ func _capture(path: String) -> void:
 		for i in range(120):
 			model.advance_minute()
 		hud.refresh()
+	if OS.get_cmdline_user_args().has("--capture-slopes"):
+		hud.toggle_slopes()
+		hud.set_map_focus(true)
 	for i in range(12):
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw

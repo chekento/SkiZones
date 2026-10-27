@@ -10,6 +10,8 @@ Der Export verwendet die offiziellen, vorkompilierten Android-Templates ohne Gra
 
 Der Workflow **Validate and build Android** läuft bei Änderungen an `main`, bei Pull Requests und auf manuellen Start. Er importiert das Projekt, führt Simulations-, Szenen- und Touch-Tests aus, exportiert die APK und prüft ihre Signatur und ZIP-Struktur. Das Ergebnis steht als **SkiZones-Android-debug** im jeweiligen Workflow-Lauf bereit.
 
+Bei einem erfolgreichen Lauf auf `main` veröffentlicht der anschließende Job eine neue Versionsnummer als GitHub-Preview-Release. Die APK heißt `SkiZones-<Version>-android-arm64.apk`. Prüfsumme und `manifest.json` werden beigefügt. Der direkte Download steht oben in der README. Veröffentlichte Versionen werden nicht nachträglich überschrieben. Eine neue Fassung benötigt passende neue Versionsnummern in Projekt und Export-Preset, einen höheren Android-Versionscode und zugehörige Notizen unter `docs/releases/`.
+
 Die CI erstellt einen Debug-Schlüssel und erhält ihn über den Actions-Cache. Solange dieser Cache erhalten bleibt, können CI-Testversionen mit derselben Signatur aktualisiert werden. Der Schlüssel ist ausschließlich für Tests bestimmt. Er wird nicht ins Repository geschrieben. APK-Artefakte bleiben 30 Tage verfügbar und können erneut gebaut werden.
 
 ## Lokal unter Linux bauen
@@ -26,6 +28,7 @@ export JAVA_HOME=/pfad/zum/jdk-17
 export ANDROID_HOME=/pfad/zum/android-sdk
 export GODOT_BIN=/pfad/zu/godot
 python3 tools/export_android.py
+python3 tools/package_android.py
 ```
 
 Das Skript legt den Debug-Schlüssel und isolierte Godot-Exporteinstellungen unter `build/export-config/` an. Persönliche Editor-Einstellungen werden nicht verändert. `build/` ist von Git ausgeschlossen.

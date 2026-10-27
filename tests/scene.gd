@@ -117,6 +117,32 @@ func run() -> void:
 	for button in game.hud.tool_buttons.values():
 		inside = inside and bounds.encloses(button.get_global_rect())
 	check(inside, "Every build tool remains within the viewport")
+	game.hud.set_map_focus(true)
+	check(not game.hud.tools_panel.visible and not game.hud.inspector_panel.visible and not game.hud.plan_panel.visible, "Expanded map hides the sidebars and idle plan bar")
+	check(not game.hud.blocks_map(ui_position), "Expanded map gives the sidebar area back to world input")
+	game.set_tool("blue")
+	check(not game.hud.map_focus and game.hud.tools_panel.visible and game.hud.plan_panel.visible, "Selecting a build tool restores the controls")
+	game.points = [[245, -130], [305, 0], [200, 205]]
+	game._update_plan()
+	game.hud.set_map_focus(true)
+	check(game.points.size() == 3 and game.hud.plan_panel.visible, "Expanded map preserves a pending route and its confirmation")
+	game.hud.toggle_slopes()
+	var overlay: MeshInstance3D = game.view.slope_overlay
+	check(game.view.slopes_visible and overlay.visible and game.hud.slope_legend.visible, "Slope overlay and legend open together")
+	var terrain_normal: Vector3 = game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_NORMAL][0]
+	var overlay_normal: Vector3 = overlay.mesh.surface_get_arrays(0)[Mesh.ARRAY_NORMAL][0]
+	check(terrain_normal.y > 0 and overlay_normal.y > 0, "Terrain and slope faces point upward and are visible from the management camera")
+	game.hud.toggle_slopes()
+	game.hud.toggle_slopes()
+	check(game.view.slope_overlay == overlay, "Repeated slope toggles reuse the existing geometry")
+	game.show_menu()
+	check(not game.hud.slope_legend.visible, "Slope legend stays hidden behind the main menu")
+	game.continue_game()
+	check(game.hud.slope_legend.visible, "Slope legend returns after continuing")
+	var safe: Rect2 = game.hud.safe_content_rect(Vector2(2400, 1080), Vector2(2000, 900), Rect2(72, 0, 2328, 1056))
+	check(safe.position.is_equal_approx(Vector2(60, 0)) and safe.size.is_equal_approx(Vector2(1940, 880)), "Android cutouts and navigation insets map to logical UI coordinates")
+	check(game.hud.safe_content_rect(Vector2.ZERO, Vector2(1440, 900), Rect2()) == Rect2(0, 0, 1440, 900), "Missing display metrics leave the full UI usable")
+	check(game.hud.safe_content_rect(Vector2(2400, 1080), Vector2(2000, 900), Rect2(-100, 0, 2600, 1200)) == Rect2(0, 0, 2000, 900), "Safe areas are clipped to the display bounds")
 	# Release the complete scene before checking process exit, including its fonts.
 	game.queue_free()
 	await process_frame

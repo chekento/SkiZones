@@ -6,6 +6,8 @@
 
 ## 0.2 · Android im Alltag
 
+Bereits in **0.1.1** ergänzt: sichere Displaybereiche, einblendbare Hangneigung, mehr Kartenfläche und direkte APK-Releases mit Prüfsumme.
+
 Physische Geräte prüfen, sichere Displaybereiche berücksichtigen, Touch-Größen abstimmen und App-Unterbrechungen testen. Ein einstellbarer Detailgrad, gebündelte Pistenmarkierungen und ein Performance-Budget sollen große Resorts ermöglichen. Speicherstände sollen vollständige laufende Reiserouten samt Migration erhalten. Terrain- und Verbindungsanzeigen sollen Engpässe bereits vor dem Bau zeigen.
 
 ## 0.3 · Mehr Planung am Berg

@@ -22,6 +22,14 @@ static func height(point: Vector2) -> float:
 static func world(point: Vector2, offset: float = 0.0) -> Vector3:
 	return Vector3(point.x, height(point) + offset, point.y)
 
+static func slope_percent(point: Vector2) -> float:
+	# Steepest local inclination; a traverse may have a gentler downhill profile.
+	if not point.is_finite():
+		return INF
+	var dx := (height(point + Vector2(3, 0)) - height(point - Vector2(3, 0))) / 6.0
+	var dz := (height(point + Vector2(0, 3)) - height(point - Vector2(0, 3))) / 6.0
+	return Vector2(dx, dz).length() * 100.0
+
 static func unpack(value: Variant) -> Vector2:
 	if value is Array and value.size() == 2 and number(value[0]) and number(value[1]):
 		return Vector2(float(value[0]), float(value[1]))

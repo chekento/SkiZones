@@ -1,52 +1,90 @@
+<div align="center">
+
+<img src="assets/icon.svg" width="96" alt="SkiZones Logo">
+
 # SkiZones
 
-Ein eigenständiger **3D Ski Resort Tycoon für Android**, entwickelt mit **Godot 4.5.1** und GDScript. Version 0.1.0 ist eine spielbare Grundlage für den weiteren Ausbau.
+**Dein Berg. Dein Resort.**
 
-![SkiZones im Spiel](docs/screenshots/resort.png)
+Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein eigenes Skigebiet.
 
-## Direkt losspielen
+### [⬇ Android-APK direkt herunterladen · v0.1.1](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk)
 
-Unter [Actions → Validate and build Android](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml) den letzten erfolgreichen Lauf öffnen und das Artefakt **SkiZones-Android-debug** herunterladen. Die ZIP-Datei enthält die signierte Test-APK und ihre SHA-256-Prüfsumme. Auf dem Android-Gerät die APK installieren und bei Bedarf das Installieren aus dieser Quelle erlauben.
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.1.1) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
 
-Das ist eine ARM64-Testversion für die lokale Installation. Sie ist keine Veröffentlichung im Google Play Store. Physische Android-Geräte müssen zusätzlich auf Leistung, Darstellung und Bedienung getestet werden.
+[![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
-Am Computer: Das Repository klonen, `project.godot` in **Godot 4.5.1 Standard** importieren und **F5** bzw. „Projekt ausführen“ wählen. Es sind keine Erweiterungen, API-Schlüssel oder kostenpflichtigen Assets erforderlich.
+</div>
 
-## Was bereits spielbar ist
+![Das laufende SkiZones-Resort](docs/screenshots/resort.png)
 
-- **Mehrere erschließbare Hänge** auf einer eigenen, prozedural gestalteten 3D-Karte mit Wald, Talzugang und gefrorenem See.
-- **Frei geplante Pisten**: Wegpunkte für blaue, rote und schwarze Abfahrten setzen. Das gesamte Geländeprofil entscheidet über die zulässige Schwierigkeit.
-- **Drei Liftarten**: Schlepplift, 4er-Sessel und Gondel, mit unterschiedlichen Kosten, Kapazitäten und Windgrenzen.
-- **Ein zusammenhängendes Wegenetz**: Gäste benötigen einen nutzbaren Rundweg vom Talzugang und zurück. Auch aufeinanderfolgende Lifte und mehrere Abfahrten in einer Route funktionieren.
-- **Gäste mit drei Könnensstufen**, Eintrittspreisen, Aufenthaltsdauer, Warteschlangen, Beförderungen, Skirunden, Ausgaben und Zufriedenheit.
-- **Acht Gebäudetypen**: Berghütte, Restaurant, Skiverleih, Skischule, Beschneiung, Pistenraupengarage, Hotel und Bergwacht. Gebäude wirken in dieser Version über betriebliche Kennzahlen.
-- **Tagesbetrieb von 08:00 bis 18:00**, Wetter, Windschließungen, Schneemangel, Pistenverschleiß und nächtliche Präparierung.
-- **Baukosten, Betriebskosten, Tagesberichte, Aufbaukredit und vier Meilensteine** mit einmaligen Prämien.
-- **Touch- und Mausbedienung**, drehbare und zoombare Kamera, Pause, 1×/4× Geschwindigkeit, Auswählen, Schließen und Abbauen von Anlagen.
-- **Lokale Spielstände** mit Prüfsumme, geprüfter Wiederherstellung, atomarem Dateiaustausch und einer vorherigen Sicherung. Speichern ist manuell, beim Tageswechsel und bei App-Pause möglich.
+## Jetzt anspielen
 
-## Erste Schritte im Resort
+1. Oben die **APK herunterladen** und auf deinem Android-Gerät öffnen.
+2. Bei Bedarf die Installation aus dieser Quelle erlauben.
+3. **Neues Resort · Sonnenhang** wählen: Ein blauer Rundweg mit Lift, Hütte und Skiverleih ist bereits in Betrieb. **Freier Aufbau** startet mit leerem Gelände.
 
-1. **Neues Resort · Sonnenhang** eröffnet einen betriebsbereiten blauen Rundweg mit Schlepplift, Hütte und Skiverleih. Für einen Start ohne Anlagen gibt es **Freier Aufbau**.
-2. Im linken Menü eine Pistenfarbe wählen. Oben am Hang beginnen und weitere Punkte bergab setzen. **Bauen** bestätigt die gesetzte Route.
-3. Für neue Hänge zuerst die **Talstation**, dann die **Bergstation** eines Lifts planen. Lift und Abfahrt müssen zusammen einen Rückweg ermöglichen.
-4. Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal sind zusätzliche Fußwege bis **220 m** möglich.
-5. Gebäude im Tal oder nahe einer Station ergänzen. Gäste, Warteschlangen, Ruf und Tagesergebnis beobachten; die Tageskarte im Resort-Kompass einstellen.
+| Plattform | Voraussetzung |
+|---|---|
+| Android | Android 7.0 oder neuer · ARM64 · Querformat |
+| Verbindung | Offline spielbar · kein Account erforderlich |
+| Version | 0.1.1 Preview · mit einem Testschlüssel signiert |
+| Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
 
-Die Schwellen **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind bewusst gewählte Spielregeln, keine zugesicherte reale Pistenklassifizierung. Strecken mit nennenswerten bergauf führenden Abschnitten werden abgewiesen.
+Der Download liegt als versionierte APK im GitHub-Release. Dort bleiben APK, Prüfsumme und Build-Metadaten verfügbar. Hinweise zum Aktualisieren einer früheren Testinstallation stehen in den [Release-Notizen](docs/releases/0.1.1.md).
 
-| Aktion | Android / Touch | Computer |
+## Neu in 0.1.1
+
+- **Gefälle einschalten:** Die farbige Hangneigung hilft dir, geeignete Pisten zu planen.
+- **Mehr Karte:** Blende Seitenleisten aus und betrachte dein Resort groß. Ein laufender Bauplan bleibt erhalten.
+- **Smartphone-Layout:** Die Oberfläche berücksichtigt den vom Gerät gemeldeten sicheren Displaybereich.
+- **Bessere Lesbarkeit:** Ruhigere Beleuchtung und präzisere Beschriftungen.
+- **Ein Klick zur APK:** Direkter Download oben auf dieser Seite.
+
+<details>
+<summary>Gefälleansicht und große Karte ansehen</summary>
+
+![Gefälleansicht mit eingeblendeter Legende](docs/screenshots/slopes.png)
+
+Die Farben zeigen die stärkste lokale Hangneigung. Die Schwierigkeit einer gebauten Abfahrt wird entlang ihrer tatsächlichen Route geprüft; Serpentinen können eine mildere Abfahrt ermöglichen.
+
+</details>
+
+## Baue dein Skigebiet
+
+| System | Bereits spielbar |
+|---|---|
+| Pisten | Frei gesetzte Wegpunkte · blau, rot und schwarz · Prüfung des gesamten Streckenprofils |
+| Lifte | Schlepplift, 4er-Sessel und Gondel · Länge, Kapazität, Kosten und Windgrenzen |
+| Gebäude | Hütte, Restaurant, Skiverleih, Skischule, Beschneiung, Garage, Hotel und Bergwacht |
+| Gäste | Können, Rundwege, Warteschlangen, Skirunden, Ausgaben und Zufriedenheit |
+| Betrieb | Tageskarten, Bau- und Betriebskosten, Kredit, Tagesbericht und Meilensteine |
+| Berg und Wetter | Mehrere Hänge, Schnee, Tauwetter, Windschließungen, Verschleiß und Präparierung |
+| Spielstände | Lokal speichern und fortsetzen · Prüfsumme und vorherige Sicherung |
+
+Gebäude wirken in der aktuellen Version über Kennzahlen. Die vorgegebene Landschaft ist noch nicht verformbar. Echte Hotelbuchungen, Personal, Forschung und weitere Karten folgen im [Ausbauplan](docs/ROADMAP.md).
+
+## Deine erste Erweiterung
+
+Eine Pistenfarbe wählen, oben am Hang beginnen und weitere Wegpunkte bergab setzen. **Bauen** bestätigt die Route. Beim Lift zuerst die Talstation und dann die Bergstation setzen. Gäste benötigen einen vollständigen Rundweg vom Talzugang und zurück.
+
+Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können Gäste zwischen Anlagen bis **220 m** zu Fuß gehen. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
+
+| Aktion | Touch | Maus / Tastatur |
 |---|---|---|
-| Punkt setzen / Anlage auswählen | Antippen | Linksklick |
+| Punkt setzen oder Anlage auswählen | Antippen | Linksklick |
 | Karte bewegen | Ziehen | Ziehen mit linker/mittlerer Maustaste |
 | Zoomen | Zwei Finger oder −/+ | Mausrad oder −/+ |
-| Drehen | ↶ / ↷ | Q / E oder ↶ / ↷ |
+| Drehen | ↶ / ↷ | Q / E |
+| Größere Karte | Mehr Karte / Werkzeuge | Tab |
 | Pause | Pause / Weiter | Leertaste |
-| Werkzeug | Linkes Baumenü | Baumenü; B/R/K/L/G |
 | Speichern | Speichern | Strg+S |
-| Menü / Plan verlassen | Menü / Zurück-Taste | Esc / Rechtsklick für Werkzeug verlassen |
 
-## Entwickeln und prüfen
+## Entwicklung und Qualität
+
+Das Projekt verwendet **Godot 4.5.1**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Erweiterungen, API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
+
+**86 automatisierte Prüfungen** decken Simulation, Speicherstände, Verbindungen, gemeinsame Liftkapazität, Oberfläche und Touch-Bedienung ab. GitHub Actions prüft das Projekt und die APK vor jeder neuen Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit
@@ -55,12 +93,8 @@ godot --headless --script tests/scene.gd
 godot --headless -- --smoke-test
 ```
 
-Die Tests decken Geländeprofile, Baukosten, Transportnetze, gemeinsame Liftkapazitäten, Tageswechsel, Wetter, aktive Gäste beim Speichern/Laden und Touch-Gesten in der echten Szene ab. GitHub Actions führt dieselben Prüfungen vor dem APK-Export aus.
+[Android-Build](docs/ANDROID.md) · [Architektur und Spielsysteme](docs/DESIGN.md) · [Prüfstand](docs/VALIDATION.md) · [Roadmap](docs/ROADMAP.md)
 
-- [Android-Export und Installation](docs/ANDROID.md)
-- [Spielsysteme und Architektur](docs/DESIGN.md)
-- [Roadmap und bewusste Grenzen des Prototyps](docs/ROADMAP.md)
+## Rechte
 
-## Originalität und Rechte
-
-Code, Oberfläche, Namensgestaltung und prozedurale Modelle wurden für dieses Projekt erstellt. Fremde Spielinhalte, Marken, Grafiken oder Sounds werden nicht mitgeliefert. [Godot und seine Bestandteile](https://godotengine.org/license/) sowie die Android-Werkzeuge bleiben unter den jeweiligen Lizenzen ihrer Anbieter. Für dieses Repository wird mit diesem ersten Stand noch keine zusätzliche Open-Source-Lizenz erteilt.
+Eine eigenständige Spielwelt von **KoSch**. Fremde Spielgrafiken, Marken oder Sounds werden nicht mitgeliefert. [Godot und seine Bestandteile](https://godotengine.org/license/) sowie die Android-Werkzeuge bleiben unter den Lizenzen ihrer Anbieter. Für dieses Repository ist bislang keine zusätzliche Open-Source-Lizenz erteilt.

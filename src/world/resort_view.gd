@@ -19,6 +19,9 @@ var _seen_revision := -1
 var _guest_positions: Dictionary = {}
 var _clock := 0.0
 var _last_guest_ids: Array = []
+var slopes_visible := false
+var slope_overlay: MeshInstance3D
+var terrain_instance: MeshInstance3D
 
 func setup(resort: RefCounted) -> void:
 	model = resort
@@ -54,7 +57,7 @@ func _build_environment() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-48, -35, 0)
 	sun.light_color = Color("fff0db")
-	sun.light_energy = 1.15
+	sun.light_energy = 0.9
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 1600
 	add_child(sun)
@@ -64,7 +67,7 @@ func _build_environment() -> void:
 	settings.background_color = Color("b5cdd5")
 	settings.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	settings.ambient_light_color = Color("bfdce7")
-	settings.ambient_light_energy = 0.55
+	settings.ambient_light_energy = 0.42
 	settings.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	environment.environment = settings
 	add_child(environment)
@@ -75,7 +78,7 @@ func _build_terrain() -> void:
 	for z in range(-400, 340, 10):
 		for x in range(-360, 360, 10):
 			var points := [Vector2(x, z), Vector2(x, z + 10), Vector2(x + 10, z), Vector2(x + 10, z + 10)]
-			for index in [0, 1, 2, 2, 1, 3]:
+			for index in [0, 2, 1, 2, 3, 1]:
 				var p: Vector2 = points[index]
 				var h := Terrain.height(p)
 				var grade := absf(Terrain.height(p + Vector2(3, 0)) - h) + absf(Terrain.height(p + Vector2(0, 3)) - h)
@@ -89,6 +92,7 @@ func _build_terrain() -> void:
 	var instance := MeshInstance3D.new()
 	instance.mesh = surface.commit()
 	instance.material_override = _material(Color.WHITE, true)
+	terrain_instance = instance
 	add_child(instance)
 	_box(self, Vector3(0, -8, -30), Vector3(720, 25, 740), Color("7295a4"))
 	# A small frozen lake and the valley access path anchor the resort entrance.
@@ -101,6 +105,38 @@ func _build_terrain() -> void:
 	lake_node.scale.z = 0.62
 	_ribbon(self, [[185, 335], [185, 280], [185, 230]], 18.0, Color("a0abb3"), 0.25)
 	_label(self, "TALZUGANG", Terrain.world(Terrain.BASE + Vector2(0, 65), 9), Color("36647a"))
+
+func toggle_slopes() -> void:
+	slopes_visible = not slopes_visible
+	if slope_overlay == null:
+		_build_slope_overlay()
+	slope_overlay.visible = slopes_visible
+
+func _build_slope_overlay() -> void:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for z in range(-400, 340, 10):
+		for x in range(-360, 360, 10):
+			var corners := [Vector2(x, z), Vector2(x, z + 10), Vector2(x + 10, z), Vector2(x + 10, z + 10)]
+			for index in [0, 2, 1, 2, 3, 1]:
+				var point: Vector2 = corners[index]
+				var grade := Terrain.slope_percent(point)
+				var color := Color("83bcaa")
+				if grade >= 8.0:
+					color = Color("68a6d0") if grade <= 30.0 else (Color("d8777c") if grade <= 55.0 else Color("687381"))
+				color.a = 0.68
+				surface.set_color(color)
+				# Keep the overlay below built piste ribbons and above the snow.
+				surface.add_vertex(Terrain.world(point, 0.16))
+	surface.generate_normals()
+	slope_overlay = MeshInstance3D.new()
+	slope_overlay.mesh = surface.commit()
+	var material := _material(Color.WHITE, true)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	slope_overlay.material_override = material
+	slope_overlay.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(slope_overlay)
 
 func _mesh(parent: Node3D, mesh: Mesh, position_value: Vector3, color: Color) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()

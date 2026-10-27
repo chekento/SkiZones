@@ -13,6 +13,8 @@ jobs:
   godot:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    outputs:
+      version: ${{ steps.package.outputs.version }}
     env:
       SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
       XDG_DATA_HOME: /home/runner/skizones-godot/share
@@ -59,12 +61,43 @@ jobs:
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones-debug.apk
           unzip -t build/android/SkiZones-debug.apk | tail -1
-          sha256sum build/android/SkiZones-debug.apk > build/android/SkiZones-debug.apk.sha256
+      - name: Prepare versioned APK download
+        id: package
+        run: python3 tools/package_android.py
       - uses: actions/upload-artifact@v4
         with:
           name: SkiZones-Android-debug
-          path: |
-            build/android/SkiZones-debug.apk
-            build/android/SkiZones-debug.apk.sha256
+          path: build/release/*
           if-no-files-found: error
           retention-days: 30
+
+  publish:
+    name: Publish APK download
+    needs: godot
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: SkiZones-Android-debug
+          path: build/release
+      - name: Publish an immutable preview release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.godot.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $tag already exists; its downloads are preserved."
+          else
+            gh release create "$tag" build/release/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "SkiZones ${VERSION} · Android Preview" \
+              --notes-file "docs/releases/${VERSION}.md" \
+              --prerelease --latest=false
+          fi

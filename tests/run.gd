@@ -32,6 +32,8 @@ func fresh(starter: bool = true):
 	return model
 
 func _test_terrain() -> void:
+	check(Terrain.slope_percent(Vector2(330, 320)) < 1, "Flat valley land is shown as gentle terrain")
+	check(Terrain.slope_percent(Vector2(-170, -100)) > 55, "The steep western hillside is identifiable before construction")
 	check(Terrain.analyse(BLUE, 0).ok, "Starter blue piste has a valid full profile")
 	check(not Terrain.analyse(BLACK, 0).ok, "Steep terrain cannot be painted blue")
 	check(not Terrain.analyse(BLACK, 1).ok and Terrain.analyse(BLACK, 2).ok, "Black terrain exceeds the red limit")
