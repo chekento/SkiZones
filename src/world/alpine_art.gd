@@ -6,7 +6,7 @@ var surface := SurfaceTool.new()
 func _init() -> void:
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-func add(mesh: Mesh, position_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO, size_value: Vector3 = Vector3.ONE) -> void:
+func add(mesh: Mesh, position_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO, size_value: Vector3 = Vector3.ONE, preserve_colors: bool = false) -> void:
 	var basis := Basis.from_euler(rotation).scaled(size_value)
 	var transform_value := Transform3D(basis, position_value)
 	var normal_basis := basis.inverse().transposed()
@@ -14,10 +14,11 @@ func add(mesh: Mesh, position_value: Vector3, color: Color, rotation: Vector3 = 
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR] if arrays[Mesh.ARRAY_COLOR] != null else PackedColorArray()
 	var count := indices.size() if not indices.is_empty() else vertices.size()
 	for i in range(count):
 		var index := indices[i] if not indices.is_empty() else i
-		surface.set_color(color)
+		surface.set_color(color * colors[index] if preserve_colors and not colors.is_empty() else color)
 		surface.set_normal((normal_basis * normals[index]).normalized())
 		surface.add_vertex(transform_value * vertices[index])
 
@@ -54,6 +55,40 @@ func link(from: Vector3, to: Vector3, radius: float, color: Color) -> void:
 func finish() -> ArrayMesh:
 	surface.index()
 	return surface.commit()
+
+func piste_sign(number: int, color: Color) -> ArrayMesh:
+	# Round Alpine route marker: white rim, difficulty color, number on both faces.
+	box(Vector3(0, 2.1, 0), Vector3(0.22, 4.2, 0.22), Color("8a9b9f"))
+	var disc := CylinderMesh.new()
+	disc.top_radius = 1.4
+	disc.bottom_radius = 1.4
+	disc.height = 0.16
+	disc.radial_segments = 32
+	add(disc, Vector3(0, 4.4, 0), Color("f5f6ec"), Vector3(PI / 2, 0, 0))
+	var face := CylinderMesh.new()
+	face.top_radius = 1.23
+	face.bottom_radius = 1.23
+	face.height = 0.18
+	face.radial_segments = 32
+	add(face, Vector3(0, 4.4, 0), color, Vector3(PI / 2, 0, 0))
+	var text := TextMesh.new()
+	text.font = ThemeDB.fallback_font
+	text.text = str(number)
+	text.font_size = 64
+	text.pixel_size = minf(0.033, 2.0 / maxf(1, text.font.get_string_size(text.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 64).x))
+	text.depth = 0.015
+	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	for side in [-1, 1]:
+		add(text, Vector3(0, 4.4, side * 0.12), Color("ffffff"), Vector3(0, PI if side == -1 else 0, 0))
+	return finish()
+
+func downhill_arrow() -> ArrayMesh:
+	# Points along local -Z; the view aligns this with the terrain's downhill vector.
+	box(Vector3(0, 0, 1.5), Vector3(1.4, 0.12, 8), Color("edf7ee"))
+	for side in [-1, 1]:
+		box(Vector3(side * 2, 0, -1.5), Vector3(1.4, 0.12, 6), Color("edf7ee"), Vector3(0, side * 0.72, 0))
+	return finish()
 
 func pine() -> ArrayMesh:
 	cone(Vector3(0, 3, 0), 0.7, 6, Color("67513c"), 0.5)

@@ -8,7 +8,7 @@ const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Art = preload("res://src/world/alpine_art.gd")
-const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("344859")]
+const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var model: RefCounted
 var terrain: Mountain
@@ -32,6 +32,14 @@ var camera := Camera3D.new()
 var focus := Vector2(15, -30)
 var yaw := 0.46
 var zoom := 620.0
+const CAMERA_MODES := ["Resort", "Panorama", "Bauansicht", "Draufsicht"]
+const CAMERA_PITCHES := [34.0, 22.0, 58.0, 90.0]
+var camera_mode := 0
+var pitch_degrees := 34.0
+var topography: Node3D
+var contour_mesh: MeshInstance3D
+var downhill_arrows: MultiMeshInstance3D
+var piste_markers: Array = []
 var asset_root := Node3D.new()
 var preview_root := Node3D.new()
 var trees := MultiMeshInstance3D.new()
@@ -218,6 +226,9 @@ func toggle_slopes() -> void:
 	if slope_overlay == null:
 		_build_slope_overlay()
 	slope_overlay.visible = slopes_visible
+	if topography == null:
+		_build_topography()
+	topography.visible = slopes_visible
 
 func _build_slope_overlay() -> void:
 	var arrays: Array = terrain_instance.mesh.surface_get_arrays(0)
@@ -242,6 +253,81 @@ func _build_slope_overlay() -> void:
 	slope_overlay.material_override = material
 	slope_overlay.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(slope_overlay)
+
+func _build_topography() -> void:
+	# Contours use the same indexed triangles as the visible ground: no floating
+	# approximation to a separate height field and no per-frame mesh rebuilding.
+	topography = Node3D.new()
+	add_child(topography)
+	var arrays: Array = terrain_instance.mesh.surface_get_arrays(0)
+	var ground: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var lines := PackedVector3Array()
+	var colors := PackedColorArray()
+	var altitude_labels: Dictionary = {}
+	for index in range(0, indices.size(), 3):
+		var triangle := [ground[indices[index]], ground[indices[index + 1]], ground[indices[index + 2]]]
+		var low: float = minf(triangle[0].y, minf(triangle[1].y, triangle[2].y))
+		var high: float = maxf(triangle[0].y, maxf(triangle[1].y, triangle[2].y))
+		for level in range((floori(low / 20) + 1) * 20, floori(high / 20) * 20 + 1, 20):
+			var intersections: Array[Vector3] = []
+			for edge in range(3):
+				var a: Vector3 = triangle[edge]
+				var b: Vector3 = triangle[(edge + 1) % 3]
+				if (a.y < level and b.y >= level) or (b.y < level and a.y >= level):
+					intersections.append(a.lerp(b, (level - a.y) / (b.y - a.y)) + Vector3.UP * 0.85)
+			if intersections.size() != 2 or intersections[0].distance_to(intersections[1]) < 0.01:
+				continue
+			var color := Color("304e60") if level % 100 == 0 else Color("548087")
+			lines.append_array(PackedVector3Array(intersections))
+			colors.append_array(PackedColorArray([color, color]))
+			if level % 100 == 0:
+				var at := (intersections[0] + intersections[1]) * 0.5
+				if not altitude_labels.has(level) or at.distance_to(Vector3(0, level, -100)) < altitude_labels[level].distance_to(Vector3(0, level, -100)):
+					altitude_labels[level] = at
+	var line_arrays := []
+	line_arrays.resize(Mesh.ARRAY_MAX)
+	line_arrays[Mesh.ARRAY_VERTEX] = lines
+	line_arrays[Mesh.ARRAY_COLOR] = colors
+	var mesh := ArrayMesh.new()
+	if not lines.is_empty():
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, line_arrays)
+	contour_mesh = MeshInstance3D.new()
+	contour_mesh.mesh = mesh
+	var material := _material(Color.WHITE, true)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	contour_mesh.material_override = material
+	contour_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	topography.add_child(contour_mesh)
+	for level in altitude_labels:
+		var label := Label3D.new()
+		label.text = "%d m" % level
+		label.font_size = 44
+		label.pixel_size = 0.15
+		label.position = altitude_labels[level] + Vector3.UP * 6
+		label.modulate = Color("f0f8eb")
+		label.outline_modulate = Color("274854")
+		label.outline_size = 12
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		topography.add_child(label)
+	var arrow_mesh := Art.new().downhill_arrow()
+	arrow_mesh.surface_set_material(0, material)
+	var instances := _multimesh(arrow_mesh, ground.size() / 64 + 64)
+	var nx := ceili(terrain.bounds.size.x / 20) + 1
+	var used := 0
+	for i in range(ground.size()):
+		if i % nx % 8 != 4 or int(i / nx) % 8 != 4 or normals[i].y > 0.995:
+			continue
+		var down := Vector3(normals[i].x, 0, normals[i].z).slide(normals[i]).normalized()
+		instances.set_instance_transform(used, Transform3D(Basis.looking_at(down, normals[i]).scaled(Vector3.ONE * 1.4), ground[i] + normals[i] * 1.2))
+		instances.set_instance_color(used, Color.WHITE)
+		used += 1
+	instances.visible_instance_count = used
+	downhill_arrows = MultiMeshInstance3D.new()
+	downhill_arrows.multimesh = instances
+	downhill_arrows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	topography.add_child(downhill_arrows)
 
 func _mesh(parent: Node3D, mesh: Mesh, position_value: Vector3, color: Color) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()
@@ -355,10 +441,16 @@ func rebuild() -> void:
 		if is_instance_valid(slope_overlay):
 			slope_overlay.queue_free()
 			slope_overlay = null
+		if is_instance_valid(topography):
+			topography.queue_free()
+			topography = null
+			contour_mesh = null
+			downhill_arrows = null
 		slopes_visible = false
 		_build_terrain()
 		_build_surroundings()
 	_piste_meshes.clear()
+	piste_markers.clear()
 	_occluders.clear()
 	_snow_seen = -1
 	_track_seen = -1
@@ -379,18 +471,35 @@ func rebuild() -> void:
 		asset_root.add_child(snow_mesh)
 		_piste_meshes[piste.id] = snow_mesh
 		_draw_snow(piste)
-		var markers := Art.new()
-		for i in range(ceili(piste.length / 40)):
-			var fraction: float = float(i) * 40 / piste.length
+		var sign_mesh := Art.new().piste_sign(piste.number, color)
+		sign_mesh.surface_set_material(0, _solid)
+		var sign_fractions: Array = []
+		for index in range(piste.points.size()):
+			sign_fractions.append(terrain.waypoint_fraction(piste.points, index))
+		for i in range(1, ceili(piste.length / 60)):
+			var fraction: float = float(i) * 60 / piste.length
+			var near_waypoint := false
+			for waypoint in sign_fractions:
+				near_waypoint = near_waypoint or absf(waypoint - fraction) * piste.length < 12
+			if not near_waypoint:
+				sign_fractions.append(fraction)
+		var signs := _multimesh(sign_mesh, sign_fractions.size() * 2)
+		var sign_index := 0
+		for fraction in sign_fractions:
 			var point := terrain.point_on_path(piste.points, fraction)
-			var ahead := terrain.point_on_path(piste.points, minf(fraction + 0.01, 1.0))
-			var side := (ahead - point).normalized().orthogonal() * width * 0.5
-			for sign_value in [-1, 1]:
-				var flag := terrain.world(point + side * sign_value, 2.5)
-				markers.box(flag, Vector3(0.35, 5, 0.35), Color("a0afb0"))
-				markers.box(flag + Vector3(0, 1.3, 0), Vector3(2.3, 1.6, 0.3), color)
-		_baked(asset_root, markers.finish(), Vector3.ZERO)
-		_label(asset_root, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty], terrain.world(Terrain.unpack(piste.points[0]), 24), color)
+			var direction := (terrain.point_on_path(piste.points, minf(fraction + 0.01, 1.0)) - terrain.point_on_path(piste.points, maxf(fraction - 0.01, 0))).normalized()
+			var side := direction.orthogonal() * (width * 0.5 + 1.5)
+			var angle := atan2(-direction.x, -direction.y)
+			for edge in [-1, 1]:
+				var at := terrain.world(point + side * edge, 0.25)
+				signs.set_instance_transform(sign_index, Transform3D(Basis(Vector3.UP, angle), at))
+				signs.set_instance_color(sign_index, Color.WHITE)
+				sign_index += 1
+				piste_markers.append({"id": piste.id, "number": piste.number, "difficulty": piste.difficulty, "position": at, "facing": -direction, "fraction": fraction})
+		var marker_node := MultiMeshInstance3D.new()
+		marker_node.multimesh = signs
+		asset_root.add_child(marker_node)
+		_label(asset_root, "%d · %s" % [piste.number, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty]], terrain.world(Terrain.unpack(piste.points[0]), 24), color)
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:
@@ -486,18 +595,32 @@ func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: 
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(instance)
 
-func preview(points: Array, color: Color, building_kind: String = "") -> void:
+func preview(points: Array, color: Color, building_kind: String = "", analysis: Dictionary = {}) -> void:
 	for child in preview_root.get_children():
 		preview_root.remove_child(child)
 		child.queue_free()
 	if points.is_empty():
 		return
-	_ribbon(preview_root, points, 7, color, 1.2)
+	if analysis.has("segments") and analysis.segments.size() == points.size() - 1:
+		for i in range(analysis.segments.size()):
+			var section_color: Color = PISTE_COLORS[analysis.segments[i].difficulty]
+			if analysis.segments[i].drop < -1.5:
+				section_color = Color("efb17d")
+			_ribbon(preview_root, [points[i], points[i + 1]], 7, section_color, 1.2)
+	else:
+		_ribbon(preview_root, points, 7, color, 1.2)
 	for point in points:
 		var sphere := SphereMesh.new()
 		sphere.radius = 3.5
 		sphere.height = 7
 		_mesh(preview_root, sphere, terrain.world(Terrain.unpack(point), 4), color)
+	if analysis.has("segments"):
+		for i in range(1, points.size()):
+			var a := Terrain.unpack(points[i - 1])
+			var b := Terrain.unpack(points[i])
+			var direction := (b - a).normalized()
+			var arrow := _baked(preview_root, Art.new().downhill_arrow(), terrain.world(a.lerp(b, 0.5), 2.5))
+			arrow.rotation.y = atan2(-direction.x, -direction.y)
 	if building_kind != "":
 		_baked(preview_root, Art.new().chalet(building_kind, 1, color), terrain.world(Terrain.unpack(points.back())))
 
@@ -549,12 +672,13 @@ func _process(delta: float) -> void:
 			var leg: Dictionary = guest.route.legs[guest.leg]
 			var fraction: float = clampf((guest.elapsed + simulation_fraction) / guest.get("duration", leg.minutes), 0, 1)
 			if leg.kind == "ski":
+				fraction = model.ski_fraction(leg, fraction)
 				var piste: Dictionary = model.asset(leg.id)
-				var personal := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops)
+				var personal := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 				angle = personal.yaw
 				lean = personal.lean
-				var before: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, maxf(0, fraction - 0.004), guest.loops))
-				var ahead: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, minf(1, fraction + 0.004), guest.loops))
+				var before: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, maxf(0, fraction - 0.004), guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1)))
+				var ahead: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, minf(1, fraction + 0.004), guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1)))
 				pitch = atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())
 			elif leg.kind == "lift" and guest.phase == "moving":
 				var lift: Dictionary = model.asset(leg.id)
@@ -678,8 +802,8 @@ func _draw_snow(piste: Dictionary) -> void:
 	surface.generate_normals()
 	_piste_meshes[piste.id].mesh = surface.commit()
 
-func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float) -> Vector3:
-	var frame := Motion.frame(terrain, piste, id, ability, fraction, run)
+func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float, range_start: float = 0, range_end: float = 1) -> Vector3:
+	var frame := Motion.frame(terrain, piste, id, ability, fraction, run, range_start, range_end)
 	var side: Vector2 = frame.direction.orthogonal()
 	var point: Vector2 = frame.point + side * side_offset
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
@@ -700,7 +824,7 @@ func _draw_tracks() -> void:
 	var live: Dictionary = {}
 	for guest in model.guests:
 		if guest.has("track") and guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "ski":
-			live[guest.track] = clampf((guest.elapsed + simulation_fraction) / guest.duration, 0, 1)
+			live[guest.track] = model.ski_fraction(guest.route.legs[guest.leg], (guest.elapsed + simulation_fraction) / guest.duration)
 	var visible: Array = []
 	var followed_track := ""
 	var followed_piste := -1
@@ -709,7 +833,7 @@ func _draw_tracks() -> void:
 		if int(guest.id) == follow_guest and guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "ski":
 			followed_piste = guest.route.legs[guest.leg].id
 			followed_track = guest.get("track", "")
-			followed_record = {"key": followed_track, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "to": live.get(followed_track, 0.0)}
+			followed_record = {"key": followed_track, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "from": guest.route.legs[guest.leg].get("start_fraction", 0.0), "until": guest.route.legs[guest.leg].get("end_fraction", 1.0), "to": live.get(followed_track, 0.0)}
 	for piste in model.pistes:
 		if terrain.point_on_path(piste.points, 0.5).distance_to(focus) <= maxf(zoom * 2 + piste.length * 0.5, 600):
 			visible.append(piste)
@@ -740,7 +864,8 @@ func _draw_tracks() -> void:
 		var piste_segments := 0
 		for track in ordered:
 			var end: float = maxf(track.to, live.get(track.key, 0.0))
-			var count := ceili(end * piste.length / 1.6)
+			var start: float = track.get("from", 0.0)
+			var count := ceili((end - start) * piste.length / 1.6)
 			if count == 0:
 				continue
 			var available := mini(quota - piste_segments, 4000 - segments)
@@ -748,8 +873,8 @@ func _draw_tracks() -> void:
 				if segments >= 4000 or piste_segments >= quota:
 					break
 				for ski in [-0.28, 0.28]:
-					var a := _track_point(piste, track.guest, track.ability, end * j / count, track.run, ski)
-					var b := _track_point(piste, track.guest, track.ability, end * (j + 1) / count, track.run, ski)
+					var a := _track_point(piste, track.guest, track.ability, lerpf(start, end, float(j) / count), track.run, ski, start, track.get("until", 1.0))
+					var b := _track_point(piste, track.guest, track.ability, lerpf(start, end, float(j + 1) / count), track.run, ski, start, track.get("until", 1.0))
 					_trace_quad(surface, a, b, 0.10, Color("91adbf"))
 					_trace_quad(surface, a + Vector3(0.1, 0.035, 0.1), b + Vector3(0.1, 0.035, 0.1), 0.04, Color("edf5f9"))
 				segments += 1
@@ -761,20 +886,37 @@ func _draw_tracks() -> void:
 	_track_mesh.material_override = _solid
 	_track_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
+func set_camera_mode(value: int) -> void:
+	camera_mode = clampi(value, 0, CAMERA_MODES.size() - 1)
+	pitch_degrees = CAMERA_PITCHES[camera_mode]
+	_update_camera()
+
+func set_camera_pitch(value: float) -> void:
+	pitch_degrees = clampf(value, 20, 80)
+	if camera_mode == 3:
+		camera_mode = 2
+	_update_camera()
+
 func _update_camera() -> void:
 	camera.size = zoom
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
 	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
-	var distance := zoom * 1.05
-	var elevation := lerpf(0.52, 0.68, clampf((zoom - 100) / 400, 0, 1))
-	camera.position = target + Vector3(sin(yaw) * distance, distance * elevation, cos(yaw) * distance)
-	camera.look_at(target)
+	if camera_mode == 3:
+		camera.position = target + Vector3.UP * maxf(zoom * 1.6, 1500)
+		camera.look_at(target, Vector3(-sin(yaw), 0, -cos(yaw)))
+	else:
+		# Keep the apparent scale similar while changing the viewing angle.
+		var distance := zoom * 1.22
+		var pitch := deg_to_rad(pitch_degrees)
+		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
+		camera.look_at(target)
 
 func pan(relative: Vector2) -> void:
 	follow_guest = -1
 	var units := zoom / maxf(get_viewport().get_visible_rect().size.y, 1)
 	var right := Vector2(camera.basis.x.x, camera.basis.x.z)
 	var up := Vector2(camera.basis.y.x, camera.basis.y.z)
-	focus += (-right * relative.x + up * relative.y * 1.7) * units
+	focus += (-right * relative.x + up * relative.y * (1.0 if camera_mode == 3 else 1.7)) * units
 	focus.x = clampf(focus.x, terrain.bounds.position.x + 20, terrain.bounds.end.x - 20)
 	focus.y = clampf(focus.y, terrain.bounds.position.y + 20, terrain.bounds.end.y - 20)
 	_update_camera()

@@ -39,3 +39,7 @@ Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spie
 ## Aktuelle Grenzen
 
 Vier feste Landschaften ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude wirken über Kennzahlen; es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.
+
+## Erledigt in 0.4.0
+
+Verschiebbare und einzeln löschbare Planungspunkte, automatische Schwierigkeit aus dem tatsächlichen Verlauf, Höhenprofil und runde nummerierte Schilder. Echte Anschlüsse an inneren Pistenwegpunkten, rote und schwarze Abkürzungen, nach Können gefilterte Rundwege über Teilstrecken und passende Teilspuren. Vier Kameraperspektiven mit Blickwinkel sowie Höhenlinien, Höhenangaben und Pfeilen bergab. 272 automatisierte Prüfungen, einschließlich eines Netzes mit 2.304 Wegpunkten.

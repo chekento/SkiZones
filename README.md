@@ -8,17 +8,17 @@
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
-### [⬇ Android-APK direkt herunterladen · v0.3.0](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk)
+### [⬇ Android-APK direkt herunterladen · v0.4.0](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk)
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.3.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.4.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
 
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
 </div>
 
-![SkiZones 0.3.0: Chalets, Hotel, Liftstationen und Skipisten im laufenden Spiel](docs/screenshots/resort.png)
+![SkiZones 0.4.0: eine blaue Abfahrt mit roten und schwarzen Abkürzungen auf dem Sonnenhang](docs/screenshots/junctions.webp)
 
-*Direkt aus dem Spiel gerendert: ein ausgebautes Testresort mit drei Pisten und zwei Liften. Die Karriere beginnt mit einem kleineren Sonnenhang.*
+*Direkt aus dem Spiel: ein Testresort mit einer blauen Route und angedockten roten und schwarzen Abkürzungen. Die Karriere beginnt mit einem kleineren blauen Rundweg.*
 
 ## Jetzt anspielen
 
@@ -31,14 +31,45 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.3.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.4.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.3.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.4.0.md).
 
-## Neu in 0.3.0: mehr Berg, mehr Leben, mehr Ruhe
+## Neu in 0.4.0: dein Verlauf entscheidet
 
-**Beobachte deinen Gästen beim Skifahren.** Jeder Gast hat einen Namen, einen eigenen Fahrstil und ein persönliches Tempo. Die Skifahrer ziehen unterschiedliche Schwünge statt derselben geraden Linie zu folgen. Tippe einen Gast an, wähle **Diesem Gast folgen** und zoome bis in die Nahansicht.
+**Plane ein Pistennetz mit echten Abzweigungen.** Eine lange Querung kann blau sein, während die direkte Abkürzung am selben Berg schwarz wird. Gäste wählen passende Rundwege für ihr Können und fahren nur die benötigten Teilstücke der verbundenen Pisten.
+
+| Änderung | Im Spiel |
+|---|---|
+| **Wegpunkte bearbeiten** | Nummerierte Planungspunkte mit Finger oder Maus verschieben, einzeln löschen und den Verlauf vor dem Bau korrigieren. Preis, Höhenprofil und Farbe aktualisieren sich sofort. |
+| **An Pisten andocken** | Kleine Kreise zeigen alle Wegpunkte bestehender Pisten. Neue Verbindungen rasten dort ein, auch mitten in einer Abfahrt. |
+| **Wege nach Können** | Anfänger bleiben auf Blau, Geübte können Rot und Profis zusätzlich Schwarz fahren. Die Gäste nutzen gemeinsame Anfahrten und Ausfahrten; die Liftkapazität bleibt gemeinsam. |
+| **Automatische Schwierigkeit** | Ein Werkzeug für alle Pisten. Das steilste Teilstück entlang der tatsächlichen Route bestimmt Blau, Rot oder Schwarz. Ein niedriger Durchschnitt verdeckt keine steilen Passagen. |
+| **Runde Pistenschilder** | Farbe und eigene Pistennummer entstehen beim Bauen. Die Schilder stehen an Wegpunkten und entlang der Ränder und sind auf beiden Seiten beschriftet. |
+| **Vier Kameraperspektiven** | Resort, Panorama, schräge Bauansicht und senkrechte Draufsicht. Dazu ein einstellbarer Blickwinkel; **C** wechselt die Perspektive. |
+| **Berg und Tal erkennen** | Geländehilfe mit Höhenlinien im 20-m-Abstand, beschrifteten 100-m-Linien und Pfeilen bergab. Das Bauprofil zeigt Höhe, Höhenverlust, Durchschnitt und steilstes Gefälle. |
+
+![Verschiebbare Planungspunkte und live berechnetes Höhenprofil](docs/screenshots/planning.webp)
+
+**So baust du eine Abkürzung:** Öffne **Pisten → Abfahrt planen**, starte an einem kleinen Anschlusskreis der vorhandenen Piste und ende an einem weiter unten gelegenen Anschluss. Ziehe die nummerierten Punkte für einen anderen Verlauf. **Bauen** bestätigt die automatisch eingestufte Verbindung.
+
+![Runde nummerierte Pistenschilder und individuelle Skispuren](docs/screenshots/signs.webp)
+
+Die Schilder orientieren sich an runden alpinen Pistenmarkierungen. Die Gefällegrenzen bleiben die bisherigen **Spielwerte**: Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %. Die Einstufung nutzt das Längsgefälle deiner Route; reale Regelwerke berücksichtigen weitere Eigenschaften. Mehr dazu und zur Bedienung: [Pisten planen und verbinden](docs/PISTENPLANUNG.md).
+
+<details>
+<summary>Kamera und Geländehilfe ansehen</summary>
+
+![Vier Perspektiven und ein einstellbarer Kamerawinkel](docs/screenshots/camera.webp)
+
+![Höhenlinien, beschriftete Höhen und Pfeile bergab](docs/screenshots/relief.webp)
+
+</details>
+
+## Seit 0.3.0: mehr Berg, mehr Leben, mehr Ruhe
+
+**Beobachte deine Gäste beim Skifahren.** Jeder Gast hat einen Namen, einen eigenen Fahrstil und ein persönliches Tempo. Die Skifahrer ziehen unterschiedliche Schwünge statt derselben geraden Linie zu folgen. Tippe einen Gast an, wähle **Diesem Gast folgen** und zoome bis in die Nahansicht.
 
 ![Individuelle Skifahrer und sichtbare Spuren im Schnee](docs/screenshots/skiers.png)
 
@@ -75,13 +106,13 @@ Die Karriere aus 0.2 bleibt dabei erhalten: **fünf Resort-Sterne, neun Forschun
 
 | System | Bereits spielbar |
 |---|---|
-| Pisten | Frei gesetzte Wegpunkte · blau, rot und schwarz · Prüfung des gesamten Streckenprofils · Ausbau |
+| Pisten | Verschiebbare Wegpunkte · Andockpunkte und Abzweigungen · automatische Farben und Schilder · Höhenprofil · Ausbau |
 | Lifte | Zauberteppich, Schlepplift, 4er-Sessel, 6er-Panoramasessel und Gondel · echte gemeinsame Förderkapazität · Windgrenzen · Ausbau |
 | Gebäude | Hütte, Restaurant, Skiverleih, Skischule, Beschneiung, Garage, Hotel, Bergwacht und sechs neue Dorfangebote |
 | Gäste | Können, Rundwege, Warteschlangen, Skirunden, Ausgaben und Zufriedenheit |
 | Wirtschaft | Tageskarten, Bau- und Betriebskosten, Forschungskosten, Kredit, Prämien und Ergebnis nach Investitionen |
 | Berg und Wetter | Schnee, Tauwetter, Windschließungen, Verschleiß, Präparierung und Forschungsprognose |
-| Spielstände | Separate Gebiete · volle Gästerouten · Spuren und Schneerelief · Prüfsumme · Sicherung · Migration aus 0.1.x und 0.2.x |
+| Spielstände | Separate Gebiete · volle Gästerouten · Spuren und Schneerelief · Prüfsumme · Sicherung · Migration aus 0.1.x bis 0.3.x |
 
 Gebäude wirken derzeit über Kennzahlen. Die lokale Schneeschicht verändert sich durch Skifahrer; das darunterliegende Berggelände lässt sich noch nicht frei bearbeiten. Einzelne Hotelbuchungen, Personal und die langfristige Feinabstimmung der Wirtschaft folgen im [Ausbauplan](docs/ROADMAP.md).
 
@@ -100,7 +131,7 @@ Das Panorama ist das Titelmotiv im Hauptmenü. Die anderen Bilder zeigen die tat
 
 ## Deine erste Erweiterung
 
-Eine Pistenfarbe wählen, oben am Hang beginnen und weitere Wegpunkte bergab setzen. **Bauen** bestätigt die Route. Beim Lift zuerst die Talstation und dann die Bergstation setzen. Gäste benötigen einen vollständigen Rundweg vom Talzugang und zurück.
+Im Baukatalog **Abfahrt planen** wählen, oben am Hang beginnen und weitere Wegpunkte bergab setzen. Nummerierte Punkte lassen sich ziehen und einzeln löschen; die Schwierigkeit entsteht automatisch. **Bauen** bestätigt die Route. Beim Lift zuerst die Talstation und dann die Bergstation setzen. Gäste benötigen einen vollständigen Rundweg vom Talzugang und zurück.
 
 Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können Gäste zwischen Anlagen bis **220 m** zu Fuß gehen. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
 
@@ -109,7 +140,11 @@ Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können 
 | Punkt setzen oder Anlage auswählen | Antippen | Linksklick |
 | Karte bewegen | Ziehen | Ziehen mit linker/mittlerer Maustaste |
 | Zoomen | Zwei Finger oder −/+ | Mausrad oder −/+ |
-| Drehen | ↶ / ↷ | Q / E |
+| Perspektive / Blickwinkel | Kamera | Kamera / C |
+| Drehen | Kamera → Drehen | Q / E |
+| Planungspunkt verschieben | Nummerierten Punkt ziehen | Nummerierten Punkt ziehen |
+| Planungspunkt löschen | Punkt wählen → Punkt löschen | Punkt wählen → Entf |
+| Pisten verbinden | Kleine Anschlusskreise antippen | Kleine Anschlusskreise anklicken |
 | Größere Karte | Mehr Karte / Werkzeuge | Tab |
 | Resort-Büro | Resort-Büro | M |
 | Gäste beobachten | Gast antippen → folgen | Gast anklicken → folgen |
@@ -121,14 +156,17 @@ Stationen und Pistenenden verbinden sich innerhalb von **42 m**. Im Tal können 
 
 Das Projekt verwendet **Godot 4.5.1**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
 
-**201 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen und die Liftbewegung im Compatibility-Renderer. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
+**272 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen und die Liftbewegung im Compatibility-Renderer. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit
 godot --headless --script tests/run.gd
 godot --headless --script tests/progression.gd
 godot --headless --script tests/mountain_life.gd
+godot --headless --script tests/piste_planning.gd
+godot --headless --script tests/junctions.gd
 godot --script tests/scene.gd
+godot --script tests/planning_scene.gd
 godot --headless -- --smoke-test
 ```
 

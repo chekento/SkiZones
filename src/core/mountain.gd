@@ -66,6 +66,10 @@ func _path(points: Array) -> Dictionary:
 func polyline_length(points: Array) -> float:
 	return _path(points).length
 
+func waypoint_fraction(points: Array, index: int) -> float:
+	var path := _path(points)
+	return path.lengths[clampi(index, 0, points.size() - 1)] / maxf(path.length, 0.001)
+
 func point_on_path(points: Array, fraction: float) -> Vector2:
 	if points.is_empty():
 		return base
@@ -78,15 +82,26 @@ func point_on_path(points: Array, fraction: float) -> Vector2:
 			return a.lerp(b, (distance - path.lengths[i - 1]) / maxf(path.lengths[i] - path.lengths[i - 1], 0.001))
 	return Terrain.unpack(points.back())
 
-func analyse(points: Array, difficulty: int) -> Dictionary:
-	var result := {"ok": false, "message": "Mindestens zwei Wegpunkte setzen.", "length": 0.0, "drop": 0.0, "grade": 0.0, "cost": 0, "difficulty": difficulty}
-	if points.size() < 2 or points.size() > 64 or difficulty < 0 or difficulty > 2:
+static func difficulty_for_grade(grade: float) -> int:
+	# Longitudinal route grade, not the steepest direction of the mountain.
+	# These are deliberately the existing game limits, not a real-world certification.
+	return 0 if grade <= Terrain.GRADE_LIMITS[0] else (1 if grade <= Terrain.GRADE_LIMITS[1] else 2)
+
+func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
+	# The optional argument keeps old callers compatible; colors can no longer be painted.
+	var result := {"ok": false, "message": "Mindestens zwei Wegpunkte setzen.", "length": 0.0, "horizontal": 0.0, "drop": 0.0, "grade": 0.0, "average": 0.0, "uphill": 0.0, "cost": 0, "difficulty": 0, "profile": [], "segments": []}
+	if points.size() < 2 or points.size() > 64:
 		return result
 	for point in points:
 		if not contains(Terrain.unpack(point)):
 			result.message = "Die Strecke muss innerhalb des Baugebiets liegen."
 			return result
-	var uphill := 0.0
+	var planned_length := 0.0
+	for i in range(1, points.size()):
+		planned_length += Terrain.unpack(points[i - 1]).distance_to(Terrain.unpack(points[i]))
+	var profile_step := maxf(8, planned_length / 512)
+	var next_sample := profile_step
+	result.profile.append({"distance": 0.0, "height": height(Terrain.unpack(points[0])), "grade": 0.0})
 	for i in range(1, points.size()):
 		var a := Terrain.unpack(points[i - 1])
 		var b := Terrain.unpack(points[i])
@@ -94,22 +109,32 @@ func analyse(points: Array, difficulty: int) -> Dictionary:
 			result.message = "Wegpunkte müssen mindestens 4 m auseinanderliegen."
 			return result
 		var steps := ceili(a.distance_to(b) / Terrain.SAMPLE_STEP)
+		var segment_grade := 0.0
 		for j in range(steps):
 			var p := a.lerp(b, float(j) / steps)
 			var q := a.lerp(b, float(j + 1) / steps)
 			var drop := height(p) - height(q)
-			result.grade = maxf(result.grade, drop / p.distance_to(q) * 100)
-			uphill += maxf(-drop, 0)
+			var grade := drop / p.distance_to(q) * 100
+			result.grade = maxf(result.grade, grade)
+			segment_grade = maxf(segment_grade, grade)
+			result.uphill += maxf(-drop, 0)
+			result.horizontal += p.distance_to(q)
 			result.length += world(p).distance_to(world(q))
+			if result.horizontal >= next_sample or j == steps - 1:
+				result.profile.append({"distance": result.horizontal, "height": height(q), "grade": grade})
+				next_sample = result.horizontal + profile_step
+		result.segments.append({"grade": segment_grade, "drop": height(a) - height(b), "difficulty": difficulty_for_grade(segment_grade)})
 	result.drop = height(Terrain.unpack(points.front())) - height(Terrain.unpack(points.back()))
-	result.cost = roundi(result.length * [32, 44, 58][difficulty])
+	result.average = result.drop / maxf(result.horizontal, 0.001) * 100
+	result.difficulty = difficulty_for_grade(result.grade)
+	result.cost = roundi(result.length * [32, 44, 58][result.difficulty])
 	if result.length < 40 or result.drop < 7:
 		result.message = "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
-	elif uphill > 1.5:
+	elif result.uphill > 1.5:
 		result.message = "Die Abfahrt führt bergauf. Wegpunkte vom Berg ins Tal setzen."
-	elif result.grade > Terrain.GRADE_LIMITS[difficulty]:
-		result.message = "%.0f %% Gefälle: Für diese Farbe sind höchstens %.0f %% erlaubt." % [result.grade, Terrain.GRADE_LIMITS[difficulty]]
+	elif result.grade > Terrain.GRADE_LIMITS[2]:
+		result.message = "Max. %.0f %%: zu steil. Mit weiteren Wegpunkten quer zum Hang planen." % result.grade
 	else:
 		result.ok = true
-		result.message = "%s · %.0f m · %.0f m Abfahrt · max. %.0f %%" % [Terrain.PISTE_NAMES[difficulty], result.length, result.drop, result.grade]
+		result.message = "%s · %.0f m · ↓ %.0f m · max. %.0f %%" % [Terrain.PISTE_NAMES[result.difficulty], result.length, result.drop, result.grade]
 	return result

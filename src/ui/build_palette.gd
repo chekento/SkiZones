@@ -1,5 +1,6 @@
 extends VBoxContainer
 const Catalog = preload("res://src/core/catalog.gd")
+const RouteProfile = preload("res://src/ui/route_profile.gd")
 var hud: CanvasLayer
 var game: Node
 var category := "pistes"
@@ -7,6 +8,7 @@ var content: VBoxContainer
 var categories: Dictionary = {}
 var cards: Array = []
 var _state := ""
+var route_profile := RouteProfile.new()
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -33,6 +35,7 @@ func setup(interface: CanvasLayer) -> void:
 	content = hud._vbox(scroll, 9)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_make_cards()
+	content.add_child(route_profile)
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
@@ -69,8 +72,7 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 		hud.tool_buttons[key] = button
 
 func _make_cards() -> void:
-	for entry in [["blue", "Blaue Piste", "Bis 30 % Gefälle · 32 €/m", 1280, Color("8dc9f2")], ["red", "Rote Piste", "Bis 55 % Gefälle · 44 €/m", 1760, Color("efa0a5")], ["black", "Schwarze Piste", "Bis 110 % Gefälle · 58 €/m", 2320, Color("c2b4db")]]:
-		_card(entry[0], entry[1], entry[2], entry[3], 0, "piste", entry[4])
+	_card("piste", "Abfahrt planen", "Farbe automatisch · ab 32 €/m", 1280, 0, "piste", hud.TEAL)
 	for key in Catalog.LIFTS:
 		var spec: Dictionary = Catalog.LIFTS[key]
 		_card(key, spec.name, "%s € + %d €/m · %d Gäste/h" % [hud.money_text(spec.cost), spec.per_m, spec.capacity], spec.cost, spec.upkeep, "lift", hud.ACCENT)
@@ -88,6 +90,7 @@ func refresh(force: bool = false) -> void:
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
+	route_profile.visible = category == "pistes"
 	for key in categories:
 		categories[key].add_theme_stylebox_override("normal", hud._style(Color("3d6671") if key == category else Color("244755"), 7, 7))
 	for card in cards:

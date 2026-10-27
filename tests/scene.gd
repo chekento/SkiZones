@@ -59,7 +59,7 @@ func run() -> void:
 	var hit: Vector2 = game.view.map_point(map_position)
 	var roundtrip: Vector2 = game.view.camera.unproject_position(Terrain.world(hit))
 	check(Terrain.contains(hit) and roundtrip.distance_to(map_position) < 1.0, "Camera-to-terrain picking roundtrips within one pixel")
-	var blue_button_position: Vector2 = game.hud.tool_buttons.blue.get_global_rect().get_center()
+	var blue_button_position: Vector2 = game.hud.tool_buttons.piste.get_global_rect().get_center()
 	var ui_touch := InputEventScreenTouch.new()
 	# Input.parse_input_event expects window pixels; the headless window is 64x64.
 	ui_touch.position = root.get_screen_transform() * blue_button_position
@@ -70,7 +70,7 @@ func run() -> void:
 	ui_touch.pressed = false
 	Input.parse_input_event(ui_touch)
 	await process_frame
-	check(game.tool == "blue", "Actual Godot touch-to-mouse emulation activates a GUI build button")
+	check(game.tool == "piste", "Actual Godot touch-to-mouse emulation activates a GUI build button")
 	touch(0, map_position, true)
 	touch(0, map_position, false)
 	check(game.points.size() == 1, "A single map tap adds exactly one waypoint")
@@ -99,7 +99,7 @@ func run() -> void:
 	drag(0, map_position + Vector2(70, 20), Vector2(70, 20))
 	touch(0, map_position + Vector2(70, 20), false)
 	check(game.view.focus != focus and game.points.size() == 1, "Dragging the map keeps the current build plan intact")
-	var ui_position: Vector2 = game.hud.tool_buttons.blue.get_global_rect().get_center()
+	var ui_position: Vector2 = game.hud.tool_buttons.piste.get_global_rect().get_center()
 	touch(0, ui_position, true)
 	touch(0, ui_position, false)
 	check(game.points.size() == 1, "Touches over UI panels cannot place map objects")
@@ -112,7 +112,7 @@ func run() -> void:
 	check(game.model.pistes.size() == count + 1 and game.model.money < balance and game.points.is_empty(), "Build confirmation creates the piste and charges its displayed cost")
 	game.points = [[-170, -235], [-160, -50], [-80, 90], [100, 190]]
 	game._update_plan()
-	check(game.hud.confirm_button.disabled, "Steep blue plans stay blocked in the real HUD")
+	check(not game.hud.confirm_button.disabled and game.last_plan_check.difficulty == 2 and game.hud.palette.route_profile.analysis.difficulty == 2, "The real HUD automatically changes a steep plan to black and updates the profile")
 	game.set_tool("inspect")
 	game.show_menu()
 	check(game.hud.blocks_map(map_position), "Main menu blocks world input")
@@ -129,7 +129,7 @@ func run() -> void:
 	game.hud.set_map_focus(true)
 	check(not game.hud.tools_panel.visible and not game.hud.inspector_panel.visible and not game.hud.plan_panel.visible, "Expanded map hides the sidebars and idle plan bar")
 	check(not game.hud.blocks_map(ui_position), "Expanded map gives the sidebar area back to world input")
-	game.set_tool("blue")
+	game.set_tool("piste")
 	check(not game.hud.map_focus and game.hud.tools_panel.visible and game.hud.plan_panel.visible, "Selecting a build tool restores the controls")
 	game.points = [[245, -130], [305, 0], [200, 205]]
 	game._update_plan()

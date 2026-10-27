@@ -1,5 +1,6 @@
 extends RefCounted
 ## Bounded local deformation: skis compact troughs and push snow into shoulders.
+const Terrain = preload("res://src/core/terrain.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const LANES := 8
 const STEP := 8.0
@@ -17,18 +18,22 @@ static func ensure(piste: Dictionary) -> void:
 	if not piste.has("tracks"):
 		piste.tracks = []
 
-static func start(piste: Dictionary, guest: Dictionary) -> void:
+static func start(piste: Dictionary, guest: Dictionary, from_fraction: float = 0.0, end_fraction: float = 1.0) -> void:
 	ensure(piste)
 	var key := "%d:%d:%d:%d" % [guest.id, guest.loops, guest.leg, guest.age]
 	guest.track = key
-	piste.tracks.append({"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "to": 0.0})
+	piste.tracks.append({"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "from": from_fraction, "until": end_fraction, "to": from_fraction})
 	if piste.tracks.size() > MAX_TRACKS:
 		piste.tracks.pop_front()
 
 static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, from_fraction: float, to_fraction: float) -> void:
 	ensure(piste)
+	var range_start := 0.0
+	var range_end := 1.0
 	for track in piste.tracks:
 		if track.key == guest.get("track", ""):
+			range_start = track.get("from", 0.0)
+			range_end = track.get("until", 1.0)
 			track.to = maxf(track.to, to_fraction)
 	var first := floori(from_fraction * piste.length / STEP)
 	var last := floori(to_fraction * piste.length / STEP)
@@ -37,7 +42,7 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 		var fraction: float = row * STEP / piste.length
 		var center: Vector2 = mountain.point_on_path(piste.points, fraction)
 		var ahead: Vector2 = mountain.point_on_path(piste.points, minf(1, fraction + 0.005))
-		var point := Motion.position(mountain, piste, guest.id, guest.ability, fraction, guest.loops)
+		var point := Motion.position(mountain, piste, guest.id, guest.ability, fraction, guest.loops, range_start, range_end)
 		var lateral := (point - center).dot((ahead - center).normalized().orthogonal())
 		var lane := clampi(roundi((lateral / width + 0.5) * LANES), 1, LANES - 1)
 		var index := row * (LANES + 1) + lane
@@ -101,6 +106,12 @@ static func validate(piste: Dictionary) -> bool:
 			return false
 	for track in piste.tracks:
 		if not track is Dictionary or not track.get("key") is String or track.key.length() > 80:
+			return false
+		if not Terrain.number(track.get("to")):
+			return false
+		if not Terrain.number(track.get("from", 0)) or track.get("from", 0) < 0 or track.get("from", 0) > track.get("to", -1):
+			return false
+		if not Terrain.number(track.get("until", 1)) or track.get("until", 1) > 1 or track.get("until", 1) < track.get("to", -1):
 			return false
 		for key in ["guest", "ability", "run", "to"]:
 			var value: Variant = track.get(key)

@@ -25,6 +25,8 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 | `src/ui/hud.gd` | Menü, Bauwerkzeuge, Anlageninspektor, Preisanpassung, Berichte und Hilfe |
 | `src/ui/management.gd` | Pausierendes Resort-Büro mit fünf handlungsfähigen Verwaltungsseiten |
 | `src/ui/build_palette.gd` | Baukatalog mit gesperrten, bezahlbaren und ausgewählten Einträgen |
+| `src/ui/route_profile.gd` | Live-Höhenprofil und Abschnittsfarben aus der tatsächlichen Bauprüfung |
+| `src/ui/plan_overlay.gd` | Größengleiche nummerierte Punktgriffe und sichtbare Andockpunkte |
 | `src/ui/atlas.gd` | Vier Gebiete mit Freischaltzielen und eigenem Resortzugang |
 | `src/ui/minimap.gd` | Relief aus der tatsächlichen Kartenhöhe und Navigation zum gewählten Ort |
 | `src/ui/finance_chart.gd` | Finanzdiagramm aus den letzten 28 tatsächlichen Tagesergebnissen |
@@ -34,11 +36,11 @@ Die Simulation kann ohne Fenster, Grafikkarte oder Android-Gerät getestet werde
 
 ## Pisten und Lifte
 
-Pisten bestehen aus zwei bis 64 Wegpunkten. Jeder Abschnitt wird mindestens alle drei Meter auf Gefälle und Gegenanstieg geprüft. Die Farbe begrenzt das maximale lokale Gefälle. Mindestens 40 m Länge und 7 m Höhenverlust sind notwendig.
+Pisten bestehen aus zwei bis 64 Wegpunkten. Jeder Abschnitt wird mindestens alle drei Meter auf Gefälle und Gegenanstieg geprüft. Das größte Längsgefälle entlang der tatsächlichen Route bestimmt automatisch die Farbe mit den bisherigen Spielgrenzen 30/55/110 %. Die Planung zeigt ein Höhenprofil, richtungsabhängige Farben und verschiebbare nummerierte Griffe. Mindestens 40 m Länge und 7 m Höhenverlust sind notwendig.
 
 Lifte verlaufen von der Tal- zur Bergstation. Die Seillinie folgt dem Gelände über Stützen. Zusätzliche Profilpunkte sichern die Bodenfreiheit an lokalen Kuppen. Die tatsächliche räumliche Seillänge bestimmt Kosten und Fahrzeit. Zauberteppiche sind auf 250 m begrenzt, andere Lifte auf 2.400 m. Windgrenzen unterscheiden die Liftarten.
 
-Das Wegenetz besteht aus dem Talzugang, Liftstationen sowie Pistenanfängen und -enden. Fußwege verbinden nahe Knoten; Lifte sind bergauf, Pisten bergab gerichtet. Die Simulation sucht vollständige, für das Können geeignete Runden zurück zum Talzugang. Unerschlossene Abfahrten können bereits gebaut werden, bringen aber noch keine zahlenden Gäste.
+Das Wegenetz besteht aus dem Talzugang, Liftstationen sowie allen Pistenwegpunkten. Innere Wegpunkte verbinden sich beim tatsächlichen Andocken innerhalb von 2 m; die größeren Fußweg-Radien gelten nur für Stationen und Pistenenden. Zwei getrennte räumliche Indizes vermeiden breite Nachbarschaftssuchen für innere Wegpunkte. Zwei Dijkstra-Suchen mit Prioritätswarteschlange pro Können erschließen alle Ziele vom Tal und zurück. Lifte sind bergauf, Pisten bergab gerichtet. Die Simulation sucht vollständige, für das Können geeignete Runden zurück zum Talzugang. Unerschlossene Abfahrten können bereits gebaut werden, bringen aber noch keine zahlenden Gäste.
 
 ## Gäste und Betrieb
 
@@ -79,7 +81,7 @@ Die JSON-Nutzdaten liegen in einer Hülle mit Formatkennung und SHA-256-Prüfsum
 
 Der Zufallszustand wird als Zeichenkette gespeichert, damit große Ganzzahlen durch JSON nicht an Genauigkeit verlieren. Aus JSON geladene Meilensteine werden wieder in Integer konvertiert. Ein Regressionstest prüft, dass der weitere Ablauf nach dem Laden gleich bleibt.
 
-Format 3 ergänzt Kartenkennung, geteilte vollständige Reiserouten, persönliche Fahrdauer, Schneerelief, Spurhistorie und laufende Präparierung. Format 2 enthält Karriere, Forschungsprojekt, Aufträge, Finanzhistorie und Ausbaustufen. Format 1 aus 0.1.x und Format 2 aus 0.2.x werden weiter gelesen; bestehende Anlagen beginnen auf Stufe 1 und behalten alle früher verfügbaren Baumöglichkeiten. Ungültige Karrierewerte werden vor dem Austausch der laufenden Simulation abgelehnt.
+Format 4 ergänzt feste Pistennummern und überprüfbare zusammenhängende Wegpunkt-Teilstücke in den gespeicherten Reiserouten. Spurdatensätze speichern Anfang und Ende der tatsächlich gefahrenen Teilroute; persönliche Fahrlinien laufen an Abzweigungen zur Mittellinie aus. Ganze durchgehende Skiabschnitte werden im Netz wieder zusammengeführt. Format 3 ergänzt Kartenkennung, geteilte vollständige Reiserouten, persönliche Fahrdauer, Schneerelief, Spurhistorie und laufende Präparierung. Format 2 enthält Karriere, Forschungsprojekt, Aufträge, Finanzhistorie und Ausbaustufen. Format 1 aus 0.1.x und Format 2 aus 0.2.x werden weiter gelesen; bestehende Anlagen beginnen auf Stufe 1 und behalten alle früher verfügbaren Baumöglichkeiten. Ungültige Karrierewerte werden vor dem Austausch der laufenden Simulation abgelehnt.
 
 Neue Speicherstände behalten laufende Reiserouten auch dann, wenn eine Piste inzwischen für neue Routen geschlossen ist. Die Routen werden einmalig geteilt gespeichert und vor dem Laden gegen die Anlagen und Geometrie geprüft. Ältere Formate können eine bereits geschlossene Route weiterhin nur näherungsweise rekonstruieren. Ihre Fahrzeiten werden bei der Migration angepasst.
 
@@ -87,6 +89,8 @@ Die Nutzdaten sind auf 16 MB begrenzt. Auch der kleine Bergpass besitzt Prüfsum
 
 ## Darstellung und Budget
 
-Gelände und Gebäude sind eigene prozedurale Geometrien. Tannen, Felsen, Skifahrer und Liftfahrzeuge verwenden MultiMesh-Instanzen. Gebäudeteile und Pistenmarkierungen sind je Anlage in einem Mesh gebündelt. Die Perspektivkamera, Licht, Dunst und Schneefall hängen an der tatsächlichen Zeit beziehungsweise dem Wetter. Das Hauptmenü verwendet das freigegebene Panorama, die 3D-Spielwelt bleibt eigene Geometrie. Die Compatibility-Pipeline vermeidet eine Vulkan-Pflicht.
+Gelände und Gebäude sind eigene prozedurale Geometrien. Tannen, Felsen, Skifahrer und Liftfahrzeuge verwenden MultiMesh-Instanzen. Gebäudeteile sind je Anlage in einem Mesh gebündelt. Runde beidseitig nummerierte Pistenschilder verwenden pro Piste ein gemeinsames Mesh mit MultiMesh-Instanzen. Die Perspektivkamera, Licht, Dunst und Schneefall hängen an der tatsächlichen Zeit beziehungsweise dem Wetter. Das Hauptmenü verwendet das freigegebene Panorama, die 3D-Spielwelt bleibt eigene Geometrie. Die Compatibility-Pipeline vermeidet eine Vulkan-Pflicht.
 
-Version 0.3.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Geometrische Pfadlängen werden zwischengespeichert. Figuren und Liftfahrzeuge folgen dem kontinuierlichen Anteil der Simulationszeit. Gebäudemodelle blenden aus, wenn sie die Nahkamera eines beobachteten Gasts verdecken. Die Reliefkarten verwenden zwischengespeicherte Bilder aus den tatsächlichen Höhenwerten. Stützen und Seile werden je Lift in einem Mesh gebündelt. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.
+Version 0.4.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Geometrische Pfadlängen werden zwischengespeichert. Figuren und Liftfahrzeuge folgen dem kontinuierlichen Anteil der Simulationszeit. Gebäudemodelle blenden aus, wenn sie die Nahkamera eines beobachteten Gasts verdecken. Die Reliefkarten verwenden zwischengespeicherte Bilder aus den tatsächlichen Höhenwerten. Stützen und Seile werden je Lift in einem Mesh gebündelt. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.
+
+Vier wählbare Kameraperspektiven teilen sich Geländeauswahl, Navigation und Bauplan. Die senkrechte Ansicht verwendet eine orthografische Projektion. Geländehilfe und Höhenlinien werden aus denselben Dreiecken wie das sichtbare Gelände erzeugt und zwischen Umschaltungen wiederverwendet; Gefällepfeile folgen dessen Normalen.

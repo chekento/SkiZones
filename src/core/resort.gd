@@ -39,6 +39,8 @@ var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var revision := 0
 var _routes: Dictionary = {}
+var _anchor_revision := -1
+var _anchors: Array = []
 var _cable_profiles: Dictionary = {}
 var campaign: Dictionary = {}
 
@@ -112,18 +114,22 @@ func _spend(cost: float) -> bool:
 		Progression.sync_finances(self)
 	return true
 
-func build_piste(points: Array, difficulty: int) -> Dictionary:
+func build_piste(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	if pistes.size() >= 80:
 		return _result(false, "Maximal 80 Pisten in diesem Prototyp.")
-	var check := terrain.analyse(points, difficulty)
+	var check := terrain.analyse(points)
 	if not check.ok:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für diese Piste noch nicht.")
-	pistes.append({"id": next_id, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], next_id], "points": points.duplicate(true), "difficulty": difficulty, "length": check.length, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0 * Maps.spec(map_id).snow, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
+	var number := 1
+	for piste in pistes:
+		number = maxi(number, int(piste.number) + 1)
+	var difficulty: int = check.difficulty
+	pistes.append({"id": next_id, "number": number, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], number], "points": points.duplicate(true), "difficulty": difficulty, "length": check.length, "horizontal": check.horizontal, "drop": check.drop, "average": check.average, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0 * Maps.spec(map_id).snow, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
 	next_id += 1
 	_invalidate()
-	return _result(true, "Piste gebaut. Sie öffnet, sobald ein Rundweg mit Lift erreichbar ist.")
+	return _result(true, "%s %d gebaut und beschildert. Öffnet mit einem erreichbaren Lift-Rundweg." % [Terrain.PISTE_NAMES[difficulty], number])
 
 func preview_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 	if not Catalog.LIFTS.has(kind) or not terrain.contains(bottom) or not terrain.contains(top):
@@ -291,65 +297,191 @@ func upgrade_asset(id: int) -> Dictionary:
 func _edge(from_key: String, to_key: String, kind: String, id: int, points: Array, minutes: float) -> Dictionary:
 	return {"from": from_key, "to": to_key, "kind": kind, "id": id, "points": points, "minutes": maxf(minutes, 0.15)}
 
+func connection_anchors() -> Array:
+	if _anchor_revision == revision:
+		return _anchors
+	var result: Array = []
+	for piste in pistes:
+		for index in range(piste.points.size()):
+			result.append({"point": Terrain.unpack(piste.points[index]), "id": piste.id, "waypoint": index, "difficulty": piste.difficulty, "label": "Piste %d · Wegpunkt %d" % [piste.number, index + 1]})
+	for lift in lifts:
+		for index in range(2):
+			result.append({"point": Terrain.unpack(lift.bottom if index == 0 else lift.top), "id": lift.id, "waypoint": index, "difficulty": -1, "label": "%s · %s" % [lift.name, "Talstation" if index == 0 else "Bergstation"]})
+	_anchor_revision = revision
+	_anchors = result
+	return result
+
+func snap_anchor(point: Vector2, radius: float = 18) -> Dictionary:
+	var best: Dictionary = {}
+	var distance := radius
+	for anchor in connection_anchors():
+		var candidate: float = point.distance_to(anchor.point)
+		if candidate < distance:
+			distance = candidate
+			best = anchor
+	return best
+
+func _piste_node(piste: Dictionary, index: int) -> String:
+	return "p%ds" % piste.id if index == 0 else ("p%de" % piste.id if index == piste.points.size() - 1 else "p%dw%d" % [piste.id, index])
+
+func _ski_edge(piste: Dictionary, first: int, last: int, skill: int) -> Dictionary:
+	var start := terrain.waypoint_fraction(piste.points, first)
+	var end := terrain.waypoint_fraction(piste.points, last)
+	var leg := _edge(_piste_node(piste, first), _piste_node(piste, last), "ski", piste.id, piste.points.slice(first, last + 1), piste.length * (end - start) / ([5.2, 7.5, 10.0][skill] * 2.0))
+	leg.merge({"first": first, "last": last, "start_fraction": start, "end_fraction": end})
+	return leg
+
+static func ski_fraction(leg: Dictionary, progress: float) -> float:
+	return lerpf(leg.get("start_fraction", 0.0), leg.get("end_fraction", 1.0), clampf(progress, 0, 1))
+
 func _graph(skill: int) -> Dictionary:
 	var nodes := {"base": Terrain.pack(Terrain.BASE)}
 	var edges: Dictionary = {"base": []}
+	var walkable := {"base": true}
 	for lift in lifts:
 		if lift_open(lift):
 			var b := "l%db" % lift.id
 			var t := "l%dt" % lift.id
 			nodes[b] = lift.bottom
 			nodes[t] = lift.top
+			walkable[b] = true
+			walkable[t] = true
 			edges[b] = [_edge(b, t, "lift", lift.id, [lift.bottom, lift.top], lift.length / lift_speed(lift) * TRANSPORT_SCALE)]
 			edges[t] = []
 	for piste in pistes:
 		if piste.difficulty <= skill and piste_open(piste):
-			var s := "p%ds" % piste.id
-			var e := "p%de" % piste.id
-			nodes[s] = piste.points.front()
-			nodes[e] = piste.points.back()
-			edges[s] = [_edge(s, e, "ski", piste.id, piste.points, piste.length / ([5.2, 7.5, 10.0][skill] * 2.0))]
-			edges[e] = []
-	var keys := nodes.keys()
-	for i in range(keys.size()):
-		for j in range(i + 1, keys.size()):
-			var a := Terrain.unpack(nodes[keys[i]])
-			var b := Terrain.unpack(nodes[keys[j]])
-			var distance := a.distance_to(b)
-			var valley_walk := a.y >= 165.0 and b.y >= 165.0 and distance < 220.0
-			if distance <= Terrain.CONNECTION_RADIUS or valley_walk:
-				var time := distance / 2.8
-				edges[keys[i]].append(_edge(keys[i], keys[j], "walk", 0, [nodes[keys[i]], nodes[keys[j]]], time))
-				edges[keys[j]].append(_edge(keys[j], keys[i], "walk", 0, [nodes[keys[j]], nodes[keys[i]]], time))
+			for index in range(piste.points.size()):
+				var key := _piste_node(piste, index)
+				nodes[key] = piste.points[index]
+				walkable[key] = index == 0 or index == piste.points.size() - 1
+				edges[key] = [_ski_edge(piste, index, index + 1, skill)] if index < piste.points.size() - 1 else []
+	# Exact docks and broader endpoint walks use separate spatial indexes.
+	# Interior waypoints never enter the broad search around a station.
+	var docks: Dictionary = {}
+	var walks: Dictionary = {}
+	for key in nodes:
+		var point := Terrain.unpack(nodes[key])
+		var cell := Vector2i(floori(point.x / 2), floori(point.y / 2))
+		for x in range(-1, 2):
+			for y in range(-1, 2):
+				for other in docks.get(cell + Vector2i(x, y), []):
+					var distance := point.distance_to(Terrain.unpack(nodes[other]))
+					if distance <= 2:
+						_walk_link(nodes, edges, key, other, distance)
+		if not docks.has(cell):
+			docks[cell] = []
+		docks[cell].append(key)
+		if not walkable[key]:
+			continue
+		cell = Vector2i(floori(point.x / 220), floori(point.y / 220))
+		for x in range(-1, 2):
+			for y in range(-1, 2):
+				for other in walks.get(cell + Vector2i(x, y), []):
+					var at := Terrain.unpack(nodes[other])
+					var distance := point.distance_to(at)
+					var valley_walk := point.y >= 165 and at.y >= 165 and distance < 220
+					if distance > 2 and (distance <= Terrain.CONNECTION_RADIUS or valley_walk):
+						_walk_link(nodes, edges, key, other, distance)
+		if not walks.has(cell):
+			walks[cell] = []
+		walks[cell].append(key)
 	return {"nodes": nodes, "edges": edges}
+
+func _walk_link(nodes: Dictionary, edges: Dictionary, a: String, b: String, distance: float) -> void:
+	edges[a].append(_edge(a, b, "walk", 0, [nodes[a], nodes[b]], distance / 2.8))
+	edges[b].append(_edge(b, a, "walk", 0, [nodes[b], nodes[a]], distance / 2.8))
+
+func _merge_ski_legs(source: Array) -> Array:
+	var result: Array = []
+	for item in source:
+		var leg: Dictionary = item.duplicate(true)
+		if not result.is_empty() and leg.kind == "ski" and result[-1].kind == "ski" and leg.id == result[-1].id and leg.get("first", 0) == result[-1].get("last", -1):
+			result[-1].points.append_array(leg.points.slice(1))
+			result[-1].last = leg.last
+			result[-1].end_fraction = leg.end_fraction
+			result[-1].to = leg.to
+			result[-1].minutes += leg.minutes
+		else:
+			result.append(leg)
+	return result
+
+func _heap_push(heap: Array, entry: Array) -> void:
+	heap.append(entry)
+	var index := heap.size() - 1
+	while index > 0:
+		var parent := int((index - 1) / 2)
+		if heap[parent][0] <= entry[0]:
+			break
+		heap[index] = heap[parent]
+		index = parent
+	heap[index] = entry
+
+func _heap_pop(heap: Array) -> Array:
+	var first: Array = heap[0]
+	var last: Array = heap.pop_back()
+	if not heap.is_empty():
+		var index := 0
+		while index * 2 + 1 < heap.size():
+			var child := index * 2 + 1
+			if child + 1 < heap.size() and heap[child + 1][0] < heap[child][0]:
+				child += 1
+			if last[0] <= heap[child][0]:
+				break
+			heap[index] = heap[child]
+			index = child
+		heap[index] = last
+	return first
+
+func _distances(graph: Dictionary, source: String, reverse: bool) -> Dictionary:
+	var edges: Dictionary = graph.edges
+	if reverse:
+		edges = {}
+		for key in graph.nodes:
+			edges[key] = []
+		for key in graph.edges:
+			for leg in graph.edges[key]:
+				edges[leg.to].append(leg)
+	var distance := {source: 0.0}
+	var previous: Dictionary = {}
+	var heap: Array = [[0.0, source]]
+	while not heap.is_empty():
+		var entry := _heap_pop(heap)
+		var current: String = entry[1]
+		if entry[0] > distance[current]:
+			continue
+		for leg in edges[current]:
+			var neighbor: String = leg.from if reverse else leg.to
+			var cost: float = entry[0] + leg.minutes
+			if cost < distance.get(neighbor, INF):
+				distance[neighbor] = cost
+				previous[neighbor] = leg
+				_heap_push(heap, [cost, neighbor])
+	return {"distance": distance, "previous": previous}
 
 func _shortest(graph: Dictionary, source: String, target: String) -> Dictionary:
 	if not graph.nodes.has(source) or not graph.nodes.has(target):
 		return {"ok": false, "legs": []}
-	var distance := {source: 0.0}
-	var previous: Dictionary = {}
-	var pending: Array = [source]
-	while not pending.is_empty():
-		var current: String = pending[0]
-		for key in pending:
-			if distance[key] < distance[current]:
-				current = key
-		pending.erase(current)
-		if current == target:
-			var route: Array = []
-			while current != source:
-				var leg: Dictionary = previous[current]
-				route.push_front(leg)
-				current = leg.from
-			return {"ok": true, "legs": route}
-		for leg in graph.edges[current]:
-			var new_cost: float = distance[current] + leg.minutes
-			if new_cost < distance.get(leg.to, INF):
-				distance[leg.to] = new_cost
-				previous[leg.to] = leg
-				if not pending.has(leg.to):
-					pending.append(leg.to)
-	return {"ok": false, "legs": []}
+	# All resort circuits share the valley. Two searches per ability serve every
+	# destination, including thousands of internal waypoints and their branches.
+	var reverse := target == "base"
+	var origin := target if reverse else source
+	var cache_key := "reverse:" + origin if reverse else "forward:" + origin
+	if not graph.has(cache_key):
+		graph[cache_key] = _distances(graph, origin, reverse)
+	var paths: Dictionary = graph[cache_key]
+	var current := source if reverse else target
+	if not paths.distance.has(current):
+		return {"ok": false, "legs": []}
+	var route: Array = []
+	while current != origin:
+		var leg: Dictionary = paths.previous[current]
+		if reverse:
+			route.append(leg)
+			current = leg.to
+		else:
+			route.push_front(leg)
+			current = leg.from
+	return {"ok": true, "legs": route}
 
 func routes_for(skill: int) -> Array:
 	if _routes.has(skill):
@@ -366,13 +498,13 @@ func routes_for(skill: int) -> Array:
 		if not outbound.ok or not inbound.ok:
 			continue
 		var legs: Array = outbound.legs.duplicate()
-		legs.append(graph.edges[start][0])
+		legs.append(_ski_edge(piste, 0, piste.points.size() - 1, skill))
 		legs.append_array(inbound.legs)
 		var uses_lift := false
 		for leg in legs:
 			uses_lift = uses_lift or leg.kind == "lift"
 		if uses_lift:
-			result.append({"target": piste.id, "legs": legs})
+			result.append({"target": piste.id, "legs": _merge_ski_legs(legs)})
 	_routes[skill] = result
 	return result
 
@@ -406,7 +538,7 @@ func _start_leg(guest: Dictionary) -> void:
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		guest.duration *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability).speed * (1.0 + Snow.roughness(piste) * 0.35)
-		Snow.start(piste, guest)
+		Snow.start(piste, guest, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 	elif leg.kind == "walk":
 		guest.duration *= 0.9 + float((int(guest.id) * 23) % 100) / 500
 	guest.phase = "queue" if leg.kind == "lift" else "moving"
@@ -415,15 +547,18 @@ func _finish_leg(guest: Dictionary) -> void:
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
+		var complete_descent: bool = leg.id == guest.route.target or (is_zero_approx(leg.get("start_fraction", 0.0)) and is_equal_approx(leg.get("end_fraction", 1.0), 1.0))
 		if not piste.is_empty():
-			piste.rides += 1
+			if complete_descent:
+				piste.rides += 1
 			var was_open := piste_open(piste)
-			piste.condition = maxf(0.0, piste.condition - 0.016 / (1.0 + 0.45 * (piste.get("level", 1) - 1)))
+			piste.condition = maxf(0.0, piste.condition - 0.016 * (leg.get("end_fraction", 1.0) - leg.get("start_fraction", 0.0)) / (1.0 + 0.45 * (piste.get("level", 1) - 1)))
 			if was_open != piste_open(piste):
 				_invalidate()
-		total_rides += 1
-		report.rides += 1
-		campaign.xp += 1
+		if complete_descent:
+			total_rides += 1
+			report.rides += 1
+			campaign.xp += 1
 	guest.leg += 1
 	if guest.leg < guest.route.legs.size():
 		_start_leg(guest)
@@ -525,7 +660,7 @@ func advance_minute(arrivals: bool = true) -> void:
 			var previous: float = guest.elapsed / duration
 			guest.elapsed += 1.0
 			if leg.kind == "ski":
-				Snow.touch(terrain, asset(leg.id), guest, previous, minf(1, guest.elapsed / duration))
+				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg, previous), ski_fraction(leg, guest.elapsed / duration))
 				snow_revision += 1
 			if guest.elapsed >= duration:
 				_finish_leg(guest)
@@ -638,7 +773,8 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 		return cable_position(lift, fraction) + Vector3(-3, -3.85, 0)
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
-		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops)
+		fraction = ski_fraction(leg, fraction)
+		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 		var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
 		return terrain.world(point, 1.25 + Snow.mesh_relief(piste, fraction, (point - center).dot(side)))
@@ -662,7 +798,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version": 3, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version": 4, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -696,7 +832,17 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 			else:
 				if not item.has("difficulty") or item.difficulty > skill:
 					return {}
-				expected = item.points
+				var first: Variant = leg.get("first", 0)
+				var last: Variant = leg.get("last", item.points.size() - 1)
+				if not Terrain.number(first) or not Terrain.number(last) or first != floorf(first) or last != floorf(last) or first < 0 or last >= item.points.size() or first >= last:
+					return {}
+				expected = item.points.slice(int(first), int(last) + 1)
+				var start_fraction := terrain.waypoint_fraction(item.points, int(first))
+				var end_fraction := terrain.waypoint_fraction(item.points, int(last))
+				if not Terrain.number(leg.get("start_fraction", start_fraction)) or not Terrain.number(leg.get("end_fraction", end_fraction)) or absf(leg.get("start_fraction", start_fraction) - start_fraction) > 0.00001 or absf(leg.get("end_fraction", end_fraction) - end_fraction) > 0.00001:
+					return {}
+				leg.start_fraction = start_fraction
+				leg.end_fraction = end_fraction
 				has_target = has_target or item.id == value.target
 			if expected.size() != leg.points.size():
 				return {}
@@ -721,7 +867,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, "Der Spielstand ist unvollständig oder beschädigt.")
-	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3:
+	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3 and data.get("version") != 4:
 		return _result(false, "Diese Spielstand-Version wird nicht unterstützt.")
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -741,6 +887,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	if data.pistes.size() > 80 or data.lifts.size() > 24 or data.buildings.size() > 60 or data.guests.size() > MAX_GUESTS:
 		return invalid
 	var used_ids: Array = []
+	var piste_numbers: Array = []
 	for key in ["pistes", "lifts", "buildings"]:
 		for item in data[key]:
 			if not item is Dictionary or not Terrain.number(item.get("id")) or int(item.id) != item.id or item.id < 1 or item.id >= data.next_id or used_ids.has(item.id):
@@ -757,14 +904,26 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			item.level = int(level)
 			item.upgrade_total = float(extra)
 			if key == "pistes":
-				if not item.get("points") is Array or not Terrain.number(item.get("difficulty")) or int(item.difficulty) != item.difficulty:
+				if not item.get("points") is Array or not Terrain.number(item.get("difficulty")) or int(item.difficulty) != item.difficulty or item.difficulty < 0 or item.difficulty > 2:
 					return invalid
-				var analysis := terrain.analyse(item.points, int(item.difficulty))
+				var analysis := terrain.analyse(item.points)
 				if not analysis.ok:
 					return invalid
 				for field in ["condition", "snow", "rides"]:
 					if not Terrain.number(item.get(field)) or item[field] < 0 or item[field] > (1000000000 if field == "rides" else 110):
 						return invalid
+				if data.version >= 4:
+					if not Terrain.number(item.get("number")) or item.number != floorf(item.number) or item.number < 1 or item.number > 1000000 or piste_numbers.has(int(item.number)) or item.difficulty != analysis.difficulty:
+						return invalid
+				else:
+					item.number = piste_numbers.size() + 1
+					if item.name.begins_with(Terrain.PISTE_NAMES[int(item.difficulty)]):
+						item.name = "%s %d" % [Terrain.PISTE_NAMES[analysis.difficulty], item.number]
+				piste_numbers.append(int(item.number))
+				item.difficulty = analysis.difficulty
+				item.horizontal = analysis.horizontal
+				item.drop = analysis.drop
+				item.average = analysis.average
 				item.length = analysis.length
 				if not Terrain.number(item.get("grooming_until", 0)) or item.get("grooming_until", 0) < 0 or item.get("grooming_until", 0) > CLOSING:
 					return invalid
@@ -824,7 +983,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		visitor_ids.append(visitor.id)
 		var route: Dictionary = {}
-		if data.version == 3:
+		if data.version >= 3:
 			var index: Variant = visitor.get("route_index")
 			if not Terrain.number(index) or index != floorf(index):
 				return invalid
@@ -851,7 +1010,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.route = route
-		if data.version == 3:
+		if data.version >= 3:
 			if not Terrain.number(copy.get("duration", 1.0) if copy.phase == "leaving" else copy.get("duration")) or copy.get("duration", 1.0) < 0.15 or copy.get("duration", 1.0) > 1000000 or (copy.has("track") and (not copy.track is String or copy.track.length() > 80)):
 				return invalid
 		elif copy.phase != "leaving":
