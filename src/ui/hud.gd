@@ -2,6 +2,9 @@ extends CanvasLayer
 
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Progression = preload("res://src/core/progression.gd")
+const Management = preload("res://src/ui/management.gd")
+const MENU_PANORAMA = preload("res://assets/menu_panorama.png")
 const INK := Color("e7f2f4")
 const MUTED := Color("91b0bc")
 const ACCENT := Color("efb17d")
@@ -39,6 +42,7 @@ var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
+var management := Management.new()
 
 func setup(controller: Node) -> void:
 	game = controller
@@ -67,6 +71,8 @@ func setup(controller: Node) -> void:
 	_build_slope_legend()
 	_build_menu()
 	_build_dialogs()
+	root.add_child(management)
+	management.setup(game, self)
 	show_context("inspect")
 	refresh()
 	get_viewport().size_changed.connect(_update_safe_area)
@@ -251,6 +257,8 @@ func _build_camera_bar() -> void:
 	panel.add_child(box)
 	labels.weather = _label(box, "", 16, INK)
 	_spacer(box, false)
+	var development := _button(box, "Resort-Büro", show_management, true)
+	development.custom_minimum_size.y = 40
 	slopes_button = _button(box, "Gefälle", toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
 	slopes_button.tooltip_text = "Zeigt die stärkste Neigung am Bauplatz. Serpentinen können mildere Abfahrten ermöglichen."
@@ -296,6 +304,13 @@ func _build_menu() -> void:
 	root.add_child(menu)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu.mouse_filter = Control.MOUSE_FILTER_STOP
+	var panorama := TextureRect.new()
+	panorama.texture = MENU_PANORAMA
+	panorama.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	panorama.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	panorama.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu.add_child(panorama)
+	panorama.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var veil := ColorRect.new()
 	veil.color = Color(0.025, 0.08, 0.12, 0.25)
 	menu.add_child(veil)
@@ -309,9 +324,9 @@ func _build_menu() -> void:
 	_label(box, "Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen.", 18, MUTED, true)
 	_spacer(box)
 	continue_button = _button(box, "Fortsetzen", game.continue_game, true)
-	_button(box, "Neues Resort · Sonnenhang", func(): game.start_game(true))
-	_button(box, "Freier Aufbau · leeres Gelände", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Version 0.1.1\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_button(box, "Karriere starten · Sonnenhang", func(): game.start_game(true))
+	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
+	_label(box, "Ski Resort Tycoon  /  Version 0.2.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -329,6 +344,7 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	management.hide()
 	menu.show()
 	_apply_panel_visibility()
 	continue_button.disabled = not game.has_game and not FileAccess.file_exists("user://skizones_save.json") and not FileAccess.file_exists("user://skizones_save.json.bak")
@@ -338,7 +354,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if menu.visible or daily_dialog.visible or help_dialog.visible:
+	if menu.visible or daily_dialog.visible or help_dialog.visible or management.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -350,6 +366,10 @@ func lift_kind() -> String:
 
 func building_kind() -> String:
 	return Catalog.BUILDINGS.keys()[building_choice.selected]
+
+func show_management(tab: int = 0) -> void:
+	management.open()
+	management.tabs.current_tab = clampi(tab, 0, 4)
 
 func show_context(tool: String, id: int = -1) -> void:
 	current_tool = tool
@@ -367,6 +387,7 @@ func show_context(tool: String, id: int = -1) -> void:
 		inspector_title.text = item.get("name", "Anlage")
 		_button(inspector_actions, "Schließen" if item.get("enabled", false) else "Öffnen", func(): game.toggle_asset(id))
 		_button(inspector_actions, "Abbauen · 25 % Erstattung", func(): game.demolish_asset(id))
+		_button(inspector_actions, "Anlage ausbauen", func(): show_management(3), true)
 	elif tool == "inspect":
 		inspector_title.text = "Sonnenhang"
 		price_label = _label(inspector_actions, "Tageskarte: %d €" % game.model.ticket_price, 18)
@@ -397,28 +418,30 @@ func _refresh_context_text() -> void:
 		if item.is_empty():
 			show_context("inspect")
 			return
-		var text_value := "[color=#75cdc7]%s[/color]\n\n" % ("Geöffnet" if item.enabled else "Geschlossen")
+		var text_value := "[color=#75cdc7]%s · Stufe %d[/color]\n\n" % ["Geöffnet" if item.enabled else "Geschlossen", item.get("level", 1)]
 		if item.has("difficulty"):
 			text_value += "%.0f m Länge\nMax. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s" % [item.length, item.grade, item.condition, item.snow, item.rides, "Mit Rundweg erreichbar" if model.reachable_piste_ids().has(item.id) else "Noch kein nutzbarer Rundweg"]
 		elif item.has("bottom"):
-			text_value += "%d Gäste pro Stunde\n%d Gäste warten\n%d Beförderungen\n\n%s" % [Catalog.LIFTS[item.kind].capacity, model.queue_size(item.id), item.boarded, "Betrieb möglich" if model.lift_open(item) else "Wegen Wind oder manuell geschlossen"]
+			text_value += "%d Gäste pro Stunde\n%d Gäste warten\n%d Beförderungen\n\n%s" % [model.lift_capacity(item), model.queue_size(item.id), item.boarded, "Betrieb möglich" if model.lift_open(item) else "Wegen Wind oder manuell geschlossen"]
 		else:
 			text_value += "%s\n\nBetrieb: %d €/Tag" % [Catalog.BUILDINGS[item.kind].description, Catalog.BUILDINGS[item.kind].upkeep]
 		inspector_text.text = text_value
 	elif current_tool == "inspect":
-		var goals := ["100 Abfahrten", "Alle 3 Pistenfarben erreichbar", "750 Tagesgäste", "80 % Resort-Ruf"]
-		var goal_text := ""
-		for i in range(goals.size()):
-			goal_text += ("[color=#75cdc7]✓ " if model.achievements.has(i) else "[color=#91b0bc]○ ") + goals[i] + "[/color]\n"
 		var piste_word := "Piste" if model.pistes.size() == 1 else "Pisten"
 		var lift_word := "Lift" if model.lifts.size() == 1 else "Lifte"
-		inspector_text.text = "[b]%d %s · %d %s[/b]\n%d erreichbare Abfahrten\n%d Gäste in Warteschlangen\n\n[color=#efb17d]HEUTE[/color]\nEintritte: %s €\nServices: %s €\nBetrieb: ~%s €/Tag\n\n[color=#efb17d]DEINE MEILENSTEINE[/color]\n%s\nAnlagen antippen, um den Betrieb zu prüfen. Gefälle blendet die Hangneigung ein; Mehr Karte vergrößert die freie Ansicht." % [model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), money_text(model.report.tickets), money_text(model.report.services), money_text(model.operating_costs()), goal_text]
+		inspector_text.text = "[color=#efb17d]%s[/color]\nWinter %d · Tag %d / 28\n%.0f Erfahrung · %d FP\n\n%d %s · %d %s\n%d erreichbare Abfahrten\n%d Gäste warten\n\n[color=#efb17d]DEIN NÄCHSTES ZIEL[/color]\n%s\n\n[color=#efb17d]HEUTE[/color]\nErlöse: %s €\nBetrieb: ~%s €/Tag\n\nAufträge, Forschung und Ausbau findest du im Resort-Büro." % ["★".repeat(model.campaign.rank), Progression.season_number(model), Progression.season_day(model), model.campaign.xp, model.campaign.points, model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), Progression.next_goal(model), money_text(model.report.tickets + model.report.services), money_text(model.operating_costs())]
 	elif current_tool == "lift":
 		var spec: Dictionary = Catalog.LIFTS[lift_kind()]
 		inspector_text.text = "[color=#efb17d]%s € + %d €/m[/color]\n\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nDie Abfahrt muss von der Bergstation erreichbar sein und wieder ins Tal führen." % [money_text(spec.cost), spec.per_m, spec.capacity, spec.upkeep, spec.wind_limit]
+		var access: String = model.build_access_message(lift_kind(), true)
+		if access != "":
+			inspector_text.text = "[color=#efb17d]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
 	elif current_tool == "building":
 		var spec: Dictionary = Catalog.BUILDINGS[building_kind()]
 		inspector_text.text = "[color=#efb17d]%s € Baukosten[/color]\n%d €/Tag Betrieb\n\n%s\n\nAuf einen freien Bauplatz tippen und den Bau bestätigen." % [money_text(spec.cost), spec.upkeep, spec.description]
+		var access: String = model.build_access_message(building_kind(), false)
+		if access != "":
+			inspector_text.text = "[color=#efb17d]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
 	else:
 		var difficulty: int = {"blue": 0, "red": 1, "black": 2}.get(current_tool, 0)
 		inspector_text.text = "[color=#efb17d]Bis %.0f %% Gefälle[/color]\n%d € pro Streckenmeter\n\nWegpunkte vom Berg ins Tal setzen. Kurven und Serpentinen helfen, steile Hänge zu erschließen.\n\nDer gesamte Streckenverlauf zählt. Bergauf führende Abschnitte sind nicht als Abfahrt nutzbar.\n\nPistenenden und Stationen verbinden sich innerhalb von 42 m." % [Terrain.GRADE_LIMITS[difficulty], [32, 44, 58][difficulty]]
@@ -474,6 +497,7 @@ func show_report() -> void:
 	if report.is_empty():
 		return
 	var satisfaction: float = report.satisfaction / maxf(1, report.departures)
-	daily_dialog.dialog_text = "Tag %d · Dein Berg in Zahlen\n\n%d Tagesgäste · %d Abfahrten\n%.0f %% Gästezufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nMeilenstein-Prämien: %s €\n\nTagesergebnis: %s €\nVerfügbares Budget: %s €\n\nÜber Nacht werden die Pisten präpariert.\nMorgen kann sich das Wetter ändern." % [report.day, report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(report.rewards), money_text(report.tickets + report.services - report.costs + report.rewards), money_text(game.model.money)]
-	daily_dialog.get_label().add_theme_font_size_override("font_size", 22)
-	daily_dialog.popup_centered(Vector2i(650, 560))
+	var operating: float = report.tickets + report.services - report.costs
+	daily_dialog.dialog_text = "Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nÜber Nacht werden die Pisten präpariert." % [Progression.season_number(game.model), Progression.season_day(game.model), report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(operating), money_text(report.get("investments", 0.0)), money_text(report.rewards), money_text(operating + report.rewards - report.get("investments", 0.0)), money_text(game.model.money), game.model.campaign.rank, game.model.campaign.points, game.model.campaign.notice]
+	daily_dialog.get_label().add_theme_font_size_override("font_size", 20)
+	daily_dialog.popup_centered(Vector2i(760, 640))

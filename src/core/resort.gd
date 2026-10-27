@@ -3,7 +3,8 @@ extends RefCounted
 
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
-const MAX_GUESTS := 240
+const Progression = preload("res://src/core/progression.gd")
+const MAX_GUESTS := 360
 const OPENING := 480
 const CLOSING := 1080
 
@@ -28,6 +29,7 @@ var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var revision := 0
 var _routes: Dictionary = {}
+var campaign: Dictionary = {}
 
 func new_game(starter: bool = true, game_seed: int = 20261027) -> void:
 	money = 400000.0
@@ -48,6 +50,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027) -> void:
 	achievements.clear()
 	last_report.clear()
 	rng.seed = game_seed
+	campaign = Progression.new_state(self, not starter)
 	_reset_report()
 	_invalidate()
 	if starter:
@@ -55,9 +58,10 @@ func new_game(starter: bool = true, game_seed: int = 20261027) -> void:
 		build_piste([[245, -130], [275, -30], [255, 95], [200, 205]], 0)
 		build_building("lodge", Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
+	Progression.begin_day(self)
 
 func _reset_report() -> void:
-	report = {"day": day, "tickets": 0.0, "services": 0.0, "costs": 0.0, "guests": 0, "rides": 0, "departures": 0, "satisfaction": 0.0, "rewards": 0.0}
+	report = {"day": day, "tickets": 0.0, "services": 0.0, "costs": 0.0, "guests": 0, "rides": 0, "departures": 0, "satisfaction": 0.0, "rewards": 0.0, "investments": 0.0}
 
 func _invalidate() -> void:
 	revision += 1
@@ -75,6 +79,9 @@ func _spend(cost: float) -> bool:
 	if cost > money:
 		return false
 	money -= cost
+	if not report.is_empty():
+		report.investments = report.get("investments", 0.0) + cost
+		Progression.sync_finances(self)
 	return true
 
 func build_piste(points: Array, difficulty: int) -> Dictionary:
@@ -85,7 +92,7 @@ func build_piste(points: Array, difficulty: int) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für diese Piste noch nicht.")
-	pistes.append({"id": next_id, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], next_id], "points": points.duplicate(true), "difficulty": difficulty, "length": check.length, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0, "enabled": true, "rides": 0})
+	pistes.append({"id": next_id, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], next_id], "points": points.duplicate(true), "difficulty": difficulty, "length": check.length, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
 	next_id += 1
 	_invalidate()
 	return _result(true, "Piste gebaut. Sie öffnet, sobald ein Rundweg mit Lift erreichbar ist.")
@@ -107,6 +114,9 @@ func preview_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 	return _result(true, "%.0f m · +%.0f Höhenmeter · %d Gäste/h" % [distance, rise, Catalog.LIFTS[kind].capacity], {"cost": cost, "length": distance})
 
 func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
+	var access := build_access_message(kind, true)
+	if access != "":
+		return _result(false, access)
 	if lifts.size() >= 24:
 		return _result(false, "Maximal 24 Lifte in diesem Prototyp.")
 	var check := preview_lift(kind, bottom, top)
@@ -114,7 +124,7 @@ func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für diesen Lift noch nicht.")
-	lifts.append({"id": next_id, "kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top), "length": check.length, "cost": check.cost, "enabled": true, "credit": 0.0, "boarded": 0, "name": "%s %d" % [Catalog.LIFTS[kind].name, next_id]})
+	lifts.append({"id": next_id, "kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top), "length": check.length, "cost": check.cost, "enabled": true, "credit": 0.0, "boarded": 0, "level": 1, "upgrade_total": 0.0, "name": "%s %d" % [Catalog.LIFTS[kind].name, next_id]})
 	next_id += 1
 	_invalidate()
 	return _result(true, "Lift gebaut. Eine passende Abfahrt mit Rückweg ins Tal ergänzen.")
@@ -143,6 +153,9 @@ func preview_building(kind: String, point: Vector2) -> Dictionary:
 	return _result(true, Catalog.BUILDINGS[kind].description, {"cost": Catalog.BUILDINGS[kind].cost})
 
 func build_building(kind: String, point: Vector2) -> Dictionary:
+	var access := build_access_message(kind, false)
+	if access != "":
+		return _result(false, access)
 	if buildings.size() >= 60:
 		return _result(false, "Maximal 60 Gebäude in diesem Prototyp.")
 	var check := preview_building(kind, point)
@@ -150,7 +163,7 @@ func build_building(kind: String, point: Vector2) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, "Das Budget reicht für dieses Gebäude noch nicht.")
-	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "name": Catalog.BUILDINGS[kind].name})
+	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "level": 1, "upgrade_total": 0.0, "name": Catalog.BUILDINGS[kind].name})
 	next_id += 1
 	_invalidate()
 	return _result(true, "%s gebaut." % Catalog.BUILDINGS[kind].name)
@@ -173,7 +186,7 @@ func demolish(id: int) -> Dictionary:
 	for collection in [pistes, lifts, buildings]:
 		for i in range(collection.size()):
 			if collection[i].id == id:
-				var refund := roundi(collection[i].cost * 0.25)
+				var refund := roundi((collection[i].cost + collection[i].get("upgrade_total", 0)) * 0.25)
 				collection.remove_at(i)
 				money += refund
 				_invalidate()
@@ -194,6 +207,37 @@ func building_count(kind: String) -> int:
 			count += 1
 	return count
 
+func building_power(kind: String) -> float:
+	var power := 0.0
+	for building in buildings:
+		if building.enabled and building.kind == kind:
+			power += building.get("level", 1)
+	return power
+
+func lift_capacity(lift: Dictionary) -> int:
+	return roundi(Catalog.LIFTS[lift.kind].capacity * (1.0 + 0.25 * (lift.get("level", 1) - 1)))
+
+func lift_speed(lift: Dictionary) -> float:
+	return Catalog.LIFTS[lift.kind].speed * (1.0 + 0.1 * (lift.get("level", 1) - 1))
+
+func build_access_message(kind: String, is_lift: bool) -> String:
+	return Progression.access_message(self, kind, is_lift)
+
+func start_research(id: String) -> Dictionary:
+	return Progression.start_research(self, id)
+
+func accept_contract(id: String) -> Dictionary:
+	return Progression.accept_contract(self, id)
+
+func claim_contract(id: String) -> Dictionary:
+	return Progression.claim_contract(self, id)
+
+func upgrade_check(id: int) -> Dictionary:
+	return Progression.upgrade_check(self, id)
+
+func upgrade_asset(id: int) -> Dictionary:
+	return Progression.upgrade(self, id)
+
 func _edge(from_key: String, to_key: String, kind: String, id: int, points: Array, minutes: float) -> Dictionary:
 	return {"from": from_key, "to": to_key, "kind": kind, "id": id, "points": points, "minutes": maxf(minutes, 0.15)}
 
@@ -206,7 +250,7 @@ func _graph(skill: int) -> Dictionary:
 			var t := "l%dt" % lift.id
 			nodes[b] = lift.bottom
 			nodes[t] = lift.top
-			edges[b] = [_edge(b, t, "lift", lift.id, [lift.bottom, lift.top], lift.length / Catalog.LIFTS[lift.kind].speed)]
+			edges[b] = [_edge(b, t, "lift", lift.id, [lift.bottom, lift.top], lift.length / lift_speed(lift))]
 			edges[t] = []
 	for piste in pistes:
 		if piste.difficulty <= skill and piste_open(piste):
@@ -301,6 +345,7 @@ func admit_guest(skill: int) -> bool:
 	report.tickets += ticket_price
 	report.guests += 1
 	total_guests += 1
+	Progression.on_admission(self, skill, ticket_price)
 	return true
 
 func _start_leg(guest: Dictionary) -> void:
@@ -315,11 +360,12 @@ func _finish_leg(guest: Dictionary) -> void:
 		if not piste.is_empty():
 			piste.rides += 1
 			var was_open := piste_open(piste)
-			piste.condition = maxf(0.0, piste.condition - 0.016)
+			piste.condition = maxf(0.0, piste.condition - 0.016 / (1.0 + 0.45 * (piste.get("level", 1) - 1)))
 			if was_open != piste_open(piste):
 				_invalidate()
 		total_rides += 1
 		report.rides += 1
+		campaign.xp += 1
 	guest.leg += 1
 	if guest.leg < guest.route.legs.size():
 		_start_leg(guest)
@@ -328,10 +374,17 @@ func _finish_leg(guest: Dictionary) -> void:
 	if not guest.spent:
 		var spending := 0.0
 		for kind in Catalog.BUILDINGS:
-			if building_count(kind) > 0:
-				spending += Catalog.BUILDINGS[kind].income
+			var best := 0
+			for building in buildings:
+				if building.enabled and building.kind == kind:
+					best = maxi(best, building.get("level", 1))
+			if best > 0:
+				spending += Catalog.BUILDINGS[kind].income * (1.0 + (best - 1) * 0.35)
+		if Progression.has(self, "service"):
+			spending *= 1.15
 		money += spending
 		report.services += spending
+		campaign.turnover += spending
 		guest.spent = true
 	if guest.age >= guest.stay or guest.total_wait > 80:
 		guest.phase = "leaving"
@@ -347,11 +400,15 @@ func _finish_leg(guest: Dictionary) -> void:
 func _depart(guest: Dictionary) -> void:
 	var appeal := 0.0
 	for kind in Catalog.BUILDINGS:
-		appeal += minf(building_count(kind), 2) * Catalog.BUILDINGS[kind].appeal
+		appeal += minf(building_power(kind), 3) * Catalog.BUILDINGS[kind].appeal
+	if Progression.has(self, "service"):
+		appeal += 6
 	var satisfaction := clampf(65.0 + appeal * 0.55 + minf(guest.loops, 5) * 3.0 - guest.total_wait * 0.45 - maxf(ticket_price - 48, 0) * 0.6, 5, 100)
 	report.satisfaction += satisfaction
 	report.departures += 1
 	reputation = clampf(lerpf(reputation, satisfaction, 0.012), 10.0, 95.0)
+	if satisfaction >= 80:
+		campaign.happy += 1
 
 func _reroute_guests() -> void:
 	for guest in guests:
@@ -374,16 +431,18 @@ func advance_minute(arrivals: bool = true) -> void:
 		if weather().temperature <= -1:
 			for building in buildings:
 				if building.enabled and building.kind == "snowmaker":
-					if Terrain.point_on_path(piste.points, 0.5).distance_to(Terrain.unpack(building.point)) <= 150:
-						piste.snow = minf(110.0, piste.snow + 0.035)
+					if Terrain.point_on_path(piste.points, 0.5).distance_to(Terrain.unpack(building.point)) <= 150 + 20 * (building.get("level", 1) - 1):
+						piste.snow = minf(110.0, piste.snow + 0.035 * building.get("level", 1))
 		changed_open = changed_open or was_open != piste_open(piste)
 	if changed_open:
 		_invalidate()
 	if arrivals and minute < CLOSING - 85:
-		var demand: float = (0.7 + reputation / 90.0 + building_count("hotel") * 0.35) * weather().demand * pow(42.0 / ticket_price, 1.3)
+		var day_event := Progression.event(self)
+		var campaign_bonus: float = 1.0 + (campaign.rank - 1) * 0.08 + (0.15 if Progression.has(self, "marketing") else 0.0)
+		var demand: float = (0.7 + reputation / 90.0 + building_power("hotel") * 0.35) * weather().demand * pow(42.0 / ticket_price, 1.3) * day_event.demand * campaign_bonus
 		var arrivals_count := floori(demand) + int(rng.randf() < fmod(demand, 1.0))
 		for i in range(arrivals_count):
-			var ability := 0 if rng.randf() < 0.53 else (1 if rng.randf() < 0.72 else 2)
+			var ability := 0 if rng.randf() < day_event.beginner_share else (1 if rng.randf() < 0.72 else 2)
 			admit_guest(ability)
 	var departures: Array = []
 	for guest in guests:
@@ -406,7 +465,7 @@ func advance_minute(arrivals: bool = true) -> void:
 	for lift in lifts:
 		if not lift_open(lift):
 			continue
-		var per_minute: float = Catalog.LIFTS[lift.kind].capacity / 60.0
+		var per_minute: float = lift_capacity(lift) / 60.0
 		lift.credit = minf(lift.credit + per_minute, per_minute * 2.0)
 		for guest in guests:
 			if lift.credit < 1.0:
@@ -417,6 +476,7 @@ func advance_minute(arrivals: bool = true) -> void:
 				lift.credit -= 1.0
 				lift.boarded += 1
 	_check_achievements()
+	Progression.refresh(self)
 	if minute >= CLOSING:
 		_close_day()
 
@@ -435,14 +495,14 @@ func _check_achievements() -> void:
 			report.rewards += rewards[i]
 
 func operating_costs() -> float:
-	var amount := 900.0 + (450.0 if loan > 0 else 0.0)
+	var amount := 900.0
 	for lift in lifts:
-		amount += Catalog.LIFTS[lift.kind].upkeep * (1.0 if lift.enabled else 0.25)
+		amount += Catalog.LIFTS[lift.kind].upkeep * (1.0 if lift.enabled else 0.25) * (1.0 + 0.18 * (lift.get("level", 1) - 1))
 	for building in buildings:
-		amount += Catalog.BUILDINGS[building.kind].upkeep * (1.0 if building.enabled else 0.2)
+		amount += Catalog.BUILDINGS[building.kind].upkeep * (1.0 if building.enabled else 0.2) * (1.0 + 0.2 * (building.get("level", 1) - 1))
 	for piste in pistes:
 		amount += piste.length * (0.4 if piste.enabled else 0.08)
-	return amount
+	return amount * (0.85 if Progression.has(self, "efficient_snow") else 1.0) + (450.0 if loan > 0 else 0.0)
 
 func _close_day() -> void:
 	for guest in guests:
@@ -450,6 +510,7 @@ func _close_day() -> void:
 	guests.clear()
 	report.costs = operating_costs()
 	money -= report.costs
+	Progression.finish_day(self)
 	last_report = report.duplicate(true)
 
 func next_day() -> bool:
@@ -457,11 +518,12 @@ func next_day() -> bool:
 		return false
 	for piste in pistes:
 		piste.snow = minf(110.0, piste.snow + weather().snowfall)
-		piste.condition = minf(100.0, piste.condition + 32.0 + building_count("maintenance") * 24)
+		piste.condition = minf(100.0, piste.condition + 32.0 + building_power("maintenance") * 24 + (piste.get("level", 1) - 1) * 5 + (12 if Progression.has(self, "efficient_snow") else 0))
 	day += 1
 	minute = OPENING
-	weather_index = rng.randi_range(0, Catalog.WEATHER.size() - 1)
+	weather_index = Progression.weather_for_day(rng.seed, day)
 	_reset_report()
+	Progression.begin_day(self)
 	_invalidate()
 	return true
 
@@ -496,8 +558,8 @@ func guest_position(guest: Dictionary) -> Vector3:
 		return Terrain.world(point, 2)
 	var point := Terrain.point_on_path(leg.points, fraction)
 	if leg.kind == "lift":
-		var a := Terrain.world(Terrain.unpack(leg.points[0]), 7)
-		var b := Terrain.world(Terrain.unpack(leg.points[1]), 7)
+		var a := Terrain.world(Terrain.unpack(leg.points[0]), 11)
+		var b := Terrain.world(Terrain.unpack(leg.points[1]), 11)
 		return a.lerp(b, fraction)
 	return Terrain.world(point, 2)
 
@@ -508,7 +570,7 @@ func snapshot() -> Dictionary:
 		copy.erase("route")
 		copy.target = guest.route.target
 		visitor_data.append(copy)
-	return {"version": 1, "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version": 2, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "guests": visitor_data, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func restore(data: Dictionary) -> Dictionary:
 	# Validate into a separate instance, so a failed load never damages this game.
@@ -516,7 +578,7 @@ func restore(data: Dictionary) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data)
 	if not check.ok:
 		return check
-	for key in ["money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "guests", "achievements", "report", "last_report"]:
+	for key in ["money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "guests", "achievements", "report", "last_report", "campaign"]:
 		set(key, candidate.get(key))
 	rng.seed = candidate.rng.seed
 	rng.state = candidate.rng.state
@@ -525,7 +587,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, "Der Spielstand ist unvollständig oder beschädigt.")
-	if data.get("version") != 1:
+	if data.get("version") != 1 and data.get("version") != 2:
 		return _result(false, "Diese Spielstand-Version wird nicht unterstützt.")
 	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [OPENING, CLOSING], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 150000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
 	for key in ranges:
@@ -549,6 +611,12 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				return invalid
 			if not Terrain.number(item.get("cost")) or item.cost < 0 or item.cost > 10000000:
 				return invalid
+			var level: Variant = item.get("level", 1)
+			var extra: Variant = item.get("upgrade_total", 0.0)
+			if not Terrain.number(level) or level < 1 or level > 3 or level != floorf(level) or not Terrain.number(extra) or extra < 0 or extra > 100000000:
+				return invalid
+			item.level = int(level)
+			item.upgrade_total = float(extra)
 			if key == "pistes":
 				if not item.get("points") is Array or not Terrain.number(item.get("difficulty")) or int(item.difficulty) != item.difficulty:
 					return invalid
@@ -567,12 +635,14 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 					if not Terrain.number(item.get(field)) or item[field] < 0 or item[field] > 1000000000:
 						return invalid
 				item.length = Terrain.world(Terrain.unpack(item.bottom)).distance_to(Terrain.world(Terrain.unpack(item.top)))
-				item.credit = minf(item.credit, Catalog.LIFTS[item.kind].capacity / 30.0)
+				item.credit = minf(item.credit, lift_capacity(item) / 30.0)
 			else:
 				if not item.get("kind") is String or not Catalog.BUILDINGS.has(item.kind) or not Terrain.contains(Terrain.unpack(item.get("point"))):
 					return invalid
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
+			return invalid
+		if data[key].has("investments") and (not Terrain.number(data[key].investments) or data[key].investments < 0):
 			return invalid
 		for field in ["day", "tickets", "services", "costs", "guests", "rides", "departures", "satisfaction", "rewards"]:
 			if key == "last_report" and data[key].is_empty():
@@ -593,6 +663,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	for achievement in data.achievements:
 		achievements.append(int(achievement))
 	report = data.report.duplicate(true)
+	report.investments = report.get("investments", 0.0)
 	last_report = data.last_report.duplicate(true)
 	_invalidate()
 	var visitor_ids: Array = []
@@ -611,7 +682,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				route = option
 		if route.is_empty():
 			continue # An exhausted piste may have closed while this guest was skiing.
-		if int(visitor.leg) != visitor.leg or visitor.leg >= route.legs.size():
+		if int(visitor.leg) != visitor.leg or visitor.leg > route.legs.size() or (visitor.leg == route.legs.size() and visitor.phase != "leaving"):
 			return invalid
 		if visitor.phase == "queue" and route.legs[int(visitor.leg)].kind != "lift":
 			return invalid
@@ -621,4 +692,6 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		guests.append(copy)
 	rng.seed = int(data.rng_seed)
 	rng.state = int(data.rng_state)
+	if not Progression.restore(self, data.get("campaign")):
+		return invalid
 	return _result(true, "Spielstand geprüft.")

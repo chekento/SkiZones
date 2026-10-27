@@ -32,6 +32,15 @@ func drag(index: int, point: Vector2, relative: Vector2) -> void:
 	event.relative = relative
 	game._input(event)
 
+func find_button(parent: Node, caption: String) -> Button:
+	for child in parent.get_children():
+		if child is Button and child.text == caption:
+			return child
+		var result := find_button(child, caption)
+		if result != null:
+			return result
+	return null
+
 func run() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -143,6 +152,33 @@ func run() -> void:
 	check(safe.position.is_equal_approx(Vector2(60, 0)) and safe.size.is_equal_approx(Vector2(1940, 880)), "Android cutouts and navigation insets map to logical UI coordinates")
 	check(game.hud.safe_content_rect(Vector2.ZERO, Vector2(1440, 900), Rect2()) == Rect2(0, 0, 1440, 900), "Missing display metrics leave the full UI usable")
 	check(game.hud.safe_content_rect(Vector2(2400, 1080), Vector2(2000, 900), Rect2(-100, 0, 2600, 1200)) == Rect2(0, 0, 2000, 900), "Safe areas are clipped to the display bounds")
+	game.hud.show_management(2)
+	await process_frame
+	var office: PanelContainer = game.hud.management
+	check(office.visible and office.tabs.get_tab_count() == 5 and office.tabs.current_tab == 2, "The resort office opens the requested one of five management pages")
+	check(game.hud.blocks_map(map_position) and bounds.encloses(office.get_global_rect()), "The complete office fits the viewport and blocks building underneath")
+	clock = game.model.minute
+	game.paused = false
+	for i in range(8):
+		game._process(0.25)
+	check(game.model.minute == clock, "Office planning pauses the operating day without changing the user's pause setting")
+	var research := find_button(office.tabs.get_child(2), "Forschung starten")
+	check(research != null and not research.disabled, "Available research has an enabled action in the actual office")
+	research.pressed.emit()
+	await process_frame
+	check(game.model.campaign.project.get("id") == "snowcraft" and office.tabs.current_tab == 2, "Office action starts the selected research and retains the current page")
+	office.tabs.current_tab = 1
+	var accept := find_button(office.tabs.get_child(1), "Auftrag annehmen")
+	accept.pressed.emit()
+	await process_frame
+	check(game.model.campaign.contracts.size() == 1, "Accepting an office offer creates a persistent simulation contract")
+	var escape := InputEventKey.new()
+	escape.keycode = KEY_ESCAPE
+	escape.pressed = true
+	game._input(escape)
+	check(not office.visible and not game.hud.menu.visible and not game.paused, "Escape closes the office and returns to the operating map")
+	check(game.view.camera.projection == Camera3D.PROJECTION_PERSPECTIVE and game.view.scenery_instance.mesh.get_surface_count() == 1, "The resort uses a perspective camera and a continuous alpine backdrop")
+	check(game.view.trees.multimesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() > 100 and game.view.visitor_mesh.multimesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() > 100, "Batched pine and skier meshes contain modeled parts rather than single markers")
 	# Release the complete scene before checking process exit, including its fonts.
 	game.queue_free()
 	await process_frame

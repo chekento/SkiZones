@@ -42,7 +42,7 @@ func _ready() -> void:
 			call_deferred("_capture", argument.trim_prefix("--capture="))
 
 func _process(delta: float) -> void:
-	if has_game and not paused and not hud.menu.visible and not hud.help_dialog.visible and model.minute < Resort.CLOSING:
+	if has_game and not paused and not hud.menu.visible and not hud.help_dialog.visible and not hud.management.visible and model.minute < Resort.CLOSING:
 		_accumulator += minf(delta, 0.25) * speed * 2.0
 		while _accumulator >= 1.0 and model.minute < Resort.CLOSING:
 			_accumulator -= 1.0
@@ -68,7 +68,7 @@ func start_game(starter: bool) -> void:
 	hud.hide_menu()
 	hud.set_map_focus(false)
 	set_tool("inspect")
-	hud.toast("Dein Sonnenhang ist eröffnet. Der blaue Rundweg ist bereits in Betrieb." if starter else "Freies Gelände: Plane zuerst einen Lift und einen blauen Rundweg.")
+	hud.toast("Dein Sonnenhang ist eröffnet. Aufträge und Forschung warten im Resort-Büro." if starter else "Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg.")
 	hud.refresh()
 
 func continue_game() -> void:
@@ -132,6 +132,10 @@ func undo_point() -> void:
 	_update_plan()
 
 func _plan_check() -> Dictionary:
+	if tool in ["lift", "building"]:
+		var access: String = model.build_access_message(hud.lift_kind() if tool == "lift" else hud.building_kind(), tool == "lift")
+		if access != "":
+			return {"ok": false, "message": access, "cost": 0}
 	if tool in ["blue", "red", "black"]:
 		return Terrain.analyse(points, {"blue": 0, "red": 1, "black": 2}[tool])
 	if tool == "lift" and points.size() == 2:
@@ -262,13 +266,19 @@ func _input(event: InputEvent) -> void:
 		view.change_zoom(1.0 / event.factor)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.menu.visible and has_game:
+			if hud.management.visible:
+				hud.management.hide()
+			elif hud.help_dialog.visible:
+				hud.help_dialog.hide()
+			elif hud.daily_dialog.visible:
+				hud.daily_dialog.hide()
+			elif hud.menu.visible and has_game:
 				hud.hide_menu()
 			elif tool != "inspect":
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.menu.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible:
+		elif not hud.menu.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -279,6 +289,7 @@ func _input(event: InputEvent) -> void:
 				KEY_L: set_tool("lift")
 				KEY_G: set_tool("building")
 				KEY_F1: hud.show_help()
+				KEY_M: hud.show_management()
 				KEY_TAB: hud.set_map_focus(not hud.map_focus)
 				KEY_S:
 					if event.ctrl_pressed:
@@ -329,6 +340,9 @@ func _notification(what: int) -> void:
 			save_game()
 		_clear_input()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.management.visible:
+			hud.management.hide()
+			return
 		if has_game:
 			save_game()
 		show_menu()
@@ -349,6 +363,31 @@ func _smoke_test() -> void:
 	print("SMOKE PASS: scene, terrain, HUD, simulation and build preview; guests=", model.guests.size())
 	get_tree().quit()
 
+func _showcase() -> void:
+	# Reproducible QA resort; these options are only used by developer captures.
+	model.money = 1200000
+	model.campaign.mode = "free"
+	model.campaign.research = Resort.Progression.RESEARCH.keys()
+	model.campaign.xp = 4000.0
+	model.build_lift("chair", Vector2(100, 200), Vector2(-170, -235))
+	model.build_piste([[-170, -235], [-160, -50], [-80, 90], [100, 190]], 2)
+	model.build_piste([[245, -130], [190, -55], [140, 30], [100, 190]], 1)
+	for entry in [["hotel", Vector2(80, 235)], ["school", Vector2(75, 292)], ["restaurant", Vector2(235, 310)], ["first_aid", Vector2(285, 240)], ["maintenance", Vector2(15, 245)], ["snowmaker", Vector2(300, 80)]]:
+		model.build_building(entry[0], entry[1])
+	for lift in model.lifts:
+		model.upgrade_asset(lift.id)
+	for building in model.buildings:
+		if building.kind == "hotel":
+			model.upgrade_asset(building.id)
+	for i in range(60):
+		model.advance_minute()
+	Resort.Progression.begin_day(model)
+	set_tool("inspect")
+	view.focus = Vector2(100, 95)
+	view.zoom = 590
+	view._update_camera()
+	hud.refresh()
+
 func _capture(path: String) -> void:
 	if OS.get_cmdline_user_args().has("--capture-game"):
 		start_game(true)
@@ -356,6 +395,16 @@ func _capture(path: String) -> void:
 		for i in range(120):
 			model.advance_minute()
 		hud.refresh()
+	if OS.get_cmdline_user_args().has("--capture-showcase"):
+		_showcase()
+	if OS.get_cmdline_user_args().has("--capture-office"):
+		hud.show_management(0)
+	if OS.get_cmdline_user_args().has("--capture-map"):
+		hud.set_map_focus(true)
+	if OS.get_cmdline_user_args().has("--capture-detail"):
+		view.focus = Vector2(150, 220)
+		view.zoom = 340
+		view._update_camera()
 	if OS.get_cmdline_user_args().has("--capture-slopes"):
 		hud.toggle_slopes()
 		hud.set_map_focus(true)

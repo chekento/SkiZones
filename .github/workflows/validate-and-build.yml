@@ -38,6 +38,8 @@ jobs:
         run: '"$GODOT_BIN" --headless --editor --import --quit'
       - name: Simulation regression tests
         run: '"$GODOT_BIN" --headless --script tests/run.gd'
+      - name: Career and multi-winter regression tests
+        run: '"$GODOT_BIN" --headless --script tests/progression.gd'
       - name: Scene and touch tests
         run: '"$GODOT_BIN" --headless --script tests/scene.gd'
       - name: Scene smoke test

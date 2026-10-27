@@ -1,0 +1,169 @@
+extends RefCounted
+## Small original 3D models, baked into one colored mesh per asset.
+
+var surface := SurfaceTool.new()
+
+func _init() -> void:
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+
+func add(mesh: Mesh, position_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO, size_value: Vector3 = Vector3.ONE) -> void:
+	var basis := Basis.from_euler(rotation).scaled(size_value)
+	var transform_value := Transform3D(basis, position_value)
+	var normal_basis := basis.inverse().transposed()
+	var arrays := mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var count := indices.size() if not indices.is_empty() else vertices.size()
+	for i in range(count):
+		var index := indices[i] if not indices.is_empty() else i
+		surface.set_color(color)
+		surface.set_normal((normal_basis * normals[index]).normalized())
+		surface.add_vertex(transform_value * vertices[index])
+
+func box(position_value: Vector3, size_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO) -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = size_value
+	add(mesh, position_value, color, rotation)
+
+func cone(position_value: Vector3, radius: float, height_value: float, color: Color, top: float = 0.0) -> void:
+	var mesh := CylinderMesh.new()
+	mesh.bottom_radius = radius
+	mesh.top_radius = top
+	mesh.height = height_value
+	mesh.radial_segments = 8
+	add(mesh, position_value, color)
+
+func sphere(position_value: Vector3, radius: float, color: Color, size_value: Vector3 = Vector3.ONE) -> void:
+	var mesh := SphereMesh.new()
+	mesh.radius = radius
+	mesh.height = radius * 2
+	mesh.radial_segments = 8
+	mesh.rings = 3
+	add(mesh, position_value, color, Vector3.ZERO, size_value)
+
+func finish() -> ArrayMesh:
+	surface.index()
+	return surface.commit()
+
+func pine() -> ArrayMesh:
+	cone(Vector3(0, 3, 0), 0.7, 6, Color("67513c"), 0.5)
+	for tier in [[2.0, 8.0, 5.0], [6.5, 7.0, 4.0], [11.0, 6.0, 2.8]]:
+		cone(Vector3(0, tier[0] + tier[1] / 2, 0), tier[2], tier[1], Color("294b40"))
+		cone(Vector3(0, tier[0] + tier[1] * 0.64, 0), tier[2] * 0.85, tier[1] * 0.8, Color("e5eced"))
+	return finish()
+
+func rock() -> ArrayMesh:
+	sphere(Vector3(0, 2, 0), 4, Color("6f7b83"), Vector3(1.2, 0.7, 0.85))
+	sphere(Vector3(-0.5, 3.8, 0), 3.5, Color("dce5e9"), Vector3(1.1, 0.3, 0.75))
+	return finish()
+
+func roof(width: float, depth: float, wall_height: float) -> void:
+	var angle := 0.42
+	var rise := width * 0.5 * tan(angle)
+	for side in [-1, 1]:
+		var center := Vector3(side * width * 0.25, wall_height + rise * 0.5, 0)
+		box(center, Vector3(width * 0.57, 1.4, depth + 5), Color("4b4b48"), Vector3(0, 0, -side * angle))
+		box(center + Vector3(0, 1, 0), Vector3(width * 0.57 + 0.6, 0.85, depth + 5.6), Color("edf0ed"), Vector3(0, 0, -side * angle))
+
+func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
+	if kind == "snowmaker":
+		return snow_cannon(level)
+	var big := kind == "hotel"
+	var wide := kind == "maintenance"
+	var width := 35.0 if big else (29.0 if wide else 22.0)
+	var depth := 28.0 if big else (24.0 if wide else 18.0)
+	var floors := 2 + int(level >= 2) if big else 1 + int(level == 3)
+	var height_value := floors * 8.0 + 3.0
+	box(Vector3(0, 1, 0), Vector3(width + 3, 2, depth + 3), Color("8f9697"))
+	box(Vector3(0, height_value / 2 + 1, 0), Vector3(width, height_value, depth), Color("b6a186") if big else Color("966a48"))
+	for y in range(3, int(height_value), 2):
+		box(Vector3(0, y, depth / 2 + 0.12), Vector3(width, 0.16, 0.25), Color("70513c"))
+		box(Vector3(width / 2 + 0.12, y, 0), Vector3(0.25, 0.16, depth), Color("70513c"))
+	for floor_index in range(floors):
+		var y := 6.0 + floor_index * 8.0
+		for x in range(-1, 2):
+			var px: float = x * width * 0.28
+			box(Vector3(px, y, depth / 2 + 0.25), Vector3(4.6, 4.7, 0.5), Color("483d33"))
+			box(Vector3(px, y, depth / 2 + 0.55), Vector3(3.6, 3.7, 0.25), Color("dcba7e"))
+			box(Vector3(px, y, depth / 2 + 0.8), Vector3(0.22, 3.8, 0.2), Color("765b42"))
+			for side in [-1, 1]:
+				box(Vector3(px + side * 2.9, y, depth / 2 + 0.4), Vector3(0.9, 4.4, 0.5), accent.darkened(0.15))
+		for z in [-0.25, 0.25]:
+			box(Vector3(width / 2 + 0.3, y, z * depth), Vector3(0.5, 3.5, 3.8), Color("dcba7e"))
+		if floor_index > 0:
+			box(Vector3(0, y - 2.8, depth / 2 + 2), Vector3(width + 1, 0.8, 5.5), Color("74543d"))
+			box(Vector3(0, y - 0.4, depth / 2 + 4.5), Vector3(width + 1, 0.45, 0.45), Color("6e503c"))
+			for post in range(9):
+				box(Vector3(-width / 2 + post * width / 8, y - 1.6, depth / 2 + 4.5), Vector3(0.4, 2.5, 0.4), Color("6e503c"))
+	box(Vector3(0, 4, depth / 2 + 0.7), Vector3(3.3, 6, 0.9), Color("443a31"))
+	box(Vector3(0, 8.5, depth / 2 + 1.0), Vector3(10, 1.6, 0.8), accent)
+	roof(width + 2, depth, height_value + 1)
+	box(Vector3(-width * 0.28, height_value + 8, -depth * 0.15), Vector3(3.5, 8, 3.5), Color("a59c8d"))
+	box(Vector3(-width * 0.28, height_value + 12, -depth * 0.15), Vector3(5, 1, 5), Color("e8eeec"))
+	if wide:
+		box(Vector3(0, 5.3, depth / 2 + 1.1), Vector3(16, 8, 0.6), Color("384a4b"))
+		box(Vector3(0, 2.0, depth / 2 + 5), Vector3(9, 3, 7), Color("bd6348"))
+		for x in [-4.8, 4.8]:
+			box(Vector3(x, 1.8, depth / 2 + 5), Vector3(1.2, 2.8, 8), Color("39433f"))
+	if kind == "restaurant" or kind == "lodge":
+		for x in [-7, 7]:
+			box(Vector3(x, 2, depth / 2 + 8), Vector3(5, 0.6, 3), Color("9b7550"))
+			box(Vector3(x, 0.9, depth / 2 + 8), Vector3(0.6, 2, 0.6), Color("66513e"))
+	if kind == "first_aid":
+		box(Vector3(0, height_value * 0.65, depth / 2 + 1.4), Vector3(6, 1.5, 0.6), Color("e9f2ec"))
+		box(Vector3(0, height_value * 0.65, depth / 2 + 1.5), Vector3(1.5, 6, 0.6), Color("e9f2ec"))
+	return finish()
+
+func snow_cannon(level: int) -> ArrayMesh:
+	box(Vector3(0, 1.8, 0), Vector3(8, 2.5, 6), Color("d7ad5b"))
+	for x in [-3.8, 3.8]:
+		for z in [-2.5, 2.5]:
+			sphere(Vector3(x, 1.3, z), 1.2, Color("394848"))
+	cone(Vector3(0, 5.0, 0), 0.7, 6, Color("69868d"), 0.7)
+	var barrel := CylinderMesh.new()
+	barrel.height = 8 + level
+	barrel.bottom_radius = 3.0
+	barrel.top_radius = 3.6
+	barrel.radial_segments = 10
+	add(barrel, Vector3(0, 9, 0), Color("487d99"), Vector3(1.15, 0, 0))
+	box(Vector3(0, 5, -2), Vector3(4, 4, 3), Color("d4b25b"))
+	return finish()
+
+func station(kind: String, level: int) -> ArrayMesh:
+	var small := kind == "drag"
+	var width := 14.0 if small else 24.0 + level * 2
+	box(Vector3(0, 1, 0), Vector3(width + 4, 2, 21), Color("9ca4a4"))
+	for x in [-1, 1]:
+		box(Vector3(x * width * 0.38, 7.5, 0), Vector3(2, 13, 2), Color("556e73"))
+	box(Vector3(0, 13.3, 0), Vector3(width, 3.5, 18), Color("bf7850") if small else Color("3b6d76"))
+	box(Vector3(0, 15.7, 0), Vector3(width + 3, 1.4, 21), Color("e8efed"))
+	box(Vector3(-width * 0.43, 5.4, 5), Vector3(8, 9, 9), Color("8d7251"))
+	box(Vector3(-width * 0.43, 7.5, 9.7), Vector3(6.5, 3.5, 0.5), Color("678c96"))
+	box(Vector3(-width * 0.43, 10.3, 5), Vector3(10, 1, 11), Color("e7eeec"))
+	cone(Vector3(0, 12.4, 0), 4.2, 1.3, Color("3d555b"), 4.2)
+	return finish()
+
+func chair(kind: String) -> ArrayMesh:
+	if kind == "gondola":
+		box(Vector3(0, 1.4, 0), Vector3(5.5, 4.6, 4.5), Color("326b80"))
+		box(Vector3(0, 2.2, 2.3), Vector3(4.5, 2.6, 0.2), Color("9fc2cc"))
+		box(Vector3(0, -1.0, 0), Vector3(5.8, 0.8, 4.8), Color("c08a51"))
+		box(Vector3(0, 4.0, 0), Vector3(0.4, 2.5, 0.4), Color("4b6268"))
+	else:
+		box(Vector3(0, 0, 0), Vector3(5, 0.7, 3.0), Color("b08452"))
+		box(Vector3(0, 1.3, -1.3), Vector3(5, 2.6, 0.55), Color("597984"))
+		box(Vector3(0, 2.5, 0), Vector3(0.35, 4, 0.35), Color("52696f"))
+		box(Vector3(0, 1.1, 1.2), Vector3(5, 0.3, 0.3), Color("52696f"))
+	return finish()
+
+func skier() -> ArrayMesh:
+	box(Vector3(-0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
+	box(Vector3(0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
+	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
+	sphere(Vector3(0, 2.55, 0), 0.46, Color("d9e1dd"))
+	box(Vector3(0, 2.55, 0.4), Vector3(0.75, 0.22, 0.15), Color("273e4b"))
+	for side in [-1, 1]:
+		box(Vector3(side * 0.35, 0.13, 0.4), Vector3(0.24, 0.16, 3.4), Color("4f6670"))
+		box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
+	return finish()

@@ -2,38 +2,34 @@
 
 ## 0.1 · Spielbare Grundlage — umgesetzt
 
-3D-Karte, Pistenplanung mit Profilprüfung, drei Liftarten, acht Gebäudetypen mit Kennzahlen, vollständige geeignete Gästerunden, gemeinsame Liftkapazitäten, Geld, Tagesbetrieb, Wetter, Schnee, Pistenverschleiß, Kredit, Meilensteine, Touch-Kamera und lokale Spielstände. Automatisierte Prüfungen und Android-Debug-Export sind angelegt.
+3D-Karte, freie Pistenplanung mit Profilprüfung, drei Liftarten, acht Gebäudetypen, vollständige Gästerunden, gemeinsame Liftkapazität, Geld, Tagesbetrieb, Wetter, Schnee, Verschleiß, Kredit, Meilensteine, Touch-Kamera und lokale Spielstände. In 0.1.1 kamen Gefälleansicht, große Karte, sichere Displaybereiche und direkte APK-Releases hinzu.
 
-## 0.2 · Android im Alltag
+## 0.2 · Alpen und Karriere — umgesetzt
 
-Bereits in **0.1.1** ergänzt: sichere Displaybereiche, einblendbare Hangneigung, mehr Kartenfläche und direkte APK-Releases mit Prüfsumme.
+Neue prozedurale Modelle für Gebäude, Stationen, Fahrzeuge, Skifahrer, Tannen und Felsen. Zusammenhängendes Gelände, Perspektivkamera, Waldschatten, Schneelicht, Dunst und Schneefall. Panorama im Hauptmenü.
 
-Physische Geräte prüfen, sichere Displaybereiche berücksichtigen, Touch-Größen abstimmen und App-Unterbrechungen testen. Ein einstellbarer Detailgrad, gebündelte Pistenmarkierungen und ein Performance-Budget sollen große Resorts ermöglichen. Speicherstände sollen vollständige laufende Reiserouten samt Migration erhalten. Terrain- und Verbindungsanzeigen sollen Engpässe bereits vor dem Bau zeigen.
+Fünf Resort-Sterne, neun mehrtägige Forschungen, drei Ausbaustufen, wechselnde Aufträge und 28-tägige Winter mit Saisonprämien. Wochenereignisse, erforschbare Wettervorschau, Finanzverlauf und ein pausierendes Resort-Büro. Migration älterer Spielstände, 143 automatisierte Prüfungen und ein vollständiger Zwei-Winter-Testlauf.
 
-## 0.3 · Mehr Planung am Berg
+## Nächste Schritte · Android und Wirtschaft
 
-Mehrere Karten und Landschafts-Seeds, Grundstücke, Geländebearbeitung mit Volumen- und Umweltkosten, veränderliche Pistenbreite, Kurvenradien, kreuzungsfreie Liftplanung, Wege und echte Bauphasen. Umbenennen und Umbauen bestehender Anlagen. Getrennte Ein- und Ausstiegsbereiche sowie eine sichtbare Netz- und Schwierigkeitsansicht.
+Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereiche, Touch-Größen, Wärmeentwicklung und große Resorts. Einstellbarer Detailgrad und ein überprüfbares Performance-Budget. Forschungsdauer, Preise, Prämien und Langzeitwirtschaft anhand längerer Spielsitzungen abstimmen. Vollständige laufende Reiserouten speichern, auch wenn eine Piste während der Fahrt erschöpft wurde. Ein geführter Karriereeinstieg soll die ersten Ausbauentscheidungen erklären.
 
-## 0.4 · Touristen mit eigenen Bedürfnissen
+## Mehr Planung am Berg
 
-Familien, Anfängergruppen, sportliche Tagesgäste und Hotelgäste mit Budget, Hunger, Müdigkeit, Zufriedenheit und Können. Echte Wege zu Gebäuden und Servicewarteschlangen. Skischulen verbessern Können; Hotels verwalten Betten, Übernachtungen und Buchungen. Anreise per Straße, Bus und Bahn. Die heutige maximale Gästezahl soll später eine Darstellungsgrenze für eine größere aggregierte Bevölkerung werden.
+Weitere Karten und Landschafts-Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Ein- und Ausstiegsbereiche sowie eine sichtbare Netz- und Engpassansicht.
 
-## 0.5 · Personal und verlässlicher Betrieb
+## Gäste und verlässlicher Betrieb
 
-Liftpersonal, Gastronomie, Skilehrkräfte, Technik, Bergwacht und Pistenpräparierung mit Schichten und Qualifikation. Wartung, Verschleiß, Ersatzteile, Strom- und Wasserverbrauch sowie Ausfallrisiken. Räumlich geregelte Beschneiung und Pistenraupen statt reiner Kennzahlwirkung.
+Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Tatsächliche Gebäudewege und Servicewarteschlangen. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Räumlich geregelte Beschneiung und fahrende Pistenraupen.
 
-## 0.6 · Langfristige Tycoon-Kampagne
+## Weitere Karriereziele und Präsentation
 
-Forschung, Spezialisierungen, Ausbau von Stationen und Liften, Tarife, echte laufende Kreditverträge und wirtschaftliche Prognosen. Wechselnde Winter und Wettervorhersagen, Wettbewerbe, Veranstaltungen, Stammgäste, Marketing und Reputation pro Zielgruppe. Ein Resort soll auch nach vielen Spielstunden neue sinnvolle Entscheidungen bieten.
+Spezialisierungen, Wettbewerbe, Veranstaltungen, Stammgäste und Reputation pro Zielgruppe. Weitere Szenarien mit unterschiedlichen wirtschaftlichen Bedingungen, Preisstrategien und laufenden Kreditverträgen. Sound, Musik, Fahranimationen, Textgrößen- und Kontrastoptionen sowie übersetzbare Texte.
 
-## 0.7 · Eigene Präsentation und Zugänglichkeit
+## Veröffentlichungsreife
 
-Einheitliche finale Modelle, Animationen, Figuren, Sound und Musik. Ein gestaltetes Hauptmenü mit den freigegebenen SkiZones-Motiven. Tastaturbelegung, Kontrast- und Textgrößenoptionen, verständliche Diagramme, übersetzbare Texte und weitere Sprachen. Das aktuelle Menü und die Umgebung funktionieren bereits ohne externe Bilddateien.
+Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spielstände und echte Langzeitsitzungen prüfen. Release-Signatur, Store-AAB, aktuelle Android-Anforderungen, Lizenzverzeichnis, Datenschutzangaben und geschlossene Testphase.
 
-## 1.0 · Veröffentlichungsreife
+## Aktuelle Grenzen
 
-Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spielstände und Langzeitläufe prüfen. Release-Signatur, Store-konformer AAB-Build, aktuelle Android-Anforderungen, Lizenzverzeichnis, Datenschutzangaben, Crash-Diagnose ohne ungefragte Datenübertragung und geschlossene Testphase.
-
-## Aktuelle Grenzen offen benannt
-
-Es gibt zunächst eine vorgegebene Karte; Berge lassen sich noch nicht verformen. Gebäude sind baubar, ihr Betrieb ist aber noch über Kennzahlen vereinfacht. Hotels haben noch keine einzelnen Betten und Buchungen, Personal und Forschung sind noch keine eigenen Systeme. Wetter verändert bereits den Betrieb, noch nicht die komplette 3D-Wetterdarstellung. Die Figuren sind abstrahierte Marker; es gibt noch keine Fahranimationen, fertige Soundkulisse oder ausbalancierte Langzeitkampagne.
+Eine vorgegebene Karte ohne Geländeverformung. Gebäude wirken über Kennzahlen; es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Die Figuren sind modelliert und bewegen sich, besitzen aber noch keine Fahranimationen. Forschung und Saisons sind spielbar, die Langzeitwirtschaft ist weiterhin eine Preview. Automatisierte Tests ersetzen keinen Gerätetest.
