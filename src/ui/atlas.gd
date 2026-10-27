@@ -1,4 +1,5 @@
 extends PanelContainer
+const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Minimap = preload("res://src/ui/minimap.gd")
 const Saves = preload("res://src/core/save_store.gd")
@@ -23,7 +24,7 @@ func setup(interface: CanvasLayer) -> void:
 	hud._spacer(header, false)
 	hud._button(header, "Zurück", hide)
 	hud._label(body, "Vier Gebiete. Vier eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert.", 17, hud.MUTED, true)
-	var scroll := ScrollContainer.new()
+	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	body.add_child(scroll)

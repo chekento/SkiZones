@@ -95,9 +95,10 @@ func run() -> void:
 	touch(0, map_position, false, true)
 	check(game.points.size() == 1 and game._touches.is_empty(), "Canceled touches neither build nor remain active")
 	var focus: Vector2 = game.view.focus
-	touch(0, map_position, true)
-	drag(0, map_position + Vector2(70, 20), Vector2(70, 20))
-	touch(0, map_position + Vector2(70, 20), false)
+	var pan_start := map_position + Vector2(-90, 40)
+	touch(0, pan_start, true)
+	drag(0, pan_start + Vector2(70, 20), Vector2(70, 20))
+	touch(0, pan_start + Vector2(70, 20), false)
 	check(game.view.focus != focus and game.points.size() == 1, "Dragging the map keeps the current build plan intact")
 	var ui_position: Vector2 = game.hud.tool_buttons.piste.get_global_rect().get_center()
 	touch(0, ui_position, true)

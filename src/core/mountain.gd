@@ -70,6 +70,20 @@ func waypoint_fraction(points: Array, index: int) -> float:
 	var path := _path(points)
 	return path.lengths[clampi(index, 0, points.size() - 1)] / maxf(path.length, 0.001)
 
+func corner_taper(points: Array, fraction: float, length: float) -> float:
+	# Cache lookup once per position, not once for every node in a long route.
+	var path := _path(points)
+	var taper := 1.0
+	for index in range(1, points.size() - 1):
+		var distance: float = absf(fraction - path.lengths[index] / maxf(path.length, 0.001)) * length
+		if distance >= 18:
+			continue
+		var incoming := (Terrain.unpack(points[index]) - Terrain.unpack(points[index - 1])).normalized()
+		var outgoing := (Terrain.unpack(points[index + 1]) - Terrain.unpack(points[index])).normalized()
+		var sharpness := clampf((1.0 - incoming.dot(outgoing)) * 0.7, 0, 1)
+		taper *= lerpf(1.0, smoothstep(0, 18, distance), sharpness)
+	return taper
+
 func point_on_path(points: Array, fraction: float) -> Vector2:
 	if points.is_empty():
 		return base

@@ -93,10 +93,39 @@ func downhill_arrow() -> ArrayMesh:
 	return finish()
 
 func pine() -> ArrayMesh:
-	cone(Vector3(0, 3, 0), 0.7, 6, Color("67513c"), 0.5)
-	for tier in [[2.0, 8.0, 5.0], [6.5, 7.0, 4.0], [11.0, 6.0, 2.8]]:
-		cone(Vector3(0, tier[0] + tier[1] / 2, 0), tier[2], tier[1], Color("294b40"))
-		cone(Vector3(0, tier[0] + tier[1] * 0.64, 0), tier[2] * 0.85, tier[1] * 0.8, Color("e5eced"))
+	cone(Vector3(0, 3, 0), 0.55, 6, Color("71583e"), 0.38)
+	for index in range(5):
+		var y := 2.8 + index * 2.45
+		var radius := 5.0 - index * 0.82
+		var shift := Vector3(sin(index * 2.4) * 0.3, 0, cos(index * 1.7) * 0.3)
+		cone(Vector3(0, y + 2.6, 0) + shift, radius, 5.8, Color("315746").lightened(index * 0.018))
+		cone(Vector3(0, y + 3.5, 0) + shift, radius * 0.91, 4.7, Color("edf3f4"))
+		for branch in range(3):
+			var angle := index * 1.3 + branch * TAU / 3
+			var at := Vector3(cos(angle) * radius * 0.55, y + 1.6, sin(angle) * radius * 0.55)
+			cone(at, radius * 0.48, 2.5, Color("e3eef1"))
+	return finish()
+
+func plaza_details() -> ArrayMesh:
+	# One batched set: timber seat, bin, warm lantern and a little route board.
+	box(Vector3(0, 1.1, 0), Vector3(5.2, 0.38, 1.9), Color("b28b5b"))
+	for side in [-1, 1]:
+		box(Vector3(side * 1.85, 0.5, 0), Vector3(0.28, 1.1, 1.6), Color("48666a"))
+		box(Vector3(side * 1.85, 1.8, -0.7), Vector3(0.24, 2.3, 0.24), Color("48666a"))
+	box(Vector3(0, 2.0, -0.75), Vector3(5.2, 1.25, 0.25), Color("a67b4f"))
+	for x in [-1.8, -0.6, 0.6, 1.8]:
+		box(Vector3(x, 1.31, 0), Vector3(0.06, 0.03, 1.8), Color("73583d"))
+	box(Vector3(4.3, 1.1, 0), Vector3(1.4, 2.2, 1.4), Color("54756d"))
+	box(Vector3(4.3, 2.3, 0), Vector3(1.65, 0.22, 1.65), Color("e4eef0"))
+	cone(Vector3(-4, 3, 0), 0.15, 6, Color("475f66"), 0.15)
+	box(Vector3(-4, 6.2, 0), Vector3(0.9, 1.25, 0.9), Color("ffe2aa"))
+	box(Vector3(-4, 7, 0), Vector3(1.3, 0.25, 1.3), Color("4c6970"))
+	for x in [-0.52, 0.52]:
+		box(Vector3(-4 + x, 6.2, 0), Vector3(0.1, 1.4, 1.05), Color("4c6970"))
+	box(Vector3(0, 3.8, -3), Vector3(4.2, 3.4, 0.3), Color("846649"))
+	box(Vector3(0, 3.8, -2.8), Vector3(3.6, 2.8, 0.12), Color("c5dce1"))
+	for x in [-1.7, 1.7]:
+		box(Vector3(x, 1.9, -3), Vector3(0.22, 3.8, 0.22), Color("846649"))
 	return finish()
 
 func rock() -> ArrayMesh:
@@ -134,6 +163,8 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 			var px: float = x * width * 0.28
 			box(Vector3(px, y, depth / 2 + 0.25), Vector3(4.6, 4.7, 0.5), Color("483d33"))
 			box(Vector3(px, y, depth / 2 + 0.55), Vector3(3.6, 3.7, 0.25), Color("dcba7e"))
+			box(Vector3(px, y - 2.1, depth / 2 + 0.9), Vector3(5.0, 0.25, 1.0), Color("eeeede"))
+			box(Vector3(px, y + 0.1, depth / 2 + 0.76), Vector3(3.6, 0.17, 0.23), Color("765b42"))
 			box(Vector3(px, y, depth / 2 + 0.8), Vector3(0.22, 3.8, 0.2), Color("765b42"))
 			for side in [-1, 1]:
 				box(Vector3(px + side * 2.9, y, depth / 2 + 0.4), Vector3(0.9, 4.4, 0.5), accent.darkened(0.15))
@@ -146,6 +177,7 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 				box(Vector3(-width / 2 + post * width / 8, y - 1.6, depth / 2 + 4.5), Vector3(0.4, 2.5, 0.4), Color("6e503c"))
 	box(Vector3(0, 4, depth / 2 + 0.7), Vector3(3.3, 6, 0.9), Color("443a31"))
 	box(Vector3(0, 8.5, depth / 2 + 1.0), Vector3(10, 1.6, 0.8), accent)
+	box(Vector3(2.8, 7.0, depth / 2 + 1.1), Vector3(0.7, 0.9, 0.7), Color("ffe0a0"))
 	roof(width + 2, depth, height_value + 1)
 	box(Vector3(-width * 0.28, height_value + 8, -depth * 0.15), Vector3(3.5, 8, 3.5), Color("a59c8d"))
 	box(Vector3(-width * 0.28, height_value + 12, -depth * 0.15), Vector3(5, 1, 5), Color("e8eeec"))

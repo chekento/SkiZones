@@ -8,7 +8,7 @@
 4. Höhenprofil, Gefälle, Farbe und Preis prüfen. Bergauf führende oder zu steile Pläne lassen sich nicht bestätigen.
 5. Mit **Bauen** die Strecke und ihre Beschilderung anlegen.
 
-Ziehen auf freier Karte bewegt weiterhin die Kamera. Zwei Finger bewegen und zoomen. Ein abgebrochener Touch-Drag setzt den gerade verschobenen Punkt zurück. **Zurück** entfernt den letzten Punkt; **Plan verwerfen** entfernt die ganze unbestätigte Planung. Vor dem Bestätigen wird kein Geld ausgegeben.
+Ziehen auf freier Karte bewegt weiterhin die Kamera. Zwei Finger verschieben die Kamera; ihr Abstand steuert den Zoom. Der Mittelpunkt der Geste bleibt am Gelände verankert. Ein abgebrochener Touch-Drag setzt den gerade verschobenen Punkt zurück. **Zurück** entfernt den letzten Punkt; **Abbrechen** beendet die ganze unbestätigte Planung und kehrt zur Resortansicht zurück. Android-Zurück und Escape können die Planung ebenfalls beenden. Ein gesetzter Plan sperrt andere Bauwerkzeuge und pausiert die Spielzeit bis zum Bauen oder Abbrechen. Vor dem Bestätigen wird kein Geld ausgegeben.
 
 ## Von der Serpentine zur Abkürzung
 
@@ -50,6 +50,10 @@ Die Gestaltung orientiert sich an [Sitour Österreich: Pistenmarkierungen](https
 
 ## Vorhandene Spielstände
 
-Formate 1 bis 4 bleiben lesbar. Beim Laden werden alte manuell gewählte Farben anhand des tatsächlichen Verlaufs neu bestimmt und noch nicht nummerierte Pisten in ihrer bisherigen Reihenfolge nummeriert. Alte Endpunkte an der Liftmaschine werden auf den Stationsplatz gelegt; der Schnee wird auf die angepasste Streckenlänge übertragen. Die bezahlten Kosten, Geld, Forschung und Rekorde bleiben erhalten.
+Formate 1 bis 5 bleiben lesbar. Beim Laden werden alte manuell gewählte Farben anhand des tatsächlichen Verlaufs neu bestimmt und noch nicht nummerierte Pisten in ihrer bisherigen Reihenfolge nummeriert. Alte Endpunkte an der Liftmaschine werden auf den Stationsplatz gelegt; der Schnee wird auf die angepasste Streckenlänge übertragen. Die bezahlten Kosten, Geld, Forschung und Rekorde bleiben erhalten.
 
-Format 5 speichert ganze und teilweise laufende Gästerouten sowie feste Liftplätze, Fahrzeuguhren, Warteschlangen und Gebäudebesuche. Beim Wechsel von einer älteren Version werden laufende Gäste auf die neue Wegeführung verteilt. Unbekannte oder beschädigte Teilstücke werden beim Laden abgelehnt.
+Format 6 speichert zusätzliche begehbare Flächen sowie ganze und teilweise laufende Gästerouten sowie feste Liftplätze, Fahrzeuguhren, Warteschlangen und Gebäudebesuche. Beim Wechsel von einer älteren Version werden laufende Gäste auf die neue Wegeführung verteilt. Unbekannte oder beschädigte Teilstücke werden beim Laden abgelehnt.
+
+## Geschlossene Kehren
+
+Die sichtbare Piste verwendet die Vereinigung der breiten Streckenabschnitte mit abgerundeten Außenkanten. Die Schneefläche wird am Geländeraster ausgeschnitten; dadurch entstehen an engen Kehren keine verdrehten Querstreifen oder offenen Dreiecke. Nummern, Schwierigkeit und Andockpunkte beziehen sich weiterhin auf die tatsächliche geplante Mittellinie. Persönliche Fahrlinien werden vor engen Knicken zur Mitte hin schmaler.

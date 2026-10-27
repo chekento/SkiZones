@@ -13,6 +13,8 @@ var passport := Passport.new()
 var view := ResortView.new()
 var hud := ResortHUD.new()
 var tool := "inspect"
+var plaza_kind := "plaza"
+var _committing := false
 var points: Array = []
 var last_plan_check: Dictionary = {}
 var selected_waypoint := -1
@@ -72,7 +74,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not paused and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
+	return has_game and not paused and points.is_empty() and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
 
 func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	model.new_game(starter, 20261027, area)
@@ -173,6 +175,11 @@ func manage_loan() -> void:
 	hud.refresh()
 
 func set_tool(value: String) -> void:
+	value = "piste" if value in ["blue", "red", "black"] else value
+	if not points.is_empty() and value != "inspect":
+		hud.toast("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten.")
+		return
+	_clear_input()
 	if value in ["lift", "building"] and model.build_access_message(hud.lift_kind() if value == "lift" else hud.building_kind(), value == "lift") != "":
 		return
 	tool = "piste" if value in ["blue", "red", "black"] else value
@@ -184,10 +191,12 @@ func set_tool(value: String) -> void:
 	_update_plan()
 
 func clear_plan() -> void:
+	_clear_input()
 	points.clear()
 	selected_waypoint = -1
 	snap_target = {}
-	_update_plan()
+	set_tool("inspect")
+	hud.toast("Planung beendet. Es wurde nichts ausgegeben.")
 
 func undo_point() -> void:
 	if not points.is_empty():
@@ -237,6 +246,8 @@ func _plan_check() -> Dictionary:
 		return model.preview_piste(points)
 	if tool == "lift" and points.size() == 2:
 		return model.preview_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
+	if tool == "plaza" and points.size() == 1:
+		return model.preview_plaza(plaza_kind, Terrain.unpack(points[0]))
 	if tool == "building" and points.size() == 1:
 		return model.preview_building(hud.building_kind(), Terrain.unpack(points[0]))
 	return {"ok": false, "message": "Talstation, dann Bergstation antippen." if tool == "lift" else "Einen Bauplatz antippen.", "cost": 0}
@@ -254,7 +265,7 @@ func _update_plan() -> void:
 		if selected_waypoint >= points.size():
 			selected_waypoint = -1
 	last_plan_check = check
-	hud.palette.route_profile.update_profile(check if tool in ["piste", "building"] else {})
+	hud.palette.route_profile.update_profile(check if tool in ["piste", "building", "plaza"] else {})
 	var cost: float = check.get("cost", 0)
 	var affordable: bool = cost <= model.money
 	var message: String = check.message
@@ -269,10 +280,12 @@ func _update_plan() -> void:
 	if not affordable:
 		message += "  Das Budget reicht noch nicht."
 	hud.plan(message, check.ok and affordable, points.size(), cost)
-	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste", "building"] else {})
+	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste", "building", "plaza"] else {})
 	hud._refresh_context_text()
 
 func confirm_plan() -> void:
+	if _committing:
+		return
 	if tool == "inspect":
 		if model.minute >= Resort.CLOSING:
 			hud.show_report()
@@ -281,14 +294,19 @@ func confirm_plan() -> void:
 	if not check.ok:
 		hud.toast(check.message)
 		return
+	_committing = true
 	var result: Dictionary
-	if tool == "piste":
+	if tool == "plaza":
+		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
+	elif tool == "piste":
 		result = model.build_piste(points)
 	elif tool == "lift":
 		result = model.build_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	else:
 		result = model.build_building(hud.building_kind(), Terrain.unpack(points[0]))
+	_committing = false
 	if result.ok:
+		_clear_input()
 		points.clear()
 		selected_waypoint = -1
 		snap_target = {}
@@ -322,7 +340,7 @@ func _map_tap(position_value: Vector2) -> void:
 			hud.show_context(tool, view.pick_asset(point))
 		return
 	point = _snap_point(point)
-	if tool == "building":
+	if tool in ["building", "plaza"]:
 		points = [Terrain.pack(point)]
 	elif tool == "lift" and points.size() >= 2:
 		points[1] = Terrain.pack(point)
@@ -382,6 +400,8 @@ func _input(event: InputEvent) -> void:
 			view.pan(event.relative)
 	elif event is InputEventMagnifyGesture and not hud.blocks_map(event.position):
 		view.change_zoom(1.0 / event.factor)
+	elif event is InputEventPanGesture and not hud.blocks_map(event.position):
+		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
 			if hud.camera_dialog.visible:
@@ -421,7 +441,7 @@ func _input(event: InputEvent) -> void:
 
 func _touch_event(event: InputEventScreenTouch) -> void:
 	if event.pressed:
-		if hud.blocks_map(event.position):
+		if hud.blocks_map(event.position) and _touches.is_empty():
 			return
 		if _touches.is_empty():
 			_gesture_used = false
@@ -455,11 +475,11 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 		var after := _touches.values()
 		var old_center: Vector2 = (before[0] + before[1]) * 0.5
 		var new_center: Vector2 = (after[0] + after[1]) * 0.5
-		view.pan(new_center - old_center)
+		view.pan_between(old_center, new_center)
 		var previous_distance: float = before[0].distance_to(before[1])
 		var distance: float = after[0].distance_to(after[1])
 		if distance > 10 and previous_distance > 10:
-			view.change_zoom(previous_distance / distance)
+			view.zoom_at(previous_distance / distance, new_center)
 	else:
 		if _drag_waypoint >= 0:
 			_move_waypoint(event.position)
@@ -483,6 +503,9 @@ func _notification(what: int) -> void:
 			return
 		if hud.management.visible:
 			hud.management.hide()
+			return
+		if tool != "inspect":
+			clear_plan()
 			return
 		if has_game:
 			save_game()
@@ -666,6 +689,43 @@ func _capture(path: String) -> void:
 		view.yaw = -0.15
 		view.set_camera_mode(1)
 		hud.set_map_focus(true)
+
+	if OS.get_cmdline_user_args().has("--capture-comfort"):
+		_junction_showcase()
+		model.build_plaza("plaza", Vector2(300, 295))
+		model.build_building("restaurant", Vector2(345, 265))
+		view.rebuild()
+		view.focus = Vector2(205, 205)
+		view.zoom = 265
+		view.yaw = 0.4
+		view.set_camera_mode(0)
+		hud.set_map_focus(true)
+	if OS.get_cmdline_user_args().has("--capture-curves"):
+		_junction_showcase()
+		view.focus = Vector2(25, -240)
+		view.zoom = 510
+		view.yaw = 0
+		view.set_camera_mode(2)
+		hud.set_map_focus(true)
+	if OS.get_cmdline_user_args().has("--capture-build-flow"):
+		_junction_showcase()
+		set_tool("piste")
+		points = [[-90,-315],[-20,-330],[210,-270],[250,-235],[215,-120],[215,150]]
+		selected_waypoint = 2
+		view.focus = Vector2(65,-130)
+		view.zoom = 750
+		view.yaw = 0
+		view.set_camera_mode(2)
+		_update_plan()
+	if OS.get_cmdline_user_args().has("--capture-walking-tool"):
+		_junction_showcase()
+		set_tool("plaza")
+		points = [[310,290]]
+		view.focus = Vector2(235,230)
+		view.zoom = 340
+		view.yaw = 0.3
+		view.set_camera_mode(2)
+		_update_plan()
 
 	for i in range(12):
 		await get_tree().process_frame

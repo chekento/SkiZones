@@ -33,7 +33,7 @@ Am Stationsplatz steht die Zahl der Wartenden und die mittlere Belegung der letz
 
 ## Pisten enden auf dem Platz
 
-Jede Tal- und Bergstation besitzt einen geräumten, begehbaren Stationsplatz. Der Mittelpunkt der Liftmaschine ist kein Pistenanschluss. Kleine Kreise markieren stattdessen die Platzanschlüsse. Beim Planen an der Maschine gesetzte Endpunkte werden nach außen auf den Platz gelegt. Eine Piste, deren Breite die Lifttechnik schneidet, lässt sich nicht bauen.
+Jede Tal- und Bergstation besitzt einen geräumten, begehbaren Stationsplatz. In 0.6 wurden diese deutlich vergrößert: Beim Tellerlift sind sie unten 168 m und oben 132 m breit; Sesselliftplätze beginnen bei 176 m unten und 140 m oben. Der Mittelpunkt der Liftmaschine ist kein Pistenanschluss. Kleine Kreise markieren stattdessen die Platzanschlüsse. Beim Planen an der Maschine gesetzte Endpunkte werden nach außen auf den Platz gelegt. Eine Piste, deren Breite die Lifttechnik schneidet, lässt sich nicht bauen.
 
 Der Ablauf ist damit: aus der Piste auf den Platz fahren, zu Fuß zum Einstieg gehen, anstellen, einsteigen, oben aussteigen und über den oberen Platz zur nächsten Abfahrt gehen. Die Schneefläche läuft an solchen Übergängen niedriger in den Platz aus. Zwischen zwei Pisten bleiben direkte Anschlüsse an gemeinsamen Wegpunkten möglich, auch als rote oder schwarze Zwischenstücke.
 
@@ -41,14 +41,20 @@ Der Ablauf ist damit: aus der Piste auf den Platz fahren, zu Fuß zum Einstieg g
 
 Ein Gebäude wird an einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudevorplatz gebaut. Der Bauplan zeigt den Anschlussweg. Der neue Vorplatz und der Weg vergrößern das begehbare Gebiet. Weitere Gebäude können daran anschließen; zwischen den vorbereiteten Bereichen kann ein Weg eine Lücke bis 40 m überbrücken, sofern das Gelände dafür geeignet ist.
 
-Die sichtbaren Flächen und Wege bilden auch das tatsächliche Fußwegenetz. Gäste können auf diesem Netz zu einem benachbarten Lift wechseln. Wege umgehen Gebäudewände und reservierte Eingangsvorplätze bleiben frei. Wird die einzige Verbindung zu einem äußeren Vorplatz abgebaut, ist dieser nicht länger angeschlossen.
+Die sichtbaren Flächen und Wege bilden auch das tatsächliche Fußwegenetz. Stationen, Gebäude und die gesamte Trasse bodengebundener Lifte sind Hindernisse. Öffentliche Wege führen daran vorbei; der Einstieg liegt separat vor der Maschine. Gäste können auf diesem Netz zu einem benachbarten Lift wechseln. Wege umgehen Gebäudewände und reservierte Eingangsvorplätze bleiben frei. Wird die einzige Verbindung zu einem äußeren Vorplatz abgebaut, ist dieser nicht länger angeschlossen.
 
 Gäste können auf ihrer ersten Runde ein passendes erreichbares Gebäude besuchen. Sie gehen zu dessen Eingang, bleiben für eine kurze Pause im Gebäude und kehren anschließend zu ihrem Rundweg zurück. Im Gebäude werden ihre Außenfiguren ausgeblendet. Die Anlagenansicht zählt tatsächliche Besuche und Serviceerlöse. Die Einnahme wird beim abgeschlossenen Besuch einmal verbucht. Hotels, Schulen und andere Einrichtungen besitzen zusätzlich weiterhin vereinfachte Nachfrage- oder Komforteffekte.
 
 ## Bestehende Resorts weiterführen
 
-Spielstände aus 0.1 bis 0.4 bleiben lesbar. Alte Pistenenden an Liftmaschinen werden auf die neuen Stationsplätze gelegt; lokale Schneezustände werden auf die angepasste Streckenlänge übertragen. Vorhandene Kosten, Geld, Forschung, Besucherrekorde und bereits abgeschlossene Abfahrten bleiben erhalten. Laufende Gäste werden beim Versionswechsel auf die neuen Rundwege verteilt.
+Spielstände aus 0.1 bis 0.5 bleiben lesbar. Alte Pistenenden an Liftmaschinen werden auf die neuen Stationsplätze gelegt; lokale Schneezustände werden auf die angepasste Streckenlänge übertragen. Vorhandene Kosten, Geld, Forschung, Besucherrekorde und bereits abgeschlossene Abfahrten bleiben erhalten. Laufende Gäste werden beim Versionswechsel auf die neuen Rundwege verteilt.
 
 Ein alter Schlepplift über der neuen 700-m-Grenze wird beim Laden als Vierersessellift weitergeführt; die ursprüngliche Investition bleibt erhalten. Neu gebaute Tellerlifte unterliegen immer der kürzeren Grenze.
 
-Format 5 speichert danach auch aktive Fahrzeuguhren, feste Sitzplätze, Warteschlangeneintritt und tatsächliche Gebäudebesuche. Ein mit Version 0.5 gespeicherter Gast nimmt beim erneuten Laden wieder denselben Platz beziehungsweise dieselbe Warteposition ein.
+Format 6 speichert zusätzliche Gehflächen sowie aktive Fahrzeuguhren, feste Sitzplätze, Warteschlangeneintritt und tatsächliche Gebäudebesuche. Ein mit Version 0.6 gespeicherter Gast nimmt beim erneuten Laden wieder denselben Platz beziehungsweise dieselbe Warteposition ein.
+
+## Gehflächen selbst bauen
+
+**Wege** bietet Gehfläche (52 m Durchmesser, 2.400 €), Stationsplatz (96 m, 7.200 €) und Resort-Promenade (140 m, 14.500 €). Eine freie, ausreichend flache Stelle antippen und den Bau bestätigen. Angrenzende Flächen verbinden sich automatisch; bei geeignetem Gelände überbrücken Wege bis zu 40 m Lücke. Gebäude und Pisten können daran anschließen. Die Flächen besitzen laufende Pflegekosten und lassen sich über die Anlagenansicht schließen oder abbauen.
+
+Eine abseits gebaute Fläche erschließt allein noch keinen Skirundweg. Für Besucher muss weiterhin eine Verbindung vom Talzugang und zurück bestehen. Eine Fläche darf Lifttechnik und Zugspuren überdecken, macht diese Bereiche aber nicht begehbar; ihr Mittelpunkt muss außerhalb der Hindernisse liegen.

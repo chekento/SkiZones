@@ -1,4 +1,5 @@
 extends PanelContainer
+const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
 
 const Progression = preload("res://src/core/progression.gd")
@@ -49,7 +50,7 @@ func open() -> void:
 	show()
 
 func _page(name_value: String) -> VBoxContainer:
-	var scroll := ScrollContainer.new()
+	var scroll := DragScroll.new()
 	scroll.name = name_value
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	tabs.add_child(scroll)

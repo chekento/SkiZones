@@ -49,3 +49,7 @@ Verschiebbare und einzeln löschbare Planungspunkte, automatische Schwierigkeit 
 Tellerlift mit eigenem Zugteller und deutlich geringerem Tempo, Einer-, Zweier-, Vierer- und später freischaltbare Achtersessel. Acht verschiedene Anlagen mit eigenen Längengrenzen. Tatsächliche Fahrzeug- und Sitzzuordnung, gemeinsame Halteuhr, sichtbare Warteschlangen und gemessene Belegung.
 
 Begehbare Plätze an beiden Stationen, Pistenanschlüsse mit Abstand zur Lifttechnik und weiterhin direkte Pistenverbindungen. Gebäude erweitern das Wegenetz über Vorplätze. Gäste steigen zu anderen Liften um und gehen für tatsächliche Besuche bis zur Tür. Format 5, Migration alter Resorts und insgesamt 362 automatisierte Prüfungen einschließlich gerenderter Sitzpositionen.
+
+## Erledigt in 0.6.0
+
+Geschlossene, abgerundete Kehrenflächen, größere Stationsplätze und separat baubare Gehflächen. Umwege um Liftstationen und komplette Schlepplifttrassen, sichere Wartebereiche und Hindernisse beim Nachrücken. Gesperrter Werkzeugwechsel, eindeutiger Abbruch mit Android-Zurück, automatische Baupause, verankerte Zwei-Finger-Kamera und Scrollen mit Finger, Stift und Maus. Feinere Natur- und Gebäudedetails sowie Platzmöblierung. Angepasste Startkosten, Aufenthaltsdauer und Besucherzulauf mit zusätzlichem Wochenlauf. Migration tatsächlicher 0.5-Spielstände, Format 6 und 403 automatisierte Prüfungen.

@@ -1,4 +1,4 @@
-# Prüfung von SkiZones 0.5.0
+# Prüfung von SkiZones 0.6.0
 
 Stand: 27.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
@@ -13,6 +13,8 @@ Stand: 27.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 | Kamera, Gelände und Punktbearbeitung | 21 Prüfungen mit tatsächlicher Grafikausgabe; Touch-/Maus-Drag, Abbruch, Löschen, vier Perspektiven, Geländepicking, Höhenlinien, Richtung der gerenderten Pfeile und sichtbare Bauaktionen |
 | Liftflotte und Fußwegenetz | 52 Prüfungen; acht Liftarten, Längengrenzen, feste Plätze, Anstellreihenfolge, 360 Wartende, Halt, Gebäudeanschlüsse, Umsteigen, Besuche, Speicherdaten und Migration |
 | Gerenderte Fahrzeuge und Stationsplätze | 38 Prüfungen mit tatsächlicher Grafikausgabe; exakte Fahrzeug-/Sitztransformationen auch zwischen Simulationsschritten, maximale Belegung, Teller-Zugseile, Sesselbreiten, Kabinengäste, Platzgeometrie und Schneeübergänge |
+| Baukomfort, Kurven und Wochenbilanz | 25 Prüfungen; geschlossene Schneeflächen in drei Kehrenformen, eindeutige Dreiecksrichtung, sichere Fußwege, 360 Wartende, baubare Gehflächen, beschädigte Speicherwerte, tatsächliche 0.5-Migration und sieben vollständige Betriebstage |
+| Tatsächliche Baueingaben | 16 Prüfungen mit Grafikausgabe; gesperrter Werkzeugwechsel, wiederholte konkurrierende Klicks, Android-Zurück, Pausenfortsetzung, doppelte Bestätigung, Zwei-Finger-Verschieben und tatsächliche Finger-/Stift-Mauseingaben auf Baukarten |
 | Tatsächliche Gebietswechsel | 8 Prüfungen mit getrennten Dateien in isolierter Laufzeitumgebung |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
@@ -23,9 +25,9 @@ Stand: 27.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 362 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 403 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.5.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.6.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 
@@ -35,4 +37,8 @@ Die Abschnittsprüfung verwendet einen steilen Testhang mit identischem Start un
 
 Auch `tests/planning_scene.gd` benötigt eine echte Grafikausgabe. Die zusätzlichen Modelltests laufen mit `godot --headless --script tests/piste_planning.gd` und `godot --headless --script tests/junctions.gd`.
 
-Die neuen Modelltests laufen mit `godot --headless --script tests/lifts_and_plazas.gd`. `tests/lift_scene.gd` benötigt wie die anderen Szenentests aktive Grafikausgabe. Gespeicherte Testresorts aus der tatsächlichen 0.4.0-Version unter `tests/fixtures/` enthalten laufende Gäste; ihre Migration wird mit erhaltenem Geld, Forschung, Besucherzahlen und anschließendem Speichern im Format 5 geprüft. Es handelt sich um erzeugte Testdaten.
+Die neuen Modelltests laufen mit `godot --headless --script tests/lifts_and_plazas.gd`. `tests/lift_scene.gd` benötigt wie die anderen Szenentests aktive Grafikausgabe. Gespeicherte Testresorts aus der tatsächlichen 0.4.0-Version unter `tests/fixtures/` enthalten laufende Gäste; ihre Migration wird mit erhaltenem Geld, Forschung, Besucherzahlen und anschließendem Speichern im Format 6 geprüft. Es handelt sich um erzeugte Testdaten.
+
+`tests/build_comfort.gd` läuft ohne Grafikausgabe; `tests/build_input_scene.gd` verwendet den Compatibility-Renderer und Godots Eingabeverarbeitung. Der zusätzliche Wochenlauf prüft tatsächliche Abfahrten, begrenzte Warteschlangen und gedeckte Betriebskosten eines unveränderten Starterresorts. Diese Stichprobe ersetzt keine umfassende Abstimmung aller Ausbauvarianten.
+
+Die Finger- und Stiftpfade wurden mit erzeugten Godot-Eingabeereignissen am Desktop geprüft. Ein Test mit einem physischen Android-Gerät und dessen Stift steht für Version 0.6 noch aus.

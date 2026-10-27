@@ -97,6 +97,8 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	var item: Dictionary = model.asset(id)
 	if item.is_empty():
 		return {"ok": false, "message": "Anlage nicht gefunden."}
+	if item.has("radius"):
+		return {"ok": false, "message": "Mit einer weiteren Gehfläche vergrößern."}
 	var level: int = item.get("level", 1)
 	if level >= 3:
 		return {"ok": false, "message": "Maximale Ausbaustufe erreicht."}

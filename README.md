@@ -8,17 +8,17 @@
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
-### [⬇ Android-APK direkt herunterladen · v0.5.0](https://github.com/chekento/SkiZones/releases/download/v0.5.0/SkiZones-0.5.0-android-arm64.apk)
+### [⬇ Android-APK direkt herunterladen · v0.6.0](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk)
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.5.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.5.0/SkiZones-0.5.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.6.0) · [SHA-256-Prüfsumme](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk.sha256) · [Alle Downloads](https://github.com/chekento/SkiZones/releases)
 
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
 </div>
 
-![SkiZones 0.5.0: begehbarer Stationsplatz mit sichtbarer Warteschlange und angeschlossenen Gebäuden](docs/screenshots/station-plaza.webp)
+![SkiZones 0.6.0: größere Stationsplätze, Hütten, Fußwege und eine separat gebaute Gehfläche](docs/screenshots/resort-060.webp)
 
-*Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste stehen in der tatsächlichen Liftwarteschlange; die Gebäude und Pisten sind an die Stationsplätze angeschlossen. Die Karriere startet mit einem kleineren Resort.*
+*Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste nutzen die tatsächlichen Wege und Lifte. Große Stationsplätze und eine zusätzlich gebaute Gehfläche verbinden die Gebäude. Die Karriere startet mit einem kleineren Resort.*
 
 ## Jetzt anspielen
 
@@ -31,12 +31,37 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.5.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.6.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.5.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.6.0.md).
 
-## Neu in 0.5.0: richtige Lifte, lebendige Stationsplätze
+## Neu in 0.6.0: besser bauen, sicherer gehen
+
+**Die Rückmeldungen aus dem Android-Spielbetrieb sind eingearbeitet.** Enge Kehren erhalten eine geschlossene, abgerundete Schneefläche. Die Stationsplätze wachsen deutlich, und Fußgänger umgehen auch die Lifttechnik und die gesamte Schlepplifttrasse.
+
+![Geschlossene Schneeflächen an den Kehren mit tatsächlichen Fahrspuren](docs/screenshots/curves-060.webp)
+
+| Änderung | Im Spiel |
+|---|---|
+| **Saubere Kehren** | Eine ausgeschnittene Geländerasterfläche ersetzt sich überschlagende Pistenstreifen. Runde Außenkanten, dezente Schneeränder und ruhigere persönliche Fahrlinien an engen Knicken. |
+| **Mehr Platz** | Je nach Lift bis zu rund 182 m breite automatische Stationsplätze. Unter **Wege** lassen sich zusätzlich Gehflächen mit 52, 96 oder 140 m Durchmesser bauen, verbinden und wieder abbauen. |
+| **Freie Lifttechnik** | Fußwege suchen tatsächliche Umwege um Stationen, Gebäude und die gesamte Zugspur. Die Warteschlange beginnt vor der Maschine; beim Nachrücken werden Hindernisse ebenfalls umgangen. |
+| **Ein Plan zur Zeit** | Sobald der erste Punkt gesetzt ist, bleiben andere Bauwerkzeuge gesperrt. **Bauen** bestätigt, **Abbrechen** beendet die Planung. Android-Zurück und Escape funktionieren ebenfalls. |
+| **In Ruhe planen** | Ein begonnener Plan pausiert die Spielzeit automatisch. Die persönliche Pauseneinstellung bleibt erhalten. Ohne offenen Plan kann wieder ein anderes Werkzeug gewählt werden. |
+| **Finger und Stift** | Baukarten lassen sich über ihre gesamte Fläche ziehen und scrollen. Der Loslassmoment löst dabei keinen Bauauftrag aus. Zwei Finger verschieben die Kamera am Gelände; Pinch-Zoom bleibt am Mittelpunkt der Geste verankert. |
+| **Wirtschaft** | Geringere Grundkosten für kleine Resorts, Pflegekosten für zusätzliche Gehflächen, längere Gästeaufenthalte und weniger Neuzulauf bei überfüllten Liften. Zufriedenheit berücksichtigt tatsächlich abgeschlossene Abfahrten. |
+| **Mehr Atmosphäre** | Feinere Tannen, Schneekappen und Fensterdetails, Bänke mit Laternen und Orientierungstafeln an Plätzen. Zurückhaltendere Pistenfarben und lesbareres Schneelicht. |
+
+![Bauplanung mit gesperrtem Werkzeugwechsel und sichtbarem Abbruch](docs/screenshots/build-flow-060.webp)
+
+![Separat platzierbare Gehflächen im neuen Wege-Katalog](docs/screenshots/walking-tool-060.webp)
+
+**Alte Resorts bleiben spielbar.** Versionen bis 0.5 werden auf die sicheren Fußwege übertragen; Geld, gebaute Anlagen, Forschung, Schnee und Rekorde bleiben erhalten. Laufende Gäste erhalten beim Versionswechsel angepasste Wege. Format 6 speichert die zusätzlich gebauten Gehflächen.
+
+[Bedienung und Bauablauf](docs/BAUEN_UND_BEDIENUNG.md) · [Release-Notizen](docs/releases/0.6.0.md)
+
+## Seit 0.5.0: richtige Lifte, lebendige Stationsplätze
 
 **Schlepplift, Sessel und Gondel sind jetzt klar unterschiedliche Anlagen.** Jeder mitfahrende Gast hat ein konkretes Fahrzeug und einen festen Platz. Die Darstellung verwendet dieselbe Zuordnung wie die Simulation: keine nachträgliche Suche nach dem nächstgelegenen Sessel und keine Doppelbelegung.
 
@@ -188,7 +213,7 @@ Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäu
 
 Das Projekt verwendet **Godot 4.5.1**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
 
-**362 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
+**403 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Zusätzliche Prüfungen decken enge Kehren, gesperrte Lifttrassen, manuell gebaute Gehflächen, Planabbruch, konkurrierende Werkzeugklicks, Zwei-Finger-Verschieben, Finger-/Stift-Scrollen und eine vollständige Starterwoche ab. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit
@@ -198,9 +223,11 @@ godot --headless --script tests/mountain_life.gd
 godot --headless --script tests/piste_planning.gd
 godot --headless --script tests/junctions.gd
 godot --headless --script tests/lifts_and_plazas.gd
+godot --headless --script tests/build_comfort.gd
 godot --script tests/scene.gd
 godot --script tests/planning_scene.gd
 godot --script tests/lift_scene.gd
+godot --script tests/build_input_scene.gd
 godot --headless -- --smoke-test
 ```
 

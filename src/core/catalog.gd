@@ -1,5 +1,11 @@
 extends RefCounted
 
+const PLAZAS := {
+	"path": {"name": "Gehfläche", "radius": 26.0, "cost": 2400, "description": "Kleine geräumte Fläche. Mehrere Flächen verbinden sich zu einem Fußweg."},
+	"plaza": {"name": "Stationsplatz", "radius": 48.0, "cost": 7200, "description": "Großer Treffpunkt für Umstiege, Pistenanschlüsse und neue Gebäude."},
+	"promenade": {"name": "Resort-Promenade", "radius": 70.0, "cost": 14500, "description": "Weitläufiger Aufenthaltsbereich für ein wachsendes Resort."}
+}
+
 const LIFTS := {
 	"carpet": {"name": "Zauberteppich", "family": "carpet", "seats": 1, "max_length": 250.0, "cost": 18000, "per_m": 38, "capacity": 600, "speed": 42.0, "upkeep": 160, "wind_limit": 85.0},
 	"drag": {"name": "Teller-Schlepplift", "family": "drag", "seats": 1, "max_length": 700.0, "cost": 42000, "per_m": 72, "capacity": 420, "speed": 90.0, "upkeep": 410, "wind_limit": 62.0},

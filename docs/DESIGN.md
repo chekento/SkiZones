@@ -27,6 +27,8 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 | `src/ui/hud.gd` | Menü, Bauwerkzeuge, Anlageninspektor, Preisanpassung, Berichte und Hilfe |
 | `src/ui/management.gd` | Pausierendes Resort-Büro mit fünf handlungsfähigen Verwaltungsseiten |
 | `src/ui/build_palette.gd` | Baukatalog mit gesperrten, bezahlbaren und ausgewählten Einträgen |
+| `src/ui/drag_scroll.gd` | Finger-, Stift- und Mausziehen mit Klickunterdrückung nach Scrollbewegungen |
+| `src/world/piste_mesh.gd` | Abgerundeter Pistenumriss und geschlossene, ausgeschnittene Rastertriangulierung |
 | `src/ui/lift_icon.gd` | Eigene prozedurale Symbole für die acht Liftarten |
 | `src/ui/route_profile.gd` | Live-Höhenprofil und Abschnittsfarben aus der tatsächlichen Bauprüfung |
 | `src/ui/plan_overlay.gd` | Größengleiche nummerierte Punktgriffe und sichtbare Andockpunkte |
@@ -86,6 +88,8 @@ Die JSON-Nutzdaten liegen in einer Hülle mit Formatkennung und SHA-256-Prüfsum
 
 Der Zufallszustand wird als Zeichenkette gespeichert, damit große Ganzzahlen durch JSON nicht an Genauigkeit verlieren. Aus JSON geladene Meilensteine werden wieder in Integer konvertiert. Ein Regressionstest prüft, dass der weitere Ablauf nach dem Laden gleich bleibt.
 
+Format 6 ergänzt separat gebaute Gehflächen und abgeschlossene Abfahrten je Gast. Laufende Gäste aus Formaten bis 5 werden auf die Hindernisse berücksichtigende Wegeführung verteilt. Geld und bisherige Statistiken bleiben dabei erhalten.
+
 Format 5 ergänzt Fahrzeuguhren, Abfahrten, feste Sitzplätze, Anstellzeiten, Besuchsabschnitte und Gebäudezähler. Beim Laden werden Plätze auf Eindeutigkeit, Fahrzeug und Fahrtdauer auf den tatsächlichen Takt sowie Routen auf die vorbereiteten Plätze geprüft. Formate 1 bis 4 werden auf das neue Netz übertragen; laufende Gäste werden dabei neu verteilt, ohne ein weiteres Ticket zu bezahlen. Alte Pistenenden und Schneeraster werden an die Stationsplätze angepasst. Ein alter Tellerlift über 700 m wird bei erhaltenen Investitionskosten zum Vierersessel.
 
 Format 4 ergänzt feste Pistennummern und überprüfbare zusammenhängende Wegpunkt-Teilstücke in den gespeicherten Reiserouten. Spurdatensätze speichern Anfang und Ende der tatsächlich gefahrenen Teilroute; persönliche Fahrlinien laufen an Abzweigungen zur Mittellinie aus. Ganze durchgehende Skiabschnitte werden im Netz wieder zusammengeführt. Format 3 ergänzt Kartenkennung, geteilte vollständige Reiserouten, persönliche Fahrdauer, Schneerelief, Spurhistorie und laufende Präparierung. Format 2 enthält Karriere, Forschungsprojekt, Aufträge, Finanzhistorie und Ausbaustufen. Format 1 aus 0.1.x und Format 2 aus 0.2.x werden weiter gelesen; bestehende Anlagen beginnen auf Stufe 1 und behalten alle früher verfügbaren Baumöglichkeiten. Ungültige Karrierewerte werden vor dem Austausch der laufenden Simulation abgelehnt.
@@ -98,6 +102,16 @@ Die Nutzdaten sind auf 16 MB begrenzt. Auch der kleine Bergpass besitzt Prüfsum
 
 Gelände und Gebäude sind eigene prozedurale Geometrien. Tannen, Felsen, Skifahrer und Liftfahrzeuge verwenden MultiMesh-Instanzen. Gebäudeteile sind je Anlage in einem Mesh gebündelt. Jede Liftart besitzt eigene Fahrzeug-MultiMeshes; sitzende Sessel- und Kabinenfiguren, stehende Tellerliftgäste und Fußgänger verwenden passende Modelle. Passagiere und Fahrzeuge lesen denselben Flottentakt. Die Stationsplätze nutzen ein gemeinsames Geländeraster ohne überlagerte Flächen; Wald und Felsen bleiben aus dem Fußwegenetz und dem Liftkorridor frei. Runde beidseitig nummerierte Pistenschilder verwenden pro Piste ein gemeinsames Mesh mit MultiMesh-Instanzen. Die Perspektivkamera, Licht, Dunst und Schneefall hängen an der tatsächlichen Zeit beziehungsweise dem Wetter. Das Hauptmenü verwendet das freigegebene Panorama, die 3D-Spielwelt bleibt eigene Geometrie. Die Compatibility-Pipeline vermeidet eine Vulkan-Pflicht.
 
-Version 0.5.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Geometrische Pfadlängen werden zwischengespeichert. Figuren und Liftfahrzeuge folgen dem kontinuierlichen Anteil der Simulationszeit. Gebäudemodelle blenden aus, wenn sie die Nahkamera eines beobachteten Gasts verdecken. Die Reliefkarten verwenden zwischengespeicherte Bilder aus den tatsächlichen Höhenwerten. Stützen und Seile werden je Lift in einem Mesh gebündelt. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.
+Version 0.6.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Geometrische Pfadlängen werden zwischengespeichert. Figuren und Liftfahrzeuge folgen dem kontinuierlichen Anteil der Simulationszeit. Gebäudemodelle blenden aus, wenn sie die Nahkamera eines beobachteten Gasts verdecken. Die Reliefkarten verwenden zwischengespeicherte Bilder aus den tatsächlichen Höhenwerten. Stützen und Seile werden je Lift in einem Mesh gebündelt. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.
 
 Vier wählbare Kameraperspektiven teilen sich Geländeauswahl, Navigation und Bauplan. Die senkrechte Ansicht verwendet eine orthografische Projektion. Geländehilfe und Höhenlinien werden aus denselben Dreiecken wie das sichtbare Gelände erzeugt und zwischen Umschaltungen wiederverwendet; Gefällepfeile folgen dessen Normalen.
+
+## Bauablauf und Bedienung ab 0.6
+
+Ein nicht leerer Plan sperrt andere Werkzeuge und pausiert die Simulation, ohne die persönliche Pauseneinstellung umzuschalten. Bau oder Abbruch geben die Werkzeuge frei. Abbruch, Android-Zurück und Escape löschen auch aktive Maus-/Touchkontakte und Wegpunkt-Drags. Karten reagieren beim Loslassen nur, wenn keine Scrollbewegung stattfand. Dieselbe Scrollklasse wird im Katalog, Inspektor, Bergpass und Resort-Büro verwendet. Kamera-Verschieben und Zoom verwenden Geländeanker statt eines festen Schätzfaktors je Blickwinkel.
+
+Fußwege verwenden ein Sichtbarkeitsnetz um vereinigte Gebäude-, Stations- und Zugspur-Umrisse. Die Darstellungsbewegung beim Nachrücken verwendet dieselben Hindernisse. Zusätzliche Gehflächen werden in `walk_areas` gespeichert, im Netz verwendet und als eigene Anlagen ausgewählt und abgebaut.
+
+Die Pistenoberfläche entsteht aus dem abgerundeten Gesamtumriss einer breiten Linie und wird zellenweise am Gelände ausgeschnitten. Diese Geometrie wird bis zur nächsten Anlagenänderung wiederverwendet; Schneeverformung aktualisiert ihre Höhen und Farben. Die Schwierigkeit folgt weiterhin der geprüften Mittellinie.
+
+Die Grundkosten betragen 450 € plus 80 € je Lift und 35 € je Gebäude; zusätzliche Gehflächen kosten je Radiusmeter 0,35 € bei Betrieb. Stark ausgelastete Warteschlangen reduzieren den Neuzulauf bis auf 35 %. Aufenthalte dauern 300 bis 520 Spielminuten. Tatsächlich abgeschlossene Abfahrten und Wartezeiten beeinflussen die Zufriedenheit. Das sind abstimmbare Spielwerte, keine Prognose einer realen Resortwirtschaft.

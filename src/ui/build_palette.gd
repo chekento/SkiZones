@@ -1,6 +1,7 @@
 extends VBoxContainer
 const Catalog = preload("res://src/core/catalog.gd")
 const RouteProfile = preload("res://src/ui/route_profile.gd")
+const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const LiftIcon = preload("res://src/ui/lift_icon.gd")
 var hud: CanvasLayer
 var game: Node
@@ -17,19 +18,19 @@ func setup(interface: CanvasLayer) -> void:
 	add_theme_constant_override("separation", 9)
 	hud._label(self, "BAUKATALOG", 13, hud.TEAL)
 	hud._label(self, "Dein nächster Ausbau", 20)
-	hud.tool_buttons.inspect = hud._button(self, "Resort ansehen", func(): game.set_tool("inspect"))
+	hud.tool_buttons.inspect = hud._button(self, "Resort ansehen", func(): game.clear_plan())
 	var bar := HBoxContainer.new()
 	bar.add_theme_constant_override("separation", 5)
 	add_child(bar)
-	for entry in [["pistes", "Pisten"], ["lifts", "Lifte"], ["village", "Dorf"]]:
+	for entry in [["pistes", "Pisten"], ["lifts", "Lifte"], ["village", "Dorf"], ["paths", "Wege"]]:
 		var key: String = entry[0]
 		var button: Button = hud._button(bar, entry[1], func(): select_category(key))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 15)
+		button.add_theme_font_size_override("font_size", 14)
 		categories[key] = button
 	hud.tool_buttons.lift = categories.lifts
 	hud.tool_buttons.building = categories.village
-	var scroll := ScrollContainer.new()
+	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(scroll)
@@ -40,7 +41,7 @@ func setup(interface: CanvasLayer) -> void:
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
-	button.custom_minimum_size.y = 112 if type == "lift" else 86
+	button.custom_minimum_size.y = 132 if type == "lift" else (142 if type == "plaza" else 98)
 	button.focus_mode = Control.FOCUS_NONE
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	content.add_child(button)
@@ -67,8 +68,16 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.tooltip_text = description + ("\nBetrieb: %d €/Tag" % upkeep if upkeep > 0 else "")
 	button.pressed.connect(func():
+		if not DragScroll.click_allowed():
+			return
+		if not game.points.is_empty():
+			game.hud.toast("Erst Bauen oder Abbrechen wählen. Dein aktueller Plan bleibt erhalten.")
+			return
 		if type == "piste":
 			game.set_tool(key)
+		elif type == "plaza":
+			game.plaza_kind = key
+			game.set_tool("plaza")
 		else:
 			var choice: OptionButton = hud.lift_choice if type == "lift" else hud.building_choice
 			choice.select((Catalog.LIFTS.keys() if type == "lift" else Catalog.BUILDINGS.keys()).find(key))
@@ -87,31 +96,39 @@ func _make_cards() -> void:
 	for key in Catalog.BUILDINGS:
 		var spec: Dictionary = Catalog.BUILDINGS[key]
 		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).lightened(0.2))
+	for key in Catalog.PLAZAS:
+		var spec: Dictionary = Catalog.PLAZAS[key]
+		_card(key, spec.name, "Ø %.0f m · %s €\n%s" % [spec.radius * 2, hud.money_text(spec.cost), spec.description], spec.cost, 0, "plaza", hud.TEAL)
 	refresh(true)
 
 func select_category(value: String) -> void:
+	if not game.points.is_empty() and category != value:
+		hud.toast("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten.")
+		return
 	category = value
 	refresh(true)
 
 func refresh(force: bool = false) -> void:
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research), game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.is_empty()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
 	route_profile.visible = category == "pistes"
+	hud.tool_buttons.inspect.text = "Plan abbrechen" if game.tool != "inspect" else "Resort ansehen"
 	for key in categories:
+		categories[key].disabled = not game.points.is_empty() and key != category
 		categories[key].add_theme_stylebox_override("normal", hud._style(Color("3d6671") if key == category else Color("244755"), 7, 7))
 	for card in cards:
-		var active_category: String = {"piste": "pistes", "lift": "lifts", "building": "village"}[card.type]
+		var active_category: String = {"piste": "pistes", "lift": "lifts", "building": "village", "plaza": "paths"}[card.type]
 		card.button.visible = category == active_category
-		var locked: String = "" if card.type == "piste" else game.model.build_access_message(card.key, card.type == "lift")
+		var locked: String = "" if card.type in ["piste", "plaza"] else game.model.build_access_message(card.key, card.type == "lift")
 		var affordable: bool = game.model.money >= card.cost
-		card.button.disabled = locked != "" or not affordable
-		card.status.text = locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type == "building" else "Route planen"))
+		card.button.disabled = locked != "" or not affordable or not game.points.is_empty()
+		card.status.text = "Plan läuft · Bauen / Abbrechen" if not game.points.is_empty() else locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type in ["building", "plaza"] else "Route planen"))
 		card.heading.modulate = Color("718b94") if locked != "" else Color.WHITE
-		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
+		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool == "plaza" and game.plaza_kind == card.key) if card.type == "plaza" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
 		card.button.add_theme_stylebox_override("normal", hud._style(Color("315c68") if selected else Color("20424f"), 10, 10, hud.TEAL if selected else Color.TRANSPARENT))
-		if card.type != "piste":
+		if card.type in ["lift", "building"]:
 			var choice: OptionButton = hud.lift_choice if card.type == "lift" else hud.building_choice
 			var index: int = (Catalog.LIFTS.keys() if card.type == "lift" else Catalog.BUILDINGS.keys()).find(card.key)
 			choice.set_item_disabled(index, card.button.disabled)

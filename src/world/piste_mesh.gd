@@ -1,0 +1,61 @@
+extends RefCounted
+## A clipped terrain grid fills the whole rounded corridor, including hairpins.
+## It never rotates a wide strip across a sharp corner or joins inverted rows.
+const Terrain = preload("res://src/core/terrain.gd")
+
+static func nearest(mountain: RefCounted, points: Array, point: Vector2) -> Dictionary:
+	var distance := INF
+	var result := {"fraction": 0.0, "lateral": 0.0, "distance": INF}
+	for index in range(1, points.size()):
+		var a := Terrain.unpack(points[index - 1])
+		var b := Terrain.unpack(points[index])
+		var closest := Geometry2D.get_closest_point_to_segment(point, a, b)
+		var delta := closest.distance_to(point)
+		if delta < distance:
+			distance = delta
+			var weight := a.distance_to(closest) / maxf(a.distance_to(b), 0.001)
+			result = {"fraction": lerpf(mountain.waypoint_fraction(points, index - 1), mountain.waypoint_fraction(points, index), weight), "lateral": (point - closest).dot((b - a).normalized().orthogonal()), "distance": delta}
+	return result
+
+static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0) -> Array:
+	if points.size() < 2:
+		return []
+	var line := PackedVector2Array()
+	for point in points:
+		line.append(Terrain.unpack(point))
+	var outlines := Geometry2D.offset_polyline(line, width * 0.5, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT)
+	var cells: Dictionary = {}
+	# Only visit cells near a centerline segment, rather than the large bounding box.
+	for index in range(1, points.size()):
+		var a := Terrain.unpack(points[index - 1])
+		var b := Terrain.unpack(points[index])
+		var count := maxi(1, ceili(a.distance_to(b) / step))
+		var radius := ceili(width * 0.5 / step) + 1
+		for i in range(count + 1):
+			var cell := Vector2i((a.lerp(b, float(i) / count) / step).floor())
+			for x in range(-radius, radius + 1):
+				for y in range(-radius, radius + 1):
+					cells[cell + Vector2i(x, y)] = true
+	var result: Array = []
+	var frames: Dictionary = {}
+	for cell in cells:
+		var p := Vector2(cell) * step
+		var square := PackedVector2Array([p, p + Vector2(step, 0), p + Vector2(step, step), p + Vector2(0, step)])
+		for outline in outlines:
+			for polygon in Geometry2D.intersect_polygons(square, outline):
+				var indices := Geometry2D.triangulate_polygon(polygon)
+				for i in range(0, indices.size(), 3):
+					var a: Vector2 = polygon[indices[i]]
+					var b: Vector2 = polygon[indices[i + 1]]
+					var c: Vector2 = polygon[indices[i + 2]]
+					if absf((b - a).cross(c - a)) < 0.0001:
+						continue
+					# Keep all triangles facing upwards; clipped polygons may have either winding.
+					var triangle := [a, b, c] if (b - a).cross(c - a) > 0 else [a, c, b]
+					for at in triangle:
+						if not frames.has(at):
+							var frame := nearest(mountain, points, at)
+							frame.point = at
+							frames[at] = frame
+						result.append(frames[at])
+	return result

@@ -10,3 +10,5 @@ They contain generated test visitors, no player data.
 
 The fleet/plaza suite checks migration of existing investments and visitors,
 followed by a new-format save round trip. Test files are excluded from APKs.
+
+- `v0.5-starter.json`: the unchanged 0.5.0 starter simulation at commit `1e4758331247cbe98827a8f6d62a8be1e3544a70`, after 220 operating minutes with 73 active generated visitors. The construction comfort suite checks migration into format 6 without charging tickets again.

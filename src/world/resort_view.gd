@@ -9,6 +9,7 @@ const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
@@ -24,6 +25,7 @@ var _terrain_id := ""
 var _snow_timer := 0.0
 var _snow_seen := -1
 var _piste_meshes: Dictionary = {}
+var _snow_geometry: Dictionary = {}
 var _track_mesh := MeshInstance3D.new()
 var _riders := MultiMeshInstance3D.new()
 var _cabin_riders := MultiMeshInstance3D.new()
@@ -68,6 +70,7 @@ var _seen_revision := -1
 var _guest_positions: Dictionary = {}
 var _guest_targets: Dictionary = {}
 var _guest_tick := ""
+var _queue_paths: Dictionary = {}
 var _visual_minute := 480.0
 var _atmosphere_tick := ""
 var _solid: StandardMaterial3D
@@ -129,13 +132,13 @@ func _material(color: Color, vertex_color: bool = false) -> StandardMaterial3D:
 
 func _build_environment() -> void:
 	_sun.rotation_degrees = Vector3(-48, -35, 0)
-	_sun.light_color = Color("fffdf7")
-	_sun.light_energy = 0.62
+	_sun.light_color = Color("fff2dc")
+	_sun.light_energy = 0.72
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_max_distance = 1500
 	add_child(_sun)
 	var sky_material := ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color("6791b3")
+	sky_material.sky_top_color = Color("759fbd")
 	sky_material.sky_horizon_color = Color("dce7e9")
 	sky_material.ground_horizon_color = Color("dce7e9")
 	sky_material.ground_bottom_color = Color("8da8b8")
@@ -145,7 +148,7 @@ func _build_environment() -> void:
 	_environment.sky = sky
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	_environment.ambient_light_color = Color("9fc9ef")
-	_environment.ambient_light_energy = 0.18
+	_environment.ambient_light_energy = 0.20
 	# Linear tone mapping keeps snow detail on the Android compatibility renderer.
 	_environment.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	_environment.fog_enabled = true
@@ -181,7 +184,7 @@ func _build_environment() -> void:
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var snow := Color("d6e5f0").lerp(Color("e7eff5"), clampf(height_value / 420.0, 0, 1))
+	var snow := Color("dce9f0").lerp(Color("f0f4f5"), clampf(height_value / 420.0, 0, 1))
 	if grade > 38:
 		snow = snow.lerp(Color("526775"), clampf((grade - 38) / 65.0, 0, 0.84))
 	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
@@ -481,7 +484,9 @@ func rebuild() -> void:
 		slopes_visible = false
 		_build_terrain()
 		_build_surroundings()
+	_queue_paths.clear()
 	_piste_meshes.clear()
+	_snow_geometry.clear()
 	piste_markers.clear()
 	_occluders.clear()
 	_snow_seen = -1
@@ -498,6 +503,7 @@ func rebuild() -> void:
 	_queue_labels.clear()
 	_pedestrian_snapshot = model.pedestrian_layout()
 	_build_foot_areas()
+	var title_positions: Array[Vector2] = []
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = 20 + (piste.get("level", 1) - 1) * 4
@@ -535,7 +541,13 @@ func rebuild() -> void:
 		var marker_node := MultiMeshInstance3D.new()
 		marker_node.multimesh = signs
 		asset_root.add_child(marker_node)
-		_label(asset_root, "%d · %s" % [piste.number, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty]], terrain.world(Terrain.unpack(piste.points[0]), 24), color)
+		var start := Terrain.unpack(piste.points[0])
+		var show_title := true
+		for previous in title_positions:
+			show_title = show_title and start.distance_to(previous) > 80
+		if show_title:
+			title_positions.append(start)
+			_label(asset_root, "%d · %s" % [piste.number, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty]], terrain.world(start, 24), color)
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:
@@ -571,15 +583,21 @@ func _build_foot_areas() -> void:
 	for link in _pedestrian_snapshot.links:
 		_ribbon(asset_root, link.points, 7, Color("c8d2cf"), 0.39)
 		_ribbon(asset_root, link.points, 4.6, Color("becbc9"), 0.42)
+	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
-		if area.kind == "station":
-			var furnishings := Art.new()
-			var bench := terrain.world(area.point + Vector2(6, 4), 0.5)
-			furnishings.box(bench + Vector3.UP, Vector3(5, 0.4, 1.7), Color("ac8a60"))
-			furnishings.box(bench + Vector3(0, 1.8, -0.6), Vector3(5, 1.3, 0.3), Color("9c7b53"))
-			for side in [-1, 1]:
-				furnishings.box(bench + Vector3(side * 1.8, 0.45, 0), Vector3(0.3, 1, 1.4), Color("516e74"))
-			_baked(asset_root, furnishings.finish(), Vector3.ZERO)
+		if area.kind not in ["station", "plaza"]:
+			continue
+		for index in range(3):
+			var at: Vector2 = area.center + Vector2.from_angle(index * TAU / 3 + 0.4) * area.radius * 0.78
+			if not Foot.contains(_pedestrian_snapshot, at) or not Foot.free_of_buildings(at, model.buildings, 9):
+				continue
+			var near_path := false
+			for link in _pedestrian_snapshot.links:
+				for i in range(1, link.points.size()):
+					near_path = near_path or Geometry2D.get_closest_point_to_segment(at, Terrain.unpack(link.points[i - 1]), Terrain.unpack(link.points[i])).distance_to(at) < 9
+			if not near_path:
+				var instance := _baked(asset_root, furniture_mesh, terrain.world(at, 0.35))
+				instance.rotation.y = -index * TAU / 3
 
 func _build_lift(lift: Dictionary) -> void:
 	var bottom := Terrain.unpack(lift.bottom)
@@ -656,7 +674,7 @@ func _build_lift(lift: Dictionary) -> void:
 	asset_root.add_child(queue_sign)
 	_queue_labels[lift.id] = queue_sign
 	var rails := Art.new()
-	var front := Fleet.station_point(lift, false)
+	var front := Foot.boarding_point(lift, false)
 	for row in range(4):
 		for col in [0, 15]:
 			var local := orientation * Vector3(col * 1.8, 0, -12.8 - row * 2.4)
@@ -682,19 +700,15 @@ func _build_building(building: Dictionary) -> void:
 func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: float) -> void:
 	if points.size() < 2:
 		return
+	var samples := PisteMesh.samples(terrain, points, width, 6)
+	if samples.is_empty():
+		return
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for i in range(1, points.size()):
-		var from := Terrain.unpack(points[i - 1])
-		var to := Terrain.unpack(points[i])
-		var side := (to - from).normalized().orthogonal() * width * 0.5
-		var steps := maxi(1, ceili(from.distance_to(to) / 6.0))
-		for j in range(steps):
-			var a := from.lerp(to, float(j) / steps)
-			var b := from.lerp(to, float(j + 1) / steps)
-			var vertices := [a + side, b + side, a - side, b - side]
-			for index in [0, 1, 2, 2, 1, 3]:
-				surface.add_vertex(terrain.world(vertices[index], offset))
+	surface.set_smooth_group(0)
+	for sample in samples:
+		surface.add_vertex(terrain.world(sample.point, offset))
+	surface.index()
 	surface.generate_normals()
 	var instance := MeshInstance3D.new()
 	instance.mesh = surface.commit()
@@ -710,14 +724,27 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		child.queue_free()
 	if points.is_empty():
 		return
-	if analysis.has("segments") and analysis.segments.size() == points.size() - 1:
-		for i in range(analysis.segments.size()):
-			var section_color: Color = PISTE_COLORS[analysis.segments[i].difficulty]
-			if analysis.segments[i].drop < -1.5:
-				section_color = Color("efb17d")
-			_ribbon(preview_root, [points[i], points[i + 1]], 7, section_color, 1.2)
-	else:
-		_ribbon(preview_root, points, 7, color, 1.2)
+	_ribbon(preview_root, points, 20 if analysis.has("segments") else 7, color, 1.55)
+	if analysis.has("radius"):
+		var center := Terrain.unpack(points[-1])
+		var radius: float = analysis.radius
+		var surface := SurfaceTool.new()
+		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var rings := ceili(radius / 4)
+		for ring in range(rings):
+			var inner := radius * ring / rings
+			var outer := radius * (ring + 1) / rings
+			for index in range(64):
+				var a := Vector2.from_angle(index * TAU / 64)
+				var b := Vector2.from_angle((index + 1) * TAU / 64)
+				var vertices := [center+a*inner,center+b*inner,center+a*outer,center+b*outer]
+				for triangle in [[0,2,1],[1,2,3]]:
+					if ring == 0 and triangle[0] == 0:
+						continue
+					for vertex in triangle:
+						surface.add_vertex(terrain.world(vertices[vertex],0.85))
+		surface.generate_normals()
+		_mesh(preview_root, surface.commit(), Vector3.ZERO, color)
 	for point in points:
 		var sphere := SphereMesh.new()
 		sphere.radius = 3.5
@@ -741,8 +768,8 @@ func _update_atmosphere() -> void:
 		return
 	_atmosphere_tick = key
 	var daylight := sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
-	_sun.light_energy = (0.35 + daylight * 0.17) * (0.55 if model.weather_index in [2, 3] else 1.0)
-	_sun.light_color = Color("f7e3ce").lerp(Color("fffdf7"), daylight)
+	_sun.light_energy = (0.30 + daylight * 0.14) * (0.55 if model.weather_index in [2, 3] else 1.0)
+	_sun.light_color = Color("f7e3ce").lerp(Color("fff2dc"), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = model.weather_index in [1, 3]
@@ -823,7 +850,7 @@ func _process(delta: float) -> void:
 		if guest.phase == "queue":
 			angle = Fleet.basis(model.asset(guest.route.legs[guest.leg].id)).get_euler().y
 			if _guest_positions.has(guest.id) and delta > 0:
-				position_value = _guest_positions[guest.id].move_toward(position_value, delta * 1.6 * motion_rate if motion_running else 0)
+				position_value = _queue_step(guest.id, _guest_positions[guest.id], position_value, delta * 1.6 * motion_rate if motion_running else 0)
 		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
 		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
 		if in_cabin:
@@ -848,6 +875,9 @@ func _process(delta: float) -> void:
 			focus = Vector2(position_value.x, position_value.z)
 			_update_camera()
 	_guest_positions = next_positions
+	for id in _queue_paths.keys():
+		if not next_positions.has(id):
+			_queue_paths.erase(id)
 	_update_occlusion(delta)
 	visitor_mesh.multimesh.visible_instance_count = walking
 	_riders.multimesh.visible_instance_count = riding
@@ -876,6 +906,22 @@ func _process(delta: float) -> void:
 		_track_seen = model.snow_revision
 		_track_focus = focus
 		_draw_tracks()
+
+func _queue_step(id: int, current: Vector3, target: Vector3, distance: float) -> Vector3:
+	if not _queue_paths.has(id) or _queue_paths[id].target.distance_to(target) > 0.1:
+		var path := Foot.path_between(Vector2(current.x, current.z), Vector2(target.x, target.z), model.buildings, model.lifts)
+		_queue_paths[id] = {"target": target, "points": path, "next": 1}
+	var state: Dictionary = _queue_paths[id]
+	while distance > 0 and state.next < state.points.size():
+		var at := terrain.world(Terrain.unpack(state.points[state.next]), 0.3)
+		var step := minf(distance, current.distance_to(at))
+		current = current.move_toward(at, step)
+		distance -= step
+		if current.distance_to(at) < 0.01:
+			state.next += 1
+		else:
+			break
+	return current
 
 func _update_occlusion(delta: float) -> void:
 	var target := terrain.world(focus, 2.5)
@@ -907,33 +953,22 @@ func pick_guest(point: Vector2) -> int:
 
 func _draw_snow(piste: Dictionary) -> void:
 	Snow.ensure(piste)
+	var width: float = 20 + (piste.get("level", 1) - 1) * 4
+	if not _snow_geometry.has(piste.id):
+		_snow_geometry[piste.id] = PisteMesh.samples(terrain, piste.points, width)
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var count := ceili(piste.length / 4)
-	var width: float = 20 + (piste.get("level", 1) - 1) * 4
-	for row in range(count):
-		var fractions := [float(row) / count, float(row + 1) / count]
-		var vertices: Array = []
-		var colors: Array = []
-		for fraction in fractions:
-			var center: Vector2 = terrain.point_on_path(piste.points, fraction)
-			var before: Vector2 = terrain.point_on_path(piste.points, maxf(0, fraction - 0.004))
-			var ahead: Vector2 = terrain.point_on_path(piste.points, minf(1, fraction + 0.004))
-			var side := (ahead - before).normalized().orthogonal()
-			for lane in range(Snow.LANES + 1):
-				var lateral := (float(lane) / Snow.LANES - 0.5) * width
-				var relief := Snow.relief(piste, fraction, lateral)
-				vertices.append(terrain.world(center + side * lateral, Snow.base_height(piste, fraction) + relief))
-				var color := Color("e4edf4").lerp(Color("b8cedc"), clampf(-relief, 0, 0.35))
-				if lane in [0, Snow.LANES]:
-					color = PISTE_COLORS[piste.difficulty].lightened(0.2)
-				elif row % 3 == 0 and piste.tracks.is_empty():
-					color = color.darkened(0.018)
-				colors.append(color)
-		for lane in range(Snow.LANES):
-			for index in [lane, lane + 1, lane + Snow.LANES + 1, lane + 1, lane + Snow.LANES + 2, lane + Snow.LANES + 1]:
-				surface.set_color(colors[index])
-				surface.add_vertex(vertices[index])
+	surface.set_smooth_group(0)
+	for sample in _snow_geometry[piste.id]:
+		var relief := Snow.relief(piste, sample.fraction, sample.lateral)
+		var edge := smoothstep(width * 0.5 - 2.3, width * 0.5, sample.distance)
+		var offset := Snow.base_height(piste, sample.fraction) + relief + edge * 0.13
+		var color := Color("edf4f7").lerp(Color("becfda"), clampf(-relief * 0.75, 0, 0.3))
+		# Fine groomed variation replaces the broad colored edge bands.
+		color = color.darkened((sin(sample.lateral * 10) * 0.5 + 0.5) * 0.012)
+		color = color.lerp(Color("d8e5ed"), edge * 0.55)
+		surface.set_color(color)
+		surface.add_vertex(terrain.world(sample.point, offset))
 	surface.index()
 	surface.generate_normals()
 	_piste_meshes[piste.id].mesh = surface.commit()
@@ -1049,15 +1084,28 @@ func _update_camera() -> void:
 		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 		camera.look_at(target)
 
-func pan(relative: Vector2) -> void:
+func pan_between(previous: Vector2, current: Vector2) -> void:
 	follow_guest = -1
-	var units := zoom / maxf(get_viewport().get_visible_rect().size.y, 1)
-	var right := Vector2(camera.basis.x.x, camera.basis.x.z)
-	var up := Vector2(camera.basis.y.x, camera.basis.y.z)
-	focus += (-right * relative.x + up * relative.y * (1.0 if camera_mode == 3 else 1.7)) * units
+	var from := map_point(previous)
+	var to := map_point(current)
+	if from.is_finite() and to.is_finite():
+		focus += from - to
 	focus.x = clampf(focus.x, terrain.bounds.position.x + 20, terrain.bounds.end.x - 20)
 	focus.y = clampf(focus.y, terrain.bounds.position.y + 20, terrain.bounds.end.y - 20)
 	_update_camera()
+
+func pan(relative: Vector2) -> void:
+	var center := get_viewport().get_visible_rect().size * 0.5
+	pan_between(center, center + relative)
+
+func zoom_at(factor: float, screen_point: Vector2) -> void:
+	var before := map_point(screen_point)
+	change_zoom(factor)
+	var after := map_point(screen_point)
+	if before.is_finite() and after.is_finite():
+		focus += before - after
+		focus = focus.clamp(terrain.bounds.position + Vector2(20, 20), terrain.bounds.end - Vector2(20, 20))
+		_update_camera()
 
 func change_zoom(factor: float) -> void:
 	zoom = clampf(zoom * factor, 48, maxf(terrain.bounds.size.x, terrain.bounds.size.y) * 1.25)
@@ -1106,7 +1154,7 @@ func map_point(screen_point: Vector2) -> Vector2:
 func pick_asset(point: Vector2) -> int:
 	var closest := 24.0
 	var id := -1
-	for building in model.buildings:
+	for building in model.buildings + model.walk_areas:
 		var distance := point.distance_to(Terrain.unpack(building.point))
 		if distance < closest:
 			closest = distance

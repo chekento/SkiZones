@@ -16,6 +16,7 @@ static func position(mountain: RefCounted, piste: Dictionary, id: int, ability: 
 	var personal := style(id, ability)
 	var distance: float = piste.length * fraction
 	var taper := smoothstep(0, 18, distance - piste.length * range_start) * smoothstep(0, 18, piste.length * range_end - distance)
+	taper *= mountain.corner_taper(piste.points, fraction, piste.length)
 	var width := 20.0 + (int(piste.get("level", 1)) - 1) * 4
 	var lane := sin(id * 2.39 + run) * width * 0.08
 	var wave := sin(distance / personal.wave * TAU + personal.phase + run * 1.7)
