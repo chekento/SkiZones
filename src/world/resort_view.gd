@@ -3,10 +3,31 @@ extends Node3D
 
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
+const Mountain = preload("res://src/core/mountain.gd")
+const Maps = preload("res://src/core/maps.gd")
+const Motion = preload("res://src/core/ski_motion.gd")
+const Snow = preload("res://src/core/snow_surface.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("344859")]
 
 var model: RefCounted
+var terrain: Mountain
+var landscape := Node3D.new()
+var simulation_fraction := 0.0
+var motion_running := false
+var follow_guest := -1
+var _terrain_id := ""
+var _snow_timer := 0.0
+var _snow_seen := -1
+var _piste_meshes: Dictionary = {}
+var _track_mesh := MeshInstance3D.new()
+var _riders := MultiMeshInstance3D.new()
+var _groomers := MultiMeshInstance3D.new()
+var _track_timer := 0.0
+var _track_seen := -1
+var _track_focus := Vector2.INF
+var _car_positions: Dictionary = {}
+var _occluders: Array = []
 var camera := Camera3D.new()
 var focus := Vector2(15, -30)
 var yaw := 0.46
@@ -36,21 +57,30 @@ var _vehicle_counts: Dictionary = {}
 
 func setup(resort: RefCounted) -> void:
 	model = resort
+	terrain = model.terrain
+	_terrain_id = model.map_id
+	add_child(landscape)
 	_solid = _material(Color.WHITE, true)
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _groomers, _track_mesh]:
 		add_child(node)
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(), model.MAX_GUESTS)
 	visitor_mesh.multimesh.mesh.surface_set_material(0, _solid)
 	visitor_mesh.multimesh.visible_instance_count = 0
-	visitor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	visitor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_riders.multimesh = _multimesh(Art.new().seated_skier(), model.MAX_GUESTS)
+	_riders.multimesh.mesh.surface_set_material(0, _solid)
+	_riders.multimesh.visible_instance_count = 0
+	_groomers.multimesh = _multimesh(Art.new().groomer(), 80)
+	_groomers.multimesh.mesh.surface_set_material(0, _solid)
+	_groomers.multimesh.visible_instance_count = 0
 	add_child(camera)
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov = 42
 	camera.near = 3.0
-	camera.far = 7000
+	camera.far = 20000
 	camera.current = true
 	_update_camera()
 	rebuild()
@@ -115,72 +145,73 @@ func _build_environment() -> void:
 	_snow.mesh = flake
 	add_child(_snow)
 
-func _ground_color(point: Vector2, height_value: float) -> Color:
-	var grade := Terrain.slope_percent(point)
+func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
+	if grade < 0:
+		grade = terrain.slope_percent(point)
 	var snow := Color("d6e5f0").lerp(Color("e7eff5"), clampf(height_value / 420.0, 0, 1))
-	if grade > 42:
-		snow = snow.lerp(Color("7c8993"), clampf((grade - 42) / 80.0, 0, 0.67))
+	if grade > 38:
+		snow = snow.lerp(Color("526775"), clampf((grade - 38) / 65.0, 0, 0.84))
 	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
 
+func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
+	var nx := ceili(bounds.size.x / step_size) + 1
+	var nz := ceili(bounds.size.y / step_size) + 1
+	var vertices := PackedVector3Array()
+	var colors := PackedColorArray()
+	var normals := PackedVector3Array()
+	var indices := PackedInt32Array()
+	for z in range(nz):
+		for x in range(nx):
+			var point := bounds.position + Vector2(minf(x * step_size, bounds.size.x), minf(z * step_size, bounds.size.y))
+			vertices.append(terrain.world(point, -0.1 if outside else 0))
+	for z in range(nz):
+		for x in range(nx):
+			var i := z * nx + x
+			var left := vertices[z * nx + maxi(0, x - 1)]
+			var right := vertices[z * nx + mini(nx - 1, x + 1)]
+			var near_value := vertices[maxi(0, z - 1) * nx + x]
+			var far_value := vertices[mini(nz - 1, z + 1) * nx + x]
+			var normal := (far_value - near_value).cross(right - left).normalized()
+			normals.append(normal)
+			var grade := Vector2(normal.x, normal.z).length() / maxf(normal.y, 0.01) * 100
+			colors.append(_ground_color(Vector2(vertices[i].x, vertices[i].z), vertices[i].y, grade))
+			if x == nx - 1 or z == nz - 1:
+				continue
+			var center := Vector2(vertices[i].x + step_size * 0.5, vertices[i].z + step_size * 0.5)
+			if outside and terrain.bounds.has_point(center):
+				continue
+			indices.append_array(PackedInt32Array([i, i + 1, i + nx, i + 1, i + nx + 1, i + nx]))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
 func _build_terrain() -> void:
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for z in range(-400, 340, 10):
-		for x in range(-360, 360, 10):
-			var corners := [Vector2(x, z), Vector2(x, z + 10), Vector2(x + 10, z), Vector2(x + 10, z + 10)]
-			for index in [0, 2, 1, 2, 3, 1]:
-				var point: Vector2 = corners[index]
-				surface.set_color(_ground_color(point, Terrain.height(point)))
-				surface.add_vertex(Terrain.world(point))
-	surface.index()
-	surface.generate_normals()
 	terrain_instance = MeshInstance3D.new()
-	terrain_instance.mesh = surface.commit()
+	terrain_instance.mesh = _land_mesh(terrain.bounds, 20)
 	terrain_instance.material_override = _solid
-	add_child(terrain_instance)
+	landscape.add_child(terrain_instance)
 	var lake := CylinderMesh.new()
 	lake.top_radius = 53
 	lake.bottom_radius = 53
 	lake.height = 0.6
 	lake.radial_segments = 48
-	var lake_node := _mesh(self, lake, Vector3(-260, 7, 255), Color("85aab9"))
+	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
 	lake_node.scale.z = 0.62
-	_ribbon(self, [[185, 335], [185, 280], [185, 230]], 11.0, Color("b5b5a9"), 0.25)
-	_label(self, "TALZUGANG", Terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
-
-func _scenery_height(point: Vector2) -> float:
-	var x_distance := maxf(absf(point.x) - 360, 0)
-	var z_distance := maxf(maxf(-400 - point.y, point.y - 340), 0)
-	var weight := clampf(Vector2(x_distance, z_distance).length() / 160.0, 0, 1)
-	var peaks := 0.0
-	for peak in [Vector3(-740, -890, 300), Vector3(-280, -1080, 420), Vector3(280, -1000, 370), Vector3(810, -820, 310)]:
-		peaks += peak.z * exp(-pow((point.x - peak.x) / 205.0, 2.0) - pow((point.y - peak.y) / 240.0, 2.0))
-	return Terrain.height(point) + weight * peaks
+	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("b5b5a9"), 0.25)
+	_label(landscape, "TALZUGANG", terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for z in range(-1500, 1000, 20):
-		for x in range(-1300, 1300, 20):
-			if x >= -360 and x < 360 and z >= -400 and z < 340:
-				continue
-			var corners := [Vector2(x, z), Vector2(x, z + 20), Vector2(x + 20, z), Vector2(x + 20, z + 20)]
-			for index in [0, 2, 1, 2, 3, 1]:
-				var point: Vector2 = corners[index]
-				var h := _scenery_height(point)
-				var grade := absf(_scenery_height(point + Vector2(8, 0)) - h) + absf(_scenery_height(point + Vector2(0, 8)) - h)
-				var color := _ground_color(point, h)
-				if grade > 9:
-					color = color.lerp(Color("7c8c9b"), minf(0.7, (grade - 9) * 0.07))
-				surface.set_color(color)
-				surface.add_vertex(Vector3(point.x, h, point.y))
-	surface.index()
-	surface.generate_normals()
 	scenery_instance = MeshInstance3D.new()
-	scenery_instance.mesh = surface.commit()
+	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), 80, true)
 	scenery_instance.material_override = _solid
 	scenery_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(scenery_instance)
+	landscape.add_child(scenery_instance)
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
@@ -189,21 +220,22 @@ func toggle_slopes() -> void:
 	slope_overlay.visible = slopes_visible
 
 func _build_slope_overlay() -> void:
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for z in range(-400, 340, 10):
-		for x in range(-360, 360, 10):
-			var corners := [Vector2(x, z), Vector2(x, z + 10), Vector2(x + 10, z), Vector2(x + 10, z + 10)]
-			for index in [0, 2, 1, 2, 3, 1]:
-				var point: Vector2 = corners[index]
-				var grade := Terrain.slope_percent(point)
-				var color := Color("83bcaa") if grade < 8 else (Color("68a6d0") if grade <= 30 else (Color("d8777c") if grade <= 55 else Color("687381")))
-				color.a = 0.68
-				surface.set_color(color)
-				surface.add_vertex(Terrain.world(point, 0.16))
-	surface.generate_normals()
+	var arrays: Array = terrain_instance.mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX].duplicate()
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var colors := PackedColorArray()
+	for i in range(vertices.size()):
+		vertices[i].y += 0.45
+		var grade := Vector2(normals[i].x, normals[i].z).length() / maxf(normals[i].y, 0.01) * 100
+		var color := Color("83bcaa") if grade < 8 else (Color("68a6d0") if grade <= 30 else (Color("d8777c") if grade <= 55 else Color("687381")))
+		color.a = 0.68
+		colors.append(color)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colors
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	slope_overlay = MeshInstance3D.new()
-	slope_overlay.mesh = surface.commit()
+	slope_overlay.mesh = mesh
 	var material := _material(Color.WHITE, true)
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -250,6 +282,7 @@ func _label(parent: Node3D, title: String, position_value: Vector3, color: Color
 	label.modulate = color
 	label.outline_modulate = Color("eef5f5")
 	label.outline_size = 10
+	label.visibility_range_begin = 150
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(label)
 
@@ -277,7 +310,7 @@ func _clear_ground(point: Vector2, margin: float) -> bool:
 func _build_trees() -> void:
 	var pine := Art.new().pine()
 	pine.surface_set_material(0, _solid)
-	var instances := _multimesh(pine, 1000)
+	var instances := _multimesh(pine, int(3200 * Maps.spec(model.map_id).forest))
 	var rock_mesh := Art.new().rock()
 	rock_mesh.surface_set_material(0, _solid)
 	var stones := _multimesh(rock_mesh, 90)
@@ -285,21 +318,23 @@ func _build_trees() -> void:
 	random.seed = 73628
 	var used := 0
 	var stone_count := 0
-	for i in range(3200):
-		var point := Vector2(random.randf_range(-350, 350), random.randf_range(-385, 325))
+	for i in range(instances.instance_count * 4):
+		var point := Vector2(random.randf_range(terrain.bounds.position.x + 10, terrain.bounds.end.x - 10), random.randf_range(terrain.bounds.position.y + 10, terrain.bounds.end.y - 10))
+		if i < 2400:
+			point = Vector2(random.randf_range(-500, 500), random.randf_range(-600, 450))
 		if point.distance_to(Vector2(-260, 255)) < 62 or point.distance_to(Terrain.BASE) < 46 or not _clear_ground(point, 20):
 			continue
-		var grade := Terrain.slope_percent(point)
+		var grade := terrain.slope_percent(point)
 		if grade > 47 and stone_count < stones.instance_count:
 			var size_value := random.randf_range(0.8, 2.0)
-			stones.set_instance_transform(stone_count, Transform3D(Basis(Vector3.UP, random.randf() * TAU).scaled(Vector3.ONE * size_value), Terrain.world(point)))
+			stones.set_instance_transform(stone_count, Transform3D(Basis(Vector3.UP, random.randf() * TAU).scaled(Vector3.ONE * size_value), terrain.world(point)))
 			stones.set_instance_color(stone_count, Color.WHITE)
 			stone_count += 1
 			continue
-		if grade > 65 or Terrain.height(point) > 215 or used >= instances.instance_count or absf(sin(point.x * 0.031) * cos(point.y * 0.023)) < 0.18:
+		if grade > 65 or terrain.height(point) > (620 if model.map_id == "fichtenkamm" else 360) or used >= instances.instance_count or absf(sin(point.x * 0.031) * cos(point.y * 0.023)) < 0.18:
 			continue
 		var size_value := random.randf_range(0.65, 1.15)
-		instances.set_instance_transform(used, Transform3D(Basis(Vector3.UP, random.randf() * TAU).scaled(Vector3.ONE * size_value), Terrain.world(point)))
+		instances.set_instance_transform(used, Transform3D(Basis(Vector3.UP, random.randf() * TAU).scaled(Vector3.ONE * size_value), terrain.world(point)))
 		var tint := random.randf_range(0.86, 1.0)
 		instances.set_instance_color(used, Color(tint, tint, tint))
 		used += 1
@@ -311,6 +346,23 @@ func _build_trees() -> void:
 	rocks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func rebuild() -> void:
+	terrain = model.terrain
+	if _terrain_id != model.map_id:
+		_terrain_id = model.map_id
+		for child in landscape.get_children():
+			landscape.remove_child(child)
+			child.queue_free()
+		if is_instance_valid(slope_overlay):
+			slope_overlay.queue_free()
+			slope_overlay = null
+		slopes_visible = false
+		_build_terrain()
+		_build_surroundings()
+	_piste_meshes.clear()
+	_occluders.clear()
+	_snow_seen = -1
+	_track_seen = -1
+	_guest_positions.clear()
 	_seen_revision = model.revision
 	for child in asset_root.get_children():
 		asset_root.remove_child(child)
@@ -321,20 +373,24 @@ func rebuild() -> void:
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = 20 + (piste.get("level", 1) - 1) * 4
-		_ribbon(asset_root, piste.points, width, color.lightened(0.18), 0.45)
-		_ribbon(asset_root, piste.points, width - 3.5, Color("e4eef5"), 0.7)
+		var snow_mesh := MeshInstance3D.new()
+		snow_mesh.material_override = _solid
+		snow_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		asset_root.add_child(snow_mesh)
+		_piste_meshes[piste.id] = snow_mesh
+		_draw_snow(piste)
 		var markers := Art.new()
 		for i in range(ceili(piste.length / 40)):
 			var fraction: float = float(i) * 40 / piste.length
-			var point := Terrain.point_on_path(piste.points, fraction)
-			var ahead := Terrain.point_on_path(piste.points, minf(fraction + 0.01, 1.0))
+			var point := terrain.point_on_path(piste.points, fraction)
+			var ahead := terrain.point_on_path(piste.points, minf(fraction + 0.01, 1.0))
 			var side := (ahead - point).normalized().orthogonal() * width * 0.5
 			for sign_value in [-1, 1]:
-				var flag := Terrain.world(point + side * sign_value, 2.5)
+				var flag := terrain.world(point + side * sign_value, 2.5)
 				markers.box(flag, Vector3(0.35, 5, 0.35), Color("a0afb0"))
 				markers.box(flag + Vector3(0, 1.3, 0), Vector3(2.3, 1.6, 0.3), color)
 		_baked(asset_root, markers.finish(), Vector3.ZERO)
-		_label(asset_root, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty], Terrain.world(Terrain.unpack(piste.points[0]), 24), color)
+		_label(asset_root, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty], terrain.world(Terrain.unpack(piste.points[0]), 24), color)
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:
@@ -343,44 +399,56 @@ func rebuild() -> void:
 	_guest_tick = ""
 
 func _build_lift(lift: Dictionary) -> void:
+	if lift.kind == "carpet":
+		_ribbon(asset_root, [lift.bottom, lift.top], 4, Color("3f626b"), 0.7)
+		for endpoint in [lift.bottom, lift.top]:
+			_baked(asset_root, Art.new().chalet("shelter", 1, Color("769aa3")), terrain.world(Terrain.unpack(endpoint)))
+		return
+	if lift.kind == "drag":
+		_ribbon(asset_root, [lift.bottom, lift.top], 4, Color("d9e6ef"), 0.2)
 	var bottom := Terrain.unpack(lift.bottom)
 	var top := Terrain.unpack(lift.top)
-	var a := Terrain.world(bottom, 13)
-	var b := Terrain.world(top, 13)
+	var a := terrain.world(bottom, 15)
+	var b := terrain.world(top, 15)
 	var angle := atan2(top.x - bottom.x, top.y - bottom.y)
 	var station_mesh := Art.new().station(lift.kind, int(lift.get("level", 1)))
 	for point in [bottom, top]:
-		var instance := _baked(asset_root, station_mesh, Terrain.world(point))
+		var instance := _baked(asset_root, station_mesh, terrain.world(point))
 		instance.rotation.y = angle
-	var supports := maxi(2, ceili(lift.length / 85.0))
-	for i in range(1, supports):
-		var t := float(i) / supports
-		var point := bottom.lerp(top, t)
-		var head := a.lerp(b, t)
-		_link(asset_root, Terrain.world(point), head, 0.9, Color("536c72"))
-		_box(asset_root, head, Vector3(11, 1.2, 2.5), Color("455d64"))
-	for offset in [-3.0, 3.0]:
-		_link(asset_root, a + Vector3(offset, 0, 0), b + Vector3(offset, 0, 0), 0.25, Color("3c5159"))
+		_occluders.append(instance)
+	var profile: Dictionary = model.cable_profile(lift)
+	var steel := Art.new()
+	for i in range(1, profile.points.size() - 1):
+		var head: Vector3 = profile.points[i]
+		var ground := Vector2(head.x, head.z)
+		steel.link( terrain.world(ground), head, 0.9, Color("536c72"))
+		steel.box( head, Vector3(11, 1.2, 2.5), Color("455d64"))
+	for i in range(1, profile.points.size()):
+		for offset in [-3.0, 3.0]:
+			steel.link( profile.points[i - 1] + Vector3(offset, 0, 0), profile.points[i] + Vector3(offset, 0, 0), 0.19, Color("3c5159"))
+	_baked(asset_root, steel.finish(), Vector3.ZERO)
 	if not _vehicles.has(lift.kind):
 		var vehicle_mesh := Art.new().chair(lift.kind)
 		vehicle_mesh.surface_set_material(0, _solid)
 		var group := MultiMeshInstance3D.new()
-		group.multimesh = _multimesh(vehicle_mesh, 24 * 12)
+		group.multimesh = _multimesh(vehicle_mesh, 24 * 72)
 		group.multimesh.visible_instance_count = 0
 		asset_root.add_child(group)
 		_vehicles[lift.kind] = group
 		_vehicle_counts[lift.kind] = 0
-	for i in range(12):
+	var count := clampi(ceili(lift.length / 18) * 2, 12, 72)
+	for i in range(count):
 		var index: int = _vehicle_counts[lift.kind]
 		_vehicle_counts[lift.kind] += 1
-		chairs.append({"kind": lift.kind, "index": index, "angle": angle, "a": a, "b": b, "offset": float(i) / 12, "id": lift.id})
+		chairs.append({"kind": lift.kind, "index": index, "angle": angle, "a": a, "b": b, "offset": float(i) / count, "id": lift.id})
 		_vehicles[lift.kind].multimesh.set_instance_color(index, Color.WHITE)
-		_vehicles[lift.kind].multimesh.set_instance_transform(index, Transform3D(Basis(Vector3.UP, angle), a.lerp(b, float(i) / 12) + Vector3(-3, -4, 0)))
+		_vehicles[lift.kind].multimesh.set_instance_transform(index, Transform3D(Basis(Vector3.UP, angle), model.cable_position(lift, float(i) / count) + Vector3(-3, -4, 0)))
 	_vehicles[lift.kind].multimesh.visible_instance_count = _vehicle_counts[lift.kind]
 
 func _build_building(building: Dictionary) -> void:
 	var point := Terrain.unpack(building.point)
-	_baked(asset_root, Art.new().chalet(building.kind, int(building.get("level", 1)), Color(Catalog.BUILDINGS[building.kind].color)), Terrain.world(point))
+	var instance := _baked(asset_root, Art.new().chalet(building.kind, int(building.get("level", 1)), Color(Catalog.BUILDINGS[building.kind].color)), terrain.world(point))
+	_occluders.append(instance)
 	if building.kind == "snowmaker":
 		return
 	var endpoint := Terrain.BASE
@@ -408,7 +476,7 @@ func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: 
 			var b := from.lerp(to, float(j + 1) / steps)
 			var vertices := [a + side, b + side, a - side, b - side]
 			for index in [0, 1, 2, 2, 1, 3]:
-				surface.add_vertex(Terrain.world(vertices[index], offset))
+				surface.add_vertex(terrain.world(vertices[index], offset))
 	surface.generate_normals()
 	var instance := MeshInstance3D.new()
 	instance.mesh = surface.commit()
@@ -429,9 +497,9 @@ func preview(points: Array, color: Color, building_kind: String = "") -> void:
 		var sphere := SphereMesh.new()
 		sphere.radius = 3.5
 		sphere.height = 7
-		_mesh(preview_root, sphere, Terrain.world(Terrain.unpack(point), 4), color)
+		_mesh(preview_root, sphere, terrain.world(Terrain.unpack(point), 4), color)
 	if building_kind != "":
-		_baked(preview_root, Art.new().chalet(building_kind, 1, color), Terrain.world(Terrain.unpack(points.back())))
+		_baked(preview_root, Art.new().chalet(building_kind, 1, color), terrain.world(Terrain.unpack(points.back())))
 
 func _update_atmosphere() -> void:
 	var key := "%d-%d-%d" % [model.day, model.minute, model.weather_index]
@@ -444,7 +512,7 @@ func _update_atmosphere() -> void:
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = model.weather_index in [1, 3]
-	_snow.position = Terrain.world(focus, 130)
+	_snow.position = terrain.world(focus, 130)
 
 func _process(delta: float) -> void:
 	if model == null:
@@ -452,66 +520,282 @@ func _process(delta: float) -> void:
 	if model.revision != _seen_revision:
 		rebuild()
 	_update_atmosphere()
-	_snow.position = Terrain.world(focus, 130)
-	if absf(_visual_minute - model.minute) > 60:
-		_visual_minute = model.minute
-	_visual_minute = lerpf(_visual_minute, model.minute, minf(1, delta * 5))
+	_snow.position = terrain.world(focus, 130)
+	_visual_minute = model.minute + simulation_fraction
+	_car_positions.clear()
 	for chair in chairs:
 		var lift: Dictionary = model.asset(chair.id)
+		var distance: float = (_visual_minute - model.OPENING) * model.lift_speed(lift) / model.TRANSPORT_SCALE
+		var t := fposmod(distance / maxf(lift.length * 2, 1) + chair.offset, 1)
+		var outbound := t < 0.5
+		var position_value: Vector3 = model.cable_position(lift, t * 2 if outbound else (1 - t) * 2) + Vector3(-3 if outbound else 3, -4, 0)
 		if not model.lift_open(lift):
 			continue
-		var t := fposmod(_visual_minute / 7.0 + chair.offset, 1.0)
-		var outbound := t < 0.5
-		var position_value: Vector3 = chair.a.lerp(chair.b, t * 2 if outbound else (1 - t) * 2) + Vector3(-3 if outbound else 3, -4, 0)
-		_vehicles[chair.kind].multimesh.set_instance_transform(chair.index, Transform3D(Basis(Vector3.UP, chair.angle), position_value))
-	var tick := "%d-%d-%d" % [model.day, model.minute, model.revision]
-	var update_targets := tick != _guest_tick
-	_guest_tick = tick
-	var live_ids: Dictionary = {}
-	for i in range(model.guests.size()):
-		var guest: Dictionary = model.guests[i]
-		if update_targets or not _guest_targets.has(guest.id):
-			_guest_targets[guest.id] = model.guest_position(guest)
-		var target: Vector3 = _guest_targets[guest.id]
-		var position_value: Vector3 = _guest_positions.get(guest.id, target)
-		var velocity := target - position_value
-		position_value = position_value.lerp(target, minf(1, delta * 5))
-		_guest_positions[guest.id] = position_value
-		live_ids[guest.id] = true
-		var angle := atan2(velocity.x, velocity.z) if velocity.length() > 0.1 else 0.0
-		visitor_mesh.multimesh.set_instance_transform(i, Transform3D(Basis(Vector3.UP, angle), position_value - Vector3(0, 2, 0)))
-		visitor_mesh.multimesh.set_instance_color(i, [Color("d88e55"), Color("5396bb"), Color("b56a86")][guest.ability])
-	visitor_mesh.multimesh.visible_instance_count = model.guests.size()
-	for id in _guest_positions.keys():
-		if not live_ids.has(id):
-			_guest_positions.erase(id)
-			_guest_targets.erase(id)
+		_vehicles[chair.kind].multimesh.set_instance_transform(chair.index, Transform3D(Basis(Vector3.UP, chair.angle + (0 if outbound else PI)), position_value))
+		if outbound:
+			if not _car_positions.has(lift.id):
+				_car_positions[lift.id] = []
+			_car_positions[lift.id].append({"fraction": t * 2, "point": position_value})
+	var next_positions: Dictionary = {}
+	var walking := 0
+	var riding := 0
+	for guest in model.guests:
+		var position_value: Vector3 = model.guest_position(guest, simulation_fraction)
+		var angle := 0.0
+		var lean := 0.0
+		var pitch := 0.0
+		var seated := false
+		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
+			var leg: Dictionary = guest.route.legs[guest.leg]
+			var fraction: float = clampf((guest.elapsed + simulation_fraction) / guest.get("duration", leg.minutes), 0, 1)
+			if leg.kind == "ski":
+				var piste: Dictionary = model.asset(leg.id)
+				var personal := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops)
+				angle = personal.yaw
+				lean = personal.lean
+				var before: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, maxf(0, fraction - 0.004), guest.loops))
+				var ahead: Vector3 = terrain.world(Motion.position(terrain, piste, guest.id, guest.ability, minf(1, fraction + 0.004), guest.loops))
+				pitch = atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())
+			elif leg.kind == "lift" and guest.phase == "moving":
+				var lift: Dictionary = model.asset(leg.id)
+				var direction := Terrain.unpack(lift.top) - Terrain.unpack(lift.bottom)
+				angle = atan2(direction.x, direction.y)
+				if lift.kind in ["chair", "chair6", "gondola"]:
+					seated = true
+					var nearest := INF
+					for car in _car_positions.get(lift.id, []):
+						if absf(car.fraction - fraction) < nearest:
+							nearest = absf(car.fraction - fraction)
+							var seats := 6 if lift.kind == "chair6" else (8 if lift.kind == "gondola" else 4)
+							var seat: int = int(guest.id) % seats
+							var x: float = (seat % 4 - 1.5) if lift.kind == "gondola" else (seat - (seats - 1) * 0.5) * (0.7 if seats == 6 else 1.0)
+							var z: float = (floori(seat / 4.0) - 0.5) * 1.6 if lift.kind == "gondola" else 0
+							position_value = car.point + Basis(Vector3.UP, angle) * Vector3(x, 0.15, z)
+			else:
+				var a := Terrain.unpack(leg.points[0])
+				var b := Terrain.unpack(leg.points.back())
+				angle = atan2(b.x - a.x, b.y - a.y)
+		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
+		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
+		if seated:
+			_riders.multimesh.set_instance_transform(riding, transform_value)
+			_riders.multimesh.set_instance_color(riding, color)
+			riding += 1
+		else:
+			visitor_mesh.multimesh.set_instance_transform(walking, transform_value)
+			visitor_mesh.multimesh.set_instance_color(walking, color)
+			walking += 1
+		next_positions[guest.id] = position_value
+		if follow_guest == int(guest.id):
+			focus = Vector2(position_value.x, position_value.z)
+			_update_camera()
+	_guest_positions = next_positions
+	_update_occlusion(delta)
+	visitor_mesh.multimesh.visible_instance_count = walking
+	_riders.multimesh.visible_instance_count = riding
+	var machines := 0
+	for piste in model.pistes:
+		if piste.get("grooming_until", 0) <= model.minute:
+			continue
+		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - simulation_fraction) / 45.0, 0, 1)
+		var point: Vector2 = terrain.point_on_path(piste.points, fraction)
+		var ahead: Vector2 = terrain.point_on_path(piste.points, minf(1, fraction + 0.01))
+		_groomers.multimesh.set_instance_transform(machines, Transform3D(Basis(Vector3.UP, atan2(ahead.x - point.x, ahead.y - point.y)), terrain.world(point, 1.5)))
+		_groomers.multimesh.set_instance_color(machines, Color.WHITE)
+		machines += 1
+	_groomers.multimesh.visible_instance_count = machines
+	_snow_timer += delta
+	if _snow_timer > 1.2 and model.snow_revision != _snow_seen:
+		_snow_timer = 0
+		_snow_seen = model.snow_revision
+		for piste in model.pistes:
+			_draw_snow(piste)
+	_track_timer += delta
+	if _track_timer > 0.5 and (model.snow_revision != _track_seen or focus.distance_to(_track_focus) > 100 or (motion_running and zoom < 220)):
+		_track_timer = 0
+		_track_seen = model.snow_revision
+		_track_focus = focus
+		_draw_tracks()
+
+func _update_occlusion(delta: float) -> void:
+	var target := terrain.world(focus, 2.5)
+	for instance in _occluders:
+		var aabb: AABB = instance.get_aabb()
+		var center: Vector3 = instance.global_transform * aabb.get_center()
+		var near := Geometry3D.get_closest_point_to_segment(center, camera.global_position, target)
+		var fade: bool = follow_guest != -1 and zoom < 180 and near.distance_to(center) < aabb.size.length() * 0.4
+		if not fade and not instance.has_meta("fade_material"):
+			continue
+		if not instance.has_meta("fade_material"):
+			var material: StandardMaterial3D = _solid.duplicate()
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			instance.material_override = material
+			instance.set_meta("fade_material", material)
+		var material: StandardMaterial3D = instance.get_meta("fade_material")
+		material.albedo_color.a = lerpf(material.albedo_color.a, 0.18 if fade else 1.0, minf(1, delta * 8))
+
+func pick_guest(point: Vector2) -> int:
+	var best := 18.0
+	var id := -1
+	for guest in model.guests:
+		var position_value: Vector3 = _guest_positions.get(guest.id, model.guest_position(guest))
+		var distance: float = camera.unproject_position(position_value).distance_to(point)
+		if distance < best:
+			best = distance
+			id = guest.id
+	return id
+
+func _draw_snow(piste: Dictionary) -> void:
+	Snow.ensure(piste)
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var count := ceili(piste.length / 4)
+	var width: float = 20 + (piste.get("level", 1) - 1) * 4
+	for row in range(count):
+		var fractions := [float(row) / count, float(row + 1) / count]
+		var vertices: Array = []
+		var colors: Array = []
+		for fraction in fractions:
+			var center: Vector2 = terrain.point_on_path(piste.points, fraction)
+			var before: Vector2 = terrain.point_on_path(piste.points, maxf(0, fraction - 0.004))
+			var ahead: Vector2 = terrain.point_on_path(piste.points, minf(1, fraction + 0.004))
+			var side := (ahead - before).normalized().orthogonal()
+			for lane in range(Snow.LANES + 1):
+				var lateral := (float(lane) / Snow.LANES - 0.5) * width
+				var relief := Snow.relief(piste, fraction, lateral)
+				vertices.append(terrain.world(center + side * lateral, 1.3 + relief))
+				var color := Color("e4edf4").lerp(Color("b8cedc"), clampf(-relief, 0, 0.35))
+				if lane in [0, Snow.LANES]:
+					color = PISTE_COLORS[piste.difficulty].lightened(0.2)
+				elif row % 3 == 0 and piste.tracks.is_empty():
+					color = color.darkened(0.018)
+				colors.append(color)
+		for lane in range(Snow.LANES):
+			for index in [lane, lane + 1, lane + Snow.LANES + 1, lane + 1, lane + Snow.LANES + 2, lane + Snow.LANES + 1]:
+				surface.set_color(colors[index])
+				surface.add_vertex(vertices[index])
+	surface.index()
+	surface.generate_normals()
+	_piste_meshes[piste.id].mesh = surface.commit()
+
+func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float) -> Vector3:
+	var frame := Motion.frame(terrain, piste, id, ability, fraction, run)
+	var side: Vector2 = frame.direction.orthogonal()
+	var point: Vector2 = frame.point + side * side_offset
+	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
+	var road_side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
+	return terrain.world(point, 1.35 + Snow.mesh_relief(piste, fraction, (point - center).dot(road_side)))
+
+func _trace_quad(surface: SurfaceTool, a: Vector3, b: Vector3, width: float, color: Color) -> void:
+	var side := Vector3(b.z - a.z, 0, a.x - b.x).normalized() * width
+	for point in [a + side, b + side, a - side, a - side, b + side, b - side]:
+		surface.set_color(color)
+		surface.set_normal(Vector3.UP)
+		surface.add_vertex(point)
+
+func _draw_tracks() -> void:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var segments := 0
+	var live: Dictionary = {}
+	for guest in model.guests:
+		if guest.has("track") and guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "ski":
+			live[guest.track] = clampf((guest.elapsed + simulation_fraction) / guest.duration, 0, 1)
+	var visible: Array = []
+	var followed_track := ""
+	var followed_piste := -1
+	var followed_record: Dictionary = {}
+	for guest in model.guests:
+		if int(guest.id) == follow_guest and guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "ski":
+			followed_piste = guest.route.legs[guest.leg].id
+			followed_track = guest.get("track", "")
+			followed_record = {"key": followed_track, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "to": live.get(followed_track, 0.0)}
+	for piste in model.pistes:
+		if terrain.point_on_path(piste.points, 0.5).distance_to(focus) <= maxf(zoom * 2 + piste.length * 0.5, 600):
+			visible.append(piste)
+	visible.sort_custom(func(a, b):
+		if int(a.id) == int(b.id):
+			return false
+		if int(a.id) == followed_piste:
+			return true
+		if int(b.id) == followed_piste:
+			return false
+		return terrain.point_on_path(a.points, 0.5).distance_to(focus) < terrain.point_on_path(b.points, 0.5).distance_to(focus)
+	)
+	var quota := maxi(256, floori(4000.0 / maxi(visible.size(), 1)))
+	for piste in visible:
+		var tracks: Array = piste.get("tracks", [])
+		var ordered: Array = []
+		for track in tracks:
+			if track.key == followed_track:
+				ordered.append(track)
+		if ordered.is_empty() and int(piste.id) == followed_piste and not followed_record.is_empty():
+			ordered.append(followed_record)
+		for i in range(tracks.size() - 1, -1, -1):
+			if live.has(tracks[i].key) and tracks[i].key != followed_track:
+				ordered.append(tracks[i])
+		for i in range(tracks.size() - 1, -1, -1):
+			if not live.has(tracks[i].key) and tracks[i].key != followed_track and ordered.size() < 24:
+				ordered.append(tracks[i])
+		var piste_segments := 0
+		for track in ordered:
+			var end: float = maxf(track.to, live.get(track.key, 0.0))
+			var count := ceili(end * piste.length / 1.6)
+			if count == 0:
+				continue
+			var available := mini(quota - piste_segments, 4000 - segments)
+			for j in range(maxi(0, count - available), count):
+				if segments >= 4000 or piste_segments >= quota:
+					break
+				for ski in [-0.28, 0.28]:
+					var a := _track_point(piste, track.guest, track.ability, end * j / count, track.run, ski)
+					var b := _track_point(piste, track.guest, track.ability, end * (j + 1) / count, track.run, ski)
+					_trace_quad(surface, a, b, 0.10, Color("91adbf"))
+					_trace_quad(surface, a + Vector3(0.1, 0.035, 0.1), b + Vector3(0.1, 0.035, 0.1), 0.04, Color("edf5f9"))
+				segments += 1
+				piste_segments += 1
+	if segments == 0:
+		_track_mesh.mesh = null
+		return
+	_track_mesh.mesh = surface.commit()
+	_track_mesh.material_override = _solid
+	_track_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _update_camera() -> void:
 	camera.size = zoom
-	var target := Terrain.world(focus, 38)
+	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
 	var distance := zoom * 1.05
-	camera.position = target + Vector3(sin(yaw) * distance, distance * 0.68, cos(yaw) * distance)
+	var elevation := lerpf(0.52, 0.68, clampf((zoom - 100) / 400, 0, 1))
+	camera.position = target + Vector3(sin(yaw) * distance, distance * elevation, cos(yaw) * distance)
 	camera.look_at(target)
 
 func pan(relative: Vector2) -> void:
+	follow_guest = -1
 	var units := zoom / maxf(get_viewport().get_visible_rect().size.y, 1)
 	var right := Vector2(camera.basis.x.x, camera.basis.x.z)
 	var up := Vector2(camera.basis.y.x, camera.basis.y.z)
 	focus += (-right * relative.x + up * relative.y * 1.7) * units
-	focus.x = clampf(focus.x, -340, 340)
-	focus.y = clampf(focus.y, -380, 320)
+	focus.x = clampf(focus.x, terrain.bounds.position.x + 20, terrain.bounds.end.x - 20)
+	focus.y = clampf(focus.y, terrain.bounds.position.y + 20, terrain.bounds.end.y - 20)
 	_update_camera()
 
 func change_zoom(factor: float) -> void:
-	zoom = clampf(zoom * factor, 180, 1050)
+	zoom = clampf(zoom * factor, 48, maxf(terrain.bounds.size.x, terrain.bounds.size.y) * 1.25)
 	_update_camera()
 
 func rotate_view(amount: float) -> void:
 	yaw += amount
 	_update_camera()
 
+func overview() -> void:
+	follow_guest = -1
+	focus = terrain.bounds.get_center()
+	zoom = maxf(terrain.bounds.size.x, terrain.bounds.size.y) * 0.72
+	_update_camera()
+
 func home() -> void:
+	terrain = model.terrain
+	follow_guest = -1
 	focus = Vector2(210, 10)
 	zoom = 620
 	yaw = 0.46
@@ -521,16 +805,16 @@ func map_point(screen_point: Vector2) -> Vector2:
 	var origin := camera.project_ray_origin(screen_point)
 	var direction := camera.project_ray_normal(screen_point)
 	var previous := 0.0
-	for step in range(0, 3500, 8):
+	for step in range(0, 20000, 20):
 		var world_point := origin + direction * step
 		var point := Vector2(world_point.x, world_point.z)
-		if Terrain.contains(point) and world_point.y <= Terrain.height(point):
+		if terrain.contains(point) and world_point.y <= terrain.height(point):
 			var low := previous
 			var high := float(step)
 			for i in range(12):
 				var middle := (low + high) * 0.5
 				var sample := origin + direction * middle
-				if sample.y <= Terrain.height(Vector2(sample.x, sample.z)):
+				if sample.y <= terrain.height(Vector2(sample.x, sample.z)):
 					high = middle
 				else:
 					low = middle

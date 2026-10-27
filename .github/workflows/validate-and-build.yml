@@ -35,13 +35,29 @@ jobs:
         if: steps.godot-cache.outputs.cache-hit != 'true'
         run: bash tools/install_godot.sh
       - name: Import project
-        run: '"$GODOT_BIN" --headless --editor --import --quit'
+        run: |
+          python3 - <<'PYCODE'
+          import os, subprocess, sys
+          result = subprocess.run([os.environ['GODOT_BIN'], '--headless', '--editor', '--import', '--quit'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=180)
+          print(result.stdout)
+          sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
+          PYCODE
       - name: Simulation regression tests
         run: '"$GODOT_BIN" --headless --script tests/run.gd'
       - name: Career and multi-winter regression tests
         run: '"$GODOT_BIN" --headless --script tests/progression.gd'
-      - name: Scene and touch tests
-        run: '"$GODOT_BIN" --headless --script tests/scene.gd'
+      - name: Mountain, snow and map progression tests
+        run: '"$GODOT_BIN" --headless --script tests/mountain_life.gd'
+      - name: Install virtual display for rendered tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Scene, touch and rendered animation tests
+        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
+      - name: Independent region save slots
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-regions
+        run: '"$GODOT_BIN" --headless --script tests/regions.gd'
       - name: Scene smoke test
         run: '"$GODOT_BIN" --headless -- --smoke-test'
       - name: Install Android SDK components

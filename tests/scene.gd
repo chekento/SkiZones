@@ -179,6 +179,84 @@ func run() -> void:
 	check(not office.visible and not game.hud.menu.visible and not game.paused, "Escape closes the office and returns to the operating map")
 	check(game.view.camera.projection == Camera3D.PROJECTION_PERSPECTIVE and game.view.scenery_instance.mesh.get_surface_count() == 1, "The resort uses a perspective camera and a continuous alpine backdrop")
 	check(game.view.trees.multimesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() > 100 and game.view.visitor_mesh.multimesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() > 100, "Batched pine and skier meshes contain modeled parts rather than single markers")
+	game.hud.palette.select_category("lifts")
+	await process_frame
+	var gondola_locked := false
+	for card in game.hud.palette.cards:
+		if card.key == "gondola":
+			gondola_locked = card.button.disabled and card.status.text.contains("Forschung")
+	check(gondola_locked and game.hud.lift_choice.is_item_disabled(game.hud.Catalog.LIFTS.keys().find("gondola")), "Unresearched construction is disabled in both the visible card and selector")
+	var previous_tool: String = game.tool
+	game.hud.lift_choice.select(game.hud.Catalog.LIFTS.keys().find("gondola"))
+	game.set_tool("lift")
+	check(game.tool == previous_tool, "Keyboard and controller actions cannot select a locked lift")
+	game.hud.lift_choice.select(game.hud.Catalog.LIFTS.keys().find("drag"))
+	game.model.money = 0
+	game.hud.palette.refresh(true)
+	var unaffordable := true
+	for card in game.hud.palette.cards:
+		unaffordable = unaffordable and card.button.disabled
+	check(unaffordable, "The build catalogue disables unaffordable assets")
+	game.hud.show_atlas()
+	await process_frame
+	check(game.hud.atlas.visible and game.hud.atlas._cards.size() == 4 and game.hud.blocks_map(map_position), "The mountain passport presents four regions and blocks building underneath")
+	var regions_locked := true
+	for card in game.hud.atlas._cards:
+		if card.id != "sonnenhang":
+			regions_locked = regions_locked and card.enter.disabled
+	check(regions_locked, "Unexplored regions cannot be entered before their unlock conditions")
+	clock = game.model.minute
+	for i in range(8):
+		game._process(0.25)
+	check(game.model.minute == clock, "Exploring the mountain passport pauses the current resort")
+	game._input(escape)
+	check(not game.hud.atlas.visible, "Escape returns from region selection to the current resort")
+	game.view.change_zoom(0.001)
+	check(game.view.zoom == 48, "The camera can zoom in far enough to observe individual skiers")
+	game.view.overview()
+	check(game.view.zoom > 1500 and game.view.terrain.bounds.has_point(game.view.focus), "The overview camera covers the expanded buildable region")
+	game.model.minute = 600
+	game.view.simulation_fraction = 0
+	game.view._process(0)
+	var chair: Dictionary = game.view.chairs[0]
+	var before_chair: Vector3 = game.view._vehicles[chair.kind].multimesh.get_instance_transform(chair.index).origin
+	game.view.simulation_fraction = 0.5
+	game.view._process(0)
+	var after_chair: Vector3 = game.view._vehicles[chair.kind].multimesh.get_instance_transform(chair.index).origin
+	check(before_chair.distance_to(after_chair) > 1 and before_chair.distance_to(after_chair) < 4, "Actual rendered lift vehicles move only a few metres per normal-speed second")
+	game.view._process(0)
+	check(game.view._vehicles[chair.kind].multimesh.get_instance_transform(chair.index).origin == after_chair, "Lift animation holds still when the simulation clock is paused")
+	game.model.money = 1000000
+	game.model.campaign.mode = "free"
+	game.model.build_lift("chair", Vector2(100, 200), Vector2(-170, -235))
+	game.model.build_piste([[-170, -235], [-160, -50], [-80, 90], [100, 190]], 2)
+	var black: Dictionary = game.model.pistes[-1]
+	game.model.admit_guest(2)
+	var skier: Dictionary = game.model.guests[-1]
+	for route in game.model.routes_for(2):
+		if route.target == black.id:
+			skier.route = route
+	for i in range(skier.route.legs.size()):
+		if skier.route.legs[i].kind == "ski":
+			skier.leg = i
+			game.model._start_leg(skier)
+	skier.elapsed = skier.duration * 0.5
+	game.model.Snow.touch(game.model.terrain, black, skier, 0, 0.5)
+	for i in range(64):
+		var traffic := {"id": i + 10000, "ability": 0, "loops": 0, "leg": 0, "age": 0}
+		game.model.Snow.start(game.model.pistes[0], traffic)
+		game.model.Snow.touch(game.model.terrain, game.model.pistes[0], traffic, 0, 1)
+	game.view.follow_guest = skier.id
+	game.view.zoom = 70
+	game.view._process(0)
+	game.view._draw_tracks()
+	var skier_position: Vector3 = game.model.guest_position(skier, game.view.simulation_fraction)
+	var trace_near_guest := false
+	for vertex in game.view._track_mesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]:
+		if vertex.distance_to(skier_position) < 1.2:
+			trace_near_guest = true
+	check(trace_near_guest, "The observed skier keeps visible tracks even when another piste has used the track budget")
+	check(Rect2(316, 166, 820, 578).has_point(game.view.camera.unproject_position(skier_position)), "The close follow camera keeps the actual skier inside the visible map")
 	# Release the complete scene before checking process exit, including its fonts.
 	game.queue_free()
 	await process_frame

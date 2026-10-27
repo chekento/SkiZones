@@ -99,9 +99,11 @@ func _test_capacity() -> void:
 		var guest: Dictionary = model.guests.back()
 		guest.leg = 1
 		guest.phase = "queue"
-	model.advance_minute(false)
-	check(model.lifts[0].boarded == 7 and model.queue_size() == 53, "Shared lift boards 7/min once, not once per piste")
-	model.advance_minute(false)
+	for i in range(30):
+		model.advance_minute(false)
+	check(model.lifts[0].boarded == 7 and model.queue_size() == 53, "Shared lift boards seven guests per real minute at normal speed, across all pistes")
+	for i in range(30):
+		model.advance_minute(false)
 	check(model.lifts[0].boarded == 14, "Lift throughput remains bounded on subsequent minutes")
 	model.demolish(model.lifts[0].id)
 	model.advance_minute(false)
@@ -112,7 +114,7 @@ func _test_day_and_weather() -> void:
 	for i in range(600):
 		model.advance_minute()
 	check(model.minute == 1080 and model.guests.is_empty(), "Trading day closes at 18:00 and clears guests")
-	check(model.total_guests > 150 and model.total_rides > 300, "Starter resort completes a populated trading day")
+	check(model.total_guests > 60 and model.total_rides > 60, "Starter resort completes a populated trading day")
 	check(model.last_report.costs > 0 and model.last_report.tickets > 0, "Daily report includes actual income and operating costs")
 	var balance: float = model.money
 	model.advance_minute()

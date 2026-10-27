@@ -10,7 +10,12 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 
 | Datei | Aufgabe |
 |---|---|
-| `src/core/terrain.gd` | Einheitliche Höhe, Baugrenzen, vollständige Pistenprofilprüfung, Streckenabtastung |
+| `src/core/terrain.gd` | Gemeinsame Koordinaten, Grenzwerte und kompatible ursprüngliche Talform |
+| `src/core/maps.gd` | Vier unterschiedliche Gebiete, Größe, Bergformen, Schnee und Freischaltziele |
+| `src/core/mountain.gd` | Instanzbezogene Höhe, Grenzen, Pistenprüfung, Pfad-Cache und Seilprofile |
+| `src/core/passport.gd` | Gebietsübergreifende Rekorde, Freischaltungen und letztes Resort mit eigener Sicherung |
+| `src/core/ski_motion.gd` | Gemeinsame persönliche Fahrlinien für Figuren, Spuren und Schneeinteraktion |
+| `src/core/snow_surface.gd` | Lokale Rinnen, aufgeschobener Schnee, begrenzte Spurhistorie und Präparierung |
 | `src/core/catalog.gd` | Kosten und Kennzahlen von Liften, Gebäuden und Wetter |
 | `src/core/resort.gd` | Geld, Zeit, Netz, Gäste, Warteschlangen, Schnee, Tagesabschluss, Fortschritt |
 | `src/core/progression.gd` | Karriere, Sterne, Forschung, Aufträge, Ausbau, Jahreszeiten und Finanzhistorie |
@@ -19,24 +24,27 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 | `src/world/alpine_art.gd` | Gebündelte eigene Modelle für Chalets, Liftstationen, Fahrzeuge, Tannen, Felsen und Skifahrer |
 | `src/ui/hud.gd` | Menü, Bauwerkzeuge, Anlageninspektor, Preisanpassung, Berichte und Hilfe |
 | `src/ui/management.gd` | Pausierendes Resort-Büro mit fünf handlungsfähigen Verwaltungsseiten |
+| `src/ui/build_palette.gd` | Baukatalog mit gesperrten, bezahlbaren und ausgewählten Einträgen |
+| `src/ui/atlas.gd` | Vier Gebiete mit Freischaltzielen und eigenem Resortzugang |
+| `src/ui/minimap.gd` | Relief aus der tatsächlichen Kartenhöhe und Navigation zum gewählten Ort |
 | `src/ui/finance_chart.gd` | Finanzdiagramm aus den letzten 28 tatsächlichen Tagesergebnissen |
 | `src/main.gd` | Verbindet Simulation, Darstellung, Eingaben und App-Lebenszyklus |
 
-Die Simulation kann ohne Fenster, Grafikkarte oder Android-Gerät getestet werden. Die Grafik nutzt dieselbe Höhenfunktion wie die Bauprüfung. Die Karte misst 720 × 740 horizontale Spielmeter; die Landschaft ist zunächst fest vorgegeben.
+Die Simulation kann ohne Fenster, Grafikkarte oder Android-Gerät getestet werden. Die Grafik nutzt dieselbe Höhenfunktion wie die Bauprüfung. Die Bauflächen reichen von 2.880 × 2.700 m bis 5.600 × 5.200 m. Die Landschaften sind fest vorgegeben; die Schneedecke auf den Pisten verändert sich lokal. Jede Simulationsinstanz besitzt ihre eigene Karte, sodass Laden und Prüfen anderer Resorts die laufende Landschaft nicht verändern.
 
 ## Pisten und Lifte
 
 Pisten bestehen aus zwei bis 64 Wegpunkten. Jeder Abschnitt wird mindestens alle drei Meter auf Gefälle und Gegenanstieg geprüft. Die Farbe begrenzt das maximale lokale Gefälle. Mindestens 40 m Länge und 7 m Höhenverlust sind notwendig.
 
-Lifte verlaufen von der Tal- zur Bergstation. Die Seillinie wird über die gesamte Trasse auf Geländedurchdringung geprüft. Kosten und Fahrzeit hängen von der Länge ab. Windgrenzen unterscheiden die Liftarten.
+Lifte verlaufen von der Tal- zur Bergstation. Die Seillinie folgt dem Gelände über Stützen. Zusätzliche Profilpunkte sichern die Bodenfreiheit an lokalen Kuppen. Die tatsächliche räumliche Seillänge bestimmt Kosten und Fahrzeit. Zauberteppiche sind auf 250 m begrenzt, andere Lifte auf 2.400 m. Windgrenzen unterscheiden die Liftarten.
 
 Das Wegenetz besteht aus dem Talzugang, Liftstationen sowie Pistenanfängen und -enden. Fußwege verbinden nahe Knoten; Lifte sind bergauf, Pisten bergab gerichtet. Die Simulation sucht vollständige, für das Können geeignete Runden zurück zum Talzugang. Unerschlossene Abfahrten können bereits gebaut werden, bringen aber noch keine zahlenden Gäste.
 
 ## Gäste und Betrieb
 
-Eine Simulationsminute ist ein fester Schritt, unabhängig von der Bildrate. Bei 1× laufen zwei Spielminuten je realer Sekunde; 4× beschleunigt denselben Ablauf.
+Eine Simulationsminute ist ein fester Schritt, unabhängig von der Bildrate. Bei 1× laufen 0,5 Spielminuten je realer Sekunde. Ein Betriebstag dauert etwa 20 Minuten; 4× beschleunigt denselben Ablauf. Eine reale Fahrminute entspricht 30 Spielminuten. Liftgeschwindigkeit und Förderkapazität werden entsprechend umgerechnet, sodass Fahrzeuge und Gäste im Normaltempo nachvollziehbare Fahrzeiten haben.
 
-Gäste besitzen Können, Aufenthaltsdauer, Alter, eine konkrete Reiseroute, Wegabschnitt, Wartezeit und Ausgabenstatus. Die Zustände sind Unterwegs, Warteschlange und Verlassen. Ein Ticket wird beim Einlass genau einmal bezahlt. Gebäudeerlöse werden in dieser Version einmal pro Gast nach dessen erster abgeschlossener Runde angerechnet.
+Gäste besitzen Können, Aufenthaltsdauer, Alter, eine konkrete Reiseroute, Wegabschnitt, Wartezeit und Ausgabenstatus. Eine stabile persönliche Kennung bestimmt Namen, Kleidung, Fahrstil und Tempo. Die Darstellung interpoliert den Bruchteil des aktuellen Simulationsschritts; individuelle Skilinien werden auch für Schneeinteraktion und Spuren verwendet. Die Zustände sind Unterwegs, Warteschlange und Verlassen. Ein Ticket wird beim Einlass genau einmal bezahlt. Gebäudeerlöse werden in dieser Version einmal pro Gast nach dessen erster abgeschlossener Runde angerechnet.
 
 Jeder Lift verwaltet ein gemeinsames Beförderungsbudget. Mehrere Pisten oder Könnensstufen vervielfachen seine Kapazität nicht. Gäste werden in Einlassreihenfolge abgefertigt. Lange Wartezeiten senken die Zufriedenheit.
 
@@ -54,18 +62,31 @@ Ein Winter umfasst 28 Betriebstage. Eine Saisonprämie belohnt Sterne und abgesc
 
 Die letzten 28 Tagesabschlüsse halten Erlöse, Betriebskosten, Investitionen, Prämien und das Ergebnis nach Investitionen fest. Kreditaufnahme und Tilgung sind keine Betriebserlöse oder Kosten; offene Kredite verursachen die angegebenen täglichen Zinsen.
 
-## Speicherstände
+## Lokaler Schnee
+
+Jede Piste besitzt ein Längsraster im Abstand von acht Metern mit neun Querwerten. Ski drücken lokale Rinnen ein und schieben Schnee auf die Nachbarbereiche. Die Verformung ist auf −0,34 bis +0,58 m begrenzt; sie beeinflusst die Dauer späterer Abfahrten und wird in der sichtbaren Pistenoberfläche abgebildet. Die Schneemenge sinkt auch durch Verkehr.
+
+Bis zu 64 Fahrspuren pro Piste bleiben gespeichert. Die Darstellung zeichnet daraus ein begrenztes Budget jüngerer Doppelspuren. Dies begrenzt Speicher und Geometrie über lange Wintersaisons. Die Spur folgt derselben persönlichen Linie wie die sichtbare Figur.
+
+Nachts werden Spuren entfernt und das Schneerelief geglättet; eine Garage verstärkt die Wirkung. Tagsüber kann eine erforschte Garage eine Piste gegen Geld 45 Spielminuten für neue Routen sperren. Eine sichtbare Pistenraupe fährt die Strecke ab. Danach ist das Relief geglättet und der Zustand wiederhergestellt. Bereits zugelassene Gäste behalten ihre vollständige Fahrt.
+
+## Gebiete und Spielstände
+
+Der Bergpass speichert die höchsten erreichten Sterne sowie Besucher- und Auftragsrekorde je Gebiet. Rekorde werden beim Speichern und Öffnen der Gebietsübersicht aktualisiert. Ein Neustart zählt dieselben Besucher nicht erneut. Neue Regionen erhalten eigene Resorts und eigene Zufallsabläufe. Jeder Gebietswechsel speichert vor dem Laden; ein fehlgeschlagener Speichervorgang verhindert den Wechsel.
+
 
 Die JSON-Nutzdaten liegen in einer Hülle mit Formatkennung und SHA-256-Prüfsumme. Vor dem Austausch wird eine temporäre Datei geschrieben und geschlossen. Ein lesbarer vorheriger Stand bleibt als `.bak` erhalten. Beim Laden werden Version, Wertebereiche, Typen, Kennungen, Geometrie und Gästeindizes an einer separaten Simulationsinstanz geprüft.
 
 Der Zufallszustand wird als Zeichenkette gespeichert, damit große Ganzzahlen durch JSON nicht an Genauigkeit verlieren. Aus JSON geladene Meilensteine werden wieder in Integer konvertiert. Ein Regressionstest prüft, dass der weitere Ablauf nach dem Laden gleich bleibt.
 
-Format 2 ergänzt Karriere, Forschungsprojekt, Aufträge, Finanzhistorie und Ausbaustufen. Format 1 aus 0.1.x wird weiter gelesen; bestehende Anlagen beginnen auf Stufe 1 und behalten alle früher verfügbaren Baumöglichkeiten. Ungültige Karrierewerte werden vor dem Austausch der laufenden Simulation abgelehnt.
+Format 3 ergänzt Kartenkennung, geteilte vollständige Reiserouten, persönliche Fahrdauer, Schneerelief, Spurhistorie und laufende Präparierung. Format 2 enthält Karriere, Forschungsprojekt, Aufträge, Finanzhistorie und Ausbaustufen. Format 1 aus 0.1.x und Format 2 aus 0.2.x werden weiter gelesen; bestehende Anlagen beginnen auf Stufe 1 und behalten alle früher verfügbaren Baumöglichkeiten. Ungültige Karrierewerte werden vor dem Austausch der laufenden Simulation abgelehnt.
 
-Ist eine Piste bereits erschöpft und inzwischen für neue Routen geschlossen, kann die Rekonstruktion eines darauf befindlichen Besuchs beim Laden entfallen. Geld, Tageszahlen und Anlagen bleiben erhalten. Für einen späteren produktiven Spielstand sind versionierte vollständige Reiserouten und Migrationsregeln vorgesehen.
+Neue Speicherstände behalten laufende Reiserouten auch dann, wenn eine Piste inzwischen für neue Routen geschlossen ist. Die Routen werden einmalig geteilt gespeichert und vor dem Laden gegen die Anlagen und Geometrie geprüft. Ältere Formate können eine bereits geschlossene Route weiterhin nur näherungsweise rekonstruieren. Ihre Fahrzeiten werden bei der Migration angepasst.
+
+Die Nutzdaten sind auf 16 MB begrenzt. Auch der kleine Bergpass besitzt Prüfsumme, atomaren Austausch und vorherige Sicherung. Das ursprüngliche Resort benutzt weiterhin seinen bisherigen Dateinamen; weitere Regionen haben getrennte Dateien im privaten App-Verzeichnis.
 
 ## Darstellung und Budget
 
 Gelände und Gebäude sind eigene prozedurale Geometrien. Tannen, Felsen, Skifahrer und Liftfahrzeuge verwenden MultiMesh-Instanzen. Gebäudeteile und Pistenmarkierungen sind je Anlage in einem Mesh gebündelt. Die Perspektivkamera, Licht, Dunst und Schneefall hängen an der tatsächlichen Zeit beziehungsweise dem Wetter. Das Hauptmenü verwendet das freigegebene Panorama, die 3D-Spielwelt bleibt eigene Geometrie. Die Compatibility-Pipeline vermeidet eine Vulkan-Pflicht.
 
-Version 0.2.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Gästeziele werden je Simulationstakt zwischengespeichert und zwischen Bildern interpoliert. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.
+Version 0.3.0 begrenzt aktive Gäste auf 360, Pisten auf 80, Lifte auf 24 und Gebäude auf 60. Das sind Entwicklungsgrenzen, keine zugesicherte Bildrate bei voller Auslastung. Geometrische Pfadlängen werden zwischengespeichert. Figuren und Liftfahrzeuge folgen dem kontinuierlichen Anteil der Simulationszeit. Gebäudemodelle blenden aus, wenn sie die Nahkamera eines beobachteten Gasts verdecken. Die Reliefkarten verwenden zwischengespeicherte Bilder aus den tatsächlichen Höhenwerten. Stützen und Seile werden je Lift in einem Mesh gebündelt. Für große Resorts sollen Landschaften aufgeteilt und Darstellungsdetails nach Entfernung reduziert werden.

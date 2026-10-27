@@ -2,11 +2,14 @@ extends Node3D
 
 const Resort = preload("res://src/core/resort.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Passport = preload("res://src/core/passport.gd")
+const Maps = preload("res://src/core/maps.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
 const ResortHUD = preload("res://src/ui/hud.gd")
 
 var model := Resort.new()
+var passport := Passport.new()
 var view := ResortView.new()
 var hud := ResortHUD.new()
 var tool := "inspect"
@@ -17,6 +20,7 @@ var has_game := false
 var _accumulator := 0.0
 var _refresh_timer := 0.0
 var _day_report_shown := false
+var simulation_fraction := 0.0
 var _mouse_down := false
 var _mouse_origin := Vector2.ZERO
 var _mouse_dragged := false
@@ -27,7 +31,8 @@ var _gesture_used := false
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
-	model.new_game(true)
+	passport.load_from()
+	model.new_game(true, 20261027, passport.data.last_map)
 	add_child(view)
 	view.setup(model)
 	add_child(hud)
@@ -42,11 +47,14 @@ func _ready() -> void:
 			call_deferred("_capture", argument.trim_prefix("--capture="))
 
 func _process(delta: float) -> void:
-	if has_game and not paused and not hud.menu.visible and not hud.help_dialog.visible and not hud.management.visible and model.minute < Resort.CLOSING:
-		_accumulator += minf(delta, 0.25) * speed * 2.0
+	if simulation_running():
+		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND
 		while _accumulator >= 1.0 and model.minute < Resort.CLOSING:
 			_accumulator -= 1.0
 			model.advance_minute()
+	simulation_fraction = _accumulator
+	view.simulation_fraction = simulation_fraction
+	view.motion_running = simulation_running()
 	if has_game and model.minute >= Resort.CLOSING and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
@@ -57,8 +65,12 @@ func _process(delta: float) -> void:
 		_refresh_timer = 0.0
 		hud.refresh()
 
-func start_game(starter: bool) -> void:
-	model.new_game(starter)
+func simulation_running() -> bool:
+	return has_game and not paused and not hud.menu.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
+
+func start_game(starter: bool, area: String = "sonnenhang") -> void:
+	model.new_game(starter, 20261027, area)
+	passport.record(model)
 	has_game = true
 	paused = false
 	speed = 1
@@ -66,14 +78,47 @@ func start_game(starter: bool) -> void:
 	_day_report_shown = false
 	view.home()
 	hud.hide_menu()
+	hud.atlas.hide()
 	hud.set_map_focus(false)
 	set_tool("inspect")
-	hud.toast("Dein Sonnenhang ist eröffnet. Aufträge und Forschung warten im Resort-Büro." if starter else "Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg.")
+	hud.toast("Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an." if starter else "Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg.")
+	hud.refresh()
+
+func enter_area(area: String) -> void:
+	if not passport.unlocked(area):
+		hud.toast("Dieses Gebiet wird durch deinen Bergpass freigeschaltet.")
+		return
+	if has_game and model.map_id == area:
+		hud.atlas.hide()
+		hud.hide_menu()
+		return
+	if has_game and not save_game():
+		return
+	var path := SaveStore.path_for_map(area)
+	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"):
+		var loaded := SaveStore.load_game(model, path)
+		if not loaded.ok:
+			hud.toast(loaded.message)
+			return
+		has_game = true
+		paused = false
+		speed = 1
+		_accumulator = 0
+		_day_report_shown = false
+		view.home()
+		hud.atlas.hide()
+		hud.hide_menu()
+		set_tool("inspect")
+	else:
+		start_game(true, area)
+	passport.record(model)
+	passport.save_to()
+	hud.toast("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand." % Maps.spec(area).name)
 	hud.refresh()
 
 func continue_game() -> void:
 	if not has_game:
-		var result := SaveStore.load_game(model)
+		var result := SaveStore.load_game(model, SaveStore.path_for_map(passport.data.last_map))
 		if not result.ok:
 			hud.toast(result.message)
 			return
@@ -81,6 +126,7 @@ func continue_game() -> void:
 		_day_report_shown = false
 		hud.toast(result.message)
 	hud.hide_menu()
+	hud.atlas.hide()
 	set_tool("inspect")
 	hud.refresh()
 
@@ -88,10 +134,14 @@ func show_menu() -> void:
 	_clear_input()
 	hud.show_menu()
 
-func save_game() -> void:
+func save_game() -> bool:
 	if has_game:
-		var result := SaveStore.save_game(model)
+		passport.record(model)
+		passport.save_to()
+		var result := SaveStore.save_game(model, SaveStore.path_for_map(model.map_id))
 		hud.toast(result.message)
+		return result.ok
+	return false
 
 func toggle_pause() -> void:
 	paused = not paused
@@ -117,6 +167,8 @@ func manage_loan() -> void:
 	hud.refresh()
 
 func set_tool(value: String) -> void:
+	if value in ["lift", "building"] and model.build_access_message(hud.lift_kind() if value == "lift" else hud.building_kind(), value == "lift") != "":
+		return
 	tool = value
 	points.clear()
 	hud.show_context(tool)
@@ -137,7 +189,7 @@ func _plan_check() -> Dictionary:
 		if access != "":
 			return {"ok": false, "message": access, "cost": 0}
 	if tool in ["blue", "red", "black"]:
-		return Terrain.analyse(points, {"blue": 0, "red": 1, "black": 2}[tool])
+		return model.terrain.analyse(points, {"blue": 0, "red": 1, "black": 2}[tool])
 	if tool == "lift" and points.size() == 2:
 		return model.preview_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	if tool == "building" and points.size() == 1:
@@ -200,10 +252,14 @@ func demolish_asset(id: int) -> void:
 
 func _map_tap(position_value: Vector2) -> void:
 	var point := view.map_point(position_value)
-	if not Terrain.contains(point):
+	if not model.terrain.contains(point):
 		return
 	if tool == "inspect":
-		hud.show_context(tool, view.pick_asset(point))
+		var visitor: int = view.pick_guest(position_value)
+		if visitor != -1:
+			hud.show_guest(visitor)
+		else:
+			hud.show_context(tool, view.pick_asset(point))
 		return
 	# Visible station snapping makes touch connections forgiving and exact.
 	if tool != "building":
@@ -266,7 +322,9 @@ func _input(event: InputEvent) -> void:
 		view.change_zoom(1.0 / event.factor)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.management.visible:
+			if hud.atlas.visible:
+				hud.atlas.hide()
+			elif hud.management.visible:
 				hud.management.hide()
 			elif hud.help_dialog.visible:
 				hud.help_dialog.hide()
@@ -278,7 +336,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.menu.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible:
+		elif not hud.menu.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -340,6 +398,9 @@ func _notification(what: int) -> void:
 			save_game()
 		_clear_input()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.atlas.visible:
+			hud.atlas.hide()
+			return
 		if hud.management.visible:
 			hud.management.hide()
 			return
@@ -397,6 +458,29 @@ func _capture(path: String) -> void:
 		hud.refresh()
 	if OS.get_cmdline_user_args().has("--capture-showcase"):
 		_showcase()
+	if OS.get_cmdline_user_args().has("--capture-ski"):
+		for i in range(100):
+			model.advance_minute()
+		for guest in model.guests:
+			if guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "ski" and guest.elapsed / guest.duration > 0.25 and guest.elapsed / guest.duration < 0.75:
+				var position_value: Vector3 = model.guest_position(guest)
+				view.focus = Vector2(position_value.x, position_value.z)
+				view.zoom = 70
+				view.follow_guest = guest.id
+				view._update_camera()
+				hud.show_guest(guest.id)
+				break
+	if OS.get_cmdline_user_args().has("--capture-atlas"):
+		hud.show_atlas()
+	if OS.get_cmdline_user_args().has("--capture-catalogue"):
+		hud.palette.select_category("village")
+	if OS.get_cmdline_user_args().has("--capture-region"):
+		model.new_game(true, 20261027, "dreigipfel")
+		view.rebuild()
+		view.overview()
+		hud.hide_menu()
+		hud.set_map_focus(true)
+		hud.refresh()
 	if OS.get_cmdline_user_args().has("--capture-office"):
 		hud.show_management(0)
 	if OS.get_cmdline_user_args().has("--capture-map"):

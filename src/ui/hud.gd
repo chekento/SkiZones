@@ -3,6 +3,13 @@ extends CanvasLayer
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Progression = preload("res://src/core/progression.gd")
+const Palette = preload("res://src/ui/build_palette.gd")
+const Atlas = preload("res://src/ui/atlas.gd")
+const Minimap = preload("res://src/ui/minimap.gd")
+const Maps = preload("res://src/core/maps.gd")
+const Saves = preload("res://src/core/save_store.gd")
+const Motion = preload("res://src/core/ski_motion.gd")
+const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.png")
 const INK := Color("e7f2f4")
@@ -43,6 +50,11 @@ var inspector_panel: PanelContainer
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
 var management := Management.new()
+var atlas := Atlas.new()
+var palette := Palette.new()
+var selected_guest := -1
+var grooming_button: Button
+var grooming_label: Label
 
 func setup(controller: Node) -> void:
 	game = controller
@@ -73,6 +85,8 @@ func setup(controller: Node) -> void:
 	_build_dialogs()
 	root.add_child(management)
 	management.setup(game, self)
+	root.add_child(atlas)
+	atlas.setup(self)
 	show_context("inspect")
 	refresh()
 	get_viewport().size_changed.connect(_update_safe_area)
@@ -178,34 +192,30 @@ func _build_header() -> void:
 	_button(box, "Menü", game.show_menu)
 
 func _build_tools() -> void:
-	var panel := _panel(root, 24, 170, 268, -24, 0, 1)
+	var panel := _panel(root, 24, 170, 316, -24, 0, 1)
 	tools_panel = panel
-	var box := _vbox(panel, 10)
-	_label(box, "BAUPLANUNG", 13, TEAL)
-	_label(box, "Dein Resort wächst.", 21)
-	var names := [["inspect", "Resort ansehen"], ["blue", "●   Blaue Piste"], ["red", "●   Rote Piste"], ["black", "●   Schwarze Piste"], ["lift", "Lift planen"]]
-	for item in names:
-		var button := _button(box, item[1], func(): game.set_tool(item[0]))
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		tool_buttons[item[0]] = button
-	tool_buttons.blue.add_theme_color_override("font_color", Color("8dc9f2"))
-	tool_buttons.red.add_theme_color_override("font_color", Color("efa0a5"))
-	tool_buttons.black.add_theme_color_override("font_color", Color("ced7df"))
-	box.add_child(lift_choice)
-	lift_choice.custom_minimum_size.y = 48
+	var box := _vbox(panel, 8)
+	root.add_child(lift_choice)
+	lift_choice.hide()
+	root.add_child(building_choice)
+	building_choice.hide()
 	for kind in Catalog.LIFTS:
 		lift_choice.add_item(Catalog.LIFTS[kind].name)
-	lift_choice.selected = 1
-	lift_choice.item_selected.connect(func(_index): game.set_tool("lift"))
-	tool_buttons.building = _button(box, "Gebäude platzieren", func(): game.set_tool("building"))
-	box.add_child(building_choice)
-	building_choice.custom_minimum_size.y = 48
+	lift_choice.selected = Catalog.LIFTS.keys().find("drag")
 	for kind in Catalog.BUILDINGS:
 		building_choice.add_item(Catalog.BUILDINGS[kind].name)
-	building_choice.item_selected.connect(func(_index): game.set_tool("building"))
-	_spacer(box)
-	_label(box, "Ziehen: Karte bewegen\n2 Finger: bewegen & zoomen", 14, MUTED, true)
-	_button(box, "Hilfe & Spielregeln", show_help)
+	building_choice.selected = Catalog.BUILDINGS.keys().find("lodge")
+	box.add_child(palette)
+	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	palette.setup(self)
+	var overview := Minimap.new()
+	overview.game = game
+	box.add_child(overview)
+	_label(box, "Gebietskarte: tippen zum Navigieren", 12, MUTED)
+	var navigation := HBoxContainer.new()
+	box.add_child(navigation)
+	_button(navigation, "Übersicht", func(): game.view.overview()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_button(navigation, "Hilfe", show_help).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func _build_inspector() -> void:
 	var panel := _panel(root, -304, 170, -24, -180, 1, 1)
@@ -231,7 +241,7 @@ func _build_inspector() -> void:
 	inspector_actions.add_theme_constant_override("separation", 10)
 
 func _build_plan_bar() -> void:
-	var panel := _panel(root, 292, -156, -24, -24, 1, 1)
+	var panel := _panel(root, 340, -156, -24, -24, 1, 1)
 	plan_panel = panel
 	var box := _vbox(panel, 8)
 	box.add_child(plan_text)
@@ -257,6 +267,7 @@ func _build_camera_bar() -> void:
 	panel.add_child(box)
 	labels.weather = _label(box, "", 16, INK)
 	_spacer(box, false)
+	_button(box, "Gebiete", show_atlas).custom_minimum_size.y = 40
 	var development := _button(box, "Resort-Büro", show_management, true)
 	development.custom_minimum_size.y = 40
 	slopes_button = _button(box, "Gefälle", toggle_slopes)
@@ -266,13 +277,15 @@ func _build_camera_bar() -> void:
 	map_focus_button.custom_minimum_size.y = 40
 	pause_button = _button(box, "Pause", game.toggle_pause)
 	for speed in [1, 4]:
-		speed_buttons.append(_button(box, "%d×" % speed, func(): game.set_speed(speed)))
-	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], ["↶", func(): game.view.rotate_view(-0.2)], ["↷", func(): game.view.rotate_view(0.2)], ["Zentrieren", func(): game.view.home()]]:
+		var speed_button := _button(box, "%d×" % speed, func(): game.set_speed(speed))
+		speed_button.tooltip_text = "Ruhiges Normaltempo · ein Betriebstag dauert etwa 20 Minuten" if speed == 1 else "Zeitraffer · vierfaches Tempo für Bau und Entwicklung"
+		speed_buttons.append(speed_button)
+	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], ["↶", func(): game.view.rotate_view(-0.2)], ["↷", func(): game.view.rotate_view(0.2)], ["Tal", func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
 		button.custom_minimum_size = Vector2(48, 40)
 
 func _build_slope_legend() -> void:
-	slope_legend = _panel(root, 292, 176, -328, 224, 1)
+	slope_legend = _panel(root, 340, 176, -328, 224, 1)
 	slope_legend.add_theme_stylebox_override("panel", _style(Color("204657"), 9, 10))
 	_label(slope_legend, "Hanggefälle: Grün <8 % · Blau ≤30 % · Rot ≤55 % · Grau >55 %", 15, INK, true)
 	slope_legend.hide()
@@ -297,7 +310,7 @@ func _apply_panel_visibility() -> void:
 	# Keep a pending plan and its confirmation available in the wider map view.
 	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
 	slope_legend.visible = show_game and game.view.slopes_visible
-	slope_legend.offset_left = 24 if map_focus else 292
+	slope_legend.offset_left = 24 if map_focus else 340
 	slope_legend.offset_right = -24 if map_focus else -328
 
 func _build_menu() -> void:
@@ -324,9 +337,9 @@ func _build_menu() -> void:
 	_label(box, "Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen.", 18, MUTED, true)
 	_spacer(box)
 	continue_button = _button(box, "Fortsetzen", game.continue_game, true)
-	_button(box, "Karriere starten · Sonnenhang", func(): game.start_game(true))
+	_button(box, "Gebiete entdecken", show_atlas)
 	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Version 0.2.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_label(box, "Ski Resort Tycoon  /  Version 0.3.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -337,24 +350,33 @@ func _build_dialogs() -> void:
 	root.add_child(help_dialog)
 	help_dialog.title = "SkiZones · So wächst dein Resort"
 	help_dialog.ok_button_text = "Zurück zum Berg"
-	help_dialog.dialog_text = "PISTEN: Vom Berg ins Tal mehrere Wegpunkte setzen und mit Bauen bestätigen.\nBlau: bis 30 %, Rot: bis 55 %, Schwarz: bis 110 % Gefälle.\nDas sind Spielregeln; das gesamte Streckenprofil wird geprüft.\n\nLIFTE: Erst die Talstation, dann die Bergstation setzen.\nStationen und Pistenenden verbinden sich im Umkreis von 42 m.\nIm Tal können Gäste zwischen Anlagen bis 220 m zu Fuß gehen.\nEin nutzbarer Rundweg vom Talzugang und zurück ist erforderlich.\n\nGÄSTE: Anfänger fahren blau, Geübte zusätzlich rot, Profis alle Farben.\nAlle Abfahrten teilen die Kapazität des jeweiligen Lifts.\n\nBETRIEB: Ein Tag läuft von 08:00 bis 18:00. Starker Wind stoppt\nempfindliche Lifte, Tauwetter reduziert Schnee, Gäste verschleißen Pisten.\nNachts wird präpariert. Gebäude erhöhen Komfort oder Einnahmen.\n\nBEDIENUNG: Tippen setzt Wegpunkte oder wählt eine Anlage aus.\nZiehen bewegt die Karte, zwei Finger bewegen und zoomen.\nAm PC: Mausrad zoomt, Q/E dreht, Leertaste pausiert, Strg+S speichert.\nSpeichern, Tageswechsel und App-Pause sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
-	help_dialog.get_label().add_theme_font_size_override("font_size", 18)
+	help_dialog.get_label().hide()
+	var help := RichTextLabel.new()
+	help.custom_minimum_size = Vector2(760, 480)
+	help.bbcode_enabled = true
+	help.add_theme_font_size_override("normal_font_size", 18)
+	help.text = "[b]BEOBACHTEN[/b]\nBei 1× dauert ein Betriebstag etwa 20 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. Pisten vom Berg ins Tal mit mehreren Wegpunkten planen und mit Bauen bestätigen. Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 % Gefälle. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nStationen und Pistenenden verbinden sich im Umkreis von 42 m. Im Tal sind Fußwege bis 220 m möglich. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Nachts wird präpariert. Mit Schneemanagement und geöffneter Garage kannst du eine Piste auch tagsüber präparieren lassen. Sie bleibt 45 Spielminuten für neue Routen geschlossen.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt vier Karten und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen bewegt die Karte; zwei Finger bewegen und zoomen. Am PC: Mausrad zoomt, Q/E dreht, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
+	help_dialog.add_child(help)
 
 func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
 	management.hide()
+	atlas.hide()
 	menu.show()
 	_apply_panel_visibility()
-	continue_button.disabled = not game.has_game and not FileAccess.file_exists("user://skizones_save.json") and not FileAccess.file_exists("user://skizones_save.json.bak")
+	var area: String = game.model.map_id if game.has_game else game.passport.data.last_map
+	var path := Saves.path_for_map(area)
+	continue_button.text = "Fortsetzen · " + Maps.spec(area).name
+	continue_button.disabled = not game.has_game and not FileAccess.file_exists(path) and not FileAccess.file_exists(path + ".bak")
 
 func hide_menu() -> void:
 	menu.hide()
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if menu.visible or daily_dialog.visible or help_dialog.visible or management.visible:
+	if menu.visible or daily_dialog.visible or help_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -367,16 +389,28 @@ func lift_kind() -> String:
 func building_kind() -> String:
 	return Catalog.BUILDINGS.keys()[building_choice.selected]
 
+func show_atlas() -> void:
+	management.hide()
+	atlas.open()
+
 func show_management(tab: int = 0) -> void:
+	atlas.hide()
 	management.open()
 	management.tabs.current_tab = clampi(tab, 0, 4)
 
 func show_context(tool: String, id: int = -1) -> void:
 	current_tool = tool
+	selected_guest = -1
+	if tool in ["blue", "red", "black"]:
+		palette.select_category("pistes")
+	elif tool in ["lift", "building"]:
+		palette.select_category("lifts" if tool == "lift" else "village")
 	selected_id = id
 	if tool != "inspect" or id != -1:
 		set_map_focus(false)
 	price_label = null
+	grooming_button = null
+	grooming_label = null
 	for child in inspector_actions.get_children():
 		inspector_actions.remove_child(child)
 		child.queue_free()
@@ -388,8 +422,19 @@ func show_context(tool: String, id: int = -1) -> void:
 		_button(inspector_actions, "Schließen" if item.get("enabled", false) else "Öffnen", func(): game.toggle_asset(id))
 		_button(inspector_actions, "Abbauen · 25 % Erstattung", func(): game.demolish_asset(id))
 		_button(inspector_actions, "Anlage ausbauen", func(): show_management(3), true)
+		if item.has("difficulty"):
+			var check: Dictionary = game.model.groom_check(id)
+			var groom := _button(inspector_actions, "Piste präparieren", func():
+				var result: Dictionary = game.model.groom_piste(id)
+				toast(result.message)
+				show_context("inspect", id)
+			)
+			grooming_button = groom
+			groom.disabled = not check.ok
+			groom.tooltip_text = check.message
+			grooming_label = _label(inspector_actions, check.message, 13, MUTED, true)
 	elif tool == "inspect":
-		inspector_title.text = "Sonnenhang"
+		inspector_title.text = Maps.spec(game.model.map_id).name
 		price_label = _label(inspector_actions, "Tageskarte: %d €" % game.model.ticket_price, 18)
 		var slider := HSlider.new()
 		slider.min_value = 20
@@ -411,8 +456,38 @@ func show_context(tool: String, id: int = -1) -> void:
 		inspector_title.text = {"blue": "Blaue Piste", "red": "Rote Piste", "black": "Schwarze Piste"}.get(tool, "Bauplanung")
 	_refresh_context_text()
 
+func show_guest(id: int) -> void:
+	show_context("inspect")
+	selected_guest = id
+	for child in inspector_actions.get_children():
+		inspector_actions.remove_child(child)
+		child.queue_free()
+	_button(inspector_actions, "Diesem Gast folgen", func():
+		game.view.follow_guest = id
+		game.view.zoom = 90
+		game.view._update_camera()
+	, true)
+	_button(inspector_actions, "Kamera lösen", func(): game.view.follow_guest = -1)
+	_refresh_context_text()
+
 func _refresh_context_text() -> void:
 	var model: RefCounted = game.model
+	if selected_guest != -1:
+		for guest in model.guests:
+			if int(guest.id) != selected_guest:
+				continue
+			var personal := Motion.style(guest.id, guest.ability)
+			inspector_title.text = Motion.name_for(guest.id)
+			var activity := "Auf dem Heimweg"
+			if guest.phase == "queue":
+				activity = "Wartet auf den Lift"
+			elif guest.phase == "moving" and guest.leg < guest.route.legs.size():
+				activity = {"ski": "Zieht Schwünge im Schnee", "lift": "Fährt bergauf", "walk": "Unterwegs im Resort"}[guest.route.legs[guest.leg].kind]
+			inspector_text.text = "[color=#75cdc7]%s[/color]\n%s\n\nFahrstil: %s\nPersönliches Tempo: %.1f m/s\n%d abgeschlossene Runden\n\nTippe auf einen Gast und folge seiner Fahrt aus der Nähe. Ziehen auf der Karte löst die Kamera." % [["Anfänger", "Geübt", "Profi"][guest.ability], activity, personal.name, personal.speed, guest.loops]
+			return
+		inspector_title.text = "Ein schöner Skitag geht zu Ende"
+		inspector_text.text = "Dieser Gast hat das Resort verlassen. Wähle einen anderen Gast oder eine Anlage."
+		return
 	if selected_id != -1:
 		var item: Dictionary = model.asset(selected_id)
 		if item.is_empty():
@@ -420,7 +495,13 @@ func _refresh_context_text() -> void:
 			return
 		var text_value := "[color=#75cdc7]%s · Stufe %d[/color]\n\n" % ["Geöffnet" if item.enabled else "Geschlossen", item.get("level", 1)]
 		if item.has("difficulty"):
+			if is_instance_valid(grooming_button):
+				var grooming: Dictionary = model.groom_check(item.id)
+				grooming_button.disabled = not grooming.ok
+				grooming_button.tooltip_text = grooming.message
+				grooming_label.text = grooming.message
 			text_value += "%.0f m Länge\nMax. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s" % [item.length, item.grade, item.condition, item.snow, item.rides, "Mit Rundweg erreichbar" if model.reachable_piste_ids().has(item.id) else "Noch kein nutzbarer Rundweg"]
+			text_value += "\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel." % (Snow.roughness(item) * 100)
 		elif item.has("bottom"):
 			text_value += "%d Gäste pro Stunde\n%d Gäste warten\n%d Beförderungen\n\n%s" % [model.lift_capacity(item), model.queue_size(item.id), item.boarded, "Betrieb möglich" if model.lift_open(item) else "Wegen Wind oder manuell geschlossen"]
 		else:
@@ -469,6 +550,7 @@ func refresh() -> void:
 	for i in range(speed_buttons.size()):
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
 	_refresh_context_text()
+	palette.refresh()
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
 		labels.status.text = _toast
 	else:

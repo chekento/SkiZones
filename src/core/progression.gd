@@ -6,7 +6,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
-	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage und Pistenstufe 2 werden verfügbar."},
+	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."},
 	"service": {"name": "Gästekomfort", "cost": 24000, "points": 4, "days": 1, "requires": [], "effect": "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."},
 	"meteo": {"name": "Bergwetterstation", "cost": 12000, "points": 2, "days": 1, "requires": [], "effect": "Eine verlässliche Wettervorschau für die nächsten sechs Betriebstage."},
 	"lifttech": {"name": "Fördertechnik", "cost": 36000, "points": 5, "days": 2, "requires": [], "effect": "Lifte auf Stufe 2 ausbauen: mehr Kapazität und kürzere Fahrzeiten."},
@@ -17,12 +17,12 @@ const RESEARCH := {
 	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
 }
 const CONTRACTS := {
-	"visitors": {"name": "Der Berg ruft", "text": "Begrüße neue Tagesgäste.", "base": 120, "per_rank": 45, "money": 9000},
-	"rides": {"name": "Spuren im Schnee", "text": "Ermögliche zusätzliche Abfahrten.", "base": 500, "per_rank": 250, "money": 11000},
-	"beginners": {"name": "Der erste Schwung", "text": "Gewinne neue Anfänger für dein Resort.", "base": 65, "per_rank": 25, "money": 10000},
-	"experts": {"name": "Gipfelstürmer", "text": "Begrüße neue erfahrene Skifahrer.", "base": 25, "per_rank": 12, "money": 12000},
-	"turnover": {"name": "Ein guter Wintertag", "text": "Erziele zusätzliche Ticket- und Serviceerlöse.", "base": 9000, "per_rank": 4000, "money": 10000},
-	"happy": {"name": "Lieblingsberg", "text": "Verabschiede Gäste mit mindestens 80 % Zufriedenheit.", "base": 35, "per_rank": 20, "money": 14000},
+	"visitors": {"name": "Der Berg ruft", "text": "Begrüße neue Tagesgäste.", "base": 80, "per_rank": 30, "money": 9000},
+	"rides": {"name": "Spuren im Schnee", "text": "Ermögliche zusätzliche Abfahrten.", "base": 60, "per_rank": 40, "money": 11000},
+	"beginners": {"name": "Der erste Schwung", "text": "Gewinne neue Anfänger für dein Resort.", "base": 45, "per_rank": 20, "money": 10000},
+	"experts": {"name": "Gipfelstürmer", "text": "Begrüße neue erfahrene Skifahrer.", "base": 12, "per_rank": 8, "money": 12000},
+	"turnover": {"name": "Ein guter Wintertag", "text": "Erziele zusätzliche Ticket- und Serviceerlöse.", "base": 4500, "per_rank": 2000, "money": 10000},
+	"happy": {"name": "Lieblingsberg", "text": "Verabschiede Gäste mit mindestens 80 % Zufriedenheit.", "base": 18, "per_rank": 12, "money": 14000},
 	"variety": {"name": "Neue Horizonte", "text": "Biete gleichzeitig mehrere erreichbare Abfahrten an.", "base": 1, "per_rank": 1, "money": 14000},
 	"comfort": {"name": "Wohlfühlresort", "text": "Betreibe verschiedene Angebote für deine Gäste.", "base": 2, "per_rank": 1, "money": 12000}
 }
@@ -55,10 +55,12 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	if model.campaign.get("mode", "free") == "free":
 		return ""
 	var needed := ""
-	if is_lift and kind == "gondola":
+	if is_lift and kind == "chair6":
+		needed = "lifttech"
+	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:
-		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "hotel": "hospitality"}.get(kind, "")
+		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality"}.get(kind, "")
 	return "Forschung „%s“ erforderlich." % RESEARCH[needed].name if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
@@ -133,7 +135,9 @@ static func counter(model: RefCounted, kind: String) -> float:
 		"variety": return model.reachable_piste_ids().size()
 		"comfort":
 			var count := 0
-			for kind_id in ["lodge", "restaurant", "rental", "school", "hotel", "first_aid"]:
+			for kind_id in Catalog.BUILDINGS:
+				if Catalog.BUILDINGS[kind_id].appeal <= 2:
+					continue
 				count += int(model.building_count(kind_id) > 0)
 			return count
 	return 0

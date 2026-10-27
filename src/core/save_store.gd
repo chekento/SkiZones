@@ -2,11 +2,16 @@ extends RefCounted
 ## Checksum, size bound, atomic replacement and one previous valid save.
 
 const DEFAULT_PATH := "user://skizones_save.json"
-const MAX_BYTES := 4000000
+const MAX_BYTES := 16000000
+
+static func path_for_map(id: String) -> String:
+	return DEFAULT_PATH if id == "sonnenhang" else "user://skizones_%s.json" % id
 
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
 	var payload := JSON.stringify(model.snapshot())
 	var envelope := JSON.stringify({"format": "SkiZones", "checksum": payload.sha256_text(), "payload": payload})
+	if envelope.to_utf8_buffer().size() > MAX_BYTES:
+		return {"ok": false, "message": "Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert."}
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return {"ok": false, "message": "Spielstand konnte nicht geschrieben werden."}

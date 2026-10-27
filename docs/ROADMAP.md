@@ -10,21 +10,27 @@ Neue prozedurale Modelle für Gebäude, Stationen, Fahrzeuge, Skifahrer, Tannen 
 
 Fünf Resort-Sterne, neun mehrtägige Forschungen, drei Ausbaustufen, wechselnde Aufträge und 28-tägige Winter mit Saisonprämien. Wochenereignisse, erforschbare Wettervorschau, Finanzverlauf und ein pausierendes Resort-Büro. Migration älterer Spielstände, 143 automatisierte Prüfungen und ein vollständiger Zwei-Winter-Testlauf.
 
+## 0.3 · Spuren im Schnee — umgesetzt
+
+Ruhigeres Tempo und zeitlich passende Liftfahrten. Persönliche Skilinien, Namen, Kleidung und Fahrzeiten. Sichtbare Doppelspuren, lokale Rinnen und Buckel, Einfluss auf spätere Fahrten, gespeicherter Schnee und gezielte Präparierung mit sichtbarer Pistenraupe.
+
+Vier Gebiete mit 7,8 bis 29,1 km² Baufläche, Freischaltungen im Bergpass und getrennte Resort-Spielstände. Reliefkarten, Gebietsübersicht, nähere Gastkamera, Behandlung verdeckender Gebäude und scrollbare Hilfe. Baukatalog mit gesperrten und unbezahlbaren Einträgen, fünf Liftarten und 14 Gebäudetypen. Vollständige gespeicherte Gästerouten, auch bei inzwischen erschöpften Pisten. 201 automatisierte Prüfungen einschließlich tatsächlicher Liftbewegung und Gebietswechsel.
+
 ## Nächste Schritte · Android und Wirtschaft
 
-Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereiche, Touch-Größen, Wärmeentwicklung und große Resorts. Einstellbarer Detailgrad und ein überprüfbares Performance-Budget. Forschungsdauer, Preise, Prämien und Langzeitwirtschaft anhand längerer Spielsitzungen abstimmen. Vollständige laufende Reiserouten speichern, auch wenn eine Piste während der Fahrt erschöpft wurde. Ein geführter Karriereeinstieg soll die ersten Ausbauentscheidungen erklären.
+Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereiche, Touch-Größen, Wärmeentwicklung und große Resorts. Einstellbarer Detailgrad und ein überprüfbares Performance-Budget. Forschungsdauer, Preise, Prämien und Langzeitwirtschaft anhand längerer Spielsitzungen abstimmen. Ein geführter Karriereeinstieg soll die ersten Ausbauentscheidungen erklären.
 
 ## Mehr Planung am Berg
 
-Weitere Karten und Landschafts-Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Ein- und Ausstiegsbereiche sowie eine sichtbare Netz- und Engpassansicht.
+Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Ein- und Ausstiegsbereiche sowie eine sichtbare Netz- und Engpassansicht.
 
 ## Gäste und verlässlicher Betrieb
 
-Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Tatsächliche Gebäudewege und Servicewarteschlangen. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Räumlich geregelte Beschneiung und fahrende Pistenraupen.
+Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Tatsächliche Gebäudewege und Servicewarteschlangen. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Beschneiung mit Wasser- und Energieverbrauch sowie eine vollständig räumliche Einsatzplanung der Pistenraupen.
 
 ## Weitere Karriereziele und Präsentation
 
-Spezialisierungen, Wettbewerbe, Veranstaltungen, Stammgäste und Reputation pro Zielgruppe. Weitere Szenarien mit unterschiedlichen wirtschaftlichen Bedingungen, Preisstrategien und laufenden Kreditverträgen. Sound, Musik, Fahranimationen, Textgrößen- und Kontrastoptionen sowie übersetzbare Texte.
+Spezialisierungen, Wettbewerbe, Veranstaltungen, Stammgäste und Reputation pro Zielgruppe. Weitere Szenarien mit unterschiedlichen wirtschaftlichen Bedingungen, Preisstrategien und laufenden Kreditverträgen. Sound, Musik, zusätzliche Körperanimationen, Textgrößen- und Kontrastoptionen sowie übersetzbare Texte.
 
 ## Veröffentlichungsreife
 
@@ -32,4 +38,4 @@ Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spie
 
 ## Aktuelle Grenzen
 
-Eine vorgegebene Karte ohne Geländeverformung. Gebäude wirken über Kennzahlen; es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Die Figuren sind modelliert und bewegen sich, besitzen aber noch keine Fahranimationen. Forschung und Saisons sind spielbar, die Langzeitwirtschaft ist weiterhin eine Preview. Automatisierte Tests ersetzen keinen Gerätetest.
+Vier feste Landschaften ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude wirken über Kennzahlen; es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.

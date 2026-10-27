@@ -42,6 +42,15 @@ func sphere(position_value: Vector3, radius: float, color: Color, size_value: Ve
 	mesh.rings = 3
 	add(mesh, position_value, color, Vector3.ZERO, size_value)
 
+func link(from: Vector3, to: Vector3, radius: float, color: Color) -> void:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius
+	mesh.height = from.distance_to(to)
+	mesh.radial_segments = 6
+	var basis := Basis(Quaternion(Vector3.UP, (to - from).normalized()))
+	add(mesh, (from + to) * 0.5, color, basis.get_euler())
+
 func finish() -> ArrayMesh:
 	surface.index()
 	return surface.commit()
@@ -69,6 +78,8 @@ func roof(width: float, depth: float, wall_height: float) -> void:
 func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 	if kind == "snowmaker":
 		return snow_cannon(level)
+	if kind in ["viewpoint", "shelter", "snowpark", "bus", "kiosk"]:
+		return amenity(kind, accent)
 	var big := kind == "hotel"
 	var wide := kind == "maintenance"
 	var width := 35.0 if big else (29.0 if wide else 22.0)
@@ -113,6 +124,51 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 	if kind == "first_aid":
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.4), Vector3(6, 1.5, 0.6), Color("e9f2ec"))
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.5), Vector3(1.5, 6, 0.6), Color("e9f2ec"))
+	if kind == "spa":
+		box(Vector3(0, 1.2, depth / 2 + 12), Vector3(23, 2.4, 17), Color("a8b5b6"))
+		box(Vector3(0, 2.5, depth / 2 + 12), Vector3(19, 0.2, 13), Color("5cbbca"))
+		for x in [-13, 13]:
+			box(Vector3(x, 2, depth / 2 + 12), Vector3(2.5, 1, 6), Color("9d805c"))
+	return finish()
+
+func amenity(kind: String, accent: Color) -> ArrayMesh:
+	if kind == "snowpark":
+		for x in [-8, 8]:
+			box(Vector3(x, 1.2, 0), Vector3(8, 2.4, 14), Color("dfeaf2"), Vector3(0.13, 0, 0))
+			box(Vector3(x, 3.8, 7), Vector3(0.5, 7.6, 0.5), Color("657d83"))
+			box(Vector3(x + 1, 6, 7), Vector3(3, 2, 0.3), accent)
+		box(Vector3(0, 2.3, -7), Vector3(18, 0.45, 0.6), Color("698794"))
+		for x in [-7, 7]:
+			box(Vector3(x, 1, -7), Vector3(0.5, 2, 0.5), Color("536c73"))
+	elif kind == "bus":
+		box(Vector3(0, 0.3, 0), Vector3(28, 0.6, 21), Color("97a3a5"))
+		box(Vector3(-1, 4, 0), Vector3(21, 7, 7), accent)
+		box(Vector3(-1, 5.4, 3.6), Vector3(18, 3, 0.2), Color("344e5b"))
+		for x in [-8, 6]:
+			for z in [-3.6, 3.6]:
+				sphere(Vector3(x, 1.3, z), 1.5, Color("354348"))
+		box(Vector3(12, 5, 6), Vector3(0.5, 10, 0.5), Color("687d81"))
+		box(Vector3(12, 9, 6), Vector3(4, 3, 0.4), Color("d9b76e"))
+	else:
+		var kiosk := kind == "kiosk"
+		box(Vector3(0, 0.6, 0), Vector3(23 if not kiosk else 16, 1.2, 18), Color("9b8061"))
+		if kind == "viewpoint":
+			for x in [-10, 10]:
+				box(Vector3(x, 2.8, 0), Vector3(0.5, 4.5, 18), Color("7a6852"))
+			box(Vector3(0, 2.8, -8), Vector3(23, 0.6, 0.6), Color("7a6852"))
+			cone(Vector3(0, 2.8, -5), 0.4, 4.5, Color("627a82"), 0.4)
+			box(Vector3(0, 5.2, -5), Vector3(1.4, 1.4, 4), Color("526a78"), Vector3(-0.3, 0, 0))
+		else:
+			for x in [-7, 7]:
+				box(Vector3(x, 4, -6), Vector3(1, 8, 1), Color("806143"))
+			box(Vector3(0, 4, -7), Vector3(16, 8, 0.8), Color("99734e"))
+			roof(17, 16, 8)
+			if kiosk:
+				box(Vector3(0, 3.5, 3), Vector3(15, 6, 4), accent)
+				for x in [-4, 0, 4]:
+					cone(Vector3(x, 6.8, 3), 0.5, 0.9, Color("e5e5d8"), 0.6)
+		for x in [-6, 6]:
+			box(Vector3(x, 2, 4), Vector3(6, 0.6, 3), Color("b4956f"))
 	return finish()
 
 func snow_cannon(level: int) -> ArrayMesh:
@@ -133,7 +189,7 @@ func snow_cannon(level: int) -> ArrayMesh:
 func station(kind: String, level: int) -> ArrayMesh:
 	var small := kind == "drag"
 	var width := 14.0 if small else 24.0 + level * 2
-	box(Vector3(0, 1, 0), Vector3(width + 4, 2, 21), Color("9ca4a4"))
+	box(Vector3(0, 0.2 if small else 1, 0), Vector3(width + 4, 0.4 if small else 2, 21), Color("9ca4a4"))
 	for x in [-1, 1]:
 		box(Vector3(x * width * 0.38, 7.5, 0), Vector3(2, 13, 2), Color("556e73"))
 	box(Vector3(0, 13.3, 0), Vector3(width, 3.5, 18), Color("bf7850") if small else Color("3b6d76"))
@@ -145,7 +201,10 @@ func station(kind: String, level: int) -> ArrayMesh:
 	return finish()
 
 func chair(kind: String) -> ArrayMesh:
-	if kind == "gondola":
+	if kind == "drag":
+		box(Vector3(0, -2.5, 0), Vector3(0.3, 13.4, 0.3), Color("536b70"))
+		box(Vector3(0, -9.2, 0), Vector3(4, 0.5, 0.6), Color("8c7557"))
+	elif kind == "gondola":
 		box(Vector3(0, 1.4, 0), Vector3(5.5, 4.6, 4.5), Color("326b80"))
 		box(Vector3(0, 2.2, 2.3), Vector3(4.5, 2.6, 0.2), Color("9fc2cc"))
 		box(Vector3(0, -1.0, 0), Vector3(5.8, 0.8, 4.8), Color("c08a51"))
@@ -163,7 +222,32 @@ func skier() -> ArrayMesh:
 	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
 	sphere(Vector3(0, 2.55, 0), 0.46, Color("d9e1dd"))
 	box(Vector3(0, 2.55, 0.4), Vector3(0.75, 0.22, 0.15), Color("273e4b"))
+	box(Vector3(0, 1.9, -0.48), Vector3(0.8, 0.9, 0.25), Color("647983"))
+	box(Vector3(0, 1.7, 0.42), Vector3(0.12, 1.0, 0.08), Color("e3e9e4"))
 	for side in [-1, 1]:
+		sphere(Vector3(side * 0.68, 1.55, 0.15), 0.24, Color("f7f7f2"), Vector3(0.7, 1.7, 0.8))
+		box(Vector3(side * 0.3, 0.25, 0.1), Vector3(0.4, 0.38, 0.7), Color("273e4b"))
 		box(Vector3(side * 0.35, 0.13, 0.4), Vector3(0.24, 0.16, 3.4), Color("4f6670"))
 		box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
+	return finish()
+
+func seated_skier() -> ArrayMesh:
+	sphere(Vector3(0, 1.1, 0), 0.6, Color("f8f9f6"), Vector3(0.9, 1.1, 0.65))
+	sphere(Vector3(0, 2.0, 0), 0.43, Color("d9e1dd"))
+	box(Vector3(0, 2.0, 0.4), Vector3(0.7, 0.2, 0.15), Color("273e4b"))
+	for side in [-1, 1]:
+		box(Vector3(side * 0.3, 0.4, 0.5), Vector3(0.35, 0.4, 1.2), Color("344b59"))
+		box(Vector3(side * 0.3, -0.2, 1.0), Vector3(0.35, 1.2, 0.4), Color("344b59"))
+		box(Vector3(side * 0.35, -0.8, 1.2), Vector3(0.22, 0.15, 3), Color("4f6670"))
+	return finish()
+
+func groomer() -> ArrayMesh:
+	for side in [-1, 1]:
+		box(Vector3(side * 2.7, 0.7, 0), Vector3(1.2, 1.4, 6.8), Color("354a52"))
+	box(Vector3(0, 1.7, 0), Vector3(4.5, 2.0, 5.8), Color("cf7950"))
+	box(Vector3(0, 3.0, 1), Vector3(3.8, 2.8, 3), Color("628996"))
+	box(Vector3(0, 4.6, 1), Vector3(4.3, 0.4, 3.5), Color("e5ebea"))
+	box(Vector3(0, 0.7, 4.4), Vector3(9, 1.5, 1), Color("c5d4d7"))
+	box(Vector3(0, 1.2, -4), Vector3(8, 0.7, 1.6), Color("486773"))
+	sphere(Vector3(0, 5.1, 1), 0.4, Color("f3bb60"))
 	return finish()

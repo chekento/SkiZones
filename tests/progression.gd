@@ -72,7 +72,7 @@ func _upgrades() -> void:
 	upgraded.upgrade_asset(upgraded.pistes[0].id)
 	original.admit_guest(0)
 	upgraded.admit_guest(0)
-	for i in range(30):
+	for i in range(180):
 		original.advance_minute(false)
 		upgraded.advance_minute(false)
 	check(original.total_rides == upgraded.total_rides and upgraded.pistes[0].condition > original.pistes[0].condition, "Piste upgrades reduce wear under the same skier traffic")

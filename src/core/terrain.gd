@@ -1,5 +1,5 @@
 extends RefCounted
-## One authoritative terrain function for rendering, planning and save validation.
+## Shared coordinates, validation constants and the compatible original valley.
 ## Coordinates are horizontal metres; negative Z points up the mountain.
 
 const BOUNDS := Rect2(-360, -400, 720, 740)
