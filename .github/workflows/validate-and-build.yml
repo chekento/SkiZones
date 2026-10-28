@@ -65,6 +65,8 @@ jobs:
         run: '"$GODOT_BIN" --headless --script tests/customization.gd'
       - name: Chronological closing, two-seater restart and route decisions
         run: '"$GODOT_BIN" --headless --script tests/day_cycle.gd'
+      - name: Connected paths, uphill momentum, hiking and save migration
+        run: '"$GODOT_BIN" --headless --script tests/paths_and_momentum.gd'
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -81,6 +83,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
       - name: Scrollable day report at phone and tablet sizes
         run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
+      - name: Real path editor and rendered hiking on Sonnenhang
+        run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/paths_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:

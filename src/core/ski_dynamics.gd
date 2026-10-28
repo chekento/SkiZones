@@ -28,6 +28,7 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 	var seconds := 0.0
 	var walked := 0.0
 	var carried := 0.0
+	var walking_mode := false
 	var samples: Array = [[0.0,0.0,0,speed]]
 	var ok := true
 	var reason := ""
@@ -40,11 +41,12 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 		var acceleration := -GRAVITY*rise/ds-resistance
 		var energy_end := speed*speed+2*acceleration*ds
 		var next_speed := minf(sqrt(maxf(0,energy_end)),limits[i])
-		if next_speed < MIN_GLIDE and rise >= -0.005:
-			var glide := clampf((speed*speed-MIN_GLIDE*MIN_GLIDE)/maxf(-2*acceleration*ds,0.001),0,1)
+		if (next_speed < MIN_GLIDE or walking_mode) and rise >= -0.005:
+			var glide := 0.0 if walking_mode else clampf((speed*speed-MIN_GLIDE*MIN_GLIDE)/maxf(-2*acceleration*ds,0.001),0,1)
 			if glide > 0.001 and glide < 0.999:
 				seconds += 2*ds*glide/maxf(speed+MIN_GLIDE,0.01)
 				samples.append([seconds,(i-1+glide)/count,0,MIN_GLIDE])
+			walking_mode = true
 			var foot_distance := ds*(1-glide)
 			var grade := maxf(0,rise/horizontal)
 			if grade > MAX_HIKE_GRADE:
@@ -56,6 +58,7 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 			speed = foot_speed
 			samples.append([seconds,float(i)/count,1,speed])
 		else:
+			walking_mode = false
 			seconds += 2*ds/maxf(speed+next_speed,0.15)
 			if rise > 0: carried += rise
 			speed = next_speed

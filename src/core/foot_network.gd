@@ -70,13 +70,13 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for building in buildings:
 		if building.kind != "snowmaker": areas.append(_area("f%dg" % building.id,forecourt(building),forecourt(building),building_radius(building),false,building.id,"building"))
 	for area in walk_areas:
-		if not area.enabled: continue
+		if not area.enabled and area.kind != "walkway": continue
 		if area.kind == "walkway":
 			for i in range(area.points.size()):
 				var key := "w%dv%d" % [area.id,i]
 				var at := Terrain.unpack(area.points[i])
 				areas.append(_area(key,at,at,4,false,area.id,"walkway"))
-				if i > 0: fixed.append({"from":"w%dv%d" % [area.id,i-1],"to":key,"points":[area.points[i-1],area.points[i]],"width":8.0,"manual":true})
+				if i > 0: fixed.append({"from":"w%dv%d" % [area.id,i-1],"to":key,"points":[area.points[i-1],area.points[i]],"width":8.0,"manual":true,"closed":not area.enabled})
 		else: areas.append(_area("w%d" % area.id,Terrain.unpack(area.point),Terrain.unpack(area.point),area.radius,dense,area.id,"plaza"))
 	for piste in pistes:
 		for top in [true,false]:
@@ -98,6 +98,24 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 		var hub := "f%dg" % building.id
 		nodes[key] = Terrain.pack(door(building))
 		fixed.append({"from":hub,"to":key,"points":[nodes[hub],nodes[key]],"width":6.0,"access":true})
+	# Every piste gate keeps its own direct approach to the nearest real landing
+	# or forecourt. A spanning-tree shortcut must never replace this access.
+	for gate in areas:
+		if gate.kind != "piste_gate": continue
+		var best: Dictionary = {}
+		var score := INF
+		for area in areas:
+			if area.kind in ["piste_gate","walkway"] or gate.center.distance_to(area.center) > area.radius+LINK_GAP: continue
+			var target: String = area.key
+			if area.kind == "station": target = "l"+area.key.substr(1)
+			var path := path_between(gate.point,Terrain.unpack(nodes[target]),buildings,lifts,shapes)
+			if path.is_empty(): continue
+			if not gentle(mountain,path) and gate.center.distance_to(area.center) > area.radius: continue
+			var time := walk_minutes(mountain,path)
+			if time < score:
+				score = time
+				best = {"from":gate.key,"to":target,"points":path,"width":7.0,"piste_access":true}
+		if not best.is_empty(): fixed.append(best)
 	var candidates: Array = []
 	for i in range(areas.size()):
 		for j in range(i+1,areas.size()):
@@ -112,6 +130,9 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for key in nodes: components[key] = key
 	var links: Array = []
 	for link in fixed+candidates:
+		if link.get("closed",false):
+			links.append(link)
+			continue
 		var a := _component(components,link.from)
 		var b := _component(components,link.to)
 		if link in fixed or dense or a != b:
@@ -310,7 +331,7 @@ static func path_between(from: Vector2, to: Vector2, buildings: Array, lifts: Ar
 	var shapes := obstacles(buildings, lifts) if prepared.is_empty() else prepared
 	var blocked := false
 	for shape in shapes:
-		if Geometry2D.is_point_in_polygon(from, shape) or Geometry2D.is_point_in_polygon(to, shape):
+		if crosses_polygon(from,from,shape) or crosses_polygon(to,to,shape):
 			return []
 		blocked = blocked or crosses_polygon(from, to, shape)
 	if not blocked:

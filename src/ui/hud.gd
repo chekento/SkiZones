@@ -438,7 +438,7 @@ func _build_menu() -> void:
 	_button(box, "Gebiete entdecken", show_atlas)
 	_button(box, "Darstellung & Komfort", func(): display_options.open())
 	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Version 0.8.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_label(box, "Ski Resort Tycoon  /  Version 0.9.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -505,7 +505,7 @@ func show_context(tool: String, id: int = -1) -> void:
 	guest_face.hide()
 	if tool == "piste":
 		palette.select_category("pistes")
-	elif tool == "plaza":
+	elif tool in ["plaza","walkway"]:
 		palette.select_category("paths")
 	elif tool in ["lift", "building"]:
 		palette.select_category("lifts" if tool == "lift" else "village")
@@ -556,7 +556,7 @@ func show_context(tool: String, id: int = -1) -> void:
 		_button(inspector_actions, "Kredit tilgen · 150.000 €" if game.model.loan > 0 else "Aufbaukredit · 150.000 €", game.manage_loan)
 	elif tool == "lift":
 		inspector_title.text = lift_choice.get_item_text(lift_choice.selected)
-	elif tool == "plaza":
+	elif tool in ["plaza","walkway"]:
 		inspector_title.text = Catalog.PLAZAS[game.plaza_kind].name
 	elif tool == "building":
 		inspector_title.text = building_choice.get_item_text(building_choice.selected)
@@ -617,6 +617,8 @@ func _refresh_context_text() -> void:
 			var load: Dictionary = model.lift_load(item)
 			var seat_text := "1 Zugplatz je Teller" if item.kind == "drag" else ("%d %s je Fahrzeug" % [load.seats, "Platz" if load.seats == 1 else "Plätze"])
 			text_value += "%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s" % [seat_text, load.carriers, model.lift_speed(item) / 60, item.length / model.lift_speed(item), model.lift_capacity(item), load.queue, load.wait, load.riders, load.fill * 100, item.boarded, model.lift_status(item)]
+		elif item.get("kind", "") == "walkway":
+			text_value += "%.0f m Fußweg · 8 m breit\nDie sichtbare Verbindung führt direkt zu Lift, Piste oder Platz." % item.length
 		elif item.has("radius"):
 			text_value += "Ø %.0f m · Begehbare Fläche\nPisten und Gebäude können hier anschließen.\nLifttechnik und Zugspuren bleiben gesperrt." % (item.radius * 2)
 		else:
@@ -632,6 +634,8 @@ func _refresh_context_text() -> void:
 		var access: String = model.build_access_message(lift_kind(), true)
 		if access != "":
 			inspector_text.text = "[color=#efb17d]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
+	elif current_tool == "walkway":
+		inspector_text.text = "Start und Ziel an Liftzugängen, Pistenenden, Gebäuden oder Plätzen setzen.\n\nWeitere Punkte legen den Verlauf fest; Hindernisse werden umgangen. Nummerierte Punkte ziehen oder löschen.\n\n180 € + 18 €/m · 8 m breit"
 	elif current_tool == "plaza":
 		var spec: Dictionary = Catalog.PLAZAS[game.plaza_kind]
 		inspector_text.text = "[color=#efb17d]%s € · Ø %.0f m[/color]\n\n%s\n\n1. Freie Fläche antippen\n2. Anschluss prüfen\n3. Bauen bestätigen\n\nMit Abbrechen oder der Zurück-Taste verlässt du die Planung." % [money_text(spec.cost), spec.radius * 2, spec.description]
@@ -686,9 +690,9 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	design_button.visible = game.editing_id != -1
 	confirm_button.disabled = not can_build
 	confirm_button.visible = current_tool != "inspect"
-	undo_button.visible = current_tool in ["piste", "lift"]
+	undo_button.visible = current_tool in ["piste","lift","walkway"]
 	undo_button.disabled = point_count == 0
-	delete_point_button.visible = current_tool == "piste"
+	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	clear_button.visible = current_tool != "inspect"
 	palette.refresh()

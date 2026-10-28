@@ -63,7 +63,7 @@ static func start(piste: Dictionary, guest: Dictionary, from_fraction: float = 0
 	ensure(piste)
 	var key := "%d:%d:%d:%d" % [guest.id, guest.loops, guest.leg, guest.age]
 	guest.track = key
-	piste.tracks.append({"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "from": from_fraction, "until": end_fraction, "to": from_fraction})
+	piste.tracks.append({"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "from": from_fraction, "until": end_fraction, "to":from_fraction,"hikes":guest.get("walk_ranges",[]).duplicate(true)})
 	if piste.tracks.size() > MAX_TRACKS:
 		piste.tracks.pop_front()
 
@@ -84,7 +84,7 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 		var fraction: float = row * STEP / piste.length
 		var center: Vector2 = mountain.point_on_path(piste.points, fraction)
 		var ahead: Vector2 = mountain.point_on_path(piste.points, minf(1, fraction + 0.005))
-		var point := Motion.position(mountain, piste, guest.id, guest.ability, fraction, guest.loops, range_start, range_end)
+		var point := Motion.position(mountain, piste, guest.id, guest.ability, fraction, guest.loops,range_start,range_end,guest.get("walk_ranges",[]))
 		var lateral := (point - center).dot((ahead - center).normalized().orthogonal())
 		var lane := clampi(roundi((lateral / width + 0.5) * LANES), 1, LANES - 1)
 		var index := row * (LANES + 1) + lane
@@ -159,6 +159,7 @@ static func validate(piste: Dictionary) -> bool:
 			return false
 		if not Terrain.number(track.get("until", 1)) or track.get("until", 1) > 1 or track.get("until", 1) < track.get("to", -1):
 			return false
+		if not valid_hikes(track.get("hikes",[])): return false
 		for key in ["guest", "ability", "run", "to"]:
 			var value: Variant = track.get(key)
 			if not (value is int or value is float) or not is_finite(value) or value < 0 or value > (1 if key == "to" else (2 if key == "ability" else 1000000000)):
@@ -167,4 +168,12 @@ static func validate(piste: Dictionary) -> bool:
 				if value != floorf(value):
 					return false
 				track[key] = int(value)
+	return true
+
+static func valid_hikes(value: Variant) -> bool:
+	if not value is Array or value.size() > 512: return false
+	var previous := 0.0
+	for r in value:
+		if not r is Array or r.size() != 2 or not Terrain.number(r[0]) or not Terrain.number(r[1]) or r[0] < previous or r[0] < 0 or r[1] > 1 or r[1] <= r[0]: return false
+		previous = r[1]
 	return true

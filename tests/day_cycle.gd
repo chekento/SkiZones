@@ -144,12 +144,17 @@ func _queue_choices() -> void:
 	model.build_piste([[160,-130],[190,-30],[160,95],[115,205]])
 	var visitor := {"id": 103, "ability": 0, "age": 0, "stay": 520, "spent": true}
 	var quiet: Dictionary = model.choose_route(visitor)
+	# Each piste now has its own direct landing approach. Inspect the quiet
+	# chair-served circuit, then seed that exact queue for congestion testing.
+	for route in model._routes_from(0,"base",true):
+		if route.target == model.pistes[1].id: quiet = route
 	var used_fast := false
 	for leg in quiet.legs:
 		used_fast = used_fast or (leg.kind == "lift" and leg.id == model.lifts[1].id)
 	check(used_fast, "A quiet alternative chairlift provides the quicker uphill route")
 	for i in range(40): model.admit_guest(0)
 	for guest in model.guests:
+		guest.route = quiet.duplicate(true)
 		for index in range(guest.route.legs.size()):
 			var leg: Dictionary = guest.route.legs[index]
 			if leg.kind == "lift" and leg.id == model.lifts[1].id:
@@ -201,4 +206,4 @@ func _migration() -> void:
 	var before: Vector3 = copy.guest_position(copy.guests[0])
 	copy.advance_minute(false)
 	check(copy.is_closing() and copy.guest_position(copy.guests[0]).distance_to(before) < 40, "Migrated 0.7 skiers continue their saved old motion without snapping")
-	check(Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated journeys can immediately be saved again in format 8")
+	check(Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated journeys can immediately be saved again in format 9")

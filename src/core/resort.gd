@@ -334,6 +334,62 @@ func build_building(kind: String, point: Vector2) -> Dictionary:
 	_invalidate()
 	return _result(true, "%s gebaut." % Catalog.BUILDINGS[kind].name)
 
+func walkway_anchors(ignore_id: int = -1) -> Array:
+	var result: Array = []
+	for lift in lifts:
+		for top in [false,true]: result.append({"point":Foot.boarding_point(lift,top),"id":lift.id,"label":"Liftzugang · %s" % ("Berg" if top else "Tal")})
+	for building in buildings:
+		if building.kind != "snowmaker": result.append({"point":Foot.door(building),"id":building.id,"label":building.name})
+	for piste in pistes:
+		for first in [true,false]: result.append({"point":Terrain.unpack(piste.points[0] if first else piste.points[-1]),"id":piste.id,"label":"Piste %d · %s" % [piste.number,"Start" if first else "Auslauf"]})
+	for area in walk_areas:
+		if area.id == ignore_id: continue
+		for point in area.get("points",[area.point]): result.append({"point":Terrain.unpack(point),"id":area.id,"label":area.name})
+	result.append({"point":Terrain.BASE,"id":0,"label":"Talzugang"})
+	return result
+
+func snap_walkway(point: Vector2, radius: float = 28, ignore_id: int = -1) -> Dictionary:
+	var best: Dictionary = {}
+	for anchor in walkway_anchors(ignore_id):
+		var distance: float = point.distance_to(anchor.point)
+		if distance < radius:
+			radius = distance
+			best = anchor
+	return best
+
+func preview_walkway(points: Array) -> Dictionary:
+	if points.size() < 2: return _result(false,"Start und Ziel des Fußwegs an Lift, Piste, Gebäude oder Platz setzen.")
+	if points.size() > 64: return _result(false,"Höchstens 64 Planungspunkte für einen Fußweg.")
+	var prepared: Array = []
+	for i in range(points.size()):
+		var at := Terrain.unpack(points[i])
+		if not terrain.contains(at): return _result(false,"Der Fußweg muss im Baugebiet bleiben.")
+		if i == 0:
+			prepared.append(Terrain.pack(at))
+			continue
+		if Terrain.unpack(prepared[-1]).distance_to(at) < 2: return _result(false,"Wegpunkte mindestens 2 m auseinander setzen.")
+		var detour := Foot.path_between(Terrain.unpack(prepared[-1]),at,buildings,lifts)
+		if detour.is_empty(): return _result(false,"Lifttechnik und Gebäudewände freihalten. Den Zugang neben der Anlage wählen.")
+		prepared.append_array(detour.slice(1))
+		if prepared.size() > 64: return _result(false,"Den Fußweg in zwei verbundene Abschnitte teilen.")
+	if not Foot.gentle(terrain,prepared): return _result(false,"Zum Gehen zu steil. Den Weg mit weiteren Punkten quer zum Hang legen.")
+	var layout_value := pedestrian_layout()
+	for at in [Terrain.unpack(prepared[0]),Terrain.unpack(prepared[-1])]:
+		if not Foot.contains(layout_value,at) and snap_walkway(at,4).is_empty(): return _result(false,"Beide Enden an einen Liftzugang, eine Piste, ein Gebäude oder einen Platz anschließen.")
+	var length := terrain.polyline_length(prepared)
+	if length < 4 or length > 1600: return _result(false,"Ein Fußweg benötigt 4–1.600 m Länge.")
+	return _result(true,"Fußweg · %.0f m · 8 m breit · beide Enden angeschlossen" % length,{"points":prepared,"length":length,"width":8.0,"walkway":true,"cost":roundi(180+length*18)})
+
+func build_walkway(points: Array) -> Dictionary:
+	if walk_areas.size() >= 80: return _result(false,"Maximal 80 Wege und zusätzliche Gehflächen.")
+	var check := preview_walkway(points)
+	if not check.ok: return check
+	if not _spend(check.cost): return _result(false,"Das Budget reicht für diesen Fußweg noch nicht.")
+	walk_areas.append({"id":next_id,"kind":"walkway","point":check.points[0],"points":check.points,"radius":4.0,"length":check.length,"cost":check.cost,"enabled":true,"name":"Fußweg %d" % next_id})
+	next_id += 1
+	_invalidate()
+	return _result(true,"Fußweg gebaut. Gäste nutzen dieselbe sichtbare Verbindung zu Liften und Pisten.")
+
 func preview_plaza(kind: String, point: Vector2) -> Dictionary:
 	if not Catalog.PLAZAS.has(kind) or not terrain.contains(point):
 		return _result(false, "Eine Gehfläche innerhalb des Baugebiets wählen.")
@@ -498,7 +554,8 @@ func pedestrian_graph() -> Dictionary:
 	var nodes: Dictionary = layout_value.nodes.duplicate(true)
 	var edges: Dictionary = {}
 	for key in nodes: edges[key] = []
-	for link in layout_value.links: _foot_link(edges,link.from,link.to,link.points)
+	for link in layout_value.links:
+		if not link.get("closed",false): _foot_link(edges,link.from,link.to,link.points)
 	_foot_graph = {"nodes": nodes, "edges": edges}
 	return _foot_graph
 
@@ -567,12 +624,12 @@ func _ski_edge(piste: Dictionary, first: int, last: int, skill: int) -> Dictiona
 	var points: Array = piste.points.slice(first, last + 1)
 	var motion := Motion.travel_profile(terrain, points, skill)
 	var leg := _edge(_piste_node(piste, first), _piste_node(piste, last), "ski", piste.id, points, motion.minutes)
-	leg.merge({"first": first, "last": last, "start_fraction": start, "end_fraction": end, "motion": motion.samples, "skill": skill})
+	leg.merge({"first": first, "last": last, "start_fraction": start, "end_fraction": end, "motion": motion.samples,"motion_version":2,"skill":skill})
 	_ski_legs[key] = leg
 	return leg
 
-static func ski_fraction(leg: Dictionary, progress: float) -> float:
-	var along := Motion.distance_progress(leg.get("motion", []), progress)
+static func ski_fraction(leg: Dictionary, progress: float, personal_motion: Array = []) -> float:
+	var along := Motion.distance_progress(personal_motion if not personal_motion.is_empty() else leg.get("motion",[]),progress)
 	return lerpf(leg.get("start_fraction", 0.0), leg.get("end_fraction", 1.0), along)
 
 func _routing_graph(skill: int, consider_queues: bool = false) -> Dictionary:
@@ -884,14 +941,20 @@ func admit_guest(skill: int) -> bool:
 func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
-	for key in ["ride_car", "ride_seat", "ride_departure", "queue_since"]:
+	for key in ["ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges"]:
 		guest.erase(key)
 	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	guest.duration = leg.minutes
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
-		guest.duration *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability).speed * (1.0 + Snow.roughness(piste) * 0.35)
+		if leg.get("motion_version",0) >= 2:
+			var motion := Motion.travel_profile(terrain,leg.points,guest.ability,Motion.style(guest.id,guest.ability).speed/[5.2,7.5,10.0][guest.ability],Snow.roughness(piste))
+			guest.ski_motion = motion.samples
+			guest.duration = motion.minutes
+			guest.walk_ranges = Motion.walk_ranges(motion.samples,leg.get("start_fraction",0),leg.get("end_fraction",1))
+		else:
+			guest.duration *= [5.2,7.5,10.0][guest.ability]/Motion.style(guest.id,guest.ability).speed*(1+Snow.roughness(piste)*0.35)
 		Snow.start(piste, guest, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 	elif leg.kind == "walk":
 		guest.duration *= 0.9 + float((int(guest.id) * 23) % 100) / 500
@@ -1076,7 +1139,7 @@ func advance_minute(arrivals: bool = true) -> void:
 			else:
 				guest.elapsed += 1.0
 			if leg.kind == "ski":
-				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg, previous), ski_fraction(leg, guest.elapsed / duration))
+				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])))
 				snow_revision += 1
 			if guest.elapsed >= duration:
 				_finish_leg(guest)
@@ -1299,9 +1362,11 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 		return rider_pose(guest, fraction_tick).transform.origin
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
-		fraction = ski_fraction(leg, fraction)
-		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
-		var center: Vector2 = terrain.point_on_path(piste.points, fraction)
+		var hiking := Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
+		fraction = ski_fraction(leg,fraction,guest.get("ski_motion",[]))
+		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]))
+		var center: Vector2 = terrain.point_on_path(piste.points,fraction)
+		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
 		return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(side)) - 0.05)
 	return terrain.world(point, 0.3)
@@ -1613,8 +1678,12 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.phase == "queue" and route.legs[int(visitor.leg)].kind != "lift":
 			return invalid
+		if visitor.has("ski_motion") and not Motion.valid_profile(visitor.ski_motion): return invalid
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.route = route
+		if copy.has("ski_motion") and copy.phase != "leaving" and int(copy.leg) < route.legs.size() and route.legs[int(copy.leg)].kind == "ski":
+			var skiing: Dictionary = route.legs[int(copy.leg)]
+			copy.walk_ranges = Motion.walk_ranges(copy.ski_motion,skiing.get("start_fraction",0),skiing.get("end_fraction",1))
 		if data.version >= 3:
 			if not Terrain.number(copy.get("duration", 1.0) if copy.phase == "leaving" else copy.get("duration")) or copy.get("duration", 1.0) < 0.15 or copy.get("duration", 1.0) > 1000000 or (copy.has("track") and (not copy.track is String or copy.track.length() > 80)):
 				return invalid

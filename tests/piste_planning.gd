@@ -35,7 +35,7 @@ func _init() -> void:
 	var short_steep := ShortSteepSection.new().analyse([[0, 0], [0, 450]])
 	check(short_steep.ok and short_steep.average < 15 and short_steep.difficulty == 2, "A short black section cannot be hidden inside an easy average")
 	check(not terrain.analyse([[0, 200], [0, 0]]).ok, "Uphill routes remain blocked in automatic mode")
-	check(not terrain.analyse([[0, 0], [350, 80], [0, 70], [0, 200]]).ok, "An intermediate uphill section remains blocked")
+	check(terrain.analyse([[0,0],[350,80],[0,70],[0,200]]).ok,"A short intermediate rise is allowed when momentum or hiking can cover it")
 	check(serpentine.profile.size() >= 4 and serpentine.profile.size() < 520 and is_equal_approx(serpentine.profile[-1].distance, serpentine.horizontal), "The live profile reaches the end and has bounded display samples")
 	check(serpentine.segments.size() == 3 and serpentine.segments[0].difficulty == 0, "Every planned segment has a classification for the route preview")
 	check(is_equal_approx(serpentine.average, serpentine.drop / serpentine.horizontal * 100), "Average grade uses horizontal distance, not the 3D path length")

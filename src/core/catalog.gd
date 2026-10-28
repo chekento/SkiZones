@@ -1,6 +1,7 @@
 extends RefCounted
 
 const PLAZAS := {
+	"walkway": {"name":"Fußweg planen","radius":4.0,"cost":252,"per_m":18,"description":"Start und Ziel verbinden: Liftzugang, Pistenende, Gebäude oder Platz."},
 	"path": {"name": "Gehfläche", "radius": 26.0, "cost": 2400, "description": "Kleine geräumte Fläche. Mehrere Flächen verbinden sich zu einem Fußweg."},
 	"plaza": {"name": "Stationsplatz", "radius": 48.0, "cost": 7200, "description": "Großer Treffpunkt für Umstiege, Pistenanschlüsse und neue Gebäude."},
 	"promenade": {"name": "Resort-Promenade", "radius": 70.0, "cost": 14500, "description": "Weitläufiger Aufenthaltsbereich für ein wachsendes Resort."}

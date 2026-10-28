@@ -228,7 +228,7 @@ func delete_waypoint() -> void:
 	_update_plan()
 
 func _snap_point(point: Vector2) -> Vector2:
-	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else {}
+	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else {}
 	return snap_target.point if not snap_target.is_empty() else point
 
 func _begin_waypoint_drag(index: int) -> void:
@@ -261,6 +261,7 @@ func _plan_check() -> Dictionary:
 		var access: String = model.build_access_message(hud.lift_kind() if tool == "lift" else hud.building_kind(), tool == "lift")
 		if access != "":
 			return {"ok": false, "message": access, "cost": 0}
+	if tool == "walkway": return model.preview_walkway(points)
 	if tool == "piste":
 		return model.preview_piste(points)
 	if tool == "lift" and points.size() == 2:
@@ -285,14 +286,14 @@ func _update_plan() -> void:
 		if selected_waypoint >= points.size():
 			selected_waypoint = -1
 	last_plan_check = check
-	hud.palette.route_profile.update_profile(check if tool in ["piste", "building", "plaza"] else {})
+	hud.palette.route_profile.update_profile(check if tool in ["piste","building","plaza","walkway"] else {})
 	var cost: float = check.get("cost", 0)
 	var affordable: bool = cost <= model.money
 	var message: String = check.message
 	if points.is_empty() and tool == "piste":
 		message = "Abfahrt planen: Start am Berg setzen, danach weitere Wegpunkte bis ins Tal."
 	elif points.size() == 1 and tool == "piste":
-		message = "Start bei %.0f m. Wegpunkte bergab setzen; Farbe und Schilder entstehen automatisch." % model.terrain.height(Terrain.unpack(points[0]))
+		message = "Start bei %.0f m. Verlauf setzen; kurze Gegenanstiege sind mit Schwung oder zu Fuß möglich." % model.terrain.height(Terrain.unpack(points[0]))
 	if not snap_target.is_empty():
 		message += " · Angedockt: %s" % snap_target.label
 	if selected_waypoint >= 0 and snap_target.is_empty():
@@ -300,7 +301,7 @@ func _update_plan() -> void:
 	if not affordable:
 		message += "  Das Budget reicht noch nicht."
 	hud.plan(message, check.ok and affordable, points.size(), cost)
-	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste", "building", "plaza"] else {})
+	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste","building","plaza","walkway"] else {})
 	hud._refresh_context_text()
 
 func confirm_plan() -> void:
@@ -319,6 +320,8 @@ func confirm_plan() -> void:
 	var edited := editing_id
 	if editing_id != -1:
 		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width)
+	elif tool == "walkway":
+		result = model.build_walkway(points)
 	elif tool == "plaza":
 		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
 	elif tool == "piste":
@@ -792,6 +795,10 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 		tool = "lift"
 		_edit_original = [item.bottom.duplicate(), item.top.duplicate()]
 		hud.lift_choice.select(_catalog_index(item.kind, true))
+	elif item.get("kind", "") == "walkway":
+		tool = "walkway"
+		plaza_kind = "walkway"
+		_edit_original = item.points.duplicate(true)
 	elif item.has("radius"):
 		tool = "plaza"
 		plaza_kind = item.kind

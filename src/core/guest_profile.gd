@@ -19,6 +19,8 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 		kind = guest.route.legs[guest.leg].kind
 		activity = {"ski": "Auf der Piste", "walk": "Zu Fuß unterwegs", "lift": "Fährt bergauf", "visit": "Genießt eine Pause"}.get(kind, "Unterwegs")
+	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
+		activity = "Stapft den Gegenanstieg hinauf"
 	if guest.phase == "queue":
 		activity = "Wartet auf den Lift"
 	elif guest.get("heading_home", false):

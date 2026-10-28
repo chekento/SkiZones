@@ -40,6 +40,9 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	if item.has("difficulty"):
 		check = candidate.preview_piste(points, width + (int(item.get("level", 1)) - 1) * 4)
 		original = item.points
+	elif item.get("kind", "") == "walkway":
+		check = candidate.preview_walkway(points)
+		original = item.points
 	elif item.has("bottom"):
 		if points.size() != 2: return invalid
 		check = candidate.preview_lift(item.kind, Terrain.unpack(points[0]), Terrain.unpack(points[1]))
@@ -51,7 +54,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	if not check.ok: return check
 	check.points = check.get("points", points).duplicate(true)
 	check.rotation = rotation_value
-	check.width = width
+	check.width = 8.0 if item.get("kind", "") == "walkway" else width
 	check.neighbors = {}
 	var changed: bool = check.points != original or rotation_value != int(item.get("rotation", 0)) or (item.has("difficulty") and not is_equal_approx(width, item.get("width", 20)))
 	if item.has("difficulty") and points.size() != original.size():
@@ -117,6 +120,10 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 				var analysis: Dictionary = model.terrain.analyse(prepared)
 				analysis.points = prepared
 				_piste(piste, analysis)
+	elif item.get("kind", "") == "walkway":
+		item.points = check.points.duplicate(true)
+		item.point = item.points[0].duplicate()
+		item.length = check.length
 	else:
 		item.point = points[0].duplicate()
 		item.rotation = rotation_value

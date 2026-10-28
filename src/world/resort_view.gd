@@ -52,6 +52,7 @@ var _track_mesh := MeshInstance3D.new()
 var _riders := MultiMeshInstance3D.new()
 var _cabin_riders := MultiMeshInstance3D.new()
 var _walkers := MultiMeshInstance3D.new()
+var _climbers := MultiMeshInstance3D.new()
 var _tow_lines := MultiMeshInstance3D.new()
 var _vehicle_glass: Dictionary = {}
 var _queue_labels: Dictionary = {}
@@ -108,7 +109,7 @@ func setup(resort: RefCounted) -> void:
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _tow_lines, _groomers, _track_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _track_mesh]:
 		add_child(node)
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(), model.MAX_GUESTS)
 	visitor_mesh.multimesh.mesh.surface_set_material(0, _solid)
@@ -123,6 +124,9 @@ func setup(resort: RefCounted) -> void:
 	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS)
 	_walkers.multimesh.mesh.surface_set_material(0, _solid)
 	_walkers.multimesh.visible_instance_count = 0
+	_climbers.multimesh = _multimesh(Art.new().skier(true,true),model.MAX_GUESTS)
+	_climbers.multimesh.mesh.surface_set_material(0,_solid)
+	_climbers.multimesh.visible_instance_count = 0
 	var tow := CylinderMesh.new()
 	tow.height = 1
 	tow.top_radius = 0.055
@@ -594,8 +598,8 @@ func _build_foot_areas() -> void:
 	foot_mesh = _baked(asset_root, surface.commit(), Vector3.ZERO)
 	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for link in _pedestrian_snapshot.links:
-		_ribbon(asset_root, link.points, 7, Color("c8d2cf"), 0.39)
-		_ribbon(asset_root, link.points, 4.6, Color("becbc9"), 0.42)
+		_ribbon(asset_root,link.points,link.get("width",7), Color("c8d2cf"), 0.39)
+		_ribbon(asset_root,link.points,link.get("width",7)*0.66, Color("becbc9"), 0.42)
 	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
 		if area.kind not in ["station", "plaza"]:
@@ -744,7 +748,7 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		child.queue_free()
 	if points.is_empty():
 		return
-	_ribbon(preview_root, points, analysis.get("width", 20) if analysis.has("segments") else 7, color, 1.55)
+	_ribbon(preview_root,analysis.get("points",points) if analysis.get("walkway",false) else points,analysis.get("width",20) if analysis.has("segments") or analysis.get("walkway",false) else 7,color,1.55)
 	if analysis.has("radius"):
 		var center := Terrain.unpack(points[-1])
 		var radius: float = analysis.radius
@@ -850,6 +854,7 @@ func _process(delta: float) -> void:
 	var riding := 0
 	var cabin_riding := 0
 	var foot_visitors := 0
+	var climbers := 0
 	for guest in model.guests:
 		if guest.phase == "leaving":
 			continue
@@ -859,6 +864,7 @@ func _process(delta: float) -> void:
 		var pitch := 0.0
 		var seated := false
 		var in_cabin := false
+		var hiking := false
 		var on_foot: bool = guest.phase == "queue"
 		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 			var leg: Dictionary = guest.route.legs[guest.leg]
@@ -870,6 +876,7 @@ func _process(delta: float) -> void:
 				angle = personal.yaw
 				lean = personal.lean
 				pitch = personal.pitch
+				hiking = Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
 			elif leg.kind == "lift" and guest.phase == "moving":
 				var pose: Dictionary = _rider_pose(guest)
 				position_value = pose.transform.origin
@@ -904,6 +911,11 @@ func _process(delta: float) -> void:
 			_riders.multimesh.set_instance_transform(riding, transform_value)
 			_riders.multimesh.set_instance_color(riding, color)
 			riding += 1
+		elif hiking:
+			transform_value.basis = transform_value.basis.rotated(Vector3.FORWARD,sin((guest.elapsed+simulation_fraction)*8)*0.035)
+			_climbers.multimesh.set_instance_transform(climbers,transform_value)
+			_climbers.multimesh.set_instance_color(climbers,color)
+			climbers += 1
 		elif on_foot:
 			_walkers.multimesh.set_instance_transform(foot_visitors, transform_value)
 			_walkers.multimesh.set_instance_color(foot_visitors, color)
@@ -932,6 +944,7 @@ func _process(delta: float) -> void:
 	_riders.multimesh.visible_instance_count = riding
 	_cabin_riders.multimesh.visible_instance_count = cabin_riding
 	_walkers.multimesh.visible_instance_count = foot_visitors
+	_climbers.multimesh.visible_instance_count = climbers
 	var machines := 0
 	for piste in model.pistes:
 		if piste.get("grooming_until", 0) <= model.minute:
@@ -1036,10 +1049,10 @@ func _trace_sample(piste: Dictionary, track: Dictionary, index: int, blocking: b
 	trace_samples += 1
 	var start: float = track.get("from", 0.0)
 	var fraction := minf(track.get("until", 1.0), start + index * 2.0 / piste.length)
-	var frame := Motion.frame(terrain, piste, track.guest, track.ability, fraction, track.run, start, track.get("until", 1.0))
+	var frame := Motion.frame(terrain, piste, track.guest, track.ability, fraction, track.run,start,track.get("until",1.0),track.get("hikes",[]))
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var road_side := (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	var data := {"points": [], "uvs": []}
+	var data := {"points":[],"uvs":[],"hiking":Motion.in_walk_range(track.get("hikes",[]),fraction)}
 	for offset in [-0.28, 0.28]:
 		var point: Vector2 = frame.point + frame.direction.orthogonal() * offset
 		data.points.append(terrain.world(point, Snow.base_height(piste, fraction) + 0.05))
@@ -1059,11 +1072,11 @@ func _draw_tracks(blocking: bool = true) -> void:
 			continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
 		var key: String = guest.get("track", "")
-		live[key] = model.ski_fraction(leg, (guest.elapsed + simulation_fraction) / guest.duration)
+		live[key] = model.ski_fraction(leg,(guest.elapsed+simulation_fraction)/guest.duration,guest.get("ski_motion",[]))
 		if int(guest.id) == follow_guest:
 			followed = key
 			followed_piste = leg.id
-			record = {"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "from": leg.get("start_fraction", 0.0), "until": leg.get("end_fraction", 1.0), "to": live[key]}
+			record = {"key": key, "guest": int(guest.id), "ability": int(guest.ability), "run": int(guest.loops), "hikes":guest.get("walk_ranges",[]),"from":leg.get("start_fraction",0.0),"until": leg.get("end_fraction", 1.0), "to": live[key]}
 	var visible: Array = []
 	for piste in model.pistes:
 		if terrain.point_on_path(piste.points, 0.5).distance_to(focus) < maxf(zoom * 2 + piste.length * 0.5, 600):
@@ -1105,6 +1118,10 @@ func _draw_tracks(blocking: bool = true) -> void:
 						surface.set_uv(a.uvs[ski])
 						var pa: Vector3 = a.points[ski]
 						var pb: Vector3 = b.points[ski]
+						if a.get("hiking",false) or b.get("hiking",false):
+							var step := pb-pa
+							pa = pa.lerp(pb,0.2 if ski == index%2 else 0.65)
+							pb = pa+step.normalized()*0.45
 						if bright:
 							pa += Vector3(0.1, 0.035, 0.1); pb += Vector3(0.1, 0.035, 0.1)
 						_trace_quad(surface, pa, pb, 0.04 if bright else 0.10, Color("edf5f9") if bright else Color("91adbf"))
@@ -1222,6 +1239,9 @@ func pick_asset(point: Vector2) -> int:
 	var id := -1
 	for building in model.buildings + model.walk_areas:
 		var distance := point.distance_to(Terrain.unpack(building.point))
+		if building.get("kind", "") == "walkway":
+			for i in range(1,building.points.size()):
+				distance = minf(distance,Geometry2D.get_closest_point_to_segment(point,Terrain.unpack(building.points[i-1]),Terrain.unpack(building.points[i])).distance_to(point))
 		if distance < closest:
 			closest = distance
 			id = building.id
@@ -1239,8 +1259,9 @@ func pick_asset(point: Vector2) -> int:
 	return id
 
 func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elapsed: float) -> Dictionary:
-	var fraction: float = model.ski_fraction(leg, clampf(elapsed / guest.duration, 0, 1))
-	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
+	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
+	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]))
+	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
 	var before: Vector3 = terrain.world(frame.before)
@@ -1250,7 +1271,7 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction
 	if follow_guest == int(guest.id):
-		return _exact_ski_pose(piste, guest, leg, elapsed)
+			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.
 	const QUANTUM := 0.12
 	var offset := float(int(guest.id) % 17) * QUANTUM / 17

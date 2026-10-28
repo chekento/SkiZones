@@ -77,7 +77,7 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 			game.set_tool(key)
 		elif type == "plaza":
 			game.plaza_kind = key
-			game.set_tool("plaza")
+			game.set_tool("walkway" if key == "walkway" else "plaza")
 		else:
 			var choice: OptionButton = hud.lift_choice if type == "lift" else hud.building_choice
 			choice.select((Catalog.LIFTS.keys() if type == "lift" else Catalog.BUILDINGS.keys()).find(key))
@@ -98,6 +98,9 @@ func _make_cards() -> void:
 		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).lightened(0.2))
 	for key in Catalog.PLAZAS:
 		var spec: Dictionary = Catalog.PLAZAS[key]
+		if key == "walkway":
+			_card(key,spec.name,"8 m breit · 180 € + 18 €/m\n"+spec.description,252,0,"plaza",hud.TEAL)
+			continue
 		_card(key, spec.name, "Ø %.0f m · %s €\n%s" % [spec.radius * 2, hud.money_text(spec.cost), spec.description], spec.cost, 0, "plaza", hud.TEAL)
 	refresh(true)
 
@@ -124,9 +127,9 @@ func refresh(force: bool = false) -> void:
 		var locked: String = "" if card.type in ["piste", "plaza"] else game.model.build_access_message(card.key, card.type == "lift")
 		var affordable: bool = game.model.money >= card.cost
 		card.button.disabled = locked != "" or not affordable or not game.points.is_empty()
-		card.status.text = "Plan läuft · Bauen / Abbrechen" if not game.points.is_empty() else locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type in ["building", "plaza"] else "Route planen"))
+		card.status.text = "Plan läuft · Bauen / Abbrechen" if not game.points.is_empty() else locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type in ["building", "plaza"] and card.key != "walkway" else "Route planen"))
 		card.heading.modulate = Color("718b94") if locked != "" else Color.WHITE
-		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool == "plaza" and game.plaza_kind == card.key) if card.type == "plaza" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
+		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool in ["plaza","walkway"] and game.plaza_kind == card.key) if card.type == "plaza" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
 		card.button.add_theme_stylebox_override("normal", hud._style(Color("315c68") if selected else Color("20424f"), 10, 10, hud.TEAL if selected else Color.TRANSPARENT))
 		if card.type in ["lift", "building"]:
 			var choice: OptionButton = hud.lift_choice if card.type == "lift" else hud.building_choice

@@ -44,7 +44,7 @@ func _test_terrain() -> void:
 	check(not Terrain.analyse([[245, -130], [900, 900]], 2).ok, "Out-of-bounds geometry is rejected")
 	check(not Terrain.analyse([[NAN, 0], [200, 205]], 0).ok, "Non-finite coordinates are rejected")
 	var hidden_peak := [[-170, -360], [-170, 190]]
-	check(not Terrain.analyse(hidden_peak, 2).ok, "Interior uphill terrain is detected despite a downhill endpoint")
+	check(Terrain.analyse(hidden_peak,2).ok,"A downhill piste may include a walkable interior rise")
 
 func _test_building_and_money() -> void:
 	var model = fresh()
