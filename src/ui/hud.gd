@@ -43,7 +43,8 @@ var speed_buttons: Array = []
 var lift_choice := OptionButton.new()
 var building_choice := OptionButton.new()
 var continue_button: Button
-var daily_dialog := AcceptDialog.new()
+const DayReport = preload("res://src/ui/day_report.gd")
+var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
 var camera_panel: PanelContainer
@@ -403,7 +404,7 @@ func _apply_panel_visibility() -> void:
 	tools_panel.visible = show_game and not map_focus
 	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect"
 	# Keep a pending plan and its confirmation available in the wider map view.
-	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
+	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.day_finished())
 	slope_legend.visible = show_game and game.view.slopes_visible
 	slope_legend.offset_left = 24 if map_focus else 340
 	slope_legend.offset_right = -24 if map_focus else -328
@@ -435,14 +436,12 @@ func _build_menu() -> void:
 	_button(box, "Gebiete entdecken", show_atlas)
 	_button(box, "Darstellung & Komfort", func(): display_options.open())
 	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Version 0.7.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_label(box, "Ski Resort Tycoon  /  Version 0.8.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
-	daily_dialog.title = "Feierabend am Berg"
-	daily_dialog.ok_button_text = "Nächsten Tag starten"
+	daily_dialog.setup(self)
 	daily_dialog.confirmed.connect(game.next_day)
-	daily_dialog.close_requested.connect(func(): daily_dialog.hide())
 	root.add_child(help_dialog)
 	help_dialog.title = "SkiZones · So wächst dein Resort"
 	help_dialog.ok_button_text = "Zurück zum Berg"
@@ -612,7 +611,7 @@ func _refresh_context_text() -> void:
 		elif item.has("bottom"):
 			var load: Dictionary = model.lift_load(item)
 			var seat_text := "1 Zugplatz je Teller" if item.kind == "drag" else ("%d %s je Fahrzeug" % [load.seats, "Platz" if load.seats == 1 else "Plätze"])
-			text_value += "%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s" % [seat_text, load.carriers, model.lift_speed(item) / 60, item.length / model.lift_speed(item), model.lift_capacity(item), load.queue, load.wait, load.riders, load.fill * 100, item.boarded, "Betrieb möglich" if model.lift_open(item) else "Wegen Wind oder manuell geschlossen"]
+			text_value += "%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s" % [seat_text, load.carriers, model.lift_speed(item) / 60, item.length / model.lift_speed(item), model.lift_capacity(item), load.queue, load.wait, load.riders, load.fill * 100, item.boarded, model.lift_status(item)]
 		elif item.has("radius"):
 			text_value += "Ø %.0f m · Begehbare Fläche\nPisten und Gebäude können hier anschließen.\nLifttechnik und Zugspuren bleiben gesperrt." % (item.radius * 2)
 		else:
@@ -660,7 +659,7 @@ func refresh() -> void:
 	labels.guests.text = "%d / %d" % [model.guests.size(), model.total_guests]
 	labels.rep.text = "%.0f %%" % model.reputation
 	labels.rides.text = str(model.total_rides)
-	labels.clock.text = "Tag %d · %02d:%02d" % [model.day, model.minute / 60, model.minute % 60]
+	labels.clock.text = "Tag %d · %02d:%02d" % [model.day, (model.minute / 60) % 24, model.minute % 60]
 	labels.weather.text = "%s   /   %.0f °C   /   Wind %.0f km/h" % [model.weather().name, model.weather().temperature, model.weather().wind]
 	pause_button.text = "Weiter" if game.paused else "Pause"
 	for i in range(speed_buttons.size()):
@@ -670,7 +669,7 @@ func refresh() -> void:
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
 		labels.status.text = _toast
 	else:
-		labels.status.text = "Baupause" if not game.points.is_empty() else "Simulation pausiert" if game.paused else "%d× · %d Gäste warten" % [game.speed, model.queue_size()]
+		labels.status.text = "Feierabend · %d Gäste beenden ihren Rückweg" % model.guests.size() if model.is_closing() else "Baupause" if not game.points.is_empty() else "Simulation pausiert" if game.paused else "%d× · %d Gäste warten" % [game.speed, model.queue_size()]
 
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
@@ -686,7 +685,7 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	clear_button.visible = current_tool != "inspect"
 	palette.refresh()
-	if current_tool == "inspect" and game.model.minute >= game.model.CLOSING:
+	if current_tool == "inspect" and game.model.day_finished():
 		confirm_button.visible = true
 		confirm_button.disabled = false
 		confirm_button.text = "Tagesbericht ansehen"
@@ -703,6 +702,5 @@ func show_report() -> void:
 		return
 	var satisfaction: float = report.satisfaction / maxf(1, report.departures)
 	var operating: float = report.tickets + report.services - report.costs
-	daily_dialog.dialog_text = "Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nÜber Nacht werden die Pisten präpariert." % [Progression.season_number(game.model), Progression.season_day(game.model), report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(operating), money_text(report.get("investments", 0.0)), money_text(report.rewards), money_text(operating + report.rewards - report.get("investments", 0.0)), money_text(game.model.money), game.model.campaign.rank, game.model.campaign.points, game.model.campaign.notice]
-	daily_dialog.get_label().add_theme_font_size_override("font_size", 20)
-	daily_dialog.popup_centered(Vector2i(760, 640))
+	var text_value := "Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nAlle Gäste sind im Tal. Über Nacht werden die Pisten präpariert." % [Progression.season_number(game.model), Progression.season_day(game.model), report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(operating), money_text(report.get("investments", 0.0)), money_text(report.rewards), money_text(operating + report.rewards - report.get("investments", 0.0)), money_text(game.model.money), game.model.campaign.rank, game.model.campaign.points, game.model.campaign.notice]
+	daily_dialog.open(text_value)

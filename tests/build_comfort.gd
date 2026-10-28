@@ -82,7 +82,7 @@ func _balance() -> void:
 	var baseline: float = model.arrival_capacity_factor()
 	for i in range(80):
 		model.admit_guest(0)
-		var guest: Dictionary = model.guests[-1]
+	for guest in model.guests:
 		for index in range(guest.route.legs.size()):
 			if guest.route.legs[index].kind == "lift": guest.leg = index; break
 		model._start_leg(guest)
@@ -93,7 +93,7 @@ func _balance() -> void:
 	var income := 0.0
 	var costs := 0.0
 	for day in range(7):
-		while model.minute < model.CLOSING:
+		while not model.day_finished():
 			model.advance_minute(); peak = maxi(peak, model.queue_size())
 		income += model.last_report.tickets + model.last_report.services
 		costs += model.last_report.costs

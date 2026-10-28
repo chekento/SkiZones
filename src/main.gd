@@ -70,14 +70,14 @@ func _process(delta: float) -> void:
 		_update_plan()
 	if simulation_running():
 		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND
-		while _accumulator >= 1.0 and model.minute < Resort.CLOSING:
+		while _accumulator >= 1.0 and not model.day_finished():
 			_accumulator -= 1.0
 			model.advance_minute()
 	simulation_fraction = _accumulator
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
 	view.motion_rate = float(speed)
-	if has_game and model.minute >= Resort.CLOSING and not _day_report_shown:
+	if has_game and model.day_finished() and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
 		hud.show_report()
@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
+	return has_game and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	model.new_game(starter, 20261027, area)
@@ -307,7 +307,7 @@ func confirm_plan() -> void:
 	if _committing:
 		return
 	if tool == "inspect":
-		if model.minute >= Resort.CLOSING:
+		if model.day_finished():
 			hud.show_report()
 		return
 	var check := _plan_check()

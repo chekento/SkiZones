@@ -21,6 +21,8 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		activity = {"ski": "Auf der Piste", "walk": "Zu Fuß unterwegs", "lift": "Fährt bergauf", "visit": "Genießt eine Pause"}.get(kind, "Unterwegs")
 	if guest.phase == "queue":
 		activity = "Wartet auf den Lift"
+	elif guest.get("heading_home", false):
+		activity = "Auf dem Rückweg ins Tal"
 	if guest.phase == "queue" and guest.wait > patience:
 		mood = "impatient"; emotion = "Ungeduldig"; emoji = "😤"; reason = "Ich warte schon %d Minuten. Ein Lift mit mehr Kapazität wäre schön." % guest.wait
 	elif warmth < 45:

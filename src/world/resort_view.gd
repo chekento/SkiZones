@@ -818,7 +818,7 @@ func _process(delta: float) -> void:
 			data.glass.visible = shown
 		if not shown:
 			continue
-		var clock: float = lift.get("clock", 0.0) + (simulation_fraction if model.lift_open(lift) else 0.0)
+		var clock: float = lift.get("clock", 0.0) + (simulation_fraction if model.lift_running(lift) else 0.0)
 		var changed: bool = not is_equal_approx(data.clock, clock)
 		for carrier in range(data.poses.size()):
 			if changed:

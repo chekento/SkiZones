@@ -40,3 +40,75 @@ static func frame(mountain: RefCounted, piste: Dictionary, id: int, ability: int
 	var direction := (ahead - before).normalized()
 	var personal := style(id, ability)
 	return {"point": point, "before": before, "ahead": ahead, "direction": direction, "yaw": atan2(direction.x, direction.y), "lean": sin(piste.length * fraction / personal.wave * TAU + personal.phase + run * 1.7) * (0.13 + ability * 0.07)}
+
+static func travel_profile(mountain: RefCounted, points: Array, ability: int) -> Dictionary:
+	# A small deterministic longitudinal model: gravity and rolling resistance,
+	# aerodynamic drag, skill-limited speed and braking before tight corners.
+	# Speeds are metres per real second; one simulation minute takes two seconds.
+	var length: float = mountain.polyline_length(points)
+	var count := clampi(ceili(length / 8.0), 8, 128)
+	var positions: Array[Vector3] = []
+	var limits: Array[float] = []
+	var caps := [7.5, 11.5, 15.0]
+	for i in range(count + 1):
+		var at: Vector2 = mountain.point_on_path(points, float(i) / count)
+		positions.append(mountain.world(at))
+		limits.append(caps[ability])
+	for i in range(1, count):
+		var incoming := (positions[i] - positions[i - 1]).normalized()
+		var outgoing := (positions[i + 1] - positions[i]).normalized()
+		var angle := acos(clampf(incoming.dot(outgoing), -1, 1))
+		if angle > 0.035:
+			var radius := positions[i].distance_to(positions[i - 1]) / maxf(angle, 0.01)
+			limits[i] = minf(limits[i], maxf(2.0, sqrt(radius * [1.5, 2.2, 3.0][ability])))
+	limits[-1] = minf(limits[-1], 3.0) # controlled arrival at a junction/plaza
+	# Backward braking pass avoids reaching a hairpin at the straight-line cap.
+	for i in range(count - 1, -1, -1):
+		var distance := positions[i].distance_to(positions[i + 1])
+		limits[i] = minf(limits[i], sqrt(limits[i + 1] * limits[i + 1] + 2 * 1.8 * distance))
+	var speed := minf(2.5, limits[0])
+	var seconds := 0.0
+	var samples: Array = [[0.0, 0.0]]
+	for i in range(1, count + 1):
+		var delta := positions[i] - positions[i - 1]
+		var distance := maxf(delta.length(), 0.01)
+		var slope := -delta.y / distance
+		var acceleration := 9.81 * slope - 0.20 - 0.012 * speed * speed
+		# Skating keeps shallow traverses moving; there is no negative velocity.
+		var next_speed := clampf(sqrt(maxf(4.0, speed * speed + 2 * acceleration * distance)), 2.0, limits[i])
+		seconds += 2 * distance / maxf(speed + next_speed, 0.5)
+		samples.append([seconds, float(i) / count])
+		speed = next_speed
+	for sample in samples:
+		sample[0] /= maxf(seconds, 0.001)
+	return {"minutes": maxf(0.15, seconds * 0.5), "samples": samples}
+
+static func distance_progress(samples: Array, progress: float) -> float:
+	var time := clampf(progress, 0, 1)
+	if samples.is_empty():
+		return time # existing 0.7 journeys retain their saved progression
+	var low := 1
+	var high := samples.size() - 1
+	while low < high:
+		var middle := (low + high) / 2
+		if samples[middle][0] < time:
+			low = middle + 1
+		else:
+			high = middle
+	var a: Array = samples[low - 1]
+	var b: Array = samples[low]
+	return lerpf(a[1], b[1], clampf((time - a[0]) / maxf(b[0] - a[0], 0.000001), 0, 1))
+
+static func valid_profile(value: Variant) -> bool:
+	if not value is Array or value.size() > 129 or value.size() == 1:
+		return false
+	if value.is_empty():
+		return true
+	var previous := Vector2(-1, -1)
+	for sample in value:
+		if not sample is Array or sample.size() != 2 or not Terrain.number(sample[0]) or not Terrain.number(sample[1]):
+			return false
+		if sample[0] < 0 or sample[0] > 1 or sample[1] < 0 or sample[1] > 1 or sample[0] <= previous.x or sample[1] <= previous.y:
+			return false
+		previous = Vector2(sample[0], sample[1])
+	return value[0] == [0.0, 0.0] and value[-1] == [1.0, 1.0]

@@ -63,6 +63,8 @@ jobs:
         run: '"$GODOT_BIN" --headless --script tests/build_comfort.gd'
       - name: Asset remodeling, personal guest moods and preferences
         run: '"$GODOT_BIN" --headless --script tests/customization.gd'
+      - name: Chronological closing, two-seater restart and route decisions
+        run: '"$GODOT_BIN" --headless --script tests/day_cycle.gd'
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -77,6 +79,14 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/build_input_scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
         run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
+      - name: Scrollable day report at phone and tablet sizes
+        run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SkiZones-visual-QA
+          path: build/qa/*
+          if-no-files-found: ignore
       - name: CPU stress benchmark at normal and fourfold speed
         run: '"$GODOT_BIN" --headless --script tools/performance_benchmark.gd'
       - name: Independent region save slots
