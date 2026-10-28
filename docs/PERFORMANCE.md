@@ -1,4 +1,21 @@
-# Performance in SkiZones 0.7.0
+# Performance in SkiZones 0.9.0
+
+## Aktueller Prüflauf 0.9.0
+
+Der [vollständige Prüflauf vom 28.10.2026](https://github.com/chekento/SkiZones/actions/runs/40748047490) umfasst die neue Wege- und Fahrphysik sowie die Rückholkorrektur. Der Quellcode-Commit ist `e28429147b32fb6d465e20dd7c3025e8c91e7187`. In den künstlichen Lastresorts bleiben alle Gäste und Lifte erhalten.
+
+| Gäste / Lifte | Tempo | CPU-Median in ms | P95 in ms | Maximum in ms |
+|---|---|---:|---:|---:|
+| 80 / 1 | 1× | 1.87 | 2.26 | 21.05 |
+| 80 / 1 | 4× | 3.50 | 3.76 | 4.69 |
+| 360 / 24 | 1× | 13.95 | 15.39 | 23.05 |
+| 360 / 24 | 4× | 21.69 | 23.37 | 26.59 |
+
+Diese Werte messen ausschließlich das CPU-Darstellungsupdate im Headless-Test, mit 24 Aufwärm- und 120 Messbildern je Tempo. Sie messen weder die gesamte Bildzeit noch GPU-Leistung oder Android-Bildraten. Unterschiedliche GitHub-Runner können deutlich abweichende Zeiten liefern; der historische Vergleich unten wurde jeweils nacheinander auf derselben Umgebung durchgeführt. Die aktuellen Runner-Zeiten sind deshalb kein neuer direkter Geschwindigkeitsvergleich mit dieser älteren Messreihe.
+
+[Rohdaten des 0.9-Prüflaufs](benchmarks/0.9.0-ci.json) · [Messskript](../tools/performance_benchmark.gd)
+
+## Historischer Umbau von 0.6 auf 0.7
 
 Stand: 28.10.2026. Das Update reduziert wiederholte CPU-Arbeit und die Menge entfernter Geometrie. Es garantiert keine feste Bildrate auf beliebiger Hardware.
 

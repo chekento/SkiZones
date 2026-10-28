@@ -31,6 +31,12 @@ Die Gäste stellen sich nach ihrer Ankunft am jeweiligen Lift an. Bei gleichzeit
 
 Am Stationsplatz steht die Zahl der Wartenden und die mittlere Belegung der letzten Abfahrten. Der Anlageninspektor zeigt außerdem die momentan Mitfahrenden, Plätze je Fahrzeug, Fahrzeugzahl, Grundfahrzeit und geschätzte Wartezeit. Die Minuten beziehen sich auf Normaltempo; 4× beschleunigt den gesamten Ablauf.
 
+## Manuell schließen und sicher zurückholen
+
+Eine manuelle Sperre nimmt den Lift aus neuen Freizeitrunden. Bereits eingestiegene Gäste fahren bei zulässigem Wind weiter. Wartende verlassen die Schlange von ihrem tatsächlichen Standort und nehmen einen verfügbaren Rückweg ins Tal.
+
+Ist ein Gast in einem Seitental auf einen geschlossenen Rücklift angewiesen, bedient die Anlage ausschließlich die notwendigen Heimwege. Der Inspektor erklärt diesen **Rückholbetrieb**. Die ursprüngliche Sperre bleibt bestehen, auch am nächsten Morgen. Neue Gäste und zusätzliche Freizeitrunden nutzen die Anlage nicht. Die Windgrenze gilt auch bei einer Rückholung; ein Sturm hält die Fahrzeuge an. Der Tagesbericht erscheint nach der letzten tatsächlichen Rückkehr.
+
 ## Pisten enden auf dem Platz
 
 Jede Tal- und Bergstation besitzt einen geräumten, begehbaren Stationsplatz. In 0.6 wurden diese deutlich vergrößert: Beim Tellerlift sind sie unten 168 m und oben 132 m breit; Sesselliftplätze beginnen bei 176 m unten und 140 m oben. Der Mittelpunkt der Liftmaschine ist kein Pistenanschluss. Kleine Kreise markieren stattdessen die Platzanschlüsse. Beim Planen an der Maschine gesetzte Endpunkte werden nach außen auf den Platz gelegt. Eine Piste, deren Breite die Lifttechnik schneidet, lässt sich nicht bauen.
