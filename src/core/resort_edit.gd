@@ -16,6 +16,7 @@ static func context(model: RefCounted, id: int) -> RefCounted:
 	if model._edit_context.has(id): return model._edit_context[id]
 	var candidate: RefCounted = model.get_script().new()
 	candidate.map_id = model.map_id
+	candidate.legacy_foot = model.legacy_foot
 	candidate.terrain = model.terrain
 	candidate.money = model.money
 	candidate.campaign = model.campaign

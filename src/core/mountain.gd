@@ -1,6 +1,7 @@
 extends RefCounted
 ## An instance prevents one open/test resort from changing another map's terrain.
 const Terrain = preload("res://src/core/terrain.gd")
+const Dynamics = preload("res://src/core/ski_dynamics.gd")
 const Maps = preload("res://src/core/maps.gd")
 var id := "sonnenhang"
 var bounds: Rect2
@@ -144,13 +145,19 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	result.cost = roundi(result.length * [32, 44, 58][result.difficulty])
 	if result.length < 40 or result.drop < 7:
 		result.message = "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
-	elif result.uphill > 1.5:
-		result.message = "Die Abfahrt führt bergauf. Wegpunkte vom Berg ins Tal setzen."
 	elif result.grade > Terrain.GRADE_LIMITS[2]:
 		result.message = "Max. %.0f %%: zu steil. Mit weiteren Wegpunkten quer zum Hang planen." % result.grade
 	else:
+		var motion := Dynamics.profile(self,points,result.difficulty,0.86)
+		if not motion.ok:
+			result.message = motion.message
+			return result
+		result.hike_meters = motion.hike_meters
+		result.carry_rise = motion.carry_rise
 		result.ok = true
 		result.message = "%s · %.0f m · ↓ %.0f m · max. %.0f %%" % [Terrain.PISTE_NAMES[result.difficulty], result.length, result.drop, result.grade]
+		if result.uphill > 0.2:
+			result.message += " · ↑ %.1f m Gegenanstieg: %s" % [result.uphill,"ca. %.0f m stapfen" % result.hike_meters if result.hike_meters > 0.5 else "mit Schwung fahrbar"]
 	return result
 
 func _path_point(path: Dictionary, distance: float) -> Vector2:

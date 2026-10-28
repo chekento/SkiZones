@@ -61,42 +61,79 @@ static func building_radius(building: Dictionary) -> float:
 static func _area(key: String, center: Vector2, point: Vector2, radius: float, root: bool, id: int = 0, kind: String = "base") -> Dictionary:
 	return {"key": key, "center": center, "point": point, "radius": radius, "root": root, "id": id, "kind": kind}
 
-static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = []) -> Dictionary:
-	var areas: Array = [_area("base", Terrain.BASE, Terrain.BASE, 92, true)]
+static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = [], pistes: Array = [], dense: bool = false) -> Dictionary:
+	var areas: Array = [_area("base",Terrain.BASE,Terrain.BASE,92,true)]
+	var fixed: Array = []
 	for lift in lifts:
-		for top in [false, true]:
-			areas.append(_area("f%d%s" % [lift.id, "t" if top else "b"], Terrain.unpack(lift.top if top else lift.bottom), station_hub(lift, top, buildings), station_radius(lift, top), true, lift.id, "station"))
+		for top in [false,true]:
+			areas.append(_area("f%d%s" % [lift.id,"t" if top else "b"],Terrain.unpack(lift.top if top else lift.bottom),station_hub(lift,top,buildings),station_radius(lift,top),true,lift.id,"station"))
 	for building in buildings:
-		if building.kind != "snowmaker":
-			var entrance := door(building)
-			areas.append(_area("f%dg" % building.id, forecourt(building), forecourt(building), building_radius(building), false, building.id, "building"))
+		if building.kind != "snowmaker": areas.append(_area("f%dg" % building.id,forecourt(building),forecourt(building),building_radius(building),false,building.id,"building"))
 	for area in walk_areas:
-		if area.enabled:
-			areas.append(_area("w%d" % area.id, Terrain.unpack(area.point), Terrain.unpack(area.point), area.radius, true, area.id, "plaza"))
-	var shapes := obstacles(buildings, lifts)
-	var links: Array = []
+		if not area.enabled: continue
+		if area.kind == "walkway":
+			for i in range(area.points.size()):
+				var key := "w%dv%d" % [area.id,i]
+				var at := Terrain.unpack(area.points[i])
+				areas.append(_area(key,at,at,4,false,area.id,"walkway"))
+				if i > 0: fixed.append({"from":"w%dv%d" % [area.id,i-1],"to":key,"points":[area.points[i-1],area.points[i]],"width":8.0,"manual":true})
+		else: areas.append(_area("w%d" % area.id,Terrain.unpack(area.point),Terrain.unpack(area.point),area.radius,dense,area.id,"plaza"))
+	for piste in pistes:
+		for top in [true,false]:
+			var at := Terrain.unpack(piste.points[0] if top else piste.points[-1])
+			areas.append(_area("g%d%s" % [piste.id,"s" if top else "e"],at,at,4,false,piste.id,"piste_gate"))
+	var nodes: Dictionary = {}
+	for area in areas: nodes[area.key] = Terrain.pack(area.point)
+	var shapes := obstacles(buildings,lifts)
+	for lift in lifts:
+		for top in [false,true]:
+			var key := "l%d%s" % [lift.id,"t" if top else "b"]
+			var hub := "f%d%s" % [lift.id,"t" if top else "b"]
+			nodes[key] = Terrain.pack(boarding_point(lift,top))
+			var path := path_between(Terrain.unpack(nodes[hub]),Terrain.unpack(nodes[key]),buildings,lifts,shapes)
+			if not path.is_empty(): fixed.append({"from":hub,"to":key,"points":path,"width":7.0,"access":true})
+	for building in buildings:
+		if building.kind == "snowmaker": continue
+		var key := "d%d" % building.id
+		var hub := "f%dg" % building.id
+		nodes[key] = Terrain.pack(door(building))
+		fixed.append({"from":hub,"to":key,"points":[nodes[hub],nodes[key]],"width":6.0,"access":true})
+	var candidates: Array = []
 	for i in range(areas.size()):
-		for j in range(i + 1, areas.size()):
+		for j in range(i+1,areas.size()):
 			var a: Dictionary = areas[i]
 			var b: Dictionary = areas[j]
-			if a.center.distance_to(b.center) > a.radius + b.radius + LINK_GAP:
-				continue
-			var path := path_between(a.point, b.point, buildings, lifts, shapes)
-			if not path.is_empty() and gentle(mountain, path):
-				links.append({"from": a.key, "to": b.key, "points": path})
+			if a.center.distance_to(b.center) > a.radius+b.radius+LINK_GAP: continue
+			if a.id == b.id and a.kind == "walkway" and b.kind == "walkway": continue
+			var path := path_between(a.point,b.point,buildings,lifts,shapes)
+			if not path.is_empty() and gentle(mountain,path): candidates.append({"from":a.key,"to":b.key,"points":path,"length":mountain.polyline_length(path),"width":7.0})
+	candidates.sort_custom(func(a,b): return a.length < b.length if not is_equal_approx(a.length,b.length) else str(a.from)+str(a.to) < str(b.from)+str(b.to))
+	var components: Dictionary = {}
+	for key in nodes: components[key] = key
+	var links: Array = []
+	for link in fixed+candidates:
+		var a := _component(components,link.from)
+		var b := _component(components,link.to)
+		if link in fixed or dense or a != b:
+			links.append(link)
+			components[a] = b
 	var rooted: Array = []
+	var roots: Dictionary = {}
 	for area in areas:
-		if area.root:
-			rooted.append(area.key)
-	var changed := true
-	while changed:
-		changed = false
-		for link in links:
-			for pair in [[link.from, link.to], [link.to, link.from]]:
-				if rooted.has(pair[0]) and not rooted.has(pair[1]):
-					rooted.append(pair[1])
-					changed = true
-	return {"areas": areas, "links": links, "rooted": rooted, "lifts": lifts, "buildings": buildings, "obstacles": shapes}
+		if area.root: roots[_component(components,area.key)] = true
+	for key in nodes:
+		if roots.has(_component(components,key)): rooted.append(key)
+	return {"areas":areas,"nodes":nodes,"links":links,"rooted":rooted,"lifts":lifts,"buildings":buildings,"obstacles":shapes}
+
+static func _component(components: Dictionary, key: String) -> String:
+	var current := key
+	while components[current] != current: current = components[current]
+	var at := key
+	while components[at] != at:
+		var next: String = components[at]
+		components[at] = current
+		at = next
+	return current
 
 static func attachments(layout_value: Dictionary, point: Vector2, rooted_only: bool = false, extra: float = 2) -> Array:
 	var result: Array = []
@@ -152,6 +189,20 @@ static func connection(mountain: RefCounted, layout_value: Dictionary, buildings
 			distance = length
 			nearest = {"area": area.key, "points": path, "length": length}
 	return nearest
+
+static func walk_minutes(mountain: RefCounted, points: Array) -> float:
+	var seconds := 0.0
+	for i in range(1,points.size()):
+		var a := Terrain.unpack(points[i-1])
+		var b := Terrain.unpack(points[i])
+		var steps := maxi(1,ceili(a.distance_to(b)/8))
+		for step in range(steps):
+			var p := a.lerp(b,float(step)/steps)
+			var q := a.lerp(b,float(step+1)/steps)
+			var grade: float = (mountain.height(q)-mountain.height(p))/maxf(p.distance_to(q),0.01)
+			var speed := clampf(1.4*exp(-3.5*maxf(grade,0)-1.2*maxf(-grade-0.12,0)),0.35,1.4)
+			seconds += mountain.world(p).distance_to(mountain.world(q))/speed
+	return seconds*0.5
 
 static func gentle(mountain: RefCounted, points: Array) -> bool:
 	for index in range(1, points.size()):
