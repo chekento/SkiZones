@@ -22,6 +22,12 @@ Auf Baukarten mit Finger, Stift oder gedrückter Maustaste nach oben oder unten 
 
 Während der Bauplanung bleibt die rechte Anlagenansicht ausgeblendet, damit mehr vom Berg sichtbar ist. **Mehr Karte** blendet auch den linken Katalog aus; Baupreis und Abbruch bleiben erreichbar. **Werkzeuge** holt den Katalog zurück.
 
+## Fußwege mit Start und Ziel
+
+Unter **Wege → Fußweg planen** beginnen. Die kleinen Andockmarkierungen zeigen die tatsächlichen Liftzugänge, Pistenenden, Gebäudeeingänge und Plätze. Start antippen, bei Bedarf Zwischenpunkte setzen und am Ziel enden. Lifttechnik und Gebäudewände werden umgangen. Die Vorschau zeigt den tatsächlichen Verlauf, die Länge und den Preis: **180 € + 18 €/m**, acht Meter Breite.
+
+Nummerierte Punkte lassen sich wie bei einer Piste ziehen, löschen oder zurücknehmen. **Bauen** bestätigt einmal; **Abbrechen** verwirft den Plan. Der gebaute Weg lässt sich entlang seines Verlaufs auswählen und über **Gestalten & umplanen** bearbeiten. Beide Enden müssen an das vorhandene Netz oder einen tatsächlichen Zugang anschließen. Ein Weg mit zwei freien Enden wird mit einer Anschlussbeschreibung erklärt.
+
 ## Gehflächen anlegen
 
 Unter **Wege** stehen drei Größen zur Wahl:

@@ -92,8 +92,8 @@ static func analyse(points: Array, difficulty: int) -> Dictionary:
 	result.cost = roundi(length * [32.0, 44.0, 58.0][difficulty])
 	if length < 40.0 or result.drop < 7.0:
 		result.message = "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
-	elif uphill > 1.5:
-		result.message = "Die Abfahrt führt bergauf. Wegpunkte vom Berg ins Tal setzen."
+	elif uphill > 1.5 and not preload("res://src/core/ski_dynamics.gd").profile(new(),points,difficulty).ok:
+		result.message = "Gegenanstieg zu steil zum Stapfen. Mit weiteren Wegpunkten queren."
 	elif max_grade > GRADE_LIMITS[difficulty]:
 		result.message = "%.0f %% Gefälle: Für diese Farbe sind höchstens %.0f %% erlaubt." % [max_grade, GRADE_LIMITS[difficulty]]
 	else:

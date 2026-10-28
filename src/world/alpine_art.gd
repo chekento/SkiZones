@@ -347,7 +347,7 @@ func gondola_glass() -> ArrayMesh:
 		box(Vector3(0, 1.8, z), Vector3(6.9, 2.4, 0.05), Color("a9d6e4"))
 	return finish()
 
-func skier(on_skis: bool = true) -> ArrayMesh:
+func skier(on_skis: bool = true, uphill: bool = false) -> ArrayMesh:
 	box(Vector3(-0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
 	box(Vector3(0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
 	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
@@ -359,7 +359,7 @@ func skier(on_skis: bool = true) -> ArrayMesh:
 		sphere(Vector3(side * 0.68, 1.55, 0.15), 0.24, Color("f7f7f2"), Vector3(0.7, 1.7, 0.8))
 		box(Vector3(side * 0.3, 0.25, 0.1), Vector3(0.4, 0.38, 0.7), Color("273e4b"))
 		if on_skis:
-			box(Vector3(side * 0.35, 0.13, 0.4), Vector3(0.24, 0.16, 3.4), Color("4f6670"))
+			box(Vector3(side*(0.52 if uphill else 0.35),0.13,0.4),Vector3(0.24,0.16,3.4),Color("4f6670"),Vector3(0,side*0.38 if uphill else 0,0))
 			box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
 	return finish()
 

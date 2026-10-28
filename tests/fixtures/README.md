@@ -20,3 +20,5 @@ followed by a new-format save round trip. Test files are excluded from APKs.
 Skifahrer bei 42 % seiner ersten Abfahrt um 17:59. `day_cycle.gd` prüft
 Position, Identität und chronologische Fortsetzung über 18 Uhr und den
 anschließenden Speicherwechsel auf Format 8. Es sind erzeugte Testdaten.
+
+`v0.8-starter.json` wurde mit dem unveränderten veröffentlichten 0.8-Commit `4ff3f9f81c002bd10b0e6292cdb6541ffcb2eeb7` nach 180 tatsächlich simulierten Minuten erzeugt. Der Test übernimmt die laufenden Gäste und alten Wegkorridore, speichert im Format 9 und prüft die identische Fortsetzung. Es sind erzeugte Testdaten.

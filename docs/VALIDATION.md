@@ -1,4 +1,4 @@
-# Prüfung von SkiZones 0.8.0
+# Prüfung von SkiZones 0.9.0
 
 Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
@@ -18,8 +18,10 @@ Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 | Tatsächliche Gebietswechsel | 8 Prüfungen mit getrennten Dateien in isolierter Laufzeitumgebung |
 | Gestaltung und Gäste | 34 Prüfungen für transaktionale Umbauten, Kosten, sichere gedrehte Eingänge, gemeinsame Pistenpunkte, Breite und Unterhalt, persönliche Bedürfnisse, Präferenzen sowie tatsächliche 0.6-Migration |
 | Gerenderte Gestaltung und Performancegrenzen | 30 Prüfungen mit aktiver Grafikausgabe: vorhandene Gebäude ziehen, abbrechen und einmalig bestätigen; tatsächliche Drehung, passende Dialoggröße, GPU-Schnee, Höhengenauigkeit, feste Spur-Arbeitsgrenze, Cache-Wiederverwendung, Waldmodelle, exakte Liftbelegung, Sichtbarkeitswechsel, persönliche Profile und stetige Bewegung |
-| Chronologischer Tagesabschluss und Routenwahl | 43 Prüfungen: laufende Abfahrt und besetzter Zweiersessel über 18 Uhr, physischer Rückweg, genau einmal verbuchte Kosten, Sturm und Wiederanlauf, individuelle Routen ab dem Pistenende, korrekt skalierte Warteschlangen, alternative Liftzufahrt bei Überlastung, Verlassen geschlossener Schlangen, Fahrtbeschleunigung und Kurvenbremsen sowie tatsächliche 0.7-Migration |
+| Chronologischer Tagesabschluss und Routenwahl | 54 Prüfungen: laufende Abfahrt und besetzter Zweiersessel über 18 Uhr, physischer Rückweg, genau einmal verbuchte Kosten, Sturm und Wiederanlauf, individuelle Routen ab dem Pistenende, korrekt skalierte Warteschlangen, alternative Liftzufahrt bei Überlastung, Verlassen geschlossener Schlangen, Rückholung aus einem durch manuelle Liftsperre getrennten Seitental mit Speicherfortsetzung und Sturmhalt, Fahrtbeschleunigung und Kurvenbremsen sowie tatsächliche 0.7-Migration |
 | Scrollbarer Tagesbericht | 15 Szenenprüfungen: In-Scene-Dialog mit allen Finanzfeldern, angepasste Größe und dauerhaft sichtbare nächste-Tages-Schaltfläche bei 1536×710, 1280×800 und 960×540, echte Finger-Ereignisse und fortlaufender Feierabendbetrieb |
+| Wege, Schwung und Stapfen | 41 Prüfungen für Energieverlust, Fahrt mit und ohne Anlauf, Gehzeiten am Hang, direkte Liftzugänge, Fußwegbau und Bearbeitung, Schließung, Kosten, tatsächliches Stapfen auf dem Sonnenhang, persönliche Fahrprofile und 0.8-Migration |
+| Gerenderte Wege und Gegenanstiege | 18 Prüfungen mit echter Grafikausgabe: Baukatalog, Mehrpunktplanung, Punktziehen, Abbruch, genau einmal bestätigter Bau, Auswahl entlang des Weges, Bestandsbearbeitung, tatsächlicher Stapfgast mit passendem Modell und Profil sowie übereinstimmende Schneeintervalle |
 | CPU-Belastung | Reproduzierbarer Vergleich mit unverändertem 0.6-Quellcode: 80 Gäste/1 Lift und 360 Gäste/24 Lifte bei 1× und 4×; Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
@@ -30,9 +32,9 @@ Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 526 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 596 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.8.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.9.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 
@@ -52,3 +54,11 @@ Die Finger- und Stiftpfade wurden mit erzeugten Godot-Eingabeereignissen am Desk
 Die neuen Prüfungen laufen mit `godot --headless --script tests/customization.gd` und mit aktiver Grafikausgabe `godot --script tests/customization_scene.gd`. Einstellungsprüfungen verwenden eigene temporäre Konfigurationsdateien. Der Höhentexturtest vergleicht alle lokalen Werte mit einer maximalen Abweichung von 2 mm. Spurtests prüfen die feste Grenze von höchstens 48 neu berechneten Fahrpunkten pro automatischem Durchlauf und Wiederverwendung unveränderter Daten. Der Belastungstest ersetzt weder vollständige GPU-Messungen noch ein Profiling auf einem physischen Smartphone.
 
 Version 0.8 beendet den Betriebstag erst nach dem letzten tatsächlichen Rückweg. Die 56-Tage- und Wochenläufe warten auf `day_finished()`, statt Gäste bei einer festen Uhrzeit zu löschen. Kapazitäts-Stresstests setzen ihre Gäste vor der Schlange ein; die reguläre Einlassentscheidung lehnt planbar zu lange Aufenthalte ab. Das tatsächliche 0.7-Testresort wird bei 17:59 geladen, über 18 Uhr weitergeführt und im Format 8 erneut gespeichert.
+
+Version 0.9 übernimmt die pauschale 1,5-m-Grenze nicht. Das vereinfachte Energiemodell arbeitet mit Energie pro Kilogramm; Masse kürzt sich. Es berücksichtigt Gleitreibung und einen geschwindigkeitsabhängigen Widerstand. Gehbare Abschnitte ohne ausreichenden Schwung erhalten eine zusammenhängende Gehphase bis zum Gefällewechsel. Das ist keine vollständige biomechanische Ski- oder Kollisionssimulation.
+
+Alte Fußkorridore werden für aktive 0.8-Gäste bis zum folgenden Tageswechsel erhalten. Neue Resorts beginnen unmittelbar mit dem übersichtlicheren Netz. Das reale 0.8-Testresort wurde mit dem veröffentlichten Quellcode erzeugt; es enthält synthetische Gäste.
+
+Der Rückholtest erzeugt auf dem tatsächlichen Sonnenhang ein Seitental, dessen Rückweg einen zweiten Lift benötigt. Ohne Korrektur bleibt dessen geschlossene Schlange auch nach dem Zeitlimit bestehen. Die korrigierte Simulation bedient ausschließlich Heimwege, behält die manuelle Sperre und die tatsächliche Position bei und beendet nach der letzten Rückkehr den Tag. Bei Sturm steht auch dieser Lift still. Neue reguläre Routen verwenden die gesperrte Anlage nicht.
+
+Die Aufnahmen von [Fußwegplanung](screenshots/footpath-preview-090.webp), [Stapfgast](screenshots/hiking-090.webp) und [Tagesbericht](screenshots/day-report-090.webp) wurden aus dem erfolgreichen 0.9-Grafikprüflauf übernommen und visuell kontrolliert. Sie zeigen erzeugte Testsituationen mit der tatsächlichen Spieloberfläche.

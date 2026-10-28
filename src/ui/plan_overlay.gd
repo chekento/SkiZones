@@ -10,7 +10,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _process(_delta: float) -> void:
-	visible = game.has_game and game.tool in ["piste", "lift", "building", "plaza"] and not game.hud.menu.visible
+	visible = game.has_game and game.tool in ["piste","lift","building","plaza","walkway"] and not game.hud.menu.visible
 	if visible:
 		var state := hash([game.tool, game.model.revision, game.points, game.selected_waypoint, game.view.focus, game.view.zoom, game.view.yaw, game.view.pitch_degrees, size, game.hud.map_focus])
 		if state != _state:
@@ -20,7 +20,7 @@ func _process(_delta: float) -> void:
 func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 	var selected := -1
 	var distance := radius
-	if game.tool not in ["piste", "lift", "building", "plaza"]:
+	if game.tool not in ["piste","lift","building","plaza","walkway"]:
 		return selected
 	for index in range(game.points.size()):
 		var world: Vector3 = game.model.terrain.world(Terrain.unpack(game.points[index]), 4)
@@ -36,7 +36,8 @@ func _draw() -> void:
 	if game == null or game.view.camera == null:
 		return
 	var bounds := Rect2(Vector2.ZERO, size).grow(30)
-	for anchor in game.model.connection_anchors():
+	for anchor in (game.model.walkway_anchors(game.editing_id) if game.tool == "walkway" else game.model.connection_anchors()):
+		if not anchor.has("difficulty"): anchor = anchor.merged({"difficulty":-1})
 		if game.tool != "piste" and anchor.difficulty >= 0: continue
 		if anchor.point.distance_to(game.view.focus) > maxf(game.view.zoom * 2, 160): continue
 		var world: Vector3 = game.model.terrain.world(anchor.point, 2)
