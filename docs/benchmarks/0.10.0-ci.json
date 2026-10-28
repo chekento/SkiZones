@@ -1,0 +1,53 @@
+{
+  "cases": [
+    {
+      "build_ms": 271.655,
+      "frame_cpu_ms": [
+        {
+          "max": 21.091,
+          "median": 1.962,
+          "p95": 2.356,
+          "speed": 1
+        },
+        {
+          "max": 4.202,
+          "median": 3.687,
+          "p95": 4.148,
+          "speed": 4
+        }
+      ],
+      "full_tracks_ms": 98.496,
+      "guests": 80,
+      "lifts": 1,
+      "pistes": 3,
+      "snow_update_ms": 0.037
+    },
+    {
+      "build_ms": 1898.457,
+      "frame_cpu_ms": [
+        {
+          "max": 14.734,
+          "median": 12.012,
+          "p95": 13.307,
+          "speed": 1
+        },
+        {
+          "max": 22.046,
+          "median": 19.668,
+          "p95": 21.18,
+          "speed": 4
+        }
+      ],
+      "full_tracks_ms": 100.844,
+      "guests": 360,
+      "lifts": 24,
+      "pistes": 3,
+      "snow_update_ms": 0.045
+    }
+  ],
+  "engine": "4.5.2-stable (official)",
+  "mode": "headless CPU; generated stress layout; 24 warmup and 120 measured frames per speed",
+  "version": "0.10.0",
+  "source_commit": "07dbf0d1f52ed4dfb5ebe2ede168e94f7ef8f70e",
+  "workflow_run": "https://github.com/chekento/SkiZones/actions/runs/40789052786"
+}
