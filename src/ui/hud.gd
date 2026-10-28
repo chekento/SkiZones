@@ -17,11 +17,12 @@ const Saves = preload("res://src/core/save_store.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
-const MENU_PANORAMA = preload("res://assets/menu_panorama.png")
-const INK := Color("e7f2f4")
-const MUTED := Color("91b0bc")
-const ACCENT := Color("efb17d")
-const TEAL := Color("75cdc7")
+const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
+const INK := Color("294d54")
+const MUTED := Color("5d7679")
+const ACCENT := Color("b8754f")
+const TEAL := Color("367d73")
+const APRICOT := Color("f1c5a4")
 
 var game: Node
 var root := Control.new()
@@ -84,13 +85,30 @@ func setup(controller: Node) -> void:
 	theme.set_color("font_color", "Label", INK)
 	theme.set_color("default_color", "RichTextLabel", INK)
 	theme.set_color("font_color", "Button", INK)
-	theme.set_color("font_hover_color", "Button", Color.WHITE)
-	theme.set_color("font_disabled_color", "Button", Color("6d8b98"))
+	theme.set_color("font_hover_color", "Button", INK)
+	theme.set_color("font_pressed_color", "Button", INK)
+	theme.set_color("font_color", "OptionButton", INK)
+	theme.set_color("font_color", "PopupMenu", INK)
+	theme.set_color("font_hover_color", "PopupMenu", INK)
+	theme.set_stylebox("panel", "PopupMenu", _style(Color("fffaf2"),12,10))
+	theme.set_stylebox("hover", "PopupMenu", _style(Color("d1e5de"),8,6))
+	theme.set_color("font_color","LineEdit",INK)
+	theme.set_color("font_placeholder_color","LineEdit",MUTED)
+	theme.set_color("caret_color","LineEdit",TEAL)
+	theme.set_stylebox("normal","LineEdit",_style(Color("edf3ec"),10,10))
+	theme.set_stylebox("focus","LineEdit",_style(Color("edf3ec"),10,10,TEAL))
+	theme.set_color("title_color","Window",INK)
+	theme.set_stylebox("embedded_border","Window",_style(Color("fffaf2"),12,14))
+	theme.set_stylebox("panel","AcceptDialog",_style(Color("fffaf2"),12,14))
+	for kind in ["CheckButton","CheckBox"]:
+		theme.set_color("font_color",kind,INK)
+		theme.set_color("font_hover_color",kind,INK)
+	theme.set_color("font_disabled_color", "Button", Color("8a9c9a"))
 	for kind in ["Button", "OptionButton"]:
-		theme.set_stylebox("normal", kind, _style(Color("244755"), 9, 10))
-		theme.set_stylebox("hover", kind, _style(Color("355d6b"), 9, 10))
-		theme.set_stylebox("pressed", kind, _style(Color("3d6b73"), 9, 10))
-		theme.set_stylebox("disabled", kind, _style(Color("193743"), 9, 10))
+		theme.set_stylebox("normal", kind, _style(Color("e1eeea"), 9, 10))
+		theme.set_stylebox("hover", kind, _style(Color("d1e5de"), 9, 10))
+		theme.set_stylebox("pressed", kind, _style(Color("c2ded3"), 9, 10))
+		theme.set_stylebox("disabled", kind, _style(Color("edf2ed"), 9, 10))
 		theme.set_stylebox("focus", kind, _style(Color(0, 0, 0, 0), 9, 10, TEAL))
 	root.theme = theme
 	plan_overlay.game = game
@@ -144,11 +162,17 @@ func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = C
 	style.set_content_margin_all(padding)
 	style.border_color = border
 	style.set_border_width_all(1 if border.a > 0 else 0)
+	if color == Color("fffaf2"):
+		style.border_color = Color("d4e1d9")
+		style.set_border_width_all(1)
+		style.shadow_color = Color(0.15,0.29,0.30,0.13)
+		style.shadow_size = 4
+		style.shadow_offset = Vector2(0,3)
 	return style
 
 func _panel(parent: Node, left: float, top: float, right: float, bottom: float, anchor_right: float = 0, anchor_bottom: float = 0) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _style(Color("123342")))
+	panel.add_theme_stylebox_override("panel", _style(Color("fffaf2")))
 	parent.add_child(panel)
 	panel.anchor_right = anchor_right
 	panel.anchor_left = anchor_right if left < 0 else 0
@@ -181,9 +205,9 @@ func _button(parent: Node, text_value: String, callback: Callable, primary: bool
 	)
 	button.focus_mode = Control.FOCUS_NONE
 	if primary:
-		button.add_theme_stylebox_override("normal", _style(ACCENT, 9, 10))
-		button.add_theme_stylebox_override("hover", _style(ACCENT.lightened(0.12), 9, 10))
-		button.add_theme_stylebox_override("pressed", _style(ACCENT.darkened(0.1), 9, 10))
+		button.add_theme_stylebox_override("normal", _style(APRICOT, 12, 10))
+		button.add_theme_stylebox_override("hover", _style(APRICOT.lightened(0.12), 12, 10))
+		button.add_theme_stylebox_override("pressed", _style(APRICOT.darkened(0.08), 12, 10))
 		button.add_theme_color_override("font_color", Color("16323d"))
 		button.add_theme_color_override("font_hover_color", Color("16323d"))
 		button.add_theme_color_override("font_focus_color", Color("16323d"))
@@ -302,7 +326,7 @@ func _build_plan_bar() -> void:
 
 func _build_camera_bar() -> void:
 	var panel := _panel(root, 24, 108, -24, 156, 1)
-	panel.add_theme_stylebox_override("panel", _style(Color("204657"), 12, 4))
+	panel.add_theme_stylebox_override("panel", _style(Color("edf3ec"), 12, 4))
 	var box := HBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	panel.add_child(box)
@@ -339,7 +363,7 @@ func _build_camera_dialog() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	camera_dialog.add_child(shade)
 	camera_panel = _panel(camera_dialog, -300, -245, 300, 245, 0.5, 0.5)
-	camera_panel.add_theme_stylebox_override("panel", _style(Color("123847"), 18, 24, Color("3b7780")))
+	camera_panel.add_theme_stylebox_override("panel", _style(Color("e8f0ed"), 18, 24, Color("b9d9ce")))
 	var box := _vbox(camera_panel, 16)
 	_label(box, "Dein Blick auf den Berg", 24, TEAL)
 	_label(box, "Die Ansicht wechselt, deine Bauplanung bleibt erhalten.", 15, MUTED, true)
@@ -384,7 +408,7 @@ func show_camera() -> void:
 
 func _build_slope_legend() -> void:
 	slope_legend = _panel(root, 340, 176, -328, 246, 1)
-	slope_legend.add_theme_stylebox_override("panel", _style(Color("204657"), 9, 10))
+	slope_legend.add_theme_stylebox_override("panel", _style(Color("edf3ec"), 9, 10))
 	_label(slope_legend, "GELÄNDE · Linien: 20 m · Pfeile: bergab\nHangneigung: Grün <8 % · Blau ≤30 % · Rot ≤55 % · Grau >55 %\nDie Pistenfarbe folgt deiner Route, nicht dieser Flächenfarbe.", 13, INK, true)
 	slope_legend.hide()
 
@@ -427,10 +451,10 @@ func _build_menu() -> void:
 	menu.add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel := _panel(menu, 72, 72, 570, -72, 0, 1)
-	panel.add_theme_stylebox_override("panel", _style(Color(0.045, 0.135, 0.18, 0.97), 24, 32))
+	panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"),24,32))
 	var box := _vbox(panel, 16)
 	_label(box, "DEIN BERG. DEINE REGELN.", 16, TEAL)
-	_label(box, "SKI\nZONES", 83, Color("f0f5f0"))
+	_label(box, "SKI\nZONES", 83, INK)
 	_label(box, "Vom ersten Lift zum\nlebendigen Ski-Resort.", 26, ACCENT)
 	_label(box, "Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen.", 18, MUTED, true)
 	_spacer(box)
@@ -438,7 +462,7 @@ func _build_menu() -> void:
 	_button(box, "Gebiete entdecken", show_atlas)
 	_button(box, "Darstellung & Komfort", func(): display_options.open())
 	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
-	_label(box, "Ski Resort Tycoon  /  Version 0.9.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
+	_label(box, "Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch" % ProjectSettings.get_setting("application/config/version"),13,MUTED,true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -452,7 +476,7 @@ func _build_dialogs() -> void:
 	help.custom_minimum_size = Vector2(760, 480)
 	help.bbcode_enabled = true
 	help.add_theme_font_size_override("normal_font_size", 18)
-	help.text = "[b]BEOBACHTEN[/b]\nBei 1× dauert ein Betriebstag etwa 20 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nJeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Nachts wird präpariert. Mit Schneemanagement und geöffneter Garage kannst du eine Piste auch tagsüber präparieren lassen. Sie bleibt 45 Spielminuten für neue Routen geschlossen.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt vier Karten und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
+	help.text = "[b]BEOBACHTEN[/b]\nBei 1× dauert ein Betriebstag etwa 20 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Nachts wird präpariert. Mit Schneemanagement und geöffneter Garage kannst du eine Piste auch tagsüber präparieren lassen. Sie bleibt 45 Spielminuten für neue Routen geschlossen.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt vier Karten und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
 	help_dialog.add_child(help)
 
 func show_help() -> void:
@@ -519,7 +543,7 @@ func show_context(tool: String, id: int = -1) -> void:
 		inspector_actions.remove_child(child)
 		child.queue_free()
 	for key in tool_buttons:
-		tool_buttons[key].add_theme_stylebox_override("normal", _style(Color("345c68") if key == tool else Color("244755"), 9, 10, TEAL if key == tool else Color.TRANSPARENT))
+		tool_buttons[key].add_theme_stylebox_override("normal", _style(Color("c8e2d7") if key == tool else Color("e1eeea"), 9, 10, TEAL if key == tool else Color.TRANSPARENT))
 	if id != -1:
 		var item: Dictionary = game.model.asset(id)
 		inspector_title.text = item.get("name", "Anlage")
@@ -590,7 +614,7 @@ func _refresh_context_text() -> void:
 			var profile := GuestProfile.describe(model, guest)
 			inspector_title.text = profile.name
 			guest_face.update_face(profile.mood, Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()]))
-			inspector_text.text = "[color=#efb17d]%s[/color]\n%s\n\n[color=#75cdc7]%d Jahre · aus %s[/color]\n%s · %s\n\n%s\n\n[color=#efb17d]DEIN SKITAG[/color]\n%d %s · %d Runden\n%d Min. im Resort\n%d Min. insgesamt gewartet\nTagesgefühl: %.0f %%\n\nEnergie: %.0f %%\nHunger: %.0f %%\nWärmegefühl: %.0f %%\n\nFahrstil: %s\nTempo: %.1f m/s\nAusgaben: %s €" % [profile.emotion, profile.reason, profile.years, profile.home, ["Anfänger", "Geübt", "Profi"][guest.ability], profile.motive, profile.activity, guest.get("runs", 0), "Abfahrt" if guest.get("runs", 0) == 1 else "Abfahrten", guest.loops, guest.age, guest.total_wait, profile.score, profile.energy, profile.hunger, profile.warmth, profile.style, profile.speed, money_text(profile.spending)]
+			inspector_text.text = "[color=#a56440]%s[/color]\n%s\n\n[color=#347970]%d Jahre · aus %s[/color]\n%s · %s\n\n%s\n\n[color=#a56440]DEIN SKITAG[/color]\n%d %s · %d Runden\n%d Min. im Resort\n%d Min. insgesamt gewartet\nTagesgefühl: %.0f %%\n\nEnergie: %.0f %%\nHunger: %.0f %%\nWärmegefühl: %.0f %%\n\nFahrstil: %s\nTempo: %.1f m/s\nAusgaben: %s €" % [profile.emotion, profile.reason, profile.years, profile.home, ["Anfänger", "Geübt", "Profi"][guest.ability] + " · " + profile.equipment, profile.motive, profile.activity, guest.get("runs", 0), "Abfahrt" if guest.get("runs", 0) == 1 else "Abfahrten", guest.loops, guest.age, guest.total_wait, profile.score, profile.energy, profile.hunger, profile.warmth, profile.style, profile.speed, money_text(profile.spending)]
 			return
 		inspector_title.text = "Ein schöner Skitag geht zu Ende"
 		inspector_text.text = "Dieser Gast hat das Resort verlassen. Wähle einen anderen Gast oder eine Anlage."
@@ -603,7 +627,7 @@ func _refresh_context_text() -> void:
 		var status := "Geöffnet" if item.enabled else "Manuell geschlossen"
 		if item.has("bottom") and item.enabled and not model.lift_open(item):
 			status = "Sturmpause"
-		var text_value := "[color=#75cdc7]%s · Stufe %d[/color]\n\n" % [status, item.get("level", 1)]
+		var text_value := "[color=#347970]%s · Stufe %d[/color]\n\n" % [status, item.get("level", 1)]
 		if item.has("difficulty"):
 			if is_instance_valid(grooming_button):
 				var grooming: Dictionary = model.groom_check(item.id)
@@ -627,29 +651,29 @@ func _refresh_context_text() -> void:
 	elif current_tool == "inspect":
 		var piste_word := "Piste" if model.pistes.size() == 1 else "Pisten"
 		var lift_word := "Lift" if model.lifts.size() == 1 else "Lifte"
-		inspector_text.text = "[color=#efb17d]%s[/color]\nWinter %d · Tag %d / 28\n%.0f Erfahrung · %d FP\n\n%d %s · %d %s\n%d erreichbare Abfahrten\n%d Gäste warten\n\n[color=#efb17d]DEIN NÄCHSTES ZIEL[/color]\n%s\n\n[color=#efb17d]HEUTE[/color]\nErlöse: %s €\nBetrieb: ~%s €/Tag\n\nAufträge, Forschung und Ausbau findest du im Resort-Büro." % ["★".repeat(model.campaign.rank), Progression.season_number(model), Progression.season_day(model), model.campaign.xp, model.campaign.points, model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), Progression.next_goal(model), money_text(model.report.tickets + model.report.services), money_text(model.operating_costs())]
+		inspector_text.text = "[color=#a56440]%s[/color]\nWinter %d · Tag %d / 28\n%.0f Erfahrung · %d FP\n\n%d %s · %d %s\n%d erreichbare Abfahrten\n%d Gäste warten\n\n[color=#a56440]DEIN NÄCHSTES ZIEL[/color]\n%s\n\n[color=#a56440]HEUTE[/color]\nErlöse: %s €\nBetrieb: ~%s €/Tag\n\nAufträge, Forschung und Ausbau findest du im Resort-Büro." % ["★".repeat(model.campaign.rank), Progression.season_number(model), Progression.season_day(model), model.campaign.xp, model.campaign.points, model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), Progression.next_goal(model), money_text(model.report.tickets + model.report.services), money_text(model.operating_costs())]
 	elif current_tool == "lift":
 		var spec: Dictionary = Catalog.LIFTS[lift_kind()]
-		inspector_text.text = "[color=#efb17d]%s € + %d €/m[/color]\n\n%d Plätze je Fahrzeug\n%.1f m/s · max. %.0f m Länge\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nBeide Stationen erhalten einen begehbaren Platz. Pisten docken am Platz an; Gebäude erweitern das Fußwegenetz. Der Achter wird durch Alpine Meisterklasse freigeschaltet." % [money_text(spec.cost), spec.per_m, spec.seats, spec.speed / 60, spec.max_length, spec.capacity, spec.upkeep, spec.wind_limit]
+		inspector_text.text = "[color=#a56440]%s € + %d €/m[/color]\n\n%d Plätze je Fahrzeug\n%.1f m/s · max. %.0f m Länge\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nBeide Stationen erhalten einen begehbaren Platz. Pisten docken am Platz an; Gebäude erweitern das Fußwegenetz. Der Achter wird durch Alpine Meisterklasse freigeschaltet." % [money_text(spec.cost), spec.per_m, spec.seats, spec.speed / 60, spec.max_length, spec.capacity, spec.upkeep, spec.wind_limit]
 		var access: String = model.build_access_message(lift_kind(), true)
 		if access != "":
-			inspector_text.text = "[color=#efb17d]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
+			inspector_text.text = "[color=#a56440]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
 	elif current_tool == "walkway":
 		inspector_text.text = "Start und Ziel an Liftzugängen, Pistenenden, Gebäuden oder Plätzen setzen.\n\nWeitere Punkte legen den Verlauf fest; Hindernisse werden umgangen. Nummerierte Punkte ziehen oder löschen.\n\n180 € + 18 €/m · 8 m breit"
 	elif current_tool == "plaza":
 		var spec: Dictionary = Catalog.PLAZAS[game.plaza_kind]
-		inspector_text.text = "[color=#efb17d]%s € · Ø %.0f m[/color]\n\n%s\n\n1. Freie Fläche antippen\n2. Anschluss prüfen\n3. Bauen bestätigen\n\nMit Abbrechen oder der Zurück-Taste verlässt du die Planung." % [money_text(spec.cost), spec.radius * 2, spec.description]
+		inspector_text.text = "[color=#a56440]%s € · Ø %.0f m[/color]\n\n%s\n\n1. Freie Fläche antippen\n2. Anschluss prüfen\n3. Bauen bestätigen\n\nMit Abbrechen oder der Zurück-Taste verlässt du die Planung." % [money_text(spec.cost), spec.radius * 2, spec.description]
 	elif current_tool == "building":
 		var spec: Dictionary = Catalog.BUILDINGS[building_kind()]
-		inspector_text.text = "[color=#efb17d]%s € Baukosten[/color]\n%d €/Tag Betrieb\n\n%s\n\nAuf einen freien Bauplatz tippen und den Bau bestätigen." % [money_text(spec.cost), spec.upkeep, spec.description]
+		inspector_text.text = "[color=#a56440]%s € Baukosten[/color]\n%d €/Tag Betrieb\n\n%s\n\nAuf einen freien Bauplatz tippen und den Bau bestätigen." % [money_text(spec.cost), spec.upkeep, spec.description]
 		var access: String = model.build_access_message(building_kind(), false)
 		if access != "":
-			inspector_text.text = "[color=#efb17d]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
+			inspector_text.text = "[color=#a56440]%s[/color]\nIm Resort-Büro freischalten.\n\n" % access + inspector_text.text
 	else:
-		inspector_text.text = "[color=#75cdc7]FARBE AUS DEINER ROUTE[/color]\nBlau, Rot oder Schwarz entstehen automatisch aus dem steilsten Teilstück deiner geplanten Abfahrt.\n\nSerpentinen verlängern die Strecke und können ihr Gefälle senken. Steile Abschnitte werden nicht durch einen niedrigen Durchschnitt versteckt.\n\n[color=#efb17d]BESSER PLANEN[/color]\n‚Gelände‘ zeigt Höhenlinien und Pfeile bergab. Die Draufsicht im Kameramenü hilft beim Setzen der Kurven. Links siehst du das Höhenprofil. Nummerierte Punkte lassen sich ziehen und einzeln löschen. Kleine Kreise sind Andockpunkte bestehender Pisten.\n\nBaue Abkürzungen von einem Andockpunkt zum nächsten. Die Gäste wählen passende Wege für ihr Können. Runde Schilder mit einer festen Pistennummer werden beim Bauen aufgestellt.\n\nSpielgrenzen: Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %. "
+		inspector_text.text = "[color=#347970]FARBE AUS DEINER ROUTE[/color]\nBlau, Rot oder Schwarz entstehen automatisch aus dem steilsten Teilstück deiner geplanten Abfahrt.\n\nSerpentinen verlängern die Strecke und können ihr Gefälle senken. Steile Abschnitte werden nicht durch einen niedrigen Durchschnitt versteckt.\n\n[color=#a56440]BESSER PLANEN[/color]\n‚Gelände‘ zeigt Höhenlinien und Pfeile bergab. Die Draufsicht im Kameramenü hilft beim Setzen der Kurven. Links siehst du das Höhenprofil. Nummerierte Punkte lassen sich ziehen und einzeln löschen. Kleine Kreise sind Andockpunkte bestehender Pisten.\n\nBaue Abkürzungen von einem Andockpunkt zum nächsten. Die Gäste wählen passende Wege für ihr Können. Runde Schilder mit einer festen Pistennummer werden beim Bauen aufgestellt.\n\nSpielgrenzen: Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %. "
 		var check: Dictionary = game.last_plan_check
 		if check.has("profile") and check.profile.size() >= 2:
-			inspector_text.text = "[color=#efb17d]DEINE ABFAHRT[/color]\n%.0f → %.0f m\n%.0f m Länge · ↓ %.0f m\nMax. %.0f %% · Ø %.0f %%\n\n" % [check.profile[0].height, check.profile[-1].height, check.length, check.drop, check.grade, check.average] + inspector_text.text
+			inspector_text.text = "[color=#a56440]DEINE ABFAHRT[/color]\n%.0f → %.0f m\n%.0f m Länge · ↓ %.0f m\nMax. %.0f %% · Ø %.0f %%\n\n" % [check.profile[0].height, check.profile[-1].height, check.length, check.drop, check.grade, check.average] + inspector_text.text
 
 func money_text(amount: float) -> String:
 	var source := str(roundi(amount))

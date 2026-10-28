@@ -11,11 +11,14 @@ func update_face(value: String, color: Color) -> void:
 
 func _draw() -> void:
 	var center := Vector2(size.x * 0.5, 55)
-	draw_circle(center + Vector2(0, 3), 48, Color("244755"))
+	draw_circle(center + Vector2(0, 3), 48, Color("e1eeea"))
 	draw_circle(center, 34, Color("ecc49c"))
 	draw_circle(center + Vector2(0, -9), 36, jacket.darkened(0.15))
 	draw_style_box(_box(jacket), Rect2(center + Vector2(-34, -2), Vector2(68, 18)))
 	draw_circle(center + Vector2(0, 14), 29, Color("ecc49c"))
+	for side in [-1,1]:
+		draw_circle(center+Vector2(side*18,19),5,Color("e7a69c"))
+	draw_circle(center+Vector2(0,-43),8,jacket.lightened(0.2))
 	draw_style_box(_box(Color("173744")), Rect2(center + Vector2(-29, -2), Vector2(58, 20)))
 	draw_style_box(_box(Color("a5d6df")), Rect2(center + Vector2(-25, 1), Vector2(50, 12)))
 	draw_line(center + Vector2(-20, 3), center + Vector2(2, 3), Color("e6f5ef"), 2, true)

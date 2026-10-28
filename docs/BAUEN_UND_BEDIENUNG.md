@@ -16,7 +16,7 @@ Auch beim Abbruch während eines Drags werden die Kontakte und Wegpunktgriffe zu
 
 ## Kamera und Menüs
 
-Ein Finger auf freier Karte verschiebt die Ansicht. Zwei Finger verschieben gemeinsam; ihr Abstand steuert den Zoom. Die Bewegung folgt dem tatsächlich berührten Gelände und funktioniert auch in der Draufsicht. Ein zweiter Finger beendet einen begonnenen Wegpunkt-Drag, bevor die Kamerageste beginnt. Beim Loslassen wird kein zusätzlicher Punkt gesetzt.
+Ein Finger auf freier Karte verschiebt die Ansicht. Zwei Finger verschieben gemeinsam; ihr Abstand steuert den Zoom. Gegeneinander drehen rotiert die Kamera um den berührten Bergpunkt; Bewegen, Drehen und Zoomen können gleichzeitig erfolgen. Die Bewegung folgt dem tatsächlich berührten Gelände und funktioniert auch in der Draufsicht. Ein zweiter Finger beendet einen begonnenen Wegpunkt-Drag, bevor die Kamerageste beginnt. Beim Loslassen wird kein zusätzlicher Punkt gesetzt.
 
 Auf Baukarten mit Finger, Stift oder gedrückter Maustaste nach oben oder unten ziehen. Nach einer Scrollbewegung löst das Loslassen keine Auswahl aus. Die Listen besitzen auch einen breiteren sichtbaren Scrollbalken. Ein kurzer Tap wählt einen verfügbaren Eintrag.
 

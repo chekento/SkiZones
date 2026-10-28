@@ -5,7 +5,8 @@ const MOTIVES := ["Den Winter genießen", "Neue Abfahrten entdecken", "Schöne S
 
 static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	var id: int = guest.id
-	var personal := Motion.style(id, guest.ability)
+	var sport: String = guest.get("sport", "ski")
+	var personal := Motion.style(id, guest.ability, sport)
 	var energy := clampf(100 - guest.get("runs", 0) * 4.5 - guest.age * 0.045 + (15 if guest.spent else 0), 5, 100)
 	var hunger := clampf(guest.age * 0.25 - (65 if guest.spent else 0), 0, 100)
 	var warmth := clampf(85 + model.weather().temperature * 2 - guest.age * 0.055 + (20 if guest.spent else 0), 0, 100)
@@ -46,4 +47,4 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	elif kind == "lift" and guest.phase == "moving":
 		mood = "relaxed"; emotion = "Entspannt"; emoji = "😌"; reason = "Beine ausruhen, Aussicht genießen und langsam wieder hinauf."
 	var score := clampf(78 + guest.get("runs", 0) * 2 - guest.total_wait * 0.17 - maxf(0, hunger - 60) * 0.2, 5, 100)
-	return {"name": Motion.name_for(id), "years": 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": MOTIVES[(id * 11) % MOTIVES.size()], "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}
+	return {"name": Motion.name_for(id), "years": 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": MOTIVES[(id * 11) % MOTIVES.size()], "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}

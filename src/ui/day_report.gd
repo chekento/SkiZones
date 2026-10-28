@@ -16,7 +16,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(panel)
-	panel.add_theme_stylebox_override("panel", hud._style(Color("123342"), 18, 22, hud.TEAL))
+	panel.add_theme_stylebox_override("panel", hud._style(Color("fffaf2"), 18, 22, hud.TEAL))
 	var box: VBoxContainer = hud._vbox(panel, 12)
 	hud._label(box, "FEIERABEND AM BERG", 13, hud.TEAL)
 	hud._label(box, "Dein Tag im Schnee", 26, hud.ACCENT)

@@ -16,7 +16,7 @@ func setup(interface: CanvasLayer) -> void:
 	offset_right = -48
 	offset_top = 120
 	offset_bottom = -28
-	add_theme_stylebox_override("panel", hud._style(Color("113340"), 18, 22))
+	add_theme_stylebox_override("panel", hud._style(Color("fffaf2"), 18, 22))
 	body = hud._vbox(self, 10)
 	var header := HBoxContainer.new()
 	body.add_child(header)
@@ -39,7 +39,7 @@ func setup(interface: CanvasLayer) -> void:
 		var spec: Dictionary = Maps.spec(id)
 		var panel := PanelContainer.new()
 		panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		panel.add_theme_stylebox_override("panel", hud._style(Color("204551"), 12, 15))
+		panel.add_theme_stylebox_override("panel", hud._style(Color("edf3ec"), 12, 15))
 		grid.add_child(panel)
 		var card: VBoxContainer = hud._vbox(panel, 6)
 		hud._label(card, "%s · %.1f km²" % [spec.name, Maps.area(id)], 22, Color(spec.color), true)

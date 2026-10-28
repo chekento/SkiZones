@@ -23,7 +23,7 @@ jobs:
     env:
       SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
       XDG_DATA_HOME: /home/runner/skizones-godot/share
-      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.1-stable_linux.x86_64
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/skizones-godot
-          key: godot-4.5.1-linux-android-v1
+          key: godot-4.5.2-linux-android-source-v2
       - name: Install Godot
         if: steps.godot-cache.outputs.cache-hit != 'true'
         run: bash tools/install_godot.sh
@@ -67,6 +67,8 @@ jobs:
         run: '"$GODOT_BIN" --headless --script tests/day_cycle.gd'
       - name: Connected paths, uphill momentum, hiking and save migration
         run: '"$GODOT_BIN" --headless --script tests/paths_and_momentum.gd'
+      - name: Winter sports, persistent equipment and 0.9 migration
+        run: '"$GODOT_BIN" --headless --script tests/winter_sports.gd'
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -85,6 +87,10 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
       - name: Real path editor and rendered hiking on Sonnenhang
         run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/paths_scene.gd
+      - name: Two-finger rotation, visible sports and application recovery
+        run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
+      - name: Cute winter scenery, opaque guest materials and bounded batches
+        run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -105,13 +111,20 @@ jobs:
           import os, subprocess
           manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
           subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
-          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'build-tools;35.0.0'], check=True)
+          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'platforms;android-36', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
           PY
       - name: Keep debug signing identity between builds
         uses: actions/cache@v4
         with:
           path: build/export-config/skizones-debug.keystore
           key: skizones-ci-debug-keystore-v1
+      - name: Cache Android Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: skizones-gradle-4.5.2-sdk36-v2
       - name: Export Android APK
         run: python3 tools/export_android.py
       - name: Verify APK signature and archive
@@ -128,9 +141,71 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Export x86-64 Android lifecycle test app
+        run: python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SkiZones-Android-lifecycle
+          path: build/android/SkiZones-lifecycle-x86_64.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  android-lifecycle:
+    name: Android ${{ matrix.api }} lifecycle
+    needs: godot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DISPLAY: ':99'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [30, 36]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install Pillow
+      - uses: actions/download-artifact@v4
+        with:
+          name: SkiZones-Android-lifecycle
+          path: build/lifecycle
+      - name: Enable hardware virtualization
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare Mesa host graphics for actual Android surfaces
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+          Xvfb :99 -screen 0 2048x2048x24 -ac -nolisten tcp > "$RUNNER_TEMP/android-display.log" 2>&1 &
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu host -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --output build/android-qa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SkiZones-Android-${{ matrix.api }}-resume-QA
+          path: build/android-qa/*
+          if-no-files-found: ignore
+          retention-days: 90
+
   publish:
     name: Publish APK download
-    needs: godot
+    needs: [godot, android-lifecycle]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 5

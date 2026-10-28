@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export a debug APK using isolated editor preferences and a local debug key.
 
-Requires Godot 4.5.1 + matching export templates, JDK 17 and Android SDK 35.
+Requires Godot 4.5.2 + matching export templates, JDK 17 and Android SDK platforms 35/36.
 Never edits the developer's normal Godot settings or creates a release key.
 """
 import argparse
@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from prepare_android_surface import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,11 +22,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
     parser.add_argument("--output", default="build/android/SkiZones-debug.apk")
+    parser.add_argument("--preset", default="Android")
     args = parser.parse_args()
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     java = os.environ.get("JAVA_HOME")
     if not sdk or not java:
-        sys.exit("Set ANDROID_HOME (SDK 35) and JAVA_HOME (JDK 17) first. See docs/ANDROID.md.")
+        sys.exit("Set ANDROID_HOME (SDK 35/36) and JAVA_HOME (JDK 17) first. See docs/ANDROID.md.")
     sdk, java = Path(sdk).resolve(), Path(java).resolve()
     suffix = ".exe" if os.name == "nt" else ""
     required = [sdk / "platform-tools" / ("adb" + suffix), java / "bin" / ("keytool" + suffix), sdk / "build-tools" / "35.0.0" / ("zipalign" + suffix)]
@@ -36,6 +38,7 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     config = ROOT / "build" / "export-config"
     (ROOT / "build" / ".gdignore").write_text("", encoding="utf-8")
+    prepare(sdk, java)
     settings_dir = config / "godot"
     settings_dir.mkdir(parents=True, exist_ok=True)
     key = config / "skizones-debug.keystore"
@@ -54,7 +57,7 @@ def main():
     env = os.environ.copy()
     env["XDG_CONFIG_HOME"] = str(config)
     subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--editor", "--import", "--quit"], env=env, check=True)
-    subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", "Android", str(output)], env=env, check=True)
+    subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", args.preset, str(output)], env=env, check=True)
     if not output.exists() or output.stat().st_size < 1000000:
         sys.exit("Godot did not produce a valid-sized APK.")
     print(f"Debug APK ready: {output}")

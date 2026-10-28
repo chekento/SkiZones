@@ -22,3 +22,5 @@ Position, Identität und chronologische Fortsetzung über 18 Uhr und den
 anschließenden Speicherwechsel auf Format 8. Es sind erzeugte Testdaten.
 
 `v0.8-starter.json` wurde mit dem unveränderten veröffentlichten 0.8-Commit `4ff3f9f81c002bd10b0e6292cdb6541ffcb2eeb7` nach 180 tatsächlich simulierten Minuten erzeugt. Der Test übernimmt die laufenden Gäste und alten Wegkorridore, speichert im Format 9 und prüft die identische Fortsetzung. Es sind erzeugte Testdaten.
+
+`v0.9-starter.json` wurde mit dem veröffentlichten 0.9-Quellcode (`89363375df2fa2d106b84f5ae0801a9526b70f34`) und dem 4.5.2-Interpreter erzeugt. Der Format-9-Spielstand enthält zwölf synthetische Gäste, darunter eine laufende persönliche Abfahrt. Die 0.10-Prüfung erhält Ausrüstung und Fortschritt der alten Skifahrer beim Wechsel in Format 10.

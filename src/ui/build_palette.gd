@@ -95,7 +95,7 @@ func _make_cards() -> void:
 		_card(key, spec.name, "%.1f m/s · max. %.0f m\n%s € + %d €/m" % [spec.speed / 60, spec.max_length, hud.money_text(spec.cost), spec.per_m], spec.cost, spec.upkeep, "lift", hud.ACCENT)
 	for key in Catalog.BUILDINGS:
 		var spec: Dictionary = Catalog.BUILDINGS[key]
-		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).lightened(0.2))
+		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).darkened(0.22))
 	for key in Catalog.PLAZAS:
 		var spec: Dictionary = Catalog.PLAZAS[key]
 		if key == "walkway":
@@ -120,7 +120,7 @@ func refresh(force: bool = false) -> void:
 	hud.tool_buttons.inspect.text = "Plan abbrechen" if game.tool != "inspect" else "Resort ansehen"
 	for key in categories:
 		categories[key].disabled = not game.points.is_empty() and key != category
-		categories[key].add_theme_stylebox_override("normal", hud._style(Color("3d6671") if key == category else Color("244755"), 7, 7))
+		categories[key].add_theme_stylebox_override("normal", hud._style(Color("c9e2d8") if key == category else Color("e1eeea"), 7, 7))
 	for card in cards:
 		var active_category: String = {"piste": "pistes", "lift": "lifts", "building": "village", "plaza": "paths"}[card.type]
 		card.button.visible = category == active_category
@@ -130,7 +130,7 @@ func refresh(force: bool = false) -> void:
 		card.status.text = "Plan läuft · Bauen / Abbrechen" if not game.points.is_empty() else locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type in ["building", "plaza"] and card.key != "walkway" else "Route planen"))
 		card.heading.modulate = Color("718b94") if locked != "" else Color.WHITE
 		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool in ["plaza","walkway"] and game.plaza_kind == card.key) if card.type == "plaza" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
-		card.button.add_theme_stylebox_override("normal", hud._style(Color("315c68") if selected else Color("20424f"), 10, 10, hud.TEAL if selected else Color.TRANSPARENT))
+		card.button.add_theme_stylebox_override("normal", hud._style(Color("dcece2") if selected else Color("eff4ed"), 10, 10, hud.TEAL if selected else Color.TRANSPARENT))
 		if card.type in ["lift", "building"]:
 			var choice: OptionButton = hud.lift_choice if card.type == "lift" else hud.building_choice
 			var index: int = (Catalog.LIFTS.keys() if card.type == "lift" else Catalog.BUILDINGS.keys()).find(card.key)

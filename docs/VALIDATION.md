@@ -1,8 +1,7 @@
-# Prüfung von SkiZones 0.9.0
+# Prüfung von SkiZones 0.10.0
 
-Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
+Stand: 28.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
-[Öffentlicher Veröffentlichungslauf 0.9.0](https://github.com/chekento/SkiZones/actions/runs/40748758586): alle 596 Prüfungen, Android-Export, APK-Signatur und Archivprüfung erfolgreich. Die APK gehört zum Quellcode-Commit `89363375df2fa2d106b84f5ae0801a9526b70f34`.
 
 | Prüfung | Umfang |
 |---|---|
@@ -24,6 +23,10 @@ Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 | Scrollbarer Tagesbericht | 15 Szenenprüfungen: In-Scene-Dialog mit allen Finanzfeldern, angepasste Größe und dauerhaft sichtbare nächste-Tages-Schaltfläche bei 1536×710, 1280×800 und 960×540, echte Finger-Ereignisse und fortlaufender Feierabendbetrieb |
 | Wege, Schwung und Stapfen | 41 Prüfungen für Energieverlust, Fahrt mit und ohne Anlauf, Gehzeiten am Hang, direkte Liftzugänge, Fußwegbau und Bearbeitung, Schließung, Kosten, tatsächliches Stapfen auf dem Sonnenhang, persönliche Fahrprofile und 0.8-Migration |
 | Gerenderte Wege und Gegenanstiege | 18 Prüfungen mit echter Grafikausgabe: Baukatalog, Mehrpunktplanung, Punktziehen, Abbruch, genau einmal bestätigter Bau, Auswahl entlang des Weges, Bestandsbearbeitung, tatsächlicher Stapfgast mit passendem Modell und Profil sowie übereinstimmende Schneeintervalle |
+| Drei Wintersportarten | 16 Prüfungen: echter gemischter Gästebetrieb, Ausrüstung, persönliche Bewegung, gespeicherte Spuren, deterministische Fortsetzung, beschädigte Daten, kanonische Gastkennungen und tatsächliche 0.9-Migration |
+| Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
+| Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
+| Android-App-Wechsel | Emulatoren mit Android 11 (API 30) und Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; tatsächlich gerenderte Screenshots und gespeicherte Zustände. Beide Jobs müssen vor der APK-Veröffentlichung erfolgreich sein. |
 | CPU-Belastung | Reproduzierbarer Vergleich mit unverändertem 0.6-Quellcode: 80 Gäste/1 Lift und 360 Gäste/24 Lifte bei 1× und 4×; Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
@@ -34,9 +37,9 @@ Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 596 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 638 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.9.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.10.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 
@@ -64,3 +67,9 @@ Alte Fußkorridore werden für aktive 0.8-Gäste bis zum folgenden Tageswechsel 
 Der Rückholtest erzeugt auf dem tatsächlichen Sonnenhang ein Seitental, dessen Rückweg einen zweiten Lift benötigt. Ohne Korrektur bleibt dessen geschlossene Schlange auch nach dem Zeitlimit bestehen. Die korrigierte Simulation bedient ausschließlich Heimwege, behält die manuelle Sperre und die tatsächliche Position bei und beendet nach der letzten Rückkehr den Tag. Bei Sturm steht auch dieser Lift still. Neue reguläre Routen verwenden die gesperrte Anlage nicht.
 
 Die Aufnahmen von [Fußwegplanung](screenshots/footpath-preview-090.webp), [Stapfgast](screenshots/hiking-090.webp) und [Tagesbericht](screenshots/day-report-090.webp) wurden aus dem erfolgreichen 0.9-Grafikprüflauf übernommen und visuell kontrolliert. Sie zeigen erzeugte Testsituationen mit der tatsächlichen Spieloberfläche.
+
+Die Android-Lifecycle-Prüfung verwendet einen gesonderten x86-64-Testexport mit aktiviertem Testtreiber. Die öffentliche ARM64-APK enthält diesen Treiber und die Testdaten nicht. Kamera, Betrieb und Darstellung stammen in beiden Exporten aus denselben Spielskripten. Ein Emulator bestätigt weder die Fehlerfreiheit jedes Geräte-Grafiktreibers noch die Bildrate auf einem physischen Smartphone.
+
+Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibility-Ausgabe erfasst. Nahdetails werden in vorhandene Asset-Meshes gebacken; das Gäste-Material trennt die Jackenfarbe von Gesicht, Brille und Schal. Die Aufnahmen zeigen reguläre 3D-Spielgeometrie, keine Konzeptbilder.
+
+Die native Android-Prüfung umfasst acht Home-Wechsel (elf sichtbare Fälle unter Android 11 und zwölf unter Android 16 einschließlich eines tatsächlichen System-Overlay-Wechsels). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.

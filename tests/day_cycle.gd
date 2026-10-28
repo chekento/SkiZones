@@ -253,4 +253,4 @@ func _migration() -> void:
 	var before: Vector3 = copy.guest_position(copy.guests[0])
 	copy.advance_minute(false)
 	check(copy.is_closing() and copy.guest_position(copy.guests[0]).distance_to(before) < 40, "Migrated 0.7 skiers continue their saved old motion without snapping")
-	check(Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated journeys can immediately be saved again in format 9")
+	check(Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated journeys can immediately be saved again in format 10")
