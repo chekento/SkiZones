@@ -106,6 +106,15 @@ func pine() -> ArrayMesh:
 			cone(at, radius * 0.48, 2.5, Color("e3eef1"))
 	return finish()
 
+func pine_distant() -> ArrayMesh:
+	cone(Vector3(0, 3, 0), 0.5, 6, Color("71583e"))
+	for index in range(3):
+		var y := 3.0 + index * 4
+		var radius := 5.0 - index * 1.4
+		cone(Vector3(0, y + 2, 0), radius, 6.5, Color("315746"))
+		cone(Vector3(0, y + 3, 0), radius * 0.91, 5.2, Color("edf3f4"))
+	return finish()
+
 func plaza_details() -> ArrayMesh:
 	# One batched set: timber seat, bin, warm lantern and a little route board.
 	box(Vector3(0, 1.1, 0), Vector3(5.2, 0.38, 1.9), Color("b28b5b"))

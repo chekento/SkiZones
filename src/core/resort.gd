@@ -42,6 +42,7 @@ var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var revision := 0
 var _routes: Dictionary = {}
+var _asset_index: Dictionary = {}
 var _anchor_revision := -1
 var _anchors: Array = []
 var _cable_profiles: Dictionary = {}
@@ -91,6 +92,7 @@ func _reset_report() -> void:
 
 func _invalidate() -> void:
 	revision += 1
+	_asset_index.clear()
 	_routes.clear()
 	_cable_profiles.clear()
 	_fleet_layouts.clear()
@@ -112,7 +114,7 @@ func fleet_layout(lift: Dictionary) -> Dictionary:
 	return _fleet_layouts[lift.id]
 
 func carrier_pose(lift: Dictionary, carrier: int, fraction_tick: float = 0.0) -> Dictionary:
-	return Fleet.pose(terrain, lift, cable_profile(lift), lift.get("clock", 0.0) + (fraction_tick if lift_open(lift) else 0.0), carrier)
+	return Fleet.pose(terrain, lift, cable_profile(lift), lift.get("clock", 0.0) + (fraction_tick if lift_open(lift) else 0.0), carrier, fleet_layout(lift))
 
 func rider_pose(guest: Dictionary, fraction_tick: float = 0.0) -> Dictionary:
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -332,11 +334,11 @@ func build_plaza(kind: String, point: Vector2) -> Dictionary:
 	return _result(true, "Gehfläche angelegt. Benachbarte Plätze und Gebäude verbinden sich automatisch.")
 
 func asset(id: int) -> Dictionary:
-	for collection in [pistes, lifts, buildings, walk_areas]:
-		for item in collection:
-			if item.id == id:
-				return item
-	return {}
+	if _asset_index.is_empty():
+		for collection in [pistes, lifts, buildings, walk_areas]:
+			for item in collection:
+				_asset_index[int(item.id)] = item
+	return _asset_index.get(id, {})
 
 func set_enabled(id: int, enabled: bool) -> void:
 	var item := asset(id)
@@ -930,6 +932,10 @@ func queued_guests(id: int) -> Array:
 		return a.id < b.id if is_equal_approx(a_time, b_time) else a_time < b_time
 	)
 	_queue_cache[id] = result
+	var ranks: Dictionary = {}
+	for index in range(result.size()):
+		ranks[int(result[index].id)] = index
+	_queue_cache["rank:%d" % id] = ranks
 	return result
 
 func _board_lift(lift: Dictionary) -> void:
@@ -1013,10 +1019,14 @@ func _queue_local_free(lift: Dictionary, point: Vector2) -> bool:
 	return true
 
 func lift_load(lift: Dictionary) -> Dictionary:
-	var occupied := 0
-	for guest in guests:
-		if guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "lift" and guest.route.legs[guest.leg].id == lift.id:
-			occupied += 1
+	if not _queue_cache.has("loads"):
+		var loads: Dictionary = {}
+		for guest in guests:
+			if guest.phase == "moving" and guest.leg < guest.route.legs.size() and guest.route.legs[guest.leg].kind == "lift":
+				var id: int = guest.route.legs[guest.leg].id
+				loads[id] = loads.get(id, 0) + 1
+		_queue_cache["loads"] = loads
+	var occupied: int = _queue_cache.loads.get(int(lift.id), 0)
 	var loaded := 0
 	for departure in lift.get("recent_departures", []):
 		loaded += departure.load
@@ -1103,8 +1113,8 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 	var fraction := clampf((guest.elapsed + fraction_tick) / guest.get("duration", leg.minutes), 0, 1)
 	if guest.phase == "queue":
 		var lift := asset(leg.id)
-		var queue := queued_guests(lift.id)
-		return queue_position(lift, maxi(0, queue.find(guest)))
+		queued_guests(lift.id)
+		return queue_position(lift, _queue_cache["rank:%d" % int(lift.id)].get(int(guest.id), 0))
 	var point := terrain.point_on_path(leg.points, fraction)
 	if leg.kind == "visit":
 		return terrain.world(Foot.door(asset(leg.id)))

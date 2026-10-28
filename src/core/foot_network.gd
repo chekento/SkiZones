@@ -57,6 +57,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for area in walk_areas:
 		if area.enabled:
 			areas.append(_area("w%d" % area.id, Terrain.unpack(area.point), Terrain.unpack(area.point), area.radius, true, area.id, "plaza"))
+	var shapes := obstacles(buildings, lifts)
 	var links: Array = []
 	for i in range(areas.size()):
 		for j in range(i + 1, areas.size()):
@@ -64,7 +65,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 			var b: Dictionary = areas[j]
 			if a.center.distance_to(b.center) > a.radius + b.radius + LINK_GAP:
 				continue
-			var path := path_between(a.point, b.point, buildings, lifts)
+			var path := path_between(a.point, b.point, buildings, lifts, shapes)
 			if not path.is_empty() and gentle(mountain, path):
 				links.append({"from": a.key, "to": b.key, "points": path})
 	var rooted: Array = []
@@ -79,7 +80,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 				if rooted.has(pair[0]) and not rooted.has(pair[1]):
 					rooted.append(pair[1])
 					changed = true
-	return {"areas": areas, "links": links, "rooted": rooted, "lifts": lifts, "buildings": buildings}
+	return {"areas": areas, "links": links, "rooted": rooted, "lifts": lifts, "buildings": buildings, "obstacles": shapes}
 
 static func attachments(layout_value: Dictionary, point: Vector2, rooted_only: bool = false, extra: float = 2) -> Array:
 	var result: Array = []
@@ -214,8 +215,15 @@ static func crosses_polygon(a: Vector2, b: Vector2, polygon: PackedVector2Array)
 	if not _inset_cache.has(key):
 		if _inset_cache.size() > 512:
 			_inset_cache.clear()
-		_inset_cache[key] = Geometry2D.offset_polygon(polygon, -0.08)
-	var inset: Array = _inset_cache[key]
+		var bounds := Rect2(polygon[0], Vector2.ZERO)
+		for point in polygon:
+			bounds = bounds.expand(point)
+		_inset_cache[key] = {"bounds": bounds, "shapes": Geometry2D.offset_polygon(polygon, -0.08)}
+	var data: Dictionary = _inset_cache[key]
+	var segment_bounds := Rect2(a, Vector2.ZERO).expand(b).grow(0.001)
+	if not data.bounds.intersects(segment_bounds, true):
+		return false
+	var inset: Array = data.shapes
 	for shape in inset:
 		if Geometry2D.is_point_in_polygon(a, shape) or Geometry2D.is_point_in_polygon(b, shape):
 			return true
@@ -231,8 +239,8 @@ static func clear_walk(points: Array, buildings: Array, lifts: Array) -> bool:
 				return false
 	return true
 
-static func path_between(from: Vector2, to: Vector2, buildings: Array, lifts: Array = []) -> Array:
-	var shapes := obstacles(buildings, lifts)
+static func path_between(from: Vector2, to: Vector2, buildings: Array, lifts: Array = [], prepared: Array = []) -> Array:
+	var shapes := obstacles(buildings, lifts) if prepared.is_empty() else prepared
 	var blocked := false
 	for shape in shapes:
 		if Geometry2D.is_point_in_polygon(from, shape) or Geometry2D.is_point_in_polygon(to, shape):
