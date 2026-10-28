@@ -34,10 +34,26 @@ static func free_of_buildings(point: Vector2, buildings: Array, margin: float = 
 	return true
 
 static func building_size(building: Dictionary) -> Vector2:
+	var size := base_building_size(building)
+	return Vector2(size.y, size.x) if int(building.get("rotation", 0)) % 2 == 1 else size
+
+static func base_building_size(building: Dictionary) -> Vector2:
 	return Vector2(35, 28) if building.kind == "hotel" else (Vector2(29, 24) if building.kind == "maintenance" else Vector2(22, 18))
 
 static func door(building: Dictionary) -> Vector2:
-	return Terrain.unpack(building.point) + Vector2(0, building_size(building).y * 0.5 + 3)
+	return Terrain.unpack(building.point) + front(building) * (base_building_size(building).y * 0.5 + 3)
+
+static func front(building: Dictionary) -> Vector2:
+	var angle := int(building.get("rotation", 0)) * PI * 0.5
+	return Vector2(sin(angle), cos(angle))
+
+static func forecourt(building: Dictionary) -> Vector2:
+	return door(building) + front(building) * 5
+
+static func entrance_bounds(building: Dictionary) -> Rect2:
+	var center := door(building) + front(building) * 5
+	var size := Vector2(12, 8) if int(building.get("rotation", 0)) % 2 == 1 else Vector2(8, 12)
+	return Rect2(center - size * 0.5, size)
 
 static func building_radius(building: Dictionary) -> float:
 	return 16.0 if building.kind == "kiosk" else (30.0 if building.kind in ["hotel", "spa"] else 26.0)
@@ -53,7 +69,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for building in buildings:
 		if building.kind != "snowmaker":
 			var entrance := door(building)
-			areas.append(_area("f%dg" % building.id, entrance + Vector2(0, 5), entrance + Vector2(0, 5), building_radius(building), false, building.id, "building"))
+			areas.append(_area("f%dg" % building.id, forecourt(building), forecourt(building), building_radius(building), false, building.id, "building"))
 	for area in walk_areas:
 		if area.enabled:
 			areas.append(_area("w%d" % area.id, Terrain.unpack(area.point), Terrain.unpack(area.point), area.radius, true, area.id, "plaza"))
@@ -120,9 +136,9 @@ static func valid_walk(layout_value: Dictionary, points: Array, buildings: Array
 				return false
 	return true
 
-static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2) -> Dictionary:
-	var proposed := {"kind": kind, "point": Terrain.pack(point)}
-	var entrance := door(proposed) + Vector2(0, 5)
+static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
+	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value}
+	var entrance := forecourt(proposed)
 	var nearest: Dictionary = {}
 	var distance := INF
 	for area in layout_value.areas:
@@ -168,7 +184,7 @@ static func boarding_point(lift: Dictionary, top: bool) -> Vector2:
 	return Fleet.station_point(lift, top) + direction * (machine_radius(lift) + 7) * (1 if top else -1)
 
 static func obstacles(buildings: Array, lifts: Array) -> Array:
-	var fingerprint := [buildings.map(func(building): return [building.kind, building.point]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
+	var fingerprint := [buildings.map(func(building): return [building.kind, building.point, building.get("rotation", 0)]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
 	if _obstacle_cache.has(fingerprint):
 		return _obstacle_cache[fingerprint]
 	var result: Array = []

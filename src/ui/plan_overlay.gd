@@ -9,14 +9,14 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _process(_delta: float) -> void:
-	visible = game.has_game and game.tool in ["piste", "lift"] and not game.hud.menu.visible
+	visible = game.has_game and game.tool in ["piste", "lift", "building", "plaza"] and not game.hud.menu.visible
 	if visible:
 		queue_redraw()
 
 func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 	var selected := -1
 	var distance := radius
-	if game.tool != "piste":
+	if game.tool not in ["piste", "lift", "building", "plaza"]:
 		return selected
 	for index in range(game.points.size()):
 		var world: Vector3 = game.model.terrain.world(Terrain.unpack(game.points[index]), 4)

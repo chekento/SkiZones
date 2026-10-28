@@ -140,6 +140,9 @@ static func groom(piste: Dictionary, strength: float) -> void:
 	piste.tracks.clear()
 
 static func validate(piste: Dictionary) -> bool:
+	var revision: Variant = piste.get("surface_revision", 0)
+	if not Terrain.number(revision) or revision < 0 or revision > 1000000000000 or revision != floorf(revision):
+		return false
 	if not piste.has("surface"):
 		ensure(piste)
 	if not piste.surface is Array or piste.surface.size() != rows(piste) * (LANES + 1) or not piste.get("tracks") is Array or piste.tracks.size() > MAX_TRACKS:

@@ -6,8 +6,16 @@ const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
+const Preferences = preload("res://src/core/preferences.gd")
 const ResortHUD = preload("res://src/ui/hud.gd")
 
+var preferences := Preferences.new()
+var editing_id := -1
+var edit_title := ""
+var edit_color := ""
+var edit_rotation := 0
+var edit_width := 20.0
+var _edit_original: Array = []
 var model := Resort.new()
 var passport := Passport.new()
 var view := ResortView.new()
@@ -44,6 +52,8 @@ func _ready() -> void:
 	view.setup(model)
 	add_child(hud)
 	hud.setup(self)
+	preferences.load_from()
+	preferences.apply(view)
 	hud.show_menu()
 	_update_plan()
 	# Deterministic captures and boot checks are also used by CI.
@@ -74,7 +84,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not paused and points.is_empty() and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
+	return has_game and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.management.visible and not hud.atlas.visible and model.minute < Resort.CLOSING
 
 func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	model.new_game(starter, 20261027, area)
@@ -182,6 +192,7 @@ func set_tool(value: String) -> void:
 	_clear_input()
 	if value in ["lift", "building"] and model.build_access_message(hud.lift_kind() if value == "lift" else hud.building_kind(), value == "lift") != "":
 		return
+	editing_id = -1
 	tool = "piste" if value in ["blue", "red", "black"] else value
 	points.clear()
 	selected_waypoint = -1
@@ -213,7 +224,7 @@ func delete_waypoint() -> void:
 	_update_plan()
 
 func _snap_point(point: Vector2) -> Vector2:
-	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty())) if tool == "piste" else {}
+	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else {}
 	return snap_target.point if not snap_target.is_empty() else point
 
 func _begin_waypoint_drag(index: int) -> void:
@@ -238,6 +249,10 @@ func _end_waypoint_drag(canceled: bool = false) -> void:
 	_update_plan()
 
 func _plan_check() -> Dictionary:
+	if editing_id != -1:
+		var check: Dictionary = model.preview_change(editing_id, points, edit_rotation, edit_width)
+		check.color = edit_color
+		return check
 	if tool in ["lift", "building"]:
 		var access: String = model.build_access_message(hud.lift_kind() if tool == "lift" else hud.building_kind(), tool == "lift")
 		if access != "":
@@ -296,7 +311,10 @@ func confirm_plan() -> void:
 		return
 	_committing = true
 	var result: Dictionary
-	if tool == "plaza":
+	var edited := editing_id
+	if editing_id != -1:
+		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width)
+	elif tool == "plaza":
 		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
 	elif tool == "piste":
 		result = model.build_piste(points)
@@ -310,6 +328,10 @@ func confirm_plan() -> void:
 		points.clear()
 		selected_waypoint = -1
 		snap_target = {}
+		if edited != -1:
+			editing_id = -1
+			tool = "inspect"
+			hud.show_context("inspect", edited)
 	hud.toast(result.message)
 	_update_plan()
 	hud.refresh()
@@ -404,7 +426,11 @@ func _input(event: InputEvent) -> void:
 		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.camera_dialog.visible:
+			if hud.asset_editor.visible:
+				hud.asset_editor.hide()
+			elif hud.display_options.visible:
+				hud.display_options.hide()
+			elif hud.camera_dialog.visible:
 				hud.camera_dialog.hide()
 			elif hud.atlas.visible:
 				hud.atlas.hide()
@@ -420,7 +446,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible:
+		elif not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -495,6 +521,12 @@ func _notification(what: int) -> void:
 			save_game()
 		_clear_input()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.asset_editor.visible:
+			hud.asset_editor.hide()
+			return
+		if hud.display_options.visible:
+			hud.display_options.hide()
+			return
 		if hud.camera_dialog.visible:
 			hud.camera_dialog.hide()
 			return
@@ -734,3 +766,42 @@ func _capture(path: String) -> void:
 	var error := image.save_png(path)
 	print("CAPTURE: ", path, " result=", error)
 	get_tree().quit(error)
+
+func begin_edit(id: int, title: String, color: String, rotation_value: int, width: float) -> bool:
+	if not points.is_empty() and editing_id != id:
+		hud.toast("Zuerst die laufende Planung abschließen oder abbrechen.")
+		return false
+	var item: Dictionary = model.asset(id)
+	if item.is_empty(): return false
+	_clear_input()
+	var continuing := editing_id == id
+	editing_id = id
+	edit_title = title
+	edit_color = color
+	edit_rotation = rotation_value
+	edit_width = width
+	if item.has("difficulty"):
+		tool = "piste"
+		_edit_original = item.points.duplicate(true)
+	elif item.has("bottom"):
+		tool = "lift"
+		_edit_original = [item.bottom.duplicate(), item.top.duplicate()]
+		hud.lift_choice.select(Catalog_index(item.kind, true))
+	elif item.has("radius"):
+		tool = "plaza"
+		plaza_kind = item.kind
+		_edit_original = [item.point.duplicate()]
+	else:
+		tool = "building"
+		_edit_original = [item.point.duplicate()]
+		hud.building_choice.select(Catalog_index(item.kind, false))
+	if not continuing: points = _edit_original.duplicate(true)
+	selected_waypoint = -1
+	hud.show_context(tool)
+	hud.asset_editor.hide()
+	_update_plan()
+	hud.toast("Nummerierte Punkte ziehen. Übernehmen bestätigt, Abbrechen verwirft die Änderung.")
+	return true
+
+func Catalog_index(kind: String, lift: bool) -> int:
+	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)

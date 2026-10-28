@@ -17,6 +17,7 @@ const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var snow_renderer := SnowRender.new()
 var forest := ForestLOD.new()
+var _art_cache: Dictionary = {}
 var _vehicle_sets: Dictionary = {}
 var _label_tick := -1
 var _trace_cache: Dictionary = {}
@@ -508,7 +509,7 @@ func rebuild() -> void:
 	var title_positions: Array[Vector2] = []
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
-		var width: float = 20 + (piste.get("level", 1) - 1) * 4
+		var width: float = Snow.piste_width(piste)
 		var snow_mesh := MeshInstance3D.new()
 		snow_mesh.material_override = _solid
 		snow_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -625,7 +626,7 @@ func _build_lift(lift: Dictionary) -> void:
 			var track_a := bottom - Vector2(orientation.x.x, orientation.x.z) * r
 			var track_b := top - Vector2(orientation.x.x, orientation.x.z) * r
 			_ribbon(asset_root, [Terrain.pack(track_a), Terrain.pack(track_b)], 3.2, Color("e4edf0"), 0.22)
-		var station_mesh := Art.new().station(lift.kind, int(lift.get("level", 1)))
+		var station_mesh := _lift_art(lift, "station")
 		for point in [bottom, top]:
 			var instance := _baked(asset_root, station_mesh, terrain.world(point))
 			instance.rotation.y = angle
@@ -644,7 +645,7 @@ func _build_lift(lift: Dictionary) -> void:
 			for side in [-1, 1]:
 				steel.link(profile.points[i - 1] + orientation.x * (r * side), profile.points[i] + orientation.x * (r * side), 0.09, Color("3c5159"))
 		_baked(asset_root, steel.finish(), Vector3.ZERO)
-		var vehicle_mesh := Art.new().chair(lift.kind)
+		var vehicle_mesh := _lift_art(lift, "chair")
 		vehicle_mesh.surface_set_material(0, _solid)
 		var group := MultiMeshInstance3D.new()
 		var count: int = model.fleet_layout(lift).count
@@ -702,12 +703,13 @@ func _build_lift(lift: Dictionary) -> void:
 
 func _build_building(building: Dictionary) -> void:
 	var point := Terrain.unpack(building.point)
-	var instance := _baked(asset_root, Art.new().chalet(building.kind, int(building.get("level", 1)), Color(Catalog.BUILDINGS[building.kind].color)), terrain.world(point))
+	var instance := _baked(asset_root, Art.new().chalet(building.kind, int(building.get("level", 1)), Color(building.get("color", "") if building.get("color", "") != "" else Catalog.BUILDINGS[building.kind].color)), terrain.world(point))
+	instance.rotation.y = int(building.get("rotation", 0)) * PI * 0.5
 	_occluders.append(instance)
 	if building.kind == "snowmaker":
 		return
 	var entrance := Foot.door(building)
-	var hub := entrance + Vector2(0, 5)
+	var hub := Foot.forecourt(building)
 	_ribbon(asset_root, [Terrain.pack(entrance), Terrain.pack(hub)], 4.5, Color("bbc7c6"), 0.4)
 
 func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: float) -> void:
@@ -737,7 +739,7 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		child.queue_free()
 	if points.is_empty():
 		return
-	_ribbon(preview_root, points, 20 if analysis.has("segments") else 7, color, 1.55)
+	_ribbon(preview_root, points, analysis.get("width", 20) if analysis.has("segments") else 7, color, 1.55)
 	if analysis.has("radius"):
 		var center := Terrain.unpack(points[-1])
 		var radius: float = analysis.radius
@@ -773,7 +775,9 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 	if building_kind != "":
 		if not analysis.get("connection", {}).is_empty():
 			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
-		_baked(preview_root, Art.new().chalet(building_kind, 1, color), terrain.world(Terrain.unpack(points.back())))
+		var livery: String = analysis.get("color", "")
+		var ghost := _baked(preview_root, Art.new().chalet(building_kind, 1, Color(livery) if livery != "" else color), terrain.world(Terrain.unpack(points.back())))
+		ghost.rotation.y = int(analysis.get("rotation", 0)) * PI * 0.5
 
 func _update_atmosphere() -> void:
 	var key := "%d-%d-%d" % [model.day, model.minute, model.weather_index]
@@ -1296,3 +1300,10 @@ func _adapt_quality(delta: float) -> void:
 		viewport.scaling_3d_scale = minf(0.92, viewport.scaling_3d_scale + 0.02)
 		quality_tier = 1
 	_sun.shadow_enabled = quality_tier > 0
+
+func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
+	var key := "%s/%s/%d/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", "")]
+	if not _art_cache.has(key):
+		if _art_cache.size() > 128: _art_cache.clear()
+		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
+	return _art_cache[key]

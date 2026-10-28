@@ -2,6 +2,10 @@ extends CanvasLayer
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 
 const Catalog = preload("res://src/core/catalog.gd")
+const GuestProfile = preload("res://src/core/guest_profile.gd")
+const GuestFace = preload("res://src/ui/guest_face.gd")
+const AssetEditor = preload("res://src/ui/asset_editor.gd")
+const DisplayOptions = preload("res://src/ui/display_options.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Palette = preload("res://src/ui/build_palette.gd")
@@ -62,6 +66,10 @@ var management := Management.new()
 var atlas := Atlas.new()
 var palette := Palette.new()
 var selected_guest := -1
+var guest_face := GuestFace.new()
+var asset_editor := AssetEditor.new()
+var display_options := DisplayOptions.new()
+var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
 
@@ -99,6 +107,10 @@ func setup(controller: Node) -> void:
 	management.setup(game, self)
 	root.add_child(atlas)
 	atlas.setup(self)
+	root.add_child(asset_editor)
+	asset_editor.setup(self)
+	root.add_child(display_options)
+	display_options.setup(self)
 	show_context("inspect")
 	refresh()
 	get_viewport().size_changed.connect(_update_safe_area)
@@ -246,6 +258,10 @@ func _build_inspector() -> void:
 	box.add_child(scroll)
 	var content := _vbox(scroll, 14)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	guest_face.custom_minimum_size.y = 112
+	guest_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(guest_face)
+	guest_face.hide()
 	content.add_child(inspector_text)
 	inspector_text.bbcode_enabled = true
 	inspector_text.fit_content = true
@@ -269,6 +285,7 @@ func _build_plan_bar() -> void:
 	confirm_button.custom_minimum_size.x = 165
 	undo_button = _button(actions, "Letzten Punkt zurück", game.undo_point)
 	delete_point_button = _button(actions, "Punkt löschen", game.delete_waypoint)
+	design_button = _button(actions, "Gestaltung", func(): asset_editor.open(game.editing_id))
 	clear_button = _button(actions, "Abbrechen", game.clear_plan)
 	_spacer(actions, false)
 	labels.status = _label(actions, "", 15, TEAL)
@@ -416,6 +433,7 @@ func _build_menu() -> void:
 	_spacer(box)
 	continue_button = _button(box, "Fortsetzen", game.continue_game, true)
 	_button(box, "Gebiete entdecken", show_atlas)
+	_button(box, "Darstellung & Komfort", func(): display_options.open())
 	_button(box, "Freier Aufbau · alle Anlagen", func(): game.start_game(false))
 	_label(box, "Ski Resort Tycoon  /  Version 0.6.0\nEine eigenständige Spielwelt von KoSch", 13, MUTED, true)
 
@@ -455,7 +473,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if asset_editor.visible or display_options.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -482,6 +500,8 @@ func show_management(tab: int = 0) -> void:
 func show_context(tool: String, id: int = -1) -> void:
 	current_tool = tool
 	selected_guest = -1
+	game.view.selected_guest = -1
+	guest_face.hide()
 	if tool == "piste":
 		palette.select_category("pistes")
 	elif tool == "plaza":
@@ -502,6 +522,7 @@ func show_context(tool: String, id: int = -1) -> void:
 	if id != -1:
 		var item: Dictionary = game.model.asset(id)
 		inspector_title.text = item.get("name", "Anlage")
+		_button(inspector_actions, "Gestalten & umplanen", func(): asset_editor.open(id), true)
 		_button(inspector_actions, "Schließen" if item.get("enabled", false) else "Öffnen", func(): game.toggle_asset(id))
 		_button(inspector_actions, "Abbauen · 25 % Erstattung", func(): game.demolish_asset(id))
 		if not item.has("radius"):
@@ -546,6 +567,8 @@ func show_context(tool: String, id: int = -1) -> void:
 func show_guest(id: int) -> void:
 	show_context("inspect")
 	selected_guest = id
+	game.view.selected_guest = id
+	set_map_focus(false)
 	for child in inspector_actions.get_children():
 		inspector_actions.remove_child(child)
 		child.queue_free()
@@ -563,19 +586,10 @@ func _refresh_context_text() -> void:
 		for guest in model.guests:
 			if int(guest.id) != selected_guest:
 				continue
-			var personal := Motion.style(guest.id, guest.ability)
-			inspector_title.text = Motion.name_for(guest.id)
-			var activity := "Auf dem Heimweg"
-			if guest.phase == "queue":
-				activity = "Wartet auf den Lift"
-			elif guest.phase == "moving" and guest.leg < guest.route.legs.size():
-				activity = {"ski": "Zieht Schwünge im Schnee", "lift": "Fährt bergauf", "walk": "Zu Fuß auf den Stationsplätzen", "visit": "Zu Gast im Gebäude"}[guest.route.legs[guest.leg].kind]
-				var leg: Dictionary = guest.route.legs[guest.leg]
-				if leg.kind == "visit":
-					activity = "Zu Gast: %s" % model.asset(leg.id).name
-				elif leg.kind == "lift":
-					activity = "%s · Platz %d/%d" % [model.asset(leg.id).name, int(guest.get("ride_seat", 0)) + 1, model.Fleet.seats(model.asset(leg.id))]
-			inspector_text.text = "[color=#75cdc7]%s[/color]\n%s\n\nFahrstil: %s\nPersönliches Tempo: %.1f m/s\n%d abgeschlossene Runden\n\nTippe auf einen Gast und folge seiner Fahrt aus der Nähe. Ziehen auf der Karte löst die Kamera." % [["Anfänger", "Geübt", "Profi"][guest.ability], activity, personal.name, personal.speed, guest.loops]
+			var profile := GuestProfile.describe(model, guest)
+			inspector_title.text = profile.name
+			guest_face.update_face(profile.mood, Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()]))
+			inspector_text.text = "[color=#efb17d][b]%s[/b][/color]\n%s\n\n[color=#75cdc7]%d Jahre · aus %s[/color]\n%s · %s\n\n%s\n\n[b]DEIN SKITAG[/b]\n%d Abfahrten · %d Runden\n%d Min. im Resort\n%d Min. insgesamt gewartet\nTagesgefühl: %.0f %%\n\nEnergie: %.0f %%\nHunger: %.0f %%\nWärmegefühl: %.0f %%\n\nFahrstil: %s\nTempo: %.1f m/s\nAusgaben: %s €" % [profile.emotion, profile.reason, profile.years, profile.home, ["Anfänger", "Geübt", "Profi"][guest.ability], profile.motive, profile.activity, guest.get("runs", 0), guest.loops, guest.age, guest.total_wait, profile.score, profile.energy, profile.hunger, profile.warmth, profile.style, profile.speed, money_text(profile.spending)]
 			return
 		inspector_title.text = "Ein schöner Skitag geht zu Ende"
 		inspector_text.text = "Dieser Gast hat das Resort verlassen. Wähle einen anderen Gast oder eine Anlage."
@@ -593,6 +607,7 @@ func _refresh_context_text() -> void:
 				grooming_button.tooltip_text = grooming.message
 				grooming_label.text = grooming.message
 			text_value += "Piste %d · %s\n%.0f m Länge · ↓ %.0f m\nØ %.0f %% · Max. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s" % [item.number, ["Blau · leicht", "Rot · mittel", "Schwarz · schwer"][item.difficulty], item.length, item.drop, item.average, item.grade, item.condition, item.snow, item.rides, "Mit Rundweg erreichbar" if model.reachable_piste_ids().has(item.id) else "Noch kein nutzbarer Rundweg"]
+			text_value += "\nPistenbreite: %.0f m" % Snow.piste_width(item)
 			text_value += "\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel." % (Snow.roughness(item) * 100)
 		elif item.has("bottom"):
 			var load: Dictionary = model.lift_load(item)
@@ -660,6 +675,9 @@ func refresh() -> void:
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
 	confirm_button.text = "Bauen · %s €" % money_text(cost) if cost > 0 else "Bauen"
+	if game.editing_id != -1:
+		confirm_button.text = "Übernehmen · %s €" % money_text(cost)
+	design_button.visible = game.editing_id != -1
 	confirm_button.disabled = not can_build
 	confirm_button.visible = current_tool != "inspect"
 	undo_button.visible = current_tool in ["piste", "lift"]
