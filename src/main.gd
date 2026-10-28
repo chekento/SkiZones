@@ -602,7 +602,6 @@ func _restore_display() -> void:
 	RenderingServer.set_render_loop_enabled(true)
 	var viewport := get_viewport()
 	viewport.transparent_bg = false
-	RenderingServer.viewport_set_active(viewport.get_viewport_rid(),true)
 	RenderingServer.viewport_set_update_mode(viewport.get_viewport_rid(),RenderingServer.VIEWPORT_UPDATE_ALWAYS)
 	view.recover_after_resume()
 	hud.refresh();hud.root.queue_redraw()

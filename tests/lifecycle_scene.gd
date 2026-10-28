@@ -86,7 +86,7 @@ func run() -> void:
 	check(game._touches.is_empty() and game._app_background and game._background_started==started,"Repeated pause/focus events save once and release stale touch contacts")
 	game._background_started-=10000
 	game.view.camera.clear_current()
-	RenderingServer.viewport_set_active(root.get_viewport_rid(),false)
+	RenderingServer.viewport_set_update_mode(root.get_viewport_rid(),RenderingServer.VIEWPORT_UPDATE_DISABLED)
 	game._resume_application();game._resume_application()
 	for i in range(5):await process_frame
 	check(not game._app_background and game.view.camera.is_current() and not game._resume_scheduled,"Resume reactivates the rendering viewport and its actual camera")
