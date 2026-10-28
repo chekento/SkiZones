@@ -15,14 +15,18 @@ uniform sampler2D relief_map : filter_linear, repeat_disable;
 uniform vec2 map_size;
 uniform bool trace_material = false;
 uniform float groomed = 1.0;
+varying vec3 snow_world;
 void vertex() {
  vec2 at = (clamp(UV,vec2(0.0),vec2(1.0))*(map_size-vec2(1.0))+vec2(0.5))/map_size;
  float h = textureLod(relief_map,at,0.0).r*0.95-0.35;
  VERTEX.y += h;
+ snow_world = (MODEL_MATRIX*vec4(VERTEX,1.0)).xyz;
 }
 void fragment() {
  float groove = sin(UV.x*760.0)*0.012/(1.0+fwidth(UV.x)*600.0);
- ALBEDO = COLOR.rgb * (1.0 + (trace_material ? 0.0 : groove*groomed));
+ float grain = sin(snow_world.x*13.1+snow_world.z*27.2)*sin(snow_world.x*35.3-snow_world.z*17.8);
+ grain *= 0.007/(1.0+length(fwidth(snow_world.xz))*18.0);
+ ALBEDO = COLOR.rgb * (1.0 + (trace_material ? 0.0 : groove*groomed+grain));
  if (!trace_material) {
   vec3 geometric_normal = normalize(cross(dFdx(VERTEX),dFdy(VERTEX)));
   if (dot(geometric_normal,NORMAL)<0.0) { geometric_normal = -geometric_normal; }

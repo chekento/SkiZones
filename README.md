@@ -32,6 +32,10 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 
 Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Das illustrierte Menüpanorama ist gesondert gekennzeichnet.
 
+| Drei Sportarten · 0.10.0 | Liftzugang ohne die parallelen Seile · 0.10.0 |
+|---|---|
+| [![Snowboarder, Snowblader und Skifahrer mit persönlichem Profil](docs/screenshots/winter-sports-0100.webp)](docs/screenshots/winter-sports-0100.webp) | [![Tatsächliche Warteschlange und geräumter Stationsplatz ohne die früheren Seile](docs/screenshots/station-without-rails-0100.webp)](docs/screenshots/station-without-rails-0100.webp) |
+
 | Fußwege planen · 0.9.0 | Gegenanstieg überwinden · 0.9.0 |
 |---|---|
 | [![Mehrpunkt-Fußweg mit verbundenen Enden, verschiebbaren Griffen und Baupreis](docs/screenshots/footpath-preview-090.webp)](docs/screenshots/footpath-preview-090.webp) | [![Stapfender Gast auf dem Sonnenhang mit passender Aktivität und Erklärung im Profil](docs/screenshots/hiking-090.webp)](docs/screenshots/hiking-090.webp) |
@@ -62,10 +66,27 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.9.0 Preview · mit einem Testschlüssel signiert |
-| Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
+| Version | 0.10.0 Preview · mit einem Testschlüssel signiert |
+| Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.9.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.10.0.md).
+
+## Neu in 0.10.0: drei Sportarten und zuverlässig zurück ins Spiel
+
+**Skifahrer, Snowboarder und Snowblader beleben denselben Berg.** Eigene Ausrüstung, Fahrhaltungen, persönliche Kurven und passende Spuren machen sie unterscheidbar. Ein App-Wechsel erhält den laufenden Betrieb und die Kamera; nach einem Prozessneustart hilft ein zusätzlicher gesicherter Sitzungspunkt beim Fortsetzen.
+
+| Änderung | Im Spiel |
+|---|---|
+| **Drei Sportarten** | Lange Ski mit Stöcken, seitliche Boardhaltung und kurze Snowblades. Ausrüstung auch beim Gehen und Liftfahren; Sportart und Fahrstil im Gastprofil. |
+| **Freier Liftzugang** | Die vier parallelen Absperrseile sind entfernt. Gäste stellen sich weiterhin in tatsächlicher Ankunftsreihenfolge an. |
+| **Drehen mit zwei Fingern** | Entgegengesetzt um einen Punkt bewegen, um die Perspektive zu drehen. Gleichzeitig verschieben und zoomen; der berührte Bergpunkt bleibt verankert. |
+| **Nach dem App-Wechsel fortsetzen** | Kamera und Darstellung werden wieder aktiviert. Zuvor laufende Betriebszeit wird in begrenzten Schritten nachgeholt; Pause und offene Bauplanung bleiben respektiert. |
+| **Sitzung wiederherstellen** | Nach Prozessneustart zum gespeicherten Resort mit Kamera, Tempo und Sportarten zurückkehren. Der Resort-Spielstand bleibt eigenständig abgesichert. |
+| **Mehr Grafikdetails** | Abgerundete Boards und Ski, Bindungen, Brillen, Helme, Handschuhe und dezente Schneekörnung. Figuren und Ausrüstung bleiben in Instanzgruppen gebündelt. |
+
+**634 automatisierte Modell- und Grafikprüfungen.** Zusätzlich prüfen Android-11- und Android-16-Emulatoren wiederholte App-Wechsel, Bildschirm aus/an und einen Prozessneustart mit tatsächlichen Spielbildern. Ein physischer Smartphone-Test steht weiterhin aus.
+
+[Release-Notizen 0.10.0](docs/releases/0.10.0.md) · [Prüfstand](docs/VALIDATION.md)
 
 ## Neu in 0.9.0: Wege und Gegenanstiege
 
@@ -298,9 +319,9 @@ Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäu
 
 ## Entwicklung und Qualität
 
-Das Projekt verwendet **Godot 4.5.1**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
+Das Projekt verwendet **Godot 4.5.2**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
 
-**596 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Zusätzliche Prüfungen decken enge Kehren, gesperrte Lifttrassen, manuell gebaute Gehflächen, Planabbruch, konkurrierende Werkzeugklicks, Zwei-Finger-Verschieben, Finger-/Stift-Scrollen und eine vollständige Starterwoche ab. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
+**634 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Zusätzliche Prüfungen decken enge Kehren, gesperrte Lifttrassen, manuell gebaute Gehflächen, Planabbruch, konkurrierende Werkzeugklicks, Zwei-Finger-Verschieben, Finger-/Stift-Scrollen und eine vollständige Starterwoche ab. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit

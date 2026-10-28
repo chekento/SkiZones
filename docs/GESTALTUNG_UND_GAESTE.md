@@ -38,3 +38,7 @@ Das Profil zeigt Aktivität, tatsächliche Abfahrten und Runden, bisherige Warte
 Die Einstellungen werden geräteweit gespeichert. Die Grafikstufe entfernt keine Gäste und ändert weder Sitzkapazitäten noch den Simulationsfortschritt. 1× und 4× bestimmen weiterhin das Spieltempo.
 
 [Messungen und Grenzen](PERFORMANCE.md) · [Bauen und Bedienung](BAUEN_UND_BEDIENUNG.md)
+
+## Ski, Snowboard und Snowblades seit 0.10
+
+Neue Gäste verwenden alle drei Sportarten. Im persönlichen Profil steht die Ausrüstung neben dem Fahrniveau. Snowboarder fahren seitlich auf einem breiten einzelnen Board, Snowblader auf kurzen Ski und Skifahrer auf langen Ski mit Stöcken. Die Ausrüstung bleibt beim Gehen, Stapfen und Liftfahren sichtbar. Snowboarder ziehen eine einzelne breitere Spur; beide Skiarten hinterlassen zwei Spuren. Bewegung, Können und Energiebegrenzung bleiben Bestandteile der tatsächlichen Gästefahrt. Vorhandene Gäste aus älteren Spielständen behalten ihre bisherige Skiausrüstung.

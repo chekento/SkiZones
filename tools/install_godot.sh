@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Official pinned binaries, verified against the official SHA-512 manifest.
-version=4.5.1
+version=4.5.2
 target="${SKIZONES_TOOLS_DIR:-${RUNNER_TEMP:-/tmp}/skizones-godot}"
 mkdir -p "$target" "$target/downloads"
 cd "$target/downloads"

@@ -27,7 +27,7 @@ Beim Einstieg erhält jeder Gast eine konkrete Fahrzeugnummer und einen freien P
 
 ## Warteschlange und Auslastung
 
-Die Gäste stellen sich nach ihrer Ankunft am jeweiligen Lift an. Bei gleichzeitigem Eintreffen entscheidet ihre stabile Kennung. Sichtbare Reihen, einzelne Standorte und Absperrseile machen die Schlange erkennbar. Plätze in Gebäuden oder in einer benachbarten Liftmaschine werden dabei ausgelassen.
+Die Gäste stellen sich nach ihrer Ankunft am jeweiligen Lift an. Bei gleichzeitigem Eintreffen entscheidet ihre stabile Kennung. Sichtbare Gäste in Ankunftsreihenfolge und einzelne Standorte machen die Schlange erkennbar. Die früheren vier parallelen Absperrseile entfallen seit 0.10.0. Plätze in Gebäuden oder in einer benachbarten Liftmaschine werden dabei ausgelassen.
 
 Am Stationsplatz steht die Zahl der Wartenden und die mittlere Belegung der letzten Abfahrten. Der Anlageninspektor zeigt außerdem die momentan Mitfahrenden, Plätze je Fahrzeug, Fahrzeugzahl, Grundfahrzeit und geschätzte Wartezeit. Die Minuten beziehen sich auf Normaltempo; 4× beschleunigt den gesamten Ablauf.
 

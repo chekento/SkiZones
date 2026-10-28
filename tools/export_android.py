@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export a debug APK using isolated editor preferences and a local debug key.
 
-Requires Godot 4.5.1 + matching export templates, JDK 17 and Android SDK 35.
+Requires Godot 4.5.2 + matching export templates, JDK 17 and Android SDK 35.
 Never edits the developer's normal Godot settings or creates a release key.
 """
 import argparse
@@ -21,6 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
     parser.add_argument("--output", default="build/android/SkiZones-debug.apk")
+    parser.add_argument("--preset", default="Android")
     args = parser.parse_args()
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     java = os.environ.get("JAVA_HOME")
@@ -54,7 +55,7 @@ def main():
     env = os.environ.copy()
     env["XDG_CONFIG_HOME"] = str(config)
     subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--editor", "--import", "--quit"], env=env, check=True)
-    subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", "Android", str(output)], env=env, check=True)
+    subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", args.preset, str(output)], env=env, check=True)
     if not output.exists() or output.stat().st_size < 1000000:
         sys.exit("Godot did not produce a valid-sized APK.")
     print(f"Debug APK ready: {output}")

@@ -150,6 +150,6 @@ func _migration() -> void:
 	if model.guests.is_empty(): return
 	var before: Vector3 = model.guest_position(model.guests[0])
 	var copy := Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.guest_position(copy.guests[0]).distance_to(before) < 0.001,"A migrated journey is saved again in format 9 without moving the guest")
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.guest_position(copy.guests[0]).distance_to(before) < 0.001,"A migrated journey is saved again in format 10 without moving the guest")
 	for i in range(15): model.advance_minute(false);copy.advance_minute(false)
 	check(model.total_rides == copy.total_rides and absf(model.money-copy.money) < 0.0001,"Saved hiking-era migrations continue deterministically")

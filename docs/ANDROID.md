@@ -2,13 +2,13 @@
 
 ## Grundlage
 
-Das Projekt ist auf **Godot 4.5.1 Standard**, GDScript und den **Compatibility-Renderer** festgelegt. Die Test-APK enthält ausschließlich **arm64-v8a** und hat die Paketkennung `cloud.kosch.skizones`. Die Oberfläche läuft im Querformat.
+Das Projekt ist auf **Godot 4.5.2 Standard**, GDScript und den **Compatibility-Renderer** festgelegt. Die Test-APK enthält ausschließlich **arm64-v8a** und hat die Paketkennung `cloud.kosch.skizones`. Die Oberfläche läuft im Querformat.
 
 Der Export verwendet die offiziellen, vorkompilierten Android-Templates ohne Gradle. Mindest- und Ziel-SDK stammen deshalb aus dem passenden Godot-Template. Für eine spätere Store-Version mit abweichendem Ziel-SDK und AAB wird ein eigener Gradle-Export benötigt.
 
 ## GitHub Actions
 
-Der Workflow **Validate and build Android** läuft bei Änderungen an `main`, bei Pull Requests und auf manuellen Start. Er importiert das Projekt, führt Simulations-, Karriere-, Schnee-, Gebiets-, Szenen- und Touch-Tests einschließlich eines Zwei-Winter-Laufs, fester Liftplätze, Stationsplätze, Gebäudebesuche alter Spielstände sowie Bauabbruch, Zwei-Finger-Kamera und Finger-/Stift-Scrollen aus. Die Szenen-, Animations- und Sitzplatzprüfungen verwenden Xvfb mit aktiver Compatibility-Grafikausgabe; echte Gebietswechsel laufen mit isolierten Spielständen. Danach exportiert er die APK und prüft ihre Signatur und ZIP-Struktur. Das Ergebnis steht als **SkiZones-Android-debug** im jeweiligen Workflow-Lauf bereit.
+Der Workflow **Validate and build Android** läuft bei Änderungen an `main`, bei Pull Requests und auf manuellen Start. Er importiert das Projekt, führt Simulations-, Karriere-, Schnee-, Gebiets-, Szenen- und Touch-Tests einschließlich eines Zwei-Winter-Laufs, fester Liftplätze, Stationsplätze, Gebäudebesuche alter Spielstände sowie Bauabbruch, Zwei-Finger-Kamera und Finger-/Stift-Scrollen aus. Die Szenen-, Animations- und Sitzplatzprüfungen verwenden Xvfb mit aktiver Compatibility-Grafikausgabe; echte Gebietswechsel laufen mit isolierten Spielständen. Danach exportiert er die APK und prüft ihre Signatur und ZIP-Struktur. Ein separater x86-64-Testexport läuft zusätzlich in Android-11- und Android-16-Emulatoren. Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart müssen sichtbare Spielbilder sowie erhaltene Gäste und Betriebszeit liefern. Die Veröffentlichung wartet auf beide Emulator-Jobs. Das Ergebnis steht als **SkiZones-Android-debug** im jeweiligen Workflow-Lauf bereit.
 
 Bei einem erfolgreichen Lauf auf `main` veröffentlicht der anschließende Job eine neue Versionsnummer als GitHub-Preview-Release. Die APK heißt `SkiZones-<Version>-android-arm64.apk`. Prüfsumme und `manifest.json` werden beigefügt. Der direkte Download steht oben in der README. Veröffentlichte Versionen werden nicht nachträglich überschrieben. Eine neue Fassung benötigt passende neue Versionsnummern in Projekt und Export-Preset, einen höheren Android-Versionscode und zugehörige Notizen unter `docs/releases/`.
 
@@ -18,7 +18,7 @@ Die CI erstellt einen Debug-Schlüssel und erhält ihn über den Actions-Cache. 
 
 Voraussetzungen:
 
-- Godot **4.5.1** und **exakt passende Export-Templates 4.5.1**.
+- Godot **4.5.2** und **exakt passende Export-Templates 4.5.2**.
 - OpenJDK **17**.
 - Android SDK Command-line Tools mit `platform-tools`, `platforms;android-35` und `build-tools;35.0.0`.
 - Python 3 ohne zusätzliche Pakete.
@@ -64,3 +64,11 @@ Die automatisierten Eingabetests ersetzen diese Geräteprüfung nicht.
 Separaten Release-Keystore verwalten, Versionscodes erhöhen, Gradle/AAB und aktuelle Store-Anforderungen prüfen, Datenschutz- und Store-Angaben erstellen, Lizenzen erfassen und die Geräteprüfung abschließen. Das bestehende Debug-Preset erstellt keine Store-Veröffentlichung.
 
 Offizielle Referenz: [Godot 4.5 – Exporting for Android](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_android.html).
+
+## App-Wechsel seit 0.10
+
+Beim Verlassen sichert das Spiel Resort und Sitzungspunkt. Bei der Rückkehr werden Eingabekontakte gelöst und Kamera, Viewport und laufende Darstellung aktiviert. Bereits vorhandene Planung, Pauseneinstellung und Geschwindigkeit bleiben erhalten. Zeit eines zuvor laufenden Betriebs wird bei der Rückkehr über reale Simulationsschritte nachgeholt; die Arbeit je Bild ist begrenzt. Es wird kein dauerhafter Android-Hintergrunddienst gestartet.
+
+Ein von Android beendeter Prozess kann anhand des zusätzlichen, an den Resort-Spielstand gebundenen Sitzungspunkts direkt zum letzten Resort zurückkehren. Ein ungültiger Sitzungspunkt führt zum regulären Menü; der separat geprüfte Resort-Spielstand bleibt über **Fortsetzen** erreichbar.
+
+Godot 4.5.2 und exakt passende Export-Templates sind gemeinsam gepinnt. Die [offiziellen Wartungsnotizen](https://godotengine.org/article/maintenance-release-godot-4-5-2/) dokumentieren Android-/Rendering-Korrekturen. Geräteabhängige Wiederaufnahmeprobleme lassen sich dadurch nicht pauschal ausschließen. Der konkrete physische Gerätetest bleibt von den Emulatorprüfungen getrennt.

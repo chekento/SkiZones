@@ -66,3 +66,7 @@ Chronologischer Feierabend mit tatsächlichen Rückwegen, fortgesetzten Sitzzuor
 ## Erledigt in 0.9.0
 
 Frei planbare, auswählbare und bearbeitbare Fußwege mit tatsächlichen Lift-, Pisten- und Gebäudezugängen. Sichtbare Wegfläche und benutzter Fußgraph stimmen überein; automatische Querverbindungen sind reduziert. Energiebegrenzte Gegenanstiege, kontinuierliches Stapfen mit passender Haltung, Profilanzeige und Spuren sowie hangabhängige Gehzeiten. Notwendiger Rückholbetrieb bei manuell gesperrtem Rücklift ohne neue Freizeitrunden und unter Beachtung der Sturmgrenze. Migration tatsächlicher 0.8-Spielstände, Format 9 und 596 automatisierte Prüfungen.
+
+## Erledigt in 0.10.0
+
+Drei erkennbare Wintersportarten mit gespeicherter Ausrüstung, eigenen Fahrstilen und passenden Spuren. Entfernte parallele Absperrseile am Lift, kombinierte Zweifinger-Drehung mit Geländeanker und gezielte Wiederaufnahme von Kamera und Darstellung nach App-Wechseln. Getrennt gesicherter Sitzungspunkt für Prozessneustarts und begrenztes Nachholen laufender Betriebszeit. Detailreichere Ausrüstung, Helme, Brillen, Handschuhe und dezente Schneekörnung. Format 10, tatsächliche 0.9-Migration sowie 634 Modell- und Grafikprüfungen; Android-11-/16-Emulatoren prüfen reale Activity-Wechsel und sichtbare Spielfortsetzungen vor der Veröffentlichung. Physische Geräteprüfung bleibt offen.

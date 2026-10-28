@@ -353,14 +353,53 @@ func skier(on_skis: bool = true, uphill: bool = false) -> ArrayMesh:
 	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
 	sphere(Vector3(0, 2.55, 0), 0.46, Color("d9e1dd"))
 	box(Vector3(0, 2.55, 0.4), Vector3(0.75, 0.22, 0.15), Color("273e4b"))
+	# Helmet rim, blue lens, collar and separate mittens read in the close camera.
+	box(Vector3(0, 2.57, 0.49), Vector3(0.59, 0.15, 0.04), Color("9ad5e3"))
+	box(Vector3(0, 2.85, 0.06), Vector3(0.60, 0.07, 0.59), Color("f3f5ef"))
+	box(Vector3(0, 2.12, 0.04), Vector3(0.62, 0.12, 0.47), Color("b7c5c7"))
 	box(Vector3(0, 1.9, -0.48), Vector3(0.8, 0.9, 0.25), Color("647983"))
 	box(Vector3(0, 1.7, 0.42), Vector3(0.12, 1.0, 0.08), Color("e3e9e4"))
 	for side in [-1, 1]:
 		sphere(Vector3(side * 0.68, 1.55, 0.15), 0.24, Color("f7f7f2"), Vector3(0.7, 1.7, 0.8))
+		sphere(Vector3(side * 0.70, 1.22, 0.24), 0.17, Color("283e4c"))
 		box(Vector3(side * 0.3, 0.25, 0.1), Vector3(0.4, 0.38, 0.7), Color("273e4b"))
 		if on_skis:
 			box(Vector3(side*(0.52 if uphill else 0.35),0.13,0.4),Vector3(0.24,0.16,3.4),Color("4f6670"),Vector3(0,side*0.38 if uphill else 0,0))
 			box(Vector3(side * 0.75, 1.0, 0.4), Vector3(0.09, 1.8, 0.09), Color("73838a"), Vector3(-0.3, 0, side * 0.2))
+	return finish()
+
+func _deck(at: Vector3, length_value: float, width: float, color: Color, rotation_value: Vector3 = Vector3.ZERO) -> void:
+	var parts = get_script().new()
+	parts.box(Vector3.ZERO, Vector3(width,0.10,length_value-width), Color("253c4b"))
+	parts.box(Vector3(0,0.055,0), Vector3(width*0.89,0.055,length_value-width), color)
+	for side in [-1,1]:
+		parts.sphere(Vector3(0,0,side*(length_value-width)*0.5),width*0.5,color,Vector3(1,0.18,1))
+	parts.box(Vector3(0,0.09,length_value*0.30),Vector3(width*0.90,0.025,0.12),Color("f2c98f"))
+	add(parts.finish(),at,Color.WHITE,rotation_value,Vector3.ONE,true)
+
+func equipment(sport: String, pose: String) -> ArrayMesh:
+	var sitting := pose == "seated"
+	var carrying := pose == "walk" or (pose == "hike" and sport == "snowboard")
+	if carrying:
+		if sport == "snowboard":
+			_deck(Vector3(0.86,1.4,-0.10),2.7,0.76,Color("d3e8ed"),Vector3(PI*0.5,0,0.12))
+		else:
+			for side in [-1,1]:
+				_deck(Vector3(0.77+side*0.11,1.55,-0.22),1.65 if sport == "snowblade" else 3.1,0.20,Color("e4edf0"),Vector3(PI*0.5,0,0.18))
+	elif sport == "snowboard":
+		var at := Vector3(0,-0.80,1.15) if sitting else Vector3(0,0.14,0)
+		_deck(at,2.75,0.78,Color("dae8ef"))
+		for side in [-1,1]:
+			box(at+Vector3(0,0.13,side*0.43),Vector3(0.60,0.15,0.23),Color("324856"),Vector3(0,side*0.18,0))
+	else:
+		var short_skis := sport == "snowblade"
+		for side in [-1,1]:
+			var at := Vector3(side*0.35,-0.8,1.2) if sitting else Vector3(side*(0.52 if pose == "hike" else 0.35),0.13,0.4)
+			var rotation_value := Vector3(0,side*0.38 if pose == "hike" else 0,0)
+			_deck(at,1.65 if short_skis else (3.0 if sitting else 3.4),0.28 if short_skis else 0.24,Color("d3e4eb"),rotation_value)
+			box(at+Vector3(0,0.13,-0.10),Vector3(0.24,0.13,0.46),Color("293e4e"),rotation_value)
+			if not short_skis and not sitting:
+				link(Vector3(side*0.75,0.05,0.68),Vector3(side*0.72,1.65,0.20),0.04,Color("748e9a"))
 	return finish()
 
 func seated_skier(on_skis: bool = true) -> ArrayMesh:
@@ -368,6 +407,10 @@ func seated_skier(on_skis: bool = true) -> ArrayMesh:
 	sphere(Vector3(0, 1.1, 0), 0.6, Color("f8f9f6"), Vector3(0.9, 1.1, 0.65))
 	sphere(Vector3(0, 2.0, 0), 0.43, Color("d9e1dd"))
 	box(Vector3(0, 2.0, 0.4), Vector3(0.7, 0.2, 0.15), Color("273e4b"))
+	box(Vector3(0,2.02,0.49),Vector3(0.55,0.13,0.04),Color("9ad5e3"))
+	box(Vector3(0,2.28,0.04),Vector3(0.56,0.07,0.55),Color("f0f4ee"))
+	for side in [-1,1]:
+		sphere(Vector3(side*0.56,0.60,0.58),0.16,Color("293e4d"))
 	for side in [-1, 1]:
 		box(Vector3(side * 0.3, 0.4, 0.5), Vector3(0.35, 0.4, 1.2), Color("344b59"))
 		box(Vector3(side * 0.3, -0.2, 1.0), Vector3(0.35, 1.2, 0.4), Color("344b59"))

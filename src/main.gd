@@ -5,6 +5,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
+const AppSession = preload("res://src/core/app_session.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
 const Preferences = preload("res://src/core/preferences.gd")
 const ResortHUD = preload("res://src/ui/hud.gd")
@@ -44,6 +45,13 @@ var _touches: Dictionary = {}
 var _touch_origins: Dictionary = {}
 var _touch_dragged := false
 var _gesture_used := false
+var app_session := AppSession.new()
+var _app_background := false
+var _background_started := 0
+var _background_running := false
+var _background_speed := 1
+var _resume_scheduled := false
+var resume_count := 0
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -57,6 +65,10 @@ func _ready() -> void:
 	preferences.apply(view)
 	hud.show_menu()
 	_update_plan()
+	if OS.get_name() == "Android":
+		app_session.restore(self)
+	if OS.has_feature("android_lifecycle_test"):
+		call_deferred("_start_android_lifecycle_test")
 	# Deterministic captures and boot checks are also used by CI.
 	for argument in OS.get_cmdline_user_args():
 		if argument == "--smoke-test":
@@ -65,15 +77,19 @@ func _ready() -> void:
 			call_deferred("_capture", argument.trim_prefix("--capture="))
 
 func _process(delta: float) -> void:
+	if _app_background:
+		view.motion_running = false
+		return
 	if _plan_dirty:
 		_plan_dirty = false
 		_update_plan()
 	if simulation_running():
 		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND
-		while _accumulator >= 1.0 and not model.day_finished():
+		var budget_end := Time.get_ticks_usec() + 4000
+		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
 			_accumulator -= 1.0
 			model.advance_minute()
-	simulation_fraction = _accumulator
+	simulation_fraction = fmod(_accumulator,1.0)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
 	view.motion_rate = float(speed)
@@ -88,7 +104,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	model.new_game(starter, 20261027, area)
@@ -161,6 +177,7 @@ func save_game() -> bool:
 		passport.record(model)
 		passport.save_to()
 		var result := SaveStore.save_game(model, SaveStore.path_for_map(model.map_id))
+		if result.ok: app_session.save(self)
 		hud.toast(result.message)
 		return result.ok
 	return false
@@ -509,11 +526,7 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 		var after := _touches.values()
 		var old_center: Vector2 = (before[0] + before[1]) * 0.5
 		var new_center: Vector2 = (after[0] + after[1]) * 0.5
-		view.pan_between(old_center, new_center)
-		var previous_distance: float = before[0].distance_to(before[1])
-		var distance: float = after[0].distance_to(after[1])
-		if distance > 10 and previous_distance > 10:
-			view.zoom_at(previous_distance / distance, new_center)
+		view.transform_gesture(old_center, new_center, before[1] - before[0], after[1] - after[0])
 	else:
 		if _drag_waypoint >= 0:
 			_move_waypoint(event.position)
@@ -524,10 +537,10 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 			view.pan(event.relative)
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
-		if is_instance_valid(hud) and has_game:
-			save_game()
-		_clear_input()
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_suspend_application()
+	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		_resume_application()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		if hud.asset_editor.visible:
 			hud.asset_editor.hide()
@@ -551,9 +564,56 @@ func _notification(what: int) -> void:
 			save_game()
 		show_menu()
 	elif what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if has_game:
-			save_game()
+		_suspend_application()
 		get_tree().quit()
+
+func _suspend_application() -> void:
+	if not is_node_ready() or _app_background: return
+	_background_running = simulation_running()
+	_background_speed = speed
+	_background_started = Time.get_ticks_msec()
+	_app_background = true
+	_clear_input()
+	if has_game: save_game()
+
+func _queue_background_time(seconds: float, rate: int) -> void:
+	# Operating days still await the player's next-morning confirmation.
+	var remaining := maxf(0,Resort.CLOSING+1800-model.minute)
+	_accumulator += minf(maxf(0,seconds)*rate*Resort.MINUTES_PER_SECOND,remaining)
+
+func _resume_application() -> void:
+	if not is_node_ready(): return
+	if _app_background:
+		var elapsed := maxf(0,(Time.get_ticks_msec()-_background_started)/1000.0)
+		_app_background = false
+		if _background_running: _queue_background_time(elapsed,_background_speed)
+		_background_running = false
+	_clear_input()
+	if not _resume_scheduled:
+		_resume_scheduled = true
+		call_deferred("_restore_display")
+
+func _restore_display() -> void:
+	# Android may recreate its native surface after the resume notification.
+	await get_tree().process_frame
+	if _app_background:
+		_resume_scheduled = false
+		return
+	RenderingServer.set_render_loop_enabled(true)
+	var viewport := get_viewport()
+	viewport.transparent_bg = false
+	RenderingServer.viewport_set_active(viewport.get_viewport_rid(),true)
+	RenderingServer.viewport_set_update_mode(viewport.get_viewport_rid(),RenderingServer.VIEWPORT_UPDATE_ALWAYS)
+	view.recover_after_resume()
+	hud.refresh();hud.root.queue_redraw()
+	await get_tree().process_frame
+	resume_count += 1
+	_resume_scheduled = false
+
+func _start_android_lifecycle_test() -> void:
+	var driver = load("res://tests/android_lifecycle_driver.gd").new()
+	add_child(driver)
+	driver.setup(self)
 
 func _smoke_test() -> void:
 	start_game(true)

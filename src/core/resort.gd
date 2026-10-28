@@ -847,7 +847,7 @@ func route_minutes(route: Dictionary, guest: Dictionary) -> float:
 				return INF
 			time += queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) + fleet_layout(lift).interval * 0.5
 		elif leg.kind == "ski":
-			time *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability).speed
+			time *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability, guest.get("sport", "ski")).speed
 		cost += time
 	return cost
 
@@ -945,7 +945,7 @@ func admit_guest(skill: int) -> bool:
 	var routes := routes_for(skill)
 	if guests.size() >= MAX_GUESTS or routes.is_empty() or minute >= CLOSING:
 		return false
-	var guest := {"id": guest_id, "ability": skill, "age": 0, "stay": rng.randi_range(300, 520), "runs": 0, "loops": 0, "leg": 0, "elapsed": 0.0, "phase": "moving", "wait": 0, "total_wait": 0, "spent": false, "ticket_paid": ticket_price, "spending": float(ticket_price), "route": {}}
+	var guest := {"id": guest_id, "sport": Motion.sport_for(guest_id), "ability": skill, "age": 0, "stay": rng.randi_range(300, 520), "runs": 0, "loops": 0, "leg": 0, "elapsed": 0.0, "phase": "moving", "wait": 0, "total_wait": 0, "spent": false, "ticket_paid": ticket_price, "spending": float(ticket_price), "route": {}}
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -971,12 +971,12 @@ func _start_leg(guest: Dictionary) -> void:
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		if leg.get("motion_version",0) >= 2:
-			var motion := Motion.travel_profile(terrain,leg.points,guest.ability,Motion.style(guest.id,guest.ability).speed/[5.2,7.5,10.0][guest.ability],Snow.roughness(piste))
+			var motion := Motion.travel_profile(terrain,leg.points,guest.ability,Motion.style(guest.id,guest.ability,guest.get("sport","ski")).speed/[5.2,7.5,10.0][guest.ability],Snow.roughness(piste))
 			guest.ski_motion = motion.samples
 			guest.duration = motion.minutes
 			guest.walk_ranges = Motion.walk_ranges(motion.samples,leg.get("start_fraction",0),leg.get("end_fraction",1))
 		else:
-			guest.duration *= [5.2,7.5,10.0][guest.ability]/Motion.style(guest.id,guest.ability).speed*(1+Snow.roughness(piste)*0.35)
+			guest.duration *= [5.2,7.5,10.0][guest.ability]/Motion.style(guest.id,guest.ability,guest.get("sport","ski")).speed*(1+Snow.roughness(piste)*0.35)
 		Snow.start(piste, guest, leg.get("start_fraction", 0), leg.get("end_fraction", 1))
 	elif leg.kind == "walk":
 		guest.duration *= 0.9 + float((int(guest.id) * 23) % 100) / 500
@@ -1389,7 +1389,7 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 		var piste := asset(leg.id)
 		var hiking := Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
 		fraction = ski_fraction(leg,fraction,guest.get("ski_motion",[]))
-		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]))
+		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
 		var center: Vector2 = terrain.point_on_path(piste.points,fraction)
 		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
@@ -1415,7 +1415,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version":9,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":10,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -1492,7 +1492,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, "Der Spielstand ist unvollständig oder beschädigt.")
-	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3 and data.get("version") != 4 and data.get("version") != 5 and data.get("version") != 6 and data.get("version") != 7 and data.get("version") != 8 and data.get("version") != 9:
+	if data.get("version") != 1 and data.get("version") != 2 and data.get("version") != 3 and data.get("version") != 4 and data.get("version") != 5 and data.get("version") != 6 and data.get("version") != 7 and data.get("version") != 8 and data.get("version") != 9 and data.get("version") != 10:
 		return _result(false, "Diese Spielstand-Version wird nicht unterstützt.")
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -1655,7 +1655,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:
 				return invalid
-		if visitor.ability > 2 or int(visitor.ability) != visitor.ability or visitor.id >= guest_id or visitor_ids.has(visitor.id) or not visitor.get("spent") is bool or visitor.get("phase") not in ["moving", "queue", "leaving"]:
+		if visitor.ability > 2 or int(visitor.ability) != visitor.ability or visitor.id != floorf(visitor.id) or visitor.id >= guest_id or visitor_ids.has(visitor.id) or not visitor.get("spent") is bool or visitor.get("phase") not in ["moving", "queue", "leaving"]:
 			return invalid
 		if not Terrain.number(visitor.get("runs", 0)) or visitor.get("runs", 0) < 0 or visitor.get("runs", 0) > 1000000000 or visitor.get("runs", 0) != floorf(visitor.get("runs", 0)):
 			return invalid
@@ -1667,6 +1667,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				return invalid
 		if visitor.has("last_piste") and (not Terrain.number(visitor.last_piste) or visitor.last_piste < 0 or visitor.last_piste != floorf(visitor.last_piste)):
 			return invalid
+		if data.version >= 10 and visitor.get("sport") not in Motion.SPORTS:
+			return invalid
+		visitor.sport = visitor.get("sport", "ski") if data.version >= 10 else "ski"
 		visitor_ids.append(visitor.id)
 		var route: Dictionary = {}
 		if data.version >= 6:
@@ -1692,6 +1695,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				continue # Legacy visitors are reassigned after terminals gain plazas.
 		if data.version < 6:
 			var migrated: Dictionary = visitor.duplicate(true)
+			migrated.id = int(migrated.id);migrated.ability = int(migrated.ability)
 			migrated.route = _with_service(route, int(visitor.id), visitor.spent)
 			migrated.leg = 0
 			migrated.erase("target")
@@ -1705,6 +1709,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.has("ski_motion") and not Motion.valid_profile(visitor.ski_motion): return invalid
 		var copy: Dictionary = visitor.duplicate(true)
+		copy.id = int(copy.id);copy.ability = int(copy.ability)
 		copy.route = route
 		if copy.has("ski_motion") and copy.phase != "leaving" and int(copy.leg) < route.legs.size() and route.legs[int(copy.leg)].kind == "ski":
 			var skiing: Dictionary = route.legs[int(copy.leg)]
