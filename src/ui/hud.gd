@@ -404,7 +404,7 @@ func _apply_panel_visibility() -> void:
 	tools_panel.visible = show_game and not map_focus
 	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect"
 	# Keep a pending plan and its confirmation available in the wider map view.
-	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.day_finished())
+	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
 	slope_legend.visible = show_game and game.view.slopes_visible
 	slope_legend.offset_left = 24 if map_focus else 340
 	slope_legend.offset_right = -24 if map_focus else -328
@@ -666,6 +666,8 @@ func refresh() -> void:
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
 	_refresh_context_text()
 	palette.refresh()
+	if model.is_closing() and current_tool == "inspect":
+		plan_text.text = "Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind."
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
 		labels.status.text = _toast
 	else:
