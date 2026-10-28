@@ -2,6 +2,8 @@
 
 Stand: 28.10.2026 · Godot 4.5.1 (`f62fdbde1`).
 
+[Öffentlicher Veröffentlichungslauf 0.9.0](https://github.com/chekento/SkiZones/actions/runs/40748758586): alle 596 Prüfungen, Android-Export, APK-Signatur und Archivprüfung erfolgreich. Die APK gehört zum Quellcode-Commit `89363375df2fa2d106b84f5ae0801a9526b70f34`.
+
 | Prüfung | Umfang |
 |---|---|
 | Simulation und Speicherstände | 55 automatisierte Prüfungen |

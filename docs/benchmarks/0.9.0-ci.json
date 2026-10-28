@@ -1,53 +1,53 @@
 {
   "cases": [
     {
-      "build_ms": 266.544,
+      "build_ms": 261.448,
       "frame_cpu_ms": [
         {
-          "max": 21.055,
-          "median": 1.874,
-          "p95": 2.258,
+          "max": 20.397,
+          "median": 1.81,
+          "p95": 2.101,
           "speed": 1
         },
         {
-          "max": 4.694,
-          "median": 3.499,
-          "p95": 3.757,
+          "max": 4.324,
+          "median": 3.442,
+          "p95": 3.662,
           "speed": 4
         }
       ],
-      "full_tracks_ms": 93.316,
+      "full_tracks_ms": 93.4,
       "guests": 80,
       "lifts": 1,
       "pistes": 3,
-      "snow_update_ms": 0.059
+      "snow_update_ms": 0.036
     },
     {
-      "build_ms": 2025.319,
+      "build_ms": 1993.674,
       "frame_cpu_ms": [
         {
-          "max": 23.052,
-          "median": 13.954,
-          "p95": 15.394,
+          "max": 16.444,
+          "median": 11.853,
+          "p95": 13.497,
           "speed": 1
         },
         {
-          "max": 26.585,
-          "median": 21.691,
-          "p95": 23.369,
+          "max": 22.845,
+          "median": 19.624,
+          "p95": 21.819,
           "speed": 4
         }
       ],
-      "full_tracks_ms": 96.237,
+      "full_tracks_ms": 96.057,
       "guests": 360,
       "lifts": 24,
       "pistes": 3,
-      "snow_update_ms": 0.057
+      "snow_update_ms": 0.052
     }
   ],
   "engine": "4.5.1-stable (official)",
   "mode": "headless CPU; generated stress layout; 24 warmup and 120 measured frames per speed",
   "version": "0.9.0",
-  "source_commit": "e28429147b32fb6d465e20dd7c3025e8c91e7187",
-  "workflow_run": "https://github.com/chekento/SkiZones/actions/runs/40748047490"
+  "source_commit": "89363375df2fa2d106b84f5ae0801a9526b70f34",
+  "workflow_run": "https://github.com/chekento/SkiZones/actions/runs/40748758586"
 }
