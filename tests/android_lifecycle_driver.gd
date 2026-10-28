@@ -20,6 +20,6 @@ func _process(delta: float) -> void:
 func write_health() -> void:
 	var file:=FileAccess.open("user://lifecycle-ci.json.tmp",FileAccess.WRITE)
 	if file == null:return
-	file.store_string(JSON.stringify({"boot":boot,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y]}))
+	file.store_string(JSON.stringify({"boot":boot,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y]}))
 	file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path("user://lifecycle-ci.json.tmp"),ProjectSettings.globalize_path("user://lifecycle-ci.json"))

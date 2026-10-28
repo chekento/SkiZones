@@ -16,6 +16,8 @@ window/size/window_height_override=800
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=0
+; Cap frames through Engine.max_fps; avoid a second native pacing queue across Android surfaces.
+window/frame_pacing/android/enable_frame_pacing=false
 
 [rendering]
 renderer/rendering_method="gl_compatibility"

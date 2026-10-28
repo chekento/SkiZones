@@ -48,14 +48,25 @@ def main():
         activity = adb("shell", "dumpsys", "activity", "activities").decode(errors="replace")
         assert any(PACKAGE in line and ("mResumedActivity" in line or "topResumedActivity" in line)
                    for line in activity.splitlines()), "The game activity is not in the foreground"
-        data = adb("exec-out", "screencap", "-p")
-        (args.output / f"{label}.png").write_bytes(data)
-        image = Image.open(io.BytesIO(data)).convert("RGB").resize((128, 72))
-        pixels = list(image.getdata())
-        lit = sum(sum(pixel) > 30 for pixel in pixels) / len(pixels)
-        mean = sum(ImageStat.Stat(image).mean) / 3
+        # Game state can be ready before SurfaceFlinger has presented the first
+        # frame (especially while the emulator compiles fresh shader programs).
+        # Require real pixels within a bounded deadline, never accept a splash.
+        deadline = time.monotonic() + 30
+        while True:
+            data = adb("exec-out", "screencap", "-p")
+            (args.output / f"{label}.png").write_bytes(data)
+            image = Image.open(io.BytesIO(data)).convert("RGB").resize((128, 72))
+            pixels = list(image.get_flattened_data())
+            lit = sum(sum(pixel) > 30 for pixel in pixels) / len(pixels)
+            mean = sum(ImageStat.Stat(image).mean) / 3
+            if lit > 0.65 and mean > 18 and len(set(pixels)) > 300:
+                break
+            if time.monotonic() >= deadline:
+                break
+            time.sleep(0.5)
         assert lit > 0.65 and mean > 18 and len(set(pixels)) > 300, \
             f"The resumed game is black or blank: lit={lit}, mean={mean}"
+        state = health()
         evidence.append(dict(case=label, lit_fraction=lit, mean_brightness=mean, state=state))
         (args.output / "evidence.json").write_text(json.dumps(evidence, indent=2))
         print(f"PASS Android {label}: visible frame, minute {state['minute']}, {len(state['guests'])} guests", flush=True)
@@ -73,7 +84,7 @@ def main():
             return not state["background"] and state["camera"] and state["guests"] and not state["paused"]
 
         launch()
-        state = wait_for(playable)
+        state = wait_for(lambda s: playable(s) and s.get("frames", 0) >= 5 and s["minute"] > 560)
         assert {"ski", "snowboard", "snowblade"}.issubset(state["sports"])
         capture("launch", state)
         for index in range(4):
@@ -107,6 +118,8 @@ def main():
         capture("restored-process", state)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"
+        assert not any("E godot" in line and "ERROR:" in line for line in logs.splitlines()), \
+            "Android reported a renderer or engine error"
         print("ANDROID RESUME: 7 real activity/surface checks passed", flush=True)
     finally:
         try:
