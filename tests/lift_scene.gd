@@ -34,7 +34,7 @@ func run() -> void:
 		var schedule: Dictionary = game.model.fleet_layout(lift)
 		for visitor in range(40):
 			game.model.admit_guest(0)
-			var guest: Dictionary = game.model.guests[-1]
+		for guest in game.model.guests:
 			for index in range(guest.route.legs.size()):
 				if guest.route.legs[index].kind == "lift":
 					guest.leg = index

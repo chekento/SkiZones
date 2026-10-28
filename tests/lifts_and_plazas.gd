@@ -25,10 +25,12 @@ func fresh(kind: String = "chair"):
 	return model
 
 func join_queue(model: RefCounted, count: int) -> void:
+	var first: int = model.guests.size()
 	for i in range(count):
-		if not model.admit_guest(0):
-			continue
-		var guest: Dictionary = model.guests[-1]
+		model.admit_guest(0)
+	# Seed capacity stress independently of the live admission policy, which
+	# correctly declines a visit that cannot finish before personal departure.
+	for guest in model.guests.slice(first):
 		for index in range(guest.route.legs.size()):
 			if guest.route.legs[index].kind == "lift":
 				guest.leg = index

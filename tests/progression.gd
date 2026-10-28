@@ -29,7 +29,7 @@ func fresh():
 	return model
 
 func close_day(model: RefCounted) -> void:
-	while model.minute < model.CLOSING:
+	while not model.day_finished():
 		model.advance_minute(false)
 
 func _research() -> void:
@@ -209,7 +209,7 @@ func _long_career() -> void:
 			model.build_building("hotel", Vector2(80, 235))
 		for lift in model.lifts:
 			model.upgrade_asset(lift.id)
-		while model.minute < model.CLOSING:
+		while not model.day_finished():
 			model.advance_minute()
 			if operating_day in [14, 35] and model.minute == 720:
 				var copy := Resort.new()
