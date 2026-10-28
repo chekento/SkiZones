@@ -25,6 +25,7 @@ Stand: 28.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 | Gerenderte Wege und Gegenanstiege | 18 Prüfungen mit echter Grafikausgabe: Baukatalog, Mehrpunktplanung, Punktziehen, Abbruch, genau einmal bestätigter Bau, Auswahl entlang des Weges, Bestandsbearbeitung, tatsächlicher Stapfgast mit passendem Modell und Profil sowie übereinstimmende Schneeintervalle |
 | Drei Wintersportarten | 16 Prüfungen: echter gemischter Gästebetrieb, Ausrüstung, persönliche Bewegung, gespeicherte Spuren, deterministische Fortsetzung, beschädigte Daten, kanonische Gastkennungen und tatsächliche 0.9-Migration |
 | Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
+| Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
 | Android-App-Wechsel | Emulatoren mit Android 11 (API 30) und Android 16 (API 36): Start, vier Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; tatsächlich gerenderte Screenshots und gespeicherte Zustände. Beide Jobs müssen vor der APK-Veröffentlichung erfolgreich sein. |
 | CPU-Belastung | Reproduzierbarer Vergleich mit unverändertem 0.6-Quellcode: 80 Gäste/1 Lift und 360 Gäste/24 Lifte bei 1× und 4×; Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
@@ -36,7 +37,7 @@ Stand: 28.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 634 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 638 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
 Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.10.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
@@ -68,3 +69,5 @@ Der Rückholtest erzeugt auf dem tatsächlichen Sonnenhang ein Seitental, dessen
 Die Aufnahmen von [Fußwegplanung](screenshots/footpath-preview-090.webp), [Stapfgast](screenshots/hiking-090.webp) und [Tagesbericht](screenshots/day-report-090.webp) wurden aus dem erfolgreichen 0.9-Grafikprüflauf übernommen und visuell kontrolliert. Sie zeigen erzeugte Testsituationen mit der tatsächlichen Spieloberfläche.
 
 Die Android-Lifecycle-Prüfung verwendet einen gesonderten x86-64-Testexport mit aktiviertem Testtreiber. Die öffentliche ARM64-APK enthält diesen Treiber und die Testdaten nicht. Kamera, Betrieb und Darstellung stammen in beiden Exporten aus denselben Spielskripten. Ein Emulator bestätigt weder die Fehlerfreiheit jedes Geräte-Grafiktreibers noch die Bildrate auf einem physischen Smartphone.
+
+Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibility-Ausgabe erfasst. Nahdetails werden in vorhandene Asset-Meshes gebacken; das Gäste-Material trennt die Jackenfarbe von Gesicht, Brille und Schal. Die Aufnahmen zeigen reguläre 3D-Spielgeometrie, keine Konzeptbilder.

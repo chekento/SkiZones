@@ -98,6 +98,7 @@ var _queue_paths: Dictionary = {}
 var _visual_minute := 480.0
 var _atmosphere_tick := ""
 var _solid: StandardMaterial3D
+var _people_material := ShaderMaterial.new()
 var _vehicles: Dictionary = {}
 var _vehicle_counts: Dictionary = {}
 
@@ -107,26 +108,40 @@ func setup(resort: RefCounted) -> void:
 	_terrain_id = model.map_id
 	add_child(landscape)
 	_solid = _material(Color.WHITE, true)
+	var people_shader := Shader.new()
+	people_shader.code = """
+shader_type spatial;
+void vertex() {
+ COLOR.rgb *= mix(vec3(1.0), INSTANCE_CUSTOM.rgb, COLOR.a);
+ COLOR.a = 1.0;
+}
+void fragment() {
+ ALBEDO = COLOR.rgb;
+ ROUGHNESS = 0.94;
+ SPECULAR = 0.12;
+}
+"""
+	_people_material.shader = people_shader
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
 	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _track_mesh]:
 		add_child(node)
-	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS)
-	visitor_mesh.multimesh.mesh.surface_set_material(0, _solid)
+	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS,true)
+	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
 	visitor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS)
-	_riders.multimesh.mesh.surface_set_material(0, _solid)
+	_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS,true)
+	_riders.material_override = _people_material
 	_riders.multimesh.visible_instance_count = 0
-	_cabin_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS)
-	_cabin_riders.multimesh.mesh.surface_set_material(0, _solid)
+	_cabin_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS,true)
+	_cabin_riders.material_override = _people_material
 	_cabin_riders.multimesh.visible_instance_count = 0
-	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS)
-	_walkers.multimesh.mesh.surface_set_material(0, _solid)
+	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS,true)
+	_walkers.material_override = _people_material
 	_walkers.multimesh.visible_instance_count = 0
-	_climbers.multimesh = _multimesh(Art.new().skier(false,true),model.MAX_GUESTS)
-	_climbers.multimesh.mesh.surface_set_material(0,_solid)
+	_climbers.multimesh = _multimesh(Art.new().skier(false,true),model.MAX_GUESTS,true)
+	_climbers.material_override = _people_material
 	_climbers.multimesh.visible_instance_count = 0
 	for sport in Motion.SPORTS:
 		for pose in ["glide", "seated", "walk", "hike"]:
@@ -178,27 +193,30 @@ func _material(color: Color, vertex_color: bool = false) -> StandardMaterial3D:
 
 func _build_environment() -> void:
 	_sun.rotation_degrees = Vector3(-48, -35, 0)
-	_sun.light_color = Color("fff2dc")
-	_sun.light_energy = 0.72
+	_sun.light_color = Color("fff0da")
+	_sun.light_energy = 0.76
+	_sun.light_angular_distance = 1.5
+	_sun.shadow_blur = 1.6
+	_sun.shadow_opacity = 0.55
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_max_distance = 1500
 	add_child(_sun)
 	var sky_material := ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color("759fbd")
-	sky_material.sky_horizon_color = Color("dce7e9")
-	sky_material.ground_horizon_color = Color("dce7e9")
-	sky_material.ground_bottom_color = Color("8da8b8")
+	sky_material.sky_top_color = Color("a9cddd")
+	sky_material.sky_horizon_color = Color("f3e8df")
+	sky_material.ground_horizon_color = Color("f3e8df")
+	sky_material.ground_bottom_color = Color("b9c8dc")
 	var sky := Sky.new()
 	sky.sky_material = sky_material
 	_environment.background_mode = Environment.BG_SKY
 	_environment.sky = sky
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	_environment.ambient_light_color = Color("9fc9ef")
-	_environment.ambient_light_energy = 0.20
+	_environment.ambient_light_color = Color("c7d9e9")
+	_environment.ambient_light_energy = 0.26
 	# Linear tone mapping keeps snow detail on the Android compatibility renderer.
 	_environment.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	_environment.fog_enabled = true
-	_environment.fog_light_color = Color("c0d2dc")
+	_environment.fog_light_color = Color("d7e2f0")
 	_environment.fog_light_energy = 0.45
 	_environment.fog_density = 0.00008
 	var environment_node := WorldEnvironment.new()
@@ -230,9 +248,9 @@ func _build_environment() -> void:
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var snow := Color("dce9f0").lerp(Color("f0f4f5"), clampf(height_value / 420.0, 0, 1))
+	var snow := Color("e5eaf6").lerp(Color("f4f5fc"), clampf(height_value / 420.0, 0, 1))
 	if grade > 38:
-		snow = snow.lerp(Color("526775"), clampf((grade - 38) / 65.0, 0, 0.84))
+		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.74))
 	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
 
 func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
@@ -446,10 +464,11 @@ func _label(parent: Node3D, title: String, position_value: Vector3, color: Color
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(label)
 
-func _multimesh(mesh: Mesh, count: int) -> MultiMesh:
+func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 	var instances := MultiMesh.new()
 	instances.transform_format = MultiMesh.TRANSFORM_3D
 	instances.use_colors = true
+	instances.use_custom_data = personal
 	instances.mesh = mesh
 	instances.instance_count = count
 	return instances
@@ -597,7 +616,7 @@ func _build_foot_areas() -> void:
 	for key in corners:
 		var at := Vector2(key) * STEP
 		var point := terrain.world(at, 0.32)
-		vertices[key] = {"point": point, "color": _ground_color(at, point.y).lerp(Color("ccd6d3"), corners[key] * 0.9)}
+		vertices[key] = {"point": point, "color": _ground_color(at, point.y).lerp(Color("d2dce8"),corners[key]*0.75)}
 	for cell in cells:
 		for offset in [Vector2i.ZERO, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.ONE, Vector2i.DOWN]:
 			var vertex: Dictionary = vertices[cell + offset]
@@ -608,8 +627,8 @@ func _build_foot_areas() -> void:
 	foot_mesh = _baked(asset_root, surface.commit(), Vector3.ZERO)
 	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for link in _pedestrian_snapshot.links:
-		_ribbon(asset_root,link.points,link.get("width",7), Color("c8d2cf"), 0.39)
-		_ribbon(asset_root,link.points,link.get("width",7)*0.66, Color("becbc9"), 0.42)
+		_ribbon(asset_root,link.points,link.get("width",7),Color("d4dfe8"),0.39)
+		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("cbd8e1"),0.42)
 	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
 		if area.kind not in ["station", "plaza"]:
@@ -793,8 +812,8 @@ func _update_atmosphere() -> void:
 		return
 	_atmosphere_tick = key
 	var daylight := sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
-	_sun.light_energy = (0.30 + daylight * 0.14) * (0.55 if model.weather_index in [2, 3] else 1.0)
-	_sun.light_color = Color("f7e3ce").lerp(Color("fff2dc"), daylight)
+	_sun.light_energy = (0.35 + daylight * 0.17) * (0.65 if model.weather_index in [2, 3] else 1.0)
+	_sun.light_color = Color("f5d7cc").lerp(Color("fff1dc"), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
@@ -916,24 +935,29 @@ func _process(delta: float) -> void:
 			transform_value.basis = transform_value.basis * Basis(Vector3.UP, PI * 0.5)
 		if in_cabin:
 			_cabin_riders.multimesh.set_instance_transform(cabin_riding, transform_value)
-			_cabin_riders.multimesh.set_instance_color(cabin_riding, color)
+			_cabin_riders.multimesh.set_instance_color(cabin_riding,Color.WHITE)
+			_cabin_riders.multimesh.set_instance_custom_data(cabin_riding,color)
 			cabin_riding += 1
 		elif seated:
 			_riders.multimesh.set_instance_transform(riding, transform_value)
-			_riders.multimesh.set_instance_color(riding, color)
+			_riders.multimesh.set_instance_color(riding,Color.WHITE)
+			_riders.multimesh.set_instance_custom_data(riding,color)
 			riding += 1
 		elif hiking:
 			transform_value.basis = transform_value.basis.rotated(Vector3.FORWARD,sin((guest.elapsed+simulation_fraction)*8)*0.035)
 			_climbers.multimesh.set_instance_transform(climbers,transform_value)
-			_climbers.multimesh.set_instance_color(climbers,color)
+			_climbers.multimesh.set_instance_color(climbers,Color.WHITE)
+			_climbers.multimesh.set_instance_custom_data(climbers,color)
 			climbers += 1
 		elif on_foot:
 			_walkers.multimesh.set_instance_transform(foot_visitors, transform_value)
-			_walkers.multimesh.set_instance_color(foot_visitors, color)
+			_walkers.multimesh.set_instance_color(foot_visitors,Color.WHITE)
+			_walkers.multimesh.set_instance_custom_data(foot_visitors,color)
 			foot_visitors += 1
 		else:
 			visitor_mesh.multimesh.set_instance_transform(walking, transform_value)
-			visitor_mesh.multimesh.set_instance_color(walking, color)
+			visitor_mesh.multimesh.set_instance_color(walking,Color.WHITE)
+			visitor_mesh.multimesh.set_instance_custom_data(walking,color)
 			walking += 1
 		next_positions[guest.id] = position_value
 		if follow_guest == int(guest.id):

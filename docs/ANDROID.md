@@ -72,3 +72,7 @@ Beim Verlassen sichert das Spiel Resort und Sitzungspunkt. Bei der Rückkehr wer
 Ein von Android beendeter Prozess kann anhand des zusätzlichen, an den Resort-Spielstand gebundenen Sitzungspunkts direkt zum letzten Resort zurückkehren. Ein ungültiger Sitzungspunkt führt zum regulären Menü; der separat geprüfte Resort-Spielstand bleibt über **Fortsetzen** erreichbar.
 
 Godot 4.5.2 und exakt passende Export-Templates sind gemeinsam gepinnt. Die [offiziellen Wartungsnotizen](https://godotengine.org/article/maintenance-release-godot-4-5-2/) dokumentieren Android-/Rendering-Korrekturen. Geräteabhängige Wiederaufnahmeprobleme lassen sich dadurch nicht pauschal ausschließen. Der konkrete physische Gerätetest bleibt von den Emulatorprüfungen getrennt.
+
+### Bildausgabe in 0.10.0
+
+Die Bildrate wird weiter durch das gewählte 30/60-Ziel begrenzt. Die zusätzliche native Swappy-Warteschlange ist abgeschaltet, um bei zerstörten und neu erstellten Android-Surfaces keine zweite Bildtaktung zu behalten. Die Wiederaufnahme wartet auf den nächsten Spielzyklus und erneuert Kamera, sichtbare Anlagen und HUD; die native Root-Viewport-Aktivierung übernimmt Android. Die Tests warten auf fortschreitende Spielzeit und tatsächlich präsentierte Bilder, nicht nur auf einen bereits erzeugten Spielzustand.

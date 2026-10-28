@@ -2,7 +2,7 @@ extends RefCounted
 ## Stable personal styles. Drawing, tracks and local snow interaction use one path.
 const Terrain = preload("res://src/core/terrain.gd")
 const FIRST := ["Mila", "Jonas", "Lea", "Emil", "Nora", "Finn", "Lina", "Theo", "Ella", "Luis", "Amira", "Ben", "Sofia", "Paul", "Maja", "Noah"]
-const COLORS := ["de8358", "438eaf", "bf6688", "d9b057", "6da490", "8d7eb3", "da605d", "77aaca"]
+const COLORS := ["eeac91", "87bacb", "c8a4cb", "e8ca88", "93c5b1", "aaaed3", "e598a0", "9fcbd0"]
 const SPORTS := ["ski", "snowboard", "snowblade"]
 const SPORT_NAMES := {"ski":"Ski", "snowboard":"Snowboard", "snowblade":"Snowblades"}
 

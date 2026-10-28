@@ -21,7 +21,7 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 	offset_right = -48
 	offset_top = 124
 	offset_bottom = -28
-	add_theme_stylebox_override("panel", hud._style(Color("113340"), 18, 22))
+	add_theme_stylebox_override("panel", hud._style(Color("fffaf2"), 18, 22))
 	var layout: VBoxContainer = hud._vbox(self, 12)
 	var header := HBoxContainer.new()
 	layout.add_child(header)
@@ -31,12 +31,12 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 	feedback = hud._label(layout, "", 17, hud.TEAL, true)
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tabs.add_theme_font_size_override("font_size", 19)
-	tabs.add_theme_stylebox_override("panel", hud._style(Color("163b47"), 10, 0))
+	tabs.add_theme_stylebox_override("panel", hud._style(Color("f5f5ed"), 10, 0))
 	var tab_bar := tabs.get_tab_bar()
 	for control in [tabs, tab_bar]:
-		control.add_theme_stylebox_override("tab_selected", hud._style(Color("315965"), 7, 13))
-		control.add_theme_stylebox_override("tab_unselected", hud._style(Color("1b414e"), 7, 13))
-		control.add_theme_stylebox_override("tab_hovered", hud._style(Color("2b5360"), 7, 13))
+		control.add_theme_stylebox_override("tab_selected", hud._style(Color("d3e7dc"), 7, 13))
+		control.add_theme_stylebox_override("tab_unselected", hud._style(Color("edf3ec"), 7, 13))
+		control.add_theme_stylebox_override("tab_hovered", hud._style(Color("e2eee6"), 7, 13))
 		control.add_theme_color_override("font_selected_color", hud.ACCENT)
 		control.add_theme_color_override("font_unselected_color", hud.MUTED)
 	layout.add_child(tabs)
@@ -63,7 +63,7 @@ func _page(name_value: String) -> VBoxContainer:
 
 func _card(parent: Node, heading: String, text_value: String) -> VBoxContainer:
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", hud._style(Color("204551"), 12, 16))
+	panel.add_theme_stylebox_override("panel", hud._style(Color("edf3ec"), 12, 16))
 	parent.add_child(panel)
 	var content: VBoxContainer = hud._vbox(panel, 9)
 	hud._label(content, heading, 21, hud.INK, true)

@@ -15,10 +15,10 @@ func _draw() -> void:
 	var baseline := area.position.y + area.size.y * 0.5
 	for ratio in [-1.0, 0.0, 1.0]:
 		var y: float = baseline - ratio * area.size.y * 0.5
-		draw_line(Vector2(area.position.x, y), Vector2(area.end.x, y), Color("41626e"), 1)
-		draw_string(font, Vector2(3, y + 5), "%.0f k€" % (ratio * maximum / 1000), HORIZONTAL_ALIGNMENT_LEFT, 56, 13, Color("9bb8c2"))
+		draw_line(Vector2(area.position.x, y), Vector2(area.end.x, y), Color("c3ded4"), 1)
+		draw_string(font, Vector2(3, y + 5), "%.0f k€" % (ratio * maximum / 1000), HORIZONTAL_ALIGNMENT_LEFT, 56, 13, Color("5d7679"))
 	if rows.is_empty():
-		draw_string(font, Vector2(82, baseline - 12), "Nach dem ersten Betriebstag erscheint hier dein Verlauf.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("9bb8c2"))
+		draw_string(font, Vector2(82, baseline - 12), "Nach dem ersten Betriebstag erscheint hier dein Verlauf.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("5d7679"))
 		return
 	var step := area.size.x / rows.size()
 	for i in range(rows.size()):
@@ -27,4 +27,4 @@ func _draw() -> void:
 		var y := baseline - height_value if value >= 0 else baseline
 		draw_rect(Rect2(area.position.x + i * step + 2, y, maxf(3, step - 4), maxf(1, height_value)), Color("7ac8b2") if value >= 0 else Color("d78a7e"))
 		if i == 0 or i == rows.size() - 1 or int(rows[i].day) % 7 == 0:
-			draw_string(font, Vector2(area.position.x + i * step + 2, area.end.y + 24), str(int(rows[i].day)), HORIZONTAL_ALIGNMENT_LEFT, step, 13, Color("c4d8df"))
+			draw_string(font, Vector2(area.position.x + i * step + 2, area.end.y + 24), str(int(rows[i].day)), HORIZONTAL_ALIGNMENT_LEFT, step, 13, Color("526e76"))

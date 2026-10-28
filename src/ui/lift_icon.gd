@@ -7,8 +7,8 @@ func _init() -> void:
 
 func _draw() -> void:
 	var spec: Dictionary = Catalog.LIFTS[kind]
-	var color := Color("efb17d")
-	draw_line(Vector2(3, 10), Vector2(39, 6), Color("87aab6"), 2, true)
+	var color := Color("b8754f")
+	draw_line(Vector2(3, 10), Vector2(39, 6), Color("607f84"), 2, true)
 	draw_line(Vector2(21, 8), Vector2(21, 25), Color("b6d2d6"), 2, true)
 	if spec.family == "drag":
 		draw_line(Vector2(21, 25), Vector2(21, 43), color, 2.5, true)
@@ -22,8 +22,8 @@ func _draw() -> void:
 		var width: float = 10 + minf(spec.seats, 8) * 3.5
 		var left := 21 - width * 0.5
 		draw_line(Vector2(left, 47), Vector2(left + width, 47), color, 5, true)
-		draw_line(Vector2(left, 32), Vector2(left, 47), Color("87aab6"), 2, true)
-		draw_line(Vector2(left + width, 32), Vector2(left + width, 47), Color("87aab6"), 2, true)
+		draw_line(Vector2(left, 32), Vector2(left, 47), Color("607f84"), 2, true)
+		draw_line(Vector2(left + width, 32), Vector2(left + width, 47), Color("607f84"), 2, true)
 		for index in range(spec.seats):
 			var x: float = left + (index + 0.5) / spec.seats * width
 			draw_line(Vector2(x, 36), Vector2(x, 44), Color("8fc2d3"), maxf(1, width / spec.seats - 1), true)
@@ -34,7 +34,7 @@ func draw_ellipse() -> void:
 	for index in range(25):
 		var angle := float(index) / 24 * TAU
 		points.append(Vector2(21 + cos(angle) * 10, 45 + sin(angle) * 3))
-	draw_colored_polygon(points, Color("efb17d"))
+	draw_colored_polygon(points, Color("b8754f"))
 
 func _box(color: Color) -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()

@@ -89,6 +89,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/paths_scene.gd
       - name: Two-finger rotation, visible sports and application recovery
         run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
+      - name: Cute winter scenery, opaque guest materials and bounded batches
+        run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
