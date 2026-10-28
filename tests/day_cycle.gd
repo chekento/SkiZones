@@ -42,6 +42,8 @@ func _init() -> void:
 	_late_skier()
 	_chair_restart()
 	_route_choices()
+	_queue_choices()
+	_rebuild_save()
 	_motion()
 	_migration()
 	print("DAY CYCLE: %d passed; %d failed" % [passed, failed])
@@ -134,6 +136,52 @@ func _route_choices() -> void:
 	model.minute = model.OPENING
 	model.set_enabled(model.lifts[1].id, false)
 	check(model.choose_route(guest).target == model.pistes[0].id, "Route choices exclude a lift that is manually closed")
+
+func _queue_choices() -> void:
+	var model := fresh()
+	model.money = 3000000
+	model.build_lift("chair2", Vector2(115,205), Vector2(160,-130))
+	model.build_piste([[160,-130],[190,-30],[160,95],[115,205]])
+	var visitor := {"id": 103, "ability": 0, "age": 0, "stay": 520, "spent": true}
+	var quiet: Dictionary = model.choose_route(visitor)
+	var used_fast := false
+	for leg in quiet.legs:
+		used_fast = used_fast or (leg.kind == "lift" and leg.id == model.lifts[1].id)
+	check(used_fast, "A quiet alternative chairlift provides the quicker uphill route")
+	for i in range(40): model.admit_guest(0)
+	for guest in model.guests:
+		for index in range(guest.route.legs.size()):
+			var leg: Dictionary = guest.route.legs[index]
+			if leg.kind == "lift" and leg.id == model.lifts[1].id:
+				guest.leg = index
+				model._start_leg(guest)
+				break
+	var load: Dictionary = model.lift_load(model.lifts[1])
+	check(load.queue == 40 and is_equal_approx(load.wait, 120.0), "Forty guests in a two-seat queue mean 120 simulation minutes, not four")
+	var crowded: Dictionary = model.choose_route(visitor)
+	var used_slow := false
+	var used_crowded := false
+	for leg in crowded.legs:
+		used_slow = used_slow or (leg.kind == "lift" and leg.id == model.lifts[0].id)
+		used_crowded = used_crowded or (leg.kind == "lift" and leg.id == model.lifts[1].id)
+	check(used_slow and not used_crowded, "Pathfinding changes the actual lift approach when the faster lift has a long queue")
+	check(model.routes_for(0).size() == 2, "Congestion changes choices without falsely disconnecting reachable pistes")
+	var guest: Dictionary = model.guests[0]
+	var before: Vector3 = model.guest_position(guest)
+	model.set_enabled(model.lifts[1].id, false)
+	check(guest.phase == "moving" and model.guest_position(guest).distance_to(before) < 0.5, "A closed queue is left on foot from the real standing place")
+	check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "Walking out of a closed queue survives an exact save roundtrip")
+
+func _rebuild_save() -> void:
+	var model := fresh()
+	model.money = 3000000
+	at_leg(model, "ski")
+	var piste: Dictionary = model.pistes[0]
+	var points: Array = piste.points.duplicate(true)
+	points[1][0] += 8
+	var changed: Dictionary = model.change_asset(piste.id, points, piste.name, "", 0, 20)
+	check(changed.ok, "A structural piste rebuild remains available with an active resort")
+	check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "Structural rebuilding never leaves an obsolete itinerary in the saved game")
 
 func _motion() -> void:
 	var flat := Motion.travel_profile(FlatMountain.new(), [[0,0],[0,250]], 0)

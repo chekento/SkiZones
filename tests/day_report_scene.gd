@@ -44,6 +44,10 @@ func run() -> void:
 		check(dialog.scroll.scroll_vertical > 0, "Finger drag scrolls the real daily report at %s" % viewport_size)
 	# Capture actual renderer output in CI; headless layout runs skip only the image.
 	if DisplayServer.get_name() != "headless":
+		root.size = Vector2i(1536,710)
+		root.content_scale_size = Vector2i(1536,710)
+		dialog.scroll.scroll_vertical = 0
+		await process_frame
 		await process_frame
 		await RenderingServer.frame_post_draw
 		DirAccess.make_dir_recursive_absolute("res://build/qa")

@@ -186,6 +186,8 @@ func _button(parent: Node, text_value: String, callback: Callable, primary: bool
 		button.add_theme_stylebox_override("pressed", _style(ACCENT.darkened(0.1), 9, 10))
 		button.add_theme_color_override("font_color", Color("16323d"))
 		button.add_theme_color_override("font_hover_color", Color("16323d"))
+		button.add_theme_color_override("font_focus_color", Color("16323d"))
+		button.add_theme_color_override("font_pressed_color", Color("16323d"))
 	parent.add_child(button)
 	return button
 
@@ -598,7 +600,10 @@ func _refresh_context_text() -> void:
 		if item.is_empty():
 			show_context("inspect")
 			return
-		var text_value := "[color=#75cdc7]%s · Stufe %d[/color]\n\n" % ["Geöffnet" if item.enabled else "Geschlossen", item.get("level", 1)]
+		var status := "Geöffnet" if item.enabled else "Manuell geschlossen"
+		if item.has("bottom") and item.enabled and not model.lift_open(item):
+			status = "Sturmpause"
+		var text_value := "[color=#75cdc7]%s · Stufe %d[/color]\n\n" % [status, item.get("level", 1)]
 		if item.has("difficulty"):
 			if is_instance_valid(grooming_button):
 				var grooming: Dictionary = model.groom_check(item.id)

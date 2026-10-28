@@ -45,6 +45,9 @@ var revision := 0
 var _routes: Dictionary = {}
 var _graphs: Dictionary = {}
 var _ski_legs: Dictionary = {}
+var _choice_graphs: Dictionary = {}
+var _choice_routes: Dictionary = {}
+var _choice_signature := ""
 var _asset_index: Dictionary = {}
 var _edit_context: Dictionary = {}
 var _anchor_revision := -1
@@ -101,6 +104,9 @@ func _invalidate() -> void:
 	_routes.clear()
 	_graphs.clear()
 	_ski_legs.clear()
+	_choice_graphs.clear()
+	_choice_routes.clear()
+	_choice_signature = ""
 	_cable_profiles.clear()
 	_fleet_layouts.clear()
 	_queue_slots.clear()
@@ -366,7 +372,7 @@ func set_enabled(id: int, enabled: bool) -> void:
 	if not item.is_empty():
 		item.enabled = enabled
 		_invalidate()
-		_reroute_guests()
+		_reroute_guests(true)
 
 func demolish(id: int) -> Dictionary:
 	for collection in [pistes, lifts, buildings, walk_areas]:
@@ -391,10 +397,10 @@ func lift_running(lift: Dictionary) -> bool:
 	return weather().wind < Catalog.LIFTS[lift.kind].wind_limit and lift_load(lift).riders > 0
 
 func lift_status(lift: Dictionary) -> String:
-	if weather().wind >= Catalog.LIFTS[lift.kind].wind_limit:
-		return "Sturmpause: %.0f km/h Wind, Grenze %.0f km/h. Startet bei geeignetem Wetter automatisch wieder." % [weather().wind, Catalog.LIFTS[lift.kind].wind_limit]
 	if not lift.enabled:
 		return "Manuell geschlossen · Mitfahrende werden noch ausgeladen." if lift_running(lift) else "Manuell geschlossen · Über Öffnen wieder freigeben."
+	if weather().wind >= Catalog.LIFTS[lift.kind].wind_limit:
+		return "Sturmpause: %.0f km/h Wind, Grenze %.0f km/h. Startet bei geeignetem Wetter automatisch wieder." % [weather().wind, Catalog.LIFTS[lift.kind].wind_limit]
 	if is_closing():
 		return "Feierabendbetrieb · laufende Rückwege werden noch bedient."
 	return "In Betrieb · Wind unter %.0f km/h." % Catalog.LIFTS[lift.kind].wind_limit
@@ -586,10 +592,27 @@ static func ski_fraction(leg: Dictionary, progress: float) -> float:
 	var along := Motion.distance_progress(leg.get("motion", []), progress)
 	return lerpf(leg.get("start_fraction", 0.0), leg.get("end_fraction", 1.0), along)
 
-func _routing_graph(skill: int) -> Dictionary:
+func _routing_graph(skill: int, consider_queues: bool = false) -> Dictionary:
 	if not _graphs.has(skill):
 		_graphs[skill] = _graph(skill)
-	return _graphs[skill]
+	if not consider_queues:
+		return _graphs[skill]
+	var signature := ""
+	var waits: Dictionary = {}
+	for lift in lifts:
+		# Buckets keep geometry/path caches useful during busy dispatches. Budget
+		# decisions below still use the current, unrounded expected wait.
+		var waiting := int(queue_size(lift.id) / 8) * 8
+		signature += "%d:%d/" % [lift.id, waiting]
+		waits[int(lift.id)] = waiting * fleet_layout(lift).interval / Fleet.seats(lift)
+	if signature != _choice_signature:
+		_choice_signature = signature
+		_choice_graphs.clear()
+		_choice_routes.clear()
+	if not _choice_graphs.has(skill):
+		var original: Dictionary = _graphs[skill]
+		_choice_graphs[skill] = {"nodes": original.nodes, "edges": original.edges, "queue_costs": waits}
+	return _choice_graphs[skill]
 
 func _graph(skill: int) -> Dictionary:
 	var foot := pedestrian_graph()
@@ -700,7 +723,7 @@ func _distances(graph: Dictionary, source: String, reverse: bool) -> Dictionary:
 			continue
 		for leg in edges[current]:
 			var neighbor: String = leg.from if reverse else leg.to
-			var cost: float = entry[0] + leg.minutes
+			var cost: float = entry[0] + leg.minutes + (graph.get("queue_costs", {}).get(int(leg.id), 0.0) if leg.kind == "lift" else 0.0)
 			if cost < distance.get(neighbor, INF):
 				distance[neighbor] = cost
 				previous[neighbor] = leg
@@ -735,12 +758,13 @@ func _shortest(graph: Dictionary, source: String, target: String) -> Dictionary:
 func routes_for(skill: int) -> Array:
 	return _routes_from(skill, "base")
 
-func _routes_from(skill: int, source: String) -> Array:
+func _routes_from(skill: int, source: String, consider_queues: bool = false) -> Array:
+	var graph := _routing_graph(skill, consider_queues)
+	var cache: Dictionary = _choice_routes if consider_queues else _routes
 	var key := "%d/%s" % [skill, source]
-	if _routes.has(key):
-		return _routes[key]
+	if cache.has(key):
+		return cache[key]
 	var result: Array = []
-	var graph := _routing_graph(skill)
 	for piste in pistes:
 		if piste.difficulty > skill or not piste_open(piste):
 			continue
@@ -756,7 +780,7 @@ func _routes_from(skill: int, source: String) -> Array:
 			uses_lift = uses_lift or leg.kind == "lift"
 		if uses_lift or source != "base":
 			result.append({"target": piste.id, "origin": graph.nodes[source], "legs": _merge_ski_legs(legs)})
-	_routes[key] = result
+	cache[key] = result
 	return result
 
 func route_minutes(route: Dictionary, guest: Dictionary) -> float:
@@ -776,7 +800,7 @@ func route_minutes(route: Dictionary, guest: Dictionary) -> float:
 func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var choices: Array = []
 	var total := 0.0
-	for route in _routes_from(int(guest.ability), source):
+	for route in _routes_from(int(guest.ability), source, true):
 		var time := route_minutes(route, guest)
 		# No new circuit that predictably carries the guest far past closing or
 		# their personal departure time. A later queue increase never teleports them.
@@ -799,7 +823,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	return _with_service(choices[-1].route, guest.id, guest.spent)
 
 func _return_from_node(guest: Dictionary, source: String) -> bool:
-	var graph := _routing_graph(int(guest.ability))
+	var graph := _routing_graph(int(guest.ability), true)
 	var home := _shortest(graph, source, "base")
 	if not home.ok:
 		return false
@@ -966,8 +990,22 @@ func _depart(guest: Dictionary) -> void:
 	if satisfaction >= 80:
 		campaign.happy += 1
 
-func _reroute_guests() -> void:
+func _reroute_guests(preserve_position: bool = false) -> void:
 	for guest in guests:
+		# A structural rebuild can replace the very geometry stored in an
+		# itinerary. Retain the existing rebuild reassignment policy; ordinary
+		# closures and the day boundary must never use that reset path.
+		if not preserve_position:
+			var routes := routes_for(guest.ability)
+			if routes.is_empty():
+				guest.phase = "leaving"
+			else:
+				guest.route = _with_service(routes[0], guest.id, guest.spent)
+				guest.leg = 0
+				guest.erase("heading_home")
+				guest.erase("replan")
+				_start_leg(guest)
+			continue
 		if guest.phase == "leaving":
 			continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
