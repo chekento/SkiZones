@@ -27,3 +27,11 @@ https://github.com/godotengine/godot/blob/4.5.2-stable/platform/android/java/lib
 SkiZones modifies the lifecycle generation handling described above. The full
 original copyright/license header is retained in the patched compilation input.
 The checked-in patch is deliberately narrow and rejects a different baseline.
+
+The managed app manifest also handles Android `assetsPaths` configuration changes.
+Otherwise a Material/navigation overlay can destroy a fresh activity while its
+engine starts. This narrowly adds the public asset-path flag, using compile SDK
+36 and its supported AGP 8.9.1 / existing Gradle 8.11.1; target SDK 35 and minimum
+SDK 24 remain. The Android 16 test changes and restores an actual system overlay
+while requiring the same process and advancing game frames. Native libraries are
+compressed for the APK download, as in the earlier non-Gradle export.

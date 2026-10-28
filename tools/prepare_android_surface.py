@@ -7,6 +7,7 @@ from the SHA-512-verified official Godot 4.5.2 Android source template.
 import hashlib
 import io
 import os
+import re
 from pathlib import Path
 import subprocess
 import urllib.request
@@ -27,7 +28,7 @@ def rewrite_archive(original, target, replacements):
 
 def prepare(sdk: Path, java: Path):
     patch = ROOT / "tools/android/GLSurfaceView-lifecycle.patch"
-    stamp = SOURCE_SHA256 + ":" + hashlib.sha256(patch.read_bytes()).hexdigest()
+    stamp = SOURCE_SHA256 + ":" + hashlib.sha256(patch.read_bytes()).hexdigest() + ":assetsPaths-sdk36"
     build = ROOT / "android/build"
     marker = build / ".skizones-surface-fix"
     if marker.exists() and marker.read_text() == stamp:
@@ -43,6 +44,18 @@ def prepare(sdk: Path, java: Path):
     with zipfile.ZipFile(template) as archive:
         archive.extractall(build)
     ownership.write_text(VERSION)
+    # A runtime system-theme overlay changes Android's asset paths. Godot draws
+    # its own UI and handles this configuration without destroying its engine.
+    manifest = build / "AndroidManifest.xml"
+    text, count = re.subn(r'(android:configChanges=")([^"]+)(")',
+                         lambda m: m[1] + m[2] + "|assetsPaths" + m[3], manifest.read_text())
+    assert count == 1
+    manifest.write_text(text)
+    config = build / "config.gradle"
+    text = config.read_text()
+    assert "androidGradlePlugin: '8.6.1'" in text and "compileSdk         : 35" in text
+    config.write_text(text.replace("androidGradlePlugin: '8.6.1'", "androidGradlePlugin: '8.9.1'")
+                      .replace("compileSdk         : 35", "compileSdk         : 36"))
     (build / ".gdignore").write_text("")
     (build.parent / ".build_version").write_text(VERSION + "\n")
     (build / "gradlew").chmod(0o755)

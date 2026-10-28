@@ -72,4 +72,4 @@ Die Android-Lifecycle-Prüfung verwendet einen gesonderten x86-64-Testexport mit
 
 Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibility-Ausgabe erfasst. Nahdetails werden in vorhandene Asset-Meshes gebacken; das Gäste-Material trennt die Jackenfarbe von Gesicht, Brille und Schal. Die Aufnahmen zeigen reguläre 3D-Spielgeometrie, keine Konzeptbilder.
 
-Die native Android-Prüfung umfasst acht Home-Wechsel (insgesamt elf sichtbare Activity-/Surface-Fälle je Android-Version). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.
+Die native Android-Prüfung umfasst acht Home-Wechsel (elf sichtbare Fälle unter Android 11 und zwölf unter Android 16 einschließlich eines tatsächlichen System-Overlay-Wechsels). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.

@@ -111,7 +111,7 @@ jobs:
           import os, subprocess
           manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
           subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
-          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
+          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'platforms;android-36', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
           PY
       - name: Keep debug signing identity between builds
         uses: actions/cache@v4
@@ -124,7 +124,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: skizones-gradle-4.5.2-v1
+          key: skizones-gradle-4.5.2-sdk36-v2
       - name: Export Android APK
         run: python3 tools/export_android.py
       - name: Verify APK signature and archive

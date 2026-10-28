@@ -80,3 +80,5 @@ Die Bildrate wird weiter durch das gewählte 30/60-Ziel begrenzt. Die zusätzlic
 ### Native Anzeigefläche
 
 Beide Android-Exporte verwenden den dokumentierten [Java-Lifecycle-Patch](../tools/android/README.md). Er erkennt ausgetauschte native Surfaces anhand ihrer Generation und bindet EGL auf dem Rendering-Thread neu. Verspätete Fehler der alten Fläche blockieren die neue nicht. Die offiziellen nativen Godot-Bibliotheken bleiben bytegleich; die Vorbereitung prüft dies für jedes AAR-Mitglied. Dafür enthält das offizielle Template zusätzlich `android_source.zip`, und der Export verwendet Gradle mit SDK 35 und JDK 17.
+
+Android-16-Systemfarben und Navigationsleisten dürfen die laufende Godot-Activity nicht neu erstellen. Der verwaltete Build ergänzt deshalb die öffentliche Konfiguration `assetsPaths` und verwendet dafür Compile-SDK 36 mit AGP 8.9.1 und Gradle 8.11.1. Mindestversion 24 und Zielversion 35 bleiben erhalten. Ein zusätzlicher nativer Test wechselt eine tatsächliche Systemdarstellung und setzt sie zurück. Die APK komprimiert ihre nativen Bibliotheken für den Download.

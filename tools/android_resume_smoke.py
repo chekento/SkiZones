@@ -87,6 +87,21 @@ def main():
         state = wait_for(lambda s: playable(s) and s.get("frames", 0) >= 5 and s["minute"] > 560)
         assert {"ski", "snowboard", "snowblade"}.issubset(state["sports"])
         capture("launch", state)
+        if int(adb("shell", "getprop", "ro.build.version.sdk")) >= 36:
+            # The new public assetsPaths flag prevents system theme/navigation
+            # overlays from destroying an otherwise live Godot activity.
+            overlays = adb("shell", "cmd", "overlay", "list", "--user", "0").decode()
+            navigation = [line for line in overlays.splitlines() if "com.android.internal.systemui.navbar." in line]
+            current = next(line.split()[-1] for line in navigation if line.strip().startswith("[x]"))
+            choices = [line.split()[-1] for line in navigation if any(name in line for name in ("navbar.threebutton", "navbar.gestural"))]
+            alternative = next(name for name in choices if name != current)
+            before = state
+            for overlay in [alternative, current]:
+                adb("shell", "cmd", "overlay", "enable-exclusive", "--user", "0", "--category", overlay)
+                state = wait_for(lambda s: playable(s) and s["boot"] == before["boot"]
+                                 and s.get("frames", 0) >= before["frames"] + 3)
+                before = state
+            capture("system-overlay", state)
         for index in range(8):
             before = state
             adb("shell", "input", "keyevent", "KEYCODE_HOME")
@@ -123,7 +138,7 @@ def main():
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"
         assert not any("E godot" in line and "ERROR:" in line for line in logs.splitlines()), \
             "Android reported a renderer or engine error"
-        print("ANDROID RESUME: 11 real activity/surface checks passed", flush=True)
+        print(f"ANDROID RESUME: {len(evidence)} real activity/surface checks passed", flush=True)
     finally:
         try:
             (args.output / "logcat.txt").write_bytes(adb("logcat", "-d"))
