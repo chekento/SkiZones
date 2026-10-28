@@ -73,6 +73,9 @@ def main():
 
     try:
         adb("install", "-r", str(args.apk.resolve()), timeout=120)
+        # A first-run system tutorial can cover either a game or its splash and
+        # must not be mistaken for proof that the game itself is rendering.
+        adb("shell", "settings", "put", "secure", "immersive_mode_confirmations", "confirmed")
         component = adb("shell", "cmd", "package", "resolve-activity", "--brief", "-a",
                         "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", PACKAGE).decode().splitlines()[-1].strip()
         assert component.startswith(PACKAGE + "/"), component
@@ -129,7 +132,8 @@ def main():
         time.sleep(3)
         adb("shell", "am", "force-stop", PACKAGE)
         launch()
-        state = wait_for(lambda s: playable(s) and s["boot"] != before["boot"])
+        state = wait_for(lambda s: playable(s) and s["boot"] != before["boot"]
+                         and s.get("frames", 0) >= 5)
         assert state["day"] == before["day"] and state["minute"] >= before["minute"]
         assert before["guests"][0] in state["guests"], "Process recreation lost the saved guest identities"
         capture("restored-process", state)

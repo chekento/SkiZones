@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export a debug APK using isolated editor preferences and a local debug key.
 
-Requires Godot 4.5.2 + matching export templates, JDK 17 and Android SDK 35.
+Requires Godot 4.5.2 + matching export templates, JDK 17 and Android SDK platforms 35/36.
 Never edits the developer's normal Godot settings or creates a release key.
 """
 import argparse
@@ -27,7 +27,7 @@ def main():
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     java = os.environ.get("JAVA_HOME")
     if not sdk or not java:
-        sys.exit("Set ANDROID_HOME (SDK 35) and JAVA_HOME (JDK 17) first. See docs/ANDROID.md.")
+        sys.exit("Set ANDROID_HOME (SDK 35/36) and JAVA_HOME (JDK 17) first. See docs/ANDROID.md.")
     sdk, java = Path(sdk).resolve(), Path(java).resolve()
     suffix = ".exe" if os.name == "nt" else ""
     required = [sdk / "platform-tools" / ("adb" + suffix), java / "bin" / ("keytool" + suffix), sdk / "build-tools" / "35.0.0" / ("zipalign" + suffix)]

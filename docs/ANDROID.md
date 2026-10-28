@@ -4,7 +4,7 @@
 
 Das Projekt ist auf **Godot 4.5.2 Standard**, GDScript und den **Compatibility-Renderer** festgelegt. Die Test-APK enthält ausschließlich **arm64-v8a** und hat die Paketkennung `cloud.kosch.skizones`. Die Oberfläche läuft im Querformat.
 
-Der Export verwendet die offiziellen, vorkompilierten Android-Templates ohne Gradle. Mindest- und Ziel-SDK stammen deshalb aus dem passenden Godot-Template. Für eine spätere Store-Version mit abweichendem Ziel-SDK und AAB wird ein eigener Gradle-Export benötigt.
+Der Export verwendet das passende offizielle Godot-Android-Source-Template über Gradle. Die Vorbereitung korrigiert gezielt die Java-Anzeigefläche und die Behandlung von System-Overlays; die offiziellen nativen Bibliotheken bleiben erhalten. Compile-SDK 36, Ziel-SDK 35 und Mindest-SDK 24 sind festgelegt. Der Android-Quellbuild wird automatisch unter `android/build/` vorbereitet.
 
 ## GitHub Actions
 
@@ -20,7 +20,7 @@ Voraussetzungen:
 
 - Godot **4.5.2** und **exakt passende Export-Templates 4.5.2**.
 - OpenJDK **17**.
-- Android SDK Command-line Tools mit `platform-tools`, `platforms;android-35` und `build-tools;35.0.0`.
+- Android SDK Command-line Tools mit `platform-tools`, `platforms;android-35`, `platforms;android-36`, `build-tools;35.0.0` und `build-tools;35.0.1`.
 - Python 3 ohne zusätzliche Pakete.
 
 ```bash
@@ -35,7 +35,7 @@ Das Skript legt den Debug-Schlüssel und isolierte Godot-Exporteinstellungen unt
 
 Wer die offiziellen Linux-Binaries automatisch installieren möchte, kann `bash tools/install_godot.sh` verwenden. Das Skript prüft die Downloads gegen das offizielle SHA-512-Manifest. `SKIZONES_TOOLS_DIR` bestimmt das Zielverzeichnis; für die darin installierten Templates muss `XDG_DATA_HOME="$SKIZONES_TOOLS_DIR/share"` gesetzt sein.
 
-Auf Windows und macOS lassen sich SDK, JDK und Debug-Schlüssel in Godots Editor-Einstellungen unter **Export → Android** konfigurieren. Anschließend das Preset **Android** als Debug-APK exportieren. Das mitgelieferte Python-Skript ist für Linux/CI vorgesehen.
+Die native Android-Vorbereitung ist für Linux und GitHub Actions vorgesehen. Unter Windows und macOS kann das Spiel im Godot-Editor gespielt werden; für die APK mit denselben nativen Korrekturen den Linux-/CI-Build verwenden.
 
 ## Installieren
 
@@ -82,3 +82,5 @@ Die Bildrate wird weiter durch das gewählte 30/60-Ziel begrenzt. Die zusätzlic
 Beide Android-Exporte verwenden den dokumentierten [Java-Lifecycle-Patch](../tools/android/README.md). Er erkennt ausgetauschte native Surfaces anhand ihrer Generation und bindet EGL auf dem Rendering-Thread neu. Verspätete Fehler der alten Fläche blockieren die neue nicht. Die offiziellen nativen Godot-Bibliotheken bleiben bytegleich; die Vorbereitung prüft dies für jedes AAR-Mitglied. Dafür enthält das offizielle Template zusätzlich `android_source.zip`, und der Export verwendet Gradle mit SDK 35 und JDK 17.
 
 Android-16-Systemfarben und Navigationsleisten dürfen die laufende Godot-Activity nicht neu erstellen. Der verwaltete Build ergänzt deshalb die öffentliche Konfiguration `assetsPaths` und verwendet dafür Compile-SDK 36 mit AGP 8.9.1 und Gradle 8.11.1. Mindestversion 24 und Zielversion 35 bleiben erhalten. Ein zusätzlicher nativer Test wechselt eine tatsächliche Systemdarstellung und setzt sie zurück. Die APK komprimiert ihre nativen Bibliotheken für den Download.
+
+Die native Grafikprüfung unterdrückt nur den erstmaligen Android-Vollbild-Lehrhinweis in der Emulator-Einrichtung. Auch nach einem absichtlich neu gestarteten Prozess muss das Spiel mindestens fünf neue Bilder selbst gezeichnet haben, bevor eine Aufnahme als wiederhergestellte Spielszene zählt.
