@@ -92,7 +92,9 @@ def main():
             adb("shell", "input", "keyevent", "KEYCODE_HOME")
             time.sleep(3)
             launch()
-            state = wait_for(lambda s: playable(s) and s["resumes"] > before["resumes"])
+            state = wait_for(lambda s: playable(s) and s["resumes"] > before["resumes"]
+                             and s.get("frames", 0) >= before["frames"] + 3
+                             and s["minute"] > before["minute"])
             assert state["boot"] == before["boot"], "A short app switch unexpectedly restarted the process"
             assert state["minute"] >= before["minute"] and before["guests"][0] in state["guests"]
             capture(f"resume-{index + 1}", state)
