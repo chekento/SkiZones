@@ -10,9 +10,9 @@ var failed := 0
 class Hump extends "res://src/core/mountain.gd":
 	var rise := 1.0
 	func height(p: Vector2) -> float:
-		if p.y <= 100: return 300-p.y*0.3
-		if p.y <= 120: return 270+(p.y-100)*rise/20
-		return 270+rise-(p.y-120)*0.3
+		if p.y <= 100: return 300-p.y*0.28
+		if p.y <= 120: return 272+(p.y-100)*rise/20
+		return 272+rise-(p.y-120)*0.28
 class NoRunup extends "res://src/core/mountain.gd":
 	func height(p: Vector2) -> float:
 		if p.y <= 30: return 300
@@ -111,7 +111,7 @@ func _hiking_save() -> void:
 			guest.elapsed = guest.duration*(guest.ski_motion[i-1][0]+guest.ski_motion[i][0])*0.5
 			found = true;break
 	check(found and not guest.walk_ranges.is_empty(),"The actual guest reaches a saved hiking phase with a personal energy profile")
-	check(Profile.describe(model,guest).activity.contains("Stapft"),"The guest inspector explains the actual hiking activity")
+	check(Profile.describe(model,guest).activity.contains("Stapft") and Profile.describe(model,guest).reason.contains("Schwung"),"The guest inspector explains the actual hiking activity and its reason")
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	var f := Resort.ski_fraction(leg,guest.elapsed/guest.duration,guest.ski_motion)
 	var at: Vector3 = model.guest_position(guest)

@@ -100,7 +100,7 @@ func point_on_path(points: Array, fraction: float) -> Vector2:
 static func difficulty_for_grade(grade: float) -> int:
 	# Longitudinal route grade, not the steepest direction of the mountain.
 	# These are deliberately the existing game limits, not a real-world certification.
-	return 0 if grade <= Terrain.GRADE_LIMITS[0]+0.001 else (1 if grade <= Terrain.GRADE_LIMITS[1]+0.001 else 2)
+	return 0 if grade <= Terrain.GRADE_LIMITS[0] else (1 if grade <= Terrain.GRADE_LIMITS[1] else 2)
 
 func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	# The optional argument keeps old callers compatible; colors can no longer be painted.

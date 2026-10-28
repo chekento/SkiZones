@@ -16,11 +16,13 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	var reason := "Ein Wintertag in den Bergen – mal sehen, wohin die nächste Fahrt führt."
 	var activity := "Auf dem Heimweg"
 	var kind := ""
+	var climbing := false
 	if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 		kind = guest.route.legs[guest.leg].kind
 		activity = {"ski": "Auf der Piste", "walk": "Zu Fuß unterwegs", "lift": "Fährt bergauf", "visit": "Genießt eine Pause"}.get(kind, "Unterwegs")
 	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
 		activity = "Stapft den Gegenanstieg hinauf"
+		climbing = true
 	if guest.phase == "queue":
 		activity = "Wartet auf den Lift"
 	elif guest.get("heading_home", false):
@@ -37,6 +39,8 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		mood = "cozy"; emotion = "Gut aufgehoben"; emoji = "😊"; reason = "Eine schöne Einkehr gehört für mich zum Skitag dazu."
 	elif guest.get("runs", 0) >= 2:
 		mood = "excited"; emotion = "Begeistert"; emoji = "🤩"; reason = "%d Abfahrten geschafft! Ich würde gern noch mehr vom Resort entdecken." % guest.runs
+	elif kind == "ski" and climbing:
+		mood = "focused"; emotion = "Schritt für Schritt"; emoji = "🙂"; reason = "Hier reicht mein Schwung nicht. Ich stapfe das Stück hinauf; danach geht es wieder bergab."
 	elif kind == "ski":
 		mood = "focused"; emotion = "Konzentriert"; emoji = "😎"; reason = "Ich suche meine eigene Linie und genieße die Schwünge."
 	elif kind == "lift" and guest.phase == "moving":

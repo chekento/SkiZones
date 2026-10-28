@@ -3,7 +3,7 @@
 ## Erst planen, dann bauen
 
 1. **Pisten → Abfahrt planen** öffnen.
-2. Oben am Berg anfangen und weitere Wegpunkte bergab setzen.
+2. Oben am Berg anfangen und den Verlauf bis ins Tal setzen. Kurze Gegenanstiege sind möglich.
 3. Einen nummerierten Punkt mit Finger oder Maus ziehen, um den Verlauf zu ändern. Antippen wählt ihn für **Punkt löschen** aus. Am Computer funktioniert auch **Entf**.
 4. Höhenprofil, Gefälle, Farbe und Preis prüfen. Bergauf führende oder zu steile Pläne lassen sich nicht bestätigen.
 5. Mit **Bauen** die Strecke und ihre Beschilderung anlegen.
@@ -57,3 +57,11 @@ Format 6 speichert zusätzliche begehbare Flächen sowie ganze und teilweise lau
 ## Geschlossene Kehren
 
 Die sichtbare Piste verwendet die Vereinigung der breiten Streckenabschnitte mit abgerundeten Außenkanten. Die Schneefläche wird am Geländeraster ausgeschnitten; dadurch entstehen an engen Kehren keine verdrehten Querstreifen oder offenen Dreiecke. Nummern, Schwierigkeit und Andockpunkte beziehen sich weiterhin auf die tatsächliche geplante Mittellinie. Persönliche Fahrlinien werden vor engen Knicken zur Mitte hin schmaler.
+
+## Gegenanstiege seit 0.9
+
+Ein kleines Stück bergauf sperrt nicht mehr pauschal den gesamten Plan. Das Fahrmodell berechnet Bewegungsenergie, Höhengewinn, Gleitreibung, Luftwiderstand und Kurvenbremsung entlang der Strecke. Die Vorschau zeigt den gesamten Gegenanstieg und eine vorsichtige Schätzung der Gehstrecke für langsamere Gäste. Persönlicher Fahrstil und Schneezustand fließen beim Fahrtbeginn in das tatsächlich gespeicherte Profil ein.
+
+Mit genügend Anlauf kann ein Gast einen Gegenanstieg durchfahren. Reicht der Schwung nicht, stapft er auf einem gehbaren Abschnitt langsamer weiter, bis es wieder bergab geht. Seine sichtbare Haltung, Aktivität, Position und Schrittspuren folgen derselben zeitlichen Berechnung. Steile, nicht sicher überwindbare Anstiege bleiben mit einer konkreten Begründung gesperrt. Ein komplett aufwärts führender Verlauf ist weiterhin keine Abfahrt; mindestens 40 m Strecke und 7 m Netto-Höhenverlust bleiben die Grundanforderung.
+
+Format 9 speichert persönliche Ski-/Gehphasen und geplante Fußwege. Bereits laufende ältere Fahrten behalten ihren bisherigen zeitlichen Verlauf. Für die aktiven Gäste bleiben alte Fußkorridore bis zum nächsten abgeschlossenen Betriebstag erhalten.
