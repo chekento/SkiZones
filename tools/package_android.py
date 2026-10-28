@@ -30,6 +30,8 @@ def main():
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     apk.with_suffix(".apk.sha256").write_text(f"{digest}  {apk.name}\n", encoding="utf-8")
     manifest = {"app": "SkiZones", "version": version, "version_code": int(code[1]), "package": "cloud.kosch.skizones", "architecture": "arm64-v8a", "build_type": "debug", "file_name": apk.name, "size_bytes": apk.stat().st_size, "sha256": digest, "commit": os.environ.get("GITHUB_SHA")}
+    patch = ROOT / "tools/android/GLSurfaceView-lifecycle.patch"
+    manifest["android_surface_patch_sha256"] = hashlib.sha256(patch.read_bytes()).hexdigest()
     (folder / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     if os.environ.get("GITHUB_OUTPUT"):
         with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:

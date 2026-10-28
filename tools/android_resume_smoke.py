@@ -87,7 +87,7 @@ def main():
         state = wait_for(lambda s: playable(s) and s.get("frames", 0) >= 5 and s["minute"] > 560)
         assert {"ski", "snowboard", "snowblade"}.issubset(state["sports"])
         capture("launch", state)
-        for index in range(4):
+        for index in range(8):
             before = state
             adb("shell", "input", "keyevent", "KEYCODE_HOME")
             time.sleep(3)
@@ -119,10 +119,11 @@ def main():
         assert before["guests"][0] in state["guests"], "Process recreation lost the saved guest identities"
         capture("restored-process", state)
         logs = adb("logcat", "-d").decode(errors="replace")
+        assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"
         assert not any("E godot" in line and "ERROR:" in line for line in logs.splitlines()), \
             "Android reported a renderer or engine error"
-        print("ANDROID RESUME: 7 real activity/surface checks passed", flush=True)
+        print("ANDROID RESUME: 11 real activity/surface checks passed", flush=True)
     finally:
         try:
             (args.output / "logcat.txt").write_bytes(adb("logcat", "-d"))

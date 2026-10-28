@@ -1,0 +1,70 @@
+--- GLSurfaceView.java
++++ GLSurfaceView.java
+@@ -1416,6 +1416,13 @@
+ 								}
+ 							}
+ 
++							// UI callbacks can replace a Surface while the previous swap is in flight.
++							// Rebind EGL on its owning thread; preserve the game and GL context.
++							if (mHaveEglSurface && mEglSurfaceGeneration != mSurfaceGeneration) {
++								stopEglSurfaceLocked();
++								mSurfaceIsBad = false;
++							}
++
+ 							// Have we lost the SurfaceView surface?
+ 							if ((! mHasSurface) && (! mWaitingForSurface)) {
+ 								if (LOG_SURFACE) {
+@@ -1476,6 +1483,7 @@
+ 
+ 								if (mHaveEglContext && !mHaveEglSurface) {
+ 									mHaveEglSurface = true;
++									mEglSurfaceGeneration = mSurfaceGeneration;
+ 									createEglSurface = true;
+ 									createGlInterface = true;
+ 									sizeChanged = true;
+@@ -1550,7 +1558,7 @@
+ 						} else {
+ 							synchronized(sGLThreadManager) {
+ 								mFinishedCreatingEglSurface = true;
+-								mSurfaceIsBad = true;
++								mSurfaceIsBad = mEglSurfaceGeneration == mSurfaceGeneration;
+ 								sGLThreadManager.notifyAll();
+ 							}
+ 							continue;
+@@ -1628,7 +1636,7 @@
+ 								EglHelper.logEglErrorAsWarning("GLThread", "eglSwapBuffers", swapError);
+ 
+ 								synchronized (sGLThreadManager) {
+-									mSurfaceIsBad = true;
++									mSurfaceIsBad = mEglSurfaceGeneration == mSurfaceGeneration;
+ 									sGLThreadManager.notifyAll();
+ 								}
+ 								break;
+@@ -1734,6 +1742,8 @@
+ 					Log.i("GLThread", "surfaceCreated tid=" + getId());
+ 				}
+ 				mHasSurface = true;
++				mSurfaceGeneration++;
++				mSurfaceIsBad = false;
+ 				mFinishedCreatingEglSurface = false;
+ 				sGLThreadManager.notifyAll();
+ 			}
+@@ -1765,6 +1775,9 @@
+ 					Log.i("GLThread", "onResume tid=" + getId());
+ 				}
+ 				mRequestPaused = false;
++				mSurfaceGeneration++;
++				mSurfaceIsBad = false;
++				Log.i("SkiZonesSurface", "Resume generation " + mSurfaceGeneration);
+ 				mRequestRender = true;
+ 				mRenderComplete = false;
+ 				sGLThreadManager.notifyAll();
+@@ -1852,6 +1865,8 @@
+ 		private boolean mPaused;
+ 		private boolean mHasSurface;
+ 		private boolean mSurfaceIsBad;
++		private int mSurfaceGeneration;
++		private int mEglSurfaceGeneration = -1;
+ 		private boolean mWaitingForSurface;
+ 		private boolean mHaveEglContext;
+ 		private boolean mHaveEglSurface;

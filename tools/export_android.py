@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from prepare_android_surface import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,6 +38,7 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     config = ROOT / "build" / "export-config"
     (ROOT / "build" / ".gdignore").write_text("", encoding="utf-8")
+    prepare(sdk, java)
     settings_dir = config / "godot"
     settings_dir.mkdir(parents=True, exist_ok=True)
     key = config / "skizones-debug.keystore"

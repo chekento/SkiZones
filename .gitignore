@@ -4,5 +4,6 @@ build/
 *.jks
 export_credentials.cfg
 android/build/
+android/.build_version
 *.tmp
 __pycache__/

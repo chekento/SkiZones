@@ -26,7 +26,7 @@ Stand: 28.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 | Drei Wintersportarten | 16 Prüfungen: echter gemischter Gästebetrieb, Ausrüstung, persönliche Bewegung, gespeicherte Spuren, deterministische Fortsetzung, beschädigte Daten, kanonische Gastkennungen und tatsächliche 0.9-Migration |
 | Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
 | Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
-| Android-App-Wechsel | Emulatoren mit Android 11 (API 30) und Android 16 (API 36): Start, vier Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; tatsächlich gerenderte Screenshots und gespeicherte Zustände. Beide Jobs müssen vor der APK-Veröffentlichung erfolgreich sein. |
+| Android-App-Wechsel | Emulatoren mit Android 11 (API 30) und Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; tatsächlich gerenderte Screenshots und gespeicherte Zustände. Beide Jobs müssen vor der APK-Veröffentlichung erfolgreich sein. |
 | CPU-Belastung | Reproduzierbarer Vergleich mit unverändertem 0.6-Quellcode: 80 Gäste/1 Lift und 360 Gäste/24 Lifte bei 1× und 4×; Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
@@ -71,3 +71,5 @@ Die Aufnahmen von [Fußwegplanung](screenshots/footpath-preview-090.webp), [Stap
 Die Android-Lifecycle-Prüfung verwendet einen gesonderten x86-64-Testexport mit aktiviertem Testtreiber. Die öffentliche ARM64-APK enthält diesen Treiber und die Testdaten nicht. Kamera, Betrieb und Darstellung stammen in beiden Exporten aus denselben Spielskripten. Ein Emulator bestätigt weder die Fehlerfreiheit jedes Geräte-Grafiktreibers noch die Bildrate auf einem physischen Smartphone.
 
 Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibility-Ausgabe erfasst. Nahdetails werden in vorhandene Asset-Meshes gebacken; das Gäste-Material trennt die Jackenfarbe von Gesicht, Brille und Schal. Die Aufnahmen zeigen reguläre 3D-Spielgeometrie, keine Konzeptbilder.
+
+Die native Android-Prüfung umfasst acht Home-Wechsel (insgesamt elf sichtbare Activity-/Surface-Fälle je Android-Version). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.

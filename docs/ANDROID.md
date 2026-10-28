@@ -76,3 +76,7 @@ Godot 4.5.2 und exakt passende Export-Templates sind gemeinsam gepinnt. Die [off
 ### Bildausgabe in 0.10.0
 
 Die Bildrate wird weiter durch das gewählte 30/60-Ziel begrenzt. Die zusätzliche native Swappy-Warteschlange ist abgeschaltet, um bei zerstörten und neu erstellten Android-Surfaces keine zweite Bildtaktung zu behalten. Die Wiederaufnahme wartet auf den nächsten Spielzyklus und erneuert Kamera, sichtbare Anlagen und HUD; die native Root-Viewport-Aktivierung übernimmt Android. Die Tests warten auf fortschreitende Spielzeit und tatsächlich präsentierte Bilder, nicht nur auf einen bereits erzeugten Spielzustand.
+
+### Native Anzeigefläche
+
+Beide Android-Exporte verwenden den dokumentierten [Java-Lifecycle-Patch](../tools/android/README.md). Er erkennt ausgetauschte native Surfaces anhand ihrer Generation und bindet EGL auf dem Rendering-Thread neu. Verspätete Fehler der alten Fläche blockieren die neue nicht. Die offiziellen nativen Godot-Bibliotheken bleiben bytegleich; die Vorbereitung prüft dies für jedes AAR-Mitglied. Dafür enthält das offizielle Template zusätzlich `android_source.zip`, und der Export verwendet Gradle mit SDK 35 und JDK 17.

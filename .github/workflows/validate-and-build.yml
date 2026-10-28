@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/skizones-godot
-          key: godot-4.5.2-linux-android-v1
+          key: godot-4.5.2-linux-android-source-v2
       - name: Install Godot
         if: steps.godot-cache.outputs.cache-hit != 'true'
         run: bash tools/install_godot.sh
@@ -111,13 +111,20 @@ jobs:
           import os, subprocess
           manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
           subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
-          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'build-tools;35.0.0'], check=True)
+          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
           PY
       - name: Keep debug signing identity between builds
         uses: actions/cache@v4
         with:
           path: build/export-config/skizones-debug.keystore
           key: skizones-ci-debug-keystore-v1
+      - name: Cache Android Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: skizones-gradle-4.5.2-v1
       - name: Export Android APK
         run: python3 tools/export_android.py
       - name: Verify APK signature and archive
