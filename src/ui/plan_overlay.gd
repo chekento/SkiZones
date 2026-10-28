@@ -3,20 +3,24 @@ extends Control
 const Terrain = preload("res://src/core/terrain.gd")
 const COLORS := [Color("68b5ee"), Color("ee7f8e"), Color("455366")]
 var game: Node
+var _state := 0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _process(_delta: float) -> void:
-	visible = game.has_game and game.tool in ["piste", "lift"] and not game.hud.menu.visible
+	visible = game.has_game and game.tool in ["piste", "lift", "building", "plaza"] and not game.hud.menu.visible
 	if visible:
-		queue_redraw()
+		var state := hash([game.tool, game.model.revision, game.points, game.selected_waypoint, game.view.focus, game.view.zoom, game.view.yaw, game.view.pitch_degrees, size, game.hud.map_focus])
+		if state != _state:
+			_state = state
+			queue_redraw()
 
 func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 	var selected := -1
 	var distance := radius
-	if game.tool != "piste":
+	if game.tool not in ["piste", "lift", "building", "plaza"]:
 		return selected
 	for index in range(game.points.size()):
 		var world: Vector3 = game.model.terrain.world(Terrain.unpack(game.points[index]), 4)
@@ -33,6 +37,8 @@ func _draw() -> void:
 		return
 	var bounds := Rect2(Vector2.ZERO, size).grow(30)
 	for anchor in game.model.connection_anchors():
+		if game.tool != "piste" and anchor.difficulty >= 0: continue
+		if anchor.point.distance_to(game.view.focus) > maxf(game.view.zoom * 2, 160): continue
 		var world: Vector3 = game.model.terrain.world(anchor.point, 2)
 		if game.view.camera.is_position_behind(world):
 			continue

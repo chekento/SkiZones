@@ -7,6 +7,8 @@ var map_id := "sonnenhang"
 var interactive := true
 var _map: RefCounted
 var _seen := ""
+var _refresh_time := 0.0
+var _draw_state := ""
 static var _images: Dictionary = {}
 var _background: ImageTexture
 
@@ -16,9 +18,16 @@ func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
 	set_process(game != null)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if not is_visible_in_tree(): return
+	_refresh_time += delta
+	if _refresh_time < 0.15: return
+	_refresh_time = 0
 	map_id = game.model.map_id
-	queue_redraw()
+	var state := "%s/%d/%s" % [map_id, game.model.revision, str(game.view.focus)]
+	if state != _draw_state:
+		_draw_state = state
+		queue_redraw()
 
 func _point(point: Vector2) -> Vector2:
 	return (point - _map.bounds.position) / _map.bounds.size * size

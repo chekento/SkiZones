@@ -106,6 +106,15 @@ func pine() -> ArrayMesh:
 			cone(at, radius * 0.48, 2.5, Color("e3eef1"))
 	return finish()
 
+func pine_distant() -> ArrayMesh:
+	cone(Vector3(0, 3, 0), 0.5, 6, Color("71583e"))
+	for index in range(3):
+		var y := 3.0 + index * 4
+		var radius := 5.0 - index * 1.4
+		cone(Vector3(0, y + 2, 0), radius, 6.5, Color("315746"))
+		cone(Vector3(0, y + 3, 0), radius * 0.91, 5.2, Color("edf3f4"))
+	return finish()
+
 func plaza_details() -> ArrayMesh:
 	# One batched set: timber seat, bin, warm lantern and a little route board.
 	box(Vector3(0, 1.1, 0), Vector3(5.2, 0.38, 1.9), Color("b28b5b"))
@@ -255,7 +264,7 @@ func snow_cannon(level: int) -> ArrayMesh:
 	box(Vector3(0, 5, -2), Vector3(4, 4, 3), Color("d4b25b"))
 	return finish()
 
-func station(kind: String, level: int) -> ArrayMesh:
+func station(kind: String, level: int, livery: String = "") -> ArrayMesh:
 	var lift := {"kind": kind, "level": level}
 	var family := Fleet.family(lift)
 	var r := Fleet.rope_offset(lift)
@@ -275,6 +284,7 @@ func station(kind: String, level: int) -> ArrayMesh:
 	var accent := Color("657981") if Fleet.seats(lift) == 1 else (Color("4a998f") if Fleet.seats(lift) == 2 else Color("417e96"))
 	if family == "gondola":
 		accent = Color("cc7c4e")
+	if livery != "": accent = Color(livery)
 	box(Vector3(0, 0.15, 0), Vector3(width + 2, 0.3, 16), Color("abb1ac"))
 	for side in [-1, 1]:
 		box(Vector3(side * (r + 1.4), 3.65, 0), Vector3(0.65, 7.3, 0.9), Color("536f78"))
@@ -291,7 +301,7 @@ func station(kind: String, level: int) -> ArrayMesh:
 				box(Vector3(side * (r + 2), 4.2, z), Vector3(0.45, 5, 0.45), Color("d4ddda"))
 	return finish()
 
-func chair(kind: String) -> ArrayMesh:
+func chair(kind: String, livery: String = "") -> ArrayMesh:
 	var lift := {"kind": kind}
 	var family := Fleet.family(lift)
 	var count := Fleet.seats(lift)
@@ -300,7 +310,7 @@ func chair(kind: String) -> ArrayMesh:
 		cone(Vector3.ZERO, 0.6, 0.14, Color("c69745"), 0.6)
 		box(Vector3(0, 0.35, 0), Vector3(0.16, 0.7, 0.16), Color("526870"))
 	elif family == "gondola":
-		box(Vector3(0, -1.15, 0), Vector3(7.4, 0.3, 6.4), Color("c67e4b"))
+		box(Vector3(0, -1.15, 0), Vector3(7.4, 0.3, 6.4), Color("c67e4b") if livery == "" else Color(livery))
 		box(Vector3(0, -0.5, 0), Vector3(7.4, 1.0, 6.4), Color("417e96"))
 		# Open window frames let the actual occupants remain visible through glass.
 		for x in [-3.55, 3.55]:
@@ -320,8 +330,8 @@ func chair(kind: String) -> ArrayMesh:
 		box(Vector3(0, -0.22, 0), Vector3(width, 0.35, 1.8), Color("4b6872"))
 		for seat in range(count):
 			var x := (seat - (count - 1) * 0.5) * Fleet.SEAT_SPACING
-			box(Vector3(x, 0.0, 0.15), Vector3(1.5, 0.35, 1.55), Color("bd8b54"))
-			box(Vector3(x, 1.1, -0.8), Vector3(1.5, 2.0, 0.45), Color("517b8e"))
+			box(Vector3(x, 0.0, 0.15), Vector3(1.5, 0.35, 1.55), Color("bd8b54") if livery == "" else Color(livery))
+			box(Vector3(x, 1.1, -0.8), Vector3(1.5, 2.0, 0.45), Color("517b8e") if livery == "" else Color(livery))
 		for side in [-1, 1]:
 			box(Vector3(side * width * 0.5, 0.5, 0), Vector3(0.15, 1.3, 1.7), Color("526b74"))
 		link(Vector3(0, 1.9, -1.1), Vector3(0, 6, 0), 0.19, Color("526b74"))

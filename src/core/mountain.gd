@@ -152,3 +152,35 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 		result.ok = true
 		result.message = "%s · %.0f m · ↓ %.0f m · max. %.0f %%" % [Terrain.PISTE_NAMES[result.difficulty], result.length, result.drop, result.grade]
 	return result
+
+func _path_point(path: Dictionary, distance: float) -> Vector2:
+	var lower := 1
+	var upper: int = path.lengths.size() - 1
+	while lower < upper:
+		var middle := (lower + upper) / 2
+		if path.lengths[middle] < distance:
+			lower = middle + 1
+		else:
+			upper = middle
+	return path.unpacked[lower - 1].lerp(path.unpacked[lower], clampf((distance - path.lengths[lower - 1]) / maxf(path.lengths[lower] - path.lengths[lower - 1], 0.001), 0, 1))
+
+func path_frame(points: Array, fraction: float, length: float) -> Dictionary:
+	var path := _path(points)
+	if not path.has("unpacked"):
+		path.unpacked = []
+		path.corners = []
+		for point in points:
+			path.unpacked.append(Terrain.unpack(point))
+		for i in range(1, points.size() - 1):
+			var incoming: Vector2 = (path.unpacked[i] - path.unpacked[i - 1]).normalized()
+			var outgoing: Vector2 = (path.unpacked[i + 1] - path.unpacked[i]).normalized()
+			path.corners.append(Vector2(path.lengths[i] / maxf(path.length, 0.001) * length, clampf((1 - incoming.dot(outgoing)) * 0.7, 0, 1)))
+	var distance: float = clampf(fraction, 0, 1) * path.length
+	var direction := (_path_point(path, minf(path.length, distance + path.length * 0.006)) - _path_point(path, maxf(0, distance - path.length * 0.006))).normalized()
+	var taper := 1.0
+	for corner in path.corners:
+		var gap: float = absf(fraction * length - corner.x)
+		if corner.x > fraction * length + 18: break
+		if gap < 18:
+			taper *= lerpf(1, smoothstep(0, 18, gap), corner.y)
+	return {"point": _path_point(path, distance), "direction": direction, "taper": taper}

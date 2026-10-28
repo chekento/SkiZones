@@ -35,7 +35,7 @@ static func layout(lift: Dictionary) -> Dictionary:
 	var turn := PI * rope_offset(lift) / speed(lift) * TIME_SCALE
 	var travel := ride * 2 + turn * 2
 	var count := clampi(ceili(travel / interval), 2, MAX_CARRIERS)
-	return {"interval": interval, "ride": ride, "turn": turn, "travel": travel, "count": count, "cycle": maxf(travel, count * interval), "seats": seats(lift)}
+	return {"basis": basis(lift), "offset": rope_offset(lift), "interval": interval, "ride": ride, "turn": turn, "travel": travel, "count": count, "cycle": maxf(travel, count * interval), "seats": seats(lift)}
 
 static func station_point(lift: Dictionary, top: bool) -> Vector2:
 	var offset := basis(lift) * Vector3(-rope_offset(lift), 0, 0)
@@ -46,15 +46,15 @@ static func seat_offset(lift: Dictionary, seat: int) -> Vector3:
 		return Vector3((seat % 4 - 1.5) * 1.5, 0.03, -1.35 if seat < 4 else 1.35)
 	return Vector3((seat - (seats(lift) - 1) * 0.5) * SEAT_SPACING, 0.03, 0)
 
-static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, clock: float, carrier: int) -> Dictionary:
-	var schedule := layout(lift)
+static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, clock: float, carrier: int, prepared: Dictionary = {}) -> Dictionary:
+	var schedule := layout(lift) if prepared.is_empty() else prepared
 	var phase := fposmod(clock - carrier * schedule.interval, schedule.cycle)
 	if family(lift) == "carpet":
 		var belt_fraction: float = clampf(phase / schedule.ride, 0, 1)
 		var at := Terrain.unpack(lift.bottom).lerp(Terrain.unpack(lift.top), belt_fraction)
 		return {"transform": Transform3D(basis(lift), mountain.world(at, 0.65)), "grip": mountain.world(at, 0.65), "fraction": belt_fraction, "outbound": phase < schedule.ride, "phase": phase, "carrier": carrier}
-	var r := rope_offset(lift)
-	var orientation := basis(lift)
+	var r: float = schedule.offset
+	var orientation: Basis = schedule.basis
 	var direction := orientation * Vector3.FORWARD * -1
 	var right := orientation.x
 	var fraction := 0.0

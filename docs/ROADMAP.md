@@ -53,3 +53,8 @@ Begehbare Plätze an beiden Stationen, Pistenanschlüsse mit Abstand zur Lifttec
 ## Erledigt in 0.6.0
 
 Geschlossene, abgerundete Kehrenflächen, größere Stationsplätze und separat baubare Gehflächen. Umwege um Liftstationen und komplette Schlepplifttrassen, sichere Wartebereiche und Hindernisse beim Nachrücken. Gesperrter Werkzeugwechsel, eindeutiger Abbruch mit Android-Zurück, automatische Baupause, verankerte Zwei-Finger-Kamera und Scrollen mit Finger, Stift und Maus. Feinere Natur- und Gebäudedetails sowie Platzmöblierung. Angepasste Startkosten, Aufenthaltsdauer und Besucherzulauf mit zusätzlichem Wochenlauf. Migration tatsächlicher 0.5-Spielstände, Format 6 und 403 automatisierte Prüfungen.
+
+
+## Erledigt in 0.7.0
+
+GPU-Schneehöhen, begrenzte und zwischengespeicherte Spuren, stetig interpolierte persönliche Fahrten, vorbereitete Liftfahrpläne, einzeln sichtbare Flotten und Waldstücke mit Fernmodellen. Nachträgliche Anlagenplanung mit gemeinsamen Pistenpunkten, Namen, Akzentfarben, Gebäudedrehungen und Pistenbreite. Persönliche Gästeprofile mit Mimik und Bedürfnissen. Gespeicherte Grafik- und Komfortoptionen. Migration tatsächlicher 0.6-Spielstände, Format 7 und 467 automatisierte Prüfungen. Physische Android-Leistungsmessung bleibt offen.

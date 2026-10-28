@@ -24,7 +24,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 
 </div>
 
-![SkiZones 0.6.0: größere Stationsplätze, Hütten, Fußwege und eine separat gebaute Gehfläche](docs/screenshots/resort-060.webp)
+![SkiZones 0.7.0: winterliche Stationsplätze, individuell eingefärbte Lifte, Hütten und Gäste](docs/screenshots/resort-070.webp)
 
 *Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste nutzen die tatsächlichen Wege und Lifte. Große Stationsplätze und eine zusätzlich gebaute Gehfläche verbinden die Gebäude. Die Karriere startet mit einem kleineren Resort.*
 
@@ -32,11 +32,11 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 
 Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Das illustrierte Menüpanorama ist gesondert gekennzeichnet.
 
-| Pisten und Skispuren · 0.6.0 | Besetzter Vierersessel · 0.5.0 |
+| Persönliche Gäste · 0.7.0 | Anlagen gestalten · 0.7.0 |
 |---|---|
-| [![Verbundene Pisten und echte Skispuren](docs/screenshots/curves-060.webp)](docs/screenshots/curves-060.webp) | [![Vier Gäste in ihren zugewiesenen Liftplätzen](docs/screenshots/chair-four.webp)](docs/screenshots/chair-four.webp) |
-| Bauplanung · 0.6.0 | Gehflächen bauen · 0.6.0 |
-| [![Planung mit Bauen und Abbrechen](docs/screenshots/build-flow-060.webp)](docs/screenshots/build-flow-060.webp) | [![Gehflächen im Baukatalog](docs/screenshots/walking-tool-060.webp)](docs/screenshots/walking-tool-060.webp) |
+| [![Antippbarer Skifahrer mit persönlichem Porträt und Stimmung](docs/screenshots/guest-070.webp)](docs/screenshots/guest-070.webp) | [![Name, Akzentfarben und Gebäuderichtung bearbeiten](docs/screenshots/editor-070.webp)](docs/screenshots/editor-070.webp) |
+| Vorhandene Pisten umplanen · 0.7.0 | Grafik und Komfort · 0.7.0 |
+| [![Bestehende Piste mit verschiebbaren Wegpunkten und Umbaupreis](docs/screenshots/remodel-070.webp)](docs/screenshots/remodel-070.webp) | [![Grafikqualität, Bildratenziel und Kamerakomfort](docs/screenshots/display-070.webp)](docs/screenshots/display-070.webp) |
 
 Alle Bilder lassen sich für die volle Ansicht anklicken.
 
@@ -51,12 +51,31 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.6.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.7.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.1 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.6.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.7.0.md).
 
-## Neu in 0.6.0: besser bauen, sicherer gehen
+## Neu in 0.7.0: flüssiger Betrieb und dein eigener Stil
+
+**Die meiste Arbeit steckt in der Performance.** Schneegeometrie bleibt bestehen, Spuren verwenden gespeicherte Fahrpunkte und ein begrenztes Arbeitsbudget. Skifahrer bewegen sich zwischen vorbereiteten Positionen stetig weiter; nahe beobachtete Gäste folgen ihrer exakten Fahrlinie. Wälder und Liftflotten werden in einzeln sichtbaren Gruppen dargestellt.
+
+| Neu | Im Spiel |
+|---|---|
+| **Bestand verschieben** | Gebäude, Gehflächen, Liftstationen und Pistenverläufe über ihre nummerierten Planungspunkte ändern. Original und Budget bleiben bis **Übernehmen** erhalten. |
+| **Eigener Resortstil** | Namen, sechs Akzentfarben, Gebäudedrehungen und 14–36 m Grundbreite für Pisten. Eingänge und Fußwege drehen mit. Verbundene Pistenpunkte ziehen Nachbarpisten mit. |
+| **Persönliche Gäste** | Antippbare Profile mit Porträt/Mimik, Alter, Herkunft, Motiv, Fahrstil, Abfahrten, Wartezeit, Bedürfnissen und erfassten Ausgaben. Stimmungen reagieren auf den tatsächlichen Skitag. |
+| **Grafik nach Wunsch** | Automatisch, sparsam, ausgewogen oder detailreich. 30/60-Bilder-Ziel, schaltbarer Schneefall und sanfte Verfolgungskamera. |
+| **Mehr Schneefeinheiten** | Präparierungslinien, Beleuchtung der lokalen Unebenheiten, transparente Bauvorschau und zurückhaltendere Ortsbeschriftungen. |
+| **Weniger UI-Arbeit** | Vorschauen werden je Bild zusammengefasst. Baukatalog, Minikarte und Planungshilfen verwenden unveränderte Darstellung weiter. |
+
+Die Grafikstufe entfernt keine Gäste und ändert keine Liftkapazitäten. Der reproduzierbare Belastungstest umfasst **360 Gäste und 24 Lifte bei 1× und 4×**. CPU-Messwerte, Rohdaten und Grenzen stehen in [Performance](docs/PERFORMANCE.md); ein physischer Android-Test steht noch aus.
+
+**467 automatisierte Prüfungen** einschließlich Migration eines tatsächlich mit 0.6 gespeicherten Resorts. Format 7 ergänzt die Gestaltungseigenschaften und persönlichen Ausgaben. Die vorhandenen Karten, Forschungen, Aufträge und langfristige Entwicklung bleiben Bestandteil des Spiels.
+
+[Gestalten und Gäste kennenlernen](docs/GESTALTUNG_UND_GAESTE.md) · [Release-Notizen 0.7.0](docs/releases/0.7.0.md)
+
+## Seit 0.6.0: besser bauen, sicherer gehen
 
 **Die Rückmeldungen aus dem Android-Spielbetrieb sind eingearbeitet.** Enge Kehren erhalten eine geschlossene, abgerundete Schneefläche. Die Stationsplätze wachsen deutlich, und Fußgänger umgehen auch die Lifttechnik und die gesamte Schlepplifttrasse.
 

@@ -34,10 +34,26 @@ static func free_of_buildings(point: Vector2, buildings: Array, margin: float = 
 	return true
 
 static func building_size(building: Dictionary) -> Vector2:
+	var size := base_building_size(building)
+	return Vector2(size.y, size.x) if int(building.get("rotation", 0)) % 2 == 1 else size
+
+static func base_building_size(building: Dictionary) -> Vector2:
 	return Vector2(35, 28) if building.kind == "hotel" else (Vector2(29, 24) if building.kind == "maintenance" else Vector2(22, 18))
 
 static func door(building: Dictionary) -> Vector2:
-	return Terrain.unpack(building.point) + Vector2(0, building_size(building).y * 0.5 + 3)
+	return Terrain.unpack(building.point) + front(building) * (base_building_size(building).y * 0.5 + 3)
+
+static func front(building: Dictionary) -> Vector2:
+	var angle := int(building.get("rotation", 0)) * PI * 0.5
+	return Vector2(sin(angle), cos(angle))
+
+static func forecourt(building: Dictionary) -> Vector2:
+	return door(building) + front(building) * 5
+
+static func entrance_bounds(building: Dictionary) -> Rect2:
+	var center := door(building) + front(building) * 5
+	var size := Vector2(12, 8) if int(building.get("rotation", 0)) % 2 == 1 else Vector2(8, 12)
+	return Rect2(center - size * 0.5, size)
 
 static func building_radius(building: Dictionary) -> float:
 	return 16.0 if building.kind == "kiosk" else (30.0 if building.kind in ["hotel", "spa"] else 26.0)
@@ -53,10 +69,11 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for building in buildings:
 		if building.kind != "snowmaker":
 			var entrance := door(building)
-			areas.append(_area("f%dg" % building.id, entrance + Vector2(0, 5), entrance + Vector2(0, 5), building_radius(building), false, building.id, "building"))
+			areas.append(_area("f%dg" % building.id, forecourt(building), forecourt(building), building_radius(building), false, building.id, "building"))
 	for area in walk_areas:
 		if area.enabled:
 			areas.append(_area("w%d" % area.id, Terrain.unpack(area.point), Terrain.unpack(area.point), area.radius, true, area.id, "plaza"))
+	var shapes := obstacles(buildings, lifts)
 	var links: Array = []
 	for i in range(areas.size()):
 		for j in range(i + 1, areas.size()):
@@ -64,7 +81,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 			var b: Dictionary = areas[j]
 			if a.center.distance_to(b.center) > a.radius + b.radius + LINK_GAP:
 				continue
-			var path := path_between(a.point, b.point, buildings, lifts)
+			var path := path_between(a.point, b.point, buildings, lifts, shapes)
 			if not path.is_empty() and gentle(mountain, path):
 				links.append({"from": a.key, "to": b.key, "points": path})
 	var rooted: Array = []
@@ -79,7 +96,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 				if rooted.has(pair[0]) and not rooted.has(pair[1]):
 					rooted.append(pair[1])
 					changed = true
-	return {"areas": areas, "links": links, "rooted": rooted, "lifts": lifts, "buildings": buildings}
+	return {"areas": areas, "links": links, "rooted": rooted, "lifts": lifts, "buildings": buildings, "obstacles": shapes}
 
 static func attachments(layout_value: Dictionary, point: Vector2, rooted_only: bool = false, extra: float = 2) -> Array:
 	var result: Array = []
@@ -119,9 +136,9 @@ static func valid_walk(layout_value: Dictionary, points: Array, buildings: Array
 				return false
 	return true
 
-static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2) -> Dictionary:
-	var proposed := {"kind": kind, "point": Terrain.pack(point)}
-	var entrance := door(proposed) + Vector2(0, 5)
+static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
+	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value}
+	var entrance := forecourt(proposed)
 	var nearest: Dictionary = {}
 	var distance := INF
 	for area in layout_value.areas:
@@ -167,7 +184,7 @@ static func boarding_point(lift: Dictionary, top: bool) -> Vector2:
 	return Fleet.station_point(lift, top) + direction * (machine_radius(lift) + 7) * (1 if top else -1)
 
 static func obstacles(buildings: Array, lifts: Array) -> Array:
-	var fingerprint := [buildings.map(func(building): return [building.kind, building.point]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
+	var fingerprint := [buildings.map(func(building): return [building.kind, building.point, building.get("rotation", 0)]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
 	if _obstacle_cache.has(fingerprint):
 		return _obstacle_cache[fingerprint]
 	var result: Array = []
@@ -214,8 +231,15 @@ static func crosses_polygon(a: Vector2, b: Vector2, polygon: PackedVector2Array)
 	if not _inset_cache.has(key):
 		if _inset_cache.size() > 512:
 			_inset_cache.clear()
-		_inset_cache[key] = Geometry2D.offset_polygon(polygon, -0.08)
-	var inset: Array = _inset_cache[key]
+		var bounds := Rect2(polygon[0], Vector2.ZERO)
+		for point in polygon:
+			bounds = bounds.expand(point)
+		_inset_cache[key] = {"bounds": bounds, "shapes": Geometry2D.offset_polygon(polygon, -0.08)}
+	var data: Dictionary = _inset_cache[key]
+	var segment_bounds := Rect2(a, Vector2.ZERO).expand(b).grow(0.001)
+	if not data.bounds.intersects(segment_bounds, true):
+		return false
+	var inset: Array = data.shapes
 	for shape in inset:
 		if Geometry2D.is_point_in_polygon(a, shape) or Geometry2D.is_point_in_polygon(b, shape):
 			return true
@@ -231,8 +255,8 @@ static func clear_walk(points: Array, buildings: Array, lifts: Array) -> bool:
 				return false
 	return true
 
-static func path_between(from: Vector2, to: Vector2, buildings: Array, lifts: Array = []) -> Array:
-	var shapes := obstacles(buildings, lifts)
+static func path_between(from: Vector2, to: Vector2, buildings: Array, lifts: Array = [], prepared: Array = []) -> Array:
+	var shapes := obstacles(buildings, lifts) if prepared.is_empty() else prepared
 	var blocked := false
 	for shape in shapes:
 		if Geometry2D.is_point_in_polygon(from, shape) or Geometry2D.is_point_in_polygon(to, shape):

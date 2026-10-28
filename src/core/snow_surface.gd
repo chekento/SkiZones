@@ -6,6 +6,9 @@ const LANES := 8
 const STEP := 8.0
 const MAX_TRACKS := 64
 
+static func piste_width(piste: Dictionary) -> float:
+	return float(piste.get("width", 20)) + (int(piste.get("level", 1)) - 1) * 4
+
 static func base_height(piste: Dictionary, fraction: float) -> float:
 	var blend := 1.0
 	if piste.get("plaza_start", false):
@@ -66,6 +69,7 @@ static func start(piste: Dictionary, guest: Dictionary, from_fraction: float = 0
 
 static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, from_fraction: float, to_fraction: float) -> void:
 	ensure(piste)
+	piste.surface_revision = int(piste.get("surface_revision", 0)) + 1
 	var range_start := 0.0
 	var range_end := 1.0
 	for track in piste.tracks:
@@ -75,7 +79,7 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 			track.to = maxf(track.to, to_fraction)
 	var first := floori(from_fraction * piste.length / STEP)
 	var last := floori(to_fraction * piste.length / STEP)
-	var width := 20.0 + (int(piste.get("level", 1)) - 1) * 4
+	var width := piste_width(piste)
 	for row in range(first + 1, mini(last + 1, rows(piste))):
 		var fraction: float = row * STEP / piste.length
 		var center: Vector2 = mountain.point_on_path(piste.points, fraction)
@@ -93,7 +97,7 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 static func relief(piste: Dictionary, fraction: float, lateral: float) -> float:
 	if not piste.has("surface") or piste.surface.is_empty():
 		return 0
-	var width := 20.0 + (int(piste.get("level", 1)) - 1) * 4
+	var width := piste_width(piste)
 	var r := clampf(fraction * piste.length / STEP, 0, rows(piste) - 1.001)
 	var l := clampf((lateral / width + 0.5) * LANES, 0, LANES - 0.001)
 	var row := floori(r)
@@ -113,7 +117,7 @@ static func roughness(piste: Dictionary) -> float:
 static func mesh_relief(piste: Dictionary, fraction: float, lateral: float) -> float:
 	# Match the triangles used by the visible snow, keeping skis and traces in contact.
 	var count := ceili(piste.length / 4)
-	var width := 20.0 + (int(piste.get("level", 1)) - 1) * 4
+	var width := piste_width(piste)
 	var r := clampf(fraction * count, 0, count - 0.0001)
 	var l := clampf((lateral / width + 0.5) * LANES, 0, LANES - 0.0001)
 	var row := floori(r)
@@ -130,11 +134,15 @@ static func mesh_relief(piste: Dictionary, fraction: float, lateral: float) -> f
 
 static func groom(piste: Dictionary, strength: float) -> void:
 	ensure(piste)
+	piste.surface_revision = int(piste.get("surface_revision", 0)) + 1
 	for i in range(piste.surface.size()):
 		piste.surface[i] *= 1.0 - clampf(strength, 0, 1)
 	piste.tracks.clear()
 
 static func validate(piste: Dictionary) -> bool:
+	var revision: Variant = piste.get("surface_revision", 0)
+	if not Terrain.number(revision) or revision < 0 or revision > 1000000000000 or revision != floorf(revision):
+		return false
 	if not piste.has("surface"):
 		ensure(piste)
 	if not piste.surface is Array or piste.surface.size() != rows(piste) * (LANES + 1) or not piste.get("tracks") is Array or piste.tracks.size() > MAX_TRACKS:
