@@ -447,15 +447,29 @@ func demolish(id: int) -> Dictionary:
 func lift_open(lift: Dictionary) -> bool:
 	return lift.enabled and weather().wind < Catalog.LIFTS[lift.kind].wind_limit
 
+func _return_service(lift: Dictionary) -> bool:
+	if lift.enabled or weather().wind >= Catalog.LIFTS[lift.kind].wind_limit:
+		return false
+	if not _queue_cache.has("home_lifts"):
+		var home_lifts: Dictionary = {}
+		for guest in guests:
+			if guest.phase != "leaving" and guest.get("heading_home", false) and guest.leg < guest.route.legs.size():
+				var leg: Dictionary = guest.route.legs[guest.leg]
+				if leg.kind == "lift": home_lifts[int(leg.id)] = true
+		_queue_cache["home_lifts"] = home_lifts
+	return _queue_cache.home_lifts.has(int(lift.id))
+
 func lift_running(lift: Dictionary) -> bool:
 	if lift_open(lift):
 		return true
-	# A manually closed lift can unload its already seated passengers. Storm
-	# safety still stops the machinery; reopening resumes the same carrier clock.
-	return weather().wind < Catalog.LIFTS[lift.kind].wind_limit and lift_load(lift).riders > 0
+	# Closed lifts unload riders and recover isolated homebound guests. Storm
+	# safety still stops the machinery; resuming retains the carrier clock.
+	return weather().wind < Catalog.LIFTS[lift.kind].wind_limit and (lift_load(lift).riders > 0 or _return_service(lift))
 
 func lift_status(lift: Dictionary) -> String:
 	if not lift.enabled:
+		if _return_service(lift):
+			return "Rückholbetrieb · nur Rückwege ins Tal; für neue Runden geschlossen."
 		return "Manuell geschlossen · Mitfahrende werden noch ausgeladen." if lift_running(lift) else "Manuell geschlossen · Über Öffnen wieder freigeben."
 	if weather().wind >= Catalog.LIFTS[lift.kind].wind_limit:
 		return "Sturmpause: %.0f km/h Wind, Grenze %.0f km/h. Startet bei geeignetem Wetter automatisch wieder." % [weather().wind, Catalog.LIFTS[lift.kind].wind_limit]
@@ -654,12 +668,12 @@ func _routing_graph(skill: int, consider_queues: bool = false) -> Dictionary:
 		_choice_graphs[skill] = {"nodes": original.nodes, "edges": original.edges, "queue_costs": waits}
 	return _choice_graphs[skill]
 
-func _graph(skill: int) -> Dictionary:
+func _graph(skill: int, return_lifts: bool = false) -> Dictionary:
 	var foot := pedestrian_graph()
 	var nodes: Dictionary = foot.nodes.duplicate(true)
 	var edges: Dictionary = foot.edges.duplicate(true)
 	for lift in lifts:
-		if lift_open(lift):
+		if lift_open(lift) or (return_lifts and not lift.enabled and weather().wind < Catalog.LIFTS[lift.kind].wind_limit):
 			var b := "l%db" % lift.id
 			var t := "l%dt" % lift.id
 			edges[b].push_front(_edge(b, t, "lift", lift.id, [nodes[b], nodes[t]], fleet_layout(lift).ride))
@@ -865,6 +879,14 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 func _return_from_node(guest: Dictionary, source: String) -> bool:
 	var graph := _routing_graph(int(guest.ability), true)
 	var home := _shortest(graph, source, "base")
+	if not home.ok:
+		# A closed intermediate lift must not strand its existing guests forever.
+		# Keep ordinary routing closed, but allow safe return-only dispatches.
+		var key := int(guest.ability) + 3
+		if not _graphs.has(key):
+			_graphs[key] = _graph(int(guest.ability), true)
+		graph = _graphs[key]
+		home = _shortest(graph, source, "base")
 	if not home.ok:
 		return false
 	if home.legs.is_empty():
@@ -1128,7 +1150,8 @@ func advance_minute(arrivals: bool = true) -> void:
 		elif guest.phase == "queue":
 			guest.wait += 1
 			guest.total_wait += 1
-			if guest.wait > 180 or not lift_open(asset(guest.route.legs[guest.leg].id)):
+			var lift := asset(guest.route.legs[guest.leg].id)
+			if guest.wait > 180 or (not lift_open(lift) and not (guest.get("heading_home", false) and _return_service(lift))):
 				_leave_queue(guest)
 		else:
 			var leg: Dictionary = guest.route.legs[guest.leg]
@@ -1147,7 +1170,7 @@ func advance_minute(arrivals: bool = true) -> void:
 		guests.erase(guest)
 	# Board the real vehicle that crossed the loading point, with unique seats.
 	for lift in lifts:
-		if lift_open(lift):
+		if lift_open(lift) or _return_service(lift):
 			_board_lift(lift)
 	_queue_cache.clear()
 	_check_achievements()
@@ -1180,6 +1203,8 @@ func _board_lift(lift: Dictionary) -> void:
 	var first := floori((clock - 1.0 + 0.000001) / schedule.interval) + 1
 	var last := floori((clock + 0.000001) / schedule.interval)
 	var queue := queued_guests(lift.id).duplicate()
+	if not lift_open(lift):
+		queue = queue.filter(func(guest): return guest.get("heading_home", false))
 	for serial in range(first, last + 1):
 		var boarded := 0
 		var departure: float = serial * schedule.interval

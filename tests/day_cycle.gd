@@ -43,6 +43,7 @@ func _init() -> void:
 	_chair_restart()
 	_route_choices()
 	_queue_choices()
+	_closed_return_lift()
 	_rebuild_save()
 	_motion()
 	_migration()
@@ -176,6 +177,52 @@ func _queue_choices() -> void:
 	model.set_enabled(model.lifts[1].id, false)
 	check(guest.phase == "moving" and model.guest_position(guest).distance_to(before) < 0.5, "A closed queue is left on foot from the real standing place")
 	check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "Walking out of a closed queue survives an exact save roundtrip")
+
+func _closed_return_lift() -> void:
+	var model := fresh()
+	model.money = 10000000
+	var built: bool = model.build_lift("chair2", Vector2(500,-60), Vector2(270,-300)).ok
+	built = model.build_piste([[270,-300],[300,-180],[400,-100],[500,-60]]).ok and built
+	var basin_id: int = model.pistes[-1].id
+	built = model.build_piste([[280,-290],[300,-180],[275,-30],[255,95],[200,205]]).ok and built
+	check(built, "A real Sonnenhang basin has a return lift and an onward descent to the valley")
+	var route: Dictionary = {}
+	for option in model.routes_for(0):
+		if option.target == basin_id: route = option
+	check(not route.is_empty() and model.admit_guest(0), "The basin is accessible to an actual admitted beginner")
+	if route.is_empty() or model.guests.is_empty(): return
+	var guest: Dictionary = model.guests[0]
+	guest.route = route.duplicate(true)
+	var lift: Dictionary = model.lifts[-1]
+	for i in range(guest.route.legs.size()):
+		if guest.route.legs[i].kind == "lift" and guest.route.legs[i].id == lift.id:
+			guest.leg = i; model._start_leg(guest); break
+	model.minute = model.CLOSING - 1
+	var before: Vector3 = model.guest_position(guest)
+	model.set_enabled(lift.id, false)
+	check(guest.get("heading_home", false) and guest.phase == "moving", "Closing the only return lift starts an explicit recovery from the actual queue")
+	check(model.guest_position(guest).distance_to(before) < 0.01, "Recovery preserves the stranded guest's exact position")
+	var new_trip_uses_closed := false
+	for option in model.routes_for(0):
+		for leg in option.legs:
+			new_trip_uses_closed = new_trip_uses_closed or (leg.kind == "lift" and leg.id == lift.id)
+	check(not lift.enabled and not model.lift_open(lift) and not new_trip_uses_closed, "Recovery does not reopen the lift to new recreational circuits")
+	for i in range(30):
+		if guest.route.legs[guest.leg].kind == "lift": break
+		model.advance_minute(false)
+	check(guest.route.legs[guest.leg].kind == "lift" and model.lift_running(lift) and model.lift_status(lift).contains("Rückholbetrieb"), "Only homebound guests start a clearly labelled return service")
+	model.weather_index = 3; model._invalidate()
+	var clock: float = lift.clock
+	model.advance_minute(false)
+	check(not model.lift_running(lift) and lift.clock == clock, "Return service never bypasses the lift's storm safety limit")
+	model.weather_index = 0; model._invalidate()
+	var copy := Resort.new()
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "A homebound recovery queue survives an actual save roundtrip")
+	var steps := drain(model)
+	drain(copy)
+	check(steps < 1800 and model.guests.is_empty() and lift.boarded > 0, "A manually closed return lift carries the stranded guest out instead of retaining an infinite queue")
+	check(model.day_finished() and model.last_report.departures == 1 and model.next_day(), "Recovery unblocks the final report and next morning exactly once")
+	check(copy.last_report.get("departures", 0) == 1 and copy.minute > copy.CLOSING and not copy.lifts[-1].enabled, "A restored recovery finishes while preserving the player's manual closure")
 
 func _rebuild_save() -> void:
 	var model := fresh()

@@ -18,11 +18,11 @@ Vier Gebiete mit 7,8 bis 29,1 km² Baufläche, Freischaltungen im Bergpass und g
 
 ## Nächste Schritte · Android und Wirtschaft
 
-Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereiche, Touch-Größen, Wärmeentwicklung und große Resorts. Einstellbarer Detailgrad und ein überprüfbares Performance-Budget. Forschungsdauer, Preise, Prämien und Langzeitwirtschaft anhand längerer Spielsitzungen abstimmen. Ein geführter Karriereeinstieg soll die ersten Ausbauentscheidungen erklären.
+Physische Geräte prüfen: Installation, Unterbrechungen, sichere Displaybereiche, Touch-Größen, Wärmeentwicklung und große Resorts. Die vorhandenen Detailstufen und das Performance-Budget auf Smartphones messen. Forschungsdauer, Preise, Prämien und Langzeitwirtschaft anhand längerer Spielsitzungen abstimmen. Ein geführter Karriereeinstieg soll die ersten Ausbauentscheidungen erklären.
 
 ## Mehr Planung am Berg
 
-Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit Kosten, frei wählbare Pistenbreite, Kurvenradien, Wege und Bauphasen. Bestehende Anlagen umbenennen und umbauen. Eine sichtbare Netz- und Engpassansicht sowie frei bearbeitbare Fußwege.
+Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit Kosten, einstellbare Kurvenradien und Bauphasen. Eine sichtbare Netz- und Engpassansicht sowie zusätzliche Gestaltungsoptionen für die vorhandenen bearbeitbaren Fußwege, Pisten und Anlagen.
 
 ## Gäste und verlässlicher Betrieb
 
@@ -58,3 +58,11 @@ Geschlossene, abgerundete Kehrenflächen, größere Stationsplätze und separat 
 ## Erledigt in 0.7.0
 
 GPU-Schneehöhen, begrenzte und zwischengespeicherte Spuren, stetig interpolierte persönliche Fahrten, vorbereitete Liftfahrpläne, einzeln sichtbare Flotten und Waldstücke mit Fernmodellen. Nachträgliche Anlagenplanung mit gemeinsamen Pistenpunkten, Namen, Akzentfarben, Gebäudedrehungen und Pistenbreite. Persönliche Gästeprofile mit Mimik und Bedürfnissen. Gespeicherte Grafik- und Komfortoptionen. Migration tatsächlicher 0.6-Spielstände, Format 7 und 467 automatisierte Prüfungen. Physische Android-Leistungsmessung bleibt offen.
+
+## Erledigt in 0.8.0
+
+Chronologischer Feierabend mit tatsächlichen Rückwegen, fortgesetzten Sitzzuordnungen und einem scrollbaren Tagesbericht. Korrigierte Liftförderleistung, individuelle Weiterfahrt ab dem Pistenende und warteschlangenabhängige Liftzufahrten. Hangbeschleunigung und Kurvenbremsen. Migration tatsächlicher 0.7-Spielstände, Format 8 und 526 automatisierte Prüfungen.
+
+## Erledigt in 0.9.0
+
+Frei planbare, auswählbare und bearbeitbare Fußwege mit tatsächlichen Lift-, Pisten- und Gebäudezugängen. Sichtbare Wegfläche und benutzter Fußgraph stimmen überein; automatische Querverbindungen sind reduziert. Energiebegrenzte Gegenanstiege, kontinuierliches Stapfen mit passender Haltung, Profilanzeige und Spuren sowie hangabhängige Gehzeiten. Notwendiger Rückholbetrieb bei manuell gesperrtem Rücklift ohne neue Freizeitrunden und unter Beachtung der Sturmgrenze. Migration tatsächlicher 0.8-Spielstände, Format 9 und 596 automatisierte Prüfungen.
