@@ -11,8 +11,8 @@ static func lift_metrics(model: RefCounted) -> Array:
 	var entries: Array = []
 	for lift in model.lifts:
 		var capacity := maxi(1, model.lift_capacity(lift))
-		var queued := model.queue_size(int(lift.id))
-		var running := model.lift_open(lift)
+		var queued: int = model.queue_size(int(lift.id))
+		var running: bool = model.lift_open(lift)
 		var wait_minutes := float(queued) * 60.0 / float(capacity)
 		var load: Dictionary = model.lift_load(lift)
 		var severity := "closed" if not running else ("critical" if wait_minutes >= CRITICAL_WAIT else ("warning" if wait_minutes >= WARN_WAIT else "normal"))
