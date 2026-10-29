@@ -49,6 +49,7 @@ var motion_rate := 1.0
 var follow_guest := -1
 var _follow_position := Vector3.INF
 var _terrain_id := ""
+var _terrain_generation := -1
 var _snow_timer := 0.0
 var _snow_seen := -1
 var _piste_meshes: Dictionary = {}
@@ -111,6 +112,7 @@ func setup(resort: RefCounted) -> void:
 	model = resort
 	terrain = model.terrain
 	_terrain_id = model.map_id
+	_terrain_generation = terrain.generation
 	add_child(landscape)
 	_solid = _material(Color.WHITE, true)
 	var people_shader := Shader.new()
@@ -253,7 +255,7 @@ func _build_environment() -> void:
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var snow := Color("e5eaf6").lerp(Color("f4f5fc"), clampf(height_value / 420.0, 0, 1))
+	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf(height_value / 420.0, 0, 1))
 	if grade > 38:
 		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.74))
 	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
@@ -333,7 +335,7 @@ func _build_terrain() -> void:
 	lake.radial_segments = 48
 	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
 	lake_node.scale.z = 0.62
-	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("b5b5a9"), 0.25)
+	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("cbbda8"), 0.25)
 	_label(landscape, "TALZUGANG", terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
@@ -544,8 +546,9 @@ func rebuild() -> void:
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
-	if _terrain_id != model.map_id:
+	if _terrain_id != model.map_id or _terrain_generation != terrain.generation:
 		_terrain_id = model.map_id
+		_terrain_generation = terrain.generation
 		for child in landscape.get_children():
 			landscape.remove_child(child)
 			child.queue_free()
@@ -699,8 +702,9 @@ func _build_foot_areas() -> void:
 	surface_picker.add_mesh("plazas", foot_mesh.mesh)
 	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for link in _pedestrian_snapshot.links:
-		_ribbon(asset_root,link.points,link.get("width",7),Color("d4dfe8"),0.39)
-		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("cbd8e1"),0.42)
+		_ribbon(asset_root,link.points,link.get("width",7),Color("d8c8b2") if link.get("promenade", false) else Color("d4dfe8"),0.39)
+		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("c9bba6") if link.get("promenade", false) else Color("cbd8e1"),0.42)
+	_build_village_details()
 	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
 		if area.kind not in ["station", "plaza"]:
@@ -716,6 +720,34 @@ func _build_foot_areas() -> void:
 			if not near_path and piste_clear(at, 8):
 				var instance := _baked(asset_root, furniture_mesh, terrain.world(at, 0.35))
 				instance.rotation.y = -index * TAU / 3
+				piste_furniture.append(instance)
+
+func _build_village_details() -> void:
+	var mesh := Art.new().village_corner()
+	var occupied: Dictionary = {}
+	for link in _pedestrian_snapshot.links:
+		if not link.get("promenade", false): continue
+		var a := Terrain.unpack(link.points[0])
+		var b := Terrain.unpack(link.points[-1])
+		var direction := (b - a).normalized()
+		var count := maxi(1, ceili(a.distance_to(b) / 36))
+		for i in range(count):
+			for side in [-1, 1]:
+				var at: Vector2 = a.lerp(b, (i + 0.5) / count) + direction.orthogonal() * side * 11
+				var cell := Vector2i((at / 24).floor())
+				if occupied.has(cell) or occupied.size() >= 24 or not terrain.contains(at) or not piste_clear(at, 8) or not Foot.free_of_buildings(at, model.buildings, 8): continue
+				var clear := true
+				for path in _pedestrian_snapshot.links:
+					for j in range(1, path.points.size()):
+						if Geometry2D.get_closest_point_to_segment(at, Terrain.unpack(path.points[j - 1]), Terrain.unpack(path.points[j])).distance_to(at) < path.get("width", 7) * 0.5 + 4: clear = false
+				if not clear: continue
+				for shape in _pedestrian_snapshot.obstacles:
+					if Foot.crosses_polygon(at, at, shape): clear = false
+				if not clear: continue
+				occupied[cell] = true
+				var instance := _baked(asset_root, mesh, terrain.world(at, 0.35))
+				instance.rotation.y = atan2(direction.x, direction.y)
+				instance.set_meta("village_detail", true)
 				piste_furniture.append(instance)
 
 func piste_clear(point: Vector2, radius: float = 0) -> bool:
@@ -885,9 +917,19 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		var livery: String = analysis.get("color", "")
 		var ghost := _baked(preview_root, Art.new().chalet(building_kind, 1, Color(livery) if livery != "" else color), terrain.world(Terrain.unpack(points.back())))
 		ghost.rotation.y = int(analysis.get("rotation", 0)) * PI * 0.5
+		var proposed := {"kind": building_kind, "point": points.back(), "rotation": int(analysis.get("rotation", 0))}
+		var center := Terrain.unpack(points.back())
+		var half := Foot.building_size(proposed) * 0.5 + Vector2.ONE * 2
+		var boundary: Array = []
+		for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1), Vector2(-1, -1)]: boundary.append(Terrain.pack(center + corner * half))
+		_ribbon(preview_root, boundary, 0.8, color, 0.3)
+		var entrance := Foot.forecourt(proposed)
+		var marker := _baked(preview_root, Art.new().downhill_arrow(), surface_position(entrance) + Vector3.UP * 0.25)
+		var front := Foot.front(proposed)
+		marker.basis = Basis.looking_at(Vector3(-front.x, 0, -front.y), Vector3.UP)
 
 func _update_atmosphere() -> void:
-	var key := "%d-%d-%d" % [model.day, model.minute, model.weather_index]
+	var key := "%s-%d-%d-%d" % [model.map_id, model.day, model.minute, model.weather_index]
 	if key == _atmosphere_tick:
 		return
 	_atmosphere_tick = key
@@ -895,6 +937,11 @@ func _update_atmosphere() -> void:
 	_sun.light_energy = (0.35 + daylight * 0.17) * (0.65 if model.weather_index in [2, 3] else 1.0)
 	_sun.light_color = Color("f5d7cc").lerp(Color("fff1dc"), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
+	var palette := Color(Maps.spec(model.map_id).sky)
+	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
+	sky_material.sky_top_color = Color("a9cddd").lerp(palette, 0.32)
+	sky_material.sky_horizon_color = Color("f3e8df").lerp(palette, 0.18)
+	_environment.fog_light_color = Color("d7e2f0").lerp(palette, 0.18)
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
 	_snow.position = terrain.world(focus, 130)
@@ -968,7 +1015,7 @@ func _process(delta: float) -> void:
 		var on_foot: bool = guest.phase == "queue"
 		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 			var leg: Dictionary = guest.route.legs[guest.leg]
-			var fraction: float = clampf((guest.elapsed + simulation_fraction) / guest.get("duration", leg.minutes), 0, 1)
+			var fraction: float = clampf((guest.elapsed + simulation_fraction * (guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0)) / guest.get("duration", leg.minutes), 0, 1)
 			if leg.kind == "ski":
 				var piste: Dictionary = model.asset(leg.id)
 				var personal := _ski_pose(piste, guest, leg)
@@ -993,9 +1040,8 @@ func _process(delta: float) -> void:
 			else:
 				on_foot = true
 				position_value = model.guest_position(guest, simulation_fraction)
-				var a := Terrain.unpack(leg.points[0])
-				var b := Terrain.unpack(leg.points.back())
-				angle = atan2(b.x - a.x, b.y - a.y)
+				var frame: Dictionary = terrain.path_frame(leg.points, fraction, terrain.polyline_length(leg.points))
+				angle = atan2(frame.direction.x, frame.direction.y)
 		if guest.phase == "queue":
 			position_value = model.guest_position(guest, simulation_fraction)
 			angle = Fleet.basis(model.asset(guest.route.legs[guest.leg].id)).get_euler().y
@@ -1406,7 +1452,7 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	return {"position": terrain.world(frame.point, Snow.mesh_height(piste, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
-	var elapsed: float = guest.elapsed + simulation_fraction
+	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)
 	if follow_guest == int(guest.id):
 			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.

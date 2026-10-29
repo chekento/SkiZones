@@ -7,11 +7,13 @@ const AIR_DRAG := 0.008
 const MIN_GLIDE := 0.7
 const MAX_HIKE_GRADE := 0.55
 
-static func profile(mountain: RefCounted, points: Array, ability: int, personal: float = 1.0, roughness: float = 0.0) -> Dictionary:
+static func profile(mountain: RefCounted, points: Array, ability: int, personal: float = 1.0, roughness: float = 0.0, sport: String = "ski") -> Dictionary:
 	var length: float = mountain.polyline_length(points)
 	var count := clampi(ceili(length/4.0),8,512)
 	var positions: Array[Vector3] = []
 	var limits: Array[float] = []
+	var friction: float = {"ski": 0.025, "snowboard": 0.030, "snowblade": 0.036}.get(sport, FRICTION)
+	var edge_grip: float = {"ski": 1.0, "snowboard": 0.96, "snowblade": 1.12}.get(sport, 1.0)
 	var cap: float = [7.5,11.5,15.0][ability]*personal/(1+roughness*0.2)
 	for i in range(count+1):
 		positions.append(mountain.world(mountain.point_on_path(points,float(i)/count)))
@@ -20,7 +22,7 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 		var a := Vector2(positions[i].x-positions[i-1].x,positions[i].z-positions[i-1].z)
 		var b := Vector2(positions[i+1].x-positions[i].x,positions[i+1].z-positions[i].z)
 		var angle := acos(clampf(a.normalized().dot(b.normalized()),-1,1))
-		if angle > 0.035: limits[i] = minf(cap,maxf(1.2,sqrt(a.length()/angle*[1.5,2.2,3.0][ability])))
+		if angle > 0.035: limits[i] = minf(cap,maxf(1.2,sqrt(a.length()/angle*[1.5,2.2,3.0][ability]*edge_grip)))
 	limits[-1] = minf(limits[-1],3.0)
 	for i in range(count-1,-1,-1):
 		var ds := positions[i].distance_to(positions[i+1])
@@ -38,7 +40,7 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 		var ds := maxf(delta.length(),0.001)
 		var horizontal := maxf(Vector2(delta.x,delta.z).length(),0.001)
 		var rise := delta.y
-		var resistance := FRICTION*GRAVITY*horizontal/ds*(1+roughness)+AIR_DRAG*speed*speed
+		var resistance := friction*GRAVITY*horizontal/ds*(1+roughness)+AIR_DRAG*speed*speed
 		var acceleration := -GRAVITY*rise/ds-resistance
 		var energy_end := speed*speed+2*acceleration*ds
 		var next_speed := minf(sqrt(maxf(0,energy_end)),limits[i])

@@ -65,3 +65,11 @@ Mit **Kurven glätten** einen sanfteren Verlauf durch alle gesetzten Wegpunkte v
 Neue oder bestätigte umgeplante Pisten erhalten eine sanfte seitliche Geländeangleichung mit höchstens 1,2 m Einschnitt oder Auffüllung. Die Mittellinie und die Anschlussbereiche behalten ihre Höhen. Alte gespeicherte Pisten werden beim Laden nicht automatisch verändert. Ein gewünschter Umbau muss bestätigt werden.
 
 Bänke und Laternen stehen außerhalb der vollständigen Pistenbreite. Auch Gebäude und Beschneiung sowie eine spätere Verbreiterung werden gegen den ganzen Korridor geprüft. Breitere Pisten brauchen deshalb ausreichend Platz am Rand.
+
+## Dorf und Wege ab 0.13
+
+Neue Resorts beginnen mit einer geschwungenen Dorfpromenade. Gebäude richten ihren Eingang möglichst zum Fußwegenetz aus. In der Bauleiste kannst du ihn vor dem Bau mit **Eingang drehen** ändern; die Vorschau zeigt Grundriss, Zugang und Richtung.
+
+Für einen Fußweg genügt ein Ende an einer bestehenden Verbindung. Das zweite darf ein neuer Bauplatz sein. An langen Wegen kannst du auch in der Mitte andocken und Gebäude anschließen. Der Verlauf wird geglättet, sofern er dabei weiterhin um die Hindernisse führt und begehbar bleibt.
+
+Der Bergpass enthält acht Resorts. Der Startlift und die erste Dienstleistung sind Teil des jeweiligen Startpakets. Zusätzliche Liftarten und Dienste benötigen weiterhin die entsprechende Forschung. Bestehende Resorts bleiben in ihrer früheren Landschaft; die neue Dorfpromenade gehört zu neu eröffneten Resorts.

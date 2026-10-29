@@ -28,3 +28,5 @@ anschließenden Speicherwechsel auf Format 8. Es sind erzeugte Testdaten.
 - v0.10-starter.json: created with the unmodified published 0.10 source at commit 07dbf0d1f52ed4dfb5ebe2ede168e94f7ef8f70e, seed 20261029, twelve generated admissions and 65 simulated minutes. The format-10 save preserves all twelve active visitors for migration into format 11. No player data.
 
 - `v0.11-starter.json`: generated with the unmodified published 0.11 source at commit `c734f42fea7cc5ae38df72512c49d8080547d3bf`, seed 20261029, twelve admissions and 65 simulated minutes. It contains twelve active synthetic visitors with real needs and itineraries for format-12 migration. No player data.
+
+- `v0.12-starter.json`: generated with the unchanged published 0.12 source at commit `e17ce99d5538a1d1100ccb3a251c21a5826ae1dd`, seed 20261029, eighteen admissions and eighty simulated minutes. Eighteen active synthetic visitors retain their original landscape and existing journeys when migrated into format 13. No player data.

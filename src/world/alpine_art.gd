@@ -186,6 +186,18 @@ func plaza_details() -> ArrayMesh:
 		box(Vector3(x, 1.9, -3), Vector3(0.22, 3.8, 0.22), Color("846649"))
 	return finish()
 
+func village_corner() -> ArrayMesh:
+	# Compact street furniture, wholly outside every ski corridor.
+	soft_box(Vector3(0, 0.7, 0), Vector3(3.8, 1.4, 3.8), Color("9e7961"), Vector3.ZERO, 0.3)
+	soft_box(Vector3(0, 1.5, 0), Vector3(4.1, 0.35, 4.1), Color("f2f4f8"))
+	cone(Vector3(0, 3.8, 0), 1.65, 5.2, Color("6f9582"), 0.15)
+	cone(Vector3(0, 4.7, 0), 1.5, 3.8, Color("eaf2f2"), 0.1)
+	for side in [-1, 1]:
+		link(Vector3(side * 3, 0, 0), Vector3(side * 3, 6.5, 0), 0.16, Color("725d4f"))
+		soft_box(Vector3(side * 3, 6.1, 0), Vector3(0.8, 1.25, 0.8), Color("ffe5b3"))
+		soft_box(Vector3(side * 3, 6.9, 0), Vector3(1.3, 0.3, 1.3), Color("e9f0f6"))
+	return finish()
+
 func rock() -> ArrayMesh:
 	sphere(Vector3(0, 2, 0),4,Color("9ba5b8"),Vector3(1.2,0.7,0.85))
 	sphere(Vector3(-0.5,3.8,0),3.7,Color("edf2fc"),Vector3(1.1,0.35,0.8))
@@ -264,6 +276,15 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 	box(Vector3(0, 4, depth / 2 + 0.7), Vector3(3.3, 6, 0.9), Color("443a31"))
 	box(Vector3(0, 8.5, depth / 2 + 1.0), Vector3(10, 1.6, 0.8), accent)
 	box(Vector3(2.8, 7.0, depth / 2 + 1.1), Vector3(0.7, 0.9, 0.7), Color("ffe0a0"))
+	if kind in ["rental", "school"]:
+		for i in range(5):
+			var x := -7.0 + i * 3.5
+			box(Vector3(x, 4.2, depth * 0.5 + 2), Vector3(0.7, 7, 0.4), accent.lightened(i * 0.06), Vector3(0, 0, 0.1 if i % 2 else -0.1))
+		box(Vector3(0, 3, depth * 0.5 + 2.3), Vector3(17, 0.6, 0.6), Color("715a4a"))
+	if kind in ["restaurant", "lodge", "hotel"]:
+		for i in range(8):
+			var x := -width * 0.48 + (i + 0.5) * width * 0.12
+			box(Vector3(x, 9.5, depth * 0.5 + 2), Vector3(width * 0.12, 0.4, 3.5), accent if i % 2 else Color("f7e9cf"), Vector3(-0.12, 0, 0))
 	_winter_decoration(width,depth,height_value,accent)
 	# Gable timber and a round attic window are visible from both valley directions.
 	var ridge := height_value+1+(width+2)*0.5*tan(0.42)

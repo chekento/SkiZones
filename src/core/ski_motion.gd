@@ -60,8 +60,8 @@ static func frame(mountain: RefCounted, piste: Dictionary, id: int, ability: int
 
 const Dynamics = preload("res://src/core/ski_dynamics.gd")
 
-static func travel_profile(mountain: RefCounted, points: Array, ability: int, personal: float = 1.0, roughness: float = 0.0) -> Dictionary:
-	return Dynamics.profile(mountain,points,ability,personal,roughness)
+static func travel_profile(mountain: RefCounted, points: Array, ability: int, personal: float = 1.0, roughness: float = 0.0, sport: String = "ski") -> Dictionary:
+	return Dynamics.profile(mountain,points,ability,personal,roughness,sport)
 
 static func hiking(samples: Array, progress: float) -> bool:
 	if samples.is_empty(): return false

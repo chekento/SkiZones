@@ -24,13 +24,21 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-![SkiZones 0.10.0: ein kleines Winterdorf mit verschneiten Chalets, Schneemännern, Gästen und Liften](docs/screenshots/cute-village-0100.webp)
+![SkiZones 0.13.0: Winterdorf mit Promenade, kurzen Gebäudezugängen und echten Gästen](docs/screenshots/village-promenade-0130.webp)
 
 *Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste nutzen die tatsächlichen Wege und Lifte. Große Stationsplätze und eine zusätzlich gebaute Gehfläche verbinden die Gebäude. Die Karriere startet mit einem kleineren Resort.*
 
 ## In-Game Screenshots
 
 Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Auch das neue Menüpanorama zeigt eine Aufnahme derselben 3D-Spielwelt.
+
+| Dorfpromenade und Chalets · 0.13.0 | Acht Resorts im englischen Bergpass · 0.13.0 |
+|---|---|
+| [![Dorf mit gemeinsamem Hauptweg, Laternen und nutzbaren Gebäudezugängen](docs/screenshots/village-promenade-0130.webp)](docs/screenshots/village-promenade-0130.webp) | [![Bergpass mit unterschiedlichen Landschaften, Startliften und Freischaltungen](docs/screenshots/resort-pass-en-0130.webp)](docs/screenshots/resort-pass-en-0130.webp) |
+
+| Glacier Royale · 19,8 km² · 0.13.0 | Starlight Valhalla · 37,2 km² · 0.13.0 |
+|---|---|
+| [![Hochalpine Gletscherlandschaft mit eigener Topografie](docs/screenshots/resort-gletscherwelt-0130.webp)](docs/screenshots/resort-gletscherwelt-0130.webp) | [![Gipfelketten und breite Hochtäler im größten Resort](docs/screenshots/resort-sternengrat-0130.webp)](docs/screenshots/resort-sternengrat-0130.webp) |
 
 | Breite und geglättete Kurven · Deutsch · 0.12.0 | Gebauter freier Pistenkorridor · English · 0.12.0 |
 |---|---|
@@ -75,17 +83,31 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 
 1. Oben die **APK herunterladen** und auf deinem Android-Gerät öffnen.
 2. Bei Bedarf die Installation aus dieser Quelle erlauben.
-3. **Gebiete entdecken** und **Sonnenhang** wählen: Ein blauer Rundweg mit Lift, Hütte und Skiverleih ist bereits in Betrieb.
+3. **Gebiete entdecken** und **Velvet Peaks** wählen: Ein blauer Rundweg mit Lift, Hütte und Skiverleih ist bereits in Betrieb.
 4. Im **Resort-Büro** einen Auftrag annehmen und die erste Forschung wählen. Während der Planung pausiert der Betrieb.
 
 | Plattform | Voraussetzung |
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.12.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.13.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.12.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.13.0.md).
+
+## Neu in 0.13.0: Acht Resorts und ein richtiges Winterdorf
+
+**Ein klarer Hauptweg, kurze Gebäudezugänge und acht unterschiedliche Starts.** Die neuen Resorts heißen **Velvet Peaks**, **Whisperpine Lodge**, **Glacier Royale**, **Crownline Summit**, **Aurora Drift**, **Moonblade Sanctuary**, **Cloudcrest Reserve** und **Starlight Valhalla**. Jedes Gebiet hat eigene Berge, Kessel, Waldmengen und eine andere Startliftart; die Bauflächen reichen bis **37,2 km²**.
+
+- Geschwungene zwölf Meter breite Dorfpromenade mit tatsächlichen, gemeinsam genutzten Wegknoten.
+- Stichwege zu neuen Bauplätzen; Abzweige und Gebäudeanschlüsse auch mitten am bestehenden Weg.
+- Automatische Eingangsrichtung, manuell drehbare Vorschau, sichtbarer Grundriss und Eingangspfeil.
+- Neue Chaletdetails, verschneite Pflanzkübel und Laternen außerhalb der Pisten.
+- Ausrüstungsspezifische Reibung und Kurveneigenschaften, versetzte Fußspuren und Abstand beim Abfahren.
+- Breiter nutzbarer Geländehelfer: sanfte Querungen zuerst, sportlichere Linien bei Bedarf.
+- Alte Spielstände behalten ihre ursprüngliche Landschaft; neue Resortstarts verwenden Gelände-Generation 2.
+
+[Alle Änderungen, Speicherkompatibilität und Einordnung der Physik](docs/releases/0.13.0.md).
 
 ## Neu in 0.12.0: Präzise Wegpunkte und schönere Pisten
 

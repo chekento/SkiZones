@@ -76,7 +76,17 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 				var key := "w%dv%d" % [area.id,i]
 				var at := Terrain.unpack(area.points[i])
 				areas.append(_area(key,at,at,4,false,area.id,"walkway"))
-				if i > 0: fixed.append({"from":"w%dv%d" % [area.id,i-1],"to":key,"points":[area.points[i-1],area.points[i]],"width":8.0,"manual":true,"closed":not area.enabled})
+				if i > 0:
+					var a := Terrain.unpack(area.points[i - 1])
+					var segments := maxi(1, ceili(a.distance_to(at) / 40))
+					var previous := "w%dv%d" % [area.id, i - 1]
+					for j in range(1, segments + 1):
+						var next := key if j == segments else "w%dm%d_%d" % [area.id, i, j]
+						var point := a.lerp(at, float(j) / segments)
+						if j < segments: areas.append(_area(next, point, point, 4, false, area.id, "walkway"))
+						var previous_point := a.lerp(at, float(j - 1) / segments)
+						fixed.append({"from": previous, "to": next, "points": [Terrain.pack(previous_point), Terrain.pack(point)], "width": 8.0, "manual": true, "closed": not area.enabled})
+						previous = next
 		else: areas.append(_area("w%d" % area.id,Terrain.unpack(area.point),Terrain.unpack(area.point),area.radius,dense,area.id,"plaza"))
 	for piste in pistes:
 		for top in [true,false]:
@@ -116,6 +126,8 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 				score = time
 				best = {"from":gate.key,"to":target,"points":path,"width":7.0,"piste_access":true}
 		if not best.is_empty(): fixed.append(best)
+	if mountain.get("generation") != null and mountain.generation >= 2:
+		fixed.append_array(_village(mountain, areas, nodes, buildings, lifts, shapes))
 	var candidates: Array = []
 	for i in range(areas.size()):
 		for j in range(i+1,areas.size()):
@@ -145,6 +157,70 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	for key in nodes:
 		if roots.has(_component(components,key)): rooted.append(key)
 	return {"areas":areas,"nodes":nodes,"links":links,"rooted":rooted,"lifts":lifts,"buildings":buildings,"obstacles":shapes}
+
+static func _village(mountain: RefCounted, areas: Array, nodes: Dictionary, buildings: Array, lifts: Array, shapes: Array) -> Array:
+	# A real shared street graph: every forecourt joins the same spine, rather
+	# than drawing independent diagonal shortcuts between neighbouring buildings.
+	var route: Array = [Terrain.pack(Terrain.BASE)]
+	for target in [Vector2(185, 292), Vector2(95, 294), Vector2(-25, 277), Vector2(-150, 250)]:
+		var part := path_between(Terrain.unpack(route[-1]), target, buildings, lifts, shapes)
+		if not part.is_empty() and gentle(mountain, part): route.append_array(part.slice(1))
+	route = smooth_walk(mountain, route, buildings, lifts)
+	var links: Array = []
+	var joins: Dictionary = {}
+	for i in range(1, route.size()): joins[i] = []
+	for area in areas.duplicate():
+		if area.key == "base" or area.kind == "piste_gate": continue
+		var best: Dictionary = {}
+		var distance := INF
+		for i in range(1, route.size()):
+			var a := Terrain.unpack(route[i - 1])
+			var b := Terrain.unpack(route[i])
+			var at := Geometry2D.get_closest_point_to_segment(area.point, a, b)
+			var gap: float = at.distance_to(area.point)
+			if gap >= distance or gap > area.radius + 60: continue
+			var part := path_between(area.point, at, buildings, lifts, shapes)
+			if part.is_empty() or not gentle(mountain, part): continue
+			distance = gap
+			best = {"index": i, "point": at, "path": part, "along": a.distance_to(at)}
+		if best.is_empty(): continue
+		var key: String = "street_" + area.key
+		nodes[key] = Terrain.pack(best.point)
+		areas.append(_area(key, best.point, best.point, 7, false, 0, "street"))
+		joins[best.index].append({"key": key, "along": best.along})
+		links.append({"from": area.key, "to": key, "points": best.path, "width": 7.0, "village_branch": true})
+	var previous := "base"
+	for i in range(1, route.size()):
+		joins[i].sort_custom(func(a, b): return a.along < b.along)
+		var key := "street_v%d" % i
+		nodes[key] = route[i]
+		areas.append(_area(key, Terrain.unpack(route[i]), Terrain.unpack(route[i]), 7, false, 0, "street"))
+		var entries: Array = joins[i] + [{"key": key}]
+		for entry in entries:
+			links.append({"from": previous, "to": entry.key, "points": [nodes[previous], nodes[entry.key]], "width": 12.0, "promenade": true})
+			previous = entry.key
+	return links
+
+static func smooth_walk(mountain: RefCounted, points: Array, buildings: Array, lifts: Array) -> Array:
+	if points.size() < 3: return points
+	var handles: Array[Vector2] = []
+	for i in range(points.size()):
+		var at := Terrain.unpack(points[i])
+		var before := Terrain.unpack(points[maxi(0, i - 1)])
+		var after := Terrain.unpack(points[mini(points.size() - 1, i + 1)])
+		var distance := minf(at.distance_to(before) if i > 0 else INF, at.distance_to(after) if i < points.size() - 1 else INF)
+		handles.append((after - before).normalized() * minf(12, distance * 0.2))
+	var result: Array = [points[0]]
+	for i in range(1, points.size()):
+		var a := Terrain.unpack(points[i - 1])
+		var b := Terrain.unpack(points[i])
+		var steps := maxi(1, ceili(a.distance_to(b) / 16))
+		if result.size() + steps + points.size() - i > 64: return points
+		for j in range(1, steps):
+			var at := a.bezier_interpolate(a + handles[i - 1], b - handles[i], b, float(j) / steps)
+			if at.distance_to(Terrain.unpack(result[-1])) >= 2 and at.distance_to(b) >= 2: result.append(Terrain.pack(at))
+		result.append(points[i])
+	return result if clear_walk(result, buildings, lifts) and gentle(mountain, result) else points
 
 static func _component(components: Dictionary, key: String) -> String:
 	var current := key

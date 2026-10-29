@@ -24,7 +24,7 @@ func setup(interface: CanvasLayer) -> void:
 	hud._label(header, L.text("DEIN BERGPASS"), 27, hud.ACCENT)
 	hud._spacer(header, false)
 	hud._button(header, L.text("Zurück"), hide)
-	hud._label(body, L.text("Vier Gebiete. Vier eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert."), 17, hud.MUTED, true)
+	hud._label(body, L.text("Acht Gebiete. Acht eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert."), 17, hud.MUTED, true)
 	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -56,6 +56,7 @@ func setup(interface: CanvasLayer) -> void:
 		var description: Label = hud._label(preview, spec.description, 14, hud.MUTED, true)
 		description.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		description.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		hud._label(card, L.text(spec.start), 14, hud.TEAL, true)
 		var requirement: Label = hud._label(card, "", 14, hud.TEAL, true)
 		var enter: Button = hud._button(card, "", func(): game.enter_area(id), true)
 		_cards.append({"id": id, "requirement": requirement, "enter": enter})

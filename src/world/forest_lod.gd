@@ -37,7 +37,8 @@ func build(view: Node3D) -> void:
 		detailed.surface_set_material(0, view._solid)
 		distant.surface_set_material(0, view._solid)
 	var mountain: RefCounted = view.terrain
-	var id: String = view.model.map_id
+	var map_id: String = view.model.map_id
+	var id := "%s/%d" % [map_id, mountain.generation]
 	if not candidates.has(id):
 		var entries: Array = []
 		var random := RandomNumberGenerator.new()
@@ -56,6 +57,7 @@ func build(view: Node3D) -> void:
 			entries.append({"point": point, "grade": grade, "height": height, "transform": transform_value, "color": Color(tint, tint, tint)})
 		candidates[id] = entries
 	var blocked: Dictionary = {}
+	_line(blocked, Vector2(185, 490), Terrain.BASE, 12)
 	for area in view._pedestrian_snapshot.areas:
 		_disk(blocked, area.center, area.radius + 3)
 	for path in view._pedestrian_snapshot.links:
@@ -77,7 +79,7 @@ func build(view: Node3D) -> void:
 		if entry.grade > 47 and rocks.size() < 90:
 			rocks.append(entry)
 			continue
-		if entry.grade > 65 or entry.height > (620 if id == "fichtenkamm" else 360) or used >= int(3200 * Maps.spec(id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.18:
+		if entry.grade > 65 or entry.height > (620 if map_id == "fichtenkamm" else 360) or used >= int(3200 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.18:
 			continue
 		var key := Vector2i((entry.point / CHUNK).floor())
 		if not chunks.has(key):
@@ -90,7 +92,7 @@ func build(view: Node3D) -> void:
 		node.multimesh = view._multimesh(distant, entries.size())
 		for i in range(entries.size()):
 			node.multimesh.set_instance_transform(i, entries[i].transform)
-			node.multimesh.set_instance_color(i, entries[i].color)
+			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72))
 		root.add_child(node)
 		groups.append({"node": node, "center": (Vector2(key) + Vector2.ONE * 0.5) * CHUNK, "detail": false})
 	if not groups.is_empty():

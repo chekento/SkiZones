@@ -44,6 +44,7 @@ var piste_controls: HBoxContainer
 var piste_width_choice := OptionButton.new()
 var smooth_route_button: Button
 var piste_width_total: Label
+var rotate_building_button: Button
 var plan_overlay := PlanOverlay.new()
 var pause_button: Button
 var speed_buttons: Array = []
@@ -61,7 +62,7 @@ var pitch_label: Label
 var selected_id := -1
 var current_tool := "inspect"
 var price_label: Label
-var _toast := L.text("Willkommen am Sonnenhang. Erweitere dein Resort.")
+var _toast := L.text("Willkommen in deinem Bergresort.")
 var _toast_until := 0.0
 var map_focus := false
 var map_focus_button: Button
@@ -281,7 +282,7 @@ func _build_inspector() -> void:
 	var panel := _panel(root, -304, 170, -24, -180, 1, 1)
 	inspector_panel = panel
 	var box := _vbox(panel, 12)
-	_label(box, "RESORT-KOMPASS", 13, TEAL)
+	_label(box, L.text("RESORT-KOMPASS"), 13, TEAL)
 	box.add_child(inspector_title)
 	inspector_title.auto_translate_mode=Node.AUTO_TRANSLATE_MODE_DISABLED
 	inspector_title.add_theme_font_size_override("font_size", 23)
@@ -332,6 +333,9 @@ func _build_plan_bar() -> void:
 	suggest_route_button.add_theme_font_size_override("font_size",16)
 	smooth_route_button = _button(piste_controls, L.text("Kurven glätten"), game.smooth_route)
 	design_button = _button(actions, L.text("Gestaltung"), func(): asset_editor.open(game.editing_id))
+	rotate_building_button = _button(actions, L.text("Eingang drehen ↻"), func():
+		game.edit_rotation = (game.edit_rotation + 1) % 4
+		game._update_plan())
 	clear_button = _button(actions, L.text("Abbrechen"), game.clear_plan)
 	_spacer(actions, false)
 	labels.status = _label(actions, "", 15, TEAL)
@@ -740,6 +744,7 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	if game.editing_id != -1:
 		confirm_button.text = L.text("Übernehmen · %s €") % L.args(money_text(cost))
 	design_button.visible = game.editing_id != -1
+	rotate_building_button.visible = current_tool == "building"
 	confirm_button.disabled = not can_build
 	confirm_button.visible = current_tool != "inspect"
 	undo_button.visible = current_tool in ["piste","lift","walkway"]

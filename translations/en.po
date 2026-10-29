@@ -1911,3 +1911,120 @@ msgstr "Bends smoothed. Check the width, gradient and connections; only Build co
 
 msgid "Ausbau +%d m · gesamt %.0f m"
 msgstr "Upgrade +%d m \u00b7 total %.0f m"
+
+msgid "Dorfpromenade"
+msgstr "Village promenade"
+
+msgid "Mindestens ein Ende an einen vorhandenen Weg, Liftzugang oder Platz anschließen."
+msgstr "Connect at least one end to an existing path, lift entrance or plaza."
+
+msgid "Fußweg · %.0f m · 8 m breit · am Wegenetz angeschlossen"
+msgstr "Footpath · %.0f m · 8 m wide · connected to the path network"
+
+msgid "Sonnige Almterrassen & ein gemütliches Skidorf"
+msgstr "Sunny alpine terraces & a cosy ski village"
+
+msgid "Weiche Almkuppen, ein geschütztes Dorf und weite Carvinghänge. Dein Einstieg in ein alpines Boutique-Resort."
+msgstr "Soft alpine knolls, a sheltered village and broad carving slopes. Your first alpine boutique resort."
+
+msgid "Almdorf mit Tellerlift"
+msgstr "Alpine village with a platter lift"
+
+msgid "Verschlungene Waldtäler & stille Höhenrücken"
+msgstr "Winding forest valleys & tranquil ridgelines"
+
+msgid "Ein Waldresort mit einem nostalgischen Zweiersessel. Erschließe geschützte Mulden und lange Verbindungen zwischen den Kämmen."
+msgstr "A forest resort with a nostalgic two-seat chairlift. Open sheltered hollows and long connections between the ridges."
+
+msgid "Waldlodge mit Zweiersessel"
+msgstr "Forest lodge with a two-seat chairlift"
+
+msgid "Gletscherzungen & hochalpine Schneeschüsseln"
+msgstr "Glacier tongues & high alpine snow bowls"
+
+msgid "Helle Eisflanken und breite Gletscherbecken. Eine Gondel erschließt den ersten Panorama-Sektor deines hochalpinen Resorts."
+msgstr "Bright ice slopes and broad glacier basins. A gondola opens the first panoramic sector of your high alpine resort."
+
+msgid "Gletscherbasis mit Gondel"
+msgstr "Glacier base with a gondola"
+
+msgid "Drei Königsgipfel & spektakuläre Passagen"
+msgstr "Three royal peaks & spectacular passages"
+
+msgid "Drei eigenständige Massive rund um ein breites Verbindungstal. Der Viersessel ist dein Start in ein weitläufiges Ski-Imperium."
+msgstr "Three distinct mountain massifs around a broad connecting valley. A four-seat chairlift starts your expansive ski empire."
+
+msgid "Panoramadorf mit Viersessel"
+msgstr "Panoramic village with a four-seat chairlift"
+
+msgid "Nordlicht-Mulden & spielerische Boardhänge"
+msgstr "Aurora bowls & playful snowboard slopes"
+
+msgid "Runde Schneeschüsseln und versetzte Hügel laden zum Snowboarden ein. Eine kompakte Anfängerbasis wächst in die weiten Nordlicht-Täler."
+msgstr "Rounded snow bowls and staggered hills invite snowboarders. A compact beginner base grows into the wide aurora valleys."
+
+msgid "Board-Basis mit Zauberteppich"
+msgstr "Snowboard base with a magic carpet"
+
+msgid "Silberne Kessel & wendige Kurzski-Reviere"
+msgstr "Silver bowls & nimble snowblade terrain"
+
+msgid "Terrassierte Kessel und sanfte Übergänge zwischen eigenständigen Höhenzügen. Der Einersessel bringt die ersten Snowblader an den Hang."
+msgstr "Terraced bowls and gentle connections between distinct ridges. A single-seat chairlift brings the first snowbladers to the slopes."
+
+msgid "Kurzski-Chalet mit Einersessel"
+msgstr "Snowblade chalet with a single-seat chairlift"
+
+msgid "Wolkenpässe & lange Carving-Rücken"
+msgstr "Cloud passes & long carving ridges"
+
+msgid "Lange Rücken, Seitentäler und weiche Wolkenpässe. Ein Sechsersessel eröffnet dein großzügiges Luxusresort über dem Tal."
+msgstr "Long ridges, side valleys and gentle cloud passes. A six-seat chairlift opens your spacious luxury resort above the valley."
+
+msgid "Höhenlodge mit Sechsersessel"
+msgstr "Highland lodge with a six-seat chairlift"
+
+msgid "Sternengrate & die große Gipfel-Expedition"
+msgstr "Starlit ridges & the grand summit expedition"
+
+msgid "Dein größtes Resort: hohe Gipfelketten, gestaffelte Hügel und tiefe Hochtäler. Ein Achtersessel startet die Expedition zum Sternengrat."
+msgstr "Your largest resort: high mountain chains, layered hills and deep alpine valleys. An eight-seat chairlift starts the expedition to the starlit ridge."
+
+msgid "Grand Resort mit Achtersessel"
+msgstr "Grand resort with an eight-seat chairlift"
+
+msgid "Willkommen in deinem Bergresort."
+msgstr "Welcome to your mountain resort."
+
+msgid "Eingang drehen ↻"
+msgstr "Rotate entrance ↻"
+
+msgid "Acht Gebiete. Acht eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert."
+msgstr "Eight areas. Eight individual resorts. Your progress unlocks new valleys; each resort is saved separately."
+
+msgid "RESORT-KOMPASS"
+msgstr "RESORT COMPASS"
+
+msgid "Velvet Peaks"
+msgstr "Velvet Peaks"
+
+msgid "Whisperpine Lodge"
+msgstr "Whisperpine Lodge"
+
+msgid "Glacier Royale"
+msgstr "Glacier Royale"
+
+msgid "Crownline Summit"
+msgstr "Crownline Summit"
+
+msgid "Aurora Drift"
+msgstr "Aurora Drift"
+
+msgid "Moonblade Sanctuary"
+msgstr "Moonblade Sanctuary"
+
+msgid "Cloudcrest Reserve"
+msgstr "Cloudcrest Reserve"
+
+msgid "Starlight Valhalla"
+msgstr "Starlight Valhalla"
