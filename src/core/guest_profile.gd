@@ -1,5 +1,6 @@
 extends RefCounted
 const Motion = preload("res://src/core/ski_motion.gd")
+const Needs = preload("res://src/core/guest_needs.gd")
 const HOMES := ["Hamburg", "München", "Wien", "Salzburg", "Innsbruck", "Stuttgart", "Bremen", "Berlin", "Graz", "Köln"]
 const MOTIVES := ["Den Winter genießen", "Neue Abfahrten entdecken", "Schöne Schwünge üben", "Aussicht und Hütteneinkehr", "Einen sportlichen Tag verbringen"]
 
@@ -7,9 +8,10 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	var id: int = guest.id
 	var sport: String = guest.get("sport", "ski")
 	var personal := Motion.style(id, guest.ability, sport)
-	var energy := clampf(100 - guest.get("runs", 0) * 4.5 - guest.age * 0.045 + (15 if guest.spent else 0), 5, 100)
-	var hunger := clampf(guest.age * 0.25 - (65 if guest.spent else 0), 0, 100)
-	var warmth := clampf(85 + model.weather().temperature * 2 - guest.age * 0.055 + (20 if guest.spent else 0), 0, 100)
+	var needs := Needs.values(guest,model.weather().temperature)
+	var energy: float=needs.energy
+	var hunger: float=needs.hunger
+	var warmth: float=needs.warmth
 	var patience := 12 + (id * 13) % 25
 	var mood := "content"
 	var emotion := "Zufrieden"
@@ -21,6 +23,7 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 		kind = guest.route.legs[guest.leg].kind
 		activity = {"ski": "Auf der Piste", "walk": "Zu Fuß unterwegs", "lift": "Fährt bergauf", "visit": "Genießt eine Pause"}.get(kind, "Unterwegs")
+		if kind=="visit": activity="Besucht %s" % model.asset(guest.route.legs[guest.leg].id).get("name","ein Gebäude")
 	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
 		activity = "Stapft den Gegenanstieg hinauf"
 		climbing = true
