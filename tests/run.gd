@@ -97,6 +97,7 @@ func _test_capacity() -> void:
 	for i in range(60):
 		model.admit_guest(1)
 	for guest in model.guests:
+		guest.route = model.routes_for(1)[0]
 		for index in range(guest.route.legs.size()):
 			if guest.route.legs[index].kind == "lift":
 				guest.leg = index

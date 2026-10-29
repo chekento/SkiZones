@@ -4,6 +4,7 @@ var quality := "auto"
 var target_fps := 60
 var snowfall := true
 var camera_smoothing := true
+var language := "system"
 
 func load_from() -> void:
 	var config := ConfigFile.new()
@@ -16,10 +17,12 @@ func load_from() -> void:
 	snowfall = value if value is bool else true
 	value = config.get_value("display", "camera_smoothing", true)
 	camera_smoothing = value if value is bool else true
+	value=config.get_value("display","language","system")
+	language=value if value is String and value in ["system","de","en"] else "system"
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
-	for key in ["quality", "target_fps", "snowfall", "camera_smoothing"]:
+	for key in ["quality", "target_fps", "snowfall", "camera_smoothing", "language"]:
 		config.set_value("display", key, get(key))
 	return config.save(path)
 

@@ -3,7 +3,7 @@ config_version=5
 
 [application]
 config/name="SkiZones"
-config/version="0.10.0"
+config/version="0.11.0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://assets/icon.svg"
@@ -35,6 +35,10 @@ pointing/emulate_mouse_from_touch=true
 
 [gui]
 theme/default_font_multichannel_signed_distance_field=true
+
+[internationalization]
+locale/translations=PackedStringArray("res://translations/en.po")
+locale/fallback="de"
 
 [audio]
 driver/enable_input=false

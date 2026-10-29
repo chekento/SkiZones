@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## An instance prevents one open/test resort from changing another map's terrain.
 const Terrain = preload("res://src/core/terrain.gd")
 const Dynamics = preload("res://src/core/ski_dynamics.gd")
@@ -104,12 +105,12 @@ static func difficulty_for_grade(grade: float) -> int:
 
 func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	# The optional argument keeps old callers compatible; colors can no longer be painted.
-	var result := {"ok": false, "message": "Mindestens zwei Wegpunkte setzen.", "length": 0.0, "horizontal": 0.0, "drop": 0.0, "grade": 0.0, "average": 0.0, "uphill": 0.0, "cost": 0, "difficulty": 0, "profile": [], "segments": []}
+	var result := {"ok": false, "message": L.text("Mindestens zwei Wegpunkte setzen."), "length": 0.0, "horizontal": 0.0, "drop": 0.0, "grade": 0.0, "average": 0.0, "uphill": 0.0, "cost": 0, "difficulty": 0, "profile": [], "segments": []}
 	if points.size() < 2 or points.size() > 64:
 		return result
 	for point in points:
 		if not contains(Terrain.unpack(point)):
-			result.message = "Die Strecke muss innerhalb des Baugebiets liegen."
+			result.message = L.text("Die Strecke muss innerhalb des Baugebiets liegen.")
 			return result
 	var planned_length := 0.0
 	for i in range(1, points.size()):
@@ -121,7 +122,7 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 		var a := Terrain.unpack(points[i - 1])
 		var b := Terrain.unpack(points[i])
 		if a.distance_to(b) < 4:
-			result.message = "Wegpunkte müssen mindestens 4 m auseinanderliegen."
+			result.message = L.text("Wegpunkte müssen mindestens 4 m auseinanderliegen.")
 			return result
 		var steps := ceili(a.distance_to(b) / Terrain.SAMPLE_STEP)
 		var segment_grade := 0.0
@@ -144,9 +145,9 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	result.difficulty = difficulty_for_grade(result.grade)
 	result.cost = roundi(result.length * [32, 44, 58][result.difficulty])
 	if result.length < 40 or result.drop < 7:
-		result.message = "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
+		result.message = L.text("Mindestens 40 m Länge und 7 m Höhenverlust erforderlich.")
 	elif result.grade > Terrain.GRADE_LIMITS[2]:
-		result.message = "Max. %.0f %%: zu steil. Mit weiteren Wegpunkten quer zum Hang planen." % result.grade
+		result.message = L.text("Max. %.0f %%: zu steil. Mit weiteren Wegpunkten quer zum Hang planen.") % L.args(result.grade)
 	else:
 		var motion := Dynamics.profile(self,points,result.difficulty,0.86)
 		if not motion.ok:
@@ -155,9 +156,9 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 		result.hike_meters = motion.hike_meters
 		result.carry_rise = motion.carry_rise
 		result.ok = true
-		result.message = "%s · %.0f m · ↓ %.0f m · max. %.0f %%" % [Terrain.PISTE_NAMES[result.difficulty], result.length, result.drop, result.grade]
+		result.message = L.text("%s · %.0f m · ↓ %.0f m · max. %.0f %%") % L.args([Terrain.PISTE_NAMES[result.difficulty], result.length, result.drop, result.grade])
 		if result.uphill > 0.2:
-			result.message += " · ↑ %.1f m Gegenanstieg: %s" % [result.uphill,"ca. %.0f m stapfen" % result.hike_meters if result.hike_meters > 0.5 else "mit Schwung fahrbar"]
+			result.message += L.text(" · ↑ %.1f m Gegenanstieg: %s") % L.args([result.uphill,L.text("ca. %.0f m stapfen") % L.args(result.hike_meters) if result.hike_meters > 0.5 else L.text("mit Schwung fahrbar")])
 	return result
 
 func _path_point(path: Dictionary, distance: float) -> Vector2:

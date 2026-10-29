@@ -47,3 +47,11 @@ Gehflächen kosten laufende Pflege. In der Resortansicht ihren Mittelpunkt antip
 Kleine Resorts zahlen geringere Grundkosten. Gäste bleiben länger, damit sie die langsameren Lifte, Fußwege und Abfahrten nutzen können. Große Warteschlangen senken den weiteren Neuzulauf; eine größere Anlage, ein zweiter Rundweg oder ein Ausbau kann den Engpass entlasten. Die Zufriedenheit berücksichtigt abgeschlossene Abfahrten und Wartezeiten.
 
 Diese Abstimmung wurde unter anderem über eine vollständige Starterwoche und zwei Karrierewinter geprüft. Preise und Langzeitwirtschaft bleiben Spielwerte einer Preview und werden mit weiteren Spielsitzungen abgestimmt.
+
+## Streckenhilfe seit 0.11
+
+Nach Start und Ziel bietet **Verlauf verbessern** in der Bauleiste einen Vorschlag an. Im Pistenkatalog heißt dieselbe Hilfe **Sanften Verlauf vorschlagen**. Sie sucht einen sanfteren Verlauf durch das Gelände, lässt gesetzte Zwischenpunkte als feste Ziele bestehen und berücksichtigt Gebäude sowie Lifttechnik. Das Ergebnis wird erneut durch die normale Bauprüfung geprüft. Mit **Richtung umkehren** kannst du Start und Ende tauschen.
+
+Die Suche ist begrenzt. Auf schwierigen Bergen weitere Punkte quer zum Hang setzen oder den eigenen gültigen Verlauf verwenden. Eine Piste wird erst mit **Bauen**, ein Umbau mit **Übernehmen** bestätigt. Der Helfer gibt kein Geld aus.
+
+Die Bauvorschau erklärt zusätzlich, ob Gäste mit dem erforderlichen Können den Einstieg erreichen und vom Ende wieder ins Tal kommen. Manuelle Liftsperren und unterbrochene Wege zählen mit. Eine gültige, noch nicht angeschlossene Piste bleibt für späteren Ausbau baubar.

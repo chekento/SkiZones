@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Shared coordinates, validation constants and the compatible original valley.
 ## Coordinates are horizontal metres; negative Z points up the mountain.
 
@@ -61,12 +62,12 @@ static func point_on_path(points: Array, fraction: float) -> Vector2:
 	return unpack(points.back())
 
 static func analyse(points: Array, difficulty: int) -> Dictionary:
-	var result := {"ok": false, "message": "Mindestens zwei Wegpunkte setzen.", "length": 0.0, "drop": 0.0, "grade": 0.0, "cost": 0, "difficulty": difficulty}
+	var result := {"ok": false, "message": L.text("Mindestens zwei Wegpunkte setzen."), "length": 0.0, "drop": 0.0, "grade": 0.0, "cost": 0, "difficulty": difficulty}
 	if points.size() < 2 or points.size() > 64 or difficulty < 0 or difficulty > 2:
 		return result
 	for point in points:
 		if not contains(unpack(point)):
-			result.message = "Die Strecke muss innerhalb des Baugebiets liegen."
+			result.message = L.text("Die Strecke muss innerhalb des Baugebiets liegen.")
 			return result
 	var max_grade := 0.0
 	var length := 0.0
@@ -76,7 +77,7 @@ static func analyse(points: Array, difficulty: int) -> Dictionary:
 		var b := unpack(points[i])
 		var horizontal := a.distance_to(b)
 		if horizontal < 4.0:
-			result.message = "Wegpunkte müssen mindestens 4 m auseinanderliegen."
+			result.message = L.text("Wegpunkte müssen mindestens 4 m auseinanderliegen.")
 			return result
 		var samples := ceili(horizontal / SAMPLE_STEP)
 		for j in range(samples):
@@ -91,12 +92,12 @@ static func analyse(points: Array, difficulty: int) -> Dictionary:
 	result.drop = height(unpack(points.front())) - height(unpack(points.back()))
 	result.cost = roundi(length * [32.0, 44.0, 58.0][difficulty])
 	if length < 40.0 or result.drop < 7.0:
-		result.message = "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
+		result.message = L.text("Mindestens 40 m Länge und 7 m Höhenverlust erforderlich.")
 	elif uphill > 1.5 and not preload("res://src/core/ski_dynamics.gd").profile(new(),points,difficulty).ok:
-		result.message = "Gegenanstieg zu steil zum Stapfen. Mit weiteren Wegpunkten queren."
+		result.message = L.text("Gegenanstieg zu steil zum Stapfen. Mit weiteren Wegpunkten queren.")
 	elif max_grade > GRADE_LIMITS[difficulty]:
-		result.message = "%.0f %% Gefälle: Für diese Farbe sind höchstens %.0f %% erlaubt." % [max_grade, GRADE_LIMITS[difficulty]]
+		result.message = L.text("%.0f %% Gefälle: Für diese Farbe sind höchstens %.0f %% erlaubt.") % L.args([max_grade, GRADE_LIMITS[difficulty]])
 	else:
 		result.ok = true
-		result.message = "%s · %.0f m · %.0f m Abfahrt · max. %.0f %%" % [PISTE_NAMES[difficulty], length, result.drop, max_grade]
+		result.message = L.text("%s · %.0f m · %.0f m Abfahrt · max. %.0f %%") % L.args([PISTE_NAMES[difficulty], length, result.drop, max_grade])
 	return result

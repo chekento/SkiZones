@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Stable personal styles. Drawing, tracks and local snow interaction use one path.
 const Terrain = preload("res://src/core/terrain.gd")
 const FIRST := ["Mila", "Jonas", "Lea", "Emil", "Nora", "Finn", "Lina", "Theo", "Ella", "Luis", "Amira", "Ben", "Sofia", "Paul", "Maja", "Noah"]
@@ -18,14 +19,14 @@ static func style(id: int, ability: int, sport: String = "ski") -> Dictionary:
 	var key := "%d/%s" % [(id % 2700) * 3 + ability, sport]
 	if _styles.has(key):
 		return _styles[key]
-	var value := {"name": [["Sanfte Bögen", "Ruhige Linie", "Weite Schwünge"], ["Runde Schwünge", "Kurze Schwünge", "Weite Bögen"], ["Sportliches Carven", "Kurze Radien", "Dynamische Bögen"]][ability][id % 3], "speed": [5.2, 7.5, 10.0][ability] * (0.86 + float((id * 37) % 100) / 350), "wave": (38.0 if ability == 0 else 29.0) + (id * 11) % 27, "phase": float((id * 53) % 100) / 100 * TAU, "amplitude": 0.14 + ability * 0.04 + float((id * 17) % 100) / 800}
+	var value := {"name": [[L.text("Sanfte Bögen"), L.text("Ruhige Linie"), L.text("Weite Schwünge")], [L.text("Runde Schwünge"), L.text("Kurze Schwünge"), L.text("Weite Bögen")], [L.text("Sportliches Carven"), L.text("Kurze Radien"), L.text("Dynamische Bögen")]][ability][id % 3], "speed": [5.2, 7.5, 10.0][ability] * (0.86 + float((id * 37) % 100) / 350), "wave": (38.0 if ability == 0 else 29.0) + (id * 11) % 27, "phase": float((id * 53) % 100) / 100 * TAU, "amplitude": 0.14 + ability * 0.04 + float((id * 17) % 100) / 800}
 
 	if sport == "snowboard":
-		value.name = ["Ruhige Boardbögen", "Flüssige Boardkurven", "Sportliches Boardcarven"][ability]
+		value.name = [L.text("Ruhige Boardbögen"), L.text("Flüssige Boardkurven"), L.text("Sportliches Boardcarven")][ability]
 		value.speed *= 0.98
 		value.wave *= 1.08
 	elif sport == "snowblade":
-		value.name = ["Kurze sanfte Bögen", "Wendige Kurzschwünge", "Dynamische Kurzski"][ability]
+		value.name = [L.text("Kurze sanfte Bögen"), L.text("Wendige Kurzschwünge"), L.text("Dynamische Kurzski")][ability]
 		value.speed *= 0.90
 		value.wave *= 0.72
 	_styles[key] = value

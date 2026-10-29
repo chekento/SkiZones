@@ -1,4 +1,5 @@
 extends Node3D
+const L = preload("res://src/core/i18n.gd")
 ## Original, batched alpine scenery and a simulation-driven atmosphere.
 
 const Terrain = preload("res://src/core/terrain.gd")
@@ -451,9 +452,10 @@ func _link(parent: Node3D, from: Vector3, to: Vector3, radius: float, color: Col
 	var instance := _mesh(parent, mesh, (from + to) * 0.5, color)
 	instance.basis = Basis(Quaternion(Vector3.UP, (to - from).normalized()))
 
-func _label(parent: Node3D, title: String, position_value: Vector3, color: Color) -> void:
+func _label(parent: Node3D, title: String, position_value: Vector3, color: Color) -> Label3D:
 	var label := Label3D.new()
-	label.text = title
+	label.text = L.text(title)
+	label.set_meta("source_text",title)
 	label.font_size = 34
 	label.pixel_size = 0.15
 	label.position = position_value
@@ -463,6 +465,19 @@ func _label(parent: Node3D, title: String, position_value: Vector3, color: Color
 	label.visibility_range_begin = 150
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(label)
+	return label
+
+func relocalize() -> void:
+	var pending: Array=[self]
+	while not pending.is_empty():
+		var node: Node=pending.pop_back()
+		pending.append_array(node.get_children())
+		if node is Label3D and node.has_meta("source_text"):
+			if node.has_meta("piste_id"):
+				var piste: Dictionary=model.asset(node.get_meta("piste_id"))
+				node.text=L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][int(piste.difficulty)]])
+			else: node.text=L.text(node.get_meta("source_text"))
+	_label_tick=-1
 
 func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 	var instances := MultiMesh.new()
@@ -584,7 +599,8 @@ func rebuild() -> void:
 			show_title = show_title and start.distance_to(previous) > 80
 		if show_title:
 			title_positions.append(start)
-			_label(asset_root, "%d · %s" % [piste.number, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty]], terrain.world(start, 24), color)
+			var marker:=_label(asset_root,L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][piste.difficulty]]),terrain.world(start,24),color)
+			marker.set_meta("piste_id",int(piste.id))
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:
@@ -863,7 +879,7 @@ func _process(delta: float) -> void:
 		for lift in model.lifts:
 			if _queue_labels.has(lift.id):
 				var load: Dictionary = model.lift_load(lift)
-				_queue_labels[lift.id].text = "%d warten · %.0f %% belegt" % [load.queue, load.fill * 100]
+				_queue_labels[lift.id].text = L.text("%d warten · %.0f %% belegt") % L.args([load.queue, load.fill * 100])
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	_adapt_quality(delta)

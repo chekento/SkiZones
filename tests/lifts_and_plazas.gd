@@ -166,6 +166,8 @@ func _visits() -> void:
 	check(model.build_building("restaurant", Vector2(235, 252)).ok, "A restaurant attaches to the station's pedestrian network")
 	model.admit_guest(0)
 	var guest: Dictionary = model.guests[0]
+	guest.needs.hunger = 80
+	guest.route = model.choose_route(guest)
 	var visit := -1
 	for index in range(guest.route.legs.size()):
 		if guest.route.legs[index].kind == "visit":

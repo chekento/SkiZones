@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Validate the entire proposed change before charging or touching live assets.
 const Terrain = preload("res://src/core/terrain.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
@@ -30,7 +31,7 @@ static func context(model: RefCounted, id: int) -> RefCounted:
 
 static func preview(model: RefCounted, id: int, points: Array, rotation_value: int = 0, width: float = 20) -> Dictionary:
 	var item: Dictionary = model.asset(id)
-	var invalid := {"ok": false, "message": "Diese Änderung ist hier nicht möglich.", "cost": 0}
+	var invalid := {"ok": false, "message": L.text("Diese Änderung ist hier nicht möglich."), "cost": 0}
 	if item.is_empty() or rotation_value < 0 or rotation_value > 3 or not is_finite(width) or width < 14 or width > 36: return invalid
 	for point in points:
 		if not model.terrain.contains(Terrain.unpack(point)): return invalid
@@ -67,7 +68,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 				if other.id == id: continue
 				for point in other.points:
 					if Terrain.unpack(old).distance_to(Terrain.unpack(point)) < 2:
-						return {"ok": false, "message": "Gemeinsamen Anschluss erhalten: Den Punkt ziehen, statt ihn zu löschen.", "cost": 0}
+						return {"ok": false, "message": L.text("Gemeinsamen Anschluss erhalten: Den Punkt ziehen, statt ihn zu löschen."), "cost": 0}
 	if item.has("difficulty") and points.size() == original.size():
 		for other in model.pistes:
 			if other.id == id: continue
@@ -80,14 +81,14 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 			if moved != other.points:
 				var analysis: Dictionary = candidate.preview_piste(moved, Snow.piste_width(other))
 				if not analysis.ok:
-					return {"ok": false, "message": "Die angeschlossene Piste %d wäre ungültig: %s" % [other.number, analysis.message], "cost": 0}
+					return {"ok": false, "message": L.text("Die angeschlossene Piste %d wäre ungültig: %s") % L.args([other.number, analysis.message]), "cost": 0}
 				check.neighbors[other.id] = analysis
 	var distance := 0.0
 	for index in range(mini(check.points.size(), original.size())):
 		distance += Terrain.unpack(check.points[index]).distance_to(Terrain.unpack(original[index]))
 	check.cost = roundi(maxf(500, item.cost * (0.08 if item.has("bottom") else 0.04) + distance * 8 + maxf(0, check.get("cost", item.cost) - item.cost) * 0.7)) if changed else 0
 	check.changed = changed
-	check.message = "Änderung prüfen · %.0f € · erst Übernehmen bestätigt den Umbau." % check.cost
+	check.message = L.text("Änderung prüfen · %.0f € · erst Übernehmen bestätigt den Umbau.") % L.args(check.cost)
 	return check
 
 static func _piste(item: Dictionary, analysis: Dictionary) -> void:
@@ -99,10 +100,10 @@ static func _piste(item: Dictionary, analysis: Dictionary) -> void:
 static func apply(model: RefCounted, id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20) -> Dictionary:
 	title = title.strip_edges()
 	if title.is_empty() or title.length() > 60 or not valid_color(color):
-		return {"ok": false, "message": "Name: 1–60 Zeichen. Eine gültige Akzentfarbe wählen."}
+		return {"ok": false, "message": L.text("Name: 1–60 Zeichen. Eine gültige Akzentfarbe wählen.")}
 	var check := preview(model, id, points, rotation_value, width)
 	if not check.ok: return check
-	if not model._spend(check.cost): return {"ok": false, "message": "Das Budget reicht für diesen Umbau noch nicht."}
+	if not model._spend(check.cost): return {"ok": false, "message": L.text("Das Budget reicht für diesen Umbau noch nicht.")}
 	var item: Dictionary = model.asset(id)
 	if item.has("difficulty"):
 		_piste(item, check)
@@ -127,9 +128,10 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 	else:
 		item.point = points[0].duplicate()
 		item.rotation = rotation_value
+	item.custom_name = item.get("custom_name",false) or title != item.name
 	item.name = title
 	item.color = color
 	item.upgrade_total = item.get("upgrade_total", 0) + check.cost
 	model._invalidate()
 	if check.changed: model._reroute_guests()
-	return {"ok": true, "message": "%s angepasst. Umbau: %.0f €." % [title, check.cost], "cost": check.cost}
+	return {"ok": true, "message": L.text("%s angepasst. Umbau: %.0f €.") % L.args([title, check.cost]), "cost": check.cost}

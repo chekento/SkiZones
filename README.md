@@ -6,7 +6,7 @@
 
 **Dein Berg. Dein Resort. Dein nächster Winter.**
 
-Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
+Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
 <!-- APK-DOWNLOAD:START -->
 [![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.10.0/SkiZones-0.10.0-android-arm64.apk)
@@ -31,6 +31,14 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android. Plane Abfahrten, erschlie
 ## In-Game Screenshots
 
 Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Auch das neue Menüpanorama zeigt eine Aufnahme derselben 3D-Spielwelt.
+
+| Planung mit Anschlussprüfung · Deutsch · 0.11.0 | Bedürfnis und Einkehr · English · 0.11.0 |
+|---|---|
+| [![Deutsche Streckenplanung mit Verbesserungshelfer, Höhenprofil und Anschlussprüfung](docs/screenshots/de-route-planning-0110.webp)](docs/screenshots/de-route-planning-0110.webp) | [![Englisches Gastprofil nach einem tatsächlichen Restaurantbesuch](docs/screenshots/en-guest-services-0110.webp)](docs/screenshots/en-guest-services-0110.webp) |
+
+| Vollständiges englisches Menü · 0.11.0 | Forschung auf Englisch · 0.11.0 |
+|---|---|
+| [![Englisches Hauptmenü mit neutralem tatsächlichem Spielpanorama](docs/screenshots/en-menu-0110.webp)](docs/screenshots/en-menu-0110.webp) | [![Englische Forschungsseite mit Voraussetzungen und laufendem Projekt](docs/screenshots/en-research-0110.webp)](docs/screenshots/en-research-0110.webp) |
 
 | Gemütliches Winterdorf · 0.10.0 | Kleine Resortwelt · 0.10.0 |
 |---|---|
@@ -70,10 +78,27 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.10.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.11.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.10.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.11.0.md).
+
+## Neu in 0.11.0: Strecken planen, Gäste versorgen, Deutsch und Englisch
+
+**Plane mit Anschlussprüfung und sieh deinen Gästen bei einer echten Einkehr zu.** Der neue Helfer sucht einen sanfteren Verlauf zwischen deinen Punkten. Bedürfnisse bestimmen, welche erreichbaren Gebäude Gäste als Nächstes besuchen. Das ganze Spiel folgt auf Deutsch oder Englisch der Systemsprache; eine feste Auswahl ist ebenfalls möglich.
+
+| Änderung | Im Spiel |
+|---|---|
+| **Verlauf verbessern** | Optionaler Geländevorschlag mit erhaltenem Start, Ziel und eigenen Zwischenpunkten. Hindernisse, Höhenprofil und automatische Pistenfarbe werden berücksichtigt. Erst Bauen bestätigt den Plan. |
+| **Anschlüsse vorher sehen** | Die Vorschau zeigt erreichbaren Einstieg und Rückweg ins Tal für das benötigte Können. Fehlende Anschlüsse bleiben als Ausbauhinweis sichtbar. |
+| **Persönliche Bedürfnisse** | Hunger, Wärme, Energie, Erlebnis und Ausrüstung führen zu geeigneten Gebäuden. Gäste berücksichtigen freie Plätze, geöffnete Wege und die verbleibende Zeit. |
+| **Tatsächliche Besuche** | Ein Gast geht zum Eingang und bleibt für die Besuchsdauer. Erst danach verbessern sich passende Bedürfnisse und entstehen gegebenenfalls Erlöse. Weitere Einkehr bleibt bei neuem Bedarf möglich. |
+| **Vollständig Deutsch / English** | Menüs, Untermenüs, Baukatalog, Hilfe, Profile, Forschung, Aufträge, Finanzen, Tagesbericht und 3D-Beschriftungen. Systemsprache oder manuelle Auswahl unter Darstellung & Komfort. |
+| **Im laufenden Resort umschalten** | Gäste, Budget, Bauplan, Tempo und Kamera bleiben erhalten; eigene Namen werden nicht übersetzt. |
+
+**697 automatisierte Modell- und Grafikprüfungen** einschließlich 40 neuer Planungs-/Besuchsprüfungen und 19 Prüfungen der vollständigen Oberfläche in beiden Sprachen. Android-11- und Android-16-Emulatorläufe bleiben Voraussetzung der Veröffentlichung.
+
+[Release-Notizen 0.11.0](docs/releases/0.11.0.md) · [Bedürfnisse und Sprache](docs/BEDUERFNISSE_UND_SPRACHE.md) · [Prüfstand](docs/VALIDATION.md)
 
 ## Neu in 0.10.0: eine gemütliche Winterwelt, drei Sportarten und zuverlässig zurück ins Spiel
 

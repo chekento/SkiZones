@@ -48,49 +48,57 @@ jobs:
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
       - name: Simulation regression tests
-        run: '"$GODOT_BIN" --headless --script tests/run.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Career and multi-winter regression tests
-        run: '"$GODOT_BIN" --headless --script tests/progression.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/progression.gd'
       - name: Mountain, snow and map progression tests
-        run: '"$GODOT_BIN" --headless --script tests/mountain_life.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/mountain_life.gd'
       - name: Automatic classification and junction routes
         run: |
-          "$GODOT_BIN" --headless --script tests/piste_planning.gd
-          "$GODOT_BIN" --headless --script tests/junctions.gd
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_planning.gd
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/junctions.gd
       - name: Lift seats, pedestrian areas and migration tests
-        run: '"$GODOT_BIN" --headless --script tests/lifts_and_plazas.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd'
       - name: Curve geometry, pedestrian safety and weekly balance
-        run: '"$GODOT_BIN" --headless --script tests/build_comfort.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/build_comfort.gd'
       - name: Asset remodeling, personal guest moods and preferences
-        run: '"$GODOT_BIN" --headless --script tests/customization.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/customization.gd'
       - name: Chronological closing, two-seater restart and route decisions
-        run: '"$GODOT_BIN" --headless --script tests/day_cycle.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/day_cycle.gd'
       - name: Connected paths, uphill momentum, hiking and save migration
-        run: '"$GODOT_BIN" --headless --script tests/paths_and_momentum.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/paths_and_momentum.gd'
       - name: Winter sports, persistent equipment and 0.9 migration
-        run: '"$GODOT_BIN" --headless --script tests/winter_sports.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/winter_sports.gd'
+      - name: Full English catalog and need-based service routing
+        run: |
+          python3 tools/check_localization.py
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/routes_and_services.gd
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Scene, touch and rendered animation tests
-        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Camera, terrain and editable waypoint tests
-        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/planning_scene.gd
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/planning_scene.gd
       - name: Rendered lift occupants and station plazas
-        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Build cancellation, two-finger camera and pen/finger scrolling
-        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/build_input_scene.gd
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/build_input_scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
-        run: xvfb-run -a -s '-screen 0 1440x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
       - name: Scrollable day report at phone and tablet sizes
-        run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
       - name: Real path editor and rendered hiking on Sonnenhang
-        run: xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/paths_scene.gd
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/paths_scene.gd
       - name: Two-finger rotation, visible sports and application recovery
-        run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
+        run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
       - name: Cute winter scenery, opaque guest materials and bounded batches
-        run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' "$GODOT_BIN" --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
+        run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
+      - name: Complete English and German interface with live language switching
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -102,7 +110,7 @@ jobs:
       - name: Independent region save slots
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-regions
-        run: '"$GODOT_BIN" --headless --script tests/regions.gd'
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/regions.gd'
       - name: Scene smoke test
         run: '"$GODOT_BIN" --headless -- --smoke-test'
       - name: Install Android SDK components

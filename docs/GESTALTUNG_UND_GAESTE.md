@@ -50,3 +50,7 @@ Chalets tragen dicke, abgerundete Schneekappen, warme Fenster, farbige Läden, k
 Die Gäste tragen pastellige Jacken, runde Helme mit Bommel, Brillen mit Reflex, Schals und kleine Rucksäcke. Ein gemeinsames Material färbt nur die dafür vorgesehenen Stoffteile individuell ein. Haut, Brillen und Accessoires werden nicht mehr mit der gesamten Jackenfarbe übermalt. Die eigentliche Sportart und Bewegung bleiben Bestandteil der Simulation.
 
 Die zusätzlichen Details sind in einem Mesh je Modell gebacken. Gäste bleiben in festen Instanzgruppen und entfernte Tannen verwenden einfachere Modelle. Es kommen keine kostspieligen bildfüllenden Grafikfilter hinzu.
+
+## Bedürfnisse und Sprachen seit 0.11
+
+Persönliche Bedürfnisse werden nun gespeichert und durch tatsächliche Gebäudebesuche erfüllt. Plätze, Erreichbarkeit, Besuchsdauer und erneute Einkehr werden berücksichtigt. [Angebote und Sprachwahl](BEDUERFNISSE_UND_SPRACHE.md). Unter Darstellung & Komfort lässt sich die automatische Systemsprache durch Deutsch oder English ersetzen; Resort, Bauplan und Kamera bleiben beim Umschalten erhalten.

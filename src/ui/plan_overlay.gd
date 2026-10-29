@@ -1,4 +1,5 @@
 extends Control
+const L = preload("res://src/core/i18n.gd")
 ## Screen-sized handles stay easy to grab at every camera distance.
 const Terrain = preload("res://src/core/terrain.gd")
 const COLORS := [Color("68b5ee"), Color("ee7f8e"), Color("455366")]
@@ -64,7 +65,7 @@ func _draw() -> void:
 		var width := ThemeDB.fallback_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 		draw_string(ThemeDB.fallback_font, at + Vector2(-width / 2, 5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.WHITE)
 		if selected:
-			var caption := "%.0f m · ziehen zum Verschieben" % game.model.terrain.height(point)
+			var caption := L.text("%.0f m · ziehen zum Verschieben") % L.args(game.model.terrain.height(point))
 			var right_edge: float = size.x - (24 if game.hud.map_focus else 328)
 			var label_at := at + Vector2(-246 if at.x + 242 > right_edge else 18, -17)
 			draw_style_box(game.hud._style(Color("173744"), 5, 4), Rect2(label_at, Vector2(224, 28)))

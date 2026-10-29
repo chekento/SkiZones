@@ -1,6 +1,7 @@
 extends Node3D
 
 const Resort = preload("res://src/core/resort.gd")
+const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
@@ -54,6 +55,8 @@ var _resume_scheduled := false
 var resume_count := 0
 
 func _ready() -> void:
+	preferences.load_from()
+	L.configure(preferences.language)
 	get_tree().auto_accept_quit = false
 	passport.load_from()
 	model.new_game(true, 20261027, passport.data.last_map)
@@ -61,7 +64,6 @@ func _ready() -> void:
 	view.setup(model)
 	add_child(hud)
 	hud.setup(self)
-	preferences.load_from()
 	preferences.apply(view)
 	hud.show_menu()
 	_update_plan()
@@ -75,6 +77,36 @@ func _ready() -> void:
 			call_deferred("_smoke_test")
 		elif argument.begins_with("--capture="):
 			call_deferred("_capture", argument.trim_prefix("--capture="))
+
+func apply_language(value: String) -> void:
+	if value not in ["system","de","en"]: return
+	preferences.language=value
+	_clear_input()
+	var previous: CanvasLayer=hud
+	var show_main: bool=previous.menu.visible
+	var old_map_focus: bool=previous.map_focus
+	var old_lift: int=previous.lift_choice.selected
+	var old_building: int=previous.building_choice.selected
+	var selected_asset: int=previous.selected_id
+	var selected_guest: int=previous.selected_guest
+	remove_child(previous)
+	L.configure(value)
+	view.relocalize()
+	model._anchor_revision=-1
+	hud=ResortHUD.new()
+	add_child(hud)
+	hud.setup(self)
+	hud.lift_choice.select(old_lift)
+	hud.building_choice.select(old_building)
+	if show_main: hud.show_menu()
+	else:
+		hud.hide_menu()
+		hud.show_context(tool,selected_asset)
+		if selected_guest != -1: hud.show_guest(selected_guest)
+		hud.set_map_focus(old_map_focus)
+	_update_plan()
+	previous.queue_free()
+	hud.toast(L.text("Sprache angewendet."))
 
 func _process(delta: float) -> void:
 	if _app_background:
@@ -119,12 +151,12 @@ func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	hud.atlas.hide()
 	hud.set_map_focus(false)
 	set_tool("inspect")
-	hud.toast("Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an." if starter else "Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg.")
+	hud.toast(L.text("Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an.") if starter else L.text("Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg."))
 	hud.refresh()
 
 func enter_area(area: String) -> void:
 	if not passport.unlocked(area):
-		hud.toast("Dieses Gebiet wird durch deinen Bergpass freigeschaltet.")
+		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
 		hud.atlas.hide()
@@ -151,7 +183,7 @@ func enter_area(area: String) -> void:
 		start_game(true, area)
 	passport.record(model)
 	passport.save_to()
-	hud.toast("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand." % Maps.spec(area).name)
+	hud.toast(L.text("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand.") % L.args(Maps.spec(area).name))
 	hud.refresh()
 
 func continue_game() -> void:
@@ -201,14 +233,14 @@ func next_day() -> void:
 
 func manage_loan() -> void:
 	var success: bool = model.repay_loan() if model.loan > 0 else model.take_loan()
-	hud.toast("Kredit aktualisiert. Laufende Zinsen: 450 €/Tag bei offenem Kredit." if success else "Zur Tilgung werden 150.000 € benötigt.")
+	hud.toast(L.text("Kredit aktualisiert. Laufende Zinsen: 450 €/Tag bei offenem Kredit.") if success else L.text("Zur Tilgung werden 150.000 € benötigt."))
 	hud.show_context("inspect")
 	hud.refresh()
 
 func set_tool(value: String) -> void:
 	value = "piste" if value in ["blue", "red", "black"] else value
 	if not points.is_empty() and value != "inspect":
-		hud.toast("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten.")
+		hud.toast(L.text("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten."))
 		return
 	_clear_input()
 	if value in ["lift", "building"] and model.build_access_message(hud.lift_kind() if value == "lift" else hud.building_kind(), value == "lift") != "":
@@ -228,7 +260,7 @@ func clear_plan() -> void:
 	selected_waypoint = -1
 	snap_target = {}
 	set_tool("inspect")
-	hud.toast("Planung beendet. Es wurde nichts ausgegeben.")
+	hud.toast(L.text("Planung beendet. Es wurde nichts ausgegeben."))
 
 func undo_point() -> void:
 	if not points.is_empty():
@@ -287,12 +319,30 @@ func _plan_check() -> Dictionary:
 		return model.preview_plaza(plaza_kind, Terrain.unpack(points[0]))
 	if tool == "building" and points.size() == 1:
 		return model.preview_building(hud.building_kind(), Terrain.unpack(points[0]))
-	return {"ok": false, "message": "Talstation, dann Bergstation antippen." if tool == "lift" else "Einen Bauplatz antippen.", "cost": 0}
+	return {"ok": false, "message": L.text("Talstation, dann Bergstation antippen.") if tool == "lift" else L.text("Einen Bauplatz antippen."), "cost": 0}
+
+func suggest_route() -> void:
+	if tool != "piste" or points.size() < 2: return
+	var context: RefCounted=model if editing_id == -1 else model.Edit.context(model,editing_id)
+	var result: Dictionary=context.suggest_piste(points,edit_width if editing_id != -1 else 20)
+	if result.ok:
+		points=result.points.duplicate(true)
+		selected_waypoint=-1
+		snap_target={}
+		_update_plan()
+	hud.toast(result.message)
+
+func reverse_route() -> void:
+	if tool != "piste" or points.size() < 2: return
+	points.reverse()
+	selected_waypoint=-1
+	snap_target={}
+	_update_plan()
 
 func _update_plan() -> void:
 	_plan_dirty = false
 	if tool == "inspect":
-		hud.plan("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.", false, 0)
+		hud.plan(L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an."), false, 0)
 		hud.palette.route_profile.update_profile({})
 		last_plan_check = {}
 		view.preview([], Color.WHITE)
@@ -307,16 +357,17 @@ func _update_plan() -> void:
 	var cost: float = check.get("cost", 0)
 	var affordable: bool = cost <= model.money
 	var message: String = check.message
+	if check.has("connections"): message += " · " + check.connections.message
 	if points.is_empty() and tool == "piste":
-		message = "Abfahrt planen: Start am Berg setzen, danach weitere Wegpunkte bis ins Tal."
+		message = L.text("Abfahrt planen: Start am Berg setzen, danach weitere Wegpunkte bis ins Tal.")
 	elif points.size() == 1 and tool == "piste":
-		message = "Start bei %.0f m. Verlauf setzen; kurze Gegenanstiege sind mit Schwung oder zu Fuß möglich." % model.terrain.height(Terrain.unpack(points[0]))
+		message = L.text("Start bei %.0f m. Verlauf setzen; kurze Gegenanstiege sind mit Schwung oder zu Fuß möglich.") % L.args(model.terrain.height(Terrain.unpack(points[0])))
 	if not snap_target.is_empty():
-		message += " · Angedockt: %s" % snap_target.label
+		message += L.text(" · Angedockt: %s") % L.args(snap_target.label)
 	if selected_waypoint >= 0 and snap_target.is_empty():
-		message += " · Punkt %d ausgewählt: ziehen zum Verschieben." % (selected_waypoint + 1)
+		message += L.text(" · Punkt %d ausgewählt: ziehen zum Verschieben.") % L.args((selected_waypoint + 1))
 	if not affordable:
-		message += "  Das Budget reicht noch nicht."
+		message += L.text("  Das Budget reicht noch nicht.")
 	hud.plan(message, check.ok and affordable, points.size(), cost)
 	view.preview(points, Color("75cdc7") if check.ok else Color("efb17d"), hud.building_kind() if tool == "building" else "", check if tool in ["piste","building","plaza","walkway"] else {})
 	hud._refresh_context_text()
@@ -537,7 +588,9 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 			view.pan(event.relative)
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		if is_node_ready(): call_deferred("_follow_system_language")
+	elif what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_suspend_application()
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
@@ -604,10 +657,15 @@ func _restore_display() -> void:
 	viewport.transparent_bg = false
 	RenderingServer.viewport_set_update_mode(viewport.get_viewport_rid(),RenderingServer.VIEWPORT_UPDATE_ALWAYS)
 	view.recover_after_resume()
+	_follow_system_language()
 	hud.refresh();hud.root.queue_redraw()
 	await get_tree().process_frame
 	resume_count += 1
 	_resume_scheduled = false
+
+func _follow_system_language() -> void:
+	if preferences.language == "system" and hud.is_inside_tree() and L.language != L.locale_for(L.system_locale()):
+		apply_language("system")
 
 func _start_android_lifecycle_test() -> void:
 	var driver = load("res://tests/android_lifecycle_driver.gd").new()
@@ -836,7 +894,7 @@ func _capture(path: String) -> void:
 
 func begin_edit(id: int, title: String, color: String, rotation_value: int, width: float) -> bool:
 	if not points.is_empty() and editing_id != id:
-		hud.toast("Zuerst die laufende Planung abschließen oder abbrechen.")
+		hud.toast(L.text("Zuerst die laufende Planung abschließen oder abbrechen."))
 		return false
 	var item: Dictionary = model.asset(id)
 	if item.is_empty(): return false
@@ -871,7 +929,7 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 	hud.show_context(tool)
 	hud.asset_editor.hide()
 	_update_plan()
-	hud.toast("Nummerierte Punkte ziehen. Übernehmen bestätigt, Abbrechen verwirft die Änderung.")
+	hud.toast(L.text("Nummerierte Punkte ziehen. Übernehmen bestätigt, Abbrechen verwirft die Änderung."))
 	return true
 
 func _catalog_index(kind: String, lift: bool) -> int:
