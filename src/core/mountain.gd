@@ -26,7 +26,7 @@ func natural_height(point: Vector2) -> float:
 	return Terrain.height(point) + Maps.extra_height(point, id)
 
 func configure_pistes(pistes: Array) -> void:
-	if grading.configure(pistes): _paths.clear()
+	if grading.configure(pistes, bounds): _paths.clear()
 
 func world(point: Vector2, offset: float = 0.0) -> Vector3:
 	return Vector3(point.x, height(point) + offset, point.y)

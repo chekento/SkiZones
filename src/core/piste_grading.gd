@@ -8,7 +8,7 @@ var buckets: Dictionary = {}
 var segments: Array = []
 var signature := 0
 
-func configure(pistes: Array) -> bool:
+func configure(pistes: Array, bounds: Rect2) -> bool:
 	var geometry: Array = []
 	for piste in pistes:
 		geometry.append([piste.get("points", []), piste.get("width", 20), piste.get("level", 1), piste.get("grading", false)])
@@ -25,7 +25,7 @@ func configure(pistes: Array) -> bool:
 		var width := float(piste.get("width", 20)) + (int(piste.get("level", 1)) - 1) * 4
 		if width < 14 or width > 44: continue
 		var valid := true
-		for point in points: valid = valid and Terrain.unpack(point).is_finite()
+		for point in points: valid = valid and Terrain.unpack(point).is_finite() and bounds.has_point(Terrain.unpack(point))
 		if not valid: continue
 		var key := hash([points, width, piste.get("grading", false)])
 		if seen.has(key): continue

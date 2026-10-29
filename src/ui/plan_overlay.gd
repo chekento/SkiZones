@@ -23,15 +23,30 @@ func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 	var distance := radius
 	if game.tool not in ["piste","lift","building","plaza","walkway"]:
 		return selected
-	for index in range(game.points.size()):
-		var world: Vector3 = game.view.surface_position(Terrain.unpack(game.points[index]))
-		if game.view.camera.is_position_behind(world):
-			continue
-		var candidate: float = game.view.camera.unproject_position(world).distance_to(at)
+	for entry in displayed_waypoints():
+		var candidate: float = entry.at.distance_to(at)
 		if candidate < distance:
 			distance = candidate
-			selected = index
+			selected = entry.index
 	return selected
+
+func displayed_waypoints() -> Array:
+	var result: Array = []
+	var previous := Vector2.INF
+	var last := Vector2.INF
+	if not game.points.is_empty(): last = game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[-1])))
+	for index in range(game.points.size()):
+		var world: Vector3 = game.view.surface_position(Terrain.unpack(game.points[index]))
+		if game.view.camera.is_position_behind(world): continue
+		var at: Vector2 = game.view.camera.unproject_position(world)
+		if not Rect2(Vector2.ZERO, size).grow(18).has_point(at): continue
+		var essential: bool = index == 0 or index == game.points.size() - 1 or index == game.selected_waypoint
+		if not essential and (at.distance_to(previous) < 40 or at.distance_to(last) < 40): continue
+		var hit: Dictionary = game.view.surface_picker.intersect(game.view.camera.project_ray_origin(at), game.view.camera.project_ray_normal(at))
+		if not hit.is_empty() and hit.position.distance_to(world) > 0.2: continue
+		result.append({"index": index, "at": at})
+		previous = at
+	return result
 
 func _draw() -> void:
 	if game == null or game.view.camera == null:
@@ -51,12 +66,10 @@ func _draw() -> void:
 		draw_circle(at, 6, Color("f4f9f5"))
 		draw_circle(at, 4, color)
 		draw_arc(at, 9, 0, TAU, 20, color, 1.5, true)
-	for index in range(game.points.size()):
+	for entry in displayed_waypoints():
+		var index: int = entry.index
 		var point := Terrain.unpack(game.points[index])
-		var world: Vector3 = game.view.surface_position(point)
-		if game.view.camera.is_position_behind(world):
-			continue
-		var at: Vector2 = game.view.camera.unproject_position(world)
+		var at: Vector2 = entry.at
 		var selected: bool = index == game.selected_waypoint
 		var color := Color("efb17d") if selected else Color("75cdc7")
 		draw_circle(at, 14, Color("173744"))

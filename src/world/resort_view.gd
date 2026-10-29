@@ -602,6 +602,11 @@ func rebuild() -> void:
 	_pedestrian_snapshot = model.pedestrian_layout()
 	_build_foot_areas()
 	var title_positions: Array[Vector2] = []
+	var junctions: Dictionary = {}
+	for piste in model.pistes:
+		for point in piste.points:
+			var key := Terrain.unpack(point).snapped(Vector2.ONE * 0.5)
+			junctions[key] = junctions.get(key, 0) + 1
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = Snow.piste_width(piste)
@@ -615,7 +620,9 @@ func rebuild() -> void:
 		sign_mesh.surface_set_material(0, _solid)
 		var sign_fractions: Array = []
 		for index in range(piste.points.size()):
-			sign_fractions.append(terrain.waypoint_fraction(piste.points, index))
+			var point := Terrain.unpack(piste.points[index]).snapped(Vector2.ONE * 0.5)
+			if index == 0 or index == piste.points.size() - 1 or junctions.get(point, 0) > 1:
+				sign_fractions.append(terrain.waypoint_fraction(piste.points, index))
 		for i in range(1, ceili(piste.length / 60)):
 			var fraction: float = float(i) * 60 / piste.length
 			var near_waypoint := false
@@ -868,8 +875,10 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 			var a := Terrain.unpack(points[i - 1])
 			var b := Terrain.unpack(points[i])
 			var direction := (b - a).normalized()
-			var arrow := _baked(preview_root, Art.new().downhill_arrow(), terrain.world(a.lerp(b, 0.5), 2.5))
-			arrow.rotation.y = atan2(-direction.x, -direction.y)
+			var middle := a.lerp(b, 0.5)
+			var forward := (surface_position(middle + direction * 2) - surface_position(middle - direction * 2)).normalized()
+			var arrow := _baked(preview_root, Art.new().downhill_arrow(), surface_position(middle) + Vector3.UP * 0.18)
+			arrow.basis = Basis.looking_at(forward, Vector3.UP)
 	if building_kind != "":
 		if not analysis.get("connection", {}).is_empty():
 			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
@@ -1129,7 +1138,7 @@ func _draw_snow(piste: Dictionary) -> void:
 	var data := snow_renderer.update(piste)
 	if _piste_meshes[piste.id].mesh == null:
 		_piste_meshes[piste.id].mesh = snow_renderer.build(terrain, piste)
-		surface_picker.add_mesh("piste_%d" % piste.id, _piste_meshes[piste.id].mesh, piste, snow_renderer.pick_frames[piste.id])
+	surface_picker.add_mesh("piste_%d" % piste.id, _piste_meshes[piste.id].mesh, piste, snow_renderer.pick_frames[piste.id])
 	_piste_meshes[piste.id].material_override = data.material
 
 func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float, range_start: float = 0, range_end: float = 1) -> Vector3:
@@ -1353,8 +1362,8 @@ func home() -> void:
 	_update_camera()
 
 func surface_position(point: Vector2) -> Vector3:
-	var hit := surface_picker.intersect(Vector3(point.x, 10000, point.y), Vector3.DOWN)
-	return hit.position if not hit.is_empty() else terrain.world(point)
+	var at := surface_picker.position(point)
+	return at if at.is_finite() else terrain.world(point)
 
 func map_point(screen_point: Vector2) -> Vector2:
 	if not get_viewport().get_visible_rect().has_point(screen_point): return Vector2.INF

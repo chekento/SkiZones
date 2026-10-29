@@ -5,6 +5,43 @@ const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
 const MAX_SEARCH:=24000
 
+static func smooth(model: RefCounted, points: Array, width: float = 20) -> Dictionary:
+	var invalid := {"ok": false, "points": [], "message": L.text("Kurven hier nicht sicher glättbar. Weitere Zwischenpunkte setzen.")}
+	if points.size() < 3 or points.size() > 64: return invalid
+	for point in points:
+		if not model.terrain.contains(Terrain.unpack(point)): return invalid
+	var lengths: Array = []
+	var total := 0.0
+	for i in range(1, points.size()):
+		var length := Terrain.unpack(points[i - 1]).distance_to(Terrain.unpack(points[i]))
+		if length < 4: return invalid
+		lengths.append(length)
+		total += length
+	var handles: Array[Vector2] = []
+	for i in range(points.size()):
+		var at := Terrain.unpack(points[i])
+		var incoming := (at - Terrain.unpack(points[maxi(0, i - 1)])).normalized()
+		var outgoing := (Terrain.unpack(points[mini(points.size() - 1, i + 1)]) - at).normalized()
+		var tangent := (incoming + outgoing).normalized()
+		var length: float = lengths[clampi(i - 1, 0, lengths.size() - 1)]
+		if i < lengths.size(): length = minf(length, lengths[i])
+		handles.append(tangent * minf(length * 0.22, width * 0.8))
+	var result: Array = [points[0].duplicate()]
+	var spacing := maxf(8, total / maxf(1, 58 - points.size()))
+	for i in range(1, points.size()):
+		var a := Terrain.unpack(points[i - 1])
+		var b := Terrain.unpack(points[i])
+		var steps := maxi(1, ceili(lengths[i - 1] / spacing))
+		for j in range(1, steps):
+			if result.size() + points.size() - i >= 64: break
+			var at := a.bezier_interpolate(a + handles[i - 1], b - handles[i], b, float(j) / steps)
+			if at.distance_to(Terrain.unpack(result[-1])) >= 4 and at.distance_to(b) >= 4: result.append(Terrain.pack(at))
+		result.append(points[i].duplicate())
+	var check: Dictionary = model.preview_piste(result, width)
+	if not check.ok: return invalid
+	check.message = L.text("Kurven geglättet. Breite, Gefälle und Anschlüsse prüfen; erst Bauen bestätigt.")
+	return check
+
 static func _clear(model: RefCounted,a: Vector2,b: Vector2,width: float,shapes: Array) -> bool:
 	if not model.terrain.contains(a) or not model.terrain.contains(b): return false
 	for shape in shapes:

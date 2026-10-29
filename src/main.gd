@@ -355,6 +355,17 @@ func reverse_route() -> void:
 	snap_target={}
 	_update_plan()
 
+func smooth_route() -> void:
+	if tool != "piste" or points.size() < 3: return
+	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
+	var result: Dictionary = model.Planner.smooth(context, points, chosen_piste_width())
+	if result.ok:
+		points = result.points.duplicate(true)
+		selected_waypoint = -1
+		snap_target = {}
+		_update_plan()
+	hud.toast(result.message)
+
 func _update_plan() -> void:
 	_plan_dirty = false
 	if tool == "inspect":

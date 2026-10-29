@@ -1899,3 +1899,15 @@ msgstr "Suggest a gentle route searches between your points. Check the profile a
 
 msgid "Die gesamte Pistenbreite und den Gebäuderand freihalten."
 msgstr "Keep the entire piste width and the building footprint clear."
+
+msgid "Kurven glätten"
+msgstr "Smooth bends"
+
+msgid "Kurven hier nicht sicher glättbar. Weitere Zwischenpunkte setzen."
+msgstr "These bends cannot be smoothed safely. Add more waypoints."
+
+msgid "Kurven geglättet. Breite, Gefälle und Anschlüsse prüfen; erst Bauen bestätigt."
+msgstr "Bends smoothed. Check the width, gradient and connections; only Build confirms the plan."
+
+msgid "Ausbau +%d m · gesamt %.0f m"
+msgstr "Upgrade +%d m \u00b7 total %.0f m"

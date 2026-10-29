@@ -42,6 +42,8 @@ var delete_point_button: Button
 var suggest_route_button: Button
 var piste_controls: HBoxContainer
 var piste_width_choice := OptionButton.new()
+var smooth_route_button: Button
+var piste_width_total: Label
 var plan_overlay := PlanOverlay.new()
 var pause_button: Button
 var speed_buttons: Array = []
@@ -318,6 +320,7 @@ func _build_plan_bar() -> void:
 	for width in range(14, 37, 2): piste_width_choice.add_item("%d m" % width, width)
 	piste_width_choice.item_selected.connect(func(index): game.set_piste_width(piste_width_choice.get_item_id(index)))
 	piste_controls.add_child(piste_width_choice)
+	piste_width_total = _label(piste_controls, "", 15, MUTED)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 10)
 	box.add_child(actions)
@@ -327,6 +330,7 @@ func _build_plan_bar() -> void:
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
+	smooth_route_button = _button(piste_controls, L.text("Kurven glätten"), game.smooth_route)
 	design_button = _button(actions, L.text("Gestaltung"), func(): asset_editor.open(game.editing_id))
 	clear_button = _button(actions, L.text("Abbrechen"), game.clear_plan)
 	_spacer(actions, false)
@@ -728,6 +732,10 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	piste_controls.visible = current_tool == "piste"
 	plan_panel.offset_top = -204 if current_tool == "piste" else -156
 	piste_width_choice.select(piste_width_choice.get_item_index(roundi(game.chosen_piste_width())))
+	var extra := 0
+	if game.editing_id != -1: extra = (int(game.model.asset(game.editing_id).get("level", 1)) - 1) * 4
+	piste_width_total.visible = current_tool == "piste" and extra > 0
+	piste_width_total.text = L.text("Ausbau +%d m · gesamt %.0f m") % L.args([extra, game.chosen_piste_width() + extra])
 	confirm_button.text = L.text("Bauen · %s €") % L.args(money_text(cost)) if cost > 0 else L.text("Bauen")
 	if game.editing_id != -1:
 		confirm_button.text = L.text("Übernehmen · %s €") % L.args(money_text(cost))
@@ -740,6 +748,7 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	suggest_route_button.visible = current_tool == "piste"
 	suggest_route_button.disabled = point_count < 2
+	smooth_route_button.disabled = point_count < 3
 	clear_button.visible = current_tool != "inspect"
 	palette.refresh()
 	if current_tool == "inspect" and game.model.day_finished():
