@@ -17,7 +17,7 @@ static func _clear(model: RefCounted,a: Vector2,b: Vector2,width: float,shapes: 
 		if grade>0.30 or grade< -0.35: return false
 	return Foot.clear_piste([Terrain.pack(a),Terrain.pack(b)],model.lifts,width*0.5)
 
-static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: float,shapes: Array) -> Array:
+static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: float,shapes: Array,budget: Dictionary) -> Array:
 	if _clear(model,start,finish,width,shapes): return [Terrain.pack(start),Terrain.pack(finish)]
 	var step:=clampf(start.distance_to(finish)/55,10,32)
 	var margin:=clampf(start.distance_to(finish)*0.4,90,360)
@@ -31,12 +31,13 @@ static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: flo
 	var visited: Dictionary={}
 	var terminal:=Vector2i(-99999,-99999)
 	var iterations:=0
-	while not heap.is_empty() and iterations<MAX_SEARCH:
+	while not heap.is_empty() and budget.remaining>0 and Time.get_ticks_usec()<budget.deadline:
 		var entry: Array=model._heap_pop(heap)
 		var cell: Vector2i=entry[1]
 		if visited.has(cell): continue
 		visited[cell]=true
 		iterations+=1
+		budget.remaining-=1
 		if cell==terminal: break
 		var at: Vector2=positions[cell]
 		var candidates: Array=[]
@@ -90,8 +91,9 @@ static func suggest(model: RefCounted,points: Array,width: float=20) -> Dictiona
 		var rect:=Rect2(Terrain.unpack(building.point)-size*0.5,size).grow(3)
 		shapes.append(PackedVector2Array([rect.position,Vector2(rect.end.x,rect.position.y),rect.end,Vector2(rect.position.x,rect.end.y)]))
 	var result: Array=[points[0]]
+	var budget: Dictionary={"remaining":MAX_SEARCH,"deadline":Time.get_ticks_usec()+1000000}
 	for index in range(1,points.size()):
-		var part:=_between(model,Terrain.unpack(points[index-1]),Terrain.unpack(points[index]),width,shapes)
+		var part:=_between(model,Terrain.unpack(points[index-1]),Terrain.unpack(points[index]),width,shapes,budget)
 		if part.is_empty() or result.size()+part.size()-1>64: return {"ok":false,"message":L.text("Kein sanfter Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen."),"points":[]}
 		result.append_array(part.slice(1))
 	var check: Dictionary=model.preview_piste(result,width)

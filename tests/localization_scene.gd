@@ -27,6 +27,7 @@ func english_only(node: Node) -> bool:
 	if not leaks.is_empty(): print("UNTRANSLATED UI: ",leaks)
 	return leaks.is_empty()
 func capture(name: String) -> void:
+	game.hud.refresh()
 	for index in range(4): await process_frame
 	await RenderingServer.frame_post_draw
 	DirAccess.make_dir_recursive_absolute("res://build/qa")
@@ -36,8 +37,7 @@ func run() -> void:
 	check(L.locale_for("en_US")=="en" and L.locale_for("en-GB")=="en" and L.locale_for("fr_FR")=="en","English variants and unsupported system languages select complete English")
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await process_frame
 	game.set_process(false);game.preferences.path="user://localization-test-display.cfg"
-	var arguments:=OS.get_cmdline_args();var index:=arguments.find("--language")
-	var expected:=L.locale_for(arguments[index+1] if index>=0 else OS.get_locale())
+	var expected:=L.locale_for(L.system_locale())
 	check(L.language==expected,"The actual startup interface follows the system or Godot locale override")
 	game.apply_language("en");await process_frame
 	check(game.hud.continue_button.text.begins_with("Continue") and game.hud.display_options.language_choice.item_count==3,"The English main menu and language selector are fully constructed")
@@ -45,6 +45,7 @@ func run() -> void:
 	game.start_game(true);game.paused=true
 	for id in range(9): game.model.admit_guest(id%3)
 	check(game.model.build_building("restaurant",Vector2(155,300)).ok,"The bilingual test resort has a real accessible restaurant")
+	game.model.start_research("snowcraft")
 	var guest: Dictionary=game.model.guests[0]
 	guest.needs.hunger=90;guest.needs.warmth=85;guest.needs.energy=85
 	var trip: Dictionary=game.model.service_route(guest)

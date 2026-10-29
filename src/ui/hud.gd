@@ -39,6 +39,7 @@ var confirm_button: Button
 var undo_button: Button
 var clear_button: Button
 var delete_point_button: Button
+var suggest_route_button: Button
 var plan_overlay := PlanOverlay.new()
 var pause_button: Button
 var speed_buttons: Array = []
@@ -314,6 +315,8 @@ func _build_plan_bar() -> void:
 	confirm_button.custom_minimum_size.x = 165
 	undo_button = _button(actions, L.text("Letzten Punkt zurück"), game.undo_point)
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
+	suggest_route_button = _button(actions,L.text("Verlauf verbessern"),game.suggest_route)
+	suggest_route_button.add_theme_font_size_override("font_size",16)
 	design_button = _button(actions, L.text("Gestaltung"), func(): asset_editor.open(game.editing_id))
 	clear_button = _button(actions, L.text("Abbrechen"), game.clear_plan)
 	_spacer(actions, false)
@@ -722,6 +725,8 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	undo_button.disabled = point_count == 0
 	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
+	suggest_route_button.visible = current_tool == "piste"
+	suggest_route_button.disabled = point_count < 2
 	clear_button.visible = current_tool != "inspect"
 	palette.refresh()
 	if current_tool == "inspect" and game.model.day_finished():

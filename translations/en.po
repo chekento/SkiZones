@@ -1873,6 +1873,9 @@ msgstr "Resort promenade"
 msgid "Sprache"
 msgstr "Language"
 
+msgid "Verlauf verbessern"
+msgstr "Improve route"
+
 msgid "Systemsprache"
 msgstr "System language"
 

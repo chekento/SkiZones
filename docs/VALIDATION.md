@@ -1,8 +1,8 @@
-# Prüfung von SkiZones 0.10.0
+# Prüfung von SkiZones 0.11.0
 
 Stand: 29.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
-Der [erfolgreiche Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/40789052786) prüfte den APK-Quellcode `07dbf0d1f52ed4dfb5ebe2ede168e94f7ef8f70e`: **638 Modell- und Grafikprüfungen sowie 23 native Android-Prüffälle bestanden**. Anschließend wurde die ARM64-APK mit Versionscode 11 veröffentlicht. Die Android-Prüfungen liefen in Emulatoren; ein physisches Smartphone wurde nicht geprüft.
+Der aktuelle Prüfumfang beträgt **697 Modell- und Grafikprüfungen**, dazu 23 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
 
 | Prüfung | Umfang |
 |---|---|
@@ -27,6 +27,8 @@ Der [erfolgreiche Veröffentlichungslauf](https://github.com/chekento/SkiZones/a
 | Drei Wintersportarten | 16 Prüfungen: echter gemischter Gästebetrieb, Ausrüstung, persönliche Bewegung, gespeicherte Spuren, deterministische Fortsetzung, beschädigte Daten, kanonische Gastkennungen und tatsächliche 0.9-Migration |
 | Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
 | Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
+| Planung und Bedürfnisse | 40 neue Prüfungen: sanftere tatsächliche Route, erhaltene Wegpunkte, reale Anschlussprüfung, wirkliche Restaurantbesuche und Gebühren, gezielte Erholung, wiederholte Einkehr, Kapazität, geschlossene und abgetrennte Angebote, Format-11-Rundlauf und tatsächliche 0.10-Migration |
+| Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 631 Einträge und Formatplatzhalter |
 | Android-App-Wechsel | 11 erfolgreiche Fälle unter Android 11 (API 30) und 12 unter Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; zusätzlich ein tatsächlicher System-Overlay-Wechsel unter Android 16. Tatsächlich gerenderte Screenshots, fortschreitende Bilder und gespeicherte Zustände werden geprüft. Beide Jobs waren vor der APK-Veröffentlichung erfolgreich. |
 | CPU-Belastung | Aktueller 0.10-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
@@ -38,9 +40,9 @@ Der [erfolgreiche Veröffentlichungslauf](https://github.com/chekento/SkiZones/a
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 638 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 697 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.10.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.11.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 

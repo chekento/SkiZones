@@ -3,6 +3,8 @@ extends RefCounted
 const Catalog = preload("res://src/core/catalog.gd")
 static var installed := false
 static var language := "de"
+static var _launch_system_locale := OS.get_locale()
+static var _launch_engine_locale := TranslationServer.get_locale()
 class Literal extends RefCounted:
 	var value: String
 	func _init(message: String) -> void: value=message
@@ -15,21 +17,26 @@ static func locale_for(system_locale: String) -> String:
 	return "de" if system_locale.replace("-","_").to_lower().get_slice("_",0) == "de" else "en"
 
 static func configure(preference: String = "system") -> void:
-	if not installed:
-		TranslationServer.add_translation(load("res://translations/en.po"))
-		installed=true
+	_install()
 	language=locale_for(system_locale() if preference == "system" else preference)
 	TranslationServer.set_locale(language)
 
 static func system_locale() -> String:
 	var result := OS.get_locale()
-	var arguments := OS.get_cmdline_args()
-	var index := arguments.find("--language")
-	if index >= 0 and index+1 < arguments.size(): result=arguments[index+1]
+	# Godot consumes --language before exposing script arguments. Capture its
+	# initial locale before any in-game choice; Android follows the live system.
+	if OS.get_name() != "Android" and locale_for(_launch_engine_locale) != locale_for(_launch_system_locale):
+		result=_launch_engine_locale
 	return result
 
+static func _install() -> void:
+	if not installed:
+		language=locale_for(TranslationServer.get_locale())
+		TranslationServer.add_translation(load("res://translations/en.po"))
+		installed=true
+
 static func text(message: String) -> String:
-	if not installed: configure("de")
+	_install()
 	return str(TranslationServer.translate(message))
 
 static func args(value: Variant) -> Variant:
