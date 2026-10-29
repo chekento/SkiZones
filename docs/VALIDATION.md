@@ -4,6 +4,8 @@ Stand: 29.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
 Der aktuelle Prüfumfang beträgt **697 Modell- und Grafikprüfungen**, dazu 23 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
 
+Der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/actions/runs/40873205388) prüft den APK-Quellcode-Commit `500190986df4a021bfbf10ed4136fe675ba42677`. Alle **697 Modell-/Grafikprüfungen und 23 Android-Fälle** sind erfolgreich abgeschlossen (Versuch 2). Unter Android 11 wurde nach acht erfolgreichen App-Wechseln der erste Lauf durch einen Emulator-/ADB-Timeout beim Bildschirmwechsel beendet. Der unveränderte Export bestand den vollständigen Wiederholungslauf; Android 16 bestand bereits im ersten Veröffentlichungslauf alle zwölf Fälle.
+
 | Prüfung | Umfang |
 |---|---|
 | Simulation und Speicherstände | 55 automatisierte Prüfungen |
@@ -30,7 +32,7 @@ Der aktuelle Prüfumfang beträgt **697 Modell- und Grafikprüfungen**, dazu 23 
 | Planung und Bedürfnisse | 40 neue Prüfungen: sanftere tatsächliche Route, erhaltene Wegpunkte, reale Anschlussprüfung, wirkliche Restaurantbesuche und Gebühren, gezielte Erholung, wiederholte Einkehr, Kapazität, geschlossene und abgetrennte Angebote, Format-11-Rundlauf und tatsächliche 0.10-Migration |
 | Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 631 Einträge und Formatplatzhalter |
 | Android-App-Wechsel | 11 erfolgreiche Fälle unter Android 11 (API 30) und 12 unter Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; zusätzlich ein tatsächlicher System-Overlay-Wechsel unter Android 16. Tatsächlich gerenderte Screenshots, fortschreitende Bilder und gespeicherte Zustände werden geprüft. Beide Jobs waren vor der APK-Veröffentlichung erfolgreich. |
-| CPU-Belastung | Aktueller 0.10-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
+| CPU-Belastung | Aktueller 0.11-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
 | Darstellung | Stationsplatz mit Warteschlange, Tellerlift, Vierer-/Achtersessel und Gondeln mit tatsächlichen Mitfahrenden sowie blaue Route mit roten/schwarzen Abkürzungen, verschiebbare Planungspunkte, Höhenprofil, Kameramenü, Höhenlinien/Gefällepfeile und runde nummerierte Schilder im tatsächlichen Spiel gerendert und visuell geprüft |
