@@ -345,7 +345,7 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 			var nearest := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]))
 			if nearest.distance_to(point) < 15.0:
 				return _result(false, L.text("Die Piste freihalten: Mindestens 15 m Abstand zur Mittellinie."))
-	return _result(true, Catalog.BUILDINGS[kind].description + (L.text(" · Fußweg wird angeschlossen.") if not connection.is_empty() else ""), {"cost": Catalog.BUILDINGS[kind].cost, "connection": connection})
+	return _result(true, L.text(Catalog.BUILDINGS[kind].description) + (L.text(" · Fußweg wird angeschlossen.") if not connection.is_empty() else ""), {"cost": Catalog.BUILDINGS[kind].cost, "connection": connection})
 
 func build_building(kind: String, point: Vector2) -> Dictionary:
 	var access := build_access_message(kind, false)

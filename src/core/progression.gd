@@ -34,6 +34,15 @@ static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary
 static func has(model: RefCounted, id: String) -> bool:
 	return model.campaign.get("research", []).has(id)
 
+const NOTICES := {
+	"Willkommen in deiner ersten Wintersaison.": [],
+	"%s gestartet. Fertig an Tag %d.": [TYPE_STRING,TYPE_INT],
+	"%s abgeschlossen.": [TYPE_STRING],
+	"Auftrag erfüllt: %s. Belohnung im Resort-Büro abholen.": [TYPE_STRING],
+	"Resort-Stern %d erreicht: %s.": [TYPE_INT,TYPE_STRING],
+	"Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten.": [TYPE_INT,TYPE_INT]
+}
+
 static func set_notice(state: Dictionary, key: String, arguments: Array = []) -> void:
 	state.notice = key % arguments if not arguments.is_empty() else key
 	state.notice_key = key
@@ -336,6 +345,15 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		state.abilities[i] = int(state.abilities[i])
 	if not state.get("project") is Dictionary or not state.get("notice") is String or state.notice.length() > 500:
 		return false
+	if state.has("notice_key"):
+		if not state.notice_key is String or not NOTICES.has(state.notice_key) or not state.get("notice_args") is Array: return false
+		var types: Array=NOTICES[state.notice_key]
+		if state.notice_args.size()!=types.size(): return false
+		for index in range(types.size()):
+			var argument: Variant=state.notice_args[index]
+			if types[index]==TYPE_STRING:
+				if not argument is String or argument.length()>100: return false
+			elif not Terrain.number(argument) or argument<0 or argument>1000000000 or argument!=floorf(argument): return false
 	if not state.project.is_empty():
 		if not RESEARCH.has(state.project.get("id")):
 			return false

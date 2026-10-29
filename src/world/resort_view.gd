@@ -305,7 +305,7 @@ func _build_terrain() -> void:
 	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
 	lake_node.scale.z = 0.62
 	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("b5b5a9"), 0.25)
-	_label(landscape, L.text("TALZUGANG"), terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
+	_label(landscape, "TALZUGANG", terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
 	scenery_instance = MeshInstance3D.new()
@@ -452,9 +452,10 @@ func _link(parent: Node3D, from: Vector3, to: Vector3, radius: float, color: Col
 	var instance := _mesh(parent, mesh, (from + to) * 0.5, color)
 	instance.basis = Basis(Quaternion(Vector3.UP, (to - from).normalized()))
 
-func _label(parent: Node3D, title: String, position_value: Vector3, color: Color) -> void:
+func _label(parent: Node3D, title: String, position_value: Vector3, color: Color) -> Label3D:
 	var label := Label3D.new()
-	label.text = title
+	label.text = L.text(title)
+	label.set_meta("source_text",title)
 	label.font_size = 34
 	label.pixel_size = 0.15
 	label.position = position_value
@@ -464,6 +465,19 @@ func _label(parent: Node3D, title: String, position_value: Vector3, color: Color
 	label.visibility_range_begin = 150
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(label)
+	return label
+
+func relocalize() -> void:
+	var pending: Array=[self]
+	while not pending.is_empty():
+		var node: Node=pending.pop_back()
+		pending.append_array(node.get_children())
+		if node is Label3D and node.has_meta("source_text"):
+			if node.has_meta("piste_id"):
+				var piste: Dictionary=model.asset(node.get_meta("piste_id"))
+				node.text=L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][int(piste.difficulty)]])
+			else: node.text=L.text(node.get_meta("source_text"))
+	_label_tick=-1
 
 func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 	var instances := MultiMesh.new()
@@ -585,7 +599,8 @@ func rebuild() -> void:
 			show_title = show_title and start.distance_to(previous) > 80
 		if show_title:
 			title_positions.append(start)
-			_label(asset_root, L.text("%d · %s") % L.args([piste.number, [L.text("BLAU"), L.text("ROT"), L.text("SCHWARZ")][piste.difficulty]]), terrain.world(start, 24), color)
+			var marker:=_label(asset_root,L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][piste.difficulty]]),terrain.world(start,24),color)
+			marker.set_meta("piste_id",int(piste.id))
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:

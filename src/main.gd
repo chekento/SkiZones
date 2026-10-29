@@ -91,6 +91,7 @@ func apply_language(value: String) -> void:
 	var selected_guest: int=previous.selected_guest
 	remove_child(previous)
 	L.configure(value)
+	view.relocalize()
 	model._anchor_revision=-1
 	hud=ResortHUD.new()
 	add_child(hud)
@@ -587,7 +588,9 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 			view.pan(event.relative)
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		if is_node_ready(): call_deferred("_follow_system_language")
+	elif what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_suspend_application()
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
@@ -654,10 +657,15 @@ func _restore_display() -> void:
 	viewport.transparent_bg = false
 	RenderingServer.viewport_set_update_mode(viewport.get_viewport_rid(),RenderingServer.VIEWPORT_UPDATE_ALWAYS)
 	view.recover_after_resume()
+	_follow_system_language()
 	hud.refresh();hud.root.queue_redraw()
 	await get_tree().process_frame
 	resume_count += 1
 	_resume_scheduled = false
+
+func _follow_system_language() -> void:
+	if preferences.language == "system" and hud.is_inside_tree() and L.language != L.locale_for(L.system_locale()):
+		apply_language("system")
 
 func _start_android_lifecycle_test() -> void:
 	var driver = load("res://tests/android_lifecycle_driver.gd").new()

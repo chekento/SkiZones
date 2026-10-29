@@ -119,7 +119,7 @@ func _career(page: VBoxContainer) -> void:
 	var event := Progression.event(model)
 	_card(page, L.text("Heute: ") + event.name, event.description)
 	if not state.project.is_empty():
-		_card(page, L.text("In Arbeit: ") + Progression.RESEARCH[state.project.id].name, L.text("Fertig an Tag %d. Dein Resort kann während der Forschung normal weiterlaufen.") % L.args(state.project.due_day))
+		_card(page, L.text("In Arbeit: ") + L.text(Progression.RESEARCH[state.project.id].name), L.text("Fertig an Tag %d. Dein Resort kann während der Forschung normal weiterlaufen.") % L.args(state.project.due_day))
 	if Progression.has(model, "meteo"):
 		var weather := _card(page, L.text("Wetterplanung"), L.text("Die Vorschau entspricht dem Wetter der nächsten Betriebstage."))
 		for offset in range(1, 7):
@@ -183,7 +183,7 @@ func _upgrades(page: VBoxContainer) -> void:
 				details = L.text("%.0f %% Zustand · %.0f cm Schnee · %.0f m Strecke") % L.args([item.condition, item.snow, item.length])
 			else:
 				details = Catalog.BUILDINGS[item.kind].description
-			var body := _card(page, L.text("%s · Stufe %d / 3") % L.args([item.name, item.get("level", 1)]), details)
+			var body := _card(page, L.text("%s · Stufe %d / 3") % L.args([L.verbatim(L.asset_name(item)), item.get("level", 1)]), details)
 			var id: int = item.id
 			var check: Dictionary = model.upgrade_check(id)
 			hud._label(body, check.message, 16, hud.TEAL, true)

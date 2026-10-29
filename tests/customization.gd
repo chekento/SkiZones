@@ -75,21 +75,21 @@ func _init() -> void:
 	check(profile == Profile.describe(model,guest) and profile.home != "" and profile.years >= 18 and profile.spending == model.ticket_price, "Personal identity and admission spending are stable and come from actual admission")
 	guest.phase="queue"; guest.wait=60
 	check(Profile.describe(model,guest).mood == "impatient", "An individual guest becomes impatient after their own waiting tolerance")
-	guest.phase="moving"; guest.wait=0; guest.age=300; model.weather_index=4
+	guest.phase="moving"; guest.wait=0; guest.needs.hunger=75; model.weather_index=4
 	check(Profile.describe(model,guest).mood == "hungry", "Several hours without a service visit create hunger")
-	guest.spent=true
+	model.Needs.complete(guest, "restaurant")
 	check(Profile.describe(model,guest).hunger < 20, "A completed service visit reduces that guest's hunger")
-	guest.spent=false; guest.age=480; model.weather_index=1
+	guest.needs.warmth=30; model.weather_index=1
 	check(Profile.describe(model,guest).mood == "cold", "Long exposure in cold weather changes the guest's mood")
-	guest.age=100; guest.runs=14; model.weather_index=0
+	guest.needs.warmth=80; guest.needs.energy=20; model.weather_index=0
 	check(Profile.describe(model,guest).mood == "tired", "Many actual descents consume personal energy")
-	guest.runs=3
+	guest.needs.energy=80; guest.runs=3
 	check(Profile.describe(model,guest).mood == "excited", "Successful descents create an enthusiastic mood")
 	var migrated: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/v0.6-starter.json"))
 	var count: int = migrated.guests.size()
 	var old_balance: float = migrated.money
 	check(copy.restore(migrated).ok and copy.guests.size() == count and copy.money == old_balance and count > 0, "An actual populated 0.6 save migrates without losing guests or funds")
-	check(copy.snapshot().version == 10 and Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated and customized saves can be saved again in format 10")
+	check(copy.snapshot().version == 11 and Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated and customized saves can be saved again in format 10")
 	var settings := Preferences.new(); settings.path = "user://display-customization-test.cfg"
 	settings.quality="economy"; settings.target_fps=30; settings.snowfall=false; settings.camera_smoothing=false
 	check(settings.save_to() == OK, "Graphics and comfort preferences can be saved")

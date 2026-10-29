@@ -44,6 +44,11 @@ static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: flo
 		for x in range(-1,2):
 			for y in range(-1,2):
 				if x!=0 or y!=0: candidates.append(cell+Vector2i(x,y))
+		for side in [-1,1]:
+			for forward in [-1,1]:
+				for span in [2,3]:
+					candidates.append(cell+Vector2i(side*span,forward))
+					candidates.append(cell+Vector2i(side,forward*span))
 		for next: Vector2i in candidates:
 			if visited.has(next): continue
 			if next!=terminal and (next.x<0 or next.y<0 or next.x>grid.x or next.y>grid.y): continue

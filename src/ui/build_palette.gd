@@ -44,6 +44,7 @@ func setup(interface: CanvasLayer) -> void:
 	suggest_button=hud._button(content,L.text("Sanften Verlauf vorschlagen"),game.suggest_route,true)
 	suggest_button.tooltip_text=L.text("Sucht einen sanfteren Verlauf zwischen deinen Punkten. Bauen wird separat bestätigt.")
 	reverse_button=hud._button(content,L.text("Richtung umkehren"),game.reverse_route)
+	refresh(true)
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
@@ -105,11 +106,9 @@ func _make_cards() -> void:
 	for key in Catalog.PLAZAS:
 		var spec: Dictionary = Catalog.PLAZAS[key]
 		if key == "walkway":
-			_card(key,spec.name,L.text("8 m breit · 180 € + 18 €/m\n")+spec.description,252,0,"plaza",hud.TEAL)
+			_card(key,spec.name,L.text("8 m breit · 180 € + 18 €/m\n")+L.text(spec.description),252,0,"plaza",hud.TEAL)
 			continue
 		_card(key, spec.name, L.text("Ø %.0f m · %s €\n%s") % L.args([spec.radius * 2, hud.money_text(spec.cost), spec.description]), spec.cost, 0, "plaza", hud.TEAL)
-	refresh(true)
-
 func select_category(value: String) -> void:
 	if not game.points.is_empty() and category != value:
 		hud.toast(L.text("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten."))

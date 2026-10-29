@@ -24,7 +24,7 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 		kind = guest.route.legs[guest.leg].kind
 		activity = {"ski": L.text("Auf der Piste"), "walk": L.text("Zu Fuß unterwegs"), "lift": L.text("Fährt bergauf"), "visit": L.text("Genießt eine Pause")}.get(kind, L.text("Unterwegs"))
-		if kind=="visit": activity=L.text("Besucht %s") % L.args(model.asset(guest.route.legs[guest.leg].id).get("name",L.text("ein Gebäude")))
+		if kind=="visit": activity=L.text("Besucht %s") % L.args(L.verbatim(L.asset_name(model.asset(guest.route.legs[guest.leg].id))))
 	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
 		activity = L.text("Stapft den Gegenanstieg hinauf")
 		climbing = true

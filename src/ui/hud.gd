@@ -255,10 +255,10 @@ func _build_tools() -> void:
 	root.add_child(building_choice)
 	building_choice.hide()
 	for kind in Catalog.LIFTS:
-		lift_choice.add_item(Catalog.LIFTS[kind].name)
+		lift_choice.add_item(L.text(Catalog.LIFTS[kind].name))
 	lift_choice.selected = Catalog.LIFTS.keys().find("drag")
 	for kind in Catalog.BUILDINGS:
-		building_choice.add_item(Catalog.BUILDINGS[kind].name)
+		building_choice.add_item(L.text(Catalog.BUILDINGS[kind].name))
 	building_choice.selected = Catalog.BUILDINGS.keys().find("lodge")
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -278,6 +278,7 @@ func _build_inspector() -> void:
 	var box := _vbox(panel, 12)
 	_label(box, "RESORT-KOMPASS", 13, TEAL)
 	box.add_child(inspector_title)
+	inspector_title.auto_translate_mode=Node.AUTO_TRANSLATE_MODE_DISABLED
 	inspector_title.add_theme_font_size_override("font_size", 23)
 	inspector_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var scroll := DragScroll.new()
@@ -371,7 +372,7 @@ func _build_camera_dialog() -> void:
 	box.add_child(camera_choice)
 	camera_choice.custom_minimum_size.y = 44
 	for mode in game.view.CAMERA_MODES:
-		camera_choice.add_item(mode)
+		camera_choice.add_item(L.text(mode))
 	camera_choice.item_selected.connect(func(index: int):
 		game.view.set_camera_mode(index)
 		_sync_camera_controls()
@@ -478,6 +479,7 @@ func _build_dialogs() -> void:
 	help.bbcode_enabled = true
 	help.add_theme_font_size_override("normal_font_size", 18)
 	help.text = L.text("[b]BEOBACHTEN[/b]\nBei 1× dauert ein Betriebstag etwa 20 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Nachts wird präpariert. Mit Schneemanagement und geöffneter Garage kannst du eine Piste auch tagsüber präparieren lassen. Sie bleibt 45 Spielminuten für neue Routen geschlossen.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt vier Karten und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license")
+	help.text += "\n\n" + L.text("‚Sanften Verlauf vorschlagen‘ sucht eine Route zwischen deinen Punkten. Prüfe Höhenprofil und Anschlüsse; Bauen bestätigst du selbst.") + "\n\n" + L.text("Gäste suchen passende erreichbare Gebäude für Hunger, Wärme, Erholung oder Ausrüstung. Besuche und freie Plätze siehst du am Gebäude.")
 	help_dialog.add_child(help)
 
 func show_help() -> void:
@@ -565,7 +567,7 @@ func show_context(tool: String, id: int = -1) -> void:
 			groom.tooltip_text = check.message
 			grooming_label = _label(inspector_actions, check.message, 13, MUTED, true)
 	elif tool == "inspect":
-		inspector_title.text = Maps.spec(game.model.map_id).name
+		inspector_title.text = L.text(Maps.spec(game.model.map_id).name)
 		price_label = _label(inspector_actions, L.text("Tageskarte: %d €") % L.args(game.model.ticket_price), 18)
 		var slider := HSlider.new()
 		slider.min_value = 20

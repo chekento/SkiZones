@@ -3,6 +3,13 @@ extends RefCounted
 const Catalog = preload("res://src/core/catalog.gd")
 static var installed := false
 static var language := "de"
+class Literal extends RefCounted:
+	var value: String
+	func _init(message: String) -> void: value=message
+	func _to_string() -> String: return value
+
+static func verbatim(message: String) -> RefCounted:
+	return Literal.new(message)
 
 static func locale_for(system_locale: String) -> String:
 	return "de" if system_locale.replace("-","_").to_lower().get_slice("_",0) == "de" else "en"
@@ -11,12 +18,15 @@ static func configure(preference: String = "system") -> void:
 	if not installed:
 		TranslationServer.add_translation(load("res://translations/en.po"))
 		installed=true
-	var system_locale := OS.get_locale()
+	language=locale_for(system_locale() if preference == "system" else preference)
+	TranslationServer.set_locale(language)
+
+static func system_locale() -> String:
+	var result := OS.get_locale()
 	var arguments := OS.get_cmdline_args()
 	var index := arguments.find("--language")
-	if index >= 0 and index+1 < arguments.size(): system_locale=arguments[index+1]
-	language=locale_for(system_locale if preference == "system" else preference)
-	TranslationServer.set_locale(language)
+	if index >= 0 and index+1 < arguments.size(): result=arguments[index+1]
+	return result
 
 static func text(message: String) -> String:
 	if not installed: configure("de")

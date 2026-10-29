@@ -128,8 +128,8 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 	else:
 		item.point = points[0].duplicate()
 		item.rotation = rotation_value
+	item.custom_name = item.get("custom_name",false) or title != item.name
 	item.name = title
-	item.custom_name = true
 	item.color = color
 	item.upgrade_total = item.get("upgrade_total", 0) + check.cost
 	model._invalidate()

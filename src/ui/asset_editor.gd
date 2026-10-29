@@ -56,7 +56,9 @@ func setup(owner_hud: CanvasLayer) -> void:
 	hud._label(box, L.text("Auf der Karte die nummerierten Punkte ziehen. Erst ‚Übernehmen‘ bestätigt und berechnet den Umbau. Mit ‚Abbrechen‘ bleibt die bestehende Anlage erhalten."), 16, hud.MUTED, true)
 	hud._spacer(box)
 	hud._button(box, L.text("Auf Karte bearbeiten"), func():
-		if hud.game.begin_edit(id, name_field.text, color, orientation_choice.selected, width_slider.value): hide()
+		var item: Dictionary=hud.game.model.asset(id)
+		var title: String=item.name if name_field.text == L.asset_name(item) else name_field.text
+		if hud.game.begin_edit(id, title, color, orientation_choice.selected, width_slider.value): hide()
 	, true)
 	hud._button(box, L.text("Zurück"), hide)
 	hide()
@@ -73,7 +75,8 @@ func open(asset_id: int) -> void:
 	if item.is_empty(): return
 	id = asset_id
 	var editing: bool = hud.game.editing_id == id
-	name_field.text = hud.game.edit_title if editing else item.name
+	name_field.auto_translate_mode=Node.AUTO_TRANSLATE_MODE_DISABLED
+	name_field.text = hud.game.edit_title if editing and hud.game.edit_title != item.name else L.asset_name(item)
 	color = hud.game.edit_color if editing else item.get("color", "")
 	orientation_choice.select(hud.game.edit_rotation if editing else int(item.get("rotation", 0)))
 	width_slider.value = hud.game.edit_width if editing else item.get("width", 20)
