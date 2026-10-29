@@ -9,11 +9,11 @@
 Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
 <!-- APK-DOWNLOAD:START -->
-[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.11.0/SkiZones-0.11.0-android-arm64.apk)
+[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.12.0/SkiZones-0.12.0-android-arm64.apk)
 
-**Aktueller Download: v0.11.0 · Android ARM64 · Preview**
+**Aktueller Download: v0.12.0 · Android ARM64 · Preview**
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.11.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.12.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
 
 ![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
 
