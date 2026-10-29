@@ -6,6 +6,8 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
+const Operations = preload("res://src/core/operations_analysis.gd")
+const ScenarioCatalog = preload("res://src/core/scenario_catalog.gd")
 
 var game: Node
 var hud: CanvasLayer
@@ -98,6 +100,7 @@ func refresh() -> void:
 	_contracts(_page(L.text("Aufträge")))
 	_research(_page(L.text("Forschung")))
 	_upgrades(_page(L.text("Ausbau")))
+	_operations(_page(L.text("Betriebsanalyse")))
 	_finances(_page(L.text("Finanzen")))
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
@@ -188,6 +191,25 @@ func _upgrades(page: VBoxContainer) -> void:
 			var check: Dictionary = model.upgrade_check(id)
 			hud._label(body, check.message, 16, hud.TEAL, true)
 			_action(body, L.text("Ausbauen"), func(): return model.upgrade_asset(id), check.ok)
+
+func _operations(page: VBoxContainer) -> void:
+	var model: RefCounted = game.model
+	var summary: Dictionary = Operations.overview(model)
+	_card(page, L.text("Lift-Verkehr: %d warten · %d Engpässe") % L.args([summary.queued, summary.bottlenecks]), L.text("Der Bericht misst echte simulierte Warteschlangen. Die theoretische Wartezeit nutzt die nominelle Förderleistung, nicht den aktuellen Zeitmaßstab oder tatsächlich gemessene Durchsatzwerte."))
+	hud._label(page, L.text("LIFTANALYSE"), 16, hud.ACCENT)
+	if summary.lifts.is_empty():
+		_card(page, L.text("Noch keine Lifte"), L.text("Baue einen Lift, um Warteschlangen, Förderleistung und Belastung zu vergleichen."))
+	for entry in summary.lifts:
+		var status: String = L.text("Geschlossen") if entry.severity == "closed" else (L.text("Kritischer Engpass") if entry.severity == "critical" else (L.text("Hohe Auslastung") if entry.severity == "warning" else L.text("Im Zielbereich")))
+		var heading := L.text("%s · %d Gäste warten · %s") % L.args([L.verbatim(entry.name), entry.queue, status])
+		var details := L.text("Nennleistung: %d Pers./h · nomineller Warteschlangenabbau: %.1f Min. · letzte Sitzbelegung: %.0f %%") % L.args([entry.capacity_per_hour, entry.nominal_wait_minutes, entry.observed_load * 100])
+		_card(page, heading, details)
+	hud._label(page, L.text("REALE RESORT-SZENARIEN · IN VORBEREITUNG"), 16, hud.ACCENT)
+	_card(page, L.text("Fiktive Herausforderungen auf späteren echten Geländekarten"), L.text("Die folgenden Aufgaben beschreiben keine tatsächlichen Probleme dieser Skigebiete. Originalgetreue Karten sind erst nach rechtmäßigem Datenimport und Prüfung aller Lift- und Pistenverbindungen spielbar."))
+	for concept in ScenarioCatalog.specs():
+		var heading: String = concept.title_de if L.language == "de" else concept.title_en
+		var premise: String = concept.premise_de if L.language == "de" else concept.premise_en
+		_card(page, heading + " · " + L.text("Noch nicht spielbar"), premise)
 
 func _finances(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
