@@ -105,6 +105,8 @@ func _availability() -> void:
 	check(visit_id(model.service_route(guest))!=int(food.id),"Closed buildings are excluded from need-based choices")
 	# Make a separate, legitimately built service island connected by three plazas.
 	model=Resort.new();model.new_game(true);model.money=1000000
+	# Preserve the no-promenade service-island regression for imported resorts.
+	model.terrain_generation=1;model.terrain=model.Mountain.new();model._invalidate()
 	var ok:=true
 	for at in [Vector2(20,230),Vector2(-90,230),Vector2(-200,230)]:
 		ok=ok and model.build_plaza("plaza",at).ok
@@ -138,7 +140,7 @@ func _migration() -> void:
 		preserved=preserved and guest.id==old.guests[index].id and guest.sport==old.guests[index].sport and guest.elapsed==old.guests[index].elapsed and Needs.valid(guest)
 	check(preserved,"Migration preserves identities, sports, progress, funds and clock while initialising valid needs")
 	var copy:=Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==12,"Needs, service history and real itineraries survive a format 12 JSON roundtrip")
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==13,"Needs, service history and real itineraries survive a format 13 JSON roundtrip")
 	for minute in range(80): model.advance_minute(false);copy.advance_minute(false)
 	check(model.money==copy.money and model.total_rides==copy.total_rides and model.guests.size()==copy.guests.size(),"Need-based visits continue deterministically after saving")
 	var damaged:=model.snapshot()

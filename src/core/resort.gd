@@ -12,6 +12,7 @@ const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
+const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const MINUTES_PER_SECOND := 0.5
@@ -46,6 +47,7 @@ var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var revision := 0
 var legacy_foot := false
+var terrain_generation := 2
 var _routes: Dictionary = {}
 var _graphs: Dictionary = {}
 var _ski_legs: Dictionary = {}
@@ -68,14 +70,15 @@ var campaign: Dictionary = {}
 func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang") -> void:
 	legacy_foot = false
 	map_id = area_id if Maps.MAPS.has(area_id) else "sonnenhang"
-	terrain = Mountain.new(map_id)
+	terrain_generation = 2
+	terrain = Mountain.new(map_id, terrain_generation)
 	snow_revision += 1
-	money = 400000.0
+	money = float(Maps.spec(map_id).budget)
 	day = 1
 	minute = OPENING
 	reputation = 48.0
-	ticket_price = 42
-	weather_index = 0
+	ticket_price = [42, 40, 50, 48, 38, 44, 54, 58][Maps.MAPS.keys().find(map_id)]
+	weather_index = [0, 1, 0, 0, 1, 0, 2, 0][Maps.MAPS.keys().find(map_id)]
 	loan = 0
 	total_guests = 0
 	total_rides = 0
@@ -93,10 +96,26 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	_reset_report()
 	_invalidate()
 	if starter:
-		build_lift("drag", Vector2(200, 205), Vector2(245, -130))
-		build_piste([[245, -130], [275, -30], [255, 95], [200, 205]], 0)
-		build_building("lodge", Vector2(235, 252))
+		# The destination includes its advertised infrastructure. Research still
+		# gates further construction after the initial package has been seeded.
+		campaign.mode = "free"
+		var start := Maps.spec(map_id)
+		var bottom := Terrain.unpack(start.start_bottom)
+		var top := Terrain.unpack(start.start_top)
+		build_lift(start.start_lift, bottom, top)
+		if map_id == "sonnenhang":
+			build_piste([[245, -130], [275, -30], [255, 95], [200, 205]], 0)
+		else:
+			var side := (top - bottom).normalized().orthogonal()
+			var route: Array = []
+			for i in range(5):
+				var t := float(i) / 4
+				route.append(Terrain.pack(top.lerp(bottom, t) + side * (38 + sin(t * PI) * 36)))
+			build_piste(route)
+		var service: String = ["lodge", "shelter", "restaurant", "lodge", "kiosk", "school", "hotel", "lodge"][Maps.MAPS.keys().find(map_id)]
+		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
+		campaign.mode = "career"
 	Progression.begin_day(self)
 
 func _reset_report() -> void:
@@ -178,7 +197,7 @@ func preview_piste(points: Array, width: float = 20) -> Dictionary:
 	var prepared := Foot.prepare_piste(points, lifts)
 	# A new centerline is retained at its original elevation by the earthworks.
 	# Analyze that final profile, not the bank of an older crossing corridor.
-	var planning_terrain: RefCounted = terrain.get_script().new(map_id)
+	var planning_terrain: RefCounted = terrain.get_script().new(map_id, terrain_generation)
 	var check: Dictionary = planning_terrain.analyse(prepared)
 	check.points = prepared
 	check.width = width
@@ -351,19 +370,31 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 				return _result(false, L.text("Die gesamte Pistenbreite und den Gebäuderand freihalten."))
 	return _result(true, L.text(Catalog.BUILDINGS[kind].description) + (L.text(" · Fußweg wird angeschlossen.") if not connection.is_empty() else ""), {"cost": Catalog.BUILDINGS[kind].cost, "connection": connection})
 
-func build_building(kind: String, point: Vector2) -> Dictionary:
+func building_orientation(kind: String, point: Vector2) -> int:
+	var best := INF
+	var rotation_value := 0
+	for rotation_index in range(4):
+		var access := Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_index)
+		if not access.is_empty() and access.length < best:
+			best = access.length
+			rotation_value = rotation_index
+	return rotation_value
+
+func build_building(kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
 	var access := build_access_message(kind, false)
 	if access != "":
 		return _result(false, access)
 	if buildings.size() >= 60:
 		return _result(false, L.text("Maximal 60 Gebäude in diesem Prototyp."))
-	var check := preview_building(kind, point)
+	if rotation_value < 0 or rotation_value > 3: return _result(false, L.text("Diese Änderung ist hier nicht möglich."))
+	var check := preview_building(kind, point, rotation_value)
 	if not check.ok:
 		return check
 	if not _spend(check.cost):
 		return _result(false, L.text("Das Budget reicht für dieses Gebäude noch nicht."))
 	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "level": 1, "upgrade_total": 0.0, "name": Catalog.BUILDINGS[kind].name, "visits": 0, "revenue": 0.0})
 	next_id += 1
+	buildings[-1].rotation = rotation_value
 	_invalidate()
 	return _result(true, L.text("%s gebaut.") % L.args(Catalog.BUILDINGS[kind].name))
 
@@ -388,6 +419,19 @@ func snap_walkway(point: Vector2, radius: float = 28, ignore_id: int = -1) -> Di
 		if distance < radius:
 			radius = distance
 			best = anchor
+	for area in walk_areas:
+		if area.kind != "walkway" or not area.enabled or area.id == ignore_id: continue
+		for i in range(1, area.points.size()):
+			var at := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(area.points[i - 1]), Terrain.unpack(area.points[i]))
+			if at.distance_to(point) < radius:
+				radius = at.distance_to(point)
+				best = {"point": at, "id": area.id, "label": area.name}
+	for link in pedestrian_layout().links:
+		if not link.get("promenade", false): continue
+		var at := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(link.points[0]), Terrain.unpack(link.points[-1]))
+		if at.distance_to(point) < radius:
+			radius = at.distance_to(point)
+			best = {"point": at, "id": 0, "label": L.text("Dorfpromenade")}
 	return best
 
 func preview_walkway(points: Array) -> Dictionary:
@@ -406,12 +450,15 @@ func preview_walkway(points: Array) -> Dictionary:
 		prepared.append_array(detour.slice(1))
 		if prepared.size() > 64: return _result(false,L.text("Den Fußweg in zwei verbundene Abschnitte teilen."))
 	if not Foot.gentle(terrain,prepared): return _result(false,L.text("Zum Gehen zu steil. Den Weg mit weiteren Punkten quer zum Hang legen."))
+	prepared = Foot.smooth_walk(terrain, prepared, buildings, lifts)
 	var layout_value := pedestrian_layout()
+	var attached := false
 	for at in [Terrain.unpack(prepared[0]),Terrain.unpack(prepared[-1])]:
-		if not Foot.contains(layout_value,at) and snap_walkway(at,4).is_empty(): return _result(false,L.text("Beide Enden an einen Liftzugang, eine Piste, ein Gebäude oder einen Platz anschließen."))
+		attached = attached or Foot.contains(layout_value, at) or not snap_walkway(at, 4).is_empty()
+	if not attached: return _result(false,L.text("Mindestens ein Ende an einen vorhandenen Weg, Liftzugang oder Platz anschließen."))
 	var length := terrain.polyline_length(prepared)
 	if length < 4 or length > 1600: return _result(false,L.text("Ein Fußweg benötigt 4–1.600 m Länge."))
-	return _result(true,L.text("Fußweg · %.0f m · 8 m breit · beide Enden angeschlossen") % L.args(length),{"points":prepared,"length":length,"width":8.0,"walkway":true,"cost":roundi(180+length*18)})
+	return _result(true,L.text("Fußweg · %.0f m · 8 m breit · am Wegenetz angeschlossen") % L.args(length),{"points":prepared,"length":length,"width":8.0,"walkway":true,"cost":roundi(180+length*18)})
 
 func build_walkway(points: Array) -> Dictionary:
 	if walk_areas.size() >= 80: return _result(false,L.text("Maximal 80 Wege und zusätzliche Gehflächen."))
@@ -1050,7 +1097,7 @@ func _start_leg(guest: Dictionary) -> void:
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		if leg.get("motion_version",0) >= 2:
-			var motion := Motion.travel_profile(terrain,leg.points,guest.ability,Motion.style(guest.id,guest.ability,guest.get("sport","ski")).speed/[5.2,7.5,10.0][guest.ability],Snow.roughness(piste))
+			var motion := Motion.travel_profile(terrain,leg.points,guest.ability,Motion.style(guest.id,guest.ability,guest.get("sport","ski")).speed/[5.2,7.5,10.0][guest.ability],Snow.roughness(piste),guest.get("sport","ski"))
 			guest.ski_motion = motion.samples
 			guest.duration = motion.minutes
 			guest.walk_ranges = Motion.walk_ranges(motion.samples,leg.get("start_fraction",0),leg.get("end_fraction",1))
@@ -1235,6 +1282,7 @@ func advance_minute(arrivals: bool = true) -> void:
 			var ability := 0 if rng.randf() < day_event.beginner_share else (1 if rng.randf() < 0.72 else 2)
 			admit_guest(ability)
 	var departures: Array = []
+	var traffic := Traffic.steps(self) if terrain_generation >= 2 else {}
 	for guest in guests:
 		guest.age += 1
 		Needs.advance(guest,weather().temperature)
@@ -1254,7 +1302,7 @@ func advance_minute(arrivals: bool = true) -> void:
 			if leg.kind == "lift":
 				guest.elapsed = maxf(0, asset(leg.id).get("clock", 0.0) - guest.get("ride_departure", 0.0))
 			else:
-				guest.elapsed += 1.0
+				guest.elapsed += traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0
 			if leg.kind == "ski":
 				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])))
 				snow_revision += 1
@@ -1267,6 +1315,9 @@ func advance_minute(arrivals: bool = true) -> void:
 		if lift_open(lift) or _return_service(lift):
 			_board_lift(lift)
 	_queue_cache.clear()
+	if terrain_generation >= 2:
+		var upcoming := Traffic.steps(self)
+		for guest in guests: guest.traffic_step = upcoming.get(int(guest.id), 1.0)
 	_check_achievements()
 	Progression.refresh(self)
 	if minute >= CLOSING and guests.is_empty():
@@ -1469,7 +1520,8 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 	if guest.phase == "leaving":
 		return terrain.world(Terrain.BASE)
 	var leg: Dictionary = guest.route.legs[guest.leg]
-	var fraction := clampf((guest.elapsed + fraction_tick) / guest.get("duration", leg.minutes), 0, 1)
+	var display_step: float = guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0
+	var fraction := clampf((guest.elapsed + fraction_tick * display_step) / guest.get("duration", leg.minutes), 0, 1)
 	if guest.phase == "queue":
 		var lift := asset(leg.id)
 		queued_guests(lift.id)
@@ -1488,6 +1540,13 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
 		return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(side)) - 0.05)
+	if leg.kind == "walk" and terrain_generation >= 2:
+		var length := terrain.polyline_length(leg.points)
+		var frame := terrain.path_frame(leg.points, fraction, length)
+		var taper: float = smoothstep(0, 8, fraction * length) * smoothstep(0, 8, (1 - fraction) * length) * frame.taper
+		var offset: Vector2 = frame.direction.orthogonal() * (0.85 + posmod(int(guest.id), 4) * 0.16) * taper
+		var walking_point := point + offset
+		if Foot.free_of_buildings(walking_point, buildings, 1.2): point = walking_point
 	return terrain.world(point, 0.3)
 
 func snapshot() -> Dictionary:
@@ -1509,7 +1568,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version":12,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":13,"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -1576,7 +1635,7 @@ func restore(data: Dictionary) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign"]:
+	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
@@ -1586,7 +1645,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 12:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 13:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -1594,7 +1653,10 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	legacy_foot = bool(data.get("legacy_foot",false)) if data.version >= 9 else true
 	if data.version >= 9 and not data.get("legacy_foot") is bool: return invalid
 	map_id = area
-	terrain = Mountain.new(map_id)
+	var generation_value: Variant = data.get("terrain_generation", 1) if data.version >= 13 else 1
+	if not Terrain.number(generation_value) or (generation_value != 1 and generation_value != 2): return invalid
+	terrain_generation = int(generation_value)
+	terrain = Mountain.new(map_id, terrain_generation)
 	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 150000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
 	for key in ranges:
 		var value: Variant = data.get(key)
@@ -1751,6 +1813,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	for visitor in data.guests:
 		if not visitor is Dictionary:
 			return invalid
+		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:
 				return invalid

@@ -200,7 +200,7 @@ func run() -> void:
 	check(unaffordable, "The build catalogue disables unaffordable assets")
 	game.hud.show_atlas()
 	await process_frame
-	check(game.hud.atlas.visible and game.hud.atlas._cards.size() == 4 and game.hud.blocks_map(map_position), "The mountain passport presents four regions and blocks building underneath")
+	check(game.hud.atlas.visible and game.hud.atlas._cards.size() == 8 and game.hud.blocks_map(map_position), "The mountain passport presents eight regions and blocks building underneath")
 	var regions_locked := true
 	for card in game.hud.atlas._cards:
 		if card.id != "sonnenhang":

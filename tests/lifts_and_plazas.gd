@@ -139,6 +139,10 @@ func _areas() -> void:
 	check(snap_start.point.distance_to(top) > Foot.machine_radius(lift), "Tapping a station snaps to a plaza gate instead of the machine")
 	check(not model.preview_piste([[top.x - 80, top.y], [top.x, top.y], [top.x + 80, top.y + 80]]).ok, "A piste cannot cut through the middle of a station")
 	model.new_game(true)
+	# Legacy courtyards have no public promenade; keep testing their disconnection.
+	model.terrain_generation = 1
+	model.terrain = model.Mountain.new()
+	model._invalidate()
 	check(not model.preview_building("shelter", Vector2(18, 306)).ok, "An isolated building cannot create a remote pedestrian area")
 	check(model.build_building("kiosk", Vector2(80, 280)).ok and model.build_building("shelter", Vector2(18, 306)).ok, "Connected building forecourts can extend an area beyond the original station radius")
 	var bridge: int = model.buildings[2].id

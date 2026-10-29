@@ -58,7 +58,7 @@ func run() -> void:
 	await capture("en-guest-services-0110")
 	for item in game.model.buildings+game.model.lifts+game.model.pistes: game.hud.show_context("inspect",int(item.id))
 	game.hud.show_help();check(english_only(game.hud.help_dialog),"The complete English help includes building, camera, guests and new planning instructions");game.hud.help_dialog.hide()
-	game.hud.atlas.open();check(english_only(game.hud.atlas),"All four areas and unlock requirements appear in English");game.hud.atlas.hide()
+	game.hud.atlas.open();check(english_only(game.hud.atlas),"All eight areas and unlock requirements appear in English");game.hud.atlas.hide()
 	game.hud.show_management(2)
 	check(english_only(game.hud.management),"Every Resort Office tab uses English titles, descriptions, conditions and actions")
 	await capture("en-research-0110");game.hud.management.hide()

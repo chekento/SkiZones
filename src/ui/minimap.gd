@@ -33,10 +33,12 @@ func _point(point: Vector2) -> Vector2:
 	return (point - _map.bounds.position) / _map.bounds.size * size
 
 func _draw() -> void:
-	if _seen != map_id:
-		_map = Mountain.new(map_id)
-		_seen = map_id
-		if not _images.has(map_id):
+	var generation: int = game.model.terrain_generation if game != null else 2
+	var cache_key := "%s/%d" % [map_id, generation]
+	if _seen != cache_key:
+		_map = Mountain.new(map_id, generation)
+		_seen = cache_key
+		if not _images.has(cache_key):
 			var pixels := Image.create(128, 96, false, Image.FORMAT_RGB8)
 			var light := Vector3(-0.5, 0.8, 0.3).normalized()
 			for y in range(96):
@@ -51,8 +53,8 @@ func _draw() -> void:
 					if fmod(h, 120) < 5:
 						color = color.darkened(0.13)
 					pixels.set_pixel(x, y, color)
-			_images[map_id] = ImageTexture.create_from_image(pixels)
-		_background = _images[map_id]
+			_images[cache_key] = ImageTexture.create_from_image(pixels)
+		_background = _images[cache_key]
 	draw_texture_rect(_background, Rect2(Vector2.ZERO, size), false)
 	if game != null:
 		for piste in game.model.pistes:

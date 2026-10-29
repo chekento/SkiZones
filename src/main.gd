@@ -248,6 +248,7 @@ func set_tool(value: String) -> void:
 	if value in ["lift", "building"] and model.build_access_message(hud.lift_kind() if value == "lift" else hud.building_kind(), value == "lift") != "":
 		return
 	editing_id = -1
+	edit_rotation = 0
 	tool = "piste" if value in ["blue", "red", "black"] else value
 	points.clear()
 	selected_waypoint = -1
@@ -334,7 +335,9 @@ func _plan_check() -> Dictionary:
 	if tool == "plaza" and points.size() == 1:
 		return model.preview_plaza(plaza_kind, Terrain.unpack(points[0]))
 	if tool == "building" and points.size() == 1:
-		return model.preview_building(hud.building_kind(), Terrain.unpack(points[0]))
+		var check := model.preview_building(hud.building_kind(), Terrain.unpack(points[0]), edit_rotation)
+		check.rotation = edit_rotation
+		return check
 	return {"ok": false, "message": L.text("Talstation, dann Bergstation antippen.") if tool == "lift" else L.text("Einen Bauplatz antippen."), "cost": 0}
 
 func suggest_route() -> void:
@@ -424,7 +427,7 @@ func confirm_plan() -> void:
 	elif tool == "lift":
 		result = model.build_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	else:
-		result = model.build_building(hud.building_kind(), Terrain.unpack(points[0]))
+		result = model.build_building(hud.building_kind(), Terrain.unpack(points[0]), edit_rotation)
 	_committing = false
 	if result.ok:
 		_clear_input()
@@ -467,6 +470,7 @@ func _map_tap(position_value: Vector2) -> void:
 	point = _snap_point(point, position_value)
 	if tool in ["building", "plaza"]:
 		points = [Terrain.pack(point)]
+		if tool == "building" and editing_id == -1: edit_rotation = model.building_orientation(hud.building_kind(), point)
 	elif tool == "lift" and points.size() >= 2:
 		points[1] = Terrain.pack(point)
 	elif points.size() < 64:

@@ -6,13 +6,15 @@ const Dynamics = preload("res://src/core/ski_dynamics.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Grading = preload("res://src/core/piste_grading.gd")
 var id := "sonnenhang"
+var generation := 1
 var bounds: Rect2
 var base := Terrain.BASE
 var _paths: Dictionary = {}
 var grading := Grading.new()
 
-func _init(map_id: String = "sonnenhang") -> void:
+func _init(map_id: String = "sonnenhang", terrain_generation: int = 1) -> void:
 	id = map_id
+	generation = terrain_generation
 	bounds = Maps.spec(id).bounds
 
 func contains(point: Vector2) -> bool:
@@ -23,7 +25,7 @@ func height(point: Vector2) -> float:
 	return natural + grading.offset(self, point, natural)
 
 func natural_height(point: Vector2) -> float:
-	return Terrain.height(point) + Maps.extra_height(point, id)
+	return Maps.base_height(point, id, generation) + Maps.extra_height(point, id, generation)
 
 func configure_pistes(pistes: Array) -> void:
 	if grading.configure(pistes, bounds): _paths.clear()

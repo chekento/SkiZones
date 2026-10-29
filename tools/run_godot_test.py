@@ -20,7 +20,7 @@ except subprocess.TimeoutExpired as error:
     print(output.decode(errors="replace") if isinstance(output, bytes) else output, flush=True)
     raise SystemExit("Godot test did not complete before its timeout")
 print(result.stdout, end="", flush=True)
-summary = re.findall(r"(?:RESULT|LIFE|PLANNING|JUNCTIONS|PLAZAS|COMFORT|CUSTOMIZATION|CYCLE|MOMENTUM|SPORTS|SCENE|REGIONS|SERVICES|I18N|SURFACES): (\d+) passed; (\d+) failed", result.stdout)
+summary = re.findall(r"(?:RESULT|LIFE|PLANNING|JUNCTIONS|PLAZAS|COMFORT|CUSTOMIZATION|CYCLE|MOMENTUM|SPORTS|SCENE|REGIONS|SERVICES|I18N|SURFACES|WORLDS): (\d+) passed; (\d+) failed", result.stdout)
 failed = result.returncode or not summary or any(int(item[1]) for item in summary)
 failed = failed or "SCRIPT ERROR" in result.stdout or "Parse Error" in result.stdout
 raise SystemExit(1 if failed else 0)
