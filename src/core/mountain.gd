@@ -114,7 +114,7 @@ static func difficulty_for_grade(grade: float) -> int:
 	# These are deliberately the existing game limits, not a real-world certification.
 	return 0 if grade <= Terrain.GRADE_LIMITS[0] else (1 if grade <= Terrain.GRADE_LIMITS[1] else 2)
 
-func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
+func analyse(points: Array, _legacy_choice: int = -1, imported: bool = false) -> Dictionary:
 	# The optional argument keeps old callers compatible; colors can no longer be painted.
 	var result := {"ok": false, "message": L.text("Mindestens zwei Wegpunkte setzen."), "length": 0.0, "horizontal": 0.0, "drop": 0.0, "grade": 0.0, "average": 0.0, "uphill": 0.0, "cost": 0, "difficulty": 0, "profile": [], "segments": []}
 	if points.size() < 2 or points.size() > 64:
@@ -132,7 +132,7 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	for i in range(1, points.size()):
 		var a := Terrain.unpack(points[i - 1])
 		var b := Terrain.unpack(points[i])
-		if a.distance_to(b) < 4:
+		if a.distance_to(b) < (0.005 if imported else 4):
 			result.message = L.text("Wegpunkte müssen mindestens 4 m auseinanderliegen.")
 			return result
 		var steps := ceili(a.distance_to(b) / Terrain.SAMPLE_STEP)
@@ -155,6 +155,12 @@ func analyse(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	result.average = result.drop / maxf(result.horizontal, 0.001) * 100
 	result.difficulty = difficulty_for_grade(result.grade)
 	result.cost = roundi(result.length * [32, 44, 58][result.difficulty])
+	if imported and result.length >= 1:
+		var motion := Dynamics.profile(self, points, result.difficulty, 0.86)
+		result.ok = motion.ok and result.grade < 180
+		result.hike_meters = motion.hike_meters
+		result.carry_rise = motion.carry_rise
+		return result
 	if result.length < 40 or result.drop < 7:
 		result.message = L.text("Mindestens 40 m Länge und 7 m Höhenverlust erforderlich.")
 	elif result.grade > Terrain.GRADE_LIMITS[2]:

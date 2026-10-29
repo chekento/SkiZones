@@ -70,3 +70,16 @@ Frei planbare, auswählbare und bearbeitbare Fußwege mit tatsächlichen Lift-, 
 ## Erledigt in 0.10.0
 
 Drei erkennbare Wintersportarten mit gespeicherter Ausrüstung, eigenen Fahrstilen und passenden Spuren. Entfernte parallele Absperrseile am Lift, kombinierte Zweifinger-Drehung mit Geländeanker und gezielte Wiederaufnahme von Kamera und Darstellung nach App-Wechseln. Getrennt gesicherter Sitzungspunkt für Prozessneustarts und begrenztes Nachholen laufender Betriebszeit. Detailreichere Ausrüstung, Helme, Brillen, Handschuhe und dezente Schneekörnung. Format 10, tatsächliche 0.9-Migration sowie 634 Modell- und Grafikprüfungen; Android-11-/16-Emulatoren prüfen reale Activity-Wechsel und sichtbare Spielfortsetzungen vor der Veröffentlichung. Physische Geräteprüfung bleibt offen.
+
+
+## Erledigt in 0.14.0
+
+Vier Szenarien mit realer OSM-Geometrie und unabhängigem Höhenraster:
+Braunlage / Wurmberg, Filzmoos, Kitzbühel und Seiser Alm. Stationspersonal
+mit Schichten, Mittelstationen, Gondel-Talfahrten, Reparaturteams und
+Ersatzteillieferungen. Kaufbare Pistenraupen mit tatsächlicher Arbeit,
+Energie und Verschleiß. Erreichbarkeitsabhängige Rettung und Evakuierung.
+Fortlaufender 24-Stunden-Betrieb mit automatischer Mitternachtsabrechnung,
+Hotelübernachtungen, Disco und Außenpool mit sichtbaren Schwimmern.
+Eigenständige Szenarioziele, laufende Kostenstellen, Hauptmenü-Einstellungen
+für die Sprache und vollständige Quellenangaben. Spielstandformat 14.

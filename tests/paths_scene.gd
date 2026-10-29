@@ -56,6 +56,7 @@ func run() -> void:
 	# Real Sonnenhang terrain, with an interior rise that needs a short bootpack.
 	game.start_game(false);game.paused=true;game.model.money=3000000
 	game.model.build_lift("chair",Vector2(200,205),Vector2(-140,-320))
+	game.Ops.fill_stations(game.model, int(game.model.lifts[0].id))
 	game.model.build_piste([[-100,-300],[-100,-140],[200,205]])
 	for i in range(5):
 		if game.model.admit_guest(2):break

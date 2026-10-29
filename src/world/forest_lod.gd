@@ -79,7 +79,7 @@ func build(view: Node3D) -> void:
 		if entry.grade > 47 and rocks.size() < 90:
 			rocks.append(entry)
 			continue
-		if entry.grade > 65 or entry.height > (620 if map_id == "fichtenkamm" else 360) or used >= int(3200 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.18:
+		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(3200 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.18:
 			continue
 		var key := Vector2i((entry.point / CHUNK).floor())
 		if not chunks.has(key):

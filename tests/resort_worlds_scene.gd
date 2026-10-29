@@ -18,7 +18,7 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	game.set_process(false)
-	for id in Maps.MAPS:
+	for id in Maps.FANTASY_MAPS:
 		game.start_game(true, id)
 		game.paused = true
 		await process_frame

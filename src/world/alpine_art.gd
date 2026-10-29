@@ -240,12 +240,13 @@ func _winter_decoration(width: float, depth: float, height_value: float, accent:
 	sphere(at+Vector3(0,3.14,1.02),0.19,Color("e5a069"),Vector3(0.7,0.7,1.9))
 
 func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
+	if kind == "pool": return outdoor_pool(accent)
 	if kind == "snowmaker":
 		return snow_cannon(level)
 	if kind in ["viewpoint", "shelter", "snowpark", "bus", "kiosk"]:
 		return amenity(kind, accent)
 	var big := kind == "hotel"
-	var wide := kind == "maintenance"
+	var wide := kind in ["maintenance", "repair_office"]
 	var width := 35.0 if big else (29.0 if wide else 22.0)
 	var depth := 28.0 if big else (24.0 if wide else 18.0)
 	var floors := 2 + int(level >= 2) if big else 1 + int(level == 3)
@@ -310,11 +311,40 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 	if kind == "first_aid":
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.4), Vector3(6, 1.5, 0.6), Color("e9f2ec"))
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.5), Vector3(1.5, 6, 0.6), Color("e9f2ec"))
-	if kind == "spa":
+	if kind == "spa" or kind == "pool":
 		box(Vector3(0, 1.2, depth / 2 + 12), Vector3(23, 2.4, 17), Color("a8b5b6"))
 		box(Vector3(0, 2.5, depth / 2 + 12), Vector3(19, 0.2, 13), Color("5cbbca"))
 		for x in [-13, 13]:
 			box(Vector3(x, 2, depth / 2 + 12), Vector3(2.5, 1, 6), Color("9d805c"))
+	if kind == "disco":
+		for x in [-7, 0, 7]:
+			box(Vector3(x, 9.2, depth / 2 + 1.5), Vector3(4, 1.2, 1), Color("eb85ce") if x != 0 else Color("7bded6"))
+			sphere(Vector3(x, 4.0, depth / 2 + 3), 1.3, Color("a9d7f7"))
+	return finish()
+
+func outdoor_pool(accent: Color) -> ArrayMesh:
+	soft_box(Vector3(0, 0.6, 0), Vector3(32, 1.2, 42), Color("b8c6cc"), Vector3.ZERO, 0.5)
+	soft_box(Vector3(0, 1.3, 3), Vector3(27, 1.4, 27), Color("d8e5e8"), Vector3.ZERO, 0.8)
+	box(Vector3(0, 2.05, 3), Vector3(24, 0.22, 24), Color("65bfce"))
+	for x in [-9, -3, 3, 9]: box(Vector3(x, 2.2, 3), Vector3(0.15, 0.1, 21), Color("b7e8e7"))
+	soft_box(Vector3(0, 4.6, -16), Vector3(24, 8, 8), Color("caa485"), Vector3.ZERO, 0.5)
+	box(Vector3(0, 9.0, -16), Vector3(27, 1.1, 11), Color("edf2fa"))
+	for x in [-8, 0, 8]: box(Vector3(x, 5, -11.8), Vector3(5, 4, 0.4), Color("ffe0a6"))
+	for x in [-14, 14]:
+		for z in [-3, 9]: box(Vector3(x, 2.0, z), Vector3(2.3, 1, 6), Color("96765a"))
+	for x in [-10, 10]:
+		box(Vector3(x, 2.9, 16), Vector3(0.45, 3, 0.45), Color("d4dedf"))
+		box(Vector3(x + 1.3, 2.9, 16), Vector3(0.45, 3, 0.45), Color("d4dedf"))
+	box(Vector3(0, 3.4, 20), Vector3(8, 1.3, 0.8), accent)
+	return finish()
+
+func swimmer() -> ArrayMesh:
+	soft_box(Vector3(0, 0.12, -0.4), Vector3(1.4, 0.7, 2.5), Color("60aebd"), Vector3.ZERO, 0.25)
+	sphere(Vector3(0, 0.4, 1.25), 0.65, Color("edc6a5"))
+	sphere(Vector3(0, 0.75, 1.18), 0.55, Color("775c47"), Vector3(1, 0.5, 1))
+	for side in [-1, 1]:
+		box(Vector3(side * 1.35, 0.18, 0.4), Vector3(1.8, 0.4, 0.45), Color("edc6a5"), Vector3(0, side * 0.45, 0))
+		box(Vector3(side * 0.42, -0.05, -2.1), Vector3(0.5, 0.4, 1.8), Color("edc6a5"))
 	return finish()
 
 func amenity(kind: String, accent: Color) -> ArrayMesh:

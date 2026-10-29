@@ -37,10 +37,10 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Maps.MAPS.size() == 8, "Eight independently named unlockable resorts")
+	check(Maps.FANTASY_MAPS.size() == 8, "Eight independently named unlockable resorts")
 	var starts: Dictionary = {}
 	var signatures: Dictionary = {}
-	for id in Maps.MAPS:
+	for id in Maps.FANTASY_MAPS:
 		var model := Resort.new()
 		model.new_game(true, 20261029, id)
 		print("WORLD ", id, " lifts=", model.lifts.size(), " pistes=", model.pistes.size(), " buildings=", model.buildings.size(), " routes=", model.routes_for(0).size(), "/", model.routes_for(2).size(), " money=", model.money)

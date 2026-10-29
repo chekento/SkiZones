@@ -2,7 +2,8 @@ extends RefCounted
 ## Shared map specifications. Unlocks belong to the passport, not a single resort.
 static var _noise: Dictionary = {}
 
-const MAPS := {
+const Geo = preload("res://src/core/real_resorts.gd")
+const FANTASY_MAPS := {
 	"sonnenhang": {"bounds": Rect2(-1440, -2200, 2880, 2700), "name": "Velvet Peaks", "subtitle": "Sonnige Almterrassen & ein gemütliches Skidorf", "color": "74b4bb", "rank": 1, "guests": 0, "contracts": 0, "forest": 1.0, "snow": 1.0, "description": "Weiche Almkuppen, ein geschütztes Dorf und weite Carvinghänge. Dein Einstieg in ein alpines Boutique-Resort.", "start_lift": "drag", "start_bottom": [200, 205], "start_top": [245, -130], "budget": 400000, "start": "Almdorf mit Tellerlift", "sky": "efb88f", "ground": "e9eef5", "trees": "718a80", "peaks": [[-650, -1050, 230, 430], [550, -1700, 330, 470], [-900, -1850, 160, 310]], "valleys": []},
 	"fichtenkamm": {"bounds": Rect2(-1800, -2900, 3600, 3400), "name": "Whisperpine Lodge", "subtitle": "Verschlungene Waldtäler & stille Höhenrücken", "color": "77a58a", "rank": 2, "guests": 800, "contracts": 2, "forest": 1.6, "snow": 1.15, "description": "Ein Waldresort mit einem nostalgischen Zweiersessel. Erschließe geschützte Mulden und lange Verbindungen zwischen den Kämmen.", "start_lift": "chair2", "start_bottom": [95, 195], "start_top": [120, -220], "budget": 520000, "start": "Waldlodge mit Zweiersessel", "sky": "b9cda7", "ground": "e3eeec", "trees": "527d70", "peaks": [[-740, -1100, 350, 440], [540, -1850, 390, 380], [-620, -2600, 430, 570], [1250, -2300, 250, 400]], "valleys": [[0, -1500, -140, 600]]},
 	"gletscherwelt": {"bounds": Rect2(-2200, -4000, 4400, 4500), "name": "Glacier Royale", "subtitle": "Gletscherzungen & hochalpine Schneeschüsseln", "color": "9ac4db", "rank": 3, "guests": 2000, "contracts": 5, "forest": 0.45, "snow": 1.5, "description": "Helle Eisflanken und breite Gletscherbecken. Eine Gondel erschließt den ersten Panorama-Sektor deines hochalpinen Resorts.", "start_lift": "gondola", "start_bottom": [265, 195], "start_top": [300, -350], "budget": 850000, "start": "Gletscherbasis mit Gondel", "sky": "bdd8eb", "ground": "eaf3ff", "trees": "7897a5", "peaks": [[-1150, -2450, 740, 600], [630, -3200, 900, 690], [1350, -1300, 440, 450], [-1350, -900, 220, 360]], "valleys": [[80, -2100, -180, 700]]},
@@ -13,6 +14,14 @@ const MAPS := {
 	"sternengrat": {"bounds": Rect2(-3100, -5500, 6200, 6000), "name": "Starlight Valhalla", "subtitle": "Sternengrate & die große Gipfel-Expedition", "color": "d5ba8c", "rank": 5, "guests": 7500, "contracts": 18, "forest": 0.55, "snow": 1.5, "description": "Dein größtes Resort: hohe Gipfelketten, gestaffelte Hügel und tiefe Hochtäler. Ein Achtersessel startet die Expedition zum Sternengrat.", "start_lift": "chair8", "start_bottom": [70, 185], "start_top": [60, -380], "budget": 1050000, "start": "Grand Resort mit Achtersessel", "sky": "e8d2b2", "ground": "f5f1f6", "trees": "82928b", "peaks": [[-2100, -3300, 1180, 710], [-650, -4600, 1400, 780], [1350, -4200, 1460, 740], [2100, -2300, 850, 610], [-1300, -1500, 540, 510]], "valleys": [[100, -3000, -260, 830]]}
 }
 
+static var MAPS: Dictionary = _all_maps()
+
+static func _all_maps() -> Dictionary:
+	var result := FANTASY_MAPS.duplicate(true)
+	for id in Geo.IDS:
+		result[id] = Geo.map_spec(id)
+	return result
+
 static func spec(id: String) -> Dictionary:
 	return MAPS.get(id, MAPS.sonnenhang)
 
@@ -21,6 +30,7 @@ static func area(id: String) -> float:
 	return bounds.size.x * bounds.size.y / 1000000.0
 
 static func base_height(point: Vector2, id: String, generation: int) -> float:
+	if id in Geo.IDS: return Geo.height(point, id)
 	if generation < 2 or id == "sonnenhang": return preload("res://src/core/terrain.gd").height(point)
 	var index := maxi(0, MAPS.keys().find(id))
 	var climb := maxf(210.0 - point.y, 0)
@@ -29,6 +39,7 @@ static func base_height(point: Vector2, id: String, generation: int) -> float:
 	return 6 + climb * gradient + shoulder + sin(point.x * 0.011 + index) * sin(climb * 0.009) * 1.6
 
 static func extra_height(point: Vector2, id: String, generation: int = 1) -> float:
+	if id in Geo.IDS: return 0.0
 	if generation >= 2: return _resort_height(point, id)
 	# The original valley is preserved, including old save geometry.
 	var outside := maxf(maxf(absf(point.x) - 360, -400 - point.y), 0)

@@ -23,6 +23,8 @@ func english_only(node: Node) -> bool:
 	words.compile("\\b(Bauen|Abbrechen|Pisten|Aufträge|Forschung|Rückweg|Tageskarte|Darstellung|Wärmegefühl|Gäste|Ausbauen|Finanzen|Plätze|Gebiet|Berghütte|Skiverleih)\\b|[äöüßÄÖÜ]")
 	var leaks: Array=[]
 	for text in texts(node):
+		# Preserve geographic names and the official Austrian source attribution.
+		text = text.replace("Kitzbühel", "Kitzbuehel").replace("Österreich", "Austria").replace("Geländemodell", "terrain model")
 		if words.search(text): leaks.append(text.left(180))
 	if not leaks.is_empty(): print("UNTRANSLATED UI: ",leaks)
 	return leaks.is_empty()
@@ -45,6 +47,7 @@ func run() -> void:
 	game.start_game(true);game.paused=true
 	for id in range(9): game.model.admit_guest(id%3)
 	check(game.model.build_building("restaurant",Vector2(155,300)).ok,"The bilingual test resort has a real accessible restaurant")
+	game.Ops.fill_building(game.model, int(game.model.buildings[-1].id))
 	game.model.start_research("snowcraft")
 	var guest: Dictionary=game.model.guests[0]
 	guest.needs.hunger=90;guest.needs.warmth=85;guest.needs.energy=85

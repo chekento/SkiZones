@@ -1,0 +1,39 @@
+GEODATA & ATTRIBUTION · SkiZones 0.14
+
+Map geometry: © OpenStreetMap contributors.
+Open Database License (ODbL) 1.0:
+[url=https://www.openstreetmap.org/copyright]openstreetmap.org/copyright[/url]
+[url=https://opendatacommons.org/licenses/odbl/1-0/]opendatacommons.org/licenses/odbl/1-0/[/url]
+
+The offline OSM-derived database, original extracts, query, timestamps and
+reproducible importer are published under ODbL 1.0 in assets/geodata/:
+[url=https://github.com/chekento/SkiZones/tree/main/assets/geodata]github.com/chekento/SkiZones/tree/main/assets/geodata[/url]
+Source service: Overpass API (FOSSGIS). Import: 29 October 2026.
+
+Elevation: Mapzen Terrain Tiles, accessed 29 October 2026.
+[url=https://registry.opendata.aws/terrain-tiles/]registry.opendata.aws/terrain-tiles/[/url]
+[url=https://github.com/tilezen/joerd/blob/master/docs/attribution.md]Terrain Tiles attribution and source licences[/url]
+Austria terrain data © offene Daten Österreichs – Digitales Geländemodell
+(DGM) Österreich. Europe terrain data produced using Copernicus data and
+information funded by the European Union – EU-DEM layers. Global GMTED2010
+and SRTM terrain data courtesy of the U.S. Geological Survey.
+The resampled elevation grid is approximately 55 metres. It represents
+terrain rather than a survey of current snow or individual buildings.
+
+Geographic names and lift types were checked against the operators'
+public lists. Their map artwork, photographs and logos are not included:
+[url=https://www.wurmberg-seilbahn.de/uebersicht-lifte-pisten.html]Wurmbergseilbahn[/url]
+[url=https://filzmoos.ski/winter/lifte-und-pisten]Filzmoos[/url]
+[url=https://map.kitzski.at/de/winter/schneebericht.html]KitzSki[/url]
+[url=https://www.seiseralm.it/de/aktiv/winter/aufstiegsanlagen-im-winter.html]Seiser Alm[/url]
+
+Data completeness varies. OSM line geometry is used for playable pistes;
+area outlines alone are not converted into invented piste centre lines.
+Imported piste colours use OSM difficulty tags when available; new pistes
+use the slope model. Generated pedestrian access, plazas, buildings and
+forest decoration are game additions. Staffing numbers,
+wages, outages and scenario goals are fictional simulation parameters.
+
+Godot Engine · MIT licence:
+[url=https://godotengine.org/license/]godotengine.org/license/[/url]
+Android GLSurfaceView patch: see the bundled Android-GLSurfaceView.txt.

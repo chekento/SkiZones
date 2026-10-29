@@ -1,4 +1,5 @@
 extends PanelContainer
+const OperatingPages = preload("res://src/ui/operating_pages.gd")
 const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
@@ -99,6 +100,7 @@ func refresh() -> void:
 	_research(_page(L.text("Forschung")))
 	_upgrades(_page(L.text("Ausbau")))
 	_finances(_page(L.text("Finanzen")))
+	OperatingPages.add(self)
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
 		if page is ScrollContainer:

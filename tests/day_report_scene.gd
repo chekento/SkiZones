@@ -12,6 +12,9 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	game.start_game(true)
+	# Retain coverage of old saved resorts using the legacy report API.
+	# Automatic midnight reporting is covered by operating_nights.gd.
+	game.model.operations = preload("res://src/core/operations.gd").initial()
 	game.paused = true
 	game.model.minute = game.model.CLOSING - 1
 	game.model.advance_minute(false)

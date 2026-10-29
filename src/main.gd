@@ -1,5 +1,7 @@
 extends Node3D
 
+const Geo = preload("res://src/core/real_resorts.gd")
+const Ops = preload("res://src/core/operations.gd")
 const Resort = preload("res://src/core/resort.gd")
 const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
@@ -61,7 +63,7 @@ func _ready() -> void:
 	L.configure(preferences.language)
 	get_tree().auto_accept_quit = false
 	passport.load_from()
-	model.new_game(true, 20261027, passport.data.last_map)
+	model.new_game(true, 20261027, "sonnenhang")
 	add_child(view)
 	view.setup(model)
 	add_child(hud)
@@ -70,7 +72,7 @@ func _ready() -> void:
 	hud.show_menu()
 	_update_plan()
 	if OS.get_name() == "Android":
-		app_session.restore(self)
+		await _restore_android_session()
 	if OS.has_feature("android_lifecycle_test"):
 		call_deferred("_start_android_lifecycle_test")
 	# Deterministic captures and boot checks are also used by CI.
@@ -122,7 +124,9 @@ func _process(delta: float) -> void:
 		var budget_end := Time.get_ticks_usec() + 4000
 		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
 			_accumulator -= 1.0
+			var previous_day: int = model.day
 			model.advance_minute()
+			if model.day != previous_day: call_deferred("save_game")
 	simulation_fraction = fmod(_accumulator,1.0)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
@@ -138,10 +142,17 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
-func start_game(starter: bool, area: String = "sonnenhang") -> void:
-	model.new_game(starter, 20261027, area)
+func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
+	if prepared != null:
+		model = prepared
+		view.model = model
+		view._seen_revision = -1
+	else:
+		model.new_game(starter, 20261027, area)
+	if not Ops.active(model): Ops.enable(model)
+	hud.scenarios.hide()
 	passport.record(model)
 	has_game = true
 	paused = false
@@ -156,33 +167,64 @@ func start_game(starter: bool, area: String = "sonnenhang") -> void:
 	hud.toast(L.text("Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an.") if starter else L.text("Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg."))
 	hud.refresh()
 
+func _prepare_area(area: String, saved: bool) -> Dictionary:
+	# Prime immutable shared data before a worker starts. Scene nodes stay on
+	# the main thread; only an independent simulation model is constructed here.
+	for id in Geo.IDS:
+		Geo.height(Terrain.BASE, id)
+		Geo.baked(id)
+	hud.loading.show()
+	await get_tree().process_frame
+	var worker := Thread.new()
+	var error := worker.start(func():
+		var candidate := Resort.new()
+		var result := {"ok": true, "message": ""}
+		if saved: result = SaveStore.load_game(candidate, SaveStore.path_for_map(area))
+		else: candidate.new_game(true, 20261027, area)
+		if result.ok:
+			if not Ops.active(candidate): Ops.enable(candidate)
+			Ops.refresh_duty(candidate)
+			candidate._operating_signature = Ops.signature(candidate)
+			for skill in [0, 1, 2]:
+				candidate.routes_for(skill)
+				candidate._routing_graph(skill, true)
+		return {"model": candidate, "result": result}
+	)
+	if error != OK:
+		hud.loading.hide()
+		return {"result": {"ok": false, "message": L.text("Das Resort konnte nicht vorbereitet werden.")}}
+	while worker.is_alive(): await get_tree().process_frame
+	var prepared: Dictionary = worker.wait_to_finish()
+	hud.loading.hide()
+	return prepared
+
+func _restore_android_session() -> void:
+	var state := app_session.read_state()
+	if state.is_empty() or state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map)): return
+	var prepared := await _prepare_area(state.map, true)
+	if not prepared.result.ok: return
+	model = prepared.model
+	view.model = model
+	view._seen_revision = -1
+	app_session.restore(self, true)
+
 func enter_area(area: String) -> void:
+	if hud.loading.visible: return
 	if not passport.unlocked(area):
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
 		hud.atlas.hide()
+		hud.scenarios.hide()
 		hud.hide_menu()
 		return
-	if has_game and not save_game():
-		return
+	if has_game and not save_game(): return
 	var path := SaveStore.path_for_map(area)
-	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"):
-		var loaded := SaveStore.load_game(model, path)
-		if not loaded.ok:
-			hud.toast(loaded.message)
-			return
-		has_game = true
-		paused = false
-		speed = 1
-		_accumulator = 0
-		_day_report_shown = false
-		view.home()
-		hud.atlas.hide()
-		hud.hide_menu()
-		set_tool("inspect")
-	else:
-		start_game(true, area)
+	var prepared := await _prepare_area(area, FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"))
+	if not prepared.result.ok:
+		hud.toast(prepared.result.message)
+		return
+	start_game(true, area, prepared.model)
 	passport.record(model)
 	passport.save_to()
 	hud.toast(L.text("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand.") % L.args(Maps.spec(area).name))
@@ -190,13 +232,8 @@ func enter_area(area: String) -> void:
 
 func continue_game() -> void:
 	if not has_game:
-		var result := SaveStore.load_game(model, SaveStore.path_for_map(passport.data.last_map))
-		if not result.ok:
-			hud.toast(result.message)
-			return
-		has_game = true
-		_day_report_shown = false
-		hud.toast(result.message)
+		await enter_area(passport.data.last_map)
+		return
 	hud.hide_menu()
 	hud.atlas.hide()
 	set_tool("inspect")
@@ -554,7 +591,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible:
+		elif not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)

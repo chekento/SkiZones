@@ -2,6 +2,8 @@ extends Node3D
 const L = preload("res://src/core/i18n.gd")
 ## Original, batched alpine scenery and a simulation-driven atmosphere.
 
+const Geo = preload("res://src/core/real_resorts.gd")
+const Ops = preload("res://src/core/operations.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Mountain = preload("res://src/core/mountain.gd")
@@ -66,6 +68,7 @@ var _queue_labels: Dictionary = {}
 var _pedestrian_snapshot: Dictionary = {}
 var foot_mesh: MeshInstance3D
 var _groomers := MultiMeshInstance3D.new()
+var _swimmers := MultiMeshInstance3D.new()
 var _track_timer := 0.0
 var _track_seen := -1
 var _track_focus := Vector2.INF
@@ -132,7 +135,7 @@ void fragment() {
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _track_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh]:
 		add_child(node)
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS,true)
 	visitor_mesh.material_override = _people_material
@@ -167,6 +170,9 @@ void fragment() {
 	_tow_lines.multimesh = _multimesh(tow, 24 * Fleet.MAX_CARRIERS)
 	_tow_lines.material_override = _material(Color("495c60"))
 	_tow_lines.multimesh.visible_instance_count = 0
+	_swimmers.multimesh = _multimesh(Art.new().swimmer(), model.MAX_GUESTS)
+	_swimmers.material_override = _solid
+	_swimmers.multimesh.visible_instance_count = 0
 	_groomers.multimesh = _multimesh(Art.new().groomer(), 80)
 	_groomers.multimesh.mesh.surface_set_material(0, _solid)
 	_groomers.multimesh.visible_instance_count = 0
@@ -174,7 +180,7 @@ void fragment() {
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	camera.fov = 42
 	camera.near = 3.0
-	camera.far = 20000
+	camera.far = 60000
 	camera.current = true
 	_update_camera()
 	var ring := TorusMesh.new()
@@ -255,7 +261,7 @@ func _build_environment() -> void:
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf(height_value / 420.0, 0, 1))
+	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf((height_value - (terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0)) / 420.0, 0, 1))
 	if grade > 38:
 		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.74))
 	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
@@ -325,7 +331,7 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 
 func _build_terrain() -> void:
 	terrain_instance = MeshInstance3D.new()
-	terrain_instance.mesh = _land_mesh(terrain.bounds, 20)
+	terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
 	terrain_instance.material_override = _solid
 	landscape.add_child(terrain_instance)
 	var lake := CylinderMesh.new()
@@ -340,7 +346,7 @@ func _build_terrain() -> void:
 
 func _build_surroundings() -> void:
 	scenery_instance = MeshInstance3D.new()
-	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), 80, true)
+	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
 	scenery_instance.material_override = _solid
 	scenery_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	landscape.add_child(scenery_instance)
@@ -565,7 +571,7 @@ func rebuild() -> void:
 		_build_surroundings()
 	if _terrain_grading != terrain.grading.signature:
 		_terrain_grading = terrain.grading.signature
-		terrain_instance.mesh = _land_mesh(terrain.bounds, 20)
+		terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
 		if is_instance_valid(slope_overlay):
 			slope_overlay.queue_free()
 			slope_overlay = null
@@ -933,14 +939,15 @@ func _update_atmosphere() -> void:
 	if key == _atmosphere_tick:
 		return
 	_atmosphere_tick = key
-	var daylight := sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
-	_sun.light_energy = (0.35 + daylight * 0.17) * (0.65 if model.weather_index in [2, 3] else 1.0)
+	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
+	_sun.light_energy = ((0.09 + daylight * 0.55) if Ops.continuous(model) else (0.35 + daylight * 0.17)) * (0.65 if model.weather_index in [2, 3] else 1.0)
 	_sun.light_color = Color("f5d7cc").lerp(Color("fff1dc"), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	var palette := Color(Maps.spec(model.map_id).sky)
 	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
-	sky_material.sky_top_color = Color("a9cddd").lerp(palette, 0.32)
-	sky_material.sky_horizon_color = Color("f3e8df").lerp(palette, 0.18)
+	sky_material.sky_top_color = Color("12243f").lerp(Color("a9cddd").lerp(palette, 0.32), daylight) if Ops.continuous(model) else Color("a9cddd").lerp(palette, 0.32)
+	sky_material.sky_horizon_color = Color("344563").lerp(Color("f3e8df").lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color("f3e8df").lerp(palette, 0.18)
+	_environment.ambient_light_energy = 0.20 + daylight * 0.12
 	_environment.fog_light_color = Color("d7e2f0").lerp(palette, 0.18)
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
@@ -1000,6 +1007,7 @@ func _process(delta: float) -> void:
 	var cabin_riding := 0
 	var foot_visitors := 0
 	var climbers := 0
+	var swimmers := 0
 	var equipment_counts: Dictionary = {}
 	for key in _equipment: equipment_counts[key] = 0
 	for guest in model.guests:
@@ -1032,6 +1040,12 @@ func _process(delta: float) -> void:
 				in_cabin = Fleet.family(model.asset(leg.id)) == "gondola"
 			elif leg.kind == "visit":
 				position_value = model.guest_position(guest, simulation_fraction)
+				if model.asset(int(leg.id)).get("kind") == "pool":
+					var ahead: Vector3 = model.guest_position(guest, simulation_fraction + 0.5)
+					var facing := atan2(ahead.x - position_value.x, ahead.z - position_value.z)
+					_swimmers.multimesh.set_instance_transform(swimmers, Transform3D(Basis(Vector3.UP, facing), position_value))
+					_swimmers.multimesh.set_instance_color(swimmers, Color.WHITE)
+					swimmers += 1
 				if follow_guest == int(guest.id):
 					focus = Vector2(position_value.x, position_value.z)
 					_follow_position = position_value
@@ -1106,6 +1120,7 @@ func _process(delta: float) -> void:
 	_cabin_riders.multimesh.visible_instance_count = cabin_riding
 	_walkers.multimesh.visible_instance_count = foot_visitors
 	_climbers.multimesh.visible_instance_count = climbers
+	_swimmers.multimesh.visible_instance_count = swimmers
 	for key in _equipment:
 		_equipment[key].multimesh.visible_instance_count = equipment_counts[key]
 	var machines := 0
@@ -1113,6 +1128,9 @@ func _process(delta: float) -> void:
 		if piste.get("grooming_until", 0) <= model.minute:
 			continue
 		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - simulation_fraction) / 45.0, 0, 1)
+		if Ops.active(model):
+			for vehicle in model.operations.vehicles:
+				if int(vehicle.piste) == int(piste.id): fraction = clampf(1 - float(vehicle.remaining) / maxf(1, vehicle.total), 0, 1)
 		var point: Vector2 = terrain.point_on_path(piste.points, fraction)
 		var ahead: Vector2 = terrain.point_on_path(piste.points, minf(1, fraction + 0.01))
 		_groomers.multimesh.set_instance_transform(machines, Transform3D(Basis(Vector3.UP, atan2(ahead.x - point.x, ahead.y - point.y)), terrain.world(point, 1.5)))

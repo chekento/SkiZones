@@ -2028,3 +2028,555 @@ msgstr "Cloudcrest Reserve"
 
 msgid "Starlight Valhalla"
 msgstr "Starlight Valhalla"
+
+msgid "Technische Störung · Reparatur oder Evakuierung im Betriebsbüro organisieren."
+msgstr "Technical fault · arrange repairs or evacuation in the operations office."
+
+msgid "Personal fehlt · %d / %d Stationsplätze besetzt."
+msgstr "Staff missing · %d / %d station positions filled."
+
+msgid "Außerhalb der Liftöffnungszeit · 08–17 Uhr."
+msgstr "Outside lift opening hours · 08:00–17:00."
+
+msgid "Technik- und Reparaturzentrale"
+msgstr "Engineering & repair office"
+
+msgid "Techniker und Elektriker einstellen, Ersatzteile bestellen und defekte Lifte reparieren."
+msgstr "Hire technicians and electricians, order spare parts and repair broken lifts."
+
+msgid "Après-Ski & Disco"
+msgstr "Après-ski & nightclub"
+
+msgid "Abendbetrieb von 18 bis 02 Uhr. Benötigt Gastronomiepersonal und Sicherheit."
+msgstr "Evening operation from 18:00 to 02:00. Requires catering and security staff."
+
+msgid "Beheizter Außenpool"
+msgstr "Heated outdoor pool"
+
+msgid "Erholung von 10 bis 23 Uhr mit Energiebedarf und Personal für Service und Sicherheit."
+msgstr "Relaxation from 10:00 to 23:00 with energy costs, service and safety staff."
+
+msgid "Der erste Winter"
+msgstr "The first winter"
+
+msgid "Winterbetrieb unter Druck"
+msgstr "Winter operation under pressure"
+
+msgid "Die große Verbindung"
+msgstr "The great connection"
+
+msgid "Das alpine Meisterstück"
+msgstr "The alpine masterwork"
+
+msgid "Reale Landschaft, Lifte und Pisten aus offenen Geodaten. Die betrieblichen Probleme sind erfundene Spielszenarien."
+msgstr "Real terrain, lifts and pistes from open geographic data. Operational problems are fictional game scenarios."
+
+msgid "Szenario mit 24-Stunden-Betrieb"
+msgstr "Scenario with 24-hour operation"
+
+msgid "OSM %d"
+msgstr "OSM %d"
+
+msgid "Liftbedienung"
+msgstr "Lift operator"
+
+msgid "Seilbahntechnik"
+msgstr "Cableway technician"
+
+msgid "Elektrik"
+msgstr "Electrician"
+
+msgid "Pistenraupenfahrer"
+msgstr "Groomer driver"
+
+msgid "Pistenrettung"
+msgstr "Ski patrol"
+
+msgid "Schneemeister"
+msgstr "Snowmaking specialist"
+
+msgid "Hotelpersonal"
+msgstr "Hotel staff"
+
+msgid "Gastronomiepersonal"
+msgstr "Catering staff"
+
+msgid "Reinigung & Sicherheit"
+msgstr "Cleaning & security"
+
+msgid "Tag · 07–18 Uhr"
+msgstr "Day · 07:00–18:00"
+
+msgid "Abend · 16–02 Uhr"
+msgstr "Evening · 16:00–02:00"
+
+msgid "Nacht · 00–08 Uhr"
+msgstr "Night · 00:00–08:00"
+
+msgid "Früh · 07–15 Uhr"
+msgstr "Early · 07:00–15:00"
+
+msgid "Spät · 15–23 Uhr"
+msgstr "Late · 15:00–23:00"
+
+msgid "Stationspersonal einstellen"
+msgstr "Hire station staff"
+
+msgid "Technikzentrale und Reparaturteam aufbauen"
+msgstr "Build a repair office and hire its team"
+
+msgid "Defekten Lift reparieren"
+msgstr "Repair a broken lift"
+
+msgid "Pistenraupe kaufen und Pisten präparieren"
+msgstr "Buy a groomer and prepare pistes"
+
+msgid "100 zufriedene Gäste begrüßen"
+msgstr "Welcome 100 satisfied guests"
+
+msgid "Alle geöffneten Stationen besetzen"
+msgstr "Staff every enabled station"
+
+msgid "Bergrettung einsatzbereit machen"
+msgstr "Make ski patrol ready for service"
+
+msgid "Pisten präparieren"
+msgstr "Groom pistes"
+
+msgid "Wartezeiten unter 12 Minuten halten"
+msgstr "Keep waiting times below 12 minutes"
+
+msgid "Zwei wirtschaftliche Betriebstage"
+msgstr "Two profitable operating days"
+
+msgid "Verbindungslift reparieren"
+msgstr "Repair a connecting lift"
+
+msgid "Mittelstationen vollständig besetzen"
+msgstr "Fully staff intermediate stations"
+
+msgid "Ersatzteile vorrätig halten"
+msgstr "Keep spare parts in stock"
+
+msgid "Wartezeiten unter 15 Minuten halten"
+msgstr "Keep waiting times below 15 minutes"
+
+msgid "300 Gäste und positives Betriebsergebnis"
+msgstr "300 guests and a positive operating result"
+
+msgid "Rettung und Technik koordinieren"
+msgstr "Coordinate ski patrol and engineering"
+
+msgid "Drei Pistenraupen einsetzen"
+msgstr "Operate three groomers"
+
+msgid "Hotel und Abendangebot betreiben"
+msgstr "Operate a hotel and evening activities"
+
+msgid "Drei wirtschaftliche Betriebstage"
+msgstr "Three profitable operating days"
+
+msgid "Diese Personalzuweisung ist nicht möglich."
+msgstr "This staff assignment is not possible."
+
+msgid "Das Budget reicht für die Einstellung noch nicht."
+msgstr "The budget does not cover recruitment yet."
+
+msgid "Alex"
+msgstr "Alex"
+
+msgid "Kim"
+msgstr "Kim"
+
+msgid "Robin"
+msgstr "Robin"
+
+msgid "Sam"
+msgstr "Sam"
+
+msgid "Mika"
+msgstr "Mika"
+
+msgid "Toni"
+msgstr "Toni"
+
+msgid "Sascha"
+msgstr "Sascha"
+
+msgid "Jules"
+msgstr "Jules"
+
+msgid "Niki"
+msgstr "Niki"
+
+msgid "Charlie"
+msgstr "Charlie"
+
+msgid "Mitarbeiter eingestellt. Stundenlohn und Schicht sind im Personalplan sichtbar."
+msgstr "Employee hired. Their hourly rate and shift are shown in the staff planner."
+
+msgid "Einsatzort und Schicht aktualisiert."
+msgstr "Assignment and shift updated."
+
+msgid "Mitarbeiter nicht gefunden."
+msgstr "Employee not found."
+
+msgid "Mitarbeiter aus dem Personalplan entfernt."
+msgstr "Employee removed from the staff planner."
+
+msgid "Einen Lift wählen."
+msgstr "Select a lift."
+
+msgid "Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."
+msgstr "Station positions filled. Additional shifts and break cover can be assigned individually."
+
+msgid "Ein Gebäude wählen."
+msgstr "Select a building."
+
+msgid "Gebäudeteam eingestellt. Im Personalplan sind weitere Schichten möglich."
+msgstr "Building team hired. Add further shifts in the staff planner."
+
+msgid "Eine Ersatzteillieferung ist bereits unterwegs."
+msgstr "A spare-parts delivery is already on its way."
+
+msgid "Das Budget reicht für die Ersatzteile noch nicht."
+msgstr "The budget does not cover spare parts yet."
+
+msgid "Sechs Ersatzteilpakete bestellt. Lieferung in zwei Spielstunden."
+msgstr "Six spare-parts packages ordered. Delivery in two game hours."
+
+msgid "Diese Anlage benötigt keine Störungsreparatur."
+msgstr "This installation does not need fault repairs."
+
+msgid "Die Reparatur ist bereits eingeplant."
+msgstr "Repairs are already scheduled."
+
+msgid "Zuerst Ersatzteile bestellen."
+msgstr "Order spare parts first."
+
+msgid "Eine freie Technikzentrale mit Techniker und Elektriker wird benötigt."
+msgstr "An available repair office with a technician and an electrician is required."
+
+msgid "Das Budget reicht für die Reparatur noch nicht."
+msgstr "The budget does not cover repairs yet."
+
+msgid "Reparatur gestartet. Die Anlage bleibt bis zur Fertigstellung gesperrt."
+msgstr "Repairs started. The installation remains closed until completion."
+
+msgid "Eine geöffnete Pistenraupengarage wählen."
+msgstr "Select an enabled groomer garage."
+
+msgid "Für eine Pistenraupe werden 65.000 € benötigt. Maximal 24 Fahrzeuge."
+msgstr "A groomer costs €65,000. A maximum of 24 vehicles is supported."
+
+msgid "Pistenraupe gekauft. Fahrer einstellen und eine Piste zuweisen oder Nachtpräparierung aktivieren."
+msgstr "Groomer purchased. Hire a driver, assign a piste or enable automatic night grooming."
+
+msgid "Die Piste zuerst schließen und die letzten Gäste ausfahren lassen."
+msgstr "Close the piste first and allow the last guests to finish their runs."
+
+msgid "Das Budget reicht für Energie und Präparierung noch nicht."
+msgstr "The budget does not cover energy and grooming yet."
+
+msgid "Präparierung läuft. Verbrauch, Verschleiß und Fahrfortschritt werden berechnet."
+msgstr "Grooming underway. Energy consumption, wear and driving progress are simulated."
+
+msgid "Eine freie Pistenraupe und ein Fahrer im Dienst werden benötigt."
+msgstr "An available groomer and an on-duty driver are required."
+
+msgid "Pistenraupe gewartet und aufgetankt."
+msgstr "Groomer serviced and refuelled."
+
+msgid "Fahrzeug ist beschäftigt oder das Budget reicht noch nicht."
+msgstr "The vehicle is busy or the budget is insufficient."
+
+msgid "Hilferufe für %d Passagiere angelegt. Rettungsteams werden nach Erreichbarkeit entsandt."
+msgstr "Assistance requested for %d passengers. Patrol teams are dispatched according to reachability."
+
+msgid "Kein freies, besetztes Rettungsteam erreicht diesen Ort innerhalb seines Einsatzradius."
+msgstr "No available, staffed patrol team can reach this location within its operating radius."
+
+msgid "Rettung unterwegs. Wege, Höhenunterschied und Wetter bestimmen die Reaktionszeit."
+msgstr "Patrol is on its way. Routes, elevation changes and weather determine response time."
+
+msgid "Kein offener Hilferuf gefunden."
+msgstr "No open assistance request found."
+
+msgid "© OpenStreetMap contributors · ODbL 1.0 · Mapzen Terrain Tiles"
+msgstr "© OpenStreetMap contributors · ODbL 1.0 · Mapzen Terrain Tiles"
+
+msgid "Szenarien · echte Skigebiete"
+msgstr "Scenarios · real ski areas"
+
+msgid "Einstellungen · Sprache & Grafik"
+msgstr "Settings · language & graphics"
+
+msgid "Impressum & Datenquellen"
+msgstr "Credits & data sources"
+
+msgid "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n"
+msgstr "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n"
+
+msgid "Eigenständige Managementsimulation. Szenarioprobleme sind erfunden; es besteht keine Verbindung zu den genannten Skigebietsbetreibern."
+msgstr "Independent management simulation. Scenario problems are fictional; there is no affiliation with the named ski-area operators."
+
+msgid "ECHTE BERGE · DEIN BETRIEB"
+msgstr "REAL MOUNTAINS · YOUR RESORT"
+
+msgid "Vier reale Gebiete, vier Schwierigkeitsstufen. Die Geografie stammt aus offenen Daten; die Betriebsprobleme sind erfunden."
+msgstr "Four real areas, four difficulty levels. Geography comes from open data; operational problems are fictional."
+
+msgid "Sehr leicht"
+msgstr "Very easy"
+
+msgid "Leicht"
+msgstr "Easy"
+
+msgid "Mittel"
+msgstr "Medium"
+
+msgid "Schwer"
+msgstr "Hard"
+
+msgid "%.1f km² · Datenstand %s · eigener Spielstand"
+msgstr "%.1f km² · data dated %s · independent save"
+
+msgid "24 Stunden · Personal & Schichten · Technik · Rettung · Abendgäste"
+msgstr "24 hours · staffing & shifts · engineering · patrol · evening guests"
+
+msgid "Szenario öffnen / fortsetzen"
+msgstr "Open / resume scenario"
+
+msgid "Betrieb"
+msgstr "Operations"
+
+msgid "Lifte 08–17 Uhr. Hotels und Abendangebote haben eigene Schichten. Um Mitternacht wird automatisch abgerechnet; die Simulation läuft weiter."
+msgstr "Lifts run from 08:00 to 17:00. Hotels and evening activities have their own shifts. Accounts close automatically at midnight; simulation continues."
+
+msgid "Heute: %s € Personalkosten · Ersatzteile: %d · Pistenraupen: %d"
+msgstr "Today: %s € payroll · spare parts: %d · groomers: %d"
+
+msgid "Ersatzteillieferung in %d Minuten"
+msgstr "Spare-parts delivery in %d minutes"
+
+msgid "6 Ersatzteilpakete bestellen · 1.800 €"
+msgstr "Order 6 spare-parts packages · €1,800"
+
+msgid "Pisten nachts automatisch präparieren"
+msgstr "Automatically groom pistes at night"
+
+msgid "Szenarioziele"
+msgstr "Scenario objectives"
+
+msgid "Alle Ziele erfüllen: 75.000 € und 30 Forschungspunkte. Der Betrieb geht anschließend weiter."
+msgstr "Complete all objectives: €75,000 and 30 research points. Resort operation continues afterwards."
+
+msgid "Besetzung %d / %d · %.0f %% Verschleiß · %d Wartende"
+msgstr "Staffing %d / %d · %.0f %% wear · %d waiting"
+
+msgid "Durchgehende Seilbahn · Abschnitt %d / %d · gemeinsame Mittelstation"
+msgstr "Continuous cableway · section %d / %d · shared intermediate station"
+
+msgid "Stationspersonal einstellen · 180 € pro Person"
+msgstr "Hire station staff · €180 per person"
+
+msgid "Reparatur beauftragen · 900 € + Ersatzteil"
+msgstr "Order repairs · €900 + spare part"
+
+msgid "Evakuierung organisieren"
+msgstr "Arrange evacuation"
+
+msgid "Reparatur: noch %.0f Arbeitsminuten"
+msgstr "Repairs: %.0f working minutes remaining"
+
+msgid "Personal"
+msgstr "Staff"
+
+msgid "Einsatzorte und Schichten"
+msgstr "Assignments and shifts"
+
+msgid "Mindestbesetzung und Löhne sind Spielparameter. Jede besetzte Station verursacht Kosten. Versetze Mitarbeiter zwischen Stationen oder Schichten; eine unbesetzte Anlage bleibt geschlossen."
+msgstr "Staffing minimums and wages are game parameters. Every staffed station incurs costs. Reassign employees between stations or shifts; an unstaffed installation stays closed."
+
+msgid "Reserve / Pausenvertretung"
+msgstr "Reserve / break cover"
+
+msgid "Berg / Mittel"
+msgstr "Summit / intermediate"
+
+msgid "Tal / Mittel"
+msgstr "Valley / intermediate"
+
+msgid "Mitarbeiter einstellen"
+msgstr "Hire an employee"
+
+msgid "180 € Einstellungskosten. Der Stundenlohn fällt nur während der eingeteilten Arbeitszeit an."
+msgstr "€180 recruitment cost. Hourly wages apply only during assigned working time."
+
+msgid " · %.0f €/h"
+msgstr " · %.0f €/h"
+
+msgid "Einstellen · 180 €"
+msgstr "Hire · €180"
+
+msgid "%.0f €/h · Qualifikation %d · Motivation %.0f %% · Belastung %.0f %% · %d Arbeitsminuten"
+msgstr "%.0f €/h · qualification %d · motivation %.0f %% · fatigue %.0f %% · %d minutes worked"
+
+msgid "Im Dienst"
+msgstr "On duty"
+
+msgid "Außer Dienst / Pause / Abwesenheit"
+msgstr "Off duty / break / absence"
+
+msgid "Zuweisung übernehmen"
+msgstr "Apply assignment"
+
+msgid "30 Minuten Pause"
+msgstr "30-minute break"
+
+msgid "Pause eingetragen. Eine Vertretung kann im Personalplan zugewiesen werden."
+msgstr "Break scheduled. Assign cover in the staff planner."
+
+msgid "Mitarbeiter freistellen"
+msgstr "Release employee"
+
+msgid "Technik & Rettung"
+msgstr "Engineering & patrol"
+
+msgid "Betriebsbereit"
+msgstr "Operational"
+
+msgid "Geschlossen oder Personal fehlt"
+msgstr "Closed or understaffed"
+
+msgid "Gebäudeteam einstellen"
+msgstr "Hire building team"
+
+msgid "Pistenraupe kaufen · 65.000 €"
+msgstr "Buy a groomer · €65,000"
+
+msgid "Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter."
+msgstr "Operating radius: %.0f m · response time follows actual routes and weather."
+
+msgid "Pistenraupe %d"
+msgstr "Groomer %d"
+
+msgid "%.1f Betriebsstunden · %.0f %% Energie · %.0f %% Verschleiß"
+msgstr "%.1f operating hours · %.0f %% energy · %.0f %% wear"
+
+msgid "Warten und auftanken · 800 €"
+msgstr "Service and refuel · €800"
+
+msgid "Präparierung: noch %.0f Minuten"
+msgstr "Grooming: %.0f minutes remaining"
+
+msgid "Zustand %.0f %% · Präparierung nur ohne Gäste auf der Piste"
+msgstr "Condition %.0f %% · grooming requires an empty piste"
+
+msgid "Piste schließen / öffnen"
+msgstr "Close / open piste"
+
+msgid "Pistenfreigabe aktualisiert."
+msgstr "Piste opening status updated."
+
+msgid "Präparieren · 220 €"
+msgstr "Groom · €220"
+
+msgid "Hilferuf · Gast %d"
+msgstr "Assistance request · guest %d"
+
+msgid "Wartet auf Hilfe"
+msgstr "Waiting for assistance"
+
+msgid "Rettung unterwegs · %.0f Minuten"
+msgstr "Patrol on its way · %.0f minutes"
+
+msgid "Rettung entsenden"
+msgstr "Dispatch patrol"
+
+msgid "Kostenstellen"
+msgstr "Cost centres"
+
+msgid "Laufende Kosten und Liquidität"
+msgstr "Operating costs and liquidity"
+
+msgid "Personalkosten und Infrastruktur werden minutengenau abgezogen. Investitionen erscheinen separat. Der Mitternachtsbericht speichert Einnahmen, laufende Kosten und Ergebnis für 28 Tage."
+msgstr "Payroll and infrastructure are charged each minute. Investments appear separately. Midnight reports retain revenue, operating costs and results for 28 days."
+
+msgid "Zimmerpreis · "
+msgstr "Room rate · "
+
+msgid "Infrastruktur"
+msgstr "Infrastructure"
+
+msgid "%s €"
+msgstr "%s €"
+
+msgid "Tag %d · %s € Betriebsergebnis"
+msgstr "Day %d · %s € operating result"
+
+msgid "Erlöse %s € · Betrieb %s € · Investitionen %s €"
+msgstr "Revenue %s € · operations %s € · investment %s €"
+
+msgid "Ferienansturm"
+msgstr "Holiday crowds"
+
+msgid "Personalengpass"
+msgstr "Staff shortage"
+
+msgid "Schneemangel"
+msgstr "Low snow"
+
+msgid "Abendveranstaltung"
+msgstr "Evening event"
+
+msgid "Fährt ins Tal"
+msgstr "Travelling downhill"
+
+msgid "Benötigt Hilfe"
+msgstr "Needs assistance"
+
+msgid "Wartet auf die Pistenrettung"
+msgstr "Waiting for ski patrol"
+
+msgid "Ich bleibe an einem sicheren Ort, bis das Rettungsteam mich erreicht."
+msgstr "I will stay in a safe place until the patrol team reaches me."
+
+msgid "Gäste pro sichtbarer Reisegruppe: %d. Tickets, Kapazitäten und Erlöse berücksichtigen die Gruppengröße."
+msgstr "Guests per visible travel group: %d. Tickets, capacity and revenue account for group size."
+
+msgid "Betriebsereignis: "
+msgstr "Operating event: "
+
+msgid "Einstellungen"
+msgstr "Recruitment"
+
+msgid "Ersatzteile"
+msgstr "Spare parts"
+
+msgid "Reparaturen"
+msgstr "Repairs"
+
+msgid "Präparierung"
+msgstr "Grooming"
+
+msgid "Fahrzeugwartung"
+msgstr "Vehicle servicing"
+
+msgid "Das Resort konnte nicht vorbereitet werden."
+msgstr "The resort could not be prepared."
+
+msgid "Dein Resort wird vorbereitet …\nGeografie und Gästerouten werden geladen."
+msgstr "Preparing your resort …\nLoading geography and guest routes."
+
+msgid "Schwimmt im Außenpool"
+msgstr "Swimming in the outdoor pool"
+
+msgid "[b]BEOBACHTEN[/b]\nBei 1× dauert eine Spielstunde etwa zwei Minuten. Ein kompletter 24-Stunden-Zyklus dauert etwa 48 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Kaufe Pistenraupen in einer Garage und stelle Fahrer ein. Präpariere leere Pisten einzeln oder automatisch in der Nacht. Die Dauer folgt der Streckenlänge; Schicht, Energie und Verschleiß bestimmen die Einsatzbereitschaft.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt acht Fantasiegebiete und ihre Freischaltziele. Unter ‚Szenarien‘ stehen vier reale Gebiete bereit. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
+msgstr "[b]WATCH[/b]\nAt 1× a game hour takes about two minutes. A complete 24-hour cycle takes about 48 minutes. Guests and lifts move at a deliberately relaxed pace. 4× speeds up the whole operation.\nTap a guest and choose ‘Follow this guest’. Dragging releases the camera. Use + to zoom in closely.\n\n[b]BUILD[/b]\nChoose runs, lifts or village services in the Build Catalogue. Locked and unaffordable facilities cannot be selected; their requirements are shown directly. Choose ‘Plan a run’, place waypoints from the mountain to the valley and confirm with Build. Colour follows the steepest section of the actual route; switchbacks can be gentler than a direct descent. The profile shows elevation loss and gradient. Drag numbered planning points with your finger or mouse. Tap to select a point for deletion. Small circles mark connections to existing runs. Start or end a new link there; colour, cost and profile update immediately. Round signs receive their colour and piste number automatically. Game limits: blue up to 30%, red up to 55%, black up to 110%. For lifts, place the lower station first, then the upper station.\n\n[b]CONNECTIONS[/b]\nBoth lift stations receive walkable plazas. Runs start and end on these plazas, clear of lift machinery. Small circles show connection points. Runs can also connect directly at waypoints. Connected buildings expand the pedestrian area with forecourts and visible paths. Guests walk to other lifts or building entrances. Guests need a complete suitable circuit from the valley entrance and back. Internal waypoints are connections too: build a red or black shortcut between the switchbacks of a blue run. Beginners stay on blue, intermediates can use red and experts can use black. Guests use only the necessary sections of connected runs. All runs share the actual capacity of their lift.\n\n[b]LIFTS AND GUESTS[/b]\nPlatter lifts are slower and limited to 700 m. Single, double and quad chairlifts are separate facilities; the 6-seat lift requires Lift Engineering, the 8-seat lift Alpine Masterclass. Gondolas carry eight guests.\nSkiers, snowboarders and snowbladers have their own equipment, riding postures and tracks. Their sport appears in their personal profile. Every rider is assigned a specific vehicle and seat. Skis remain on the ground on drag lifts. The visible queue follows arrival order. Waiting times and actual occupancy appear at the station and in the inspector.\nBuildings receive actual visits. Guests walk to the entrance and pause inside; service revenue is earned after the visit.\n\n[b]SNOW[/b]\nEvery guest leaves their own line. Skis compact tracks and push snow aside; uneven ground affects later rides. Buy groomers at a garage and hire drivers. Groom empty pistes individually or automatically at night. Duration follows route length; shifts, energy and wear determine availability.\n\n[b]NEW AREAS[/b]\nThe Mountain Pass under Areas shows eight original resorts and their unlock targets. Four real areas are available under Scenarios. Stars, guests and contracts count across your resorts. Area changes save your progress; each resort keeps its own save. The small area map navigates to the tapped location. Overview shows the whole area; Valley returns to the entrance.\n\n[b]CAREER[/b]\nTime pauses in the Resort Office. Find contracts, research, upgrades and finances there. A winter has 28 operating days; your resort continues across multiple winters. Weather, wind, snow and prices affect operations.\n\n[b]CAMERA AND TERRAIN[/b]\nUnder Camera, choose Resort, Panorama, Building view or vertical Top-down; the viewing angle is adjustable. Terrain shows contours every 20 m, elevation labels every 100 m and downhill arrows. Ground colours show the slope of the terrain; piste colour follows the gradient of your route.\n\n[b]CONTROLS[/b]\nTap to place points or select facilities and guests. Drag a numbered marker to move that planning point; drag the open map to pan. Two fingers pan and zoom. Twist two fingers in opposite directions to rotate around the touched mountain point. Panning, rotation and zoom can be combined. On PC: mouse wheel zooms, Q/E rotates, C changes perspective, B plans a run, M opens the office, Tab enlarges the map, Space pauses, Ctrl+S saves. App suspension and day changes save your resort.\n\nGodot Engine · godotengine.org/license"
+
+msgid "Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht."
+msgstr "Lifts have closed. Evening guests and night work continue; accounts close automatically at midnight."
+
+msgid "Abend- und Nachtbetrieb · %d Gäste im Resort"
+msgstr "Evening and night operations · %d guests in the resort"

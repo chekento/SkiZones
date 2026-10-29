@@ -25,7 +25,7 @@ func read_state() -> Dictionary:
 	if value.speed != int(value.speed) or int(value.speed) not in [1,4]: return {}
 	for key in ["accumulator","yaw","zoom","pitch","camera_mode","suspended_at","editing_id","edit_rotation","edit_width","selected_guest","follow_guest"]:
 		if not Terrain.number(value.get(key)): return {}
-	if value.accumulator < 0 or value.accumulator > 1000000 or value.zoom < 48 or value.zoom > 10000 or value.pitch < 20 or value.pitch > 90 or value.camera_mode != int(value.camera_mode) or int(value.camera_mode) not in [0,1,2,3]: return {}
+	if value.accumulator < 0 or value.accumulator > 1000000 or value.zoom < 48 or value.zoom > maxf(Maps.spec(value.map).bounds.size.x, Maps.spec(value.map).bounds.size.y) * 1.3 or value.pitch < 20 or value.pitch > 90 or value.camera_mode != int(value.camera_mode) or int(value.camera_mode) not in [0,1,2,3]: return {}
 	if not Terrain.unpack(value.get("focus")).is_finite() or not value.get("points") is Array or value.points.size() > 64: return {}
 	for point in value.points:
 		if not Terrain.unpack(point).is_finite(): return {}
@@ -35,10 +35,12 @@ func read_state() -> Dictionary:
 	if not Terrain.number(value.get("plan_width", 20)) or value.get("plan_width", 20) < 14 or value.get("plan_width", 20) > 36: return {}
 	return value
 
-func restore(game: Node) -> bool:
+func restore(game: Node, already_loaded: bool = false) -> bool:
 	var state := read_state()
 	if state.is_empty() or state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map)): return false
-	if not SaveStore.load_game(game.model,SaveStore.path_for_map(state.map)).ok: return false
+	if already_loaded:
+		if game.model.map_id != state.map: return false
+	elif not SaveStore.load_game(game.model,SaveStore.path_for_map(state.map)).ok: return false
 	game.has_game = true;game.paused = state.paused;game.speed = int(state.speed)
 	game._accumulator = state.accumulator
 	game.view.rebuild()

@@ -38,7 +38,8 @@ static func building_size(building: Dictionary) -> Vector2:
 	return Vector2(size.y, size.x) if int(building.get("rotation", 0)) % 2 == 1 else size
 
 static func base_building_size(building: Dictionary) -> Vector2:
-	return Vector2(35, 28) if building.kind == "hotel" else (Vector2(29, 24) if building.kind == "maintenance" else Vector2(22, 18))
+	if building.kind == "pool": return Vector2(32, 42)
+	return Vector2(35, 28) if building.kind == "hotel" else (Vector2(29, 24) if building.kind in ["maintenance", "repair_office"] else Vector2(22, 18))
 
 static func door(building: Dictionary) -> Vector2:
 	return Terrain.unpack(building.point) + front(building) * (base_building_size(building).y * 0.5 + 3)
@@ -128,12 +129,36 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 		if not best.is_empty(): fixed.append(best)
 	if mountain.get("generation") != null and mountain.generation >= 2:
 		fixed.append_array(_village(mountain, areas, nodes, buildings, lifts, shapes))
+	# Imported towns receive shared, terrain-checked access promenades between
+	# nearby valley stations. These are game infrastructure, not OSM roads.
+	if mountain.get("id") in ["braunlage", "filzmoos", "kitzbuehel", "seiseralm"]:
+		var connected: Array = [{"key": "base", "point": Terrain.BASE}]
+		var pending: Array = []
+		for area in areas:
+			if area.kind == "station" and area.key.ends_with("b") and area.center.distance_to(Terrain.BASE) < 1000 and mountain.height(area.center) < mountain.height(Terrain.BASE) + 150: pending.append(area)
+		pending.sort_custom(func(a, b): return a.center.distance_to(Terrain.BASE) < b.center.distance_to(Terrain.BASE))
+		for area in pending:
+			if connected.size() >= 6: break
+			var best: Array = []
+			var source := ""
+			var length := INF
+			for other in connected:
+				if area.point.distance_to(other.point) > 550: continue
+				var path := path_between(other.point, area.point, buildings, lifts, shapes)
+				if not path.is_empty() and gentle(mountain, path) and mountain.polyline_length(path) < length:
+					best = path
+					source = other.key
+					length = mountain.polyline_length(path)
+			if not best.is_empty():
+				fixed.append({"from": source, "to": area.key, "points": best, "width": 8.0, "promenade": true})
+				connected.append({"key": area.key, "point": area.point})
 	var candidates: Array = []
 	for i in range(areas.size()):
 		for j in range(i+1,areas.size()):
 			var a: Dictionary = areas[i]
 			var b: Dictionary = areas[j]
-			if a.center.distance_to(b.center) > a.radius+b.radius+LINK_GAP: continue
+			var landing_gap: float = 350.0 if mountain.get("id") in ["braunlage", "filzmoos", "kitzbuehel", "seiseralm"] and a.kind == "station" and b.kind == "station" and absf(mountain.height(a.center) - mountain.height(b.center)) < 70 else a.radius + b.radius + LINK_GAP
+			if a.center.distance_to(b.center) > landing_gap: continue
 			if a.id == b.id and a.kind == "walkway" and b.kind == "walkway": continue
 			var path := path_between(a.point,b.point,buildings,lifts,shapes)
 			if not path.is_empty() and gentle(mountain,path): candidates.append({"from":a.key,"to":b.key,"points":path,"length":mountain.polyline_length(path),"width":7.0})
@@ -324,6 +349,7 @@ static func _crosses(a: Vector2, b: Vector2, rect: Rect2) -> bool:
 			return true
 	return false
 
+static var _cache_mutex := Mutex.new()
 static var _obstacle_cache: Dictionary = {}
 static var _inset_cache: Dictionary = {}
 
@@ -333,8 +359,11 @@ static func boarding_point(lift: Dictionary, top: bool) -> Vector2:
 
 static func obstacles(buildings: Array, lifts: Array) -> Array:
 	var fingerprint := [buildings.map(func(building): return [building.kind, building.point, building.get("rotation", 0)]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
-	if _obstacle_cache.has(fingerprint):
-		return _obstacle_cache[fingerprint]
+	_cache_mutex.lock()
+	var cached: Array = _obstacle_cache.get(fingerprint, [])
+	var known := _obstacle_cache.has(fingerprint)
+	_cache_mutex.unlock()
+	if known: return cached
 	var result: Array = []
 	for building in buildings:
 		if building.kind not in ["snowmaker", "viewpoint", "snowpark", "bus"]:
@@ -368,14 +397,17 @@ static func obstacles(buildings: Array, lifts: Array) -> Array:
 					break
 			if changed:
 				break
+	_cache_mutex.lock()
 	if _obstacle_cache.size() > 64:
 		_obstacle_cache.clear()
 	_obstacle_cache[fingerprint] = result
+	_cache_mutex.unlock()
 	return result
 
 static func crosses_polygon(a: Vector2, b: Vector2, polygon: PackedVector2Array) -> bool:
 	# A tiny inward offset allows visibility edges to follow obstacle boundaries.
 	var key := hash(polygon)
+	_cache_mutex.lock()
 	if not _inset_cache.has(key):
 		if _inset_cache.size() > 512:
 			_inset_cache.clear()
@@ -384,6 +416,7 @@ static func crosses_polygon(a: Vector2, b: Vector2, polygon: PackedVector2Array)
 			bounds = bounds.expand(point)
 		_inset_cache[key] = {"bounds": bounds, "shapes": Geometry2D.offset_polygon(polygon, -0.08)}
 	var data: Dictionary = _inset_cache[key]
+	_cache_mutex.unlock()
 	var segment_bounds := Rect2(a, Vector2.ZERO).expand(b).grow(0.001)
 	if not data.bounds.intersects(segment_bounds, true):
 		return false

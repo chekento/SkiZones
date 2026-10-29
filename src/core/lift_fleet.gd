@@ -10,13 +10,13 @@ static func family(lift: Dictionary) -> String:
 	return Catalog.LIFTS[lift.kind].family
 
 static func seats(lift: Dictionary) -> int:
-	return Catalog.LIFTS[lift.kind].seats
+	return clampi(int(lift.get("occupancy", Catalog.LIFTS[lift.kind].seats)), 1, 64)
 
 static func speed(lift: Dictionary) -> float:
 	return Catalog.LIFTS[lift.kind].speed * (1.0 + 0.1 * (lift.get("level", 1) - 1))
 
 static func capacity(lift: Dictionary) -> int:
-	return roundi(Catalog.LIFTS[lift.kind].capacity * (1.0 + 0.25 * (lift.get("level", 1) - 1)))
+	return roundi(float(lift.get("source_capacity", Catalog.LIFTS[lift.kind].capacity)) * (1.0 + 0.25 * (lift.get("level", 1) - 1)))
 
 static func rope_offset(lift: Dictionary) -> float:
 	if family(lift) == "drag":
@@ -43,6 +43,9 @@ static func station_point(lift: Dictionary, top: bool) -> Vector2:
 
 static func seat_offset(lift: Dictionary, seat: int) -> Vector3:
 	if family(lift) == "gondola":
+		if seats(lift) > 8:
+			var rows := ceili(float(seats(lift)) / 6)
+			return Vector3((seat % 6 - 2.5), 0.03, (int(seat / 6) - (rows - 1) * 0.5) * 2.6 / maxf(1, rows - 1))
 		return Vector3((seat % 4 - 1.5) * 1.5, 0.03, -1.35 if seat < 4 else 1.35)
 	return Vector3((seat - (seats(lift) - 1) * 0.5) * SEAT_SPACING, 0.03, 0)
 
@@ -83,7 +86,9 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 		origin = mountain.world(Vector2(grip.x, grip.z), 1.15) if outbound else grip - Vector3.UP * 2.4
 	elif family(lift) == "carpet":
 		origin = mountain.world(Vector2(grip.x, grip.z), 0.65)
-	return {"transform": Transform3D(Basis(Vector3.UP, yaw), origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
+	var body_basis := Basis(Vector3.UP, yaw)
+	if family(lift) == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
+	return {"transform": Transform3D(body_basis, origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
 
 static func _on_cable(profile: Dictionary, fraction: float) -> Vector3:
 	var distance: float = profile.length * clampf(fraction, 0, 1)

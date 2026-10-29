@@ -26,7 +26,7 @@ func check(value: bool, title: String) -> void:
 
 func clean() -> void:
 	var paths: Array = [Passport.PATH]
-	for id in Maps.MAPS:
+	for id in Maps.FANTASY_MAPS:
 		paths.append(Saves.path_for_map(id))
 	for path in paths:
 		for suffix in ["", ".bak", ".tmp"]:
@@ -46,21 +46,21 @@ func run() -> void:
 	game.model.campaign.rank = 2
 	game.model.campaign.completed = 2
 	game.passport.record(game.model)
-	game.enter_area("fichtenkamm")
+	await game.enter_area("fichtenkamm")
 	game.paused = true
 	await process_frame
 	check(game.model.map_id == "fichtenkamm" and game.model.pistes.size() == 1, "Entering an unlocked area starts its own resort")
 	check(game.view._terrain_id == "fichtenkamm" and game.view.terrain.bounds.size.x == 3600, "The live world rebuilds to the selected region")
 	game.model.money = 111111
-	game.enter_area("sonnenhang")
+	await game.enter_area("sonnenhang")
 	game.paused = true
 	await process_frame
 	check(game.model.map_id == "sonnenhang" and game.model.money == balance and game.model.pistes.size() == 2, "Returning to the first region restores its money and construction")
-	game.enter_area("fichtenkamm")
+	await game.enter_area("fichtenkamm")
 	game.paused = true
 	await process_frame
 	check(game.model.money == 111111 and game.model.pistes.size() == 1, "A second region also retains its independent progress")
-	game.enter_area("dreigipfel")
+	await game.enter_area("dreigipfel")
 	check(game.model.map_id == "fichtenkamm" and game.model.money == 111111, "A locked destination cannot replace the active resort")
 	var passport := Passport.new()
 	passport.load_from()

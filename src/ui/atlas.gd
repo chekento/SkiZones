@@ -35,7 +35,7 @@ func setup(interface: CanvasLayer) -> void:
 	grid.add_theme_constant_override("v_separation", 14)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(grid)
-	for id_value in Maps.MAPS:
+	for id_value in Maps.FANTASY_MAPS:
 		var id: String = id_value
 		var spec: Dictionary = Maps.spec(id)
 		var panel := PanelContainer.new()

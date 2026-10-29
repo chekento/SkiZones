@@ -19,6 +19,9 @@ const LIFTS := {
 }
 
 const BUILDINGS := {
+	"repair_office": {"name": "Technik- und Reparaturzentrale", "cost": 38000, "upkeep": 180, "income": 0.0, "appeal": 0, "color": "6f99a5", "description": "Techniker und Elektriker einstellen, Ersatzteile bestellen und defekte Lifte reparieren."},
+	"disco": {"name": "Après-Ski & Disco", "cost": 68000, "upkeep": 460, "income": 22.0, "appeal": 14, "color": "b785ba", "description": "Abendbetrieb von 18 bis 02 Uhr. Benötigt Gastronomiepersonal und Sicherheit."},
+	"pool": {"name": "Beheizter Außenpool", "cost": 85000, "upkeep": 650, "income": 18.0, "appeal": 18, "color": "70bfc7", "description": "Erholung von 10 bis 23 Uhr mit Energiebedarf und Personal für Service und Sicherheit."},
 	"kiosk": {"name": "Punschstand", "cost": 9500, "upkeep": 85, "income": 3.0, "appeal": 4, "color": "b96c4e", "description": "Eine kleine warme Pause: günstiger Einstieg in die Verpflegung mit zusätzlichen Serviceerlösen."},
 	"viewpoint": {"name": "Panoramaterrasse", "cost": 14000, "upkeep": 90, "income": 0.0, "appeal": 10, "color": "739a9d", "description": "Sitzplätze und Fernrohr für den Gipfelblick. Erhöht den Komfort nahe einer Station."},
 	"shelter": {"name": "Wärmeunterstand", "cost": 12500, "upkeep": 70, "income": 0.0, "appeal": 6, "color": "a6a17b", "description": "Eine geschützte Pause im Holzunterstand verbessert den Komfort ohne große Betriebskosten."},

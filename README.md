@@ -24,6 +24,33 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
+## Neu in 0.14 · Echte Berge, Betrieb rund um die Uhr
+
+**Braunlage / Wurmberg, Filzmoos, Kitzbühel und Seiser Alm** ergänzen die acht
+bisherigen Resorts – mit offenen Kartendaten, echten Höhen und erfundenen
+Managementproblemen in vier Schwierigkeitsstufen.
+
+Stationspersonal und Schichten, Gondel-Mittelstationen und Talfahrten,
+Reparaturzentrale und Ersatzteile, kaufbare Pistenraupen, Pistenrettung,
+Übernachtungen, Disco und ein Außenpool mit sichtbaren Schwimmern greifen
+ineinander. Um Mitternacht wird automatisch abgerechnet; der Betrieb läuft weiter.
+Im Hauptmenü stehen jetzt **Szenarien**, **Einstellungen · Sprache & Grafik** und
+**Impressum & Datenquellen** bereit.
+
+[Szenarien und Bedienung](docs/SZENARIEN_UND_BETRIEB.md) ·
+[Alle Änderungen in 0.14](docs/releases/0.14.0.md) ·
+[Geodaten und Lizenzen](assets/geodata/README.md)
+
+![Vier reale Szenarien mit Schwierigkeitsstufen](docs/screenshots/real-scenarios-0140.webp)
+
+![Betriebsbüro mit Personal, Technik, Rettung und Kostenstellen](docs/screenshots/operations-office-0140.webp)
+
+![Tatsächliche Abendgäste im beheizten Außenpool](docs/screenshots/en-evening-pool-0140.webp)
+
+*Aufnahmen aus dem gerenderten Spiel mit sichtbarer Oberfläche. Die Geodaten
+sind offline enthalten; es werden keine offiziellen Pistenplan-Grafiken verwendet.*
+
+
 ![SkiZones 0.13.0: Winterdorf mit Promenade, kurzen Gebäudezugängen und echten Gästen](docs/screenshots/village-promenade-0130.webp)
 
 *Direkt aus dem Spiel: ein Testresort mit erzeugter Auslastung. Die Gäste nutzen die tatsächlichen Wege und Lifte. Große Stationsplätze und eine zusätzlich gebaute Gehfläche verbinden die Gebäude. Die Karriere startet mit einem kleineren Resort.*

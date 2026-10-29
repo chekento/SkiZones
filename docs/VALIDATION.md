@@ -1,4 +1,27 @@
-# Prüfung von SkiZones 0.13.0
+# Prüfung von SkiZones 0.14.0
+
+Die neue Fassung ergänzt 87 Modellprüfungen für reale Geografie, alle vier
+Szenarien, Rundwege jeder Könnensstufe, gemeinsame Mittelstationen, Personal,
+Reparaturen, Mitternacht, Speichern und identische feste Simulationsschritte.
+30 weitere Fälle prüfen tatsächliche Pistenraupenarbeit, Stillstand und
+Wartung, Rettung, Hotelgäste über Mitternacht, Ersatzteile und Talfahrten.
+Die Grafikprüfung öffnet Szenarien, Betrieb, Einstellungen und Quellen durch
+den echten Controller und prüft sichtbare Schwimmer sowie den Abendhinweis.
+Die bisherigen 816 Modell- und Grafikfälle bleiben Bestandteil des Workflows.
+
+Der Android-Testexport prüft zusätzlich das Öffnen von Wurmberg aus den
+gebündelten Kartendaten und die Wiederherstellung dieses besetzten Resorts
+nach einem Prozessneustart. Die öffentliche ARM64-APK enthält diesen
+Testtreiber nicht. Veröffentlichung erfolgt erst nach erfolgreich beendeten
+Modell-, Grafik-, Export- und Android-30-/Android-36-Prüfungen.
+
+Die neuen Prüfungen sind in `tests/real_operations.gd`,
+`tests/operating_nights.gd`, `tests/operating_scene.gd` und
+`tools/android_resume_smoke.py` nachvollziehbar. Ein physisches Smartphone
+wurde nicht geprüft; die großen Geodaten-Gebiete benötigen je nach Hardware
+Vorbereitungszeit und zeigen dafür eine Ladeansicht.
+
+## Vorheriger Veröffentlichungsstand 0.13.0
 
 Stand: 29.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 

@@ -3,7 +3,7 @@ const L = preload("res://src/core/i18n.gd")
 ## Checksum, size bound, atomic replacement and one previous valid save.
 
 const DEFAULT_PATH := "user://skizones_save.json"
-const MAX_BYTES := 16000000
+const MAX_BYTES := 64000000
 
 static func path_for_map(id: String) -> String:
 	return DEFAULT_PATH if id == "sonnenhang" else "user://skizones_%s.json" % id

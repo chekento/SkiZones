@@ -43,7 +43,7 @@ func skiing(model: RefCounted, ability: int = 0) -> Dictionary:
 
 func _maps() -> void:
 	var heights: Array = []
-	for id in Maps.MAPS:
+	for id in Maps.FANTASY_MAPS:
 		var model = fresh(id)
 		check(model.pistes.size() == 1 and model.routes_for(0).size() == 1 and model.terrain.bounds.size.x >= 2880, "A larger %s has a working starter circuit" % id)
 		heights.append(roundi(model.terrain.height(Vector2(-1000, -1800))))

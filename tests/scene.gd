@@ -156,7 +156,7 @@ func run() -> void:
 	game.hud.show_management(2)
 	await process_frame
 	var office: PanelContainer = game.hud.management
-	check(office.visible and office.tabs.get_tab_count() == 5 and office.tabs.current_tab == 2, "The resort office opens the requested one of five management pages")
+	check(office.visible and office.tabs.get_tab_count() == 9 and office.tabs.current_tab == 2, "The resort office opens the requested one of nine management pages")
 	check(game.hud.blocks_map(map_position) and bounds.encloses(office.get_global_rect()), "The complete office fits the viewport and blocks building underneath")
 	clock = game.model.minute
 	game.paused = false

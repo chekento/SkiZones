@@ -1,0 +1,14 @@
+{
+  "step": 55,
+  "width": 152,
+  "depth": 143,
+  "left": -5927.48,
+  "top": -3839.26,
+  "min": 805.6015625,
+  "max": 2109.046875,
+  "zoom": 11,
+  "sha256": "cc8452996b6f63a52ed4bbcd7c512bbd299037aef2ee80fe735f4ce7ce21a903",
+  "source": "Mapzen Terrain Tiles",
+  "url": "https://registry.opendata.aws/terrain-tiles/",
+  "attribution_url": "https://github.com/tilezen/joerd/blob/master/docs/attribution.md"
+}

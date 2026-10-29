@@ -79,7 +79,7 @@ func build(mountain: RefCounted, piste: Dictionary) -> ArrayMesh:
 	var frames: Array = []
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_smooth_group(0)
-	for sample in PisteMesh.samples(mountain, piste.points, width):
+	for sample in PisteMesh.samples(mountain, piste.points, width, 12.0 if piste.get("imported", false) else 4.0):
 		frames.append(Vector2(sample.fraction, sample.lateral))
 		var edge := smoothstep(width * 0.5 - 2.3, width * 0.5, sample.distance)
 		var color := Color("f4f5fc").darkened((sin(sample.lateral * 10) * 0.5 + 0.5) * 0.012)

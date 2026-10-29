@@ -2,6 +2,8 @@ extends RefCounted
 ## Persisted personal needs, changed by activity and completed visits.
 const Terrain = preload("res://src/core/terrain.gd")
 const SERVICES := {
+	"disco": {"hunger":25,"warmth":50,"energy":-5,"joy":90,"minutes":60,"places":40},
+	"pool": {"hunger":0,"warmth":80,"energy":75,"joy":65,"minutes":45,"places":24},
 	"kiosk": {"hunger":40,"warmth":20,"energy":8,"joy":5,"minutes":7,"places":8},
 	"restaurant": {"hunger":85,"warmth":35,"energy":28,"joy":15,"minutes":20,"places":24},
 	"lodge": {"hunger":20,"warmth":60,"energy":48,"joy":15,"minutes":16,"places":18},

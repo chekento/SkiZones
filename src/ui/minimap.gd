@@ -56,6 +56,11 @@ func _draw() -> void:
 			_images[cache_key] = ImageTexture.create_from_image(pixels)
 		_background = _images[cache_key]
 	draw_texture_rect(_background, Rect2(Vector2.ZERO, size), false)
+	if game == null and map_id in Maps.Geo.IDS:
+		for feature in Maps.Geo.data(map_id).features:
+			if feature.osm_type != "way" or not feature.tags.has("aerialway") and feature.tags.get("piste:type") != "downhill": continue
+			var color := Color("eeb674") if feature.tags.has("aerialway") else Color("8ac9df")
+			for i in range(1, feature.points.size()): draw_line(_point(Terrain.unpack(feature.points[i - 1])), _point(Terrain.unpack(feature.points[i])), color, 1.4)
 	if game != null:
 		for piste in game.model.pistes:
 			for i in range(1, piste.points.size()):

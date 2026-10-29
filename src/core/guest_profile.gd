@@ -24,7 +24,8 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 		kind = guest.route.legs[guest.leg].kind
 		activity = {"ski": L.text("Auf der Piste"), "walk": L.text("Zu Fuß unterwegs"), "lift": L.text("Fährt bergauf"), "visit": L.text("Genießt eine Pause")}.get(kind, L.text("Unterwegs"))
-		if kind=="visit": activity=L.text("Besucht %s") % L.args(L.verbatim(L.asset_name(model.asset(guest.route.legs[guest.leg].id))))
+		if kind == "lift" and guest.route.legs[guest.leg].get("reverse", false): activity = L.text("Fährt ins Tal")
+		if kind=="visit": activity=L.text("Schwimmt im Außenpool") if model.asset(guest.route.legs[guest.leg].id).get("kind") == "pool" else L.text("Besucht %s") % L.args(L.verbatim(L.asset_name(model.asset(guest.route.legs[guest.leg].id))))
 	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
 		activity = L.text("Stapft den Gegenanstieg hinauf")
 		climbing = true
@@ -50,5 +51,10 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		mood = "focused"; emotion = L.text("Konzentriert"); emoji = "😎"; reason = L.text("Ich suche meine eigene Linie und genieße die Schwünge.")
 	elif kind == "lift" and guest.phase == "moving":
 		mood = "relaxed"; emotion = L.text("Entspannt"); emoji = "😌"; reason = L.text("Beine ausruhen, Aussicht genießen und langsam wieder hinauf.")
+	if guest.get("incident", -1) >= 0:
+		emotion = L.text("Benötigt Hilfe")
+		emoji = "🆘"
+		activity = L.text("Wartet auf die Pistenrettung")
+		reason = L.text("Ich bleibe an einem sicheren Ort, bis das Rettungsteam mich erreicht.")
 	var score := clampf(78 + guest.get("runs", 0) * 2 - guest.total_wait * 0.17 - maxf(0, hunger - 60) * 0.2, 5, 100)
 	return {"name": Motion.name_for(id), "years": 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": MOTIVES[(id * 11) % MOTIVES.size()], "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}
