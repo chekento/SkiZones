@@ -12,11 +12,15 @@ const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const SnowRender = preload("res://src/world/snow_render.gd")
+const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var snow_renderer := SnowRender.new()
+var surface_picker := SurfacePicker.new()
+var _terrain_grading := -1
+var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var _art_cache: Dictionary = {}
 var _vehicle_sets: Dictionary = {}
@@ -257,6 +261,7 @@ func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Co
 func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
 	var nx := ceili(bounds.size.x / step_size) + 1
 	var nz := ceili(bounds.size.y / step_size) + 1
+	var refined: Dictionary = {} if outside else terrain.grading.refined_cells(bounds, step_size)
 	var vertices := PackedVector3Array()
 	var colors := PackedColorArray()
 	var normals := PackedVector3Array()
@@ -281,7 +286,31 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 			var center := Vector2(vertices[i].x + step_size * 0.5, vertices[i].z + step_size * 0.5)
 			if outside and terrain.bounds.has_point(center):
 				continue
-			indices.append_array(PackedInt32Array([i, i + 1, i + nx, i + 1, i + nx + 1, i + nx]))
+			if not refined.has(Vector2i(x, z)):
+				indices.append_array(PackedInt32Array([i, i + 1, i + nx, i + 1, i + nx + 1, i + nx]))
+	# Only the built corridors and a shoulder are refined to four-metre cells.
+	# Boundary heights interpolate the adjacent coarse edge, preventing cracks.
+	for cell: Vector2i in refined:
+		if cell.x < 0 or cell.y < 0 or cell.x >= nx - 1 or cell.y >= nz - 1: continue
+		var first := vertices.size()
+		var corner := cell.y * nx + cell.x
+		var a := vertices[corner]
+		var b := vertices[corner + 1]
+		var c := vertices[corner + nx]
+		var d := vertices[corner + nx + 1]
+		for z in range(6):
+			for x in range(6):
+				var u := float(x) / 5
+				var v := float(z) / 5
+				var at := a.lerp(b, u).lerp(c.lerp(d, u), v)
+				var boundary: bool = (x == 0 and not refined.has(cell + Vector2i.LEFT)) or (x == 5 and not refined.has(cell + Vector2i.RIGHT)) or (z == 0 and not refined.has(cell + Vector2i.UP)) or (z == 5 and not refined.has(cell + Vector2i.DOWN))
+				if not boundary: at.y = terrain.height(Vector2(at.x, at.z))
+				vertices.append(at)
+				normals.append(normals[corner].lerp(normals[corner + 1], u).lerp(normals[corner + nx].lerp(normals[corner + nx + 1], u), v).normalized())
+				colors.append(colors[corner].lerp(colors[corner + 1], u).lerp(colors[corner + nx].lerp(colors[corner + nx + 1], u), v))
+				if x < 5 and z < 5:
+					var i := first + z * 6 + x
+					indices.append_array(PackedInt32Array([i, i + 1, i + 6, i + 1, i + 7, i + 6]))
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -513,6 +542,8 @@ func _build_trees() -> void:
 
 func rebuild() -> void:
 	terrain = model.terrain
+	surface_picker.reset()
+	piste_furniture.clear()
 	if _terrain_id != model.map_id:
 		_terrain_id = model.map_id
 		for child in landscape.get_children():
@@ -529,6 +560,21 @@ func rebuild() -> void:
 		slopes_visible = false
 		_build_terrain()
 		_build_surroundings()
+	if _terrain_grading != terrain.grading.signature:
+		_terrain_grading = terrain.grading.signature
+		terrain_instance.mesh = _land_mesh(terrain.bounds, 20)
+		if is_instance_valid(slope_overlay):
+			slope_overlay.queue_free()
+			slope_overlay = null
+		if is_instance_valid(topography):
+			topography.queue_free()
+			topography = null
+		if slopes_visible:
+			_build_slope_overlay()
+			_build_topography()
+	surface_picker.add_mesh("ground", terrain_instance.mesh)
+	for child in landscape.get_children():
+		if child.has_meta("walk_surface"): surface_picker.add_mesh("floor_%d" % child.get_instance_id(), child.mesh)
 	_queue_paths.clear()
 	_motion_cache.clear()
 	_trace_cache.clear()
@@ -556,6 +602,11 @@ func rebuild() -> void:
 	_pedestrian_snapshot = model.pedestrian_layout()
 	_build_foot_areas()
 	var title_positions: Array[Vector2] = []
+	var junctions: Dictionary = {}
+	for piste in model.pistes:
+		for point in piste.points:
+			var key := Terrain.unpack(point).snapped(Vector2.ONE * 0.5)
+			junctions[key] = junctions.get(key, 0) + 1
 	for piste in model.pistes:
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = Snow.piste_width(piste)
@@ -569,7 +620,9 @@ func rebuild() -> void:
 		sign_mesh.surface_set_material(0, _solid)
 		var sign_fractions: Array = []
 		for index in range(piste.points.size()):
-			sign_fractions.append(terrain.waypoint_fraction(piste.points, index))
+			var point := Terrain.unpack(piste.points[index]).snapped(Vector2.ONE * 0.5)
+			if index == 0 or index == piste.points.size() - 1 or junctions.get(point, 0) > 1:
+				sign_fractions.append(terrain.waypoint_fraction(piste.points, index))
 		for i in range(1, ceili(piste.length / 60)):
 			var fraction: float = float(i) * 60 / piste.length
 			var near_waypoint := false
@@ -586,11 +639,13 @@ func rebuild() -> void:
 			var angle := atan2(-direction.x, -direction.y)
 			for edge in [-1, 1]:
 				var at := terrain.world(point + side * edge, 0.25)
+				if not piste_clear(Vector2(at.x, at.z), 1.2): continue
 				signs.set_instance_transform(sign_index, Transform3D(Basis(Vector3.UP, angle), at))
 				signs.set_instance_color(sign_index, Color.WHITE)
 				sign_index += 1
 				piste_markers.append({"id": piste.id, "number": piste.number, "difficulty": piste.difficulty, "position": at, "facing": -direction, "fraction": fraction})
 		var marker_node := MultiMeshInstance3D.new()
+		signs.visible_instance_count = sign_index
 		marker_node.multimesh = signs
 		asset_root.add_child(marker_node)
 		var start := Terrain.unpack(piste.points[0])
@@ -641,6 +696,7 @@ func _build_foot_areas() -> void:
 	surface.index()
 	surface.generate_normals()
 	foot_mesh = _baked(asset_root, surface.commit(), Vector3.ZERO)
+	surface_picker.add_mesh("plazas", foot_mesh.mesh)
 	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for link in _pedestrian_snapshot.links:
 		_ribbon(asset_root,link.points,link.get("width",7),Color("d4dfe8"),0.39)
@@ -657,9 +713,17 @@ func _build_foot_areas() -> void:
 			for link in _pedestrian_snapshot.links:
 				for i in range(1, link.points.size()):
 					near_path = near_path or Geometry2D.get_closest_point_to_segment(at, Terrain.unpack(link.points[i - 1]), Terrain.unpack(link.points[i])).distance_to(at) < 9
-			if not near_path:
+			if not near_path and piste_clear(at, 8):
 				var instance := _baked(asset_root, furniture_mesh, terrain.world(at, 0.35))
 				instance.rotation.y = -index * TAU / 3
+				piste_furniture.append(instance)
+
+func piste_clear(point: Vector2, radius: float = 0) -> bool:
+	for piste in model.pistes:
+		for i in range(1, piste.points.size()):
+			var at := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]))
+			if point.distance_to(at) < Snow.piste_width(piste) * 0.5 + radius: return false
+	return true
 
 func _build_lift(lift: Dictionary) -> void:
 	var bottom := Terrain.unpack(lift.bottom)
@@ -761,7 +825,7 @@ func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: 
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_smooth_group(0)
 	for sample in samples:
-		surface.add_vertex(terrain.world(sample.point, offset))
+		surface.add_vertex(surface_position(sample.point) + Vector3.UP * 0.08 if parent == preview_root else terrain.world(sample.point, offset))
 	surface.index()
 	surface.generate_normals()
 	var instance := MeshInstance3D.new()
@@ -775,6 +839,9 @@ func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: 
 	instance.material_override = material
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(instance)
+	if parent == asset_root or parent == landscape:
+		instance.set_meta("walk_surface", true)
+		surface_picker.add_mesh("floor_%d" % instance.get_instance_id(), instance.mesh)
 
 func preview(points: Array, color: Color, building_kind: String = "", analysis: Dictionary = {}) -> void:
 	for child in preview_root.get_children():
@@ -803,18 +870,15 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 						surface.add_vertex(terrain.world(vertices[vertex],0.85))
 		surface.generate_normals()
 		_mesh(preview_root, surface.commit(), Vector3.ZERO, color)
-	for point in points:
-		var sphere := SphereMesh.new()
-		sphere.radius = 3.5
-		sphere.height = 7
-		_mesh(preview_root, sphere, terrain.world(Terrain.unpack(point), 4), color)
 	if analysis.has("segments"):
 		for i in range(1, points.size()):
 			var a := Terrain.unpack(points[i - 1])
 			var b := Terrain.unpack(points[i])
 			var direction := (b - a).normalized()
-			var arrow := _baked(preview_root, Art.new().downhill_arrow(), terrain.world(a.lerp(b, 0.5), 2.5))
-			arrow.rotation.y = atan2(-direction.x, -direction.y)
+			var middle := a.lerp(b, 0.5)
+			var forward := (surface_position(middle + direction * 2) - surface_position(middle - direction * 2)).normalized()
+			var arrow := _baked(preview_root, Art.new().downhill_arrow(), surface_position(middle) + Vector3.UP * 0.18)
+			arrow.basis = Basis.looking_at(forward, Vector3.UP)
 	if building_kind != "":
 		if not analysis.get("connection", {}).is_empty():
 			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
@@ -1074,6 +1138,7 @@ func _draw_snow(piste: Dictionary) -> void:
 	var data := snow_renderer.update(piste)
 	if _piste_meshes[piste.id].mesh == null:
 		_piste_meshes[piste.id].mesh = snow_renderer.build(terrain, piste)
+	surface_picker.add_mesh("piste_%d" % piste.id, _piste_meshes[piste.id].mesh, piste, snow_renderer.pick_frames[piste.id])
 	_piste_meshes[piste.id].material_override = data.material
 
 func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float, range_start: float = 0, range_end: float = 1) -> Vector3:
@@ -1296,27 +1361,15 @@ func home() -> void:
 	yaw = 0.46
 	_update_camera()
 
+func surface_position(point: Vector2) -> Vector3:
+	var at := surface_picker.position(point)
+	return at if at.is_finite() else terrain.world(point)
+
 func map_point(screen_point: Vector2) -> Vector2:
-	var origin := camera.project_ray_origin(screen_point)
-	var direction := camera.project_ray_normal(screen_point)
-	var previous := 0.0
-	for step in range(0, 20000, 20):
-		var world_point := origin + direction * step
-		var point := Vector2(world_point.x, world_point.z)
-		if terrain.contains(point) and world_point.y <= terrain.height(point):
-			var low := previous
-			var high := float(step)
-			for i in range(12):
-				var middle := (low + high) * 0.5
-				var sample := origin + direction * middle
-				if sample.y <= terrain.height(Vector2(sample.x, sample.z)):
-					high = middle
-				else:
-					low = middle
-			var hit := origin + direction * high
-			return Vector2(hit.x, hit.z)
-		previous = step
-	return Vector2.INF
+	if not get_viewport().get_visible_rect().has_point(screen_point): return Vector2.INF
+	var hit := surface_picker.intersect(camera.project_ray_origin(screen_point), camera.project_ray_normal(screen_point))
+	if hit.is_empty(): return Vector2.INF
+	return Vector2(hit.position.x, hit.position.z)
 
 func pick_asset(point: Vector2) -> int:
 	var closest := 24.0

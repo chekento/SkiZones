@@ -7,7 +7,7 @@ var path := "user://app-session.json"
 
 func save(game: Node) -> void:
 	if not game.has_game: return
-	var state := {"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
+	var state := {"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
 	var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null: return
 	file.store_string(JSON.stringify(state));file.flush();file.close()
@@ -32,6 +32,7 @@ func read_state() -> Dictionary:
 	for key in ["tool","plaza_kind","edit_title","edit_color"]:
 		if not value.get(key) is String or value[key].length() > 120: return {}
 	if value.tool not in ["inspect","piste","lift","building","plaza","walkway"]: return {}
+	if not Terrain.number(value.get("plan_width", 20)) or value.get("plan_width", 20) < 14 or value.get("plan_width", 20) > 36: return {}
 	return value
 
 func restore(game: Node) -> bool:
@@ -45,6 +46,7 @@ func restore(game: Node) -> bool:
 	game.view.yaw = state.yaw;game.view.zoom = state.zoom;game.view.camera_mode = int(state.camera_mode);game.view.pitch_degrees = state.pitch
 	game.view.selected_guest = int(state.selected_guest);game.view.follow_guest = int(state.follow_guest)
 	game.hud.hide_menu();game.hud.atlas.hide();game.set_tool(state.tool)
+	game.plan_width = state.get("plan_width", 20)
 	game.plaza_kind = state.plaza_kind
 	if state.editing_id >= 0:
 		if not game.begin_edit(int(state.editing_id),state.edit_title,state.edit_color,int(state.edit_rotation),state.edit_width):

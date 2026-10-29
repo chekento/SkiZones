@@ -73,6 +73,7 @@ jobs:
         run: |
           python3 tools/check_localization.py
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/routes_and_services.gd
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_surfaces.gd
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -99,6 +100,8 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
+      - name: Actual surface picking, construction widths and clear piste geometry
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_surfaces_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:

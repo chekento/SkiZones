@@ -125,6 +125,10 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	var needed := "mastercraft" if level == 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
 	if model.campaign.get("mode", "free") != "free" and not has(model, needed):
 		return {"ok": false, "message": L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name)}
+	if item.has("difficulty"):
+		var context: RefCounted = model.Edit.context(model, id)
+		var corridor: Dictionary = context.preview_piste(item.points, model.Snow.piste_width(item) + 4)
+		if not corridor.ok: return corridor
 	var cost := roundi(item.cost * (0.45 if level == 1 else 0.8))
 	return {"ok": model.money >= cost, "message": L.text("Stufe %d · %d €") % L.args([level + 1, cost]), "cost": cost}
 

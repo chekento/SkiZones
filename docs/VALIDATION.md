@@ -1,10 +1,10 @@
-# Prüfung von SkiZones 0.11.0
+# Prüfung von SkiZones 0.12.0
 
 Stand: 29.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
-Der aktuelle Prüfumfang beträgt **697 Modell- und Grafikprüfungen**, dazu 23 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
+Der aktuelle Prüfumfang beträgt **748 Modell- und Grafikprüfungen**, dazu 31 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
 
-Der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/actions/runs/40873205388) prüft den APK-Quellcode-Commit `500190986df4a021bfbf10ed4136fe675ba42677`. Alle **697 Modell-/Grafikprüfungen und 23 Android-Fälle** sind erfolgreich abgeschlossen (Versuch 2). Unter Android 11 wurde nach acht erfolgreichen App-Wechseln der erste Lauf durch einen Emulator-/ADB-Timeout beim Bildschirmwechsel beendet. Der unveränderte Export bestand den vollständigen Wiederholungslauf; Android 16 bestand bereits im ersten Veröffentlichungslauf alle zwölf Fälle.
+Vorheriger freigegebener Stand: der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/actions/runs/40873205388) prüft den APK-Quellcode-Commit `500190986df4a021bfbf10ed4136fe675ba42677`. Alle **697 Modell-/Grafikprüfungen und 23 Android-Fälle** sind erfolgreich abgeschlossen (Versuch 2). Unter Android 11 wurde nach acht erfolgreichen App-Wechseln der erste Lauf durch einen Emulator-/ADB-Timeout beim Bildschirmwechsel beendet. Der unveränderte Export bestand den vollständigen Wiederholungslauf; Android 16 bestand bereits im ersten Veröffentlichungslauf alle zwölf Fälle.
 
 | Prüfung | Umfang |
 |---|---|
@@ -30,8 +30,10 @@ Der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/ac
 | Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
 | Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
 | Planung und Bedürfnisse | 40 neue Prüfungen: sanftere tatsächliche Route, erhaltene Wegpunkte, reale Anschlussprüfung, wirkliche Restaurantbesuche und Gebühren, gezielte Erholung, wiederholte Einkehr, Kapazität, geschlossene und abgetrennte Angebote, Format-11-Rundlauf und tatsächliche 0.10-Migration |
-| Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 631 Einträge und Formatplatzhalter |
-| Android-App-Wechsel | 11 erfolgreiche Fälle unter Android 11 (API 30) und 12 unter Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; zusätzlich ein tatsächlicher System-Overlay-Wechsel unter Android 16. Tatsächlich gerenderte Screenshots, fortschreitende Bilder und gespeicherte Zustände werden geprüft. Beide Jobs waren vor der APK-Veröffentlichung erfolgreich. |
+| Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 636 Einträge und Formatplatzhalter |
+| Breite, Korridore und Gelände | 25 neue Modellprüfungen: 14–36 m Bauauswahl, 44 m nach Ausbau, wirkliche Preise und gespeicherte Breite, seitliche Einschnitte/Auffüllungen bis 1,2 m, geschützte Mittellinien und Anschlüsse, volle Gebäudekorridore, Beschneiung, sichere Kurven, beschädigte Daten und tatsächliche 0.11-Migration |
+| Tatsächliche Oberflächen-Klicks | 26 neue Prüfungen mit Grafikausgabe: vier Kameramodi × fünf Drehwinkel × drei Zoomstufen, reale Dreiecke und verformter Schnee, Pixelgrenze fürs Andocken, Griffe mit Abstand, Bau-/Umbau-Breitensteuerung einschließlich Ausbau, echte Möbelgeometrie, örtliche Verfeinerung und Sprachwechsel |
+| Android-App-Wechsel und Display-Taps | 15 Fälle unter Android 11 (API 30) und 16 unter Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; zusätzlich System-Overlay unter Android 16. Je vier echte Android-Bildschirm-Taps prüfen die Koordinatenumrechnung und Wegpunktgriffe bei allen Kameraperspektiven. Beide Jobs müssen vor der Veröffentlichung erfolgreich sein. |
 | CPU-Belastung | Aktueller 0.11-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
@@ -42,9 +44,9 @@ Der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/ac
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 697 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 748 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.11.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.12.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 
@@ -78,3 +80,5 @@ Die Android-Lifecycle-Prüfung verwendet einen gesonderten x86-64-Testexport mit
 Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibility-Ausgabe erfasst. Nahdetails werden in vorhandene Asset-Meshes gebacken; das Gäste-Material trennt die Jackenfarbe von Gesicht, Brille und Schal. Die Aufnahmen zeigen reguläre 3D-Spielgeometrie, keine Konzeptbilder.
 
 Die native Android-Prüfung umfasst acht Home-Wechsel (elf sichtbare Fälle unter Android 11 und zwölf unter Android 16 einschließlich eines tatsächlichen System-Overlay-Wechsels). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.
+
+Die neuen Prüfungen laufen mit `tests/piste_surfaces.gd` und `tests/piste_surfaces_scene.gd`. Die grafische Prüfung projiziert tatsächliche Gelände- und Schneegitter und setzt reale Mausereignisse; der Android-Lauf erzeugt zusätzlich native Bildschirm-Taps per ADB. Die Modellmigration nutzt einen unveränderten 0.11-Quellcode-Spielstand mit zwölf synthetischen Gästen. Die Geländeangleichung ist seitlich begrenzt und ändert nicht das Höhenprofil der Mittellinie.

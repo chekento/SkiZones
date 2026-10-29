@@ -55,3 +55,13 @@ Nach Start und Ziel bietet **Verlauf verbessern** in der Bauleiste einen Vorschl
 Die Suche ist begrenzt. Auf schwierigen Bergen weitere Punkte quer zum Hang setzen oder den eigenen gültigen Verlauf verwenden. Eine Piste wird erst mit **Bauen**, ein Umbau mit **Übernehmen** bestätigt. Der Helfer gibt kein Geld aus.
 
 Die Bauvorschau erklärt zusätzlich, ob Gäste mit dem erforderlichen Können den Einstieg erreichen und vom Ende wieder ins Tal kommen. Manuelle Liftsperren und unterbrochene Wege zählen mit. Eine gültige, noch nicht angeschlossene Piste bleibt für späteren Ausbau baubar.
+
+## Pistenbreite und Kurven seit 0.12
+
+In der Bauleiste **Pistenbreite** wählen: 14 bis 36 Meter in Zwei-Meter-Schritten. Das funktioniert vor dem ersten Punkt, während der Vorschau und beim Umplanen bestehender Pisten. Die Kosten und Abstände werden sofort neu geprüft. Ausbauten verbreitern zusätzlich; im Anlagenprofil steht die wirksame Gesamtbreite. Die Breitenwahl ist auch unter **Mehr Karte** verfügbar.
+
+Mit **Kurven glätten** einen sanfteren Verlauf durch alle gesetzten Wegpunkte versuchen. Ein Vorschlag muss weiterhin die reguläre Bauprüfung bestehen. Griffe mit ausreichend Abstand lassen sich direkt verschieben; beim Hineinzoomen werden zusätzliche Punkte greifbar. Gezeichnete Griffe und Klicks beziehen sich auf dieselbe sichtbare Oberfläche, auch bei gedrehter oder flacher Kamera. Nahe Andockpunkte werden zusätzlich in Bildschirm-Pixeln begrenzt.
+
+Neue oder bestätigte umgeplante Pisten erhalten eine sanfte seitliche Geländeangleichung mit höchstens 1,2 m Einschnitt oder Auffüllung. Die Mittellinie und die Anschlussbereiche behalten ihre Höhen. Alte gespeicherte Pisten werden beim Laden nicht automatisch verändert. Ein gewünschter Umbau muss bestätigt werden.
+
+Bänke und Laternen stehen außerhalb der vollständigen Pistenbreite. Auch Gebäude und Beschneiung sowie eine spätere Verbreiterung werden gegen den ganzen Korridor geprüft. Breitere Pisten brauchen deshalb ausreichend Platz am Rand.

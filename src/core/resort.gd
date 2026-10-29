@@ -103,6 +103,7 @@ func _reset_report() -> void:
 	report = {"day": day, "tickets": 0.0, "services": 0.0, "costs": 0.0, "guests": 0, "rides": 0, "departures": 0, "satisfaction": 0.0, "rewards": 0.0, "investments": 0.0}
 
 func _invalidate() -> void:
+	terrain.configure_pistes(pistes)
 	revision += 1
 	_asset_index.clear()
 	_edit_context.clear()
@@ -175,7 +176,10 @@ func _spend(cost: float) -> bool:
 
 func preview_piste(points: Array, width: float = 20) -> Dictionary:
 	var prepared := Foot.prepare_piste(points, lifts)
-	var check := terrain.analyse(prepared)
+	# A new centerline is retained at its original elevation by the earthworks.
+	# Analyze that final profile, not the bank of an older crossing corridor.
+	var planning_terrain: RefCounted = terrain.get_script().new(map_id)
+	var check: Dictionary = planning_terrain.analyse(prepared)
 	check.points = prepared
 	check.width = width
 	if width < 14 or width > 44 or not is_finite(width):
@@ -187,11 +191,9 @@ func preview_piste(points: Array, width: float = 20) -> Dictionary:
 		check.message = L.text("Die Liftanlage freihalten. Die Piste am Stationsplatz anschließen.")
 	if check.ok:
 		for building in buildings:
-			if building.kind == "snowmaker":
-				continue
 			var footprint := Foot.building_size(building)
 			for index in range(1, prepared.size()):
-				if Foot._crosses(Terrain.unpack(prepared[index - 1]), Terrain.unpack(prepared[index]), Rect2(Terrain.unpack(building.point) - footprint * 0.5, footprint).grow(3)):
+				if Foot._crosses(Terrain.unpack(prepared[index - 1]), Terrain.unpack(prepared[index]), Rect2(Terrain.unpack(building.point) - footprint * 0.5, footprint).grow(width * 0.5 + 3)):
 					check.ok = false
 					check.message = L.text("Das Gebäude freihalten. Die Piste auf dem Vorplatz anschließen.")
 	if check.ok: check.connections = piste_connections(prepared, check.difficulty)
@@ -222,10 +224,11 @@ func piste_connections(points: Array, skill: int) -> Dictionary:
 	elif not exit: message = L.text("Pistenende noch mit dem Rückweg ins Tal verbinden")
 	return {"entry":entry,"exit":exit,"message":message}
 
-func build_piste(points: Array, _legacy_choice: int = -1) -> Dictionary:
+func build_piste(points: Array, _legacy_choice: int = -1, width: float = 20) -> Dictionary:
 	if pistes.size() >= 80:
 		return _result(false, L.text("Maximal 80 Pisten in diesem Prototyp."))
-	var check := preview_piste(points)
+	if not is_finite(width) or width < 14 or width > 36: return _result(false, L.text("Pistenbreite außerhalb des erlaubten Bereichs."))
+	var check := preview_piste(points, width)
 	if not check.ok:
 		return check
 	if not _spend(check.cost):
@@ -236,6 +239,8 @@ func build_piste(points: Array, _legacy_choice: int = -1) -> Dictionary:
 	var difficulty: int = check.difficulty
 	pistes.append({"id": next_id, "number": number, "name": "%s %d" % [Terrain.PISTE_NAMES[difficulty], number], "points": check.points.duplicate(true), "difficulty": difficulty, "length": check.length, "horizontal": check.horizontal, "drop": check.drop, "average": check.average, "grade": check.grade, "cost": check.cost, "condition": 100.0, "snow": 55.0 * Maps.spec(map_id).snow, "enabled": true, "rides": 0, "level": 1, "upgrade_total": 0.0})
 	next_id += 1
+	pistes[-1].width = width
+	pistes[-1].grading = true
 	_invalidate()
 	return _result(true, L.text("%s %d gebaut und beschildert. Öffnet mit einem erreichbaren Lift-Rundweg.") % L.args([Terrain.PISTE_NAMES[difficulty], number]))
 
@@ -342,9 +347,8 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 		return _result(false, L.text("An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen."))
 	for piste in pistes:
 		for i in range(1, piste.points.size()):
-			var nearest := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]))
-			if nearest.distance_to(point) < 15.0:
-				return _result(false, L.text("Die Piste freihalten: Mindestens 15 m Abstand zur Mittellinie."))
+			if Foot._crosses(Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]), rect.grow(Snow.piste_width(piste) * 0.5 + 2)):
+				return _result(false, L.text("Die gesamte Pistenbreite und den Gebäuderand freihalten."))
 	return _result(true, L.text(Catalog.BUILDINGS[kind].description) + (L.text(" · Fußweg wird angeschlossen.") if not connection.is_empty() else ""), {"cost": Catalog.BUILDINGS[kind].cost, "connection": connection})
 
 func build_building(kind: String, point: Vector2) -> Dictionary:
@@ -1505,7 +1509,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version":11,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":12,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -1582,7 +1586,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 11:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 12:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -1603,6 +1607,11 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 	if data.pistes.size() > 80 or data.lifts.size() > 24 or data.buildings.size() > 60 or data.guests.size() > MAX_GUESTS:
 		return invalid
+	for piste in data.pistes:
+		if not piste is Dictionary: return invalid
+		if data.version < 12: piste.grading = false
+		if not piste.get("grading", false) is bool: return invalid
+	terrain.configure_pistes(data.pistes)
 	for lift in data.lifts:
 		if not lift is Dictionary or not Terrain.number(lift.get("id")) or not lift.get("name") is String or not lift.get("kind") is String or not Catalog.LIFTS.has(lift.kind) or not terrain.contains(Terrain.unpack(lift.get("bottom"))) or not terrain.contains(Terrain.unpack(lift.get("top"))):
 			return invalid

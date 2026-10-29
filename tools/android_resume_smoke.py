@@ -2,6 +2,7 @@
 import argparse
 import io
 import json
+import math
 import subprocess
 import time
 from pathlib import Path
@@ -137,6 +138,21 @@ def main():
         assert state["day"] == before["day"] and state["minute"] >= before["minute"]
         assert before["guests"][0] in state["guests"], "Process recreation lost the saved guest identities"
         capture("restored-process", state)
+        # Drive genuine Android pixels, including Godot's viewport stretch.
+        request_path = health_path.rsplit("/", 1)[0] + "/picking-ci.json"
+        for mode in range(4):
+            request_file = args.output / "picking-request.json"
+            request_file.write_text(json.dumps(dict(mode=mode)))
+            adb("push", str(request_file), "/data/local/tmp/skizones-picking.json")
+            adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-picking.json", request_path)
+            state = wait_for(lambda s: s.get("picking", {}).get("mode") == mode)
+            x, y = state["picking"]["screen"]
+            adb("shell", "input", "tap", str(round(x)), str(round(y)))
+            state = wait_for(lambda s: len(s.get("picking", {}).get("point", [])) == 2)
+            hit = state["picking"]
+            assert math.dist(hit["point"], hit["target"]) < 0.75, hit
+            assert hit["handle_hit"], "The waypoint handle is offset from the physical Android tap"
+            capture(f"picking-mode-{mode}", state)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"

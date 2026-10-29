@@ -26,3 +26,5 @@ anschließenden Speicherwechsel auf Format 8. Es sind erzeugte Testdaten.
 `v0.9-starter.json` wurde mit dem veröffentlichten 0.9-Quellcode (`89363375df2fa2d106b84f5ae0801a9526b70f34`) und dem 4.5.2-Interpreter erzeugt. Der Format-9-Spielstand enthält zwölf synthetische Gäste, darunter eine laufende persönliche Abfahrt. Die 0.10-Prüfung erhält Ausrüstung und Fortschritt der alten Skifahrer beim Wechsel in Format 10.
 
 - v0.10-starter.json: created with the unmodified published 0.10 source at commit 07dbf0d1f52ed4dfb5ebe2ede168e94f7ef8f70e, seed 20261029, twelve generated admissions and 65 simulated minutes. The format-10 save preserves all twelve active visitors for migration into format 11. No player data.
+
+- `v0.11-starter.json`: generated with the unmodified published 0.11 source at commit `c734f42fea7cc5ae38df72512c49d8080547d3bf`, seed 20261029, twelve admissions and 65 simulated minutes. It contains twelve active synthetic visitors with real needs and itineraries for format-12 migration. No player data.

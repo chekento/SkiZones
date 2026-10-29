@@ -32,6 +32,10 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 Die Bilder zeigen die tatsächlich gerenderte Spieloberfläche auf dem PC. Das Android-Spiel verwendet dieselben Szenen und Spielsysteme. Die Aufnahmen stammen aus vorbereiteten Testresorts mit erzeugten Gästen; ein physisches Android-Gerät wurde dafür nicht aufgenommen. Auch das neue Menüpanorama zeigt eine Aufnahme derselben 3D-Spielwelt.
 
+| Breite und geglättete Kurven · Deutsch · 0.12.0 | Gebauter freier Pistenkorridor · English · 0.12.0 |
+|---|---|
+| [![Wählbare 36-m-Piste mit geglättetem Verlauf und präzisen Griffen](docs/screenshots/de-width-curves-0120.webp)](docs/screenshots/de-width-curves-0120.webp) | [![Gebauter geglätteter Pistenkorridor ohne Bänke, Lampen oder Bäume auf der Abfahrt](docs/screenshots/en-graded-piste-0120.webp)](docs/screenshots/en-graded-piste-0120.webp) |
+
 | Planung mit Anschlussprüfung · Deutsch · 0.11.0 | Bedürfnis und Einkehr · English · 0.11.0 |
 |---|---|
 | [![Deutsche Streckenplanung mit Verbesserungshelfer, Höhenprofil und Anschlussprüfung](docs/screenshots/de-route-planning-0110.webp)](docs/screenshots/de-route-planning-0110.webp) | [![Englisches Gastprofil nach einem tatsächlichen Restaurantbesuch](docs/screenshots/en-guest-services-0110.webp)](docs/screenshots/en-guest-services-0110.webp) |
@@ -78,10 +82,27 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.11.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.12.0 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.11.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.12.0.md).
+
+## Neu in 0.12.0: Präzise Wegpunkte und schönere Pisten
+
+**Plane direkt auf der sichtbaren Oberfläche und wähle die Breite schon vor dem Bau.** Kamera, Klicktest und Wegpunktgriffe verwenden dieselben gezeichneten Gelände- und Schneeflächen.
+
+| Änderung | Im Spiel |
+|---|---|
+| **Präzise bei jeder Perspektive** | Griffe liegen direkt auf der Oberfläche. Kanten werden robust getroffen; Anschlüsse springen höchstens 18 Bildschirm-Pixel. |
+| **14–36 m Pistenbreite** | Direkt in der Bauleiste wählbar. Vorschau, Baupreis, gespeicherte Piste und Abstände berücksichtigen dieselbe Breite. Auch im großen Kartenmodus bedienbar. |
+| **Kurven glätten** | Sanftere geprüfte Bögen mit erhaltenen eigenen Wegpunkten. Vorschau vor Bestätigung; unsichere Vorschläge ändern weder Plan noch Geld. |
+| **Sanft angepasster Untergrund** | Neue und umgeplante Pisten erhalten eine seitliche Geländeangleichung bis 1,2 m mit weichen Schultern. Mittellinie und Zugänge bleiben erhalten. |
+| **Freie Abfahrten** | Ganze Bänke, Lampen und Platztafeln stehen außerhalb der Korridore. Gebäude, Beschneiung, Umbauten und Verbreiterungen halten auch die Pistenränder frei. |
+| **Ruhigere Darstellung** | Griffe mit Abstand, weniger dichte Beschilderung, niedrigere Schneedecke und örtlich feineres Gelände entlang der neuen Pisten. |
+
+**748 Modell- und Grafikprüfungen** plus **31 Android-Fälle** sind der Freigabeumfang. Der neue Android-Test setzt echte Bildschirm-Taps in allen vier Perspektiven. Deutsch und Englisch einschließlich aller neuen Bedienelemente bleiben vollständig verfügbar.
+
+[Release-Notizen 0.12.0](docs/releases/0.12.0.md) · [Bauanleitung](docs/BAUEN_UND_BEDIENUNG.md) · [Prüfstand](docs/VALIDATION.md)
 
 ## Neu in 0.11.0: Strecken planen, Gäste versorgen, Deutsch und Englisch
 
