@@ -816,3 +816,522 @@ msgstr "Not enough money for this run yet."
 
 msgid "%s %d"
 msgstr "%s %d"
+
+msgid "%s %d gebaut und beschildert. Öffnet mit einem erreichbaren Lift-Rundweg."
+msgstr "%s %d built and signed. Opens when a complete lift circuit is reachable."
+
+msgid "Beide Stationen müssen im Baugebiet liegen."
+msgstr "Both stations must be inside the building area."
+
+msgid "%s: 65–%.0f m und mindestens 9 m Höhengewinn. Talstation zuerst setzen."
+msgstr "%s: 65–%.0f m long with at least 9 m of ascent. Place the lower station first."
+
+msgid "Die Station braucht einen eigenen Standort neben der bestehenden Anlage. Die Plätze verbinden sich zu Fuß."
+msgstr "The station needs its own site beside the existing facility. The plazas connect on foot."
+
+msgid "Die Lifttechnik neben die Piste setzen. Pistenenden werden am Stationsplatz angeschlossen."
+msgstr "Place lift machinery beside the run. Piste endpoints connect to the station plaza."
+
+msgid "Die Liftstation neben das Gebäude setzen und den Vorplatz freihalten."
+msgstr "Place the lift station beside the building and keep its forecourt clear."
+
+msgid "%.0f m · %.1f m/s · %.1f Min. Fahrt · %d Pers./Fahrzeug · %d Gäste/h"
+msgstr "%.0f m · %.1f m/s · %.1f min ride · %d people/vehicle · %d guests/h"
+
+msgid "Maximal 24 Lifte in diesem Prototyp."
+msgstr "A maximum of 24 lifts in this prototype."
+
+msgid "Das Budget reicht für diesen Lift noch nicht."
+msgstr "Not enough money for this lift yet."
+
+msgid "Lift und Stationsplätze gebaut. Pisten an die Plätze anschließen; Gebäude erweitern das Fußwegenetz."
+msgstr "Lift and station plazas built. Connect runs to the plazas; buildings expand the footpath network."
+
+msgid "Einen Standort im Baugebiet wählen."
+msgstr "Choose a site inside the building area."
+
+msgid "Hier steht bereits ein Gebäude. Mindestens 32 m Abstand halten."
+msgstr "There is already a building here. Leave at least 32 m of space."
+
+msgid "Den Skibus-Terminal im Tal bauen."
+msgstr "Build the ski bus terminal in the valley."
+
+msgid "Gebäude und Eingangsvorplatz freihalten. Einen Standort mit freiem Zugang wählen."
+msgstr "Keep buildings and entrance forecourts clear. Choose a site with open access."
+
+msgid "Die Lifttechnik und den Einstieg freihalten. Das Gebäude am Rand des Stationsplatzes anschließen."
+msgstr "Keep lift machinery and boarding areas clear. Connect the building at the edge of the station plaza."
+
+msgid "Dieser Bauplatz ist zu steil. Einen flacheren Standort wählen."
+msgstr "This building site is too steep. Choose a flatter site."
+
+msgid "An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen."
+msgstr "Build next to a station plaza, the valley entrance or an already connected building forecourt."
+
+msgid "Die Piste freihalten: Mindestens 15 m Abstand zur Mittellinie."
+msgstr "Keep the run clear: stay at least 15 m from its centre line."
+
+msgid " · Fußweg wird angeschlossen."
+msgstr " · A footpath will be connected."
+
+msgid "Maximal 60 Gebäude in diesem Prototyp."
+msgstr "A maximum of 60 buildings in this prototype."
+
+msgid "Das Budget reicht für dieses Gebäude noch nicht."
+msgstr "Not enough money for this building yet."
+
+msgid "%s gebaut."
+msgstr "%s built."
+
+msgid "Liftzugang · %s"
+msgstr "Lift entrance · %s"
+
+msgid "Berg"
+msgstr "Upper"
+
+msgid "Tal"
+msgstr "Valley"
+
+msgid "Piste %d · %s"
+msgstr "Run %d · %s"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Auslauf"
+msgstr "Finish"
+
+msgid "Talzugang"
+msgstr "Valley entrance"
+
+msgid "Start und Ziel des Fußwegs an Lift, Piste, Gebäude oder Platz setzen."
+msgstr "Connect the footpath start and end to a lift, run, building or plaza."
+
+msgid "Höchstens 64 Planungspunkte für einen Fußweg."
+msgstr "A footpath can have at most 64 planning points."
+
+msgid "Der Fußweg muss im Baugebiet bleiben."
+msgstr "The footpath must stay inside the building area."
+
+msgid "Wegpunkte mindestens 2 m auseinander setzen."
+msgstr "Place waypoints at least 2 m apart."
+
+msgid "Lifttechnik und Gebäudewände freihalten. Den Zugang neben der Anlage wählen."
+msgstr "Keep clear of lift machinery and building walls. Choose the entrance beside the facility."
+
+msgid "Den Fußweg in zwei verbundene Abschnitte teilen."
+msgstr "Split the footpath into two connected sections."
+
+msgid "Zum Gehen zu steil. Den Weg mit weiteren Punkten quer zum Hang legen."
+msgstr "Too steep to walk. Add points across the slope."
+
+msgid "Beide Enden an einen Liftzugang, eine Piste, ein Gebäude oder einen Platz anschließen."
+msgstr "Connect both ends to a lift entrance, run, building or plaza."
+
+msgid "Ein Fußweg benötigt 4–1.600 m Länge."
+msgstr "A footpath must be 4–1,600 m long."
+
+msgid "Fußweg · %.0f m · 8 m breit · beide Enden angeschlossen"
+msgstr "Footpath · %.0f m · 8 m wide · both ends connected"
+
+msgid "Maximal 80 Wege und zusätzliche Gehflächen."
+msgstr "A maximum of 80 paths and additional walking areas."
+
+msgid "Das Budget reicht für diesen Fußweg noch nicht."
+msgstr "Not enough money for this footpath yet."
+
+msgid "Fußweg %d"
+msgstr "Footpath %d"
+
+msgid "Fußweg gebaut. Gäste nutzen dieselbe sichtbare Verbindung zu Liften und Pisten."
+msgstr "Footpath built. Guests use this same visible connection to lifts and runs."
+
+msgid "Eine Gehfläche innerhalb des Baugebiets wählen."
+msgstr "Choose a walking area inside the building area."
+
+msgid "Hier ist es zum Gehen zu steil. Einen flacheren Bereich wählen."
+msgstr "Too steep to walk here. Choose a flatter area."
+
+msgid "Lifttrassen und Gebäude freihalten. Die Gehfläche daneben setzen."
+msgstr "Keep lift tracks and buildings clear. Place the walking area beside them."
+
+msgid "Die neue Gehfläche etwas versetzt anlegen."
+msgstr "Offset the new walking area slightly."
+
+msgid "%s · Ø %.0f m · verbindet Plätze, Pisten und Gebäude"
+msgstr "%s · Ø %.0f m · connects plazas, runs and buildings"
+
+msgid "Maximal 80 zusätzliche Gehflächen."
+msgstr "A maximum of 80 additional walking areas."
+
+msgid "Das Budget reicht für diese Gehfläche noch nicht."
+msgstr "Not enough money for this walking area yet."
+
+msgid "Gehfläche angelegt. Benachbarte Plätze und Gebäude verbinden sich automatisch."
+msgstr "Walking area built. Nearby plazas and buildings connect automatically."
+
+msgid "Abgebaut. %d € Materialwert erstattet; Gäste werden neu geleitet."
+msgstr "Demolished. €%d of material value refunded; guests are rerouted."
+
+msgid "Rückholbetrieb · nur Rückwege ins Tal; für neue Runden geschlossen."
+msgstr "Return service · valley journeys only; closed to new circuits."
+
+msgid "Manuell geschlossen · Mitfahrende werden noch ausgeladen."
+msgstr "Manually closed · riders are still being unloaded."
+
+msgid "Manuell geschlossen · Über Öffnen wieder freigeben."
+msgstr "Manually closed · select Open to reopen."
+
+msgid "Sturmpause: %.0f km/h Wind, Grenze %.0f km/h. Startet bei geeignetem Wetter automatisch wieder."
+msgstr "Storm pause: %.0f km/h wind, limit %.0f km/h. Restarts automatically when weather allows."
+
+msgid "Feierabendbetrieb · laufende Rückwege werden noch bedient."
+msgstr "Closing service · existing return journeys are still served."
+
+msgid "In Betrieb · Wind unter %.0f km/h."
+msgstr "Operating · wind below %.0f km/h."
+
+msgid "Eine Piste wählen."
+msgstr "Select a run."
+
+msgid "Schneemanagement erforschen."
+msgstr "Research Snow Management."
+
+msgid "Eine geöffnete Pistenraupengarage ist erforderlich."
+msgstr "An open groomer garage is required."
+
+msgid "Die Pistenraupe ist bereits unterwegs."
+msgstr "The groomer is already on its way."
+
+msgid "Bald ist Feierabend; nachts wird automatisch präpariert."
+msgstr "Closing time is near; grooming takes place automatically overnight."
+
+msgid "45 Spielminuten geschlossen · %d €"
+msgstr "Closed for 45 game minutes · €%d"
+
+msgid "Das Budget reicht für die Präparierung noch nicht."
+msgstr "Not enough money for grooming yet."
+
+msgid "Piste für neue Routen geschlossen. Die Pistenraupe glättet Spuren und Buckel."
+msgstr "Run closed to new routes. The groomer is smoothing tracks and bumps."
+
+msgid "Piste %d · Wegpunkt %d"
+msgstr "Run %d · waypoint %d"
+
+msgid "Stationsplatz · %s"
+msgstr "Station plaza · %s"
+
+msgid "Vorplatz · %s"
+msgstr "Forecourt · %s"
+
+msgid "Spielstand geladen."
+msgstr "Save loaded."
+
+msgid "Der Spielstand ist unvollständig oder beschädigt."
+msgstr "The save is incomplete or damaged."
+
+msgid "Diese Spielstand-Version wird nicht unterstützt."
+msgstr "This save version is not supported."
+
+msgid "4er-Sessellift %d"
+msgstr "4-seat chairlift %d"
+
+msgid "Spielstand geprüft."
+msgstr "Save verified."
+
+msgid "Diese Änderung ist hier nicht möglich."
+msgstr "This change is not possible here."
+
+msgid "Gemeinsamen Anschluss erhalten: Den Punkt ziehen, statt ihn zu löschen."
+msgstr "Keep the shared connection: drag the point instead of deleting it."
+
+msgid "Die angeschlossene Piste %d wäre ungültig: %s"
+msgstr "Connected run %d would be invalid: %s"
+
+msgid "Änderung prüfen · %.0f € · erst Übernehmen bestätigt den Umbau."
+msgstr "Review change · €%.0f · only Apply confirms the rebuild."
+
+msgid "Name: 1–60 Zeichen. Eine gültige Akzentfarbe wählen."
+msgstr "Name: 1–60 characters. Choose a valid accent colour."
+
+msgid "Das Budget reicht für diesen Umbau noch nicht."
+msgstr "Not enough money for this rebuild yet."
+
+msgid "%s angepasst. Umbau: %.0f €."
+msgstr "%s updated. Rebuild: €%.0f."
+
+msgid "N ↑"
+msgstr "N ↑"
+
+msgid "BAUKATALOG"
+msgstr "BUILD CATALOGUE"
+
+msgid "Dein nächster Ausbau"
+msgstr "Your next expansion"
+
+msgid "Resort ansehen"
+msgstr "View resort"
+
+msgid "Pisten"
+msgstr "Runs"
+
+msgid "Lifte"
+msgstr "Lifts"
+
+msgid "Dorf"
+msgstr "Village"
+
+msgid "Wege"
+msgstr "Paths"
+
+msgid "Sanften Verlauf vorschlagen"
+msgstr "Suggest a gentle route"
+
+msgid "Sucht einen sanfteren Verlauf zwischen deinen Punkten. Bauen wird separat bestätigt."
+msgstr "Finds a gentler route between your points. Building is confirmed separately."
+
+msgid "Richtung umkehren"
+msgstr "Reverse direction"
+
+msgid "\nBetrieb: %d €/Tag"
+msgstr "\nOperating costs: €%d/day"
+
+msgid "Erst Bauen oder Abbrechen wählen. Dein aktueller Plan bleibt erhalten."
+msgstr "Choose Build or Cancel first. Your current plan is preserved."
+
+msgid "Abfahrt planen"
+msgstr "Plan a run"
+
+msgid "Farbe automatisch · ab 32 €/m"
+msgstr "Automatic colour · from €32/m"
+
+msgid "%.1f m/s · max. %.0f m\n%s € + %d €/m"
+msgstr "%.1f m/s · max. %.0f m\n€%s + €%d/m"
+
+msgid "%s € · %d €/Tag"
+msgstr "€%s · €%d/day"
+
+msgid "8 m breit · 180 € + 18 €/m\n"
+msgstr "8 m wide · €180 + €18/m\n"
+
+msgid "Ø %.0f m · %s €\n%s"
+msgstr "Ø %.0f m · €%s\n%s"
+
+msgid "Plan abbrechen"
+msgstr "Cancel plan"
+
+msgid "Plan läuft · Bauen / Abbrechen"
+msgstr "Plan in progress · Build / Cancel"
+
+msgid "Budget reicht noch nicht"
+msgstr "Not enough money yet"
+
+msgid "Standort wählen"
+msgstr "Choose a site"
+
+msgid "Route planen"
+msgstr "Plan a route"
+
+msgid "%.0f m · ziehen zum Verschieben"
+msgstr "%.0f m · drag to move"
+
+msgid "%.0f k€"
+msgstr "€%.0f k"
+
+msgid "Nach dem ersten Betriebstag erscheint hier dein Verlauf."
+msgstr "Your history appears here after the first operating day."
+
+msgid "RESORT-BÜRO"
+msgstr "RESORT OFFICE"
+
+msgid "Zurück zum Berg"
+msgstr "Back to the mountain"
+
+msgid "RESORT-BÜRO  ·  %s  ·  %d FP"
+msgstr "RESORT OFFICE  ·  %s  ·  %d RP"
+
+msgid "Karriere"
+msgstr "Career"
+
+msgid "Aufträge"
+msgstr "Contracts"
+
+msgid "Forschung"
+msgstr "Research"
+
+msgid "Ausbau"
+msgstr "Upgrades"
+
+msgid "Finanzen"
+msgstr "Finances"
+
+msgid "%s  ·  %s"
+msgstr "%s  ·  %s"
+
+msgid "Winter %d · Tag %d von 28\n%.0f Erfahrung · %d abgeschlossene Aufträge · %s € Budget"
+msgstr "Winter %d · Day %d of 28\n%.0f experience · %d completed contracts · €%s budget"
+
+msgid "Heute: "
+msgstr "Today: "
+
+msgid "In Arbeit: "
+msgstr "In progress: "
+
+msgid "Fertig an Tag %d. Dein Resort kann während der Forschung normal weiterlaufen."
+msgstr "Complete on day %d. Your resort can operate normally during research."
+
+msgid "Wetterplanung"
+msgstr "Weather planning"
+
+msgid "Die Vorschau entspricht dem Wetter der nächsten Betriebstage."
+msgstr "The forecast matches the weather on future operating days."
+
+msgid "Tag %d · %s · %.0f °C · Wind %.0f km/h"
+msgstr "Day %d · %s · %.0f °C · Wind %.0f km/h"
+
+msgid "Den nächsten Wintertag vorbereiten"
+msgstr "Prepare for the next winter day"
+
+msgid "Erforsche die Bergwetterstation für eine Wettervorschau. Jeden Tag erscheinen neue Auftragsangebote. Am Ende eines 28-tägigen Winters erhältst du eine Wertung und eine Saisonprämie; dein Resort bleibt bestehen."
+msgstr "Research the Mountain Weather Station to see forecasts. New contract offers appear every day. At the end of a 28-day winter you receive a rating and a season bonus; your resort continues."
+
+msgid "Karriere und freier Aufbau"
+msgstr "Career and free build"
+
+msgid "Karriere: Forschung schaltet neue Technik und Ausbaustufen frei. Im freien Aufbau sind die Anlagen direkt verfügbar; Aufträge, Forschungseffekte und Winterwertung bleiben nutzbar. Im Resort-Büro pausiert die Zeit, damit du in Ruhe planen kannst."
+msgstr "Career: research unlocks new technology and upgrade levels. In free build, facilities are available immediately; contracts, research effects and winter ratings remain usable. Time pauses in the Resort Office so you can plan at your own pace."
+
+msgid "Bis zu drei laufende Aufträge. Pro Betriebstag kannst du zwei neue annehmen."
+msgstr "Up to three active contracts. You can accept two new ones per operating day."
+
+msgid "Läuft"
+msgstr "Active"
+
+msgid "Erfüllt"
+msgstr "Completed"
+
+msgid "Belohnung abgeholt"
+msgstr "Reward claimed"
+
+msgid "Frist abgelaufen"
+msgstr "Deadline passed"
+
+msgid "%s · %s"
+msgstr "%s · %s"
+
+msgid "%s\n%.0f / %d · Frist: Ende Tag %d\nBelohnung: %s € und %d FP"
+msgstr "%s\n%.0f / %d · Deadline: end of day %d\nReward: €%s and %d RP"
+
+msgid "Belohnung abholen"
+msgstr "Collect reward"
+
+msgid "NEUE ANGEBOTE"
+msgstr "NEW OFFERS"
+
+msgid "%s Ziel: %d.\nFrist: Ende Tag %d · %s € + %d FP"
+msgstr "%s Target: %d.\nDeadline: end of day %d · €%s + %d RP"
+
+msgid "Auftrag annehmen"
+msgstr "Accept contract"
+
+msgid "Bereits angenommen"
+msgstr "Already accepted"
+
+msgid "%d Forschungspunkte verfügbar"
+msgstr "%d research points available"
+
+msgid "Forschungspunkte entstehen durch Erfahrung, abgeschlossene Aufträge und Betriebstage. Es kann immer nur ein Projekt laufen; danach kannst du das nächste starten. Kosten werden beim Start bezahlt."
+msgstr "Earn research points through experience, completed contracts and operating days. Only one project can run at a time; start the next when it finishes. Costs are paid at the start."
+
+msgid "In Arbeit · "
+msgstr "In progress · "
+
+msgid "%s\n%s € · %d FP · %d Betriebstag%s"
+msgstr "%s\n€%s · %d RP · %d operating day%s"
+
+msgid "Fertig an Tag %d"
+msgstr "Complete on day %d"
+
+msgid "Abgeschlossen"
+msgstr "Completed"
+
+msgid "Wird erforscht"
+msgstr "Research in progress"
+
+msgid "Forschung starten"
+msgstr "Start research"
+
+msgid "Dein Bestand kann mitwachsen"
+msgstr "Your existing facilities can grow"
+
+msgid "Pisten-Upgrades verbreitern die Abfahrt und mindern Verschleiß. Lift-Upgrades steigern Kapazität und Tempo. Gebäude-Upgrades verbessern Komfort und Erlöse. Höhere Stufen erhöhen auch Betriebskosten. Bestehende Gäste werden nach dem Ausbau neu geleitet."
+msgstr "Piste upgrades widen the run and reduce wear. Lift upgrades increase capacity and speed. Building upgrades improve comfort and revenue. Higher levels also increase operating costs. Existing guests are rerouted after an upgrade."
+
+msgid "%d Gäste/h · %.0f m Strecke"
+msgstr "%d guests/h · %.0f m route"
+
+msgid "%.0f %% Zustand · %.0f cm Schnee · %.0f m Strecke"
+msgstr "%.0f %% condition · %.0f cm snow · %.0f m route"
+
+msgid "%s · Stufe %d / 3"
+msgstr "%s · Level %d / 3"
+
+msgid "Ausbauen"
+msgstr "Upgrade"
+
+msgid "Deine wirtschaftliche Entwicklung"
+msgstr "Your financial development"
+
+msgid "Budget: %s €\nTicket- und Serviceerlöse insgesamt: %s €\nBetriebliche Überschüsse seit Beginn: %s €\nAktueller Betrieb: ca. %s €/Tag\nKredit: %s €"
+msgstr "Budget: €%s\nTotal ticket and service revenue: €%s\nOperating surplus since opening: €%s\nCurrent operating costs: approx. €%s/day\nLoan: €%s"
+
+msgid "Ergebnis nach Investitionen · letzte 28 Betriebstage"
+msgstr "Result after investments · last 28 operating days"
+
+msgid "Grün: positives Ergebnis. Rot: Ausgaben für Betrieb und Investitionen übersteigen Einnahmen und Prämien. Kreditaufnahme und Tilgung sind keine Erlöse oder Betriebskosten."
+msgstr "Green: positive result. Red: operating costs and investments exceed revenue and bonuses. Borrowing and loan repayments are neither revenue nor operating costs."
+
+msgid "Tag %d · %s € Ergebnis"
+msgstr "Day %d · €%s result"
+
+msgid "%d Gäste · %d Abfahrten · %.0f %% Zufriedenheit\nErlöse %s € · Betrieb %s € · Investitionen %s € · Prämien %s €"
+msgstr "%d guests · %d descents · %.0f %% satisfaction\nRevenue €%s · Operating costs €%s · Investments €%s · Bonuses €%s"
+
+msgid "FEIERABEND AM BERG"
+msgstr "CLOSING TIME ON THE MOUNTAIN"
+
+msgid "Dein Tag im Schnee"
+msgstr "Your day in the snow"
+
+msgid "Nächsten Tag starten"
+msgstr "Start next day"
+
+msgid "Noch am Berg bleiben"
+msgstr "Stay on the mountain"
+
+msgid "DEIN BERGPASS"
+msgstr "YOUR MOUNTAIN PASS"
+
+msgid "Zurück"
+msgstr "Back"
+
+msgid "Vier Gebiete. Vier eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert."
+msgstr "Four areas. Four separate resorts. Your progress opens new valleys; each resort keeps its own save."
+
+msgid "%s · %.1f km²"
+msgstr "%s · %.1f km²"
+
+msgid "Gebiet freigeschaltet"
+msgstr "Area unlocked"
+
+msgid "Zurück zu deinem Resort"
+msgstr "Back to your resort"
+
+msgid "Resort fortsetzen"
+msgstr "Continue resort"
+
+msgid "Resort eröffnen"
+msgstr "Open resort"
+
+msgid "Noch nicht freigeschaltet"
+msgstr "Not unlocked yet"
