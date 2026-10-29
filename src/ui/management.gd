@@ -201,7 +201,7 @@ func _operations(page: VBoxContainer) -> void:
 		_card(page, L.text("Noch keine Lifte"), L.text("Baue einen Lift, um Warteschlangen, Förderleistung und Belastung zu vergleichen."))
 	for entry in summary.lifts:
 		var status: String = L.text("Geschlossen") if entry.severity == "closed" else (L.text("Kritischer Engpass") if entry.severity == "critical" else (L.text("Hohe Auslastung") if entry.severity == "warning" else L.text("Im Zielbereich")))
-		var heading := L.text("%s · %d Gäste warten · %s") % L.args([L.verbatim(entry.name), entry.queue, status])
+		var heading := L.text("%s · %d Gäste warten · %s") % L.args([L.verbatim(L.asset_name(model.asset(int(entry.id)))), entry.queue, status])
 		var details := L.text("Nennleistung: %d Pers./h · nomineller Warteschlangenabbau: %.1f Min. · letzte Sitzbelegung: %.0f %%") % L.args([entry.capacity_per_hour, entry.nominal_wait_minutes, entry.observed_load * 100])
 		_card(page, heading, details)
 	hud._label(page, L.text("REALE RESORT-SZENARIEN · IN VORBEREITUNG"), 16, hud.ACCENT)
