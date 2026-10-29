@@ -1,0 +1,818 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an."
+msgstr "Welcome to the mountain. 1× is deliberately relaxed; 4× lets you develop faster. Tap a guest to follow their day."
+
+msgid "Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg."
+msgstr "Free build: all facilities are available. Plan your first circuit."
+
+msgid "Dieses Gebiet wird durch deinen Bergpass freigeschaltet."
+msgstr "Unlock this area through your Mountain Pass."
+
+msgid "Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand."
+msgstr "Welcome to %s. Each area keeps its own save."
+
+msgid "Kredit aktualisiert. Laufende Zinsen: 450 €/Tag bei offenem Kredit."
+msgstr "Loan updated. Interest is €450 per day while the loan is outstanding."
+
+msgid "Zur Tilgung werden 150.000 € benötigt."
+msgstr "You need €150,000 to repay the loan."
+
+msgid "Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten."
+msgstr "Choose Build or Cancel first. Your plan is preserved."
+
+msgid "Planung beendet. Es wurde nichts ausgegeben."
+msgstr "Planning finished. No money was spent."
+
+msgid "Talstation, dann Bergstation antippen."
+msgstr "Tap the lower station, then the upper station."
+
+msgid "Einen Bauplatz antippen."
+msgstr "Tap a building site."
+
+msgid "Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an."
+msgstr "Your mountain. Your resort. Choose a building tool on the left or tap a facility."
+
+msgid "Abfahrt planen: Start am Berg setzen, danach weitere Wegpunkte bis ins Tal."
+msgstr "Plan a run: place the start uphill, then add waypoints down to the valley."
+
+msgid "Start bei %.0f m. Verlauf setzen; kurze Gegenanstiege sind mit Schwung oder zu Fuß möglich."
+msgstr "Start at %.0f m. Plot your route; short uphill sections can be crossed with momentum or on foot."
+
+msgid " · Angedockt: %s"
+msgstr " · Connected: %s"
+
+msgid " · Punkt %d ausgewählt: ziehen zum Verschieben."
+msgstr " · Point %d selected: drag to move."
+
+msgid "  Das Budget reicht noch nicht."
+msgstr "  You do not have enough money yet."
+
+msgid "SMOKE PASS: scene, terrain, HUD, simulation and build preview; guests="
+msgstr "SMOKE PASS: scene, terrain, HUD, simulation and build preview; guests="
+
+msgid "CAPTURE: "
+msgstr "CAPTURE: "
+
+msgid " result="
+msgstr " result="
+
+msgid "Zuerst die laufende Planung abschließen oder abbrechen."
+msgstr "Finish or cancel your current plan first."
+
+msgid "Nummerierte Punkte ziehen. Übernehmen bestätigt, Abbrechen verwirft die Änderung."
+msgstr "Drag the numbered points. Apply confirms the change; Cancel discards it."
+
+msgid "Blaue Piste"
+msgstr "Blue run"
+
+msgid "Rote Piste"
+msgstr "Red run"
+
+msgid "Schwarze Piste"
+msgstr "Black run"
+
+msgid "Mindestens zwei Wegpunkte setzen."
+msgstr "Place at least two waypoints."
+
+msgid "Die Strecke muss innerhalb des Baugebiets liegen."
+msgstr "The route must stay inside the building area."
+
+msgid "Wegpunkte müssen mindestens 4 m auseinanderliegen."
+msgstr "Waypoints must be at least 4 m apart."
+
+msgid "Mindestens 40 m Länge und 7 m Höhenverlust erforderlich."
+msgstr "A length of at least 40 m and a vertical drop of 7 m are required."
+
+msgid "Gegenanstieg zu steil zum Stapfen. Mit weiteren Wegpunkten queren."
+msgstr "The uphill section is too steep to hike. Traverse the slope with more waypoints."
+
+msgid "%.0f %% Gefälle: Für diese Farbe sind höchstens %.0f %% erlaubt."
+msgstr "%.0f %% gradient: this colour allows no more than %.0f %%."
+
+msgid "%s · %.0f m · %.0f m Abfahrt · max. %.0f %%"
+msgstr "%s · %.0f m · %.0f m descent · max. %.0f %%"
+
+msgid "Gegenanstieg zu steil zum Stapfen (%.0f %%). Mit weiteren Wegpunkten queren."
+msgstr "Uphill section too steep to hike (%.0f %%). Traverse the slope with more waypoints."
+
+msgid "Hamburg"
+msgstr "Hamburg"
+
+msgid "München"
+msgstr "Munich"
+
+msgid "Wien"
+msgstr "Vienna"
+
+msgid "Salzburg"
+msgstr "Salzburg"
+
+msgid "Innsbruck"
+msgstr "Innsbruck"
+
+msgid "Stuttgart"
+msgstr "Stuttgart"
+
+msgid "Bremen"
+msgstr "Bremen"
+
+msgid "Berlin"
+msgstr "Berlin"
+
+msgid "Graz"
+msgstr "Graz"
+
+msgid "Köln"
+msgstr "Cologne"
+
+msgid "Den Winter genießen"
+msgstr "Enjoy the winter"
+
+msgid "Neue Abfahrten entdecken"
+msgstr "Discover new runs"
+
+msgid "Schöne Schwünge üben"
+msgstr "Practise beautiful turns"
+
+msgid "Aussicht und Hütteneinkehr"
+msgstr "Enjoy the views and a mountain lodge"
+
+msgid "Einen sportlichen Tag verbringen"
+msgstr "Spend an active day"
+
+msgid "Zufrieden"
+msgstr "Content"
+
+msgid "Ein Wintertag in den Bergen – mal sehen, wohin die nächste Fahrt führt."
+msgstr "A winter day in the mountains — let's see where the next ride takes me."
+
+msgid "Auf dem Heimweg"
+msgstr "Heading home"
+
+msgid "Auf der Piste"
+msgstr "On the slopes"
+
+msgid "Zu Fuß unterwegs"
+msgstr "Walking"
+
+msgid "Fährt bergauf"
+msgstr "Riding uphill"
+
+msgid "Genießt eine Pause"
+msgstr "Enjoying a break"
+
+msgid "Unterwegs"
+msgstr "On the move"
+
+msgid "Besucht %s"
+msgstr "Visiting %s"
+
+msgid "ein Gebäude"
+msgstr "a building"
+
+msgid "Stapft den Gegenanstieg hinauf"
+msgstr "Hiking up the rise"
+
+msgid "Wartet auf den Lift"
+msgstr "Waiting for the lift"
+
+msgid "Auf dem Rückweg ins Tal"
+msgstr "Returning to the valley"
+
+msgid "Ungeduldig"
+msgstr "Impatient"
+
+msgid "Ich warte schon %d Minuten. Ein Lift mit mehr Kapazität wäre schön."
+msgstr "I've been waiting for %d minutes. A higher-capacity lift would be nice."
+
+msgid "Durchgefroren"
+msgstr "Freezing"
+
+msgid "Zeit für einen warmen Ort und eine kleine Pause."
+msgstr "Time to find somewhere warm and take a short break."
+
+msgid "Hungrig"
+msgstr "Hungry"
+
+msgid "Nach den vielen Stunden draußen könnte ich eine Stärkung gebrauchen."
+msgstr "After all this time outdoors, I could use something to eat."
+
+msgid "Müde Beine"
+msgstr "Tired legs"
+
+msgid "Das war ein sportlicher Tag. Die nächste Runde darf gemütlicher werden."
+msgstr "It's been an active day. The next run can be a little easier."
+
+msgid "Gut aufgehoben"
+msgstr "Feeling cosy"
+
+msgid "Eine schöne Einkehr gehört für mich zum Skitag dazu."
+msgstr "A lovely stop is part of a good day on the slopes."
+
+msgid "Begeistert"
+msgstr "Delighted"
+
+msgid "%d Abfahrten geschafft! Ich würde gern noch mehr vom Resort entdecken."
+msgstr "%d runs completed! I'd love to discover more of the resort."
+
+msgid "Schritt für Schritt"
+msgstr "Step by step"
+
+msgid "Hier reicht mein Schwung nicht. Ich stapfe das Stück hinauf; danach geht es wieder bergab."
+msgstr "I don't have enough momentum here. I'll hike up this section, then ski downhill again."
+
+msgid "Konzentriert"
+msgstr "Focused"
+
+msgid "Ich suche meine eigene Linie und genieße die Schwünge."
+msgstr "I'm finding my own line and enjoying the turns."
+
+msgid "Entspannt"
+msgstr "Relaxed"
+
+msgid "Beine ausruhen, Aussicht genießen und langsam wieder hinauf."
+msgstr "Rest my legs, enjoy the view and head gently back uphill."
+
+msgid "Mila"
+msgstr "Mila"
+
+msgid "Jonas"
+msgstr "Jonas"
+
+msgid "Lea"
+msgstr "Lea"
+
+msgid "Emil"
+msgstr "Emil"
+
+msgid "Nora"
+msgstr "Nora"
+
+msgid "Finn"
+msgstr "Finn"
+
+msgid "Lina"
+msgstr "Lina"
+
+msgid "Theo"
+msgstr "Theo"
+
+msgid "Ella"
+msgstr "Ella"
+
+msgid "Luis"
+msgstr "Luis"
+
+msgid "Amira"
+msgstr "Amira"
+
+msgid "Ben"
+msgstr "Ben"
+
+msgid "Sofia"
+msgstr "Sofia"
+
+msgid "Paul"
+msgstr "Paul"
+
+msgid "Maja"
+msgstr "Maja"
+
+msgid "Noah"
+msgstr "Noah"
+
+msgid "Ski"
+msgstr "Ski"
+
+msgid "Snowboard"
+msgstr "Snowboard"
+
+msgid "Snowblades"
+msgstr "Snowblades"
+
+msgid "Sanfte Bögen"
+msgstr "Gentle arcs"
+
+msgid "Ruhige Linie"
+msgstr "Relaxed line"
+
+msgid "Weite Schwünge"
+msgstr "Wide turns"
+
+msgid "Runde Schwünge"
+msgstr "Rounded turns"
+
+msgid "Kurze Schwünge"
+msgstr "Short turns"
+
+msgid "Weite Bögen"
+msgstr "Broad arcs"
+
+msgid "Sportliches Carven"
+msgstr "Sporty carving"
+
+msgid "Kurze Radien"
+msgstr "Short-radius turns"
+
+msgid "Dynamische Bögen"
+msgstr "Dynamic arcs"
+
+msgid "Ruhige Boardbögen"
+msgstr "Relaxed board arcs"
+
+msgid "Flüssige Boardkurven"
+msgstr "Flowing board turns"
+
+msgid "Sportliches Boardcarven"
+msgstr "Sporty board carving"
+
+msgid "Kurze sanfte Bögen"
+msgstr "Short gentle arcs"
+
+msgid "Wendige Kurzschwünge"
+msgstr "Agile short turns"
+
+msgid "Dynamische Kurzski"
+msgstr "Dynamic short skis"
+
+msgid "Sonnenhang"
+msgstr "Sunlit Slopes"
+
+msgid "Weite Almwiesen & sanfte Waldhänge"
+msgstr "Open alpine meadows and gentle wooded slopes"
+
+msgid "Dein erstes großes Tal. Sanfte Osthänge, ein steiler Westgrat und viel Platz für lange Rundwege."
+msgstr "Your first large valley. Gentle eastern slopes, a steep western ridge and plenty of room for long circuits."
+
+msgid "Fichtenkamm"
+msgstr "Fir Ridge"
+
+msgid "Waldtäler & verwinkelte Bergrücken"
+msgstr "Wooded valleys and winding mountain ridges"
+
+msgid "Dichte Wälder und zwei lange Kämme. Verbinde Seitentäler und plane geschützte Abfahrten zwischen den Bäumen."
+msgstr "Dense forests and two long ridges. Connect side valleys and plan sheltered runs between the trees."
+
+msgid "Gletscherwelt"
+msgstr "Glacier World"
+
+msgid "Hochalpine Flanken & offene Schneefelder"
+msgstr "High alpine slopes and open snowfields"
+
+msgid "Lange Abfahrten unter eisigen Gipfeln. Weniger Wald, mehr Schnee und große Höhenunterschiede für dein nächstes Resort."
+msgstr "Long runs below icy peaks. Less forest, more snow and major elevation changes for your next resort."
+
+msgid "Drei Gipfel"
+msgstr "Three Peaks"
+
+msgid "Drei Massive & ein ganzes Bergpanorama"
+msgstr "Three mountain ranges and an entire alpine panorama"
+
+msgid "Das größte Gebiet: drei eigenständige Massive, lange Verbindungen und Platz für ein weit verzweigtes Lift- und Pistennetz."
+msgstr "The largest area: three distinct mountain ranges, long connections and space for an extensive lift and piste network."
+
+msgid "Zuerst Start und Ziel setzen."
+msgstr "Place the start and end first."
+
+msgid "Alle Wegpunkte müssen im Baugebiet liegen."
+msgstr "All waypoints must be inside the building area."
+
+msgid "Kein sanfter Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen."
+msgstr "No gentle route found. Add more intermediate waypoints across the slope."
+
+msgid "Verlauf vorgeschlagen. Höhenprofil und Anschlüsse prüfen; erst Bauen bestätigt den Plan."
+msgstr "Route suggested. Check the profile and connections; only Build confirms the plan."
+
+msgid "Berghütte"
+msgstr "Mountain lodge"
+
+msgid "Lokales Skigebiet"
+msgstr "Local ski area"
+
+msgid "Alpenresort"
+msgstr "Alpine resort"
+
+msgid "Wintersportzentrum"
+msgstr "Winter sports centre"
+
+msgid "Alpine Destination"
+msgstr "Alpine destination"
+
+msgid "Schneemanagement"
+msgstr "Snow management"
+
+msgid "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."
+msgstr "Unlocks snowmaking, the groomer garage, the snowpark and level 2 piste upgrades."
+
+msgid "Gästekomfort"
+msgstr "Guest comfort"
+
+msgid "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."
+msgstr "15% more service revenue, improved comfort and level 2 building upgrades."
+
+msgid "Bergwetterstation"
+msgstr "Mountain weather station"
+
+msgid "Eine verlässliche Wettervorschau für die nächsten sechs Betriebstage."
+msgstr "A reliable weather forecast for the next six operating days."
+
+msgid "Fördertechnik"
+msgstr "Lift engineering"
+
+msgid "Lifte auf Stufe 2 ausbauen: mehr Kapazität und kürzere Fahrzeiten."
+msgstr "Upgrade lifts to level 2 for more capacity and shorter journeys."
+
+msgid "Alpine Hotellerie"
+msgstr "Alpine hospitality"
+
+msgid "Berghotels werden verfügbar. Sie steigern Nachfrage, Komfort und Erlöse."
+msgstr "Unlocks mountain hotels. They increase demand, comfort and revenue."
+
+msgid "Effiziente Präparierung"
+msgstr "Efficient grooming"
+
+msgid "15 % weniger Betriebskosten und 12 zusätzliche Zustandspunkte bei der Nachtpräparierung."
+msgstr "15% lower operating costs and 12 extra condition points from overnight grooming."
+
+msgid "Gondeltechnik"
+msgstr "Gondola technology"
+
+msgid "Windstabile Gondelbahnen mit hoher Förderleistung erschließen neue Hänge."
+msgstr "Wind-resistant, high-capacity gondolas open up new slopes."
+
+msgid "Destinationsmarketing"
+msgstr "Destination marketing"
+
+msgid "15 % mehr Nachfrage. Gute Pisten und kurze Wartezeiten bleiben entscheidend."
+msgstr "15% more demand. Good runs and short queues still matter."
+
+msgid "Alpine Meisterklasse"
+msgstr "Alpine masterclass"
+
+msgid "8er-Sessel werden verfügbar; Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."
+msgstr "Unlocks 8-seat chairlifts and level 3 upgrades for runs, buildings and lifts."
+
+msgid "Der Berg ruft"
+msgstr "The mountain is calling"
+
+msgid "Begrüße neue Tagesgäste."
+msgstr "Welcome new day visitors."
+
+msgid "Spuren im Schnee"
+msgstr "Tracks in the snow"
+
+msgid "Ermögliche zusätzliche Abfahrten."
+msgstr "Enable more descents."
+
+msgid "Der erste Schwung"
+msgstr "The first turn"
+
+msgid "Gewinne neue Anfänger für dein Resort."
+msgstr "Attract new beginners to your resort."
+
+msgid "Gipfelstürmer"
+msgstr "Peak explorers"
+
+msgid "Begrüße neue erfahrene Skifahrer."
+msgstr "Welcome new experienced skiers."
+
+msgid "Ein guter Wintertag"
+msgstr "A fine winter day"
+
+msgid "Erziele zusätzliche Ticket- und Serviceerlöse."
+msgstr "Earn additional ticket and service revenue."
+
+msgid "Lieblingsberg"
+msgstr "Favourite mountain"
+
+msgid "Verabschiede Gäste mit mindestens 80 % Zufriedenheit."
+msgstr "Send guests home with at least 80% satisfaction."
+
+msgid "Neue Horizonte"
+msgstr "New horizons"
+
+msgid "Biete gleichzeitig mehrere erreichbare Abfahrten an."
+msgstr "Offer several reachable runs at the same time."
+
+msgid "Wohlfühlresort"
+msgstr "Feel-good resort"
+
+msgid "Betreibe verschiedene Angebote für deine Gäste."
+msgstr "Operate different guest services."
+
+msgid "Willkommen in deiner ersten Wintersaison."
+msgstr "Welcome to your first winter season."
+
+msgid "Schulgruppen"
+msgstr "School groups"
+
+msgid "Heute kommen besonders viele Anfänger. Blaue Rundwege und Verpflegung sind gefragt."
+msgstr "More beginners are visiting today. Blue circuits and refreshments are in demand."
+
+msgid "Familienwochenende"
+msgstr "Family weekend"
+
+msgid "Mehr Familien besuchen den Berg. Komfort und Liftkapazität zahlen sich aus."
+msgstr "More families are visiting the mountain. Comfort and lift capacity pay off."
+
+msgid "Sportwochenende"
+msgstr "Sports weekend"
+
+msgid "Heute reisen mehr sportliche Gäste an. Ein abwechslungsreiches Pistennetz lohnt sich."
+msgstr "More active guests are arriving today. A varied piste network is worthwhile."
+
+msgid "Regulärer Betriebstag"
+msgstr "Regular operating day"
+
+msgid "Zeit, dein Angebot auszubauen und die nächsten Aufträge vorzubereiten."
+msgstr "Time to expand your facilities and prepare for your next contracts."
+
+msgid "Forschung „%s“ erforderlich."
+msgstr "Research “%s” required."
+
+msgid "Forschungsprojekt nicht gefunden."
+msgstr "Research project not found."
+
+msgid "Bereits erforscht."
+msgstr "Already researched."
+
+msgid "Zuerst das laufende Projekt abschließen lassen."
+msgstr "Finish the current project first."
+
+msgid "Voraussetzung: %s."
+msgstr "Prerequisite: %s."
+
+msgid "Weitere Forschungspunkte aus Betriebstagen und Aufträgen sammeln."
+msgstr "Earn more research points through operating days and contracts."
+
+msgid "Das Forschungsbudget reicht noch nicht."
+msgstr "Not enough money for this research yet."
+
+msgid "%d Betriebstage · %d FP · %d €"
+msgstr "%d operating days · %d RP · €%d"
+
+msgid "%s gestartet. Fertig an Tag %d."
+msgstr "%s started. Complete on day %d."
+
+msgid "Anlage nicht gefunden."
+msgstr "Facility not found."
+
+msgid "Mit einer weiteren Gehfläche vergrößern."
+msgstr "Expand with another walking area."
+
+msgid "Maximale Ausbaustufe erreicht."
+msgstr "Maximum upgrade level reached."
+
+msgid "Stufe %d · %d €"
+msgstr "Level %d · €%d"
+
+msgid "%s auf Stufe %d ausgebaut."
+msgstr "%s upgraded to level %d."
+
+msgid "%s abgeschlossen."
+msgstr "%s completed."
+
+msgid "Pro Tag sind zwei neue Aufträge möglich."
+msgstr "You can accept two new contracts per day."
+
+msgid "Zuerst einen deiner drei laufenden Aufträge abschließen."
+msgstr "Finish one of your three active contracts first."
+
+msgid "Auftrag angenommen: %s."
+msgstr "Contract accepted: %s."
+
+msgid "Dieses Angebot ist nicht mehr verfügbar."
+msgstr "This offer is no longer available."
+
+msgid "%d € und %d Forschungspunkte erhalten."
+msgstr "Received €%d and %d research points."
+
+msgid "Die Belohnung ist noch nicht verfügbar oder bereits abgeholt."
+msgstr "The reward is not available yet or has already been claimed."
+
+msgid "Auftrag erfüllt: %s. Belohnung im Resort-Büro abholen."
+msgstr "Contract completed: %s. Collect your reward in the Resort Office."
+
+msgid "Resort-Stern %d erreicht: %s."
+msgstr "Resort star %d earned: %s."
+
+msgid "800 Erfahrung und zwei erreichbare Abfahrten für Stern 2."
+msgstr "800 experience and two reachable runs for star 2."
+
+msgid "2.400 Erfahrung, zwei Pistenfarben, zwei Lifte und drei Komfortangebote für Stern 3."
+msgstr "2,400 experience, two piste colours, two lifts and three comfort services for star 3."
+
+msgid "6.000 Erfahrung, alle Pistenfarben und drei abgeschlossene Forschungen für Stern 4."
+msgstr "6,000 experience, all piste colours and three completed research projects for star 4."
+
+msgid "12.000 Erfahrung, 75 % Ruf, ein Hotel, sechs erreichbare Abfahrten, drei Lifte und sechs Aufträge für Stern 5."
+msgstr "12,000 experience, 75% reputation, a hotel, six reachable runs, three lifts and six contracts for star 5."
+
+msgid "Verbessere deine Winterwertung, baue Anlagen aus und meistere neue Aufträge."
+msgstr "Improve your winter rating, upgrade facilities and master new contracts."
+
+msgid "Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten."
+msgstr "Winter %d completed: €%d season bonus. Your resort continues into the next winter."
+
+msgid "Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert."
+msgstr "This save exceeds the supported file size. Your previous resort save is preserved."
+
+msgid "Spielstand konnte nicht geschrieben werden."
+msgstr "Could not write the save."
+
+msgid "Die Sicherung des bisherigen Spielstands ist fehlgeschlagen."
+msgstr "Could not back up the previous save."
+
+msgid "Spielstand konnte nicht atomar ersetzt werden."
+msgstr "Could not replace the save atomically."
+
+msgid "Resort gespeichert."
+msgstr "Resort saved."
+
+msgid "Kein gültiger Spielstand gefunden."
+msgstr "No valid save found."
+
+msgid "Beschädigte Spielstand-Datei."
+msgstr "Damaged save file."
+
+msgid "Die Prüfsumme des Spielstands stimmt nicht."
+msgstr "The save checksum does not match."
+
+msgid "Beschädigte Spielstand-Daten."
+msgstr "Damaged save data."
+
+msgid "Vorherige Sicherung geladen."
+msgstr "Previous backup loaded."
+
+msgid "Resort geladen."
+msgstr "Resort loaded."
+
+msgid "Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten."
+msgstr "No readable save available. Your current resort is preserved."
+
+msgid "Resort-Sterne %d / %d   ·   Gäste %d / %d   ·   Aufträge %d / %d"
+msgstr "Resort stars %d / %d   ·   Guests %d / %d   ·   Contracts %d / %d"
+
+msgid "Fußweg planen"
+msgstr "Plan a footpath"
+
+msgid "Start und Ziel verbinden: Liftzugang, Pistenende, Gebäude oder Platz."
+msgstr "Connect the start and end to a lift entrance, piste endpoint, building or plaza."
+
+msgid "Gehfläche"
+msgstr "Walking area"
+
+msgid "Kleine geräumte Fläche. Mehrere Flächen verbinden sich zu einem Fußweg."
+msgstr "A small cleared area. Connect several areas to make a walking route."
+
+msgid "Stationsplatz"
+msgstr "Station plaza"
+
+msgid "Großer Treffpunkt für Umstiege, Pistenanschlüsse und neue Gebäude."
+msgstr "A spacious meeting point for transfers, piste connections and new buildings."
+
+msgid "Weitläufiger Aufenthaltsbereich für ein wachsendes Resort."
+msgstr "A generous recreation area for a growing resort."
+
+msgid "Zauberteppich"
+msgstr "Magic carpet"
+
+msgid "Punschstand"
+msgstr "Hot-drink kiosk"
+
+msgid "Eine kleine warme Pause: günstiger Einstieg in die Verpflegung mit zusätzlichen Serviceerlösen."
+msgstr "A short, warm break: an affordable first refreshment service with extra service revenue."
+
+msgid "Panoramaterrasse"
+msgstr "Panorama terrace"
+
+msgid "Sitzplätze und Fernrohr für den Gipfelblick. Erhöht den Komfort nahe einer Station."
+msgstr "Seating and a telescope for mountain views. Provides a relaxing break near a station."
+
+msgid "Wärmeunterstand"
+msgstr "Warming shelter"
+
+msgid "Eine geschützte Pause im Holzunterstand verbessert den Komfort ohne große Betriebskosten."
+msgstr "A sheltered break in a wooden hut improves comfort with low operating costs."
+
+msgid "Snowpark"
+msgstr "Snowpark"
+
+msgid "Ein Freizeitangebot mit Rails und kleinen Schneekickern. Verbessert Komfort und Serviceerlöse; benötigt Schneemanagement."
+msgstr "Rails and small snow kickers for recreation. Improves enjoyment and service revenue; requires Snow Management."
+
+msgid "Wellness mit Außenbecken ergänzt das Hotelangebot. Erhöht Komfort und Serviceerlöse; benötigt Alpine Hotellerie."
+msgstr "Wellness and an outdoor pool complement your hotel facilities. Restores warmth and energy; requires Alpine Hospitality."
+
+msgid "Mehr Nachfrage durch bessere Anbindung. Nur im Tal bauen; ein Terminal genügt für den Nachfragebonus."
+msgstr "Better transport links increase demand. Build in the valley; one terminal is enough for the demand bonus."
+
+msgid "Ruhe und Wärme erhöhen die Zufriedenheit. Im Tal oder nahe einer Station bauen."
+msgstr "Rest and warmth improve guest satisfaction. Build in the valley or near a station."
+
+msgid "Restaurant"
+msgstr "Restaurant"
+
+msgid "Verpflegt Gäste nach einer Skirunde; zusätzliche Einnahmen."
+msgstr "Feeds guests after a run and earns additional revenue."
+
+msgid "Skiverleih"
+msgstr "Equipment rental"
+
+msgid "Zusätzliche Einnahmen und ein attraktiver Einstieg für Tagesgäste."
+msgstr "Provides needed equipment and earns revenue when guests complete their visit."
+
+msgid "Skischule"
+msgstr "Ski school"
+
+msgid "Mehr Komfort und zusätzliche Serviceerlöse. Gut erreichbare blaue Pisten bleiben notwendig."
+msgstr "Lessons for interested beginners and additional service revenue. Reachable blue runs remain essential."
+
+msgid "Beschneiung"
+msgstr "Snowmaking"
+
+msgid "Verbessert die Schneelage bei Temperaturen bis −1 °C. Die Pistenmitte muss innerhalb von 150 m liegen."
+msgstr "Improves snow cover at temperatures of −1 °C or below. The piste midpoint must be within 150 m."
+
+msgid "Pistenraupengarage"
+msgstr "Groomer garage"
+
+msgid "Verbessert die nächtliche Präparierung des gesamten Resorts."
+msgstr "Improves overnight grooming throughout the resort."
+
+msgid "Berghotel"
+msgstr "Mountain hotel"
+
+msgid "Mehr Gäste und zusätzliche Erlöse pro Skirunde; höherer täglicher Betrieb."
+msgstr "More guests and extra revenue per ski circuit, with higher daily operating costs."
+
+msgid "Bergwacht"
+msgstr "Mountain rescue"
+
+msgid "Erhöht das Sicherheitsgefühl und die Zufriedenheit auf schweren Pisten."
+msgstr "Improves the sense of safety and satisfaction on difficult runs."
+
+msgid "Sonnig"
+msgstr "Sunny"
+
+msgid "Schneefall"
+msgstr "Snowfall"
+
+msgid "Nebel"
+msgstr "Fog"
+
+msgid "Sturm"
+msgstr "Storm"
+
+msgid "Tauwetter"
+msgstr "Thaw"
+
+msgid "Max. %.0f %%: zu steil. Mit weiteren Wegpunkten quer zum Hang planen."
+msgstr "Max. %.0f %%: too steep. Add waypoints across the slope."
+
+msgid "%s · %.0f m · ↓ %.0f m · max. %.0f %%"
+msgstr "%s · %.0f m · ↓ %.0f m · max. %.0f %%"
+
+msgid " · ↑ %.1f m Gegenanstieg: %s"
+msgstr " · ↑ %.1f m uphill: %s"
+
+msgid "ca. %.0f m stapfen"
+msgstr "hike approx. %.0f m"
+
+msgid "mit Schwung fahrbar"
+msgstr "crossable with momentum"
+
+msgid "Pistenbreite außerhalb des erlaubten Bereichs."
+msgstr "Piste width outside the allowed range."
+
+msgid "Die Liftanlage freihalten. Die Piste am Stationsplatz anschließen."
+msgstr "Keep clear of lift machinery. Connect the run to the station plaza."
+
+msgid "Das Gebäude freihalten. Die Piste auf dem Vorplatz anschließen."
+msgstr "Keep clear of the building. Connect the run to its forecourt."
+
+msgid "Einstieg erreichbar · Rückweg ins Tal vorhanden"
+msgstr "Start reachable · return to the valley available"
+
+msgid "Einstieg und Rückweg noch anschließen"
+msgstr "Connect both the start and the return route"
+
+msgid "Einstieg noch mit einem erreichbaren Lift oder einer Piste verbinden"
+msgstr "Connect the start to a reachable lift or piste"
+
+msgid "Pistenende noch mit dem Rückweg ins Tal verbinden"
+msgstr "Connect the piste end to a route back to the valley"
+
+msgid "Maximal 80 Pisten in diesem Prototyp."
+msgstr "A maximum of 80 runs in this prototype."
+
+msgid "Das Budget reicht für diese Piste noch nicht."
+msgstr "Not enough money for this run yet."
+
+msgid "%s %d"
+msgstr "%s %d"
