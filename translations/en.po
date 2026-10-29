@@ -1911,3 +1911,102 @@ msgstr "Bends smoothed. Check the width, gradient and connections; only Build co
 
 msgid "Ausbau +%d m · gesamt %.0f m"
 msgstr "Upgrade +%d m \u00b7 total %.0f m"
+
+msgid "Betriebsanalyse"
+msgstr "Operations"
+
+msgid "Lift-Verkehr: %d warten · %d Engpässe"
+msgstr "Lift traffic: %d waiting · %d bottlenecks"
+
+msgid "Der Bericht misst echte simulierte Warteschlangen. Die theoretische Wartezeit nutzt die nominelle Förderleistung, nicht den aktuellen Zeitmaßstab oder tatsächlich gemessene Durchsatzwerte."
+msgstr "The report measures simulated queues. The theoretical queue time uses nominal lift capacity, not the current game time scale or observed throughput."
+
+msgid "LIFTANALYSE"
+msgstr "LIFT ANALYSIS"
+
+msgid "Noch keine Lifte"
+msgstr "No lifts yet"
+
+msgid "Baue einen Lift, um Warteschlangen, Förderleistung und Belastung zu vergleichen."
+msgstr "Build a lift to compare queues, nominal capacity and utilization."
+
+msgid "Geschlossen"
+msgstr "Closed"
+
+msgid "Kritischer Engpass"
+msgstr "Critical bottleneck"
+
+msgid "Hohe Auslastung"
+msgstr "High utilization"
+
+msgid "Im Zielbereich"
+msgstr "Within target"
+
+msgid "%s · %d Gäste warten · %s"
+msgstr "%s · %d guests waiting · %s"
+
+msgid "Nennleistung: %d Pers./h · nomineller Warteschlangenabbau: %.1f Min. · letzte Sitzbelegung: %.0f %%"
+msgstr "Nominal capacity: %d people/h · nominal queue clearance: %.1f min · recent seat fill: %.0f %%"
+
+msgid "REALE RESORT-SZENARIEN · IN VORBEREITUNG"
+msgstr "REAL RESORT SCENARIOS · PLANNED"
+
+msgid "Fiktive Herausforderungen auf späteren echten Geländekarten"
+msgstr "Fictional challenges on future real-world terrain maps"
+
+msgid "Die folgenden Aufgaben beschreiben keine tatsächlichen Probleme dieser Skigebiete. Originalgetreue Karten sind erst nach rechtmäßigem Datenimport und Prüfung aller Lift- und Pistenverbindungen spielbar."
+msgstr "These challenges do not describe actual problems at these resorts. Accurate maps will only become playable after licensed data import and verification of all lift and piste connections."
+
+msgid "Noch nicht spielbar"
+msgstr "Not playable yet"
+
+msgid "Invalid objective"
+msgstr "Invalid objective"
+
+msgid "Unsupported objective"
+msgstr "Unsupported objective"
+
+msgid "Filzmoos"
+msgstr "Filzmoos"
+
+msgid "Kitzbühel"
+msgstr "Kitzbühel"
+
+msgid "Seiser Alm"
+msgstr "Seiser Alm"
+
+msgid "Filzmoos – Der Morgenansturm"
+msgstr "Filzmoos – Morning Rush"
+
+msgid "Filzmoos – Morning Rush"
+msgstr "Filzmoos – Morning Rush"
+
+msgid "Seiser Alm – Verbindungen im Hochplateau"
+msgstr "Seiser Alm – Plateau Connections"
+
+msgid "Seiser Alm – Plateau Connections"
+msgstr "Seiser Alm – Plateau Connections"
+
+msgid "Kitzbühel – Der Verbindungstest"
+msgstr "Kitzbühel – The Connection Test"
+
+msgid "Kitzbühel – The Connection Test"
+msgstr "Kitzbühel – The Connection Test"
+
+msgid "Fiktives Planspiel: Die Gäste verteilen sich ungünstig auf die Talanschlüsse. Entlaste die Warteschlangen, ohne Einsteiger abzuhängen."
+msgstr "Fictional challenge: Guests concentrate at the valley access lifts. Reduce queues while keeping beginner routes accessible."
+
+msgid "Fictional challenge: Guests concentrate at the valley access lifts. Reduce queues while keeping beginner routes accessible."
+msgstr "Fictional challenge: Guests concentrate at the valley access lifts. Reduce queues while keeping beginner routes accessible."
+
+msgid "Fiktives Planspiel: Starke Spitzenlast an einer Verbindungsachse. Verbessere Umstiege, Verteilung und Pistenanschlüsse."
+msgstr "Fictional challenge: Peak traffic overburdens a connecting corridor. Improve transfers and the distribution of skiers."
+
+msgid "Fictional challenge: Peak traffic overburdens a connecting corridor. Improve transfers and the distribution of skiers."
+msgstr "Fictional challenge: Peak traffic overburdens a connecting corridor. Improve transfers and the distribution of skiers."
+
+msgid "Fiktives Planspiel: Ein simuliertes Verkehrsereignis belastet zentrale Liftverbindungen. Schaffe Alternativen und halte die Wartezeiten niedrig."
+msgstr "Fictional challenge: A simulated traffic incident stresses the main lift connections. Add alternatives and reduce queues."
+
+msgid "Fictional challenge: A simulated traffic incident stresses the main lift connections. Add alternatives and reduce queues."
+msgstr "Fictional challenge: A simulated traffic incident stresses the main lift connections. Add alternatives and reduce queues."
