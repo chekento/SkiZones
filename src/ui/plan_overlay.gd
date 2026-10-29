@@ -24,7 +24,7 @@ func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 	if game.tool not in ["piste","lift","building","plaza","walkway"]:
 		return selected
 	for index in range(game.points.size()):
-		var world: Vector3 = game.model.terrain.world(Terrain.unpack(game.points[index]), 4)
+		var world: Vector3 = game.view.surface_position(Terrain.unpack(game.points[index]))
 		if game.view.camera.is_position_behind(world):
 			continue
 		var candidate: float = game.view.camera.unproject_position(world).distance_to(at)
@@ -41,7 +41,7 @@ func _draw() -> void:
 		if not anchor.has("difficulty"): anchor = anchor.merged({"difficulty":-1})
 		if game.tool != "piste" and anchor.difficulty >= 0: continue
 		if anchor.point.distance_to(game.view.focus) > maxf(game.view.zoom * 2, 160): continue
-		var world: Vector3 = game.model.terrain.world(anchor.point, 2)
+		var world: Vector3 = game.view.surface_position(anchor.point)
 		if game.view.camera.is_position_behind(world):
 			continue
 		var at: Vector2 = game.view.camera.unproject_position(world)
@@ -53,7 +53,7 @@ func _draw() -> void:
 		draw_arc(at, 9, 0, TAU, 20, color, 1.5, true)
 	for index in range(game.points.size()):
 		var point := Terrain.unpack(game.points[index])
-		var world: Vector3 = game.model.terrain.world(point, 4)
+		var world: Vector3 = game.view.surface_position(point)
 		if game.view.camera.is_position_behind(world):
 			continue
 		var at: Vector2 = game.view.camera.unproject_position(world)

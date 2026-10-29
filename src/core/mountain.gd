@@ -4,10 +4,12 @@ const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Dynamics = preload("res://src/core/ski_dynamics.gd")
 const Maps = preload("res://src/core/maps.gd")
+const Grading = preload("res://src/core/piste_grading.gd")
 var id := "sonnenhang"
 var bounds: Rect2
 var base := Terrain.BASE
 var _paths: Dictionary = {}
+var grading := Grading.new()
 
 func _init(map_id: String = "sonnenhang") -> void:
 	id = map_id
@@ -17,7 +19,14 @@ func contains(point: Vector2) -> bool:
 	return point.is_finite() and bounds.has_point(point)
 
 func height(point: Vector2) -> float:
+	var natural := natural_height(point)
+	return natural + grading.offset(self, point, natural)
+
+func natural_height(point: Vector2) -> float:
 	return Terrain.height(point) + Maps.extra_height(point, id)
+
+func configure_pistes(pistes: Array) -> void:
+	if grading.configure(pistes): _paths.clear()
 
 func world(point: Vector2, offset: float = 0.0) -> Vector3:
 	return Vector3(point.x, height(point) + offset, point.y)

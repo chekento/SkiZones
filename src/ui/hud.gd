@@ -40,6 +40,8 @@ var undo_button: Button
 var clear_button: Button
 var delete_point_button: Button
 var suggest_route_button: Button
+var piste_controls: HBoxContainer
+var piste_width_choice := OptionButton.new()
 var plan_overlay := PlanOverlay.new()
 var pause_button: Button
 var speed_buttons: Array = []
@@ -308,6 +310,14 @@ func _build_plan_bar() -> void:
 	box.add_child(plan_text)
 	plan_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	plan_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	piste_controls = HBoxContainer.new()
+	piste_controls.add_theme_constant_override("separation", 10)
+	box.add_child(piste_controls)
+	_label(piste_controls, L.text("Pistenbreite"), 16, INK)
+	piste_width_choice.custom_minimum_size = Vector2(110, 42)
+	for width in range(14, 37, 2): piste_width_choice.add_item("%d m" % width, width)
+	piste_width_choice.item_selected.connect(func(index): game.set_piste_width(piste_width_choice.get_item_id(index)))
+	piste_controls.add_child(piste_width_choice)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 10)
 	box.add_child(actions)
@@ -315,7 +325,7 @@ func _build_plan_bar() -> void:
 	confirm_button.custom_minimum_size.x = 165
 	undo_button = _button(actions, L.text("Letzten Punkt zurück"), game.undo_point)
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
-	suggest_route_button = _button(actions,L.text("Verlauf verbessern"),game.suggest_route)
+	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
 	design_button = _button(actions, L.text("Gestaltung"), func(): asset_editor.open(game.editing_id))
 	clear_button = _button(actions, L.text("Abbrechen"), game.clear_plan)
@@ -715,6 +725,9 @@ func refresh() -> void:
 
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
+	piste_controls.visible = current_tool == "piste"
+	plan_panel.offset_top = -204 if current_tool == "piste" else -156
+	piste_width_choice.select(piste_width_choice.get_item_index(roundi(game.chosen_piste_width())))
 	confirm_button.text = L.text("Bauen · %s €") % L.args(money_text(cost)) if cost > 0 else L.text("Bauen")
 	if game.editing_id != -1:
 		confirm_button.text = L.text("Übernehmen · %s €") % L.args(money_text(cost))

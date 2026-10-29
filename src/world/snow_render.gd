@@ -5,6 +5,7 @@ const PisteMesh = preload("res://src/world/piste_mesh.gd")
 var surfaces: Dictionary = {}
 var uploads := 0
 var mesh_builds := 0
+var pick_frames: Dictionary = {}
 var shader := Shader.new()
 
 func _init() -> void:
@@ -39,6 +40,7 @@ void fragment() {
 
 func reset() -> void:
 	surfaces.clear()
+	pick_frames.clear()
 
 func update(piste: Dictionary) -> Dictionary:
 	Snow.ensure(piste)
@@ -74,9 +76,11 @@ func uv(piste: Dictionary, fraction: float, lateral: float) -> Vector2:
 func build(mountain: RefCounted, piste: Dictionary) -> ArrayMesh:
 	var width := Snow.piste_width(piste)
 	var surface := SurfaceTool.new()
+	var frames: Array = []
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_smooth_group(0)
 	for sample in PisteMesh.samples(mountain, piste.points, width):
+		frames.append(Vector2(sample.fraction, sample.lateral))
 		var edge := smoothstep(width * 0.5 - 2.3, width * 0.5, sample.distance)
 		var color := Color("f4f5fc").darkened((sin(sample.lateral * 10) * 0.5 + 0.5) * 0.012)
 		surface.set_color(color.lerp(Color("e1e8f5"), edge * 0.55))
@@ -85,4 +89,5 @@ func build(mountain: RefCounted, piste: Dictionary) -> ArrayMesh:
 	surface.index()
 	surface.generate_normals()
 	mesh_builds += 1
+	pick_frames[piste.id] = frames
 	return surface.commit()

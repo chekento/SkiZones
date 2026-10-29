@@ -86,9 +86,8 @@ static func suggest(model: RefCounted,points: Array,width: float=20) -> Dictiona
 		if not model.terrain.contains(Terrain.unpack(point)): return {"ok":false,"message":L.text("Alle Wegpunkte müssen im Baugebiet liegen."),"points":[]}
 	var shapes: Array=[]
 	for building in model.buildings:
-		if building.kind=="snowmaker": continue
 		var size:=Foot.building_size(building)
-		var rect:=Rect2(Terrain.unpack(building.point)-size*0.5,size).grow(3)
+		var rect:=Rect2(Terrain.unpack(building.point)-size*0.5,size).grow(width * 0.5 + 3)
 		shapes.append(PackedVector2Array([rect.position,Vector2(rect.end.x,rect.position.y),rect.end,Vector2(rect.position.x,rect.end.y)]))
 	var result: Array=[points[0]]
 	var budget: Dictionary={"remaining":MAX_SEARCH,"deadline":Time.get_ticks_usec()+1000000}

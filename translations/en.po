@@ -1896,3 +1896,6 @@ msgstr "Guests seek suitable reachable buildings for food, warmth, rest or equip
 
 msgid "‚Sanften Verlauf vorschlagen‘ sucht eine Route zwischen deinen Punkten. Prüfe Höhenprofil und Anschlüsse; Bauen bestätigst du selbst."
 msgstr "Suggest a gentle route searches between your points. Check the profile and connections; confirm building yourself."
+
+msgid "Die gesamte Pistenbreite und den Gebäuderand freihalten."
+msgstr "Keep the entire piste width and the building footprint clear."

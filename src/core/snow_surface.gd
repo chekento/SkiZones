@@ -15,7 +15,7 @@ static func base_height(piste: Dictionary, fraction: float) -> float:
 		blend *= smoothstep(0, 20, fraction * piste.length)
 	if piste.get("plaza_end", false):
 		blend *= smoothstep(0, 20, (1 - fraction) * piste.length)
-	return lerpf(0.37, 1.3, blend)
+	return lerpf(0.37, 0.65, blend)
 
 static func mesh_height(piste: Dictionary, fraction: float, lateral: float) -> float:
 	var count := ceili(piste.length / 4)

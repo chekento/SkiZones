@@ -17,6 +17,8 @@ var edit_title := ""
 var edit_color := ""
 var edit_rotation := 0
 var edit_width := 20.0
+var plan_width := 20.0
+var _drag_screen_offset := Vector2.ZERO
 var _edit_original: Array = []
 var model := Resort.new()
 var passport := Passport.new()
@@ -276,22 +278,36 @@ func delete_waypoint() -> void:
 	snap_target = {}
 	_update_plan()
 
-func _snap_point(point: Vector2) -> Vector2:
+func _snap_point(point: Vector2, screen_at: Vector2 = Vector2.INF) -> Vector2:
 	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else {}
+	if not snap_target.is_empty() and screen_at.is_finite():
+		var at: Vector2 = view.camera.unproject_position(view.surface_position(snap_target.point))
+		if at.distance_to(screen_at) > 18: snap_target = {}
 	return snap_target.point if not snap_target.is_empty() else point
+
+func chosen_piste_width() -> float:
+	return edit_width if editing_id != -1 else plan_width
+
+func set_piste_width(value: float) -> void:
+	if not is_finite(value) or value < 14 or value > 36: return
+	if editing_id != -1: edit_width = value
+	else: plan_width = value
+	_update_plan()
 
 func _begin_waypoint_drag(index: int) -> void:
 	_drag_waypoint = index
 	selected_waypoint = index
 	_drag_original = points[index].duplicate()
+	_drag_screen_offset = Vector2.ZERO
 	_update_plan()
 
 func _move_waypoint(screen_point: Vector2) -> void:
 	if _drag_waypoint < 0 or _drag_waypoint >= points.size():
 		return
-	var point := view.map_point(screen_point)
+	var cursor := screen_point - _drag_screen_offset
+	var point := view.map_point(cursor)
 	if model.terrain.contains(point):
-		points[_drag_waypoint] = Terrain.pack(_snap_point(point))
+		points[_drag_waypoint] = Terrain.pack(_snap_point(point, cursor))
 		_plan_dirty = true
 
 func _end_waypoint_drag(canceled: bool = false) -> void:
@@ -312,7 +328,7 @@ func _plan_check() -> Dictionary:
 			return {"ok": false, "message": access, "cost": 0}
 	if tool == "walkway": return model.preview_walkway(points)
 	if tool == "piste":
-		return model.preview_piste(points)
+		return model.preview_piste(points, plan_width)
 	if tool == "lift" and points.size() == 2:
 		return model.preview_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	if tool == "plaza" and points.size() == 1:
@@ -324,7 +340,7 @@ func _plan_check() -> Dictionary:
 func suggest_route() -> void:
 	if tool != "piste" or points.size() < 2: return
 	var context: RefCounted=model if editing_id == -1 else model.Edit.context(model,editing_id)
-	var result: Dictionary=context.suggest_piste(points,edit_width if editing_id != -1 else 20)
+	var result: Dictionary=context.suggest_piste(points,chosen_piste_width())
 	if result.ok:
 		points=result.points.duplicate(true)
 		selected_waypoint=-1
@@ -393,7 +409,7 @@ func confirm_plan() -> void:
 	elif tool == "plaza":
 		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
 	elif tool == "piste":
-		result = model.build_piste(points)
+		result = model.build_piste(points, -1, plan_width)
 	elif tool == "lift":
 		result = model.build_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	else:
@@ -437,7 +453,7 @@ func _map_tap(position_value: Vector2) -> void:
 		else:
 			hud.show_context(tool, view.pick_asset(point))
 		return
-	point = _snap_point(point)
+	point = _snap_point(point, position_value)
 	if tool in ["building", "plaza"]:
 		points = [Terrain.pack(point)]
 	elif tool == "lift" and points.size() >= 2:
@@ -473,6 +489,7 @@ func _input(event: InputEvent) -> void:
 				var handle := hud.plan_overlay.pick_waypoint(event.position) if event.button_index == MOUSE_BUTTON_LEFT else -1
 				if handle >= 0:
 					_begin_waypoint_drag(handle)
+					_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
 				_mouse_down = true
 				_mouse_origin = event.position
 				_mouse_dragged = event.button_index == MOUSE_BUTTON_MIDDLE
@@ -558,6 +575,7 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 			var handle := hud.plan_overlay.pick_waypoint(event.position, 28)
 			if handle >= 0:
 				_begin_waypoint_drag(handle)
+				_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
 	elif _touches.has(event.index):
 		if _drag_waypoint >= 0:
 			_end_waypoint_drag(event.canceled)

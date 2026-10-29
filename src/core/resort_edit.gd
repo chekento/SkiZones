@@ -55,7 +55,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	if not check.ok: return check
 	check.points = check.get("points", points).duplicate(true)
 	check.rotation = rotation_value
-	check.width = 8.0 if item.get("kind", "") == "walkway" else width
+	check.width = 8.0 if item.get("kind", "") == "walkway" else width + ((int(item.get("level", 1)) - 1) * 4 if item.has("difficulty") else 0)
 	check.neighbors = {}
 	var changed: bool = check.points != original or rotation_value != int(item.get("rotation", 0)) or (item.has("difficulty") and not is_equal_approx(width, item.get("width", 20)))
 	if item.has("difficulty") and points.size() != original.size():
@@ -108,6 +108,7 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 	if item.has("difficulty"):
 		_piste(item, check)
 		item.width = width
+		item.grading = true
 		for neighbor in check.neighbors:
 			_piste(model.asset(neighbor), check.neighbors[neighbor])
 	elif item.has("bottom"):

@@ -138,7 +138,7 @@ func _migration() -> void:
 		preserved=preserved and guest.id==old.guests[index].id and guest.sport==old.guests[index].sport and guest.elapsed==old.guests[index].elapsed and Needs.valid(guest)
 	check(preserved,"Migration preserves identities, sports, progress, funds and clock while initialising valid needs")
 	var copy:=Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==11,"Needs, service history and real itineraries survive a format 11 JSON roundtrip")
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==12,"Needs, service history and real itineraries survive a format 12 JSON roundtrip")
 	for minute in range(80): model.advance_minute(false);copy.advance_minute(false)
 	check(model.money==copy.money and model.total_rides==copy.total_rides and model.guests.size()==copy.guests.size(),"Need-based visits continue deterministically after saving")
 	var damaged:=model.snapshot()
