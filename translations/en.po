@@ -1335,3 +1335,561 @@ msgstr "Open resort"
 
 msgid "Noch nicht freigeschaltet"
 msgstr "Not unlocked yet"
+
+msgid "HÖHENPROFIL · BERG → TAL"
+msgstr "ELEVATION PROFILE · MOUNTAIN → VALLEY"
+
+msgid "Plane bergab, mit Gegenanstiegen."
+msgstr "Plan downhill, with short rises."
+
+msgid "Die Farbe entsteht automatisch."
+msgstr "The colour is determined automatically."
+
+msgid "Querungen senken das Gefälle."
+msgstr "Traverses reduce the gradient."
+
+msgid "Steile Teilstücke zählen mit."
+msgstr "Steep sections count too."
+
+msgid "Nummerierte Punkte: ziehen."
+msgstr "Drag the numbered points."
+
+msgid "Kleine Kreise: hier andocken."
+msgstr "Small circles: connect here."
+
+msgid "%s · automatisch"
+msgstr "%s · automatic"
+
+msgid "BLAU"
+msgstr "BLUE"
+
+msgid "ROT"
+msgstr "RED"
+
+msgid "SCHWARZ"
+msgstr "BLACK"
+
+msgid "Max. %.0f %% · Ø %.0f %% · ↓ %.0f m"
+msgstr "Max. %.0f %% · Avg. %.0f %% · ↓ %.0f m"
+
+msgid "%.0f m"
+msgstr "%.0f m"
+
+msgid "%.0f m · Tal"
+msgstr "%.0f m · valley"
+
+msgid "%.0f m Strecke"
+msgstr "%.0f m route"
+
+msgid "↑ %.1f m · %s"
+msgstr "↑ %.1f m · %s"
+
+msgid "%.0f m stapfen"
+msgstr "hike %.0f m"
+
+msgid "mit Schwung"
+msgstr "with momentum"
+
+msgid "DEIN SPIELGEFÜHL"
+msgstr "YOUR PLAY EXPERIENCE"
+
+msgid "Darstellung & Komfort"
+msgstr "Display & comfort"
+
+msgid "Grafik"
+msgstr "Graphics"
+
+msgid "Automatisch · passt sich an"
+msgstr "Automatic · adapts to your device"
+
+msgid "Sparsam · für mehr Reserven"
+msgstr "Economy · more performance headroom"
+
+msgid "Ausgewogen"
+msgstr "Balanced"
+
+msgid "Detailreich"
+msgstr "Detailed"
+
+msgid "Bildratenziel"
+msgstr "Frame rate target"
+
+msgid "60 Bilder/s · flüssige Bewegung"
+msgstr "60 fps · smoother movement"
+
+msgid "30 Bilder/s · weniger Energiebedarf"
+msgstr "30 fps · lower energy use"
+
+msgid "Fallenden Schnee darstellen"
+msgstr "Show falling snow"
+
+msgid "Verfolgungskamera sanft bewegen"
+msgstr "Smooth the follow camera"
+
+msgid "Automatisch passt Auflösung und entfernte Details an die verfügbare Leistung an. Gäste, Betrieb und Spieltempo laufen vollständig weiter."
+msgstr "Automatic mode adapts resolution and distant detail to available performance. All guests, operations and game speed continue normally."
+
+msgid "Einstellungen speichern"
+msgstr "Save settings"
+
+msgid "Darstellung gespeichert."
+msgstr "Display settings saved."
+
+msgid "Darstellung angewendet; Speichern fehlgeschlagen."
+msgstr "Display settings applied; saving failed."
+
+msgid "DEIN RESORT · DEIN STIL"
+msgstr "YOUR RESORT · YOUR STYLE"
+
+msgid "Gestalten & umplanen"
+msgstr "Style & remodel"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Akzentfarbe · Lifte und Gebäude"
+msgstr "Accent colour · lifts and buildings"
+
+msgid "Gebäude drehen · Eingang und Fußwege folgen mit"
+msgstr "Rotate building · entrance and paths follow"
+
+msgid "0° · Eingang vorn"
+msgstr "0° · entrance at front"
+
+msgid "90° · Eingang rechts"
+msgstr "90° · entrance on right"
+
+msgid "180° · Eingang hinten"
+msgstr "180° · entrance at back"
+
+msgid "270° · Eingang links"
+msgstr "270° · entrance on left"
+
+msgid "Pistenbreite"
+msgstr "Piste width"
+
+msgid "20 m"
+msgstr "20 m"
+
+msgid "%.0f m · Ausbau kommt hinzu"
+msgstr "%.0f m · upgrades add to this"
+
+msgid "Auf der Karte die nummerierten Punkte ziehen. Erst ‚Übernehmen‘ bestätigt und berechnet den Umbau. Mit ‚Abbrechen‘ bleibt die bestehende Anlage erhalten."
+msgstr "Drag the numbered points on the map. Only Apply confirms and charges for the rebuild. Cancel preserves the existing facility."
+
+msgid "Auf Karte bearbeiten"
+msgstr "Edit on map"
+
+msgid "Willkommen am Sonnenhang. Erweitere dein Resort."
+msgstr "Welcome to Sunlit Slopes. Expand your resort."
+
+msgid "SKI / ZONES"
+msgstr "SKI / ZONES"
+
+msgid "BUDGET"
+msgstr "BUDGET"
+
+msgid "GÄSTE"
+msgstr "GUESTS"
+
+msgid "RUF"
+msgstr "REPUTATION"
+
+msgid "ABFAHRTEN"
+msgstr "DESCENTS"
+
+msgid "BETRIEBSTAG"
+msgstr "OPERATING DAY"
+
+msgid "Speichern"
+msgstr "Save"
+
+msgid "Menü"
+msgstr "Menu"
+
+msgid "Gebietskarte: tippen zum Navigieren"
+msgstr "Area map: tap to navigate"
+
+msgid "Übersicht"
+msgstr "Overview"
+
+msgid "Hilfe"
+msgstr "Help"
+
+msgid "Bauen"
+msgstr "Build"
+
+msgid "Letzten Punkt zurück"
+msgstr "Undo last point"
+
+msgid "Punkt löschen"
+msgstr "Delete point"
+
+msgid "Gestaltung"
+msgstr "Design"
+
+msgid "Abbrechen"
+msgstr "Cancel"
+
+msgid "Gebiete"
+msgstr "Areas"
+
+msgid "Resort-Büro"
+msgstr "Resort Office"
+
+msgid "Kamera"
+msgstr "Camera"
+
+msgid "Gelände"
+msgstr "Terrain"
+
+msgid "Höhenlinien alle 20 m, Höhenangaben und Pfeile bergab. Hangneigung und Pistenverlauf sind verschieden."
+msgstr "Contour lines every 20 m, elevation labels and downhill arrows. Terrain slope and piste gradient are different."
+
+msgid "Mehr Karte"
+msgstr "More map"
+
+msgid "Pause"
+msgstr "Pause"
+
+msgid "Ruhiges Normaltempo · ein Betriebstag dauert etwa 20 Minuten"
+msgstr "Relaxed normal speed · one operating day takes about 20 minutes"
+
+msgid "Zeitraffer · vierfaches Tempo für Bau und Entwicklung"
+msgstr "Fast forward · four times the speed for building and development"
+
+msgid "Dein Blick auf den Berg"
+msgstr "Your view of the mountain"
+
+msgid "Die Ansicht wechselt, deine Bauplanung bleibt erhalten."
+msgstr "Your view changes; your building plan is preserved."
+
+msgid "↶ Drehen"
+msgstr "↶ Rotate"
+
+msgid "Drehen ↷"
+msgstr "Rotate ↷"
+
+msgid "Talansicht"
+msgstr "Valley view"
+
+msgid "Draufsicht: präzise planen. Panorama: Gelände und Gäste beobachten. Q / E dreht, C wechselt die Perspektive."
+msgstr "Top-down: plan precisely. Panorama: watch the terrain and guests. Q / E rotates, C changes perspective."
+
+msgid "Senkrechte Draufsicht · 90°"
+msgstr "Vertical top-down view · 90°"
+
+msgid "Blickwinkel: %.0f°"
+msgstr "Viewing angle: %.0f°"
+
+msgid "GELÄNDE · Linien: 20 m · Pfeile: bergab\nHangneigung: Grün <8 % · Blau ≤30 % · Rot ≤55 % · Grau >55 %\nDie Pistenfarbe folgt deiner Route, nicht dieser Flächenfarbe."
+msgstr "TERRAIN · contours: 20 m · arrows: downhill\nSlope: green <8 % · blue ≤30 % · red ≤55 % · grey >55 %\nPiste colour follows your route, not the colour of the ground."
+
+msgid "Werkzeuge"
+msgstr "Tools"
+
+msgid "DEIN BERG. DEINE REGELN."
+msgstr "YOUR MOUNTAIN. YOUR RULES."
+
+msgid "Vom ersten Lift zum\nlebendigen Ski-Resort."
+msgstr "From your first lift to\na lively ski resort."
+
+msgid "Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen."
+msgstr "Plan runs, open new slopes and create a place your guests will want to return to."
+
+msgid "Fortsetzen"
+msgstr "Continue"
+
+msgid "Gebiete entdecken"
+msgstr "Discover areas"
+
+msgid "Freier Aufbau · alle Anlagen"
+msgstr "Free build · all facilities"
+
+msgid "Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch"
+msgstr "Ski Resort Tycoon  /  Version %s\nAn original game world by KoSch"
+
+msgid "SkiZones · So wächst dein Resort"
+msgstr "SkiZones · How your resort grows"
+
+msgid "[b]BEOBACHTEN[/b]\nBei 1× dauert ein Betriebstag etwa 20 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Nachts wird präpariert. Mit Schneemanagement und geöffneter Garage kannst du eine Piste auch tagsüber präparieren lassen. Sie bleibt 45 Spielminuten für neue Routen geschlossen.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt vier Karten und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
+msgstr "[b]WATCH[/b]\nAt 1× an operating day takes about 20 minutes. Guests and lifts move at a deliberately relaxed pace. 4× speeds up the whole operation.\nTap a guest and choose ‘Follow this guest’. Dragging releases the camera. Use + to zoom in closely.\n\n[b]BUILD[/b]\nChoose runs, lifts or village services in the Build Catalogue. Locked and unaffordable facilities cannot be selected; their requirements are shown directly. Choose ‘Plan a run’, place waypoints from the mountain to the valley and confirm with Build. Colour follows the steepest section of the actual route; switchbacks can be gentler than a direct descent. The profile shows elevation loss and gradient. Drag numbered planning points with your finger or mouse. Tap to select a point for deletion. Small circles mark connections to existing runs. Start or end a new link there; colour, cost and profile update immediately. Round signs receive their colour and piste number automatically. Game limits: blue up to 30%, red up to 55%, black up to 110%. For lifts, place the lower station first, then the upper station.\n\n[b]CONNECTIONS[/b]\nBoth lift stations receive walkable plazas. Runs start and end on these plazas, clear of lift machinery. Small circles show connection points. Runs can also connect directly at waypoints. Connected buildings expand the pedestrian area with forecourts and visible paths. Guests walk to other lifts or building entrances. Guests need a complete suitable circuit from the valley entrance and back. Internal waypoints are connections too: build a red or black shortcut between the switchbacks of a blue run. Beginners stay on blue, intermediates can use red and experts can use black. Guests use only the necessary sections of connected runs. All runs share the actual capacity of their lift.\n\n[b]LIFTS AND GUESTS[/b]\nPlatter lifts are slower and limited to 700 m. Single, double and quad chairlifts are separate facilities; the 6-seat lift requires Lift Engineering, the 8-seat lift Alpine Masterclass. Gondolas carry eight guests.\nSkiers, snowboarders and snowbladers have their own equipment, riding postures and tracks. Their sport appears in their personal profile. Every rider is assigned a specific vehicle and seat. Skis remain on the ground on drag lifts. The visible queue follows arrival order. Waiting times and actual occupancy appear at the station and in the inspector.\nBuildings receive actual visits. Guests walk to the entrance and pause inside; service revenue is earned after the visit.\n\n[b]SNOW[/b]\nEvery guest leaves their own line. Skis compact tracks and push snow aside; uneven ground affects later rides. Runs are groomed overnight. With Snow Management and an open garage, you can groom a run during the day too. It closes to new routes for 45 game minutes.\n\n[b]NEW AREAS[/b]\nThe Mountain Pass under Areas shows four maps and their unlock targets. Stars, guests and contracts count across your resorts. Area changes save your progress; each resort keeps its own save. The small area map navigates to the tapped location. Overview shows the whole area; Valley returns to the entrance.\n\n[b]CAREER[/b]\nTime pauses in the Resort Office. Find contracts, research, upgrades and finances there. A winter has 28 operating days; your resort continues across multiple winters. Weather, wind, snow and prices affect operations.\n\n[b]CAMERA AND TERRAIN[/b]\nUnder Camera, choose Resort, Panorama, Building view or vertical Top-down; the viewing angle is adjustable. Terrain shows contours every 20 m, elevation labels every 100 m and downhill arrows. Ground colours show the slope of the terrain; piste colour follows the gradient of your route.\n\n[b]CONTROLS[/b]\nTap to place points or select facilities and guests. Drag a numbered marker to move that planning point; drag the open map to pan. Two fingers pan and zoom. Twist two fingers in opposite directions to rotate around the touched mountain point. Panning, rotation and zoom can be combined. On PC: mouse wheel zooms, Q/E rotates, C changes perspective, B plans a run, M opens the office, Tab enlarges the map, Space pauses, Ctrl+S saves. App suspension and day changes save your resort.\n\nGodot Engine · godotengine.org/license"
+
+msgid "Fortsetzen · "
+msgstr "Continue · "
+
+msgid "Anlage"
+msgstr "Facility"
+
+msgid "Schließen"
+msgstr "Close"
+
+msgid "Öffnen"
+msgstr "Open"
+
+msgid "Abbauen · 25 % Erstattung"
+msgstr "Demolish · 25% refund"
+
+msgid "Anlage ausbauen"
+msgstr "Upgrade facility"
+
+msgid "Piste präparieren"
+msgstr "Groom run"
+
+msgid "Tageskarte: %d €"
+msgstr "Day ticket: €%d"
+
+msgid "Kredit tilgen · 150.000 €"
+msgstr "Repay loan · €150,000"
+
+msgid "Aufbaukredit · 150.000 €"
+msgstr "Development loan · €150,000"
+
+msgid "Diesem Gast folgen"
+msgstr "Follow this guest"
+
+msgid "Kamera lösen"
+msgstr "Release camera"
+
+msgid "[color=#a56440]%s[/color]\n%s\n\n[color=#347970]%d Jahre · aus %s[/color]\n%s · %s\n\n%s\n\n[color=#a56440]DEIN SKITAG[/color]\n%d %s · %d Runden\n%d Min. im Resort\n%d Min. insgesamt gewartet\nTagesgefühl: %.0f %%\n\nEnergie: %.0f %%\nHunger: %.0f %%\nWärmegefühl: %.0f %%\n\nFahrstil: %s\nTempo: %.1f m/s\nAusgaben: %s €"
+msgstr "[color=#a56440]%s[/color]\n%s\n\n[color=#347970]Age %d · from %s[/color]\n%s · %s\n\n%s\n\n[color=#a56440]YOUR SKI DAY[/color]\n%d %s · %d circuits\n%d min in the resort\n%d min total waiting time\nDay rating: %.0f %%\n\nEnergy: %.0f %%\nHunger: %.0f %%\nWarmth: %.0f %%\n\nRiding style: %s\nSpeed: %.1f m/s\nSpending: €%s"
+
+msgid "Anfänger"
+msgstr "Beginner"
+
+msgid "Geübt"
+msgstr "Intermediate"
+
+msgid "Profi"
+msgstr "Expert"
+
+msgid "Abfahrt"
+msgstr "descent"
+
+msgid "Abfahrten"
+msgstr "descents"
+
+msgid "Ein schöner Skitag geht zu Ende"
+msgstr "A lovely ski day comes to an end"
+
+msgid "Dieser Gast hat das Resort verlassen. Wähle einen anderen Gast oder eine Anlage."
+msgstr "This guest has left the resort. Select another guest or a facility."
+
+msgid "Geöffnet"
+msgstr "Open"
+
+msgid "Manuell geschlossen"
+msgstr "Manually closed"
+
+msgid "Sturmpause"
+msgstr "Storm pause"
+
+msgid "[color=#347970]%s · Stufe %d[/color]\n\n"
+msgstr "[color=#347970]%s · Level %d[/color]\n\n"
+
+msgid "Piste %d · %s\n%.0f m Länge · ↓ %.0f m\nØ %.0f %% · Max. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s"
+msgstr "Run %d · %s\n%.0f m long · ↓ %.0f m\nAvg. %.0f %% · Max. %.0f %% gradient\nCondition: %.0f %%\nSnow: %.0f cm\n%d descents\n\n%s"
+
+msgid "Blau · leicht"
+msgstr "Blue · easy"
+
+msgid "Rot · mittel"
+msgstr "Red · intermediate"
+
+msgid "Schwarz · schwer"
+msgstr "Black · difficult"
+
+msgid "Mit Rundweg erreichbar"
+msgstr "Reachable by a complete circuit"
+
+msgid "Noch kein nutzbarer Rundweg"
+msgstr "No usable circuit yet"
+
+msgid "\nPistenbreite: %.0f m"
+msgstr "\nPiste width: %.0f m"
+
+msgid "\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel."
+msgstr "\nLocal bumps: %.0f %%\nOvernight grooming smooths tracks and bumps."
+
+msgid "1 Zugplatz je Teller"
+msgstr "1 tow position per platter"
+
+msgid "%d %s je Fahrzeug"
+msgstr "%d %s per vehicle"
+
+msgid "Platz"
+msgstr "seat"
+
+msgid "Plätze"
+msgstr "seats"
+
+msgid "%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s"
+msgstr "%s\n%d vehicles circulating\n%.1f m/s · %.1f min ride\n%d guests per hour\n\n%d waiting · approx. %.1f min wait\n%d riding now\n%.0f %% average occupancy\n%d passengers carried\n\n%s"
+
+msgid "%.0f m Fußweg · 8 m breit\nDie sichtbare Verbindung führt direkt zu Lift, Piste oder Platz."
+msgstr "%.0f m footpath · 8 m wide\nThis visible connection leads directly to a lift, run or plaza."
+
+msgid "Ø %.0f m · Begehbare Fläche\nPisten und Gebäude können hier anschließen.\nLifttechnik und Zugspuren bleiben gesperrt."
+msgstr "Ø %.0f m · walkable area\nRuns and buildings can connect here.\nLift machinery and tow tracks remain out of bounds."
+
+msgid "%s\n\nBetrieb: %d €/Tag\n%d tatsächliche Besuche\nServiceerlöse: %s €"
+msgstr "%s\n\nOperating costs: €%d/day\n%d actual visits\nService revenue: €%s"
+
+msgid "\n\nBesuche unterwegs / vor Ort: %d / %d Plätze\nGäste wählen dieses Gebäude nach Bedarf und Erreichbarkeit."
+msgstr "\n\nVisits on the way / on site: %d / %d places\nGuests choose this building based on their needs and its accessibility."
+
+msgid "Piste"
+msgstr "Run"
+
+msgid "Lift"
+msgstr "Lift"
+
+msgid "[color=#a56440]%s[/color]\nWinter %d · Tag %d / 28\n%.0f Erfahrung · %d FP\n\n%d %s · %d %s\n%d erreichbare Abfahrten\n%d Gäste warten\n\n[color=#a56440]DEIN NÄCHSTES ZIEL[/color]\n%s\n\n[color=#a56440]HEUTE[/color]\nErlöse: %s €\nBetrieb: ~%s €/Tag\n\nAufträge, Forschung und Ausbau findest du im Resort-Büro."
+msgstr "[color=#a56440]%s[/color]\nWinter %d · Day %d / 28\n%.0f experience · %d RP\n\n%d %s · %d %s\n%d reachable runs\n%d guests waiting\n\n[color=#a56440]YOUR NEXT GOAL[/color]\n%s\n\n[color=#a56440]TODAY[/color]\nRevenue: €%s\nOperating costs: ~€%s/day\n\nFind contracts, research and upgrades in the Resort Office."
+
+msgid "[color=#a56440]%s € + %d €/m[/color]\n\n%d Plätze je Fahrzeug\n%.1f m/s · max. %.0f m Länge\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nBeide Stationen erhalten einen begehbaren Platz. Pisten docken am Platz an; Gebäude erweitern das Fußwegenetz. Der Achter wird durch Alpine Meisterklasse freigeschaltet."
+msgstr "[color=#a56440]€%s + €%d/m[/color]\n\n%d seats per vehicle\n%.1f m/s · max. %.0f m long\n%d guests per hour\n€%d/day operating costs\nWind limit: %.0f km/h\n\n1. Place the lower station\n2. Place the upper station\n3. Confirm building\n\nBoth stations receive a walking plaza. Runs connect to the plaza; buildings expand the footpath network. The 8-seat lift is unlocked through Alpine Masterclass."
+
+msgid "[color=#a56440]%s[/color]\nIm Resort-Büro freischalten.\n\n"
+msgstr "[color=#a56440]%s[/color]\nUnlock in the Resort Office.\n\n"
+
+msgid "Start und Ziel an Liftzugängen, Pistenenden, Gebäuden oder Plätzen setzen.\n\nWeitere Punkte legen den Verlauf fest; Hindernisse werden umgangen. Nummerierte Punkte ziehen oder löschen.\n\n180 € + 18 €/m · 8 m breit"
+msgstr "Place the start and end at lift entrances, piste endpoints, buildings or plazas.\n\nAdditional points define the route; obstacles are avoided. Drag or delete numbered points.\n\n€180 + €18/m · 8 m wide"
+
+msgid "[color=#a56440]%s € · Ø %.0f m[/color]\n\n%s\n\n1. Freie Fläche antippen\n2. Anschluss prüfen\n3. Bauen bestätigen\n\nMit Abbrechen oder der Zurück-Taste verlässt du die Planung."
+msgstr "[color=#a56440]€%s · Ø %.0f m[/color]\n\n%s\n\n1. Tap an open area\n2. Check the connection\n3. Confirm Build\n\nCancel or the Back button leaves planning mode."
+
+msgid "[color=#a56440]%s € Baukosten[/color]\n%d €/Tag Betrieb\n\n%s\n\nAuf einen freien Bauplatz tippen und den Bau bestätigen."
+msgstr "[color=#a56440]€%s building cost[/color]\n€%d/day operating costs\n\n%s\n\nTap an open building site and confirm construction."
+
+msgid "[color=#347970]FARBE AUS DEINER ROUTE[/color]\nBlau, Rot oder Schwarz entstehen automatisch aus dem steilsten Teilstück deiner geplanten Abfahrt.\n\nSerpentinen verlängern die Strecke und können ihr Gefälle senken. Steile Abschnitte werden nicht durch einen niedrigen Durchschnitt versteckt.\n\n[color=#a56440]BESSER PLANEN[/color]\n‚Gelände‘ zeigt Höhenlinien und Pfeile bergab. Die Draufsicht im Kameramenü hilft beim Setzen der Kurven. Links siehst du das Höhenprofil. Nummerierte Punkte lassen sich ziehen und einzeln löschen. Kleine Kreise sind Andockpunkte bestehender Pisten.\n\nBaue Abkürzungen von einem Andockpunkt zum nächsten. Die Gäste wählen passende Wege für ihr Können. Runde Schilder mit einer festen Pistennummer werden beim Bauen aufgestellt.\n\nSpielgrenzen: Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %. "
+msgstr "[color=#347970]COLOUR FROM YOUR ROUTE[/color]\nBlue, red or black is determined automatically by the steepest section of your planned run.\n\nSwitchbacks lengthen the route and can reduce its gradient. A low average cannot hide steep sections.\n\n[color=#a56440]BETTER PLANNING[/color]\nTerrain shows contours and downhill arrows. Top-down view in the Camera menu helps you place turns. The elevation profile is on the left. Drag or delete numbered points. Small circles mark connections to existing runs.\n\nBuild shortcuts from one connection to another. Guests choose routes suited to their ability. Round signs with a fixed piste number are placed when you build.\n\nGame limits: blue ≤30%, red ≤55%, black ≤110%. "
+
+msgid "[color=#a56440]DEINE ABFAHRT[/color]\n%.0f → %.0f m\n%.0f m Länge · ↓ %.0f m\nMax. %.0f %% · Ø %.0f %%\n\n"
+msgstr "[color=#a56440]YOUR RUN[/color]\n%.0f → %.0f m\n%.0f m long · ↓ %.0f m\nMax. %.0f %% · Avg. %.0f %%\n\n"
+
+msgid "%d / %d"
+msgstr "%d / %d"
+
+msgid "%.0f %%"
+msgstr "%.0f %%"
+
+msgid "Tag %d · %02d:%02d"
+msgstr "Day %d · %02d:%02d"
+
+msgid "%s   /   %.0f °C   /   Wind %.0f km/h"
+msgstr "%s   /   %.0f °C   /   Wind %.0f km/h"
+
+msgid "Weiter"
+msgstr "Resume"
+
+msgid "Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind."
+msgstr "Last descents and return journeys continue. The day report appears once every guest is back in the valley."
+
+msgid "Feierabend · %d Gäste beenden ihren Rückweg"
+msgstr "Closing time · %d guests finishing their return"
+
+msgid "Baupause"
+msgstr "Building pause"
+
+msgid "Simulation pausiert"
+msgstr "Simulation paused"
+
+msgid "%d× · %d Gäste warten"
+msgstr "%d× · %d guests waiting"
+
+msgid "Bauen · %s €"
+msgstr "Build · €%s"
+
+msgid "Übernehmen · %s €"
+msgstr "Apply · €%s"
+
+msgid "Tagesbericht ansehen"
+msgstr "View day report"
+
+msgid "Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nAlle Gäste sind im Tal. Über Nacht werden die Pisten präpariert."
+msgstr "Winter %d · Day %d / 28\n%d day visitors · %d descents · %.0f %% satisfaction\n\nDay tickets: €%s\nServices: €%s\nOperating costs: −€%s\nOperating result: €%s\n\nInvestments and research: −€%s\nBonuses: €%s\nResult after investments: €%s\nAvailable budget: €%s\n\n%d resort stars · %d research points\n%s\n\nFind contracts and upgrades in the Resort Office.\nAll guests are in the valley. The runs will be groomed overnight."
+
+msgid "Resort"
+msgstr "Resort"
+
+msgid "Panorama"
+msgstr "Panorama"
+
+msgid "Bauansicht"
+msgstr "Building view"
+
+msgid "Draufsicht"
+msgstr "Top-down"
+
+msgid "TALZUGANG"
+msgstr "VALLEY ENTRANCE"
+
+msgid "%d m"
+msgstr "%d m"
+
+msgid "%d · %s"
+msgstr "%d · %s"
+
+msgid "%d warten · %.0f %% belegt"
+msgstr "%d waiting · %.0f %% occupied"
+
+msgid "Mehr Nachfrage und eine ausgiebige Pause mit Verpflegung, Wärme und Erholung. Erlöse entstehen nach dem Besuch."
+msgstr "More demand and a substantial break with food, warmth and rest. Revenue is earned after the visit."
+
+msgid "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."
+msgstr "A warm refuge for exhausted guests. An actual visit helps them recover from cold and fatigue."
+
+msgid "Teller-Schlepplift"
+msgstr "Platter drag lift"
+
+msgid "1er-Sessellift"
+msgstr "Single chairlift"
+
+msgid "2er-Sessellift"
+msgstr "Double chairlift"
+
+msgid "4er-Sessellift"
+msgstr "Quad chairlift"
+
+msgid "6er-Panoramasessel"
+msgstr "6-seat panorama chairlift"
+
+msgid "8er-Panoramasessel"
+msgstr "8-seat panorama chairlift"
+
+msgid "8er-Gondelbahn"
+msgstr "8-seat gondola"
+
+msgid "Alpen-Spa"
+msgstr "Alpine spa"
+
+msgid "Skibus-Terminal"
+msgstr "Ski bus terminal"
+
+msgid "Resort-Promenade"
+msgstr "Resort promenade"
+
+msgid "Sprache"
+msgstr "Language"
+
+msgid "Systemsprache"
+msgstr "System language"
+
+msgid "Deutsch"
+msgstr "Deutsch"
+
+msgid "English"
+msgstr "English"
+
+msgid "Sprache angewendet."
+msgstr "Language applied."
+
+msgid "Resort bereit. Forschung, Aufträge und Fortschritt bleiben erhalten."
+msgstr "Resort ready. Research, contracts and progress are preserved."
+
+msgid "Gäste suchen passende erreichbare Gebäude für Hunger, Wärme, Erholung oder Ausrüstung. Besuche und freie Plätze siehst du am Gebäude."
+msgstr "Guests seek suitable reachable buildings for food, warmth, rest or equipment. View visits and available places in the building inspector."
+
+msgid "‚Sanften Verlauf vorschlagen‘ sucht eine Route zwischen deinen Punkten. Prüfe Höhenprofil und Anschlüsse; Bauen bestätigst du selbst."
+msgstr "Suggest a gentle route searches between your points. Check the profile and connections; confirm building yourself."
