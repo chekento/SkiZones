@@ -1,4 +1,5 @@
 extends VBoxContainer
+const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const RouteProfile = preload("res://src/ui/route_profile.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
@@ -11,18 +12,20 @@ var categories: Dictionary = {}
 var cards: Array = []
 var _state := ""
 var route_profile := RouteProfile.new()
+var suggest_button: Button
+var reverse_button: Button
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
 	game = hud.game
 	add_theme_constant_override("separation", 9)
-	hud._label(self, "BAUKATALOG", 13, hud.TEAL)
-	hud._label(self, "Dein nächster Ausbau", 20)
-	hud.tool_buttons.inspect = hud._button(self, "Resort ansehen", func(): game.clear_plan())
+	hud._label(self, L.text("BAUKATALOG"), 13, hud.TEAL)
+	hud._label(self, L.text("Dein nächster Ausbau"), 20)
+	hud.tool_buttons.inspect = hud._button(self, L.text("Resort ansehen"), func(): game.clear_plan())
 	var bar := HBoxContainer.new()
 	bar.add_theme_constant_override("separation", 5)
 	add_child(bar)
-	for entry in [["pistes", "Pisten"], ["lifts", "Lifte"], ["village", "Dorf"], ["paths", "Wege"]]:
+	for entry in [["pistes", L.text("Pisten")], ["lifts", L.text("Lifte")], ["village", L.text("Dorf")], ["paths", L.text("Wege")]]:
 		var key: String = entry[0]
 		var button: Button = hud._button(bar, entry[1], func(): select_category(key))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -38,6 +41,9 @@ func setup(interface: CanvasLayer) -> void:
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_make_cards()
 	content.add_child(route_profile)
+	suggest_button=hud._button(content,L.text("Sanften Verlauf vorschlagen"),game.suggest_route,true)
+	suggest_button.tooltip_text=L.text("Sucht einen sanfteren Verlauf zwischen deinen Punkten. Bauen wird separat bestätigt.")
+	reverse_button=hud._button(content,L.text("Richtung umkehren"),game.reverse_route)
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
@@ -66,12 +72,12 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var status: Label = hud._label(body, "", 12, hud.TEAL, true)
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.tooltip_text = description + ("\nBetrieb: %d €/Tag" % upkeep if upkeep > 0 else "")
+	button.tooltip_text = description + (L.text("\nBetrieb: %d €/Tag") % L.args(upkeep) if upkeep > 0 else "")
 	button.pressed.connect(func():
 		if not DragScroll.click_allowed():
 			return
 		if not game.points.is_empty():
-			game.hud.toast("Erst Bauen oder Abbrechen wählen. Dein aktueller Plan bleibt erhalten.")
+			game.hud.toast(L.text("Erst Bauen oder Abbrechen wählen. Dein aktueller Plan bleibt erhalten."))
 			return
 		if type == "piste":
 			game.set_tool(key)
@@ -89,24 +95,24 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 		hud.tool_buttons[key] = button
 
 func _make_cards() -> void:
-	_card("piste", "Abfahrt planen", "Farbe automatisch · ab 32 €/m", 1280, 0, "piste", hud.TEAL)
+	_card("piste", L.text("Abfahrt planen"), L.text("Farbe automatisch · ab 32 €/m"), 1280, 0, "piste", hud.TEAL)
 	for key in Catalog.LIFTS:
 		var spec: Dictionary = Catalog.LIFTS[key]
-		_card(key, spec.name, "%.1f m/s · max. %.0f m\n%s € + %d €/m" % [spec.speed / 60, spec.max_length, hud.money_text(spec.cost), spec.per_m], spec.cost, spec.upkeep, "lift", hud.ACCENT)
+		_card(key, spec.name, L.text("%.1f m/s · max. %.0f m\n%s € + %d €/m") % L.args([spec.speed / 60, spec.max_length, hud.money_text(spec.cost), spec.per_m]), spec.cost, spec.upkeep, "lift", hud.ACCENT)
 	for key in Catalog.BUILDINGS:
 		var spec: Dictionary = Catalog.BUILDINGS[key]
-		_card(key, spec.name, "%s € · %d €/Tag" % [hud.money_text(spec.cost), spec.upkeep], spec.cost, spec.upkeep, "building", Color(spec.color).darkened(0.22))
+		_card(key, spec.name, L.text("%s € · %d €/Tag") % L.args([hud.money_text(spec.cost), spec.upkeep]), spec.cost, spec.upkeep, "building", Color(spec.color).darkened(0.22))
 	for key in Catalog.PLAZAS:
 		var spec: Dictionary = Catalog.PLAZAS[key]
 		if key == "walkway":
-			_card(key,spec.name,"8 m breit · 180 € + 18 €/m\n"+spec.description,252,0,"plaza",hud.TEAL)
+			_card(key,spec.name,L.text("8 m breit · 180 € + 18 €/m\n")+spec.description,252,0,"plaza",hud.TEAL)
 			continue
-		_card(key, spec.name, "Ø %.0f m · %s €\n%s" % [spec.radius * 2, hud.money_text(spec.cost), spec.description], spec.cost, 0, "plaza", hud.TEAL)
+		_card(key, spec.name, L.text("Ø %.0f m · %s €\n%s") % L.args([spec.radius * 2, hud.money_text(spec.cost), spec.description]), spec.cost, 0, "plaza", hud.TEAL)
 	refresh(true)
 
 func select_category(value: String) -> void:
 	if not game.points.is_empty() and category != value:
-		hud.toast("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten.")
+		hud.toast(L.text("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten."))
 		return
 	category = value
 	refresh(true)
@@ -117,7 +123,11 @@ func refresh(force: bool = false) -> void:
 		return
 	_state = fingerprint
 	route_profile.visible = category == "pistes"
-	hud.tool_buttons.inspect.text = "Plan abbrechen" if game.tool != "inspect" else "Resort ansehen"
+	suggest_button.visible=category == "pistes" and game.tool == "piste"
+	reverse_button.visible=suggest_button.visible
+	suggest_button.disabled=game.points.size()<2
+	reverse_button.disabled=game.points.size()<2
+	hud.tool_buttons.inspect.text = L.text("Plan abbrechen") if game.tool != "inspect" else L.text("Resort ansehen")
 	for key in categories:
 		categories[key].disabled = not game.points.is_empty() and key != category
 		categories[key].add_theme_stylebox_override("normal", hud._style(Color("c9e2d8") if key == category else Color("e1eeea"), 7, 7))
@@ -127,7 +137,7 @@ func refresh(force: bool = false) -> void:
 		var locked: String = "" if card.type in ["piste", "plaza"] else game.model.build_access_message(card.key, card.type == "lift")
 		var affordable: bool = game.model.money >= card.cost
 		card.button.disabled = locked != "" or not affordable or not game.points.is_empty()
-		card.status.text = "Plan läuft · Bauen / Abbrechen" if not game.points.is_empty() else locked if locked != "" else ("Budget reicht noch nicht" if not affordable else ("Standort wählen" if card.type in ["building", "plaza"] and card.key != "walkway" else "Route planen"))
+		card.status.text = L.text("Plan läuft · Bauen / Abbrechen") if not game.points.is_empty() else locked if locked != "" else (L.text("Budget reicht noch nicht") if not affordable else (L.text("Standort wählen") if card.type in ["building", "plaza"] and card.key != "walkway" else L.text("Route planen")))
 		card.heading.modulate = Color("718b94") if locked != "" else Color.WHITE
 		var selected: bool = game.tool == card.key if card.type == "piste" else (game.tool in ["plaza","walkway"] and game.plaza_kind == card.key) if card.type == "plaza" else (game.tool == card.type and (hud.lift_kind() if card.type == "lift" else hud.building_kind()) == card.key)
 		card.button.add_theme_stylebox_override("normal", hud._style(Color("dcece2") if selected else Color("eff4ed"), 10, 10, hud.TEAL if selected else Color.TRANSPARENT))

@@ -1,4 +1,5 @@
 extends Node3D
+const L = preload("res://src/core/i18n.gd")
 ## Original, batched alpine scenery and a simulation-driven atmosphere.
 
 const Terrain = preload("res://src/core/terrain.gd")
@@ -304,7 +305,7 @@ func _build_terrain() -> void:
 	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
 	lake_node.scale.z = 0.62
 	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("b5b5a9"), 0.25)
-	_label(landscape, "TALZUGANG", terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
+	_label(landscape, L.text("TALZUGANG"), terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
 	scenery_instance = MeshInstance3D.new()
@@ -584,7 +585,7 @@ func rebuild() -> void:
 			show_title = show_title and start.distance_to(previous) > 80
 		if show_title:
 			title_positions.append(start)
-			_label(asset_root, "%d · %s" % [piste.number, ["BLAU", "ROT", "SCHWARZ"][piste.difficulty]], terrain.world(start, 24), color)
+			_label(asset_root, L.text("%d · %s") % L.args([piste.number, [L.text("BLAU"), L.text("ROT"), L.text("SCHWARZ")][piste.difficulty]]), terrain.world(start, 24), color)
 	for lift in model.lifts:
 		_build_lift(lift)
 	for building in model.buildings:
@@ -863,7 +864,7 @@ func _process(delta: float) -> void:
 		for lift in model.lifts:
 			if _queue_labels.has(lift.id):
 				var load: Dictionary = model.lift_load(lift)
-				_queue_labels[lift.id].text = "%d warten · %.0f %% belegt" % [load.queue, load.fill * 100]
+				_queue_labels[lift.id].text = L.text("%d warten · %.0f %% belegt") % L.args([load.queue, load.fill * 100])
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	_adapt_quality(delta)

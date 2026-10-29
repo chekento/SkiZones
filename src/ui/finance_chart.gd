@@ -1,4 +1,5 @@
 extends Control
+const L = preload("res://src/core/i18n.gd")
 
 var rows: Array = []
 
@@ -16,9 +17,9 @@ func _draw() -> void:
 	for ratio in [-1.0, 0.0, 1.0]:
 		var y: float = baseline - ratio * area.size.y * 0.5
 		draw_line(Vector2(area.position.x, y), Vector2(area.end.x, y), Color("c3ded4"), 1)
-		draw_string(font, Vector2(3, y + 5), "%.0f k€" % (ratio * maximum / 1000), HORIZONTAL_ALIGNMENT_LEFT, 56, 13, Color("5d7679"))
+		draw_string(font, Vector2(3, y + 5), L.text("%.0f k€") % L.args((ratio * maximum / 1000)), HORIZONTAL_ALIGNMENT_LEFT, 56, 13, Color("5d7679"))
 	if rows.is_empty():
-		draw_string(font, Vector2(82, baseline - 12), "Nach dem ersten Betriebstag erscheint hier dein Verlauf.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("5d7679"))
+		draw_string(font, Vector2(82, baseline - 12), L.text("Nach dem ersten Betriebstag erscheint hier dein Verlauf."), HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("5d7679"))
 		return
 	var step := area.size.x / rows.size()
 	for i in range(rows.size()):

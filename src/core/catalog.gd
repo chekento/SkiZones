@@ -31,8 +31,8 @@ const BUILDINGS := {
 	"school": {"name": "Skischule", "cost": 28000, "upkeep": 220, "income": 4.0, "appeal": 9, "color": "58aeb0", "description": "Mehr Komfort und zusätzliche Serviceerlöse. Gut erreichbare blaue Pisten bleiben notwendig."},
 	"snowmaker": {"name": "Beschneiung", "cost": 26000, "upkeep": 340, "income": 0.0, "appeal": 1, "color": "8baac4", "description": "Verbessert die Schneelage bei Temperaturen bis −1 °C. Die Pistenmitte muss innerhalb von 150 m liegen."},
 	"maintenance": {"name": "Pistenraupengarage", "cost": 48000, "upkeep": 440, "income": 0.0, "appeal": 2, "color": "e6a650", "description": "Verbessert die nächtliche Präparierung des gesamten Resorts."},
-	"hotel": {"name": "Berghotel", "cost": 95000, "upkeep": 750, "income": 11.0, "appeal": 16, "color": "b2bcc2", "description": "Mehr Gäste und zusätzliche Erlöse pro Skirunde; höherer täglicher Betrieb."},
-	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Erhöht das Sicherheitsgefühl und die Zufriedenheit auf schweren Pisten."}
+	"hotel": {"name": "Berghotel", "cost": 95000, "upkeep": 750, "income": 11.0, "appeal": 16, "color": "b2bcc2", "description": "Mehr Nachfrage und eine ausgiebige Pause mit Verpflegung, Wärme und Erholung. Erlöse entstehen nach dem Besuch."},
+	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."}
 }
 
 const WEATHER := [

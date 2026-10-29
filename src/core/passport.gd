@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Small independent metaprogression file; each area has a separate resort save.
 const Maps = preload("res://src/core/maps.gd")
 const PATH := "user://skizones_passport.json"
@@ -27,7 +28,7 @@ func unlocked(id: String) -> bool:
 func requirement(id: String) -> String:
 	var needed := Maps.spec(id)
 	var current := totals()
-	return "Resort-Sterne %d / %d   ·   Gäste %d / %d   ·   Aufträge %d / %d" % [mini(current.rank, needed.rank), needed.rank, mini(current.guests, needed.guests), needed.guests, mini(current.contracts, needed.contracts), needed.contracts]
+	return L.text("Resort-Sterne %d / %d   ·   Gäste %d / %d   ·   Aufträge %d / %d") % L.args([mini(current.rank, needed.rank), needed.rank, mini(current.guests, needed.guests), needed.guests, mini(current.contracts, needed.contracts), needed.contracts])
 
 func save_to(path: String = PATH) -> bool:
 	var payload := JSON.stringify(data)

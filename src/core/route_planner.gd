@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Bounded terrain search; every user waypoint remains a mandatory stop.
 const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
@@ -74,9 +75,9 @@ static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: flo
 	return result
 
 static func suggest(model: RefCounted,points: Array,width: float=20) -> Dictionary:
-	if points.size()<2 or points.size()>64: return {"ok":false,"message":"Zuerst Start und Ziel setzen.","points":[]}
+	if points.size()<2 or points.size()>64: return {"ok":false,"message":L.text("Zuerst Start und Ziel setzen."),"points":[]}
 	for point in points:
-		if not model.terrain.contains(Terrain.unpack(point)): return {"ok":false,"message":"Alle Wegpunkte müssen im Baugebiet liegen.","points":[]}
+		if not model.terrain.contains(Terrain.unpack(point)): return {"ok":false,"message":L.text("Alle Wegpunkte müssen im Baugebiet liegen."),"points":[]}
 	var shapes: Array=[]
 	for building in model.buildings:
 		if building.kind=="snowmaker": continue
@@ -86,9 +87,9 @@ static func suggest(model: RefCounted,points: Array,width: float=20) -> Dictiona
 	var result: Array=[points[0]]
 	for index in range(1,points.size()):
 		var part:=_between(model,Terrain.unpack(points[index-1]),Terrain.unpack(points[index]),width,shapes)
-		if part.is_empty() or result.size()+part.size()-1>64: return {"ok":false,"message":"Kein sanfter Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen.","points":[]}
+		if part.is_empty() or result.size()+part.size()-1>64: return {"ok":false,"message":L.text("Kein sanfter Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen."),"points":[]}
 		result.append_array(part.slice(1))
 	var check: Dictionary=model.preview_piste(result,width)
 	if not check.ok: return {"ok":false,"message":check.message,"points":[]}
-	check.message="Verlauf vorgeschlagen. Höhenprofil und Anschlüsse prüfen; erst Bauen bestätigt den Plan."
+	check.message=L.text("Verlauf vorgeschlagen. Höhenprofil und Anschlüsse prüfen; erst Bauen bestätigt den Plan.")
 	return check

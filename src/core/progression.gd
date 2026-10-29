@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Persistent career: research choices, contracts, upgrades and winter ratings.
 
 const Catalog = preload("res://src/core/catalog.gd")
@@ -28,10 +29,20 @@ const CONTRACTS := {
 }
 
 static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary:
-	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison."}
+	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
 
 static func has(model: RefCounted, id: String) -> bool:
 	return model.campaign.get("research", []).has(id)
+
+static func set_notice(state: Dictionary, key: String, arguments: Array = []) -> void:
+	state.notice = key % arguments if not arguments.is_empty() else key
+	state.notice_key = key
+	state.notice_args = arguments.duplicate()
+
+static func notice_text(state: Dictionary) -> String:
+	if state.has("notice_key"):
+		return L.format_message(state.notice_key,state.notice_args) if not state.notice_args.is_empty() else L.text(state.notice_key)
+	return L.text("Resort bereit. Forschung, Aufträge und Fortschritt bleiben erhalten.")
 
 static func season_day(model: RefCounted) -> int:
 	return (model.day - 1) % 28 + 1
@@ -41,10 +52,10 @@ static func season_number(model: RefCounted) -> int:
 
 static func event(model: RefCounted) -> Dictionary:
 	match (model.day - 1) % 7:
-		2: return {"name": "Schulgruppen", "demand": 1.12, "beginner_share": 0.72, "description": "Heute kommen besonders viele Anfänger. Blaue Rundwege und Verpflegung sind gefragt."}
-		5: return {"name": "Familienwochenende", "demand": 1.28, "beginner_share": 0.66, "description": "Mehr Familien besuchen den Berg. Komfort und Liftkapazität zahlen sich aus."}
-		6: return {"name": "Sportwochenende", "demand": 1.2, "beginner_share": 0.34, "description": "Heute reisen mehr sportliche Gäste an. Ein abwechslungsreiches Pistennetz lohnt sich."}
-	return {"name": "Regulärer Betriebstag", "demand": 1.0, "beginner_share": 0.53, "description": "Zeit, dein Angebot auszubauen und die nächsten Aufträge vorzubereiten."}
+		2: return {"name": L.text("Schulgruppen"), "demand": 1.12, "beginner_share": 0.72, "description": L.text("Heute kommen besonders viele Anfänger. Blaue Rundwege und Verpflegung sind gefragt.")}
+		5: return {"name": L.text("Familienwochenende"), "demand": 1.28, "beginner_share": 0.66, "description": L.text("Mehr Familien besuchen den Berg. Komfort und Liftkapazität zahlen sich aus.")}
+		6: return {"name": L.text("Sportwochenende"), "demand": 1.2, "beginner_share": 0.34, "description": L.text("Heute reisen mehr sportliche Gäste an. Ein abwechslungsreiches Pistennetz lohnt sich.")}
+	return {"name": L.text("Regulärer Betriebstag"), "demand": 1.0, "beginner_share": 0.53, "description": L.text("Zeit, dein Angebot auszubauen und die nächsten Aufträge vorzubereiten.")}
 
 static func weather_for_day(seed_value: int, day_number: int) -> int:
 	var random := RandomNumberGenerator.new()
@@ -63,24 +74,24 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 		needed = "gondola"
 	elif not is_lift:
 		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality"}.get(kind, "")
-	return "Forschung „%s“ erforderlich." % RESEARCH[needed].name if needed != "" and not has(model, needed) else ""
+	return L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name) if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
 	if not RESEARCH.has(id):
-		return {"ok": false, "message": "Forschungsprojekt nicht gefunden."}
+		return {"ok": false, "message": L.text("Forschungsprojekt nicht gefunden.")}
 	var spec: Dictionary = RESEARCH[id]
 	if has(model, id):
-		return {"ok": false, "message": "Bereits erforscht."}
+		return {"ok": false, "message": L.text("Bereits erforscht.")}
 	if not model.campaign.project.is_empty():
-		return {"ok": false, "message": "Zuerst das laufende Projekt abschließen lassen."}
+		return {"ok": false, "message": L.text("Zuerst das laufende Projekt abschließen lassen.")}
 	for prerequisite in spec.requires:
 		if not has(model, prerequisite):
-			return {"ok": false, "message": "Voraussetzung: %s." % RESEARCH[prerequisite].name}
+			return {"ok": false, "message": L.text("Voraussetzung: %s.") % L.args(RESEARCH[prerequisite].name)}
 	if model.campaign.points < spec.points:
-		return {"ok": false, "message": "Weitere Forschungspunkte aus Betriebstagen und Aufträgen sammeln."}
+		return {"ok": false, "message": L.text("Weitere Forschungspunkte aus Betriebstagen und Aufträgen sammeln.")}
 	if model.money < spec.cost:
-		return {"ok": false, "message": "Das Forschungsbudget reicht noch nicht."}
-	return {"ok": true, "message": "%d Betriebstage · %d FP · %d €" % [spec.days, spec.points, spec.cost]}
+		return {"ok": false, "message": L.text("Das Forschungsbudget reicht noch nicht.")}
+	return {"ok": true, "message": L.text("%d Betriebstage · %d FP · %d €") % L.args([spec.days, spec.points, spec.cost])}
 
 static func start_research(model: RefCounted, id: String) -> Dictionary:
 	var check := research_check(model, id)
@@ -90,23 +101,23 @@ static func start_research(model: RefCounted, id: String) -> Dictionary:
 	model._spend(spec.cost)
 	model.campaign.points -= spec.points
 	model.campaign.project = {"id": id, "start_day": model.day, "due_day": model.day + spec.days}
-	model.campaign.notice = "%s gestartet. Fertig an Tag %d." % [spec.name, model.day + spec.days]
-	return {"ok": true, "message": model.campaign.notice}
+	set_notice(model.campaign,"%s gestartet. Fertig an Tag %d.",[spec.name,model.day+spec.days])
+	return {"ok":true,"message":notice_text(model.campaign)}
 
 static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	var item: Dictionary = model.asset(id)
 	if item.is_empty():
-		return {"ok": false, "message": "Anlage nicht gefunden."}
+		return {"ok": false, "message": L.text("Anlage nicht gefunden.")}
 	if item.has("radius"):
-		return {"ok": false, "message": "Mit einer weiteren Gehfläche vergrößern."}
+		return {"ok": false, "message": L.text("Mit einer weiteren Gehfläche vergrößern.")}
 	var level: int = item.get("level", 1)
 	if level >= 3:
-		return {"ok": false, "message": "Maximale Ausbaustufe erreicht."}
+		return {"ok": false, "message": L.text("Maximale Ausbaustufe erreicht.")}
 	var needed := "mastercraft" if level == 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
 	if model.campaign.get("mode", "free") != "free" and not has(model, needed):
-		return {"ok": false, "message": "Forschung „%s“ erforderlich." % RESEARCH[needed].name}
+		return {"ok": false, "message": L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name)}
 	var cost := roundi(item.cost * (0.45 if level == 1 else 0.8))
-	return {"ok": model.money >= cost, "message": "Stufe %d · %d €" % [level + 1, cost], "cost": cost}
+	return {"ok": model.money >= cost, "message": L.text("Stufe %d · %d €") % L.args([level + 1, cost]), "cost": cost}
 
 static func upgrade(model: RefCounted, id: int) -> Dictionary:
 	var check := upgrade_check(model, id)
@@ -121,7 +132,7 @@ static func upgrade(model: RefCounted, id: int) -> Dictionary:
 	model.campaign.xp += 120
 	model._invalidate()
 	model._reroute_guests()
-	return {"ok": true, "message": "%s auf Stufe %d ausgebaut." % [item.name, item.level]}
+	return {"ok": true, "message": L.text("%s auf Stufe %d ausgebaut.") % L.args([item.name, item.level])}
 
 static func on_admission(model: RefCounted, ability: int, revenue: float) -> void:
 	model.campaign.xp += 2
@@ -153,7 +164,7 @@ static func begin_day(model: RefCounted) -> void:
 		if not state.research.has(id):
 			state.research.append(id)
 		state.project = {}
-		state.notice = "%s abgeschlossen." % RESEARCH[id].name
+		set_notice(state,"%s abgeschlossen.",[RESEARCH[id].name])
 	state.accepted_today = []
 	var random := RandomNumberGenerator.new()
 	random.seed = model.rng.seed ^ (model.day * 65537)
@@ -172,12 +183,12 @@ static func begin_day(model: RefCounted) -> void:
 static func accept_contract(model: RefCounted, id: String) -> Dictionary:
 	var state: Dictionary = model.campaign
 	if state.accepted_today.has(id) or state.accepted_today.size() >= 2:
-		return {"ok": false, "message": "Pro Tag sind zwei neue Aufträge möglich."}
+		return {"ok": false, "message": L.text("Pro Tag sind zwei neue Aufträge möglich.")}
 	var running := 0
 	for contract in state.contracts:
 		running += int(contract.status in ["active", "ready"])
 	if running >= 3:
-		return {"ok": false, "message": "Zuerst einen deiner drei laufenden Aufträge abschließen."}
+		return {"ok": false, "message": L.text("Zuerst einen deiner drei laufenden Aufträge abschließen.")}
 	for offer in state.offers:
 		if offer.id == id:
 			var contract: Dictionary = offer.duplicate(true)
@@ -192,8 +203,8 @@ static func accept_contract(model: RefCounted, id: String) -> Dictionary:
 						break
 			state.accepted_today.append(id)
 			refresh(model)
-			return {"ok": true, "message": "Auftrag angenommen: %s." % CONTRACTS[offer.kind].name}
-	return {"ok": false, "message": "Dieses Angebot ist nicht mehr verfügbar."}
+			return {"ok": true, "message": L.text("Auftrag angenommen: %s.") % L.args(CONTRACTS[offer.kind].name)}
+	return {"ok": false, "message": L.text("Dieses Angebot ist nicht mehr verfügbar.")}
 
 static func claim_contract(model: RefCounted, id: String) -> Dictionary:
 	refresh(model)
@@ -205,8 +216,8 @@ static func claim_contract(model: RefCounted, id: String) -> Dictionary:
 			model.campaign.xp += 400
 			pay_reward(model, contract.reward)
 			refresh(model)
-			return {"ok": true, "message": "%d € und %d Forschungspunkte erhalten." % [contract.reward, contract.points]}
-	return {"ok": false, "message": "Die Belohnung ist noch nicht verfügbar oder bereits abgeholt."}
+			return {"ok": true, "message": L.text("%d € und %d Forschungspunkte erhalten.") % L.args([contract.reward, contract.points])}
+	return {"ok": false, "message": L.text("Die Belohnung ist noch nicht verfügbar oder bereits abgeholt.")}
 
 static func refresh(model: RefCounted) -> void:
 	var state: Dictionary = model.campaign
@@ -225,7 +236,7 @@ static func refresh(model: RefCounted) -> void:
 		contract.progress = maxf(0, counter(model, contract.kind) - contract.baseline)
 		if contract.progress >= contract.target:
 			contract.status = "ready"
-			state.notice = "Auftrag erfüllt: %s. Belohnung im Resort-Büro abholen." % CONTRACTS[contract.kind].name
+			set_notice(state,"Auftrag erfüllt: %s. Belohnung im Resort-Büro abholen.",[CONTRACTS[contract.kind].name])
 	var colors: Array = []
 	var reachable: Array = model.reachable_piste_ids()
 	for id in reachable:
@@ -245,15 +256,15 @@ static func refresh(model: RefCounted) -> void:
 		state.rank += 1
 		state.points += 3
 		pay_reward(model, state.rank * 7500)
-		state.notice = "Resort-Stern %d erreicht: %s." % [state.rank, RANK_NAMES[state.rank - 1]]
+		set_notice(state,"Resort-Stern %d erreicht: %s.",[state.rank,RANK_NAMES[state.rank-1]])
 
 static func next_goal(model: RefCounted) -> String:
 	match int(model.campaign.rank):
-		1: return "800 Erfahrung und zwei erreichbare Abfahrten für Stern 2."
-		2: return "2.400 Erfahrung, zwei Pistenfarben, zwei Lifte und drei Komfortangebote für Stern 3."
-		3: return "6.000 Erfahrung, alle Pistenfarben und drei abgeschlossene Forschungen für Stern 4."
-		4: return "12.000 Erfahrung, 75 % Ruf, ein Hotel, sechs erreichbare Abfahrten, drei Lifte und sechs Aufträge für Stern 5."
-	return "Verbessere deine Winterwertung, baue Anlagen aus und meistere neue Aufträge."
+		1: return L.text("800 Erfahrung und zwei erreichbare Abfahrten für Stern 2.")
+		2: return L.text("2.400 Erfahrung, zwei Pistenfarben, zwei Lifte und drei Komfortangebote für Stern 3.")
+		3: return L.text("6.000 Erfahrung, alle Pistenfarben und drei abgeschlossene Forschungen für Stern 4.")
+		4: return L.text("12.000 Erfahrung, 75 % Ruf, ein Hotel, sechs erreichbare Abfahrten, drei Lifte und sechs Aufträge für Stern 5.")
+	return L.text("Verbessere deine Winterwertung, baue Anlagen aus und meistere neue Aufträge.")
 
 static func pay_reward(model: RefCounted, amount: float) -> void:
 	model.money += amount
@@ -284,7 +295,7 @@ static func finish_day(model: RefCounted) -> void:
 		var prize: int = state.rank * 15000 + mini(state.completed, 20) * 1000
 		pay_reward(model, prize)
 		state.points += state.rank * 2
-		state.notice = "Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten." % [season_number(model), prize]
+		set_notice(state,"Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten.",[season_number(model),prize])
 	var income: float = model.report.tickets + model.report.services
 	var investments: float = model.report.get("investments", 0.0)
 	state.profit += income - model.report.costs

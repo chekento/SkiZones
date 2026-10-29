@@ -1,4 +1,5 @@
 extends Control
+const L = preload("res://src/core/i18n.gd")
 ## In-scene modal: no platform Window/subwindow, including on Android.
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 signal confirmed
@@ -18,8 +19,8 @@ func setup(owner_hud: CanvasLayer) -> void:
 	add_child(panel)
 	panel.add_theme_stylebox_override("panel", hud._style(Color("fffaf2"), 18, 22, hud.TEAL))
 	var box: VBoxContainer = hud._vbox(panel, 12)
-	hud._label(box, "FEIERABEND AM BERG", 13, hud.TEAL)
-	hud._label(box, "Dein Tag im Schnee", 26, hud.ACCENT)
+	hud._label(box, L.text("FEIERABEND AM BERG"), 13, hud.TEAL)
+	hud._label(box, L.text("Dein Tag im Schnee"), 26, hud.ACCENT)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(scroll)
 	body.bbcode_enabled = true
@@ -30,12 +31,12 @@ func setup(owner_hud: CanvasLayer) -> void:
 	body.add_theme_color_override("default_color", hud.INK)
 	body.add_theme_font_size_override("normal_font_size", 18)
 	scroll.add_child(body)
-	next_button = hud._button(box, "Nächsten Tag starten", func():
+	next_button = hud._button(box, L.text("Nächsten Tag starten"), func():
 		hide()
 		confirmed.emit()
 	, true)
 	next_button.focus_mode = Control.FOCUS_ALL
-	hud._button(box, "Noch am Berg bleiben", hide)
+	hud._button(box, L.text("Noch am Berg bleiben"), hide)
 	resized.connect(_layout)
 	hide()
 

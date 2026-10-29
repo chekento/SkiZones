@@ -1,4 +1,5 @@
 extends PanelContainer
+const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Minimap = preload("res://src/ui/minimap.gd")
@@ -20,10 +21,10 @@ func setup(interface: CanvasLayer) -> void:
 	body = hud._vbox(self, 10)
 	var header := HBoxContainer.new()
 	body.add_child(header)
-	hud._label(header, "DEIN BERGPASS", 27, hud.ACCENT)
+	hud._label(header, L.text("DEIN BERGPASS"), 27, hud.ACCENT)
 	hud._spacer(header, false)
-	hud._button(header, "Zurück", hide)
-	hud._label(body, "Vier Gebiete. Vier eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert.", 17, hud.MUTED, true)
+	hud._button(header, L.text("Zurück"), hide)
+	hud._label(body, L.text("Vier Gebiete. Vier eigene Resorts. Dein Fortschritt öffnet neue Täler; jedes Resort bleibt separat gespeichert."), 17, hud.MUTED, true)
 	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -42,7 +43,7 @@ func setup(interface: CanvasLayer) -> void:
 		panel.add_theme_stylebox_override("panel", hud._style(Color("edf3ec"), 12, 15))
 		grid.add_child(panel)
 		var card: VBoxContainer = hud._vbox(panel, 6)
-		hud._label(card, "%s · %.1f km²" % [spec.name, Maps.area(id)], 22, Color(spec.color), true)
+		hud._label(card, L.text("%s · %.1f km²") % L.args([spec.name, Maps.area(id)]), 22, Color(spec.color), true)
 		hud._label(card, spec.subtitle, 15, hud.TEAL, true)
 		var preview := HBoxContainer.new()
 		preview.add_theme_constant_override("separation", 14)
@@ -66,10 +67,10 @@ func open() -> void:
 		game.passport.record(game.model)
 	for card in _cards:
 		var unlocked: bool = game.passport.unlocked(card.id)
-		card.requirement.text = "Gebiet freigeschaltet" if unlocked else game.passport.requirement(card.id)
+		card.requirement.text = L.text("Gebiet freigeschaltet") if unlocked else game.passport.requirement(card.id)
 		var saved := FileAccess.file_exists(Saves.path_for_map(card.id))
-		card.enter.text = "Zurück zu deinem Resort" if game.has_game and game.model.map_id == card.id else ("Resort fortsetzen" if saved else "Resort eröffnen")
+		card.enter.text = L.text("Zurück zu deinem Resort") if game.has_game and game.model.map_id == card.id else (L.text("Resort fortsetzen") if saved else L.text("Resort eröffnen"))
 		if not unlocked:
-			card.enter.text = "Noch nicht freigeschaltet"
+			card.enter.text = L.text("Noch nicht freigeschaltet")
 		card.enter.disabled = not unlocked
 	show()

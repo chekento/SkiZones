@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Specific energy in J/kg: mass cancels. Uphill skiing cannot create free energy.
 const GRAVITY := 9.81
 const FRICTION := 0.025
@@ -51,7 +52,7 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 			var grade := maxf(0,rise/horizontal)
 			if grade > MAX_HIKE_GRADE:
 				ok = false
-				reason = "Gegenanstieg zu steil zum Stapfen (%.0f %%). Mit weiteren Wegpunkten queren." % (grade*100)
+				reason = L.text("Gegenanstieg zu steil zum Stapfen (%.0f %%). Mit weiteren Wegpunkten queren.") % L.args((grade*100))
 			var foot_speed := clampf(1.0/(1+3.8*grade),0.3,1.0)*(0.94+ability*0.06)
 			seconds += foot_distance/foot_speed
 			walked += foot_distance
