@@ -1,10 +1,12 @@
-# Prüfung von SkiZones 0.12.0
+# Prüfung von SkiZones 0.13.0
 
 Stand: 29.10.2026 · Godot 4.5.2 (`6ce3de25a`).
 
-Der aktuelle Prüfumfang beträgt **748 Modell- und Grafikprüfungen**, dazu 31 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
+Der aktuelle Prüfumfang beträgt **816 Modell- und Grafikprüfungen**, dazu 31 Activity-/Darstellungsfälle in Android-11- und Android-16-Emulatoren. Veröffentlichung erfolgt erst nach erfolgreichen Modell-, Grafik- und Android-Läufen. Ein physisches Smartphone wurde nicht geprüft.
 
-Der [Veröffentlichungslauf für 0.12.0](https://github.com/chekento/SkiZones/actions/runs/40913453185) prüft den APK-Quellcode-Commit `e17ce99d5538a1d1100ccb3a251c21a5826ae1dd`. Alle **748 Modell-/Grafikprüfungen und 31 Android-Fälle** sind im ersten Veröffentlichungslauf erfolgreich abgeschlossen. Darunter sind vier echte Android-Bildschirm-Taps je Plattform, die Display-Skalierung und Griffe bei allen vier Kameraperspektiven prüfen.
+Der [Veröffentlichungslauf für 0.13.0](https://github.com/chekento/SkiZones/actions/runs/40932845746) prüft den APK-Quellcode-Commit `5800b9295cdf4ef6102c09aa34ef5cf82d833fcb`. Alle **816 Modell-/Grafikprüfungen und 31 Android-Fälle** sind erfolgreich abgeschlossen. Darunter sind 50 zusätzliche Modellfälle und 14 neue Grafikfälle für die acht Startpakete, die wirkliche Dorfpromenade und ihre Eingangssteuerung. Die Kartensuite prüft vier zusätzliche Regionen. Je vier echte Android-Bildschirm-Taps prüfen weiterhin Display-Skalierung und Griffe bei allen vier Kameraperspektiven.
+
+Vorheriger Stand: [0.12.0](https://github.com/chekento/SkiZones/actions/runs/40913453185), APK-Quellcode `e17ce99d5538a1d1100ccb3a251c21a5826ae1dd`: 748 Modell-/Grafikprüfungen und 31 Android-Fälle.
 
 Vorheriger freigegebener Stand: der [Veröffentlichungslauf für 0.11.0](https://github.com/chekento/SkiZones/actions/runs/40873205388) prüft den APK-Quellcode-Commit `500190986df4a021bfbf10ed4136fe675ba42677`. Alle **697 Modell-/Grafikprüfungen und 23 Android-Fälle** sind erfolgreich abgeschlossen (Versuch 2). Unter Android 11 wurde nach acht erfolgreichen App-Wechseln der erste Lauf durch einen Emulator-/ADB-Timeout beim Bildschirmwechsel beendet. Der unveränderte Export bestand den vollständigen Wiederholungslauf; Android 16 bestand bereits im ersten Veröffentlichungslauf alle zwölf Fälle.
 
@@ -13,7 +15,7 @@ Vorheriger freigegebener Stand: der [Veröffentlichungslauf für 0.11.0](https:/
 | Simulation und Speicherstände | 55 automatisierte Prüfungen |
 | Karriere und Langzeitbetrieb | 48 automatisierte Prüfungen; Forschung, Aufträge, Ausbau, Migration und zwei vollständige Winter |
 | Szene, UI, Touch und Liftanimation | 54 automatisierte Prüfungen mit aktiver Compatibility-Grafikausgabe |
-| Schnee und Gebiete | 37 Prüfungen für persönliche Fahrten, Spuren, lokale Verformung, Präparierung, Karten und Bergpass |
+| Schnee und Gebiete | 41 Prüfungen für persönliche Fahrten, Spuren, lokale Verformung, Präparierung, Karten und Bergpass |
 | Automatische Pistenplanung | 20 Prüfungen für direkte und querende Routen, steilste Abschnitte, Nummerierung, Migration und beschädigte Daten |
 | Verzweigungen und Teilstrecken | 30 Prüfungen; Können, Andocken, zusammenhängende Abschnitte, lokale Teilspuren, Speicherfortsetzung auf dem echten Sonnenhang und ein Netz mit 2.304 Wegpunkten |
 | Kamera, Gelände und Punktbearbeitung | 21 Prüfungen mit tatsächlicher Grafikausgabe; Touch-/Maus-Drag, Abbruch, Löschen, vier Perspektiven, Geländepicking, Höhenlinien, Richtung der gerenderten Pfeile und sichtbare Bauaktionen |
@@ -31,12 +33,14 @@ Vorheriger freigegebener Stand: der [Veröffentlichungslauf für 0.11.0](https:/
 | Drei Wintersportarten | 16 Prüfungen: echter gemischter Gästebetrieb, Ausrüstung, persönliche Bewegung, gespeicherte Spuren, deterministische Fortsetzung, beschädigte Daten, kanonische Gastkennungen und tatsächliche 0.9-Migration |
 | Drehgeste und Wiederaufnahme | 22 Prüfungen mit Grafikausgabe: kombinierte Gesten, Geländeanker, drei Ausrüstungen und Spuren, Liftplätze, Rückkehr nach deaktivierter Darstellung, sichtbares Bild, Hintergrundzeit, exakte Kamera und Resortfortsetzung nach Prozessneustart sowie beschädigter Sitzungspunkt |
 | Kleine Winterwelt | 4 Prüfungen der geschlossenen, korrekt sichtbaren Modellgeometrie, einfachen Fernbäume, persönlichen Stofffarben und festen Instanzgrenzen; echte Resort-, Dorf- und Menüaufnahmen |
-| Planung und Bedürfnisse | 40 neue Prüfungen: sanftere tatsächliche Route, erhaltene Wegpunkte, reale Anschlussprüfung, wirkliche Restaurantbesuche und Gebühren, gezielte Erholung, wiederholte Einkehr, Kapazität, geschlossene und abgetrennte Angebote, Format-11-Rundlauf und tatsächliche 0.10-Migration |
-| Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 636 Einträge und Formatplatzhalter |
+| Planung und Bedürfnisse | 40 neue Prüfungen: sanftere tatsächliche Route, erhaltene Wegpunkte, reale Anschlussprüfung, wirkliche Restaurantbesuche und Gebühren, gezielte Erholung, wiederholte Einkehr, Kapazität, geschlossene und abgetrennte Angebote, Format-13-Rundlauf und tatsächliche 0.10-Migration |
+| Deutsch und Englisch | 19 Prüfungen der echten Oberfläche: Systemauswahl, alle Menüs, Hilfe, Gebiete, aktive Forschung, Gastprofile, Bericht, Sprachwechsel mit unverändertem Resort und Bauplan, 3D-Beschriftungen, eigene Namen und kleine Displays; zusätzlicher Katalogtest für 675 Einträge und Formatplatzhalter |
 | Breite, Korridore und Gelände | 25 neue Modellprüfungen: 14–36 m Bauauswahl, 44 m nach Ausbau, wirkliche Preise und gespeicherte Breite, seitliche Einschnitte/Auffüllungen bis 1,2 m, geschützte Mittellinien und Anschlüsse, volle Gebäudekorridore, Beschneiung, sichere Kurven, beschädigte Daten und tatsächliche 0.11-Migration |
 | Tatsächliche Oberflächen-Klicks | 26 neue Prüfungen mit Grafikausgabe: vier Kameramodi × fünf Drehwinkel × drei Zoomstufen, reale Dreiecke und verformter Schnee, Pixelgrenze fürs Andocken, Griffe mit Abstand, Bau-/Umbau-Breitensteuerung einschließlich Ausbau, echte Möbelgeometrie, örtliche Verfeinerung und Sprachwechsel |
+| Acht Resortwelten | 50 neue Modellprüfungen: unterschiedliche Landschaften und Startlifte, kompletter Anfänger-Rundweg in jedem Gebiet, finanzierte Starts, Promenadenknoten, Stichwege, Zweige mitten am Weg, Eingangsrichtung, Ausrüstungsreibung, Rauigkeit, Abstand und deterministische Speicherfortsetzung sowie tatsächliche 0.12-Migration |
+| Gerenderte Resortwelten | 14 neue Fälle mit echten Bildern: acht vollständige Kartenwechsel, gültige Eingangsrichtung, tatsächlicher Drehknopf und bestätigte Orientierung, begrenzte Dorfdekoration, alle Möbelvertices außerhalb der Pisten und englischer Acht-Resort-Bergpass |
 | Android-App-Wechsel und Display-Taps | 15 Fälle unter Android 11 (API 30) und 16 unter Android 16 (API 36): Start, acht Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart; zusätzlich System-Overlay unter Android 16. Je vier echte Android-Bildschirm-Taps prüfen die Koordinatenumrechnung und Wegpunktgriffe bei allen Kameraperspektiven. Beide Jobs müssen vor der Veröffentlichung erfolgreich sein. |
-| CPU-Belastung | Aktueller 0.12-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
+| CPU-Belastung | Aktueller 0.13-Prüflauf mit 80 Gästen/1 Lift und 360 Gästen/24 Liften bei 1× und 4×; zusätzlich historischer Vergleich mit unverändertem 0.6-Quellcode. Methode, Rohdaten und Grenzen in [PERFORMANCE.md](PERFORMANCE.md) |
 | Langzeitlauf | 56 vollständige Betriebstage mit echten Gästen, Abfahrten, erledigten Aufträgen und allen neun Forschungen |
 | Start | Projektimport und Szenen-Starttest |
 | Darstellung | Stationsplatz mit Warteschlange, Tellerlift, Vierer-/Achtersessel und Gondeln mit tatsächlichen Mitfahrenden sowie blaue Route mit roten/schwarzen Abkürzungen, verschiebbare Planungspunkte, Höhenprofil, Kameramenü, Höhenlinien/Gefällepfeile und runde nummerierte Schilder im tatsächlichen Spiel gerendert und visuell geprüft |
@@ -46,9 +50,9 @@ Vorheriger freigegebener Stand: der [Veröffentlichungslauf für 0.11.0](https:/
 
 GitHub Actions führt Tests und Export vor dem Veröffentlichen aus. Ein fehlgeschlagener Build wird nicht als neuer APK-Download veröffentlicht. Bereits bestehende Releases werden bei wiederholten Builds erhalten.
 
-Die insgesamt 748 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
+Die insgesamt 816 Prüfungen bestätigen die getesteten Abläufe; sie ersetzen keine abschließende Wirtschafts- oder Geräteprüfung. Der Langzeitlauf plant Forschung, Erweiterungen und Aufträge über reguläre Simulationsaktionen. Er prüft auch Speicherfortsetzungen in beiden Wintern und die rollierende Finanzhistorie.
 
-Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.12.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
+Dateigröße, Prüfsumme und Quellcode-Commit der veröffentlichten APK stehen im [Release-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.13.0/manifest.json). Der [Prüfstand von 0.1.0](validation/0.1.0.md) bleibt separat dokumentiert.
 
 Die Szenentests brauchen eine echte Grafikausgabe; unter Linux kann `xvfb-run -a godot --audio-driver Dummy --script tests/scene.gd` verwendet werden. Ein Dummy-Renderer speichert keine auslesbaren MultiMesh-Transformationen und ersetzt diese Prüfung nicht. Der Test misst am tatsächlichen Liftfahrzeug wenige Meter Weg pro Normaltempo-Sekunde und Stillstand bei pausierter Uhr.
 
@@ -84,3 +88,5 @@ Der Grafikumbau wird mit `tests/cute_scene.gd` zusätzlich durch echte Compatibi
 Die native Android-Prüfung umfasst acht Home-Wechsel und vier echte Bildschirm-Taps (15 sichtbare Fälle unter Android 11 und 16 unter Android 16 einschließlich eines tatsächlichen System-Overlay-Wechsels). Sie prüft zusätzlich die Ausführung des Java-Surface-Patches im Log, fortschreitende Bilder und Spielzeit sowie die unveränderte Prozessidentität bei normalen App-Wechseln. Der Prozessneustart wird separat absichtlich ausgelöst.
 
 Die neuen Prüfungen laufen mit `tests/piste_surfaces.gd` und `tests/piste_surfaces_scene.gd`. Die grafische Prüfung projiziert tatsächliche Gelände- und Schneegitter und setzt reale Mausereignisse; der Android-Lauf erzeugt zusätzlich native Bildschirm-Taps per ADB. Die Modellmigration nutzt einen unveränderten 0.11-Quellcode-Spielstand mit zwölf synthetischen Gästen. Die Geländeangleichung ist seitlich begrenzt und ändert nicht das Höhenprofil der Mittellinie.
+
+Version 0.13 trennt die neue Gelände-Generation von vorhandenen Resorts. Echte Spielstände bis 0.12 behalten ihre Höhenfunktion und beginnen nicht plötzlich in einem anderen Tal. Die vier bisherigen Gebietskennungen und die zugehörigen Freischaltungen bleiben gültig. Die zusätzliche Fortsetzungsprüfung toleriert ausschließlich numerische JSON-Rundungsabweichungen unter 1e-7; Identitäten, Routen, Geld, Zustände und Verlauf bleiben gleich.

@@ -1,6 +1,21 @@
-# Performance in SkiZones 0.12.0
+# Performance in SkiZones 0.13.0
 
-## Aktueller Prüflauf 0.12.0
+## Aktueller Prüflauf 0.13.0
+
+Der [Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/40932845746) prüft den APK-Quellcode `5800b9295cdf4ef6102c09aa34ef5cf82d833fcb` mit Godot 4.5.2. Die Grafik enthält die neue Promenade, Dorfdetails und versetzte Fußgänger. Alle erzeugten Gäste und Lifte bleiben erhalten.
+
+| Gäste / Lifte | Tempo | CPU-Median in ms | P95 in ms | Maximum in ms |
+|---|---|---:|---:|---:|
+| 80 / 1 | 1× | 2.44 | 2.84 | 22.13 |
+| 80 / 1 | 4× | 4.25 | 4.72 | 7.53 |
+| 360 / 24 | 1× | 15.53 | 17.07 | 17.80 |
+| 360 / 24 | 4× | 25.39 | 27.05 | 29.64 |
+
+Das Messskript erfasst ausschließlich das CPU-Darstellungsupdate im Headless-Betrieb: 24 Aufwärm- und 120 Messbilder je Tempo. Die vollständige Simulation mit Bedürfnissen, Verkehrsentscheidungen und Wegsuche wird dabei nicht pro Messbild ausgeführt. Die Werte sind weder komplette Framezeiten noch Android-Bildraten oder GPU-Messungen. Unterschiedliche Runner machen diese Werte nicht zu einem direkten Geschwindigkeitsvergleich mit 0.12. Eine Bildratenzusage für physische Telefone lässt sich daraus nicht ableiten.
+
+[Rohdaten 0.13](benchmarks/0.13.0-ci.json) · [Messskript](../tools/performance_benchmark.gd)
+
+## Vorheriger Prüflauf 0.12.0
 
 Der [vollständige Veröffentlichungslauf vom 29.10.2026](https://github.com/chekento/SkiZones/actions/runs/40913453185) umfasst präzise Oberflächen-Klicks, wählbare Pistenbreiten, geglättete Kurven und seitliche Geländeangleichung sowie die bestehenden Gäste-, Sprach- und Android-Wiederaufnahmesysteme. Der Quellcode-Commit der veröffentlichten APK ist `e17ce99d5538a1d1100ccb3a251c21a5826ae1dd`. Gemessen wurde mit Godot 4.5.2. In den künstlichen Lastresorts bleiben alle Gäste und Lifte erhalten.
 

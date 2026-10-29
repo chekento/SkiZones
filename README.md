@@ -107,7 +107,7 @@ Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release.
 - Breiter nutzbarer Geländehelfer: sanfte Querungen zuerst, sportlichere Linien bei Bedarf.
 - Alte Spielstände behalten ihre ursprüngliche Landschaft; neue Resortstarts verwenden Gelände-Generation 2.
 
-[Alle Änderungen, Speicherkompatibilität und Einordnung der Physik](docs/releases/0.13.0.md).
+[Alle Änderungen, Speicherkompatibilität und Einordnung der Physik](docs/releases/0.13.0.md). **816 Modell-/Grafikprüfungen und 31 Android-Emulatorfälle bestanden.** [Prüfnachweis](docs/VALIDATION.md).
 
 ## Neu in 0.12.0: Präzise Wegpunkte und schönere Pisten
 
