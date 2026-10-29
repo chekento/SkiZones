@@ -1,19 +1,19 @@
-# Performance in SkiZones 0.11.0
+# Performance in SkiZones 0.12.0
 
-## Aktueller Prüflauf 0.11.0
+## Aktueller Prüflauf 0.12.0
 
-Der [vollständige Veröffentlichungslauf vom 29.10.2026](https://github.com/chekento/SkiZones/actions/runs/40873205388) umfasst die neue Routenplanung, persönliche Gästebedürfnisse, die vollständige Deutsch-/Englisch-Oberfläche und die bestehende Wintergrafik mit Android-Wiederaufnahme. Der Quellcode-Commit der veröffentlichten APK ist `500190986df4a021bfbf10ed4136fe675ba42677`. Gemessen wurde mit Godot 4.5.2. In den künstlichen Lastresorts bleiben alle Gäste und Lifte erhalten.
+Der [vollständige Veröffentlichungslauf vom 29.10.2026](https://github.com/chekento/SkiZones/actions/runs/40913453185) umfasst präzise Oberflächen-Klicks, wählbare Pistenbreiten, geglättete Kurven und seitliche Geländeangleichung sowie die bestehenden Gäste-, Sprach- und Android-Wiederaufnahmesysteme. Der Quellcode-Commit der veröffentlichten APK ist `e17ce99d5538a1d1100ccb3a251c21a5826ae1dd`. Gemessen wurde mit Godot 4.5.2. In den künstlichen Lastresorts bleiben alle Gäste und Lifte erhalten.
 
 | Gäste / Lifte | Tempo | CPU-Median in ms | P95 in ms | Maximum in ms |
 |---|---|---:|---:|---:|
-| 80 / 1 | 1× | 1.32 | 1.63 | 15.13 |
-| 80 / 1 | 4× | 2.25 | 2.46 | 2.49 |
-| 360 / 24 | 1× | 8.86 | 9.34 | 10.65 |
-| 360 / 24 | 4× | 13.51 | 14.52 | 15.46 |
+| 80 / 1 | 1× | 2.07 | 2.69 | 22.03 |
+| 80 / 1 | 4× | 3.83 | 4.24 | 4.29 |
+| 360 / 24 | 1× | 13.28 | 14.54 | 15.42 |
+| 360 / 24 | 4× | 22.35 | 24.29 | 25.43 |
 
 Diese Werte messen ausschließlich das CPU-Darstellungsupdate im Headless-Test, mit 24 Aufwärm- und 120 Messbildern je Tempo. Sie messen weder die gesamte Bildzeit noch GPU-Leistung oder Android-Bildraten. Unterschiedliche GitHub-Runner können deutlich abweichende Zeiten liefern; der historische Vergleich unten wurde jeweils nacheinander auf derselben Umgebung durchgeführt. Die aktuellen Runner-Zeiten sind deshalb kein neuer direkter Geschwindigkeitsvergleich mit dieser älteren Messreihe.
 
-[Rohdaten des 0.11-Prüflaufs](benchmarks/0.11.0-ci.json) · [Vorheriger 0.10-Prüflauf](benchmarks/0.10.0-ci.json) · [Messskript](../tools/performance_benchmark.gd)
+[Rohdaten des 0.12-Prüflaufs](benchmarks/0.12.0-ci.json) · [Vorheriger 0.11-Prüflauf](benchmarks/0.11.0-ci.json) · [Messskript](../tools/performance_benchmark.gd)
 
 ## Historischer Umbau von 0.6 auf 0.7
 
