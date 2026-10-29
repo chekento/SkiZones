@@ -57,6 +57,8 @@ jobs:
         run: |
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_planning.gd
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/junctions.gd
+      - name: Scenario lab queue diagnostics and real-resort import gates
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/scenario_analysis.gd'
       - name: Lift seats, pedestrian areas and migration tests
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd'
       - name: Curve geometry, pedestrian safety and weekly balance
