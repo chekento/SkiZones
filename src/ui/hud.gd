@@ -22,6 +22,7 @@ const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const LiftStaff = preload("res://src/ui/lift_staff.gd")
+const CareerSlots = preload("res://src/ui/career_slots.gd")
 const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
@@ -97,6 +98,7 @@ var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
 var lift_staff := LiftStaff.new()
+var career_slots := CareerSlots.new()
 var audience := Audience.new()
 var lift_staff_button: Button
 var lift_staff_status: Label
@@ -158,6 +160,8 @@ func setup(controller: Node) -> void:
 	lift_staff.setup(self)
 	root.add_child(audience)
 	audience.setup(self)
+	root.add_child(career_slots)
+	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
 	root.add_child(asset_editor)
@@ -560,8 +564,8 @@ func _build_menu() -> void:
 	_spacer(box)
 	_label(box, L.text("HAUPTSPIEL"), 17, TEAL)
 	continue_button = _button(box, L.text("Fortsetzen"), game.continue_main_game, true)
-	_button(box, L.text("Karriere · Gebiete entdecken"), show_atlas, true)
-	_button(box, L.text("Freier Aufbau · alle Anlagen"), func(): game.start_game(false))
+	_button(box, L.text("Karriere · vier Spielstände"), game.show_career_slots, true)
+	_button(box, L.text("Freier Aufbau · alle Anlagen"), game.start_free_play)
 	_label(box, L.text("EXTRAS"), 13, MUTED)
 	_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
 	_button(box, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open())
@@ -593,6 +597,7 @@ func show_menu() -> void:
 	management.hide()
 	lift_staff.hide()
 	audience.hide()
+	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
 	credits.hide()
@@ -609,7 +614,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):

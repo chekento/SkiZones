@@ -5,6 +5,8 @@ var target_fps := 60
 var snowfall := true
 var camera_smoothing := true
 var language := "system"
+var career_slot := 1
+var free_play := false
 
 func load_from() -> void:
 	var config := ConfigFile.new()
@@ -19,11 +21,17 @@ func load_from() -> void:
 	camera_smoothing = value if value is bool else true
 	value=config.get_value("display","language","system")
 	language=value if value is String and value in ["system","de","en"] else "system"
+	value=config.get_value("play","career_slot",1)
+	career_slot=int(value) if value is int and value>=1 and value<=4 else 1
+	value=config.get_value("play","free_play",false)
+	free_play=value if value is bool else false
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
 	for key in ["quality", "target_fps", "snowfall", "camera_smoothing", "language"]:
 		config.set_value("display", key, get(key))
+	config.set_value("play","career_slot",career_slot)
+	config.set_value("play","free_play",free_play)
 	return config.save(path)
 
 func apply(view: Node3D) -> void:

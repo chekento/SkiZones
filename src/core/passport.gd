@@ -6,6 +6,7 @@ const PATH := "user://skizones_passport.json"
 var data := {"version": 1, "last_map": "sonnenhang", "records": {}}
 
 func record(model: RefCounted) -> void:
+	if model.map_id not in Maps.FANTASY_MAPS: return
 	var previous: Dictionary = data.records.get(model.map_id, {"rank": 1, "guests": 0, "contracts": 0})
 	data.records[model.map_id] = {"rank": maxi(previous.rank, model.campaign.rank), "guests": maxi(previous.guests, model.total_guests), "contracts": maxi(previous.contracts, model.campaign.completed)}
 	data.last_map = model.map_id
