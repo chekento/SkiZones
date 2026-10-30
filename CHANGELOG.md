@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **17 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **18 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.15.0](https://github.com/chekento/SkiZones/releases/tag/v0.15.0)** | 30.10.2026 | Stabile Karte, klare Missionen und direkte Liftteams | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk) | [Details](docs/releases/0.15.0.md) |
 | **[v0.14.3](https://github.com/chekento/SkiZones/releases/tag/v0.14.3)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.3/SkiZones-0.14.3-android-arm64.apk) | [Details](docs/releases/0.14.3.md) |
 | **[v0.14.2](https://github.com/chekento/SkiZones/releases/tag/v0.14.2)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.2/SkiZones-0.14.2-android-arm64.apk) | [Details](docs/releases/0.14.2.md) |
 | **[v0.14.1](https://github.com/chekento/SkiZones/releases/tag/v0.14.1)** | 30.10.2026 | Real Resorts & 24h Operations | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.1/SkiZones-0.14.1-android-arm64.apk) | [Details](docs/releases/0.14.1.md) |
@@ -27,6 +28,46 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams (30.10.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.15.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk)** (31.8 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.15.0/manifest.json) · [Originalnotizen](docs/releases/0.15.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.15.0)
+
+### Kartenansicht und präzise Planung
+
+- Die 3D-Ansicht bleibt bei allen Grafikstufen und bei automatischer Anpassung auf voller Bildschirmgröße. Die automatische Leistungsregelung verändert Schatten, Wald-Detailstufen, Schneeflocken und das Spurenbudget. Sie verändert die Größe der gerenderten Kartenfläche nicht mehr. Damit entfällt die Ursache für den schrittweise nach links oben schrumpfenden Ausschnitt und die davon abweichenden Eingabekoordinaten.
+- Kameraprojektion, Eingabe, Vorschau und nummerierte Punkte verwenden weiterhin dieselben Bildschirmkoordinaten. Die Handy-Sicherheitsränder werden beim Zeichnen genau einmal berücksichtigt. Das Verschieben eines Planungspunkts verändert den Kamerafokus nicht.
+
+### Durchgehende Szenariopisten
+
+- Braunlage, Filzmoos, Kitzbühel und Seiser Alm nutzen für die sichtbaren Pistenflächen die tatsächlichen Dreiecke des gerenderten Geländes. Jeder Schneekorridor wird entlang dieser Dreiecke unterteilt. Eine getrennte, feinere Höhenberechnung kann die Piste dadurch nicht mehr unter die gröbere Landschaft versenken.
+- Überlappende Pisten bleiben in angrenzende Flächen ohne doppelte Schneeschichten zerlegt. Gemeinsame Anschlusshöhen und auslaufende Schneeverformung bleiben erhalten. Die realen OSM-Stützpunkte und Datenquellen werden durch die Darstellungskorrektur nicht verändert.
+- Begehbare Wegbänder folgen ebenfalls der sichtbaren Bodenfläche. Pistenschilder, Skifahrer und Spuren nutzen die dazu passende Geländehöhe. Etwas stärker abgesetzte Schneeränder machen die Abfahrtsflächen erkennbarer.
+
+### Hauptspiel und Missionen
+
+- Im Hauptmenü stehen Fortsetzen, Karriere und freier Aufbau vor den Szenarien. Szenarien sind unter „Extras“ eingeordnet.
+- Eine kompakte Missionsanzeige auf der Karte zeigt Szenarioname, erfüllte Ziele und die nächste offene Mission. Sie bleibt auch beim Bauen und in „Mehr Karte“ erreichbar.
+- Der Resort-Kompass zeigt die vollständige Checkliste des Szenarios. „Missionen“ öffnet unmittelbar die Betriebsseite; dort stehen die Ziele vor der allgemeinen Betriebsübersicht.
+- Ziele nennen die tatsächlich geprüften Mindestwerte für Gäste, Ruf, Ersatzteile, Fahrzeuge und Präparierungen. Der Abschluss bringt einmalig 75.000 € und 30 Forschungspunkte; der laufende Betrieb geht weiter.
+
+### Personal direkt am Lift
+
+- Das Kontextmenü eines ausgewählten Lifts zeigt die tatsächliche Besetzung vor den übrigen Statistiken. Die Schaltfläche „Personal & Liftbesetzung“ öffnet unmittelbar die Stationsübersicht.
+- Tal-, Berg- und gemeinsame Mittelstationen haben eigene Karten. Sichtbar sind benötigte Kräfte, tatsächlich im Dienst befindliche Personen, eingeplante Mitarbeiter, Namen und Schichten. Eine gemeinsame Mittelstation wird nicht doppelt besetzt.
+- Fehlende Mitarbeiter lassen sich pro Station mit angezeigten Einstellungskosten einstellen. Ein vollständig besetzter Plan deaktiviert die Einstellung; wiederholtes Betätigen erzeugt keine zusätzlichen Mitarbeiter oder Kosten.
+- Vorhandene Reservekräfte können kostenlos der gewählten Station zugeteilt werden. Schichten können direkt neben den Mitarbeitern geändert werden. Außerhalb der Schicht, während einer Pause oder bei Abwesenheit zählt die Person nicht zur tatsächlichen Dienstbesetzung.
+- Die Stationsübersicht pausiert die Simulation und blockiert Karteneingaben. „Zurück zum Lift“, Escape und die Android-Zurück-Taste schließen sie. Die gesamte Personalverwaltung ist von dort direkt erreichbar.
+- Im Resort-Büro ist die Einstellung in Aufgabe, Einsatzort und Arbeitszeit gegliedert. Der Personalbestand lässt sich nach Aufgabe und Einsatzort filtern und in Seiten mit jeweils zwölf Personen bearbeiten.
+- Alle neuen Bedienelemente und Missionstexte sind auf Deutsch und Englisch vorhanden.
+
+### Prüfung und Android-Paket
+
+Die Build-Pipeline prüft zusätzlich die stabile Rendergröße bei Überlastung und Erholung, die Punktpositionen mit Handy-Sicherheitsrand, Schneeflächen und Mittellinien aller vier realen Karten sowie die tatsächlichen Stationsschaltflächen, Kosten und Mittelstationen. Bestehende Modell-, Grafik-, Sprach- und Android-Lebenszyklusprüfungen bleiben Voraussetzung der Veröffentlichung.
+
+Android: ARM64, Versionscode 19. Spielstände bleiben im Format 14. Die versionsgebundene APK und ihre Prüfsumme werden erst nach erfolgreicher Pipeline als neues Release bereitgestellt; ältere APK-Dateien bleiben erhalten.
+
+---
 
 ## v0.14.3 · Pistenpunkte und echte Anschlüsse (30.10.2026)
 
