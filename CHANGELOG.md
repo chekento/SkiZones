@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **18 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **19 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.16.0](https://github.com/chekento/SkiZones/releases/tag/v0.16.0)** | 30.10.2026 | Gäste mit eigenen Urlaubswünschen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk) | [Details](docs/releases/0.16.0.md) |
 | **[v0.15.0](https://github.com/chekento/SkiZones/releases/tag/v0.15.0)** | 30.10.2026 | Stabile Karte, klare Missionen und direkte Liftteams | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk) | [Details](docs/releases/0.15.0.md) |
 | **[v0.14.3](https://github.com/chekento/SkiZones/releases/tag/v0.14.3)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.3/SkiZones-0.14.3-android-arm64.apk) | [Details](docs/releases/0.14.3.md) |
 | **[v0.14.2](https://github.com/chekento/SkiZones/releases/tag/v0.14.2)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.2/SkiZones-0.14.2-android-arm64.apk) | [Details](docs/releases/0.14.2.md) |
@@ -28,6 +29,52 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.16.0 · Gäste mit eigenen Urlaubswünschen (30.10.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.16.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk)** (31.8 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.16.0/manifest.json) · [Originalnotizen](docs/releases/0.16.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.16.0)
+
+### Publikum, das wirklich passende Angebote sucht
+
+- Sechs Besuchergruppen haben unterschiedliche Vorlieben: reine Blaufahrer, Blau-und-Rot-Fahrer, Entdecker aller Schwierigkeiten, Pisten- und Liftsammler, Schwarz-und-Snowpark-Gäste und gemeinsam reisende Familien.
+- Die persönliche Komfortgrenze gilt für die ganze Route, einschließlich Zufahrt und Rückweg. Ein erfahrener Gast mit dem Wunsch nach ausschließlich blauen Pisten wird nicht durch seine technische Fähigkeit auf schwarze Pisten geschickt.
+- Sportgäste bevorzugen tatsächlich erreichbare schwarze Abfahrten und planen echte Besuche im Snowpark. Gemischte und alpine Gäste suchen Abwechslung. Geschlossene oder nicht verbundene Angebote erfüllen keine Wünsche.
+- Sammler bevorzugen noch nicht gefahrene Pisten und unbenutzte Lifte. Gezählt wird nach der tatsächlichen Fahrt. Mehrere gefahrene Teilstücke zählen erst dann als ganze Piste, wenn sie die vollständige Strecke ohne Lücke abdecken. Auch ein bisher unbenutzter Lift kann eigens in einen vollständigen Rundweg aufgenommen werden.
+- Im durchgehenden Betrieb erhalten Urlaubssammler Aufenthalte über mehrere Tage. Nach Betriebsschluss suchen sie ein erreichbares, besetztes Hotel. Identität, Bedürfnisse und Urlaubsliste bleiben beim Tageswechsel und beim Speichern erhalten. Ohne verfügbares Hotel entsteht keine kostenlose Übernachtung.
+
+### Familien bleiben zusammen
+
+- Eine Familie besteht aus zwei bis fünf sichtbaren Personen mit Namen, Alter, Können und eigenen Bedürfnissen. Kinder werden kleiner dargestellt und benötigen früher Essen, Wärme und Erholung.
+- Die Familie wählt gemeinsam eine Route, die zum vorsichtigsten Mitglied passt. Hunger, Kälte oder Erschöpfung eines einzelnen Mitglieds können die nächste gemeinsame Pause bestimmen.
+- Jedes Mitglied benötigt einen tatsächlichen Liftplatz. Wenn eine Familie nicht auf einen Sessel passt, nutzt sie aufeinanderfolgende Fahrzeuge. Früh angekommene Mitglieder warten oben, bis die ganze Familie weiterfahren kann.
+- Wird ein Lift während des Einstiegs geschlossen, bleiben bereits eingestiegene Personen ihren Fahrzeugen zugeordnet. Der sichere Abschluss und die vorhandene Störungs- und Rettungslogik berücksichtigen die teilweise eingestiegene Familie.
+- Restaurantkapazitäten gelten für alle Familienmitglieder gemeinsam. Zwei freie Plätze reichen nicht aus, um eine vierköpfige Familie zu buchen. Eintritt, Verpflegung, tatsächliche Besuche und Einnahmen zählen die wirkliche Personenzahl.
+
+### Bedürfnisse beeinflussen den Skitag
+
+- Gäste prüfen dringende Bedürfnisse auch an erreichten Knotenpunkten ihrer Route. Sie fahren oder gehen von dort zu einem passenden geöffneten Angebot; es gibt keinen Sprung vom Hang zum Restaurant.
+- Essen und Aufwärmen verbessern die persönlichen Werte schon während des Aufenthalts. Bei Besuchsende werden diese Wirkungen nicht ein zweites Mal gutgeschrieben. Eine Schutzhütte wärmt, ersetzt aber keine Mahlzeit.
+- Erneuter starker Hunger oder starke Kälte können eine weitere Pause rechtfertigen. Erreichbarkeit, Öffnungszeiten, verfügbare Plätze und die verbleibende Aufenthaltszeit bleiben Voraussetzungen.
+- Länger unerfüllter Hunger, Kälte und Erschöpfung wirken auf die spätere Bewertung, selbst wenn die Gäste inzwischen wieder versorgt sind.
+
+### Zufriedenheit, Nachfrage und Wirtschaft
+
+- Die Zufriedenheit verbindet tatsächlich erfüllte Urlaubswünsche mit abgeschlossenen Abfahrten, Wartezeit, Ticketpreis und Versorgung. Ein Snowpark in der Bauübersicht macht einen Sportgast noch nicht glücklich: Er muss ihn erreichen und besuchen.
+- Abreisen erzeugen Rückmeldungen für die jeweilige Besuchergruppe und beeinflussen den Ruf des Resorts. Erreichbares Angebot und Rückmeldungen verändern die natürliche Nachfrage und die Gästemischung. Schulgruppen-, Familien- und Sporttage beeinflussen diese Mischung weiterhin.
+- Unter **Resort-Büro → Gäste & Wünsche** stehen sechs Karten mit Vorlieben, anwesenden Personen, Passung des erreichbaren Angebots, aktuellem Tagesgefühl, tatsächlichen Abreisebewertungen und erfassten Tageskarten- und Besuchserlösen.
+- Die Ausrichtung der Werbung ist optional: „Ausgewogen“ kostet nichts zusätzlich, die gezielte Ansprache einer Besuchergruppe kostet ausdrücklich 250 € pro Betriebstag. Der Betrag fließt in die laufenden Betriebskosten ein.
+- Das antippbare Gästeprofil zeigt Komfortgrenze, Urlaubsziel, benutzte Lifte, vollständig gefahrene Pisten und Snowpark-Besuche. Bei Familien zeigt es zusätzlich jedes Mitglied und dessen Bedürfnisse. Von dort führt eine direkte Schaltfläche zur Gästeübersicht.
+- Alle neuen Texte und Bedienelemente sind auf Deutsch und Englisch verfügbar.
+
+### Speichern und Prüfung
+
+Spielstandformat 14 bleibt erhalten. Ältere Gäste erhalten passende Wünsche; neue Familien, einzelne Bedürfnisse, teilweise belegte Liftfahrzeuge, gesammelte Fahrten, Rückmeldungen und Werbung werden mitgespeichert. Ungültige neue Daten werden zurückgewiesen, ohne den laufenden Spielstand zu ersetzen.
+
+Die neuen Modell- und Grafikprüfungen kontrollieren tatsächliche Routen, vollständige Pistenabschnitte, kleine Liftsessel, Wiedervereinigung am Berg, reale Familienmahlzeiten, Wärme, Kapazität, Preise, Rückmeldungen, Übernachtung, Speicherzustände und die deutsche/englische Bedienoberfläche. Bestehende Szenario-, Karten-, Punkteditor-, Personal- und Android-Prüfungen bleiben Teil der Veröffentlichung. Der abschließende Nachweis steht in [VALIDATION.md](docs/VALIDATION.md).
+
+Android ARM64, Versionscode 21. Die Downloadlinks werden erst nach erfolgreicher Prüfung auf die neue APK umgestellt; ältere Veröffentlichungen bleiben erhalten.
+
+---
 
 ## v0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams (30.10.2026)
 
