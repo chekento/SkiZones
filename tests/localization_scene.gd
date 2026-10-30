@@ -57,7 +57,9 @@ func run() -> void:
 		if game.model.buildings[-1].visits>0: break
 		game.model.advance_minute(false)
 	game.hud.show_guest(int(guest.id));game.view.focus=Vector2(195,260);game.view.zoom=245;game.view._update_camera()
-	check(game.hud.inspector_text.text.contains("YOUR SKI DAY") and game.hud.inspector_text.text.contains("Hunger:") and guest.needs.hunger<=15,"The English guest inspector shows actual needs after an actual restaurant visit")
+	# Meals now restore needs throughout the visit; natural hunger continues
+	# during those twenty minutes rather than receiving one final full reset.
+	check(game.hud.inspector_text.text.contains("YOUR SKI DAY") and game.hud.inspector_text.text.contains("Hunger:") and guest.service_history.has("restaurant") and guest.needs.hunger<=20,"The English guest inspector shows actual needs after an actual restaurant visit")
 	await capture("en-guest-services-0110")
 	for item in game.model.buildings+game.model.lifts+game.model.pistes: game.hud.show_context("inspect",int(item.id))
 	game.hud.show_help();check(english_only(game.hud.help_dialog),"The complete English help includes building, camera, guests and new planning instructions");game.hud.help_dialog.hide()
