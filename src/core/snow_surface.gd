@@ -67,7 +67,7 @@ static func start(piste: Dictionary, guest: Dictionary, from_fraction: float = 0
 	if piste.tracks.size() > MAX_TRACKS:
 		piste.tracks.pop_front()
 
-static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, from_fraction: float, to_fraction: float) -> void:
+static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, from_fraction: float, to_fraction: float, wear_scale: float = 1.0) -> void:
 	ensure(piste)
 	piste.surface_revision = int(piste.get("surface_revision", 0)) + 1
 	var range_start := 0.0
@@ -88,11 +88,11 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 		var lateral := (point - center).dot((ahead - center).normalized().orthogonal())
 		var lane := clampi(roundi((lateral / width + 0.5) * LANES), 1, LANES - 1)
 		var index := row * (LANES + 1) + lane
-		var amount: float = 0.024 + guest.ability * 0.009
+		var amount: float = (0.024 + guest.ability * 0.009)*clampf(wear_scale,0,1)
 		piste.surface[index] = maxf(-0.34, piste.surface[index] - amount)
 		for side in [-1, 1]:
 			piste.surface[index + side] = minf(0.58, piste.surface[index + side] + amount * 0.65)
-		piste.snow = maxf(0, piste.snow - 0.0008)
+		piste.snow = maxf(0, piste.snow - 0.0008*clampf(wear_scale,0,1))
 
 static func relief(piste: Dictionary, fraction: float, lateral: float) -> float:
 	if not piste.has("surface") or piste.surface.is_empty():

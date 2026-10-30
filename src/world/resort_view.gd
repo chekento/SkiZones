@@ -1002,7 +1002,7 @@ func _process(delta: float) -> void:
 		rebuild()
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
-	_visual_minute = model.minute + simulation_fraction
+	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
 	_car_positions.clear()
 	var tows := 0
 	for lift in model.lifts:
@@ -1034,8 +1034,8 @@ func _process(delta: float) -> void:
 				tows += 1
 		data.clock = clock
 	_tow_lines.multimesh.visible_instance_count = tows
-	if _label_tick != model.minute or delta == 0:
-		_label_tick = model.minute
+	if _label_tick != model.motion_tick or delta == 0:
+		_label_tick = model.motion_tick
 		for lift in model.lifts:
 			if _queue_labels.has(lift.id):
 				var load: Dictionary = model.lift_load(lift)
@@ -1186,7 +1186,7 @@ func _process(delta: float) -> void:
 	for piste in model.pistes:
 		if piste.get("grooming_until", 0) <= model.minute:
 			continue
-		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - simulation_fraction) / 45.0, 0, 1)
+		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - model.clock_fraction - simulation_fraction/model.time_divisor) / 45.0, 0, 1)
 		if Ops.active(model):
 			for vehicle in model.operations.vehicles:
 				if int(vehicle.piste) == int(piste.id): fraction = clampf(1 - float(vehicle.remaining) / maxf(1, vehicle.total), 0, 1)

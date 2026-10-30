@@ -33,6 +33,12 @@ var snow_revision := 0
 var money := 400000.0
 var day := 1
 var minute := OPENING
+var time_divisor := 1
+var clock_fraction := 0.0
+var clock_steps := 0
+var motion_tick := 0
+var party_mode := false
+var edge_entries := false
 var reputation := 48.0
 var ticket_price := 42
 var weather_index := 0
@@ -93,6 +99,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	money = float(Maps.spec(map_id).budget)
 	day = 1
 	minute = OPENING
+	time_divisor=1;clock_fraction=0.0;clock_steps=0;motion_tick=0;party_mode=false;edge_entries=false
 	reputation = 48.0
 	var map_index := mini(7, Maps.MAPS.keys().find(map_id))
 	ticket_price = [42, 40, 50, 48, 38, 44, 54, 58][map_index]
@@ -1108,12 +1115,12 @@ func route_minutes(route: Dictionary, guest: Dictionary, latest_boarding: float 
 			if lift.is_empty() or not lift_open(lift):
 				return INF
 			var waiting: float = queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) + fleet_layout(lift).interval * 0.5
-			if minute + cost + waiting >= latest_boarding: return INF
-			if is_finite(latest_boarding) and minute + cost + waiting + fleet_layout(lift).ride > 1080: return INF
+			if minute + cost + waiting/time_divisor >= latest_boarding: return INF
+			if is_finite(latest_boarding) and minute + cost + (waiting+fleet_layout(lift).ride)/time_divisor > 1080: return INF
 			time += waiting
 		elif leg.kind == "ski":
 			time *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability, guest.get("sport", "ski")).speed
-		cost += time
+		cost += time / time_divisor
 	return cost
 
 func route_before_lift_closure(route: Dictionary, guest: Dictionary) -> bool:
@@ -1125,6 +1132,8 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	Agenda.ensure(self, guest)
 	var service := service_route(guest, source)
 	if not service.is_empty(): return service
+	var short_wait:=_night_break_route(guest,source)
+	if not short_wait.is_empty(): return short_wait
 	var choices: Array = []
 	var total := 0.0
 	var route_skill: int = Agenda.comfort(guest)
@@ -1155,6 +1164,22 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 			return choice.route
 	guest.navigation_error = false
 	return choices[-1].route
+
+func _night_break_route(guest: Dictionary, source: String) -> Dictionary:
+	if not guest.get("night_out",false) or not (minute>=1020 or minute<360) or not source.begins_with("d"):return {}
+	var venue:=asset(int(source.substr(1)))
+	if venue.is_empty() or not venue.enabled or venue.kind not in ["disco","pool","spa"] or Ops.building_open(self,venue):return {}
+	var soon:=false
+	for person in operations.staff:
+		if person.assignment=="building:%d" % int(venue.id) and Ops.shift_active(person.shift,minute) and person.absent_until<=Ops.clock(self) and person.break_until>Ops.clock(self) and person.break_until<=Ops.clock(self)+20:soon=true
+	if not soon:return {}
+	var graph:=_routing_graph(Agenda.comfort(guest),true)
+	var home:=_shortest(graph,source,"base")
+	if not home.ok or guest.age+10+route_minutes({"legs":home.legs},guest)>guest.stay:return {}
+	var door:=Terrain.pack(Foot.door(venue))
+	var pause:=_edge(source,source,"visit",venue.id,[door,door],10*time_divisor)
+	pause.pause_only=true
+	return {"target":0,"origin":door,"legs":[pause]+home.legs}
 
 func _collector_lift_routes(guest: Dictionary, source: String) -> Array:
 	var result: Array = []
@@ -1195,6 +1220,8 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
 		var utility := Needs.utility(guest,building.kind)
+		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","pool","spa"]
+		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
 		if building.kind == "hotel" and guest.agenda.kind == "collector" and Ops.continuous(self) and (minute >= 1020 or minute < 420) and guest.stay - guest.age > 600: utility += 100
 		if utility <= 0: continue
@@ -1206,7 +1233,12 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
-		var visit_minutes: float = maxf(480.0, 1920.0 - minute) if Ops.continuous(self) and building.kind == "hotel" else Needs.SERVICES[building.kind].minutes
+		var visit_minutes: float = maxf(480.0, 1920.0 - minute)*time_divisor if Ops.continuous(self) and building.kind == "hotel" else Needs.SERVICES[building.kind].minutes
+		if night_activity:
+			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
+			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
+			if session<=0: continue
+			visit_minutes=session*time_divisor
 		var pause := _edge(door_key,door_key,"visit",building.id,[entrance,entrance],visit_minutes)
 		var route := {"target":0,"origin":graph.nodes[source],"legs":_merge_ski_legs(outbound.legs+[pause]+home.legs)}
 		var time := route_minutes(route,guest)
@@ -1336,7 +1368,7 @@ func _start_leg(guest: Dictionary) -> void:
 		guest.duration *= 0.9 + float((int(guest.id) * 23) % 100) / 500
 	guest.phase = "queue" if leg.kind == "lift" else "moving"
 	if leg.kind == "lift":
-		guest.queue_since = Ops.clock(self) if Ops.continuous(self) else (day - 1) * 600 + minute - OPENING
+		guest.queue_since = movement_clock()
 
 func _finish_leg(guest: Dictionary) -> void:
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -1349,7 +1381,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			if complete_descent:
 				piste.rides += int(guest.get("group_size", 1))
 			var was_open := piste_open(piste)
-			piste.condition = maxf(0.0, piste.condition - 0.016 * (leg.get("end_fraction", 1.0) - leg.get("start_fraction", 0.0)) / (1.0 + 0.45 * (piste.get("level", 1) - 1)) * 20 / float(piste.get("width", 20)))
+			piste.condition = maxf(0.0, piste.condition - 0.016 / time_divisor * (leg.get("end_fraction", 1.0) - leg.get("start_fraction", 0.0)) / (1.0 + 0.45 * (piste.get("level", 1) - 1)) * 20 / float(piste.get("width", 20)))
 			if was_open != piste_open(piste):
 				_invalidate()
 		if complete_descent:
@@ -1361,8 +1393,10 @@ func _finish_leg(guest: Dictionary) -> void:
 				Needs.aggregate_family(guest)
 			total_rides += int(guest.get("group_size", 1))
 			report.rides += int(guest.get("group_size", 1))
-			campaign.xp += int(guest.get("group_size", 1))
-	if leg.kind == "visit":
+			guest.pacing_runs=int(guest.get("pacing_runs",0))+int(guest.get("group_size",1))
+			campaign.xp += int(guest.pacing_runs)/time_divisor
+			guest.pacing_runs=int(guest.pacing_runs)%time_divisor
+	if leg.kind == "visit" and not leg.get("pause_only",false):
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
@@ -1398,8 +1432,14 @@ func _finish_leg(guest: Dictionary) -> void:
 				return
 		if _return_from_node(guest, leg.to):
 			return
-	if ((not Ops.continuous(self) and minute >= CLOSING) or guest.get("replan", false)) and not guest.get("heading_home", false):
+	if guest.get("replan",false) and not guest.get("heading_home",false):
 		guest.erase("replan")
+		var revised:=choose_route(guest,leg.to)
+		if not revised.is_empty():
+			guest.route=revised;guest.leg=0;_start_leg(guest)
+			return
+		if _return_from_node(guest,leg.to):return
+	if not Ops.continuous(self) and minute >= CLOSING and not guest.get("heading_home",false):
 		if _return_from_node(guest, leg.to):
 			return
 
@@ -1495,58 +1535,94 @@ func arrival_capacity_factor() -> float:
 			worst_wait = maxf(worst_wait, queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) / Fleet.TIME_SCALE)
 	return clampf(1.0 / (1.0 + maxf(0, worst_wait - 2.0) * 0.23), 0.35, 1.0)
 
+func enable_runtime_rules() -> void:
+	if time_divisor==24: return
+	# Four times the former movement rate, one sixth of the former clock rate.
+	# Existing carrier phases and guest progress stay unchanged.
+	time_divisor=24
+	clock_fraction=0.0
+	clock_steps=0
+	for guest in guests:
+		if guest.has("queue_since"): guest.queue_since=float(guest.queue_since)*24.0
+	party_mode=true
+	edge_entries=true
+
+func movement_clock() -> float:
+	var absolute: float=Ops.clock(self) if Ops.continuous(self) else (day-1)*600+minute-OPENING
+	return (absolute+clock_fraction)*time_divisor
+
+func empty_night() -> bool:
+	return time_divisor>1 and Ops.continuous(self) and guests.is_empty() and (minute<OPENING or minute>=CLOSING)
+
+func advance_empty_minute() -> bool:
+	if not empty_night(): return false
+	_advance_tick(true,true)
+	return true
+
 func advance_minute(arrivals: bool = true) -> void:
-	if day_finished():
-		return
-	minute += 1
+	_advance_tick(arrivals,false)
+
+func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
+	if day_finished(): return
+	var clock_tick:=true
+	if time_divisor>1 and not empty_calendar_step:
+		clock_steps+=1
+		clock_tick=clock_steps>=time_divisor
+		if clock_tick: clock_steps=0
+		clock_fraction=float(clock_steps)/time_divisor
+	if clock_tick: minute+=1
+	motion_tick+=time_divisor if empty_calendar_step else 1
 	_queue_cache.clear()
-	Ops.tick(self)
+	if clock_tick: Ops.tick(self)
+	var movement: float=time_divisor if empty_calendar_step and guests.is_empty() else 1.0
 	for lift in lifts:
-		if lift_running(lift):
-			lift.clock = lift.get("clock", 0.0) + 1.0
-	var changed_open := false
-	for piste in pistes:
-		if not Ops.active(self) and piste.get("grooming_until", 0) > 0 and minute >= piste.grooming_until:
-			piste.grooming_until = 0
-			Snow.groom(piste, 1.0)
-			piste.condition = 100.0
-			snow_revision += 1
-			changed_open = true
-		var was_open := piste_open(piste)
-		piste.snow = maxf(0.0, piste.snow - maxf(weather().temperature, 0.0) * 0.018)
-		if weather().temperature <= -1:
-			for building in buildings:
-				if building.enabled and building.kind == "snowmaker":
-					if terrain.point_on_path(piste.points, 0.5).distance_to(Terrain.unpack(building.point)) <= 150 + 20 * (building.get("level", 1) - 1):
-						piste.snow = minf(110.0, piste.snow + 0.035 * building.get("level", 1))
-		changed_open = changed_open or was_open != piste_open(piste)
-	if changed_open:
-		_invalidate()
-	if arrivals and minute >= OPENING and minute < (935 if Ops.continuous(self) else CLOSING - 85):
-		var day_event := Progression.event(self)
-		var campaign_bonus: float = 1.0 + (campaign.rank - 1) * 0.08 + (0.15 if Progression.has(self, "marketing") else 0.0)
-		var demand: float = 0.20 * (0.7 + reputation / 90.0 + building_power("hotel") * 0.35) * weather().demand * pow(42.0 / ticket_price, 1.3) * day_event.demand * campaign_bonus * (1.1 if building_count("bus") > 0 else 1.0)
-		demand *= Agenda.market_factor(self)
-		demand *= arrival_capacity_factor() * (3.0 if map_id in Geo.IDS else 1.0) * (1.6 if operations.get("event", "") == "Ferienansturm" else 1.0)
-		var arrivals_count := floori(demand) + int(rng.randf() < fmod(demand, 1.0))
-		for i in range(arrivals_count):
-			var intent := Agenda.sample(self)
-			if intent != "": admit_guest(int(Agenda.TYPES[intent].comfort), intent)
-	if arrivals and Ops.continuous(self) and (minute >= 1020 or minute < 120) and minute % 5 == 0:
-		Ops.admit_evening(self)
+		if lift_running(lift): lift.clock=lift.get("clock",0.0)+movement
+	if clock_tick:
+		var changed_open := false
+		for piste in pistes:
+			if not Ops.active(self) and piste.get("grooming_until", 0) > 0 and minute >= piste.grooming_until:
+				piste.grooming_until = 0
+				Snow.groom(piste, 1.0)
+				piste.condition = 100.0
+				snow_revision += 1
+				changed_open = true
+			var was_open := piste_open(piste)
+			piste.snow = maxf(0.0, piste.snow - maxf(weather().temperature, 0.0) * 0.018)
+			if weather().temperature <= -1:
+				for building in buildings:
+					if building.enabled and building.kind == "snowmaker":
+						if terrain.point_on_path(piste.points, 0.5).distance_to(Terrain.unpack(building.point)) <= 150 + 20 * (building.get("level", 1) - 1):
+							piste.snow = minf(110.0, piste.snow + 0.035 * building.get("level", 1))
+			changed_open = changed_open or was_open != piste_open(piste)
+		if changed_open:
+			_invalidate()
+		if arrivals and minute >= OPENING and minute < (935 if Ops.continuous(self) else CLOSING - 85):
+			var day_event := Progression.event(self)
+			var campaign_bonus: float = 1.0 + (campaign.rank - 1) * 0.08 + (0.15 if Progression.has(self, "marketing") else 0.0)
+			var demand: float = 0.20 * (0.7 + reputation / 90.0 + building_power("hotel") * 0.35) * weather().demand * pow(42.0 / ticket_price, 1.3) * day_event.demand * campaign_bonus * (1.1 if building_count("bus") > 0 else 1.0)
+			demand *= Agenda.market_factor(self)
+			demand *= arrival_capacity_factor() * (3.0 if map_id in Geo.IDS else 1.0) * (1.6 if operations.get("event", "") == "Ferienansturm" else 1.0)
+			var arrivals_count := floori(demand) + int(rng.randf() < fmod(demand, 1.0))
+			for i in range(arrivals_count):
+				var intent := Agenda.sample(self)
+				if intent != "": admit_guest(int(Agenda.TYPES[intent].comfort), intent)
+		if arrivals and Ops.continuous(self) and (minute >= 1020 or minute < 120) and minute % 5 == 0:
+			Ops.admit_evening(self)
+	if empty_calendar_step and not guests.is_empty(): movement=1.0
 	var departures: Array = []
 	var traffic := Traffic.steps(self) if terrain_generation >= 2 else {}
 	for guest in guests:
-		guest.age += 1
-		Needs.advance(guest,weather().temperature)
-		Agenda.advance(guest)
+		if clock_tick: guest.age += 1
+		Needs.advance(guest,weather().temperature,clock_tick)
+		if clock_tick: Agenda.advance(guest)
 		if guest.get("incident", -1) >= 0: continue
 		if guest.phase == "leaving":
 			_depart(guest)
 			departures.append(guest)
 		elif guest.phase == "queue":
-			guest.wait += 1
-			guest.total_wait += 1
+			if clock_tick:
+				guest.wait += 1
+				guest.total_wait += 1
 			var lift := asset(guest.route.legs[guest.leg].id)
 			var partial_family: bool = guest.has("family") and not guest.get("ride_manifest", []).is_empty()
 			if not partial_family and (guest.wait > 180 or (not lift_open(lift) and not (guest.get("heading_home", false) and _return_service(lift)))):
@@ -1558,9 +1634,9 @@ func advance_minute(arrivals: bool = true) -> void:
 			if leg.kind == "lift":
 				guest.elapsed = maxf(0, asset(leg.id).get("clock", 0.0) - guest.get("ride_departure", 0.0))
 			else:
-				guest.elapsed += traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0
+				guest.elapsed += movement * (traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0)
 			if leg.kind == "ski":
-				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])))
+				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])),1.0/time_divisor)
 				snow_revision += 1
 			if guest.elapsed >= duration:
 				_finish_leg(guest)
@@ -1619,7 +1695,7 @@ func _board_direction(lift: Dictionary, reverse: bool) -> void:
 		for seat in range(schedule.seats):
 			if queue.is_empty():
 				break
-			var departed_at: float = (Ops.clock(self) if Ops.continuous(self) else (day - 1) * 600 + minute - OPENING) - (clock - departure)
+			var departed_at: float = movement_clock() - (clock - departure)
 			if queue[0].get("queue_since", 0) > departed_at + 0.000001:
 				break
 			var guest: Dictionary = queue[0]
@@ -1926,6 +2002,7 @@ func _valid_family_manifest(guest: Dictionary, occupied: Dictionary) -> bool:
 
 func snapshot() -> Dictionary:
 	pedestrian_layout()
+	for piste in pistes: Snow.ensure(piste)
 	var visitor_data: Array = []
 	var itineraries: Array = []
 	var route_ids: Dictionary = {}
@@ -1945,7 +2022,7 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":14,"audience":audience.duplicate(true),"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":15,"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -1958,6 +2035,7 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	for leg in value.legs:
 		if not leg is Dictionary or leg.get("kind") not in ["walk", "lift", "ski", "visit"] or not Terrain.number(leg.get("id")) or leg.id != floorf(leg.id) or leg.id < 0 or not leg.get("points") is Array or leg.points.size() < 2 or leg.points.size() > 64 or not Terrain.number(leg.get("minutes")) or leg.minutes < 0.15 or leg.minutes > 1000000:
 			return {}
+		if leg.has("pause_only") and (not leg.pause_only is bool or leg.kind!="visit"):return {}
 		for point in leg.points:
 			if not terrain.contains(Terrain.unpack(point)):
 				return {}
@@ -2016,17 +2094,19 @@ func restore(data: Dictionary) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience"]:
+	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
 	rng.state = candidate.rng.state
 	_invalidate()
+	Ops.refresh_duty(self)
+	_operating_signature=Ops.signature(self)
 	return _result(true, L.text("Spielstand geladen."))
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 14:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 15:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -2191,10 +2271,21 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	report.investments = report.get("investments", 0.0)
 	last_report = data.last_report.duplicate(true)
 	operations = data.get("operations", Ops.initial()).duplicate(true)
+	if operations.get("staff") is Array:Ops.normalize_assignments(self)
 	if not Ops.valid(operations, self): return invalid
 	var saved_audience: Variant = data.get("audience", Agenda.initial())
 	if not Agenda.valid_state(saved_audience): return invalid
 	audience = Agenda.normalize_state(saved_audience)
+	time_divisor=int(data.get("time_divisor",1))
+	if not Terrain.number(data.get("time_divisor",1)) or data.get("time_divisor",1)!=time_divisor or time_divisor not in [1,24] or not Terrain.number(data.get("clock_fraction",0.0)) or data.get("clock_fraction",0.0)<0 or data.get("clock_fraction",0.0)>=1: return invalid
+	clock_fraction=float(data.get("clock_fraction",0.0))
+	clock_steps=roundi(clock_fraction*time_divisor)
+	if clock_steps>=time_divisor or absf(clock_fraction-float(clock_steps)/time_divisor)>0.000001: return invalid
+	clock_fraction=float(clock_steps)/time_divisor
+	if not Terrain.number(data.get("motion_tick",0)) or data.get("motion_tick",0)<0 or data.get("motion_tick",0)!=floorf(data.get("motion_tick",0)) or data.get("motion_tick",0)>1000000000000: return invalid
+	motion_tick=int(data.get("motion_tick",0))
+	if not data.get("party_mode",false) is bool or not data.get("edge_entries",false) is bool: return invalid
+	party_mode=data.get("party_mode",false);edge_entries=data.get("edge_entries",false)
 	_duty_cache.clear()
 	_invalidate()
 	if not Progression.restore(self, data.get("campaign")):
@@ -2219,7 +2310,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		for field in ["ticket_paid", "spending"]:
 			if visitor.has(field) and (not Terrain.number(visitor[field]) or visitor[field] < 0 or visitor[field] > 1000000000):
 				return invalid
-		for field in ["heading_home", "replan", "navigation_error", "assisted", "evening"]:
+		for field in ["heading_home", "replan", "navigation_error", "assisted", "evening", "night_out"]:
 			if visitor.has(field) and not visitor[field] is bool:
 				return invalid
 		if visitor.has("group_size") and (not Terrain.number(visitor.group_size) or visitor.group_size != floorf(visitor.group_size) or visitor.group_size < 1 or visitor.group_size > 8): return invalid
@@ -2274,9 +2365,11 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.phase == "queue" and route.legs[int(visitor.leg)].kind != "lift":
 			return invalid
+		if visitor.has("pacing_runs") and (not Terrain.number(visitor.pacing_runs) or visitor.pacing_runs!=floorf(visitor.pacing_runs) or visitor.pacing_runs<0 or visitor.pacing_runs>=time_divisor): return invalid
 		if visitor.has("ski_motion") and not Motion.valid_profile(visitor.ski_motion): return invalid
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.id = int(copy.id);copy.ability = int(copy.ability)
+		if copy.has("pacing_runs"): copy.pacing_runs=int(copy.pacing_runs)
 		Needs.ensure(copy, weather().temperature)
 		copy.route = route
 		Agenda.ensure(self, copy)
@@ -2295,7 +2388,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			if leg.kind == "ski":
 				Snow.start(asset(leg.id), copy)
 		if copy.phase == "queue":
-			if not Terrain.number(copy.get("queue_since")) or copy.queue_since < 0 or copy.queue_since > (Ops.clock(self) if Ops.continuous(self) else (day - 1) * 600 + minute - OPENING):
+			if not Terrain.number(copy.get("queue_since")) or copy.queue_since < 0 or copy.queue_since > movement_clock():
 				return invalid
 		elif copy.phase == "moving" and route.legs[int(copy.leg)].kind == "lift":
 			var lift := asset(int(route.legs[int(copy.leg)].id))

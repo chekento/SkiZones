@@ -21,7 +21,7 @@ func _init() -> void:
 	check(m.build_piste(points, -1, 36).ok and m.pistes[0].width == 36 and m.Snow.piste_width(m.pistes[0]) == 36, "A new wide piste stores and uses its selected width")
 	check(m.money == money - wide.cost and m.pistes[0].grading, "The confirmed width is charged once and enables bounded earthworks")
 	var copy := Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(m.snapshot()))).ok and copy.pistes[0].width == 36 and copy.snapshot().version == 14, "Width and earthworks survive a format 14 JSON roundtrip")
+	check(copy.restore(JSON.parse_string(JSON.stringify(m.snapshot()))).ok and copy.pistes[0].width == 36 and copy.snapshot().version == 15, "Width and earthworks survive a format 14 JSON roundtrip")
 	var bad: Dictionary = m.snapshot()
 	bad.pistes[0].grading = "yes"
 	var before := copy.snapshot()

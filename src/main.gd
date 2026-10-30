@@ -122,8 +122,11 @@ func _process(delta: float) -> void:
 		_plan_dirty = false
 		_update_plan()
 	if simulation_running():
-		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND
+		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0)
 		var budget_end := Time.get_ticks_usec() + 4000
+		if model.empty_night():
+			for step in range(30):
+				if Time.get_ticks_usec()>=budget_end or not model.advance_empty_minute(): break
 		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
 			_accumulator -= 1.0
 			var previous_day: int = model.day
@@ -132,7 +135,7 @@ func _process(delta: float) -> void:
 	simulation_fraction = fmod(_accumulator,1.0)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
-	view.motion_rate = float(speed)
+	view.motion_rate = float(speed)*(4.0 if model.time_divisor>1 else 1.0)
 	if has_game and model.day_finished() and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
@@ -154,6 +157,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	else:
 		model.new_game(starter, 20261027, area)
 	if not Ops.active(model): Ops.enable(model)
+	model.enable_runtime_rules()
 	hud.scenarios.hide()
 	passport.record(model)
 	has_game = true
@@ -166,7 +170,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	hud.atlas.hide()
 	hud.set_map_focus(false)
 	set_tool("inspect")
-	hud.toast(L.text("Willkommen am Berg. 1× ist bewusst ruhig; mit 4× entwickelst du schneller. Tippe einen Gast zum Beobachten an.") if starter else L.text("Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg."))
+	hud.toast(L.text("Willkommen am Berg. Die Tage lassen dir mehr Zeit, die Gäste bewegen sich flotter. Mit 4× spulst du weiter vor. Tippe einen Gast zum Beobachten an.") if starter else L.text("Freier Aufbau: Alle Anlagen sind verfügbar. Plane deinen ersten Rundweg."))
 	hud.refresh()
 
 func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
@@ -186,6 +190,7 @@ func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
 		else: candidate.new_game(selected_slot!=0 or area in Geo.IDS, 20261027, area)
 		if result.ok:
 			if not Ops.active(candidate): Ops.enable(candidate)
+			candidate.enable_runtime_rules()
 			Ops.refresh_duty(candidate)
 			candidate._operating_signature = Ops.signature(candidate)
 			for skill in [0, 1, 2]:
@@ -260,7 +265,7 @@ func _select_save_context(slot: int) -> void:
 func select_career_slot(slot: int, fresh: bool = false) -> void:
 	if slot<1 or slot>4: return
 	if has_game and not save_game(): return
-	if fresh and SaveStore.summary(slot).occupied and not SaveStore.archive_slot(slot):
+	if fresh and (SaveStore.summary(slot).occupied or FileAccess.file_exists(SaveStore.passport_path(slot))) and not SaveStore.archive_slot(slot):
 		hud.toast(L.text("Die Sicherung ist fehlgeschlagen. Die Karriere bleibt erhalten."))
 		return
 	_select_save_context(slot)
@@ -804,7 +809,7 @@ func _suspend_application() -> void:
 func _queue_background_time(seconds: float, rate: int) -> void:
 	# Operating days still await the player's next-morning confirmation.
 	var remaining := maxf(0,Resort.CLOSING+1800-model.minute)
-	_accumulator += minf(maxf(0,seconds)*rate*Resort.MINUTES_PER_SECOND,remaining)
+	_accumulator += minf(maxf(0,seconds)*rate*Resort.MINUTES_PER_SECOND*(4.0 if model.time_divisor>1 else 1.0),remaining*model.time_divisor)
 
 func _resume_application() -> void:
 	if not is_node_ready(): return

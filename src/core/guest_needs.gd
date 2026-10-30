@@ -49,12 +49,14 @@ static func valid(guest: Dictionary) -> bool:
 			if field not in FIELDS or not Terrain.number(guest.visit_benefits[field]) or guest.visit_benefits[field] < 0 or guest.visit_benefits[field] > maxf(0, SERVICES[guest.visit_kind][field]) + 0.001: return false
 	return true
 
-static func advance(guest: Dictionary, temperature: float) -> void:
+static func advance(guest: Dictionary, temperature: float, natural: bool = true) -> void:
 	ensure(guest,temperature)
 	var kind := ""
 	if guest.phase!="leaving" and guest.leg<guest.route.legs.size(): kind=guest.route.legs[guest.leg].kind
+	if guest.phase=="waiting": kind=""
+	if not natural and kind!="visit": return
 	var dose: Dictionary = {}
-	if kind == "visit" and SERVICES.has(guest.get("visit_kind", "")):
+	if kind == "visit" and not guest.route.legs[guest.leg].get("pause_only",false) and SERVICES.has(guest.get("visit_kind", "")):
 		if not guest.has("visit_benefits"): guest.visit_benefits = {}
 		for field in FIELDS:
 			var total: float = SERVICES[guest.visit_kind][field]
@@ -62,15 +64,16 @@ static func advance(guest: Dictionary, temperature: float) -> void:
 			dose[field] = minf(maxf(0, total - given), maxf(0, total) / maxf(1, guest.get("duration", 1)))
 			guest.visit_benefits[field] = given + dose[field]
 	if guest.has("family"):
-		for member in guest.family: _advance_values(member.needs, kind, guest.phase == "queue", temperature, member.years < 16, dose)
+		for member in guest.family: _advance_values(member.needs, kind, guest.phase == "queue", temperature, member.years < 16, dose, natural)
 		aggregate_family(guest)
-	else: _advance_values(guest.needs, kind, guest.phase == "queue", temperature, false, dose)
+	else: _advance_values(guest.needs, kind, guest.phase == "queue", temperature, guest.get("years",18)<16, dose, natural)
 
-static func _advance_values(state: Dictionary, kind: String, queue: bool, temperature: float, child: bool, dose: Dictionary) -> void:
-	state.hunger=minf(100,state.hunger+(0.25 if child else 0.20))
-	state.warmth=maxf(0,state.warmth-(maxf(0,2-temperature)*0.012*(1.3 if child else 1.0) if kind!="visit" else 0))
-	state.energy=clampf(state.energy+(0.07 if kind=="lift" else -0.14 if kind=="ski" and child else -0.12 if kind=="ski" else -0.055),0,100)
-	state.joy=maxf(0,state.joy-(0.18 if queue else 0.07))
+static func _advance_values(state: Dictionary, kind: String, queue: bool, temperature: float, child: bool, dose: Dictionary, natural: bool) -> void:
+	if natural:
+		state.hunger=minf(100,state.hunger+(0.25 if child else 0.20))
+		state.warmth=maxf(0,state.warmth-(maxf(0,2-temperature)*0.012*(1.3 if child else 1.0) if kind!="visit" else 0))
+		state.energy=clampf(state.energy+(0.07 if kind=="lift" else -0.14 if kind=="ski" and child else -0.12 if kind=="ski" else -0.055),0,100)
+		state.joy=maxf(0,state.joy-(0.18 if queue else 0.07))
 	for field in dose: state[field] = clampf(state[field] + dose[field] * (-1 if field == "hunger" else 1), 0, 100)
 
 static func aggregate_family(guest: Dictionary) -> void:

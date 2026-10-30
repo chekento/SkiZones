@@ -89,7 +89,7 @@ func _init() -> void:
 	var count: int = migrated.guests.size()
 	var old_balance: float = migrated.money
 	check(copy.restore(migrated).ok and copy.guests.size() == count and copy.money == old_balance and count > 0, "An actual populated 0.6 save migrates without losing guests or funds")
-	check(copy.snapshot().version == 14 and Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated and customized saves can be saved again in format 14")
+	check(copy.snapshot().version == 15 and Resort.new().restore(JSON.parse_string(JSON.stringify(copy.snapshot()))).ok, "Migrated and customized saves can be saved again in format 14")
 	var settings := Preferences.new(); settings.path = "user://display-customization-test.cfg"
 	settings.quality="economy"; settings.target_fps=30; settings.snowfall=false; settings.camera_smoothing=false
 	check(settings.save_to() == OK, "Graphics and comfort preferences can be saved")

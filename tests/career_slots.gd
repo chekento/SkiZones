@@ -36,7 +36,7 @@ func _init() -> void:
 	Saves.save_game(legacy,Saves.legacy_path("fichtenkamm"))
 	check(Saves.migrate_legacy() and FileAccess.file_exists(Saves.legacy_path("fichtenkamm")),"Legacy migration copies valid data and preserves the original file")
 	copy=Resort.new()
-	check(Saves.load_game(copy,Saves.path_for_map("fichtenkamm",1)).ok and copy.money==444444,"The previous career becomes career slot one")
+	check(Saves.load_game(copy,Saves.path_for_map("fichtenkamm",1)).ok and copy.money==444444 and copy.map_id=="fichtenkamm","The previous career becomes career slot one")
 	check(Saves.migrate_legacy() and Saves.load_game(copy,Saves.path_for_map("sonnenhang",3)).ok and copy.money==103000,"Repeated migration cannot replace an existing career")
 	check(Saves.archive_slot(3) and not Saves.summary(3).occupied,"An explicitly restarted career is archived before its active files are cleared")
 	check(Saves.summary(1).occupied and Saves.summary(4).occupied and Saves.summary(0).occupied,"Restarting one slot preserves every other career and free build")

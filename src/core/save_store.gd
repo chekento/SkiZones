@@ -89,7 +89,7 @@ static func migrate_legacy() -> bool:
 
 static func archive_slot(slot: int) -> bool:
 	if slot < 1 or slot > 4: return false
-	var folder := "user://career-archives/slot-%d-%d" % [slot,Time.get_unix_time_from_system()]
+	var folder := "user://career-archives/slot-%d-%d-%d" % [slot,Time.get_unix_time_from_system(),Time.get_ticks_usec()]
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK: return false
 	var paths: Array=[passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
 	for id in Maps.FANTASY_MAPS: paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
@@ -100,7 +100,7 @@ static func archive_slot(slot: int) -> bool:
 	return true
 
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
-	var payload := JSON.stringify(model.snapshot())
+	var payload := JSON.stringify(model.snapshot(),"",true,true)
 	var envelope := JSON.stringify({"format": "SkiZones", "checksum": payload.sha256_text(), "payload": payload})
 	if envelope.to_utf8_buffer().size() > MAX_BYTES:
 		return {"ok": false, "message": L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
