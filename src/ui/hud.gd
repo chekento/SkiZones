@@ -23,6 +23,10 @@ const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const LiftStaff = preload("res://src/ui/lift_staff.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
+const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
+const COMMUNITY_BUG := "https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml"
+const COMMUNITY_FEATURE := "https://github.com/chekento/SkiZones/issues/new?template=feature_request.yml"
+const COMMUNITY_GUIDE := "https://github.com/chekento/SkiZones/blob/main/docs/COMMUNITY.md"
 const INK := Color("294d54")
 const MUTED := Color("5d7679")
 const ACCENT := Color("b8754f")
@@ -35,6 +39,7 @@ var loading := PanelContainer.new()
 var menu := Control.new()
 var scenarios := Scenarios.new()
 var credits := AcceptDialog.new()
+var community := AcceptDialog.new()
 var data_credit := Label.new()
 var map_panels: Array = []
 var labels: Dictionary = {}
@@ -158,6 +163,7 @@ func setup(controller: Node) -> void:
 	root.add_child(scenarios)
 	scenarios.setup(self)
 	_build_credits()
+	_build_community()
 	root.add_child(loading)
 	loading.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	loading.add_theme_stylebox_override("panel", _style(Color("f2f5ef"), 0, 50))
@@ -555,6 +561,7 @@ func _build_menu() -> void:
 	_label(box, L.text("EXTRAS"), 13, MUTED)
 	_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
 	_button(box, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open())
+	_button(box, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(box, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")),13,MUTED,true)
 
@@ -584,6 +591,7 @@ func show_menu() -> void:
 	atlas.hide()
 	scenarios.hide()
 	credits.hide()
+	community.hide()
 	menu.show()
 	_apply_panel_visibility()
 	var area: String = game.main_game_area()
@@ -596,7 +604,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if loading.visible or scenarios.visible or credits.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -887,6 +895,27 @@ func show_report() -> void:
 	var operating: float = report.tickets + report.services - report.costs
 	var text_value := L.text("Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nAlle Gäste sind im Tal. Über Nacht werden die Pisten präpariert.") % L.args([Progression.season_number(game.model), Progression.season_day(game.model), report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(operating), money_text(report.get("investments", 0.0)), money_text(report.rewards), money_text(operating + report.rewards - report.get("investments", 0.0)), money_text(game.model.money), game.model.campaign.rank, game.model.campaign.points, Progression.notice_text(game.model.campaign)])
 	daily_dialog.open(text_value)
+
+
+func _open_community_url(address: String) -> void:
+	# Only open the external destination following an explicit player action.
+	if OS.shell_open(address) != OK:
+		toast(L.text("Link konnte nicht geöffnet werden."))
+
+func _build_community() -> void:
+	root.add_child(community)
+	community.title = L.text("Community & Feedback")
+	community.ok_button_text = L.text("Zurück")
+	community.get_label().hide()
+	var box := _vbox(community, 10)
+	box.custom_minimum_size = Vector2(660, 335)
+	_label(box, L.text("SkiZones-Community auf KoSchpendium"), 25, TEAL)
+	_label(box, L.text("Tausche dich mit Spielern aus, teile dein Resort und hilf uns, SkiZones zu verbessern."), 17, MUTED, true)
+	_button(box, L.text("Discord · Community-Forum"), func(): _open_community_url(COMMUNITY_DISCORD), true)
+	_button(box, L.text("Fehler melden · GitHub"), func(): _open_community_url(COMMUNITY_BUG))
+	_button(box, L.text("Funktion vorschlagen · GitHub"), func(): _open_community_url(COMMUNITY_FEATURE))
+	_button(box, L.text("Community-Regeln und Hilfe"), func(): _open_community_url(COMMUNITY_GUIDE))
+	_label(box, L.text("Externe Links öffnen Discord oder GitHub; dort gelten eigene Nutzungs- und Datenschutzbedingungen."), 14, MUTED, true)
 
 func _build_credits() -> void:
 	root.add_child(credits)
