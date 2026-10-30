@@ -24,6 +24,20 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
+## Community & Feedback
+
+**SkiZones auf KoSchpendium** ist unser Treffpunkt für Spieler, Ideen, Fragen und Screenshots. Für reproduzierbare Fehler und konkrete Verbesserungen gibt es strukturierte GitHub-Issues.
+
+| Community & Hilfe | Direkter Einstieg |
+|---|---|
+| 💬 **Community-Forum auf Discord** | **[KoSchpendium – SkiZones beitreten](https://discord.gg/AFXtwWvm)** |
+| 🐛 **Fehler melden** | [Bugreport-Formular öffnen](https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml) |
+| 💡 **Funktion wünschen** | [Feature-Vorschlag einreichen](https://github.com/chekento/SkiZones/issues/new?template=feature_request.yml) |
+| 📋 **Offene Meldungen verfolgen** | [Issues und Entwicklungswünsche](https://github.com/chekento/SkiZones/issues) |
+| 📖 **Regeln, Hilfe & Feedback** | [Community-Leitfaden](docs/COMMUNITY.md) · [Support](SUPPORT.md) |
+
+GitHub Discussions ist zusätzlich vorbereitet und kann nach Aktivierung unter **Repository Settings → Features → Discussions** als GitHub-Forum genutzt werden. Bis dahin ist **Discord das aktive Community-Forum**.
+
 ## Versionshistorie und APK-Archiv
 
 <!-- VERSION-ARCHIVE:START -->
