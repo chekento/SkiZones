@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 SkiZones-Community auf KoSchpendium (Discord)"
+    url: "https://discord.gg/AFXtwWvm"
+    about: "Fragen, Feedback, Ideenaustausch, Screenshots und Diskussionen mit anderen Spielern."
+  - name: "📖 Community- und Feedback-Leitfaden"
+    url: "https://github.com/chekento/SkiZones/blob/main/docs/COMMUNITY.md"
+    about: "Welche Rückmeldung gehört wohin? Hinweise zu Bugreports, Feedback und Datenschutz."
