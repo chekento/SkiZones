@@ -104,6 +104,27 @@ func run() -> void:
 		touch(at, true); move(destination, destination - at); touch(destination, false)
 		perspective_drags = perspective_drags and game.points.size() == 3 and Terrain.unpack(game.points[1]).distance_to(Vector2(335, -20)) < 0.05
 	check(perspective_drags, "Individual touch dragging follows the visible slope in all four camera perspectives")
+	game.points = [[310, -150], [310, -50], [310, 100]]
+	game.view.focus = Vector2(310, -50)
+	game.view.set_camera_mode(2)
+	game._update_plan()
+	at = screen(Vector2(310, -50))
+	var intermediate := screen(Vector2(330, -35))
+	destination = screen(Vector2(335, -20))
+	touch(at, true); move(intermediate, intermediate - at); touch(destination, false)
+	check(Terrain.unpack(game.points[1]).distance_to(Vector2(335, -20)) < 0.05, "A touch release commits its final coordinate even without a final drag packet")
+	at = screen(Terrain.unpack(game.points[1]))
+	intermediate = screen(Vector2(325, -30))
+	destination = screen(Vector2(310, -40))
+	var mouse := InputEventMouseButton.new()
+	mouse.button_index = MOUSE_BUTTON_LEFT; mouse.pressed = true; mouse.position = at
+	game._input(mouse)
+	var motion := InputEventMouseMotion.new()
+	motion.position = intermediate; motion.relative = intermediate - at
+	game._input(motion)
+	mouse.position = destination; mouse.pressed = false
+	game._input(mouse)
+	check(Terrain.unpack(game.points[1]).distance_to(Vector2(310, -40)) < 0.05, "A mouse release also commits the final position without requiring a last motion packet")
 	game.clear_plan()
 	var existing: Dictionary = game.model.pistes[0]
 	game.hud.show_context("inspect", existing.id)

@@ -571,6 +571,7 @@ func _input(event: InputEvent) -> void:
 			elif _mouse_down:
 				_mouse_down = false
 				if _drag_waypoint >= 0:
+					_move_waypoint(event.position)
 					_end_waypoint_drag()
 				elif not _mouse_dragged and not hud.blocks_map(event.position):
 					_map_tap(event.position)
@@ -653,6 +654,9 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 				_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
 	elif _touches.has(event.index):
 		if _drag_waypoint >= 0:
+			# Android can send the final coordinate only with ACTION_UP, after
+			# the last motion packet. Commit that coordinate before ending the drag.
+			if not event.canceled: _move_waypoint(event.position)
 			_end_waypoint_drag(event.canceled)
 		elif not event.canceled and _touches.size() == 1 and not _gesture_used and not _touch_dragged and not hud.blocks_map(event.position):
 			if event.position.distance_to(_touch_origins[event.index]) < 12:
