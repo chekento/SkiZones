@@ -59,7 +59,6 @@ def badge(count):
 <text x="160" y="17" text-anchor="end" fill="#9be0cb" font-family="Arial,sans-serif" font-size="12" font-weight="700">{count}</text></svg>\n'''
 
 
-
 def version_sort_key(tag):
     match = re.fullmatch(r'v?(\d+)\.(\d+)\.(\d+)', tag)
     return tuple(map(int, match.groups())) if match else (-1, -1, -1)
@@ -92,75 +91,7 @@ def release_notes(release):
     version = tag.removeprefix('v')
     path = Path('docs/releases') / (version + '.md')
     source = path.read_text(encoding='utf-8') if path.exists() else (release.get('body') or '')
-    match = re.search(r'^#\s+(.+?)\s*
-    def fetch(repo):
-        return summarize(snapshot[repo] if snapshot is not None else releases(repo))
-    if ski:
-        ski_rows = snapshot['SkiZones'] if snapshot is not None else releases('SkiZones')
-        release = summarize(ski_rows)
-        text = Path('README.md').read_text()
-        content = f'''[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)]({release['url']})
-
-**Aktueller Download: {release['tag']} · Android ARM64 · Preview**
-
-[Release & Installation]({release['release']}) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
-
-![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
-
-*Nur APK-Dateien werden gezählt, einschließlich Previews. Prüfsummen und Metadaten sind ausgeschlossen. Downloads sind keine eindeutigen Installationen. Der Download-Link wird nach dem Build und zusätzlich stündlich aktualisiert; GitHub-Bildcaches können verzögern.*'''
-        text = block(text, 'APK-DOWNLOAD', content)
-        text = block(text, 'VERSION-ARCHIVE', archive_block(ski_rows))
-        Path('README.md').write_text(text)
-        Path('CHANGELOG.md').write_text(complete_changelog(ski_rows))
-        Path('docs/images').mkdir(parents=True, exist_ok=True)
-        Path('docs/images/apk-downloads.svg').write_text(badge(release['total']))
-        Path('docs/downloads.json').write_text(json.dumps(release, indent=2)+'\n')
-        print(f"SkiZones: {release['tag']}, {release['total']} APK downloads")
-        return
-
-    apps = json.loads(Path('tools/apps.json').read_text())
-    # Complete every read before mutating generated files. API errors must not become zeroes.
-    metadata = {app['id']: fetch(app['repo']) for app in apps}
-    text = Path('README.md').read_text()
-    total = sum(value['total'] for value in metadata.values())
-    lines = [f'**{total} APK downloads** across the 11 projects.', '',
-             '| Project | Explore | Android APK | APK downloads |',
-             '|---|---|---|---:|']
-    for app in apps:
-        r = metadata[app['id']]
-        label = r['tag'] + (' · Preview' if r['prerelease'] else '')
-        lines.append(f"| **[{app['name']}](https://github.com/chekento/{app['repo']})** | {app['description']} | [↓ {label}]({r['url']}) | ![{r['total']} APK downloads](assets/downloads/{app['id']}.svg) |")
-    text = block(text, 'APP-CATALOG', '\n'.join(lines))
-    ski_release = metadata['skizones']
-    text = block(text, 'SKIZONES-DOWNLOAD', f'''[![Download SkiZones APK](https://raw.githubusercontent.com/chekento/SkiZones/main/docs/images/download-apk.svg)]({ski_release['url']})
-
-[{ski_release['tag']} · Android Preview]({ski_release['release']}) · [Game & documentation](https://github.com/chekento/SkiZones) · ![{ski_release['total']} APK downloads](assets/downloads/skizones.svg)''')
-    store = Path('docs/store.html').read_text()
-    store, count = re.subn(r'// RELEASE-DATA:START.*?// RELEASE-DATA:END',
-        lambda _: '// RELEASE-DATA:START\nconst releaseData = '+json.dumps(metadata, ensure_ascii=False)+';\n// RELEASE-DATA:END', store, flags=re.S)
-    if count != 1:
-        raise ValueError('Expected one store release-data block')
-    for app in apps:
-        p = Path('assets/downloads') / (app['id'] + '.svg')
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(badge(metadata[app['id']]['total']))
-        card = Path('assets/app-gallery') / (app['id']+'.svg')
-        if card.exists():
-            card.write_text(re.sub(r'(<text id="apk-download-count"[^>]*>↓ )\d+( APK downloads</text>)',
-                lambda m: m[1]+str(metadata[app['id']]['total'])+m[2], card.read_text()))
-    Path('README.md').write_text(text)
-    Path('docs/store.html').write_text(store)
-    Path('docs/downloads.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2)+'\n')
-    print(f'{len(apps)} projects; {total} APK downloads')
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--snapshot', type=Path, help='Use a saved API response for deterministic validation')
-    parser.add_argument('--ski', action='store_true')
-    args = parser.parse_args()
-    sync(json.loads(args.snapshot.read_text()) if args.snapshot else None, args.ski)
-, source, flags=re.M)
+    match = re.search(r'^#\s+(.+?)\s*$', source, flags=re.M)
     heading = match.group(1) if match else (release.get('name') or tag)
     topic = re.sub(r'^SkiZones\s+[\d.]+\s*[·—–-]?\s*', '', heading).strip() or 'Release'
     detail_url = path.as_posix() if path.exists() else release['html_url']
@@ -264,6 +195,8 @@ def complete_changelog(rows):
             output.append('_Für dieses Release sind keine technischen Notizen vorhanden._')
         output.extend(['', '---', ''])
     return '\n'.join(output)
+
+
 
 
 def sync(snapshot=None, ski=False):
