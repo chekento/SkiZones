@@ -74,6 +74,8 @@ Die neuen Modell- und Grafikprüfungen kontrollieren tatsächliche Routen, volls
 
 Android ARM64, Versionscode 21. Die Downloadlinks werden erst nach erfolgreicher Prüfung auf die neue APK umgestellt; ältere Veröffentlichungen bleiben erhalten.
 
+Abschluss: **1.165 Modell-/Grafikprüfungen in 36 Suiten und 43 Android-Emulatorfälle bestanden.** [Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41106447886). APK-Quellcode: `162e4ade91e653db6bd55f44f91421a5bd2e5015`.
+
 ---
 
 ## v0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams (30.10.2026)
