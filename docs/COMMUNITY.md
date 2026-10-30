@@ -42,6 +42,17 @@ Ein optionales zusätzliches GitHub-Forum kann später unter [GitHub Discussions
 
 Vorgesehene Kategorien: **Ankündigungen**, **Allgemeines Feedback**, **Ideen & Wünsche**, **Fragen & Hilfe**, **Resort-Galerie** und **Abstimmungen**. Ein vorbereiteter Willkommensbeitrag steht in [DISCUSSIONS_WELCOME.md](DISCUSSIONS_WELCOME.md).
 
+## Optionale GitHub-Benachrichtigungen in Discord
+
+Die Links oben funktionieren bereits. Falls du **GitHub-Releases und neue Issues automatisch in einen Discord-Kanal** spiegeln möchtest, geht das ohne eigenen Bot über einen Discord-Webhook. Diese zusätzliche, administrative Verknüpfung ist **noch nicht eingerichtet**.
+
+1. Auf deinem **KoSchpendium-Discord-Server** einen Kanal wie `#skizones-updates` auswählen und unter **Kanal/Server → Integrationen → Webhooks** einen Webhook erstellen.
+2. Die geheime Webhook-URL **nur in GitHub** unter [SkiZones → Settings → Webhooks](https://github.com/chekento/SkiZones/settings/hooks) als Payload-URL eintragen, mit dem Suffix `/github` am Ende; **Content type: `application/json`**.
+3. Unter den Einzelereignissen am besten nur **Releases** und **Issues** aktivieren. **Pushes** eher deaktivieren, da jeder Dokumentations-Commit sonst Nachrichten auslöst.
+4. Webhook speichern und die Zustellung über die GitHub-Webhook-Ansicht prüfen.
+
+**Sicherheit:** Die Discord-Webhook-URL enthält ein geheimes Token. Veröffentliche sie niemals in Issues, README, Chatnachrichten oder Screenshots. Wer die URL besitzt, kann darüber Nachrichten in den Zielkanal senden. Bei versehentlicher Veröffentlichung den Webhook auf Discord sofort neu erzeugen.
+
 ## Kontakt und Projekt
 
 - [SkiZones auf GitHub](https://github.com/chekento/SkiZones)
