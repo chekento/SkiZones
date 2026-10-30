@@ -27,11 +27,11 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 ## Versionshistorie und APK-Archiv
 
 <!-- VERSION-ARCHIVE:START -->
-Für **17 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden – von der ersten Vorschau bis zur aktuellen Fassung.
+Für **17 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
 
 **[Vollständiges, detailliertes Changelog](CHANGELOG.md)** · [GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
-| Version | Datum (UTC) | Schwerpunkt | APK herunterladen | Release-Notizen |
+| Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
 | **[v0.14.3](https://github.com/chekento/SkiZones/releases/tag/v0.14.3)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.3/SkiZones-0.14.3-android-arm64.apk) | [Details](docs/releases/0.14.3.md) |
 | **[v0.14.2](https://github.com/chekento/SkiZones/releases/tag/v0.14.2)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.2/SkiZones-0.14.2-android-arm64.apk) | [Details](docs/releases/0.14.2.md) |
@@ -42,24 +42,24 @@ Für **17 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 <details>
 <summary>Ältere APK-Versionen anzeigen (12)</summary>
 
-| Version | Datum (UTC) | Schwerpunkt | APK herunterladen | Release-Notizen |
+| Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
 | **[v0.12.0](https://github.com/chekento/SkiZones/releases/tag/v0.12.0)** | 29.10.2026 | Präzise klicken, Breite wählen, Kurven glätten | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.12.0/SkiZones-0.12.0-android-arm64.apk) | [Details](docs/releases/0.12.0.md) |
-| **[v0.11.0](https://github.com/chekento/SkiZones/releases/tag/v0.11.0)** | 29.10.2026 | Besser planen, Bedürfnisse und Sprachen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.11.0/SkiZones-0.11.0-android-arm64.apk) | [Details](docs/releases/0.11.0.md) |
-| **[v0.10.0](https://github.com/chekento/SkiZones/releases/tag/v0.10.0)** | 28.10.2026 | Winterwelt und Spielstände | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.10.0/SkiZones-0.10.0-android-arm64.apk) | [Details](docs/releases/0.10.0.md) |
+| **[v0.11.0](https://github.com/chekento/SkiZones/releases/tag/v0.11.0)** | 29.10.2026 | Besser planen, echte Bedürfnisse, Deutsch und Englisch | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.11.0/SkiZones-0.11.0-android-arm64.apk) | [Details](docs/releases/0.11.0.md) |
+| **[v0.10.0](https://github.com/chekento/SkiZones/releases/tag/v0.10.0)** | 28.10.2026 | Eine kleine Winterwelt und verlässlich weiterspielen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.10.0/SkiZones-0.10.0-android-arm64.apk) | [Details](docs/releases/0.10.0.md) |
 | **[v0.9.0](https://github.com/chekento/SkiZones/releases/tag/v0.9.0)** | 28.10.2026 | Wege, Schwung und Gegenanstiege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.9.0/SkiZones-0.9.0-android-arm64.apk) | [Details](docs/releases/0.9.0.md) |
-| **[v0.8.0](https://github.com/chekento/SkiZones/releases/tag/v0.8.0)** | 28.10.2026 | Abschluss des Skitages | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.8.0/SkiZones-0.8.0-android-arm64.apk) | [Details](docs/releases/0.8.0.md) |
-| **[v0.7.0](https://github.com/chekento/SkiZones/releases/tag/v0.7.0)** | 28.10.2026 | Performance und Resortgestaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.7.0/SkiZones-0.7.0-android-arm64.apk) | [Details](docs/releases/0.7.0.md) |
+| **[v0.8.0](https://github.com/chekento/SkiZones/releases/tag/v0.8.0)** | 28.10.2026 | Ein Skitag geht wirklich zu Ende | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.8.0/SkiZones-0.8.0-android-arm64.apk) | [Details](docs/releases/0.8.0.md) |
+| **[v0.7.0](https://github.com/chekento/SkiZones/releases/tag/v0.7.0)** | 28.10.2026 | Flüssiger Betrieb und dein eigener Resortstil | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.7.0/SkiZones-0.7.0-android-arm64.apk) | [Details](docs/releases/0.7.0.md) |
 | **[v0.6.0](https://github.com/chekento/SkiZones/releases/tag/v0.6.0)** | 27.10.2026 | Bauen und Bergleben | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.6.0/SkiZones-0.6.0-android-arm64.apk) | [Details](docs/releases/0.6.0.md) |
 | **[v0.5.0](https://github.com/chekento/SkiZones/releases/tag/v0.5.0)** | 27.10.2026 | Lifte und Stationsplätze | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.5.0/SkiZones-0.5.0-android-arm64.apk) | [Details](docs/releases/0.5.0.md) |
-| **[v0.4.0](https://github.com/chekento/SkiZones/releases/tag/v0.4.0)** | 27.10.2026 | Bearbeitbare Pistenplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk) | [Details](docs/releases/0.4.0.md) |
-| **[v0.3.0](https://github.com/chekento/SkiZones/releases/tag/v0.3.0)** | 27.10.2026 | Schneespuren und Regionen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk) | [Details](docs/releases/0.3.0.md) |
+| **[v0.4.0](https://github.com/chekento/SkiZones/releases/tag/v0.4.0)** | 27.10.2026 | Dein Verlauf entscheidet | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.4.0/SkiZones-0.4.0-android-arm64.apk) | [Details](docs/releases/0.4.0.md) |
+| **[v0.3.0](https://github.com/chekento/SkiZones/releases/tag/v0.3.0)** | 27.10.2026 | Spuren im Schnee | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk) | [Details](docs/releases/0.3.0.md) |
 | **[v0.2.0](https://github.com/chekento/SkiZones/releases/tag/v0.2.0)** | 27.10.2026 | Alpen und Karriere | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.2.0/SkiZones-0.2.0-android-arm64.apk) | [Details](docs/releases/0.2.0.md) |
-| **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Erste Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
+| **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 </details>
 
-Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, bekannte Einschränkungen und Prüfberichte finden sich in den jeweiligen Release-Notizen. Neue Veröffentlichungen werden durch die Release-Synchronisierung nachgetragen.
+Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
 ## Neu in 0.14.3 · Pisten präzise bauen und verbinden
