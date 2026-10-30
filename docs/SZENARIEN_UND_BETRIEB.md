@@ -1,12 +1,23 @@
 # Echte Gebiete und laufender Betrieb
 
-Im Hauptmenü **Szenarien · echte Skigebiete** wählen. Jedes Gebiet hat einen
+Das Hauptspiel steht im Hauptmenü oben: **Fortsetzen**, **Karriere · Gebiete
+entdecken** und **Freier Aufbau**. Der Fortsetzen-Knopf führt zum Hauptspiel;
+ein zuletzt geöffnetes Szenario ersetzt diesen Eintrag nicht. Für die zusätzlichen
+Szenarien unter **Extras → Szenarien · echte Skigebiete** wählen. Jedes Gebiet hat einen
 eigenen Spielstand und fünf überprüfbare Ziele. Die acht bisherigen Resorts
 bleiben im Bergpass erhalten.
 
-1. Im **Resort-Büro → Betrieb** den Zustand der Anlagen prüfen. Bei einer
-   unbesetzten Anlage Stationspersonal einstellen. Mittelstationen teilen ihre
-   Einteilung mit den angrenzenden Abschnitten derselben Seilbahn.
+Die Missionsleiste auf der Karte zeigt den Fortschritt und das nächste offene
+Ziel, auch während einer Bauplanung. **Missionen** führt direkt zur vollständigen
+Checkliste und den Betriebsaktionen. Im Resort-Kompass steht dieselbe Checkliste.
+
+1. Einen **Lift antippen → Personal & Liftbesetzung**. Jede Station zeigt getrennt
+   die erforderliche Besetzung, die tatsächlich im Dienst befindlichen Personen
+   und die eingeplanten Schichten. Mit dem Einstellknopf der Station die fehlende
+   Tagschicht besetzen; die Kosten stehen direkt auf dem Knopf. Vorhandene Reserve
+   lässt sich kostenlos zuweisen. Mittelstationen teilen ihr Team mit den
+   angrenzenden Abschnitten derselben Seilbahn. Die Stationsübersicht pausiert
+   den Betrieb; **Zurück zum Lift** kehrt zur Karte zurück.
 2. Eine **Technik- und Reparaturzentrale** im Dorf bauen. Im Büro unter
    **Technik & Rettung** das Gebäudeteam einstellen. Bei fehlendem Material
    Ersatzteile bestellen. Danach die Reparatur am betroffenen Lift beauftragen.
@@ -20,7 +31,9 @@ bleiben im Bergpass erhalten.
    Wetter verlängern die Reaktionszeit.
 5. Unter **Personal** Einsatzorte, Pausen und Schichten einstellen. Die
    Besetzungszahlen sind abgestimmte Spielwerte. Eine beurlaubte oder pausierende
-   Kraft ersetzt keinen diensthabenden Stationsmitarbeiter.
+   Kraft ersetzt keinen diensthabenden Stationsmitarbeiter. Bei der Einstellung
+   sind Aufgabe, Einsatzort und Arbeitszeit einzeln beschriftet. Filter für Rolle
+   und Einsatzort und Seiten mit zwölf Personen halten auch große Teams übersichtlich.
 6. Hotels, Restaurants, Disco und Außenpool sinnvoll ergänzen. Gäste müssen
    Angebote erreichen können und Plätze müssen frei sein. Erst nach dem Besuch
    werden Erlöse verbucht. Hotelgäste bleiben über Mitternacht im selben Resort.

@@ -22,10 +22,10 @@ const ROLES := {
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
 const GOALS := {
-	"braunlage": ["Stationspersonal einstellen", "Technikzentrale und Reparaturteam aufbauen", "Defekten Lift reparieren", "Pistenraupe kaufen und Pisten präparieren", "100 zufriedene Gäste begrüßen"],
-	"filzmoos": ["Alle geöffneten Stationen besetzen", "Bergrettung einsatzbereit machen", "Pisten präparieren", "Wartezeiten unter 12 Minuten halten", "Zwei wirtschaftliche Betriebstage"],
-	"kitzbuehel": ["Verbindungslift reparieren", "Mittelstationen vollständig besetzen", "Ersatzteile vorrätig halten", "Wartezeiten unter 15 Minuten halten", "300 Gäste und positives Betriebsergebnis"],
-	"seiseralm": ["Rettung und Technik koordinieren", "Drei Pistenraupen einsetzen", "Hotel und Abendangebot betreiben", "Alle geöffneten Stationen besetzen", "Drei wirtschaftliche Betriebstage"]
+	"braunlage": ["Stationspersonal einstellen", "Technikzentrale und Reparaturteam aufbauen", "Defekten Lift reparieren", "Eine Piste mit der eigenen Pistenraupe präparieren", "100 Gäste und mindestens 50 % Ruf erreichen"],
+	"filzmoos": ["Alle geöffneten Stationen besetzen", "Bergrettung einsatzbereit machen", "Drei Präparierungen abschließen", "100 Gäste erreichen und Wartezeiten unter 12 Minuten halten", "Zwei wirtschaftliche Betriebstage"],
+	"kitzbuehel": ["Verbindungslift reparieren", "Alle Stationen einschließlich Mittelstationen besetzen", "Mindestens zwei Ersatzteilpakete vorrätig halten", "200 Gäste erreichen und Wartezeiten unter 15 Minuten halten", "300 Gäste und positives Betriebsergebnis"],
+	"seiseralm": ["Rettung und Technik koordinieren", "Drei Pistenraupen besitzen und drei Präparierungen abschließen", "Hotel und Abendangebot betreiben", "Alle geöffneten Stationen besetzen", "Drei wirtschaftliche Betriebstage"]
 }
 
 static func initial() -> Dictionary:
@@ -138,6 +138,36 @@ static func staffing(model: RefCounted, lift: Dictionary) -> Dictionary:
 		safe = safe and count >= station.minimum
 	return {"ok": safe, "present": present, "needed": needed}
 
+static func station_team(model: RefCounted, lift: Dictionary) -> Array:
+	var result: Array = []
+	for station in station_demands(lift):
+		var row: Dictionary = station.duplicate(true)
+		row.name = L.text("Bergstation") if station.top else L.text("Talstation")
+		for other in model.lifts:
+			if int(other.id) == int(lift.id): continue
+			if station_demands(other).any(func(s): return s.key == station.key): row.name = L.text("Mittelstation")
+		row.people = []
+		row.planned = 0
+		row.present = duty(model, "operator", station.key)
+		for person in model.operations.staff:
+			if person.role != "operator" or person.assignment != station.key: continue
+			row.people.append(person)
+			if person.shift == "day" and int(person.absent_until) <= clock(model) and int(person.break_until) <= clock(model): row.planned += 1
+		row.missing = maxi(0, station.minimum - row.planned)
+		result.append(row)
+	return result
+
+static func fill_station(model: RefCounted, id: int, key: String) -> Dictionary:
+	var lift: Dictionary = model.asset(id)
+	if not lift.has("bottom"): return model._result(false, L.text("Einen Lift wählen."))
+	for station in station_team(model, lift):
+		if station.key != key: continue
+		if model.operations.staff.size() + station.missing > 1200 or model.money < station.missing * 180:
+			return model._result(false, L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
+		for i in range(station.missing): hire(model, "operator", key)
+		return model._result(true, L.text("Tagschicht besetzt · 07–18 Uhr. Der Dienststatus zeigt Pausen und Abwesenheiten."))
+	return model._result(false, L.text("Station nicht gefunden."))
+
 static func lift_available(model: RefCounted, lift: Dictionary) -> bool:
 	if not active(model): return true
 	if lift.get("fault", "") != "" or not staffing(model, lift).ok: return false
@@ -184,6 +214,7 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 			if person.role == "operator" and person.assignment == station.key and person.shift == "day" and int(person.absent_until) <= clock(model) and int(person.break_until) <= clock(model): assigned += 1
 		for i in range(maxi(0, station.minimum - assigned)): additions.append(station.key)
 	if not free and model.money < additions.size() * 180: return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
+	if model.operations.staff.size() + additions.size() > 1200: return model._result(false, L.text("Im Personalplan ist kein Platz für dieses Team."))
 	for target in additions: hire(model, "operator", target, "day", free)
 	return model._result(true, L.text("Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."))
 

@@ -15,12 +15,14 @@ const Foot = preload("res://src/core/foot_network.gd")
 const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
+const GroundSurface = preload("res://src/world/ground_surface.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var snow_renderer := SnowRender.new()
 var surface_picker := SurfacePicker.new()
+var ground_surface := GroundSurface.new()
 var _terrain_grading := -1
 var piste_furniture: Array = []
 var forest := ForestLOD.new()
@@ -327,11 +329,13 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.set_meta("ground_cell", maxf(8, step_size * (2.0 if refined.is_empty() else 0.4)))
 	return mesh
 
 func _build_terrain() -> void:
 	terrain_instance = MeshInstance3D.new()
 	terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
+	ground_surface.configure(terrain_instance.mesh)
 	terrain_instance.material_override = _solid
 	landscape.add_child(terrain_instance)
 	var lake := CylinderMesh.new()
@@ -582,6 +586,8 @@ func rebuild() -> void:
 			_build_slope_overlay()
 			_build_topography()
 	surface_picker.add_mesh("ground", terrain_instance.mesh)
+	ground_surface.configure(terrain_instance.mesh)
+	snow_renderer.ground = ground_surface
 	for child in landscape.get_children():
 		if child.has_meta("walk_surface"): surface_picker.add_mesh("floor_%d" % child.get_instance_id(), child.mesh)
 	_queue_paths.clear()
@@ -648,7 +654,7 @@ func rebuild() -> void:
 			var side := direction.orthogonal() * (width * 0.5 + 1.5)
 			var angle := atan2(-direction.x, -direction.y)
 			for edge in [-1, 1]:
-				var at := terrain.world(point + side * edge, 0.25)
+				var at := ground_position(point + side * edge, 0.25)
 				if not piste_clear(Vector2(at.x, at.z), 1.2): continue
 				signs.set_instance_transform(sign_index, Transform3D(Basis(Vector3.UP, angle), at))
 				signs.set_instance_color(sign_index, Color.WHITE)
@@ -885,7 +891,7 @@ func _plan_triangle(triangles: Array, heights: Dictionary, a: Vector2, b: Vector
 func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: float) -> void:
 	if points.size() < 2:
 		return
-	var samples := PisteMesh.samples(terrain, points, width, 4 if parent == preview_root else 6)
+	var samples := PisteMesh.samples(terrain, points, width, 4 if parent == preview_root else 6, [], null if parent == preview_root else ground_surface)
 	if samples.is_empty():
 		return
 	var surface := SurfaceTool.new()
@@ -897,7 +903,7 @@ func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: 
 		for index in range(0, samples.size(), 3): _plan_triangle(triangles, heights, samples[index].point, samples[index + 1].point, samples[index + 2].point)
 		for point in triangles: surface.add_vertex(heights[point])
 	else:
-		for sample in samples: surface.add_vertex(terrain.world(sample.point, offset))
+		for sample in samples: surface.add_vertex(Vector3(sample.point.x, sample.height + offset, sample.point.y))
 	surface.index()
 	surface.generate_normals()
 	var instance := MeshInstance3D.new()
@@ -1246,7 +1252,7 @@ func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run
 	var point: Vector2 = frame.point + side * side_offset
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var road_side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	return terrain.world(point, snow_renderer.height_offset(piste, point, fraction, (point - center).dot(road_side)) + 0.05)
+	return ground_position(point, snow_renderer.height_offset(piste, point, fraction, (point - center).dot(road_side)) + 0.05)
 
 func _trace_quad(surface: SurfaceTool, a: Vector3, b: Vector3, width: float, color: Color, weights: Vector2 = Vector2.ONE) -> void:
 	var side := Vector3(b.z - a.z, 0, a.x - b.x).normalized() * width
@@ -1279,7 +1285,7 @@ func _trace_sample(piste: Dictionary, track: Dictionary, index: int, blocking: b
 		var point: Vector2 = frame.point + frame.direction.orthogonal() * offset
 		var weight := snow_renderer.junction_weight(piste.id, point)
 		data.weights.append(weight)
-		data.points.append(terrain.world(point, lerpf(0.65, Snow.base_height(piste, fraction), weight) + 0.05))
+		data.points.append(ground_position(point, lerpf(0.65, Snow.base_height(piste, fraction), weight) + 0.05))
 		data.uvs.append(snow_renderer.uv(piste, fraction, (point - center).dot(road_side)))
 	_trace_cache[key] = data
 	return data
@@ -1468,6 +1474,9 @@ func surface_position(point: Vector2) -> Vector3:
 	var at := surface_picker.position(point)
 	return at if at.is_finite() else terrain.world(point)
 
+func ground_position(point: Vector2, offset: float = 0.0) -> Vector3:
+	return ground_surface.position(point, terrain.height(point), offset)
+
 func map_point(screen_point: Vector2) -> Vector2:
 	if not get_viewport().get_visible_rect().has_point(screen_point): return Vector2.INF
 	var hit := surface_picker.intersect(camera.project_ray_origin(screen_point), camera.project_ray_normal(screen_point))
@@ -1504,9 +1513,9 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	var before: Vector3 = terrain.world(frame.before)
-	var ahead: Vector3 = terrain.world(frame.ahead)
-	return {"position": terrain.world(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
+	var before: Vector3 = ground_position(frame.before)
+	var ahead: Vector3 = ground_position(frame.ahead)
+	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)
@@ -1545,9 +1554,17 @@ func _rider_pose(guest: Dictionary) -> Dictionary:
 func set_quality(mode: String) -> void:
 	quality = mode if mode in ["auto", "economy", "balanced", "high"] else "auto"
 	quality_tier = {"auto": 1, "economy": 0, "balanced": 1, "high": 2}[quality]
+	_apply_quality()
+
+func _apply_quality() -> void:
+	# Compatibility rendering must keep one full-size render target. Changing
+	# this scale on Android can shrink the world into the upper-left corner
+	# while the HUD and camera projections still cover the entire viewport.
+	get_viewport().scaling_3d_scale = 1.0
 	trace_budget = [700, 1200, 2000][quality_tier]
-	get_viewport().scaling_3d_scale = [0.65, 0.85, 1.0][quality_tier]
 	_sun.shadow_enabled = quality_tier > 0
+	var flakes: int = [50, 90, 140][quality_tier]
+	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
 
 func _adapt_quality(delta: float) -> void:
@@ -1558,14 +1575,11 @@ func _adapt_quality(delta: float) -> void:
 	if _quality_timer < 1.5:
 		return
 	_quality_timer = 0
-	var viewport := get_viewport()
 	if _frame_average > frame_target * 1.4:
-		viewport.scaling_3d_scale = maxf(0.6, viewport.scaling_3d_scale - 0.07)
-		quality_tier = 0 if viewport.scaling_3d_scale < 0.7 else 1
+		quality_tier = maxi(0, quality_tier - 1)
 	elif _frame_average < frame_target * 1.05:
-		viewport.scaling_3d_scale = minf(0.92, viewport.scaling_3d_scale + 0.02)
-		quality_tier = 1
-	_sun.shadow_enabled = quality_tier > 0
+		quality_tier = mini(1, quality_tier + 1)
+	_apply_quality()
 
 func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 	var key := "%s/%s/%d/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", "")]

@@ -9,6 +9,7 @@ var pick_frames: Dictionary = {}
 var pick_weights: Dictionary = {}
 var exclusions: Dictionary = {}
 var junction_grid: Dictionary = {}
+var ground: RefCounted
 var shader := Shader.new()
 
 func _init() -> void:
@@ -120,16 +121,16 @@ func build(mountain: RefCounted, piste: Dictionary) -> ArrayMesh:
 	var weights := PackedFloat32Array()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_smooth_group(0)
-	for sample in PisteMesh.samples(mountain, piste.points, width, 12.0 if piste.get("imported", false) else 4.0, exclusions.get(piste.id, [])):
+	for sample in PisteMesh.samples(mountain, piste.points, width, 12.0 if piste.get("imported", false) else 4.0, exclusions.get(piste.id, []), ground):
 		frames.append(Vector2(sample.fraction, sample.lateral))
 		var weight := junction_weight(piste.id, sample.point)
 		weights.append(weight)
 		var edge := smoothstep(width * 0.5 - 2.3, width * 0.5, sample.distance)
-		var color := Color("f4f5fc").darkened((sin(sample.lateral * 10) * 0.5 + 0.5) * 0.012 * weight).lerp(Color("e1e8f5"), edge * weight * 0.55)
+		var color := Color("edf3fc").darkened((sin(sample.lateral * 10) * 0.5 + 0.5) * 0.012 * weight).lerp(Color("b7cedd"), edge * weight * 0.7)
 		color.a = weight
 		surface.set_color(color)
 		surface.set_uv(uv(piste, sample.fraction, sample.lateral))
-		surface.add_vertex(mountain.world(sample.point, lerpf(0.65, Snow.base_height(piste, sample.fraction) + edge * 0.13, weight)))
+		surface.add_vertex(Vector3(sample.point.x, sample.height + lerpf(0.65, Snow.base_height(piste, sample.fraction) + edge * 0.13, weight), sample.point.y))
 	pick_frames[piste.id] = frames
 	pick_weights[piste.id] = weights
 	if frames.is_empty(): return ArrayMesh.new()

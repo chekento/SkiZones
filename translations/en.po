@@ -2631,3 +2631,150 @@ msgstr "Piste %d · new junction"
 
 msgid "Punkt wählen"
 msgstr "Select a point"
+
+msgid "Bergstation"
+msgstr "Top station"
+
+msgid "Talstation"
+msgstr "Base station"
+
+msgid "Mittelstation"
+msgstr "Middle station"
+
+msgid "Das Budget oder der Personalplatz reicht für dieses Team noch nicht."
+msgstr "There is not enough budget or staff capacity for this team yet."
+
+msgid "Tagschicht besetzt · 07–18 Uhr. Der Dienststatus zeigt Pausen und Abwesenheiten."
+msgstr "Day shift staffed · 07:00–18:00. Duty status includes breaks and absences."
+
+msgid "Station nicht gefunden."
+msgstr "Station not found."
+
+msgid "Im Personalplan ist kein Platz für dieses Team."
+msgstr "There is no staff capacity for this team."
+
+msgid "Personal & Liftbesetzung"
+msgstr "Staff & lift stations"
+
+msgid "Missionen"
+msgstr "Missions"
+
+msgid "HAUPTSPIEL"
+msgstr "MAIN GAME"
+
+msgid "Karriere · Gebiete entdecken"
+msgstr "Career · discover regions"
+
+msgid "EXTRAS"
+msgstr "EXTRAS"
+
+msgid "LIFTTEAM · %d / %d im Dienst"
+msgstr "LIFT TEAM · %d / %d on duty"
+
+msgid "%s: %d / %d"
+msgstr "%s: %d / %d"
+
+msgid "[color=#347970]SZENARIOMISSIONEN · %d / %d[/color]\n\n"
+msgstr "[color=#347970]SCENARIO MISSIONS · %d / %d[/color]\n\n"
+
+msgid "Alle Missionen: 75.000 € + 30 FP. Details und Betriebsaktionen unter ‚Missionen‘."
+msgstr "Complete all missions: €75,000 + 30 RP. Open Missions for details and operating actions."
+
+msgid "SZENARIO · %s · %d / %d Missionen"
+msgstr "SCENARIO · %s · %d / %d missions"
+
+msgid "Alle Missionen erfüllt · der Betrieb geht weiter."
+msgstr "All missions complete · resort operations continue."
+
+msgid "Nächste Mission: "
+msgstr "Next mission: "
+
+msgid "LIFTTEAM & STATIONEN"
+msgstr "LIFT TEAM & STATIONS"
+
+msgid "Zurück zum Lift"
+msgstr "Back to the lift"
+
+msgid "1. Station wählen · 2. Fehlende Tagschicht besetzen · 3. Dienststatus prüfen\n180 € je Einstellung · 18 €/h je Person im Dienst. Mittelstationen teilen sich ein Team."
+msgstr "1. Choose a station · 2. Fill the day shift · 3. Check duty status\n€180 per hire · €18/h per person on duty. Middle stations share one team."
+
+msgid "Alle Mitarbeiter und Schichten verwalten"
+msgstr "Manage all staff and shifts"
+
+msgid "Noch niemand eingeplant."
+msgstr "No staff assigned yet."
+
+msgid "Oder vorhandene Reserve einsetzen:"
+msgstr "Or assign existing reserve staff:"
+
+msgid "Reserve dieser Station zuweisen · kostenlos"
+msgstr "Assign reserve to this station · no fee"
+
+msgid "%s · %d / %d im Dienst · %s"
+msgstr "%s · %d / %d on duty · %s"
+
+msgid "%d / %d im Dienst · %d Personen eingeplant\nTagschicht: %d / %d besetzt"
+msgstr "%d / %d on duty · %d staff assigned\nDay shift: %d / %d staffed"
+
+msgid "Tagschicht vollständig besetzt"
+msgstr "Day shift fully staffed"
+
+msgid "%d fehlende Person(en) einstellen · %d €"
+msgstr "Hire %d missing staff · €%d"
+
+msgid "Eine Piste mit der eigenen Pistenraupe präparieren"
+msgstr "Groom one piste with your own snowcat"
+
+msgid "100 Gäste und mindestens 50 % Ruf erreichen"
+msgstr "Welcome 100 guests and reach at least 50% reputation"
+
+msgid "Drei Präparierungen abschließen"
+msgstr "Complete three grooming jobs"
+
+msgid "100 Gäste erreichen und Wartezeiten unter 12 Minuten halten"
+msgstr "Welcome 100 guests and keep queues below 12 minutes"
+
+msgid "Alle Stationen einschließlich Mittelstationen besetzen"
+msgstr "Staff all stations, including middle stations"
+
+msgid "Mindestens zwei Ersatzteilpakete vorrätig halten"
+msgstr "Keep at least two spare-parts packages in stock"
+
+msgid "200 Gäste erreichen und Wartezeiten unter 15 Minuten halten"
+msgstr "Welcome 200 guests and keep queues below 15 minutes"
+
+msgid "Drei Pistenraupen besitzen und drei Präparierungen abschließen"
+msgstr "Own three snowcats and complete three grooming jobs"
+
+msgid "Liftteam und einzelne Stationen öffnen"
+msgstr "Open lift team and individual stations"
+
+msgid "1 · Aufgabe und Stundenlohn"
+msgstr "1 · Role and hourly wage"
+
+msgid "2 · Einsatzort"
+msgstr "2 · Assignment"
+
+msgid "3 · Arbeitszeit"
+msgstr "3 · Working hours"
+
+msgid "Dein Team · Einsatzorte und Dienststatus"
+msgstr "Your team · assignments and duty status"
+
+msgid "Am Lift kannst du Tal-, Berg- und Mittelstation direkt besetzen. Hier filterst du das gesamte Team nach Aufgabe und Einsatzort."
+msgstr "Staff base, top and middle stations directly at each lift. Filter the full team here by role and assignment."
+
+msgid "Alle Aufgaben"
+msgstr "All roles"
+
+msgid "Alle Einsatzorte"
+msgstr "All assignments"
+
+msgid "%d Mitarbeiter · Seite %d / %d"
+msgstr "%d staff · page %d / %d"
+
+msgid "Vorherige Seite"
+msgstr "Previous page"
+
+msgid "Nächste Seite"
+msgstr "Next page"

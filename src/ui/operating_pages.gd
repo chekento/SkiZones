@@ -8,6 +8,11 @@ static func add(office: Control) -> void:
 	if not Ops.active(model): return
 	var hud: CanvasLayer = office.hud
 	var page: VBoxContainer = office._page(L.text("Betrieb"))
+	if model.operations.scenario != "":
+		var scenario: String = model.operations.scenario
+		var goals := Ops.evaluate(model)
+		var card: VBoxContainer = office._card(page, L.text("Szenarioziele") + (" ✓" if model.operations.completed else ""), L.text("Alle Ziele erfüllen: 75.000 € und 30 Forschungspunkte. Der Betrieb geht anschließend weiter."))
+		for i in range(goals.size()): hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
 	var summary: VBoxContainer = office._card(page, L.text("24-Stunden-Resort"), L.text("Lifte 08–17 Uhr. Hotels und Abendangebote haben eigene Schichten. Um Mitternacht wird automatisch abgerechnet; die Simulation läuft weiter."))
 	hud._label(summary, L.text("Heute: %s € Personalkosten · Ersatzteile: %d · Pistenraupen: %d") % [hud.money_text(model.operations.payroll), int(model.operations.parts), model.operations.vehicles.size()], 18, hud.TEAL, true)
 	hud._label(summary, L.text("Gäste pro sichtbarer Reisegruppe: %d. Tickets, Kapazitäten und Erlöse berücksichtigen die Gruppengröße.") % Ops.group_size(model), 16, hud.MUTED, true)
@@ -19,14 +24,13 @@ static func add(office: Control) -> void:
 	auto.button_pressed = model.operations.auto_groom
 	auto.toggled.connect(func(value): model.operations.auto_groom = value)
 	summary.add_child(auto)
-	if model.operations.scenario != "":
-		var scenario: String = model.operations.scenario
-		var goals := Ops.evaluate(model)
-		var card: VBoxContainer = office._card(page, L.text("Szenarioziele") + (" ✓" if model.operations.completed else ""), L.text("Alle Ziele erfüllen: 75.000 € und 30 Forschungspunkte. Der Betrieb geht anschließend weiter."))
-		for i in range(goals.size()): hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
 	for lift in model.lifts:
 		var crew := Ops.staffing(model, lift)
 		var body: VBoxContainer = office._card(page, L.asset_name(lift), model.lift_status(lift))
+		hud._button(body, L.text("Liftteam und einzelne Stationen öffnen"), func():
+			office.hide()
+			hud.lift_staff.open(int(lift.id))
+		, true)
 		hud._label(body, L.text("Besetzung %d / %d · %.0f %% Verschleiß · %d Wartende") % [crew.present, crew.needed, float(lift.get("wear", 0)), model.queue_size(int(lift.id))], 16, hud.MUTED, true)
 		if int(lift.get("sections", 1)) > 1: hud._label(body, L.text("Durchgehende Seilbahn · Abschnitt %d / %d · gemeinsame Mittelstation") % [int(lift.section) + 1, int(lift.sections)], 16, hud.TEAL, true)
 		office._action(body, L.text("Stationspersonal einstellen · 180 € pro Person"), func(): return Ops.fill_stations(model, int(lift.id)))
@@ -46,13 +50,53 @@ static func add(office: Control) -> void:
 			targets.append({"key": station.key, "name": "%s · %s" % [L.asset_name(lift), L.text("Berg / Mittel") if station.top else L.text("Tal / Mittel")]})
 	for building in model.buildings: targets.append({"key": "building:%d" % int(building.id), "name": L.asset_name(building)})
 	var hiring: VBoxContainer = office._card(people, L.text("Mitarbeiter einstellen"), L.text("180 € Einstellungskosten. Der Stundenlohn fällt nur während der eingeteilten Arbeitszeit an."))
+	hud._label(hiring, L.text("1 · Aufgabe und Stundenlohn"), 16, hud.TEAL)
 	var role_choice := OptionButton.new()
+	role_choice.custom_minimum_size.y = 46
 	for role in Ops.ROLES: role_choice.add_item(L.text(Ops.ROLES[role].name) + " · %.0f €/h" % float(Ops.ROLES[role].wage))
 	hiring.add_child(role_choice)
+	hud._label(hiring, L.text("2 · Einsatzort"), 16, hud.TEAL)
 	var hire_target := _targets(hiring, targets)
+	hud._label(hiring, L.text("3 · Arbeitszeit"), 16, hud.TEAL)
 	var hire_shift := _shifts(hiring)
 	office._action(hiring, L.text("Einstellen · 180 €"), func(): return Ops.hire(model, Ops.ROLES.keys()[role_choice.selected], targets[hire_target.selected].key, Ops.SHIFTS.keys()[hire_shift.selected]))
-	for person in model.operations.staff:
+	var directory: VBoxContainer = office._card(people, L.text("Dein Team · Einsatzorte und Dienststatus"), L.text("Am Lift kannst du Tal-, Berg- und Mittelstation direkt besetzen. Hier filterst du das gesamte Team nach Aufgabe und Einsatzort."))
+	var roles := OptionButton.new()
+	roles.custom_minimum_size.y = 46
+	roles.add_item(L.text("Alle Aufgaben"))
+	for role in Ops.ROLES: roles.add_item(L.text(Ops.ROLES[role].name))
+	roles.select(Ops.ROLES.keys().find(office.staff_role) + 1)
+	directory.add_child(roles)
+	roles.item_selected.connect(func(index: int):
+		office.staff_role = "" if index == 0 else Ops.ROLES.keys()[index - 1]
+		office.staff_page = 0
+		office.refresh()
+	)
+	var locations: Array = [{"key": "", "name": L.text("Alle Einsatzorte")}]
+	locations.append_array(targets)
+	var location := _targets(directory, locations)
+	for index in range(locations.size()):
+		if locations[index].key == office.staff_target: location.select(index)
+	location.item_selected.connect(func(index: int):
+		office.staff_target = locations[index].key
+		office.staff_page = 0
+		office.refresh()
+	)
+	var filtered: Array = model.operations.staff.filter(func(p): return (office.staff_role == "" or p.role == office.staff_role) and (office.staff_target == "" or p.assignment == office.staff_target))
+	var pages := maxi(1, ceili(filtered.size() / 12.0))
+	office.staff_page = clampi(office.staff_page, 0, pages - 1)
+	hud._label(directory, L.text("%d Mitarbeiter · Seite %d / %d") % [filtered.size(), office.staff_page + 1, pages], 17, hud.TEAL)
+	var navigation := HBoxContainer.new()
+	directory.add_child(navigation)
+	hud._button(navigation, L.text("Vorherige Seite"), func():
+		office.staff_page -= 1
+		office.refresh()
+	).disabled = office.staff_page == 0
+	hud._button(navigation, L.text("Nächste Seite"), func():
+		office.staff_page += 1
+		office.refresh()
+	).disabled = office.staff_page == pages - 1
+	for person in filtered.slice(office.staff_page * 12, (office.staff_page + 1) * 12):
 		var body: VBoxContainer = office._card(people, "%s · %s" % [person.name, L.text(Ops.ROLES[person.role].name)], L.text("%.0f €/h · Qualifikation %d · Motivation %.0f %% · Belastung %.0f %% · %d Arbeitsminuten") % [float(person.wage), int(person.qualification), float(person.motivation), float(person.fatigue), int(person.worked)])
 		hud._label(body, L.text("Im Dienst") if Ops.on_duty(model, person) else L.text("Außer Dienst / Pause / Abwesenheit"), 16, hud.TEAL)
 		var target := _targets(body, targets)
@@ -117,6 +161,8 @@ static func _targets(parent: Node, targets: Array) -> OptionButton:
 	var choice := OptionButton.new()
 	choice.custom_minimum_size.y = 46
 	for target in targets: choice.add_item(target.name)
+	choice.fit_to_longest_item = false
+	choice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	parent.add_child(choice)
 	return choice
 

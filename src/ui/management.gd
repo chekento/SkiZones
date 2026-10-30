@@ -14,6 +14,9 @@ var tabs := TabContainer.new()
 var title: Label
 var feedback: Label
 var _feedback := ""
+var staff_role := ""
+var staff_target := ""
+var staff_page := 0
 
 func setup(controller: Node, interface: CanvasLayer) -> void:
 	game = controller

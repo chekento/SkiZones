@@ -55,7 +55,7 @@ static func shared_boundary(polygon: PackedVector2Array) -> PackedVector2Array:
 			if result.is_empty() or result[-1].distance_to(point) > 0.0001: result.append(point)
 	return result
 
-static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0, exclusions: Array = []) -> Array:
+static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0, exclusions: Array = [], ground: RefCounted = null) -> Array:
 	if points.size() < 2:
 		return []
 	var corridors := outlines(points, width)
@@ -86,19 +86,23 @@ static func samples(mountain: RefCounted, points: Array, width: float, step: flo
 				polygons = remaining
 			for polygon in polygons:
 				if step > 4: polygon = shared_boundary(polygon)
-				var indices := Geometry2D.triangulate_polygon(polygon)
-				for i in range(0, indices.size(), 3):
-					var a: Vector2 = polygon[indices[i]]
-					var b: Vector2 = polygon[indices[i + 1]]
-					var c: Vector2 = polygon[indices[i + 2]]
-					if absf((b - a).cross(c - a)) < 0.0001:
-						continue
-					# Keep all triangles facing upwards; clipped polygons may have either winding.
-					var triangle := [a, b, c] if (b - a).cross(c - a) > 0 else [a, c, b]
-					for at in triangle:
-						if not frames.has(at):
-							var frame := nearest(mountain, points, at, path)
-							frame.point = at
-							frames[at] = frame
-						result.append(frames[at])
+				var triangles := PackedVector3Array()
+				if ground != null:
+					triangles = ground.clip(polygon)
+				else:
+					var indices := Geometry2D.triangulate_polygon(polygon)
+					for i in range(0, indices.size(), 3):
+						var a: Vector2 = polygon[indices[i]]
+						var b: Vector2 = polygon[indices[i + 1]]
+						var c: Vector2 = polygon[indices[i + 2]]
+						if absf((b - a).cross(c - a)) < 0.0001: continue
+						for at in ([a, b, c] if (b - a).cross(c - a) > 0 else [a, c, b]): triangles.append(mountain.world(at))
+				for vertex in triangles:
+					var at := Vector2(vertex.x, vertex.z)
+					if not frames.has(at):
+						var frame := nearest(mountain, points, at, path)
+						frame.point = at
+						frame.height = vertex.y
+						frames[at] = frame
+					result.append(frames[at])
 	return result

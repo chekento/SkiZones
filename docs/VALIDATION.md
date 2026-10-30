@@ -1,4 +1,33 @@
-# Prüfung von SkiZones 0.14.3
+# Prüfung von SkiZones 0.15.0
+
+Die zusätzlichen Grafikprüfungen kontrollieren volle Rendergröße bei jeder
+Grafikstufe und bei automatischer Überlastanpassung, asymmetrische sichere
+Handyränder, Punktziehen ohne Kameraverschiebung und die Hauptspiel-Reihenfolge.
+Alle vier realen Szenarien werden als vollständige 3D-Szene aufgebaut. Pro Gebiet
+werden Schneeflächen gegen die tatsächlich gerenderten Bodendreiecke sowie die
+sichtbare Abdeckung der Pistenmittellinien geprüft. Die Prüfung umfasst auch
+direkte Einstellknöpfe, Kosten, doppelte Einstellungen, Schichtwechsel,
+Reservezuweisung, gemeinsame Mittelstationen und englische Stationsanzeigen.
+
+Lokal sind die Modellprüfungen für Pistenverbindungen (19), Schneeflächen (25),
+reale Betriebsabläufe (103), Nachtbetrieb und Rettung (30) sowie Bauplätze und
+Wege (24) erfolgreich. Die vorhandene Punkteditor-Grafikprüfung besteht 15 Fälle.
+Die Skifahrer-Kontaktprüfung verwendet jetzt zusätzlich einen unabhängigen
+Strahlschnitt mit dem sichtbaren Bodendreieck; die zugehörige Grafiksuite
+besteht 31 Fälle. Der Sprachkatalog enthält 925 Einträge mit unveränderten
+Platzhaltern und vollständiger Quelltextabdeckung.
+
+Die Android-Tests prüfen die vier Kameraperspektiven zusammen mit den vier
+Grafikstufen. Bei Automatik wird zusätzlich Überlastung simuliert. Jeder echte
+Emulator-Bildnachweis verlangt eine Rendergröße von 100 %. Die Veröffentlichung
+von Versionscode 19 bleibt von den vollständigen CI- und Android-Läufen abhängig.
+Ein physisches Smartphone wurde nicht geprüft.
+
+Neue Regression: `tests/display_staff_scene.gd`. Die zugehörigen tatsächlichen
+Spielbilder werden unter `build/qa/` erzeugt. Die bestehende Prüfung für
+Punktgriffe und letzte Touch-Positionen bleibt aktiv.
+
+# Vorheriger Veröffentlichungsstand 0.14.3
 
 **Modell und Grafik: 1.021 Prüfungen in 33 Suiten bestanden.** Die signierte ARM64-APK hat Signatur- und Archivprüfung bestanden.
 

@@ -21,6 +21,7 @@ const Management = preload("res://src/ui/management.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
+const LiftStaff = preload("res://src/ui/lift_staff.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
 const INK := Color("294d54")
 const MUTED := Color("5d7679")
@@ -89,6 +90,12 @@ var display_options := DisplayOptions.new()
 var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
+var lift_staff := LiftStaff.new()
+var lift_staff_button: Button
+var lift_staff_status: Label
+var mission_panel: PanelContainer
+var mission_title: Label
+var mission_next: Label
 
 func setup(controller: Node) -> void:
 	game = controller
@@ -132,6 +139,7 @@ func setup(controller: Node) -> void:
 	_build_tools()
 	_build_inspector()
 	_build_plan_bar()
+	_build_missions()
 	_build_camera_bar()
 	_build_slope_legend()
 	_build_menu()
@@ -139,6 +147,8 @@ func setup(controller: Node) -> void:
 	_build_camera_dialog()
 	root.add_child(management)
 	management.setup(game, self)
+	root.add_child(lift_staff)
+	lift_staff.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
 	root.add_child(asset_editor)
@@ -314,6 +324,11 @@ func _build_inspector() -> void:
 	inspector_title.auto_translate_mode=Node.AUTO_TRANSLATE_MODE_DISABLED
 	inspector_title.add_theme_font_size_override("font_size", 23)
 	inspector_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lift_staff_status = _label(box, "", 16, TEAL, true)
+	lift_staff_button = _button(box, L.text("Personal & Liftbesetzung"), func(): lift_staff.open(selected_id), true)
+	lift_staff_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lift_staff_status.hide()
+	lift_staff_button.hide()
 	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -483,11 +498,28 @@ func _apply_panel_visibility() -> void:
 			panel.visible = show_game
 	tools_panel.visible = show_game and not map_focus
 	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect"
+	mission_panel.visible = show_game and game.model.operations.get("scenario", "") != ""
+	mission_panel.offset_left = 24 if map_focus else 340
+	mission_panel.offset_right = -24 if map_focus else -328
 	# Keep a pending plan and its confirmation available in the wider map view.
 	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
 	slope_legend.visible = show_game and game.view.slopes_visible
 	slope_legend.offset_left = 24 if map_focus else 340
 	slope_legend.offset_right = -24 if map_focus else -328
+	slope_legend.offset_top = 256 if mission_panel.visible else 176
+	slope_legend.offset_bottom = 326 if mission_panel.visible else 246
+
+func _build_missions() -> void:
+	mission_panel = _panel(root, 340, 170, -328, 248, 1)
+	mission_panel.add_theme_stylebox_override("panel", _style(Color("edf3ec"), 10, 10, TEAL))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	mission_panel.add_child(row)
+	var text_box := _vbox(row, 4)
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mission_title = _label(text_box, "", 16, TEAL, true)
+	mission_next = _label(text_box, "", 16, INK, true)
+	_button(row, L.text("Missionen"), func(): show_management_page(L.text("Betrieb")), true)
 
 func _build_menu() -> void:
 	root.add_child(menu)
@@ -516,12 +548,14 @@ func _build_menu() -> void:
 	_label(box, L.text("Vom ersten Lift zum\nlebendigen Ski-Resort."), 26, ACCENT)
 	_label(box, L.text("Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen."), 18, MUTED, true)
 	_spacer(box)
-	continue_button = _button(box, L.text("Fortsetzen"), game.continue_game, true)
-	_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open(), true)
-	_button(box, L.text("Gebiete entdecken"), show_atlas)
+	_label(box, L.text("HAUPTSPIEL"), 17, TEAL)
+	continue_button = _button(box, L.text("Fortsetzen"), game.continue_main_game, true)
+	_button(box, L.text("Karriere · Gebiete entdecken"), show_atlas, true)
+	_button(box, L.text("Freier Aufbau · alle Anlagen"), func(): game.start_game(false))
+	_label(box, L.text("EXTRAS"), 13, MUTED)
+	_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
 	_button(box, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open())
 	_button(box, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
-	_button(box, L.text("Freier Aufbau · alle Anlagen"), func(): game.start_game(false))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")),13,MUTED,true)
 
 func _build_dialogs() -> void:
@@ -546,22 +580,23 @@ func show_help() -> void:
 func show_menu() -> void:
 	camera_dialog.hide()
 	management.hide()
+	lift_staff.hide()
 	atlas.hide()
 	scenarios.hide()
 	credits.hide()
 	menu.show()
 	_apply_panel_visibility()
-	var area: String = game.model.map_id if game.has_game else game.passport.data.last_map
+	var area: String = game.main_game_area()
 	var path := Saves.path_for_map(area)
 	continue_button.text = L.text("Fortsetzen · ") + L.text(Maps.spec(area).name)
-	continue_button.disabled = not game.has_game and not FileAccess.file_exists(path) and not FileAccess.file_exists(path + ".bak")
+	continue_button.disabled = not (game.has_game and game.model.map_id == area) and not FileAccess.file_exists(path) and not FileAccess.file_exists(path + ".bak")
 
 func hide_menu() -> void:
 	menu.hide()
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if loading.visible or scenarios.visible or credits.visible or asset_editor.visible or display_options.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if loading.visible or scenarios.visible or credits.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -583,7 +618,14 @@ func show_management(tab: int = 0) -> void:
 	camera_dialog.hide()
 	atlas.hide()
 	management.open()
-	management.tabs.current_tab = clampi(tab, 0, 4)
+	management.tabs.current_tab = clampi(tab, 0, management.tabs.get_tab_count() - 1)
+
+func show_management_page(title: String) -> void:
+	show_management()
+	for index in range(management.tabs.get_tab_count()):
+		if management.tabs.get_tab_title(index) == title:
+			management.tabs.current_tab = index
+			return
 
 func show_context(tool: String, id: int = -1) -> void:
 	current_tool = tool
@@ -597,6 +639,9 @@ func show_context(tool: String, id: int = -1) -> void:
 	elif tool in ["lift", "building"]:
 		palette.select_category("lifts" if tool == "lift" else "village")
 	selected_id = id
+	var selected: Dictionary = game.model.asset(id) if id != -1 else {}
+	lift_staff_button.visible = selected.has("bottom") and Ops.active(game.model)
+	lift_staff_status.visible = lift_staff_button.visible
 	if tool != "inspect" or id != -1:
 		set_map_focus(false)
 	price_label = null
@@ -703,6 +748,11 @@ func _refresh_context_text() -> void:
 			text_value += L.text("\nPistenbreite: %.0f m") % L.args(Snow.piste_width(item))
 			text_value += L.text("\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel.") % L.args((Snow.roughness(item) * 100))
 		elif item.has("bottom"):
+			if lift_staff_status.visible:
+				var crew := Ops.staffing(model, item)
+				lift_staff_status.text = L.text("LIFTTEAM · %d / %d im Dienst") % [crew.present, crew.needed]
+				for station in Ops.station_team(model, item):
+					lift_staff_status.text += "\n" + L.text("%s: %d / %d") % [station.name, station.present, station.minimum]
 			var load: Dictionary = model.lift_load(item)
 			var seat_text := L.text("1 Zugplatz je Teller") if item.kind == "drag" else (L.text("%d %s je Fahrzeug") % L.args([load.seats, L.text("Platz") if load.seats == 1 else L.text("Plätze")]))
 			text_value += L.text("%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s") % L.args([seat_text, load.carriers, model.lift_speed(item) / 60, item.length / model.lift_speed(item), model.lift_capacity(item), load.queue, load.wait, load.riders, load.fill * 100, item.boarded, model.lift_status(item)])
@@ -718,6 +768,12 @@ func _refresh_context_text() -> void:
 		var piste_word := L.text("Piste") if model.pistes.size() == 1 else L.text("Pisten")
 		var lift_word := L.text("Lift") if model.lifts.size() == 1 else L.text("Lifte")
 		inspector_text.text = L.text("[color=#a56440]%s[/color]\nWinter %d · Tag %d / 28\n%.0f Erfahrung · %d FP\n\n%d %s · %d %s\n%d erreichbare Abfahrten\n%d Gäste warten\n\n[color=#a56440]DEIN NÄCHSTES ZIEL[/color]\n%s\n\n[color=#a56440]HEUTE[/color]\nErlöse: %s €\nBetrieb: ~%s €/Tag\n\nAufträge, Forschung und Ausbau findest du im Resort-Büro.") % L.args(["★".repeat(model.campaign.rank), Progression.season_number(model), Progression.season_day(model), model.campaign.xp, model.campaign.points, model.pistes.size(), piste_word, model.lifts.size(), lift_word, model.reachable_piste_ids().size(), model.queue_size(), Progression.next_goal(model), money_text(model.report.tickets + model.report.services), money_text(model.operating_costs())])
+		if model.operations.get("scenario", "") != "":
+			var goals: Array = Ops.evaluate(model)
+			inspector_text.text = L.text("[color=#347970]SZENARIOMISSIONEN · %d / %d[/color]\n\n") % [goals.count(true), goals.size()]
+			for index in range(goals.size()):
+				inspector_text.text += ("✓ " if goals[index] else "○ ") + L.text(Ops.GOALS[model.operations.scenario][index]) + "\n\n"
+			inspector_text.text += L.text("Alle Missionen: 75.000 € + 30 FP. Details und Betriebsaktionen unter ‚Missionen‘.")
 	elif current_tool == "lift":
 		var spec: Dictionary = Catalog.LIFTS[lift_kind()]
 		inspector_text.text = L.text("[color=#a56440]%s € + %d €/m[/color]\n\n%d Plätze je Fahrzeug\n%.1f m/s · max. %.0f m Länge\n%d Gäste pro Stunde\n%d €/Tag Betrieb\nWindgrenze: %.0f km/h\n\n1. Talstation setzen\n2. Bergstation setzen\n3. Bau bestätigen\n\nBeide Stationen erhalten einen begehbaren Platz. Pisten docken am Platz an; Gebäude erweitern das Fußwegenetz. Der Achter wird durch Alpine Meisterklasse freigeschaltet.") % L.args([money_text(spec.cost), spec.per_m, spec.seats, spec.speed / 60, spec.max_length, spec.capacity, spec.upkeep, spec.wind_limit])
@@ -764,6 +820,14 @@ func refresh() -> void:
 	for i in range(speed_buttons.size()):
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
 	_refresh_context_text()
+	if lift_staff.visible: lift_staff.refresh_status()
+	var scenario: String = model.operations.get("scenario", "")
+	if scenario != "":
+		var goals: Array = Ops.evaluate(model)
+		mission_title.text = L.text("SZENARIO · %s · %d / %d Missionen") % [L.text(Maps.spec(model.map_id).name), goals.count(true), goals.size()]
+		var next := goals.find(false)
+		mission_next.text = L.text("Alle Missionen erfüllt · der Betrieb geht weiter.") if next < 0 else L.text("Nächste Mission: ") + L.text(Ops.GOALS[scenario][next])
+	mission_panel.visible = not menu.visible and scenario != ""
 	palette.refresh()
 	if current_tool == "inspect":
 		plan_text.text = L.text("Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht.") if model.is_closing() and Ops.continuous(model) else L.text("Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind.") if model.is_closing() else L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.")

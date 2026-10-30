@@ -68,6 +68,7 @@ def main():
         assert lit > 0.65 and mean > 18 and len(set(pixels)) > 300, \
             f"The resumed game is black or blank: lit={lit}, mean={mean}"
         state = health()
+        assert state["render_scale"] == 1.0, "The Android world render target must remain full-screen"
         evidence.append(dict(case=label, lit_fraction=lit, mean_brightness=mean, state=state))
         (args.output / "evidence.json").write_text(json.dumps(evidence, indent=2))
         print(f"PASS Android {label}: visible frame, minute {state['minute']}, {len(state['guests'])} guests", flush=True)

@@ -62,6 +62,31 @@ Für **17 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
+## Quellstand 0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams
+
+Das **Hauptspiel** steht im Menü zuerst: Fortsetzen, Karriere und freier Aufbau.
+Die vier realen Szenarien sind unter **Extras** erreichbar und behalten ihre
+eigenen Speicherstände. Ihr Fortschritt und die nächste Mission stehen direkt
+auf der Karte, auch während einer Bauplanung.
+
+Die Kartenansicht behält bei allen Grafikstufen ihre volle Bildschirmgröße.
+Schneeflächen in **Braunlage, Filzmoos, Kitzbühel und auf der Seiser Alm** folgen
+den tatsächlich sichtbaren Geländedreiecken; der Boden verdeckt dadurch keine
+anders berechneten Pistenstücke mehr.
+
+**Lift antippen → Personal & Liftbesetzung** zeigt Tal-, Berg- und gemeinsame
+Mittelstation mit Namen, Dienststatus und Schichten. Fehlende Kräfte direkt an
+der Station einstellen oder vorhandene Reserve zuweisen. Im Resort-Büro helfen
+beschriftete Einstellschritte, Filter und Seiten für größere Teams.
+
+![Direkte Liftbesetzung mit Tal- und gemeinsamer Mittelstation](docs/screenshots/lift-team-stations-0150.webp)
+
+[Alle Änderungen in 0.15.0](docs/releases/0.15.0.md) · [Bedienung](docs/SZENARIEN_UND_BETRIEB.md) · [Prüfnachweis](docs/VALIDATION.md)
+
+Der Download-Banner oben zeigt die neueste **bereits veröffentlichte** APK.
+Neue APKs werden nach erfolgreichen Modell-, Grafik- und Android-Prüfungen
+bereitgestellt und im detaillierten Versionsarchiv ergänzt.
+
 ## Neu in 0.14.3 · Pisten präzise bauen und verbinden
 
 Punktgriffe sitzen auch auf Handys mit Kameraausschnitt an der angeklickten Stelle.
@@ -173,10 +198,10 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.14.3 Preview · mit einem Testschlüssel signiert |
+| Version | Siehe aktuellen Download-Banner · Preview mit einem Testschlüssel |
 | Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.14.3.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den jeweiligen [Release-Notizen](https://github.com/chekento/SkiZones/releases).
 
 ## Neu in 0.13.0: Acht Resorts und ein richtiges Winterdorf
 
