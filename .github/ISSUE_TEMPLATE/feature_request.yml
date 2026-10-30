@@ -1,0 +1,53 @@
+name: "💡 Funktion vorschlagen / Feature request"
+description: "Ideen für neue Spielmechaniken, Lifte, Gebäude, Karten und Verbesserungen."
+title: "[Idee] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vielen Dank für deine Idee! Für offenes Brainstorming und Gespräche mit anderen Spielern gibt es das [SkiZones-Forum auf KoSchpendium (Discord)](https://discord.gg/AFXtwWvm).
+        Hier sammeln wir konkrete, nachvollziehbare Entwicklungswünsche. Eine Einreichung ist keine Zusage für die Umsetzung.
+  - type: dropdown
+    id: category
+    attributes:
+      label: "Bereich"
+      options:
+        - "Pisten und Snowparks"
+        - "Lifte und Stationen"
+        - "Gäste-KI und Bedürfnisse"
+        - "Personal und Wirtschaft"
+        - "Gebäude und Gestaltung"
+        - "Karten und Szenarien"
+        - "Steuerung und Barrierefreiheit"
+        - "Grafik und Performance"
+        - "Anderes"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Welches Problem löst deine Idee?"
+      placeholder: "Momentan fehlt … / Mir fällt schwer …"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Wie soll die Funktion arbeiten?"
+      placeholder: "Wenn ich …, dann sollte …"
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: "Beispiele, Alternativen oder Skizzen"
+      description: "Optional: Spielsituation, Screenshot, grobe Regeln oder Abwägungen."
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Vor dem Absenden"
+      options:
+        - label: "Ich habe geprüft, ob es diesen Vorschlag bereits gibt."
+          required: true
