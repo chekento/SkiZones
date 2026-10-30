@@ -590,6 +590,7 @@ func rebuild() -> void:
 	_track_mesh.mesh = null
 	_tracks_pending = false
 	snow_renderer.reset()
+	snow_renderer.configure(model.pistes)
 	_vehicle_sets.clear()
 	_label_tick = -1
 	_piste_meshes.clear()
@@ -1202,7 +1203,7 @@ func _draw_snow(piste: Dictionary) -> void:
 	var data := snow_renderer.update(piste)
 	if _piste_meshes[piste.id].mesh == null:
 		_piste_meshes[piste.id].mesh = snow_renderer.build(terrain, piste)
-	surface_picker.add_mesh("piste_%d" % piste.id, _piste_meshes[piste.id].mesh, piste, snow_renderer.pick_frames[piste.id])
+	surface_picker.add_mesh("piste_%d" % piste.id, _piste_meshes[piste.id].mesh, piste, snow_renderer.pick_frames[piste.id], snow_renderer.pick_weights[piste.id])
 	_piste_meshes[piste.id].material_override = data.material
 
 func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run: int, side_offset: float, range_start: float = 0, range_end: float = 1) -> Vector3:
@@ -1211,14 +1212,16 @@ func _track_point(piste: Dictionary, id: int, ability: int, fraction: float, run
 	var point: Vector2 = frame.point + side * side_offset
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var road_side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(road_side)) + 0.05)
+	return terrain.world(point, snow_renderer.height_offset(piste, point, fraction, (point - center).dot(road_side)) + 0.05)
 
-func _trace_quad(surface: SurfaceTool, a: Vector3, b: Vector3, width: float, color: Color) -> void:
+func _trace_quad(surface: SurfaceTool, a: Vector3, b: Vector3, width: float, color: Color, weights: Vector2 = Vector2.ONE) -> void:
 	var side := Vector3(b.z - a.z, 0, a.x - b.x).normalized() * width
-	for point in [a + side, b + side, a - side, a - side, b + side, b - side]:
+	var vertices := [a + side, b + side, a - side, a - side, b + side, b - side]
+	for index in range(vertices.size()):
+		color.a = weights.y if index in [1, 4, 5] else weights.x
 		surface.set_color(color)
 		surface.set_normal(Vector3.UP)
-		surface.add_vertex(point)
+		surface.add_vertex(vertices[index])
 
 func _trace_sample(piste: Dictionary, track: Dictionary, index: int, blocking: bool, used: Dictionary) -> Dictionary:
 	var key := "%d/%s/%d" % [piste.id, track.key, index]
@@ -1236,11 +1239,13 @@ func _trace_sample(piste: Dictionary, track: Dictionary, index: int, blocking: b
 	var road_side := (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
 	var hiking := Motion.in_walk_range(track.get("hikes",[]),fraction)
 	var sport: String = track.get("sport", "ski")
-	var data := {"points":[],"uvs":[],"hiking":hiking,"sport":sport}
+	var data := {"points":[],"uvs":[],"weights":[],"hiking":hiking,"sport":sport}
 	var offsets: Array = [0.0] if sport == "snowboard" and not hiking else ([-0.22,0.22] if sport == "snowblade" else [-0.28,0.28])
 	for offset in offsets:
 		var point: Vector2 = frame.point + frame.direction.orthogonal() * offset
-		data.points.append(terrain.world(point, Snow.base_height(piste, fraction) + 0.05))
+		var weight := snow_renderer.junction_weight(piste.id, point)
+		data.weights.append(weight)
+		data.points.append(terrain.world(point, lerpf(0.65, Snow.base_height(piste, fraction), weight) + 0.05))
 		data.uvs.append(snow_renderer.uv(piste, fraction, (point - center).dot(road_side)))
 	_trace_cache[key] = data
 	return data
@@ -1310,7 +1315,7 @@ func _draw_tracks(blocking: bool = true) -> void:
 						if bright:
 							pa += Vector3(0.1, 0.035, 0.1); pb += Vector3(0.1, 0.035, 0.1)
 						var width := 0.32 if a.sport == "snowboard" and not a.hiking else 0.10
-						_trace_quad(surface, pa, pb, 0.04 if bright else width, Color("edf5f9") if bright else Color("91adbf"))
+						_trace_quad(surface, pa, pb, 0.04 if bright else width, Color("edf5f9") if bright else Color("91adbf"), Vector2(a.weights[ski], b.weights[ski]))
 				segments += 1
 				local += 1
 		if local > 0:
@@ -1467,7 +1472,7 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
 	var before: Vector3 = terrain.world(frame.before)
 	var ahead: Vector3 = terrain.world(frame.ahead)
-	return {"position": terrain.world(frame.point, Snow.mesh_height(piste, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
+	return {"position": terrain.world(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)

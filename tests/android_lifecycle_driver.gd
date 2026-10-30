@@ -29,6 +29,7 @@ func _process(delta: float) -> void:
 		write_health()
 
 func _test_real_scenario() -> void:
+	game.hud._update_safe_area()
 	game.clear_plan()
 	game.set_tool("inspect")
 	await game.enter_area("braunlage")
@@ -60,6 +61,10 @@ func read_pick_request() -> void:
 	game.clear_plan()
 	game.set_tool("piste")
 	game.paused = true
+	# Exercise a camera cutout even when this emulator exposes a rectangular
+	# display. This fixture is included only in the x86-64 CI test export.
+	game.hud.root.offset_left = maxf(48, game.hud.root.offset_left)
+	game.hud.root.offset_top = maxf(24, game.hud.root.offset_top)
 	game.view.follow_guest = -1
 	var vertices: PackedVector3Array = game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var target := Vector3.ZERO
@@ -74,7 +79,9 @@ func read_pick_request() -> void:
 	game._update_plan()
 	pick_at = game.view.camera.unproject_position(target)
 	var physical: Vector2 = get_viewport().get_screen_transform() * pick_at
-	picking = {"mode": mode, "screen": [physical.x, physical.y], "target": [target.x, target.z]}
+	var destination := Vector2(target.x - 28, target.z + 24)
+	var destination_screen: Vector2 = get_viewport().get_screen_transform() * game.view.camera.unproject_position(game.view.surface_position(destination))
+	picking = {"mode": mode, "screen": [physical.x, physical.y], "target": [target.x, target.z], "destination": [destination.x, destination.y], "destination_screen": [destination_screen.x, destination_screen.y]}
 func write_health() -> void:
 	if not picking.is_empty():
 		picking.point = game.points[0] if game.points.size() == 1 else []

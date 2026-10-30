@@ -57,6 +57,8 @@ jobs:
         run: |
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_planning.gd
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/junctions.gd
+      - name: Segment junctions and non-overlapping snow surfaces
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_connections.gd'
       - name: Lift seats, pedestrian areas and migration tests
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd'
       - name: Curve geometry, pedestrian safety and weekly balance
@@ -109,6 +111,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
       - name: Actual surface picking, construction widths and clear piste geometry
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_surfaces_scene.gd
+      - name: Phone insets, individual point dragging and joined piste rendering
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_editor_scene.gd
       - name: Eight landscapes, village promenade and real entrance controls
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
       - name: Real scenarios, overnight rendering, language settings and credits

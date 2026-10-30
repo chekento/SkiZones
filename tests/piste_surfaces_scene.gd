@@ -104,7 +104,7 @@ func run() -> void:
 	game.points = []
 	game._update_plan()
 	tap(at)
-	check(game.points.size() == 1 and Terrain.unpack(game.points[0]).distance_to(hit) < 0.025, "Construction uses the same visible snow hit as selection")
+	check(game.points.size() == 1 and (Terrain.unpack(game.points[0]).distance_to(hit) < 0.025 or not game.snap_target.is_empty() and game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[0]))).distance_to(at) <= 18.01), "Construction uses the visible snow hit or an explicitly indicated nearby junction")
 	var station: Vector2 = Terrain.unpack(game.model.pistes[0].points[-1])
 	game.view.focus = station
 	game.view.zoom = 48
@@ -129,7 +129,7 @@ func run() -> void:
 	game.hud.set_map_focus(true)
 	await process_frame
 	check(game.hud.piste_controls.visible and game.hud.plan_panel.visible and not game.hud.tools_panel.visible, "Width and smoothing remain available in the wider map view")
-	check(game.hud.plan_overlay.displayed_waypoints().size() < game.points.size(), "A dense smoothed route has spaced, selectable handles rather than overlapping labels")
+	check(game.hud.plan_overlay.displayed_waypoints().size() == game.points.size() and game.hud.waypoint_choice.item_count == game.points.size(), "Every dense route point retains a handle and an individual selector entry")
 	await capture("piste-width-curves-0120")
 	var route: Array = game.points.duplicate(true)
 	game.confirm_plan()

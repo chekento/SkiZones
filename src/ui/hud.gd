@@ -49,6 +49,7 @@ var delete_point_button: Button
 var suggest_route_button: Button
 var piste_controls: HBoxContainer
 var piste_width_choice := OptionButton.new()
+var waypoint_choice := OptionButton.new()
 var smooth_route_button: Button
 var piste_width_total: Label
 var rotate_building_button: Button
@@ -358,6 +359,9 @@ func _build_plan_bar() -> void:
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
 	smooth_route_button = _button(piste_controls, L.text("Kurven glätten"), game.smooth_route)
+	waypoint_choice.custom_minimum_size = Vector2(142, 42)
+	waypoint_choice.item_selected.connect(func(index): game.select_waypoint(index))
+	piste_controls.add_child(waypoint_choice)
 	design_button = _button(actions, L.text("Gestaltung"), func(): asset_editor.open(game.editing_id))
 	rotate_building_button = _button(actions, L.text("Eingang drehen ↻"), func():
 		game.edit_rotation = (game.edit_rotation + 1) % 4
@@ -606,6 +610,8 @@ func show_context(tool: String, id: int = -1) -> void:
 	if id != -1:
 		var item: Dictionary = game.model.asset(id)
 		inspector_title.text = L.asset_name(item)
+		if item.has("difficulty"):
+			_button(inspector_actions, L.text("Pistenpunkte bearbeiten"), func(): game.begin_edit(id, item.name, item.get("color", ""), 0, item.get("width", 20)), true)
 		_button(inspector_actions, L.text("Gestalten & umplanen"), func(): asset_editor.open(id), true)
 		_button(inspector_actions, L.text("Schließen") if item.get("enabled", false) else L.text("Öffnen"), func(): game.toggle_asset(id))
 		_button(inspector_actions, L.text("Abbauen · 25 % Erstattung"), func(): game.demolish_asset(id))
@@ -786,6 +792,13 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	undo_button.disabled = point_count == 0
 	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
+	waypoint_choice.visible = game.tool == "piste" and point_count > 0
+	waypoint_choice.clear()
+	for index in range(point_count): waypoint_choice.add_item(L.text("Punkt %d") % L.args(index + 1), index)
+	if game.selected_waypoint >= 0: waypoint_choice.select(game.selected_waypoint)
+	else:
+		waypoint_choice.select(-1)
+		waypoint_choice.text = L.text("Punkt wählen")
 	suggest_route_button.visible = current_tool == "piste"
 	suggest_route_button.disabled = point_count < 2
 	smooth_route_button.disabled = point_count < 3

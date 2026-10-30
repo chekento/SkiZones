@@ -17,6 +17,8 @@ const Needs = preload("res://src/core/guest_needs.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const PisteLinks = preload("res://src/core/piste_links.gd")
+var _piste_links: RefCounted
 const MINUTES_PER_SECOND := 0.5
 const TRANSPORT_SCALE := 30.0
 const MAX_GUESTS := 360
@@ -138,6 +140,7 @@ func _reset_report() -> void:
 	report = {"day": day, "tickets": 0.0, "services": 0.0, "costs": 0.0, "guests": 0, "rides": 0, "departures": 0, "satisfaction": 0.0, "rewards": 0.0, "investments": 0.0}
 
 func _invalidate() -> void:
+	_piste_links = null
 	terrain.configure_pistes(pistes)
 	revision += 1
 	_asset_index.clear()
@@ -220,12 +223,13 @@ func _spend(cost: float) -> bool:
 		Progression.sync_finances(self)
 	return true
 
-func preview_piste(points: Array, width: float = 20) -> Dictionary:
-	var prepared := Foot.prepare_piste(points, lifts)
+func preview_piste(points: Array, width: float = 20, prepare_ends: bool = true) -> Dictionary:
+	var prepared := Foot.prepare_piste(points, lifts) if prepare_ends else points.duplicate(true)
 	# A new centerline is retained at its original elevation by the earthworks.
 	# Analyze that final profile, not the bank of an older crossing corridor.
 	var planning_terrain: RefCounted = terrain.get_script().new(map_id, terrain_generation)
-	var check: Dictionary = planning_terrain.analyse(prepared)
+	var check: Dictionary = planning_terrain.analyse(PisteLinks.profile_points(prepared))
+	if prepared.size() > 64: check.ok = false
 	check.points = prepared
 	check.width = width
 	if width < 14 or width > 44 or not is_finite(width):
@@ -242,13 +246,31 @@ func preview_piste(points: Array, width: float = 20) -> Dictionary:
 				if Foot._crosses(Terrain.unpack(prepared[index - 1]), Terrain.unpack(prepared[index]), Rect2(Terrain.unpack(building.point) - footprint * 0.5, footprint).grow(width * 0.5 + 3)):
 					check.ok = false
 					check.message = L.text("Das Gebäude freihalten. Die Piste auf dem Vorplatz anschließen.")
-	if check.ok: check.connections = piste_connections(prepared, check.difficulty)
+	if check.ok:
+		var joins: Dictionary = piste_links().stitch(prepared)
+		check.junction_changes = joins.changes
+		if not joins.ok:
+			check.ok = false
+			check.message = L.text("Zu viele Anschlusspunkte. Die bestehende Piste zuerst in kürzere Abschnitte teilen.")
+		else: check.connections = piste_connections(prepared, check.difficulty)
 	return check
+
+func piste_links() -> RefCounted:
+	if _piste_links == null: _piste_links = PisteLinks.new(pistes)
+	return _piste_links
+
+func apply_piste_junctions(changes: Dictionary) -> void:
+	for id in changes:
+		var item := asset(int(id))
+		item.points = changes[id].duplicate(true)
+		# Inserting a point on an existing straight segment changes no physical
+		# route, cost, snow history or official source classification.
+		item.surface_revision = int(item.get("surface_revision", 0)) + 1
 
 func suggest_piste(points: Array, width: float = 20) -> Dictionary:
 	return Planner.suggest(self, points, width)
 
-func _access_nodes(point: Vector2, graph: Dictionary) -> Array:
+func _access_nodes(point: Vector2, graph: Dictionary, entry: bool = true) -> Array:
 	var result: Array = []
 	for area in Foot.attachments(pedestrian_layout(), point):
 		if graph.nodes.has(area.key) and not Foot.path_between(point, area.point, buildings, lifts).is_empty(): result.append(area.key)
@@ -256,6 +278,17 @@ func _access_nodes(point: Vector2, graph: Dictionary) -> Array:
 		for index in range(piste.points.size()):
 			var key := _piste_node(piste, index)
 			if graph.nodes.has(key) and point.distance_to(Terrain.unpack(piste.points[index])) <= 2: result.append(key)
+	for segment in piste_links().nearby(point, 0.03):
+		if Geometry2D.get_closest_point_to_segment(point, segment.a, segment.b).distance_to(point) > 0.02: continue
+		var piste: Dictionary = asset(int(segment.id))
+		if not piste_open(piste): continue
+		var index: int = segment.index - 1 if entry else segment.index
+		while index >= 0 and index < piste.points.size():
+			var key := _piste_node(piste, index)
+			if graph.nodes.has(key):
+				if not result.has(key): result.append(key)
+				break
+			index += -1 if entry else 1
 	for link in pedestrian_layout().links:
 		if link.get("closed", false): continue
 		for index in range(1, link.points.size()):
@@ -264,23 +297,25 @@ func _access_nodes(point: Vector2, graph: Dictionary) -> Array:
 				if graph.nodes.has(key) and not result.has(key): result.append(key)
 	return result
 
-func piste_connections(points: Array, skill: int) -> Dictionary:
-	var graph := _routing_graph(skill)
+func piste_connections(points: Array, _skill: int) -> Dictionary:
+	# Connectivity is a physical property. A blue branch reached through a red
+	# approach remains connected; personal route selection still checks skill.
+	var graph := _routing_graph(2)
 	var entry := false
 	var exit := false
 	for key in _access_nodes(Terrain.unpack(points[0]), graph): entry = entry or _shortest(graph, "base", key).ok
-	for key in _access_nodes(Terrain.unpack(points[-1]), graph): exit = exit or _shortest(graph, key, "base").ok
+	for key in _access_nodes(Terrain.unpack(points[-1]), graph, false): exit = exit or _shortest(graph, key, "base").ok
 	var message := L.text("Einstieg erreichbar · Rückweg ins Tal vorhanden")
 	if not entry and not exit: message = L.text("Einstieg und Rückweg noch anschließen")
 	elif not entry: message = L.text("Einstieg noch mit einem erreichbaren Lift oder einer Piste verbinden")
 	elif not exit: message = L.text("Pistenende noch mit dem Rückweg ins Tal verbinden")
 	return {"entry":entry,"exit":exit,"message":message}
 
-func build_piste(points: Array, _legacy_choice: int = -1, width: float = 20) -> Dictionary:
+func build_piste(points: Array, _legacy_choice: int = -1, width: float = 20, prepare_ends: bool = true) -> Dictionary:
 	if pistes.size() >= (1024 if map_id in Geo.IDS else 80):
 		return _result(false, L.text("Maximal 80 Pisten in diesem Prototyp."))
 	if not is_finite(width) or width < 14 or width > 36: return _result(false, L.text("Pistenbreite außerhalb des erlaubten Bereichs."))
-	var check := preview_piste(points, width)
+	var check := preview_piste(points, width, prepare_ends)
 	if not check.ok:
 		return check
 	if not _spend(check.cost):
@@ -293,7 +328,9 @@ func build_piste(points: Array, _legacy_choice: int = -1, width: float = 20) -> 
 	next_id += 1
 	pistes[-1].width = width
 	pistes[-1].grading = true
+	apply_piste_junctions(check.get("junction_changes", {}))
 	_invalidate()
+	if not check.get("junction_changes", {}).is_empty(): _reroute_guests()
 	return _result(true, L.text("%s %d gebaut und beschildert. Öffnet mit einem erreichbaren Lift-Rundweg.") % L.args([Terrain.PISTE_NAMES[difficulty], number]))
 
 func preview_lift(kind: String, bottom: Vector2, top: Vector2, check_spacing: bool = true) -> Dictionary:
@@ -785,6 +822,15 @@ func snap_anchor(point: Vector2, radius: float = 18, start: bool = false, ignore
 		if candidate < distance:
 			distance = candidate
 			best = anchor
+	# Snap to the complete centreline, including between its stored waypoints.
+	for segment in piste_links().nearby(point, radius):
+		if segment.id == ignore_id: continue
+		var at := Geometry2D.get_closest_point_to_segment(point, segment.a, segment.b)
+		if old_points.any(func(old): return Terrain.unpack(old).distance_to(at) < 2): continue
+		var candidate := at.distance_to(point)
+		if candidate + 4 < distance:
+			distance = candidate
+			best = {"point": at, "id": segment.id, "waypoint": -1, "difficulty": asset(int(segment.id)).difficulty, "label": L.text("Piste %d · neuer Anschluss") % L.args(asset(int(segment.id)).number)}
 	for link in pedestrian_layout().links:
 		if link.get("closed", false) or not (link.get("manual", false) or link.get("promenade", false)): continue
 		for index in range(1, link.points.size()):
@@ -1898,7 +1944,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 					item.points = Foot.prepare_piste(item.points, data.lifts)
 				var is_imported := Geo.exact_import(item, map_id, true)
 				var analysis := Geo.cached_analysis(item, map_id) if is_imported else {}
-				if analysis.is_empty(): analysis = terrain.analyse(item.points, -1, is_imported)
+				if analysis.is_empty(): analysis = terrain.analyse(PisteLinks.profile_points(item.points), -1, is_imported)
 				if is_imported: analysis.difficulty = Geo.source_difficulty(str(item.get("osm_difficulty", "unknown")), int(analysis.difficulty))
 				if not analysis.ok and not Geo.exact_import(item, map_id, true):
 					return invalid
@@ -2106,8 +2152,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		return invalid
 	return _result(true, L.text("Spielstand geprüft."))
 
-func preview_change(id: int, points: Array, rotation_value: int = 0, width: float = 20) -> Dictionary:
-	return Edit.preview(self, id, points, rotation_value, width)
+func preview_change(id: int, points: Array, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
+	return Edit.preview(self, id, points, rotation_value, width, prepare_ends)
 
-func change_asset(id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20) -> Dictionary:
-	return Edit.apply(self, id, points, title, color, rotation_value, width)
+func change_asset(id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
+	return Edit.apply(self, id, points, title, color, rotation_value, width, prepare_ends)

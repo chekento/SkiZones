@@ -13,7 +13,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	visible = game.has_game and game.tool in ["piste","lift","building","plaza","walkway"] and not game.hud.menu.visible
 	if visible:
-		var state := hash([game.tool, game.model.revision, game.points, game.selected_waypoint, game.view.focus, game.view.zoom, game.view.yaw, game.view.pitch_degrees, size, game.hud.map_focus])
+		var state := hash([game.tool, game.model.revision, game.points, game.selected_waypoint, game.snap_target, game.view.focus, game.view.zoom, game.view.yaw, game.view.pitch_degrees, size, get_global_transform_with_canvas(), game.hud.map_focus])
 		if state != _state:
 			_state = state
 			queue_redraw()
@@ -32,21 +32,20 @@ func pick_waypoint(at: Vector2, radius: float = 24) -> int:
 
 func displayed_waypoints() -> Array:
 	var result: Array = []
-	var previous := Vector2.INF
-	var last := Vector2.INF
-	if not game.points.is_empty(): last = game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[-1])))
 	for index in range(game.points.size()):
 		var world: Vector3 = game.view.surface_position(Terrain.unpack(game.points[index]))
 		if game.view.camera.is_position_behind(world): continue
 		var at: Vector2 = game.view.camera.unproject_position(world)
-		if not Rect2(Vector2.ZERO, size).grow(18).has_point(at): continue
-		var essential: bool = index == 0 or index == game.points.size() - 1 or index == game.selected_waypoint
-		if not essential and (at.distance_to(previous) < 40 or at.distance_to(last) < 40): continue
+		if not get_viewport().get_visible_rect().grow(18).has_point(at): continue
 		var hit: Dictionary = game.view.surface_picker.intersect(game.view.camera.project_ray_origin(at), game.view.camera.project_ray_normal(at))
 		if not hit.is_empty() and hit.position.distance_to(world) > 0.2: continue
 		result.append({"index": index, "at": at})
-		previous = at
 	return result
+
+func local_screen(at: Vector2) -> Vector2:
+	# Camera projection/input use viewport coordinates. This canvas lives inside
+	# the phone's safe area; drawing those coordinates directly adds its inset.
+	return get_global_transform_with_canvas().affine_inverse() * at
 
 func _draw() -> void:
 	if game == null or game.view.camera == null:
@@ -59,24 +58,32 @@ func _draw() -> void:
 		var world: Vector3 = game.view.surface_position(anchor.point)
 		if game.view.camera.is_position_behind(world):
 			continue
-		var at: Vector2 = game.view.camera.unproject_position(world)
+		var at := local_screen(game.view.camera.unproject_position(world))
 		if not bounds.has_point(at):
 			continue
 		var color: Color = COLORS[anchor.difficulty] if anchor.difficulty >= 0 else Color("efb17d")
 		draw_circle(at, 6, Color("f4f9f5"))
 		draw_circle(at, 4, color)
 		draw_arc(at, 9, 0, TAU, 20, color, 1.5, true)
-	for entry in displayed_waypoints():
+	var handles := displayed_waypoints()
+	if not game.snap_target.is_empty():
+		var at := local_screen(game.view.camera.unproject_position(game.view.surface_position(game.snap_target.point)))
+		draw_arc(at, 22, 0, TAU, 36, Color("75cdc7"), 3, true)
+	handles.sort_custom(func(a, b): return a.index != game.selected_waypoint and b.index == game.selected_waypoint)
+	for entry in handles:
 		var index: int = entry.index
 		var point := Terrain.unpack(game.points[index])
-		var at: Vector2 = entry.at
+		var at := local_screen(entry.at)
 		var selected: bool = index == game.selected_waypoint
 		var color := Color("efb17d") if selected else Color("75cdc7")
-		draw_circle(at, 14, Color("173744"))
-		draw_arc(at, 14, 0, TAU, 32, color, 2.5, true)
-		var text := str(index + 1)
-		var width := ThemeDB.fallback_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-		draw_string(ThemeDB.fallback_font, at + Vector2(-width / 2, 5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.WHITE)
+		var crowded: bool = handles.any(func(other): return other.index != index and other.at.distance_to(entry.at) < 34)
+		var radius := 7 if crowded and not selected else 14
+		draw_circle(at, radius, Color("173744"))
+		draw_arc(at, radius, 0, TAU, 32, color, 2.5, true)
+		if not crowded or selected:
+			var text := str(index + 1)
+			var width := ThemeDB.fallback_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+			draw_string(ThemeDB.fallback_font, at + Vector2(-width / 2, 5), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color.WHITE)
 		if selected:
 			var caption := L.text("%.0f m · ziehen zum Verschieben") % L.args(game.model.terrain.height(point))
 			var right_edge: float = size.x - (24 if game.hud.map_focus else 328)

@@ -153,6 +153,21 @@ def main():
             assert math.dist(hit["point"], hit["target"]) < 0.75, hit
             assert hit["handle_hit"], "The waypoint handle is offset from the physical Android tap"
             capture(f"picking-mode-{mode}", state)
+            # Check the rendered grip itself, not only the controller's hit test.
+            # A safe-area inset used to move the drawing while hit-testing passed.
+            frame = Image.open(args.output / f"picking-mode-{mode}.png").convert("RGB")
+            grip = [(px, py) for px in range(round(x) - 8, round(x) + 9)
+                    for py in range(round(y) - 8, round(y) + 9)
+                    if 0 <= px < frame.width and 0 <= py < frame.height]
+            dark = sum(max(abs(a - b) for a, b in zip(frame.getpixel(pos), (23, 55, 68))) < 45
+                       for pos in grip)
+            assert dark > len(grip) * 0.20, "The visible waypoint grip is displaced from the Android tap"
+            dx, dy = hit["destination_screen"]
+            adb("shell", "input", "swipe", str(round(x)), str(round(y)),
+                str(round(dx)), str(round(dy)), "350")
+            state = wait_for(lambda s: len(s.get("picking", {}).get("point", [])) == 2
+                             and math.dist(s["picking"]["point"], hit["destination"]) < 0.9)
+            capture(f"dragging-mode-{mode}", state)
         adb("shell", "run-as", PACKAGE, "rm", request_path)
         # Verify bundled real-map resources and worker-based loading in Android.
         scenario_path = health_path.rsplit("/", 1)[0] + "/scenario-ci.json"

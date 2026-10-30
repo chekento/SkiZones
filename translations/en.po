@@ -2616,3 +2616,18 @@ msgstr "True-scale mountains · shortened travel times"
 
 msgid "Talzugang und Ankunftsfläche freihalten. Das Gebäude daneben setzen."
 msgstr "Keep the valley entrance and arrival area clear. Place the building beside them."
+
+msgid "Pistenpunkte bearbeiten"
+msgstr "Edit piste points"
+
+msgid "Punkt %d"
+msgstr "Point %d"
+
+msgid "Zu viele Anschlusspunkte. Die bestehende Piste zuerst in kürzere Abschnitte teilen."
+msgstr "Too many junction points. Split the existing piste into shorter sections first."
+
+msgid "Piste %d · neuer Anschluss"
+msgstr "Piste %d · new junction"
+
+msgid "Punkt wählen"
+msgstr "Select a point"

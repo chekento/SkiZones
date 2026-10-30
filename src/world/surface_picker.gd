@@ -11,14 +11,15 @@ func reset() -> void:
 	heights.clear()
 	if not ground.is_empty(): entries.ground = ground
 
-func add_mesh(key: String, mesh: Mesh, piste: Dictionary = {}, frames: Array = []) -> void:
+func add_mesh(key: String, mesh: Mesh, piste: Dictionary = {}, frames: Array = [], weights: PackedFloat32Array = PackedFloat32Array()) -> void:
+	if mesh == null or mesh.get_surface_count() == 0: return
 	if entries.has(key) and entries[key].mesh == mesh:
 		if piste.is_empty() or entries[key].piste.get("surface_revision", 0) == piste.get("surface_revision", 0): return
 	var visible_snow: Dictionary = {}
 	if not piste.is_empty():
 		for field in ["length", "width", "level", "surface_revision"]: visible_snow[field] = piste.get(field, 20 if field == "width" else 1 if field == "level" else 0)
 		visible_snow.surface = piste.surface.duplicate()
-	entries[key] = {"mesh": mesh, "bounds": mesh.get_aabb().grow(0.7), "piste": visible_snow, "frames": frames, "revision": -2, "tree": null}
+	entries[key] = {"mesh": mesh, "bounds": mesh.get_aabb().grow(0.7), "piste": visible_snow, "frames": frames, "weights": weights, "revision": -2, "tree": null}
 	heights.clear()
 
 func position(point: Vector2) -> Vector3:
@@ -41,7 +42,7 @@ func intersect(origin: Vector3, direction: Vector3, repair_edge: bool = true) ->
 			if not data.piste.is_empty():
 				for i in range(faces.size()):
 					var frame: Vector2 = data.frames[i]
-					faces[i].y += Snow.relief(data.piste, frame.x, frame.y)
+					faces[i].y += Snow.relief(data.piste, frame.x, frame.y) * (data.weights[i] if not data.weights.is_empty() else 1.0)
 			var tree := TriangleMesh.new()
 			if not tree.create_from_faces(faces): continue
 			data.tree = tree

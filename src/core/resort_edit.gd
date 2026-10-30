@@ -30,7 +30,7 @@ static func context(model: RefCounted, id: int) -> RefCounted:
 	model._edit_context[id] = candidate
 	return candidate
 
-static func preview(model: RefCounted, id: int, points: Array, rotation_value: int = 0, width: float = 20) -> Dictionary:
+static func preview(model: RefCounted, id: int, points: Array, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
 	var item: Dictionary = model.asset(id)
 	var invalid := {"ok": false, "message": L.text("Diese Änderung ist hier nicht möglich."), "cost": 0}
 	if item.is_empty() or rotation_value < 0 or rotation_value > 3 or not is_finite(width) or width < 14 or width > 36: return invalid
@@ -40,7 +40,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	var check: Dictionary
 	var original: Array
 	if item.has("difficulty"):
-		check = candidate.preview_piste(points, width + (int(item.get("level", 1)) - 1) * 4)
+		check = candidate.preview_piste(points, width + (int(item.get("level", 1)) - 1) * 4, prepare_ends)
 		original = item.points
 	elif item.get("kind", "") == "walkway":
 		check = candidate.preview_walkway(points)
@@ -84,6 +84,17 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 				if not analysis.ok:
 					return {"ok": false, "message": L.text("Die angeschlossene Piste %d wäre ungültig: %s") % L.args([other.number, analysis.message]), "cost": 0}
 				check.neighbors[other.id] = analysis
+	if item.has("difficulty"):
+		var combined: Array = []
+		for existing in model.pistes:
+			var next: Dictionary = existing.duplicate()
+			if existing.id == id: next.points = check.points
+			elif check.neighbors.has(existing.id): next.points = check.neighbors[existing.id].points
+			combined.append(next)
+		var links: RefCounted = model.PisteLinks.new(combined)
+		var joins: Dictionary = links.stitch(check.points, id)
+		if not joins.ok: return {"ok": false, "message": L.text("Zu viele Anschlusspunkte. Die bestehende Piste zuerst in kürzere Abschnitte teilen."), "cost": 0}
+		check.junction_changes = joins.changes
 	var distance := 0.0
 	for index in range(mini(check.points.size(), original.size())):
 		distance += Terrain.unpack(check.points[index]).distance_to(Terrain.unpack(original[index]))
@@ -98,11 +109,11 @@ static func _piste(item: Dictionary, analysis: Dictionary) -> void:
 		item[key] = analysis[key]
 	item.surface_revision = int(item.get("surface_revision", 0)) + 1
 
-static func apply(model: RefCounted, id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20) -> Dictionary:
+static func apply(model: RefCounted, id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
 	title = title.strip_edges()
 	if title.is_empty() or title.length() > 60 or not valid_color(color):
 		return {"ok": false, "message": L.text("Name: 1–60 Zeichen. Eine gültige Akzentfarbe wählen.")}
-	var check := preview(model, id, points, rotation_value, width)
+	var check := preview(model, id, points, rotation_value, width, prepare_ends)
 	if not check.ok: return check
 	if not model._spend(check.cost): return {"ok": false, "message": L.text("Das Budget reicht für diesen Umbau noch nicht.")}
 	var item: Dictionary = model.asset(id)
@@ -112,6 +123,7 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 		item.grading = true
 		for neighbor in check.neighbors:
 			_piste(model.asset(neighbor), check.neighbors[neighbor])
+		model.apply_piste_junctions(check.get("junction_changes", {}))
 	elif item.has("bottom"):
 		item.bottom = points[0].duplicate()
 		item.top = points[1].duplicate()

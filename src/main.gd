@@ -316,8 +316,20 @@ func delete_waypoint() -> void:
 	snap_target = {}
 	_update_plan()
 
+func select_waypoint(index: int) -> void:
+	if index < 0 or index >= points.size(): return
+	selected_waypoint = index
+	view.focus = Terrain.unpack(points[index])
+	view._update_camera()
+	_update_plan()
+
 func _snap_point(point: Vector2, screen_at: Vector2 = Vector2.INF) -> Vector2:
-	snap_target = model.snap_anchor(point, 18, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else {}
+	var radius := 18.0
+	if screen_at.is_finite():
+		for offset in [Vector2(18, 0), Vector2(0, 18)]:
+			var nearby := view.map_point(screen_at + offset)
+			if nearby.is_finite(): radius = maxf(radius, minf(60, point.distance_to(nearby)))
+	snap_target = model.snap_anchor(point, radius, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else {}
 	if not snap_target.is_empty() and screen_at.is_finite():
 		var at: Vector2 = view.camera.unproject_position(view.surface_position(snap_target.point))
 		if at.distance_to(screen_at) > 18: snap_target = {}
@@ -357,7 +369,7 @@ func _end_waypoint_drag(canceled: bool = false) -> void:
 
 func _plan_check() -> Dictionary:
 	if editing_id != -1:
-		var check: Dictionary = model.preview_change(editing_id, points, edit_rotation, edit_width)
+		var check: Dictionary = model.preview_change(editing_id, points, edit_rotation, edit_width, false)
 		check.color = edit_color
 		return check
 	if tool in ["lift", "building"]:
@@ -366,7 +378,7 @@ func _plan_check() -> Dictionary:
 			return {"ok": false, "message": access, "cost": 0}
 	if tool == "walkway": return model.preview_walkway(points)
 	if tool == "piste":
-		return model.preview_piste(points, plan_width)
+		return model.preview_piste(points, plan_width, false)
 	if tool == "lift" and points.size() == 2:
 		return model.preview_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	if tool == "plaza" and points.size() == 1:
@@ -465,13 +477,13 @@ func confirm_plan() -> void:
 	var result: Dictionary
 	var edited := editing_id
 	if editing_id != -1:
-		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width)
+		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width, false)
 	elif tool == "walkway":
 		result = model.build_walkway(points)
 	elif tool == "plaza":
 		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
 	elif tool == "piste":
-		result = model.build_piste(points, -1, plan_width)
+		result = model.build_piste(points, -1, plan_width, false)
 	elif tool == "lift":
 		result = model.build_lift(hud.lift_kind(), Terrain.unpack(points[0]), Terrain.unpack(points[1]))
 	else:

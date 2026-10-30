@@ -17,13 +17,20 @@ static func nearest(mountain: RefCounted, points: Array, point: Vector2) -> Dict
 			result = {"fraction": lerpf(mountain.waypoint_fraction(points, index - 1), mountain.waypoint_fraction(points, index), weight), "lateral": (point - closest).dot((b - a).normalized().orthogonal()), "distance": delta}
 	return result
 
-static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0) -> Array:
+static func outlines(points: Array, width: float) -> Array:
+	var line := PackedVector2Array()
+	for point in points: line.append(Terrain.unpack(point))
+	return Geometry2D.offset_polyline(line, width * 0.5, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT)
+
+static func polygon_bounds(polygon: PackedVector2Array) -> Rect2:
+	var bounds := Rect2(polygon[0], Vector2.ZERO)
+	for point in polygon: bounds = bounds.expand(point)
+	return bounds
+
+static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0, exclusions: Array = []) -> Array:
 	if points.size() < 2:
 		return []
-	var line := PackedVector2Array()
-	for point in points:
-		line.append(Terrain.unpack(point))
-	var outlines := Geometry2D.offset_polyline(line, width * 0.5, Geometry2D.JOIN_ROUND, Geometry2D.END_BUTT)
+	var corridors := outlines(points, width)
 	var cells: Dictionary = {}
 	# Only visit cells near a centerline segment, rather than the large bounding box.
 	for index in range(1, points.size()):
@@ -41,8 +48,14 @@ static func samples(mountain: RefCounted, points: Array, width: float, step: flo
 	for cell in cells:
 		var p := Vector2(cell) * step
 		var square := PackedVector2Array([p, p + Vector2(step, 0), p + Vector2(step, step), p + Vector2(0, step)])
-		for outline in outlines:
-			for polygon in Geometry2D.intersect_polygons(square, outline):
+		for outline in corridors:
+			var polygons: Array = Geometry2D.intersect_polygons(square, outline)
+			for exclusion in exclusions:
+				if not exclusion.bounds.intersects(Rect2(p, Vector2.ONE * step), true): continue
+				var remaining: Array = []
+				for polygon in polygons: remaining.append_array(Geometry2D.clip_polygons(polygon, exclusion.polygon))
+				polygons = remaining
+			for polygon in polygons:
 				var indices := Geometry2D.triangulate_polygon(polygon)
 				for i in range(0, indices.size(), 3):
 					var a: Vector2 = polygon[indices[i]]
