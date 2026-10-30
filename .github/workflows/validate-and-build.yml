@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths-ignore:
       - 'README.md'
+      - 'CHANGELOG.md'
+      - 'SUPPORT.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+      - '.github/ISSUE_TEMPLATE/**'
       - 'docs/**'
       - 'tools/sync_releases.py'
       - '.github/workflows/sync-release-presentation.yml'
