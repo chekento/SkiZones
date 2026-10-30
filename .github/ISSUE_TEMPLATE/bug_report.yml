@@ -1,0 +1,81 @@
+name: "🐛 Fehler melden / Bug report"
+description: "Melde einen reproduzierbaren Fehler in SkiZones."
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke fürs Testen von SkiZones! Bitte beschreibe den Fehler so genau wie möglich.
+        Allgemeine Fragen und spontane Rückmeldungen gehören in die [KoSchpendium-Community auf Discord](https://discord.gg/AFXtwWvm).
+        Bitte keine Zugangsdaten, personenbezogenen Informationen oder privaten Spielstände ohne Prüfung veröffentlichen.
+  - type: input
+    id: version
+    attributes:
+      label: "SkiZones-Version"
+      description: "Im Hauptmenü sichtbar (z. B. 0.15.0)."
+      placeholder: "0.x.x"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: "Gerät und Android-Version"
+      description: "Hersteller, Modell, Android-Version; bei PC-Tests Betriebssystem nennen."
+      placeholder: "z. B. Samsung Galaxy … / Android …"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Betroffener Bereich"
+      options:
+        - "Spielstart / Menü"
+        - "Pistenbau / Geländepunkte"
+        - "Lifte / Personal"
+        - "Wege / Gebäude"
+        - "Gäste / Bedürfnisse"
+        - "Karten / Szenarien"
+        - "Spielstände / Tageswechsel"
+        - "Grafik / Performance"
+        - "Sprache / Bedienung"
+        - "Installation / Sonstiges"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Schritte zum Nachstellen"
+      description: "Beschreibe genau, was du gemacht hast. Bei Touch-Fehlern auch Kameraansicht und Fingerbewegung nennen."
+      placeholder: |
+        1. Spiel öffnen und Karte … wählen
+        2. …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Was ist passiert?"
+      description: "Beschreibe das tatsächliche Verhalten, inklusive Fehlermeldungen."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Was hast du erwartet?"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Screenshots, Video, Logs oder Zusatzinformationen"
+      description: "Bilder hier hineinziehen; bitte vorher auf private Inhalte prüfen."
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Vor dem Absenden"
+      options:
+        - label: "Ich habe nach einer bestehenden Meldung gesucht und vertrauliche Daten entfernt."
+          required: true
