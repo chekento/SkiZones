@@ -119,6 +119,9 @@ func _families() -> void:
 	check(model.family_pose(guest,0).position.distance_to(model.rider_pose(proxy).transform.origin)<0.001,"A boarded child is attached to its own actual carrier and seat")
 	var saved:=save(model);var restored:=Resort.new()
 	check(restored.restore(saved).ok,"A partially boarded family survives a real JSON save")
+	var continued:=Resort.new();continued.restore(saved)
+	for minute in range(80):restored.advance_minute(false);continued.advance_minute(false)
+	check(restored.snapshot()==continued.snapshot(),"A saved partly boarded family continues deterministically through regrouping and later trips")
 	var bad:=saved.duplicate(true);bad.guests[0].ride_manifest[1]=bad.guests[0].ride_manifest[0].duplicate()
 	check(not restored.restore(bad).ok,"Two family members cannot claim the same saved carrier seat")
 	model.set_enabled(lift.id,false)
@@ -165,6 +168,11 @@ func _needs() -> void:
 		other.route=model.service_route(other);other.leg=0;model._start_leg(other)
 	check(visit_id(model.service_route(guest))!=int(food.id),"A party stays together when only two restaurant seats remain")
 func _economy() -> void:
+	var published: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/v0.11-starter.json"))
+	var legacy:=Resort.new();legacy.restore(published)
+	var again:=Resort.new();again.restore(save(legacy))
+	for minute in range(120):legacy.advance_minute(false);again.advance_minute(false)
+	check(legacy.snapshot()==again.snapshot(),"Migrated guests preserve exact future choices and audience feedback across another JSON save")
 	var model:=Resort.new();model.new_game(true);model.admit_guest(2,"expert")
 	var guest: Dictionary=model.guests[0];healthy(guest);guest.runs=4;guest.age=200
 	var disappointed: float=Agenda.satisfaction(model,guest)

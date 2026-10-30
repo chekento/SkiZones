@@ -2194,7 +2194,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	if not Ops.valid(operations, self): return invalid
 	var saved_audience: Variant = data.get("audience", Agenda.initial())
 	if not Agenda.valid_state(saved_audience): return invalid
-	audience = saved_audience.duplicate(true)
+	audience = Agenda.normalize_state(saved_audience)
 	_duty_cache.clear()
 	_invalidate()
 	if not Progression.restore(self, data.get("campaign")):
@@ -2263,6 +2263,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			migrated.route = _with_service(route, int(visitor.id), visitor.spent)
 			Needs.ensure(migrated, weather().temperature)
 			Agenda.ensure(self, migrated)
+			Agenda.normalize_guest(migrated)
 			migrated.leg = 0
 			migrated.erase("target")
 			_start_leg(migrated)
@@ -2279,6 +2280,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		Needs.ensure(copy, weather().temperature)
 		copy.route = route
 		Agenda.ensure(self, copy)
+		Agenda.normalize_guest(copy)
 		if copy.has("ski_motion") and copy.phase != "leaving" and int(copy.leg) < route.legs.size() and route.legs[int(copy.leg)].kind == "ski":
 			var skiing: Dictionary = route.legs[int(copy.leg)]
 			copy.walk_ranges = Motion.walk_ranges(copy.ski_motion,skiing.get("start_fraction",0),skiing.get("end_fraction",1))

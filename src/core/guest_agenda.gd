@@ -214,8 +214,31 @@ static func valid_state(value: Variant) -> bool:
 		for field in ["rating", "visitors", "departures", "satisfaction", "tickets", "services"]:
 			var number: Variant = value.segments[kind].get(field)
 			if not Terrain.number(number) or number < 0 or number > 1000000000000: return false
+			if field in ["visitors", "departures"] and number != floorf(number): return false
 		if value.segments[kind].rating > 100: return false
 	return true
+
+static func normalize_state(value: Dictionary) -> Dictionary:
+	var result := value.duplicate(true)
+	result.version = int(result.version)
+	for kind in TYPES:
+		for field in ["visitors", "departures"]: result.segments[kind][field] = int(result.segments[kind][field])
+		for field in ["rating", "satisfaction", "tickets", "services"]: result.segments[kind][field] = float(result.segments[kind][field])
+	return result
+
+static func normalize_guest(guest: Dictionary) -> void:
+	var a: Dictionary = guest.agenda
+	# JSON decodes numbers as floats. Keep the same concrete ID/counter types
+	# as fresh guests so membership, weighting and exact continuation agree.
+	for field in ["version", "comfort", "black_runs", "park_visits", "hungry_minutes", "cold_minutes", "tired_minutes"]: a[field] = int(a[field])
+	for field in ["piste_goal", "lift_goal", "pistes", "lifts"]: a[field] = a[field].map(func(id): return int(id))
+	for id in a.coverage:
+		for interval in a.coverage[id]:
+			interval[0] = float(interval[0]); interval[1] = float(interval[1])
+	for member in guest.get("family", []):
+		member.years = int(member.years); member.ability = int(member.ability)
+	for passenger in guest.get("ride_manifest", []):
+		passenger.ride_car = int(passenger.ride_car); passenger.ride_seat = int(passenger.ride_seat); passenger.ride_departure = float(passenger.ride_departure)
 
 static func valid_guest(guest: Dictionary, next_id: int) -> bool:
 	if not guest.has("agenda"): return not guest.has("family")

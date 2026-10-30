@@ -1,6 +1,6 @@
 # Prüfung von SkiZones 0.16.0
 
-Lokal bestehen die neue Gästesimulation mit **70 Fällen** und die gerenderte
+Lokal bestehen die neue Gästesimulation mit **72 Fällen** und die gerenderte
 Gäste-/Familienoberfläche mit **18 Fällen**. Der Sprachkatalog umfasst
 969 geprüfte Einträge. Zusätzlich bestehen die vorhandenen Modellprüfungen für
 Gestaltung und Gästeprofile (34), Liftplätze und Gehflächen (52), Tagesablauf
