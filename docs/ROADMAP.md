@@ -26,11 +26,11 @@ Weitere Landschaften und anpassbare Seeds, Grundstücke, Geländebearbeitung mit
 
 ## Gäste und verlässlicher Betrieb
 
-Individuelle Familien, Hotelgäste, Hunger, Müdigkeit und Budget. Servicewarteschlangen und mehrere bedarfsabhängige Gebäudebesuche. Skischulen entwickeln Können; Hotels verwalten Betten, Buchungen und Übernachtungen. Personal, Schichten, Wartung, Ersatzteile, Strom und Wasser. Beschneiung mit Wasser- und Energieverbrauch sowie eine vollständig räumliche Einsatzplanung der Pistenraupen.
+Die realen Szenarien besitzen Hotelbuchungen und Übernachtungen, persönliche Bedürfnisse, wiederholte Servicebesuche, Personal mit Schichten, Ersatzteile, Reparaturen, eigene Pistenraupen und Rettung. Weitere individuelle Familienentscheidungen, Skischul-Lernfortschritte und eine detailliertere Versorgung mit Strom und Wasser bleiben Ausbauziele.
 
 ## Weitere Karriereziele und Präsentation
 
-Spezialisierungen, Wettbewerbe, Veranstaltungen, Stammgäste und Reputation pro Zielgruppe. Weitere Szenarien mit unterschiedlichen wirtschaftlichen Bedingungen, Preisstrategien und laufenden Kreditverträgen. Sound, Musik, zusätzliche Körperanimationen, Textgrößen- und Kontrastoptionen sowie übersetzbare Texte.
+Spezialisierungen, Wettbewerbe, Veranstaltungen, Stammgäste und Reputation pro Zielgruppe. Weitere Szenarien mit unterschiedlichen wirtschaftlichen Bedingungen, Preisstrategien und laufenden Kreditverträgen. Sound, Musik, zusätzliche Körperanimationen sowie weitere Textgrößen- und Kontrastoptionen. Deutsch und Englisch sind bereits vollständig auswählbar.
 
 ## Veröffentlichungsreife
 
@@ -38,7 +38,7 @@ Wirtschaft ausbalancieren, Tutorial und Szenarien vervollständigen, große Spie
 
 ## Aktuelle Grenzen
 
-Vier feste Landschaften ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude sind über Vorplätze und tatsächliche Besuche erreichbar; Nachfrage und Komfort bleiben teilweise Kennzahlen. Es gibt keine einzelnen Hotelbuchungen oder Personalverwaltung. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.
+Acht Originalregionen und vier reale Offline-Szenarien ohne freie Bearbeitung des Berggeländes. Die Schneedecke verändert sich lokal und bleibt bewusst als begrenztes Raster modelliert. Gebäude sind über Vorplätze und tatsächliche Besuche erreichbar; Nachfrage und Komfort bleiben teilweise Kennzahlen. Hotelbuchungen, Personal, Schichten und Arbeitsaufträge sind im Betriebsmodus spielbar. Die große Kartenfläche und detaillierten Routennetze können beim ersten Laden längere Vorbereitungszeiten verursachen. Figuren fahren persönliche Linien und neigen sich in den Schwüngen, besitzen aber noch keine vollständige Skelettanimation. Die Langzeitwirtschaft bleibt eine Preview. Bildrate und Bedienung auf physischen Android-Geräten müssen weiter geprüft werden.
 
 ## Erledigt in 0.4.0
 
@@ -83,3 +83,9 @@ Fortlaufender 24-Stunden-Betrieb mit automatischer Mitternachtsabrechnung,
 Hotelübernachtungen, Disco und Außenpool mit sichtbaren Schwimmern.
 Eigenständige Szenarioziele, laufende Kostenstellen, Hauptmenü-Einstellungen
 für die Sprache und vollständige Quellenangaben. Spielstandformat 14.
+
+## Erledigt in 0.14 bis 0.14.3
+
+Vier reale Gebiete mit nachvollziehbaren OSM- und Höhendaten, erfundenen Szenarien und Quellen im Hauptmenü. Durchlaufende 24-Stunden-Uhr, Tagesberichte um Mitternacht, Stationspersonal, gemeinsame Mittelstationen, Gondel-Talfahrten, Werkstätten, Ersatzteile, Pistenraupen mit Fahrern, Bergrettung, Übernachtungen und Abendangebote. Hauptmenü-Einstellungen für System-, deutsche und englische Sprache.
+
+Gebäude prüfen Wände, Eingänge und Talankunft; ein expliziter Helfer findet passende nahe Bauplätze. Fußwege verbinden sich an ihren Kreuzungen und erhalten einen Geländehelfer. Pistenpunkte lassen sich direkt einzeln bearbeiten und mitten auf vorhandenen Mittellinien andocken. Gemeinsam verschobene Anschlüsse bleiben zusammen. Bildschirmränder werden bei den Griffen korrekt umgerechnet; gemeinsame Schneeflächen und die Bauvorschau vermeiden Überlagerungen und Löcher.

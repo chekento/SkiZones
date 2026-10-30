@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "build_ms": 487.852,
+      "frame_cpu_ms": [
+        {
+          "max": 29.335,
+          "median": 2.544,
+          "p95": 3.006,
+          "speed": 1
+        },
+        {
+          "max": 5.596,
+          "median": 4.418,
+          "p95": 5.032,
+          "speed": 4
+        }
+      ],
+      "full_tracks_ms": 134.842,
+      "guests": 80,
+      "lifts": 1,
+      "pistes": 3,
+      "snow_update_ms": 0.088
+    },
+    {
+      "build_ms": 3314.553,
+      "frame_cpu_ms": [
+        {
+          "max": 27.783,
+          "median": 14.586,
+          "p95": 16.803,
+          "speed": 1
+        },
+        {
+          "max": 36.628,
+          "median": 24.305,
+          "p95": 26.67,
+          "speed": 4
+        }
+      ],
+      "full_tracks_ms": 137.193,
+      "guests": 360,
+      "lifts": 24,
+      "pistes": 3,
+      "snow_update_ms": 0.083
+    }
+  ],
+  "engine": "4.5.2-stable (official)",
+  "mode": "headless CPU; generated stress layout; 24 warmup and 120 measured frames per speed",
+  "version": "0.14.3"
+}

@@ -24,6 +24,24 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
+## Neu in 0.14.3 · Pisten präzise bauen und verbinden
+
+Punktgriffe sitzen auch auf Handys mit Kameraausschnitt an der angeklickten Stelle.
+**Pistenpunkte bearbeiten** öffnet vorhandene Pisten direkt; **Punkt wählen**
+zentriert jeden einzelnen Griff. Ziehen ändert zuerst die Vorschau, **Übernehmen**
+bestätigt den Umbau. Dichte Kurven behalten alle bearbeitbaren Punkte.
+
+Neue Punkte rasten auch mitten auf bestehenden Pistenlinien ein. Bauen erzeugt
+wirkliche Verbindungen für Gästerouten. Gemeinsame Anschlüsse ziehen ihre
+Nachbarpisten mit. Angrenzende Schneeflächen teilen ihre Anschlusshöhe und
+überdecken sich nicht mehr mit doppelten Dreiecken.
+
+![Pistenpunkte direkt auf der verbundenen Abfahrt bearbeiten](docs/screenshots/piste-editor-0143.webp)
+
+[Änderungen in 0.14.3](docs/releases/0.14.3.md) · [Prüfnachweis](docs/VALIDATION.md)
+
+**Geprüft:** 1.021 Modell-/Grafikprüfungen und 43 Android-Emulatorfälle unter Android 11 und 16.
+
 ## Neu in 0.14 · Echte Berge, Betrieb rund um die Uhr
 
 **Braunlage / Wurmberg, Filzmoos, Kitzbühel und Seiser Alm** ergänzen die acht
@@ -117,10 +135,10 @@ Alle Bilder lassen sich für die volle Ansicht anklicken.
 |---|---|
 | Android | Android 7.0 oder neuer · ARM64 · Querformat |
 | Verbindung | Offline spielbar · kein Account erforderlich |
-| Version | 0.13.0 Preview · mit einem Testschlüssel signiert |
+| Version | 0.14.3 Preview · mit einem Testschlüssel signiert |
 | Computer | Godot 4.5.2 Standard · `project.godot` importieren · F5 |
 
-Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.13.0.md).
+Die APK, ihre Prüfsumme und Build-Metadaten liegen dauerhaft im GitHub-Release. Hinweise zu Updates und älteren Spielständen stehen in den [Release-Notizen](docs/releases/0.14.3.md).
 
 ## Neu in 0.13.0: Acht Resorts und ein richtiges Winterdorf
 
@@ -371,15 +389,16 @@ Die Karriere aus 0.2 bleibt dabei erhalten: **fünf Resort-Sterne, neun Forschun
 
 | System | Bereits spielbar |
 |---|---|
-| Pisten | Verschiebbare Wegpunkte · Andockpunkte und Abzweigungen · automatische Farben und Schilder · Höhenprofil · Ausbau |
+| Pisten | Direkt bearbeitbare Punkte · Segmentanschlüsse und gemeinsame Knoten · geglättete Schneeflächen · automatische Farben und Schilder · Höhenprofil · Ausbau |
 | Lifte | Acht Typen: Zauberteppich, Tellerlift, Einer-, Zweier-, Vierer-, Sechser-, Achtersessel und Achtergondel · feste Fahrzeugplätze · gemeinsame Förderkapazität · Windgrenzen · Ausbau |
-| Gebäude | Hütte, Restaurant, Skiverleih, Skischule, Beschneiung, Garage, Hotel, Bergwacht und sechs neue Dorfangebote |
+| Gebäude | 17 Typen einschließlich Werkstatt, Disco und Außenpool · echte Grundrisse, freie Eingänge und Bauplatzhilfe |
 | Gäste | Können, Rundwege, geordnete Warteschlangen, konkrete Sitzplätze, Fußwege, Gebäudebesuche, Skirunden, Ausgaben und Zufriedenheit |
-| Wirtschaft | Tageskarten, Bau- und Betriebskosten, Forschungskosten, Kredit, Prämien und Ergebnis nach Investitionen |
+| Betrieb | Schichten und Stationsbesetzung · Reparaturen und Ersatzteile · eigene Pistenraupen und Fahrer · Rettung und Evakuierung |
+| Wirtschaft | Tageskarten, Übernachtungen, Personal- und Betriebskosten, Kostenstellen, Forschung, Kredit und Tagesberichte um Mitternacht |
 | Berg und Wetter | Schnee, Tauwetter, Windschließungen, Verschleiß, Präparierung und Forschungsprognose |
-| Spielstände | Separate Gebiete · volle Gästerouten · Spuren und Schneerelief · Prüfsumme · Sicherung · Migration aus 0.1.x bis 0.4.x |
+| Spielstände | Acht Originalregionen und vier reale Szenarien · separate Speicherstände · volle Gästerouten · Spuren und Schneerelief · Format 14 mit Migration älterer Versionen |
 
-Gebäude besitzen angeschlossene Vorplätze, tatsächliche Besuche und Serviceerlöse. Nachfrage- und Komforteffekte bleiben teilweise über Kennzahlen abgebildet. Die lokale Schneeschicht verändert sich durch Skifahrer; das darunterliegende Berggelände lässt sich noch nicht frei bearbeiten. Einzelne Hotelbuchungen, Personal und die langfristige Feinabstimmung der Wirtschaft folgen im [Ausbauplan](docs/ROADMAP.md).
+Gebäude besitzen angeschlossene Vorplätze, tatsächliche Besuche und Serviceerlöse. Nachfrage- und Komforteffekte bleiben teilweise über Kennzahlen abgebildet. Die lokale Schneeschicht verändert sich durch Skifahrer; das darunterliegende Berggelände lässt sich noch nicht frei bearbeiten. Hotels verwalten tatsächliche Übernachtungen. Personal, Reparaturen, Maschinen, Rettung und 24-Stunden-Betrieb sind in den vier realen Szenarien aktiv. Die langfristige Feinabstimmung der Wirtschaft bleibt im [Ausbauplan](docs/ROADMAP.md).
 
 <details>
 <summary>Gefälleansicht und Hauptmenü ansehen</summary>
@@ -398,7 +417,7 @@ Das Panorama ist das Titelmotiv im Hauptmenü. Die anderen Bilder zeigen die tat
 
 Im Baukatalog **Abfahrt planen** wählen, oben am Hang beginnen und weitere Wegpunkte bergab setzen. Nummerierte Punkte lassen sich ziehen und einzeln löschen; die Schwierigkeit entsteht automatisch. **Bauen** bestätigt die Route. Beim Lift zuerst die Talstation und dann die Bergstation setzen. Gäste benötigen einen vollständigen Rundweg vom Talzugang und zurück.
 
-Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäudeplätzen an. Sichtbare Wege verbinden die vorbereiteten Bereiche; die Bauvorschau zeigt neue Gebäudeanschlüsse. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
+Pisten docken an bestehende Mittellinien, gemeinsame Wegpunkte sowie begehbare Stations-, Gebäude- und Wegeanschlüsse an. Sichtbare Wege verbinden die vorbereiteten Bereiche; die Bauvorschau zeigt neue Gebäudeanschlüsse. **Blau ≤30 %, Rot ≤55 %, Schwarz ≤110 %** sind die Gefällegrenzen des Spiels.
 
 | Aktion | Touch | Maus / Tastatur |
 |---|---|---|
@@ -409,7 +428,7 @@ Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäu
 | Drehen | Kamera → Drehen | Q / E |
 | Planungspunkt verschieben | Nummerierten Punkt ziehen | Nummerierten Punkt ziehen |
 | Planungspunkt löschen | Punkt wählen → Punkt löschen | Punkt wählen → Entf |
-| Pisten verbinden | Kleine Anschlusskreise antippen | Kleine Anschlusskreise anklicken |
+| Pisten verbinden | Bestehende Pistenlinie antippen, Einrastring prüfen | Bestehende Pistenlinie anklicken, Einrastring prüfen |
 | Größere Karte | Mehr Karte / Werkzeuge | Tab |
 | Resort-Büro | Resort-Büro | M |
 | Gäste beobachten | Gast antippen → folgen | Gast anklicken → folgen |
@@ -421,7 +440,7 @@ Pisten docken direkt an Pistenwegpunkten oder an begehbaren Stations- und Gebäu
 
 Das Projekt verwendet **Godot 4.5.2**, GDScript und den Compatibility-Renderer. Code, Oberfläche und prozedurale Modelle wurden für SkiZones erstellt. Das Hauptmenü nutzt das freigegebene Alpenpanorama. API-Schlüssel und kostenpflichtige Assets sind nicht erforderlich.
 
-**638 automatisierte Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Zusätzliche Prüfungen decken enge Kehren, gesperrte Lifttrassen, manuell gebaute Gehflächen, Planabbruch, konkurrierende Werkzeugklicks, Zwei-Finger-Verschieben, Finger-/Stift-Scrollen und eine vollständige Starterwoche ab. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
+**Die automatisierten Modell-, Grafik- und Android-Prüfungen** decken Simulation, Spielstände, Karriere, Verbindungen, Liftkapazität, Oberfläche und Touch-Bedienung ab. Neue Prüfungen vergleichen direkte und querende Abfahrten am selben Hang, Verzweigungen nach Können, laufende Teilrouten nach dem Speichern, verschiebbare Punkte, vier Kameraperspektiven sowie Höhenlinien und tatsächliche Gefällepfeile. Ein Karrieretest spielt **56 vollständige Betriebstage** mit echten Gästen, Wetter, Forschung, Aufträgen und Speicherfortsetzungen durch. Zusätzliche Prüfungen decken enge Kehren, gesperrte Lifttrassen, manuell gebaute Gehflächen, Planabbruch, konkurrierende Werkzeugklicks, Zwei-Finger-Verschieben, Finger-/Stift-Scrollen und eine vollständige Starterwoche ab. Die Tests prüfen auch echte Gebietswechsel mit getrennten Spielständen, feste Sitzplätze, Warteschlangen, Besuche und alte 0.4-Spielstände. Gerenderte Prüfungen lesen die tatsächlichen Fahrzeug- und Passagiertransformationen im Compatibility-Renderer aus. GitHub Actions prüft Projekt, APK-Signatur und Archiv vor der Veröffentlichung. Eine Prüfung auf einem physischen Android-Gerät steht noch aus.
 
 ```bash
 godot --headless --editor --import --quit

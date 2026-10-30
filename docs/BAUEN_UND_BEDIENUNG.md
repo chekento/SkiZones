@@ -60,7 +60,7 @@ Die Bauvorschau erklärt zusätzlich, ob Gäste mit dem erforderlichen Können d
 
 In der Bauleiste **Pistenbreite** wählen: 14 bis 36 Meter in Zwei-Meter-Schritten. Das funktioniert vor dem ersten Punkt, während der Vorschau und beim Umplanen bestehender Pisten. Die Kosten und Abstände werden sofort neu geprüft. Ausbauten verbreitern zusätzlich; im Anlagenprofil steht die wirksame Gesamtbreite. Die Breitenwahl ist auch unter **Mehr Karte** verfügbar.
 
-Mit **Kurven glätten** einen sanfteren Verlauf durch alle gesetzten Wegpunkte versuchen. Ein Vorschlag muss weiterhin die reguläre Bauprüfung bestehen. Griffe mit ausreichend Abstand lassen sich direkt verschieben; beim Hineinzoomen werden zusätzliche Punkte greifbar. Gezeichnete Griffe und Klicks beziehen sich auf dieselbe sichtbare Oberfläche, auch bei gedrehter oder flacher Kamera. Nahe Andockpunkte werden zusätzlich in Bildschirm-Pixeln begrenzt.
+Mit **Kurven glätten** einen sanfteren Verlauf durch alle gesetzten Wegpunkte versuchen. Ein Vorschlag muss weiterhin die reguläre Bauprüfung bestehen. Jeder Punkt bleibt bearbeitbar. Bei dicht gesetzten Kurven sind kleine Griffe sichtbar; **Punkt wählen** zentriert den gewünschten Punkt. Gezeichnete Griffe und Klicks beziehen sich auf dieselbe sichtbare Oberfläche, auch bei gedrehter oder flacher Kamera. Nahe Andockpunkte werden zusätzlich in Bildschirm-Pixeln begrenzt.
 
 Neue oder bestätigte umgeplante Pisten erhalten eine sanfte seitliche Geländeangleichung mit höchstens 1,2 m Einschnitt oder Auffüllung. Die Mittellinie und die Anschlussbereiche behalten ihre Höhen. Alte gespeicherte Pisten werden beim Laden nicht automatisch verändert. Ein gewünschter Umbau muss bestätigt werden.
 
@@ -73,3 +73,15 @@ Neue Resorts beginnen mit einer geschwungenen Dorfpromenade. Gebäude richten ih
 Für einen Fußweg genügt ein Ende an einer bestehenden Verbindung. Das zweite darf ein neuer Bauplatz sein. An langen Wegen kannst du auch in der Mitte andocken und Gebäude anschließen. Der Verlauf wird geglättet, sofern er dabei weiterhin um die Hindernisse führt und begehbar bleibt.
 
 Der Bergpass enthält acht Resorts. Der Startlift und die erste Dienstleistung sind Teil des jeweiligen Startpakets. Zusätzliche Liftarten und Dienste benötigen weiterhin die entsprechende Forschung. Bestehende Resorts bleiben in ihrer früheren Landschaft; die neue Dorfpromenade gehört zu neu eröffneten Resorts.
+
+## Präzise Standorte und Anschlüsse ab 0.14
+
+Gebäude prüfen ihre tatsächlichen Grundrisse und reservierten Eingänge. Talankunft, Lift-Einstiege und gebaute Fußwege bleiben frei. **Passenden Bauplatz finden** sucht neben dem gesetzten Punkt nach einem gültigen Standort und einer passenden Eingangsrichtung; erst **Bauen** bestätigt ihn.
+
+Fußwege verbinden sich an tatsächlichen Kreuzungen, auch wenn die Wegmitte den Anschluss herstellt. **Begehbaren Weg vorschlagen** sucht eine Route mit brauchbarer Steigung und Hindernisabständen. Pistenenden können in der Mitte eines sichtbaren Fußwegs einrasten.
+
+Zum Umplanen einer gebauten Piste die Anlage antippen und **Pistenpunkte bearbeiten** wählen. Einzelne Punkte mit Finger oder Maus ziehen, bei Bedarf über **Punkt wählen** zentrieren. Neue Verzweigungen können auch mitten auf einer vorhandenen Mittellinie einrasten. Ein zusätzlicher Ring zeigt den Anschluss. Gemeinsame Knoten bleiben beim bestätigten Umbau zusammen.
+
+Punkte in Liftmaschinen werden im interaktiven Editor nicht automatisch versetzt. Die Vorschau erklärt den ungültigen Standort; einen freien Stationsplatz daneben wählen. Auch auf Handys mit Kameraausschnitt liegen Punktmarkierungen und Eingabe auf derselben Stelle. Die farbige Vorschau passt sich der sichtbaren Schneefläche an.
+
+Die vier realen Szenarien verwenden Stationspersonal und Schichten. Für Reparaturen eine Zentrale mit Technikern und Elektrikern betreiben, Ersatzteile bestellen und Arbeitszeit einplanen. Pistenraupen benötigen Garage und Fahrer, die Bergrettung einen besetzten Stützpunkt und eine erreichbare Route. Der Betrieb läuft über Mitternacht weiter; Berichte unterbrechen ihn nicht. Einzelheiten stehen in [Szenarien und Betrieb](SZENARIEN_UND_BETRIEB.md).

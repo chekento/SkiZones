@@ -11,13 +11,17 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 | Datei | Aufgabe |
 |---|---|
 | `src/core/terrain.gd` | Gemeinsame Koordinaten, Grenzwerte und kompatible ursprüngliche Talform |
-| `src/core/maps.gd` | Vier unterschiedliche Gebiete, Größe, Bergformen, Schnee und Freischaltziele |
+| `src/core/maps.gd` | Acht Originalregionen und Einbindung vier realer Gebiete, Topografie, Schnee und Startpakete |
 | `src/core/mountain.gd` | Instanzbezogene Höhe, Grenzen, Pistenprüfung, Pfad-Cache und Seilprofile |
 | `src/core/passport.gd` | Gebietsübergreifende Rekorde, Freischaltungen und letztes Resort mit eigener Sicherung |
 | `src/core/ski_motion.gd` | Gemeinsame persönliche Fahrlinien für Figuren, Spuren und Schneeinteraktion |
 | `src/core/snow_surface.gd` | Lokale Rinnen, aufgeschobener Schnee, begrenzte Spurhistorie und Präparierung |
 | `src/core/catalog.gd` | Kosten und Kennzahlen von Liften, Gebäuden und Wetter |
 | `src/core/lift_fleet.gd` | Gemeinsamer Fahrzeugtakt, Umlauf, Stationen und feste Sitzplatzpositionen |
+| `src/core/real_resorts.gd` | Offline-Geodaten, unabhängiger Höhenraster und Szenarienstarts |
+| `src/core/operations.gd` | Stationsbesetzung, Schichten, Werkstätten, Maschinen, Rettung und durchlaufende Betriebstage |
+| `src/core/piste_links.gd` | Räumlicher Segmentindex, projizierte Andockpunkte und atomar bestätigte Anschlussknoten |
+| `src/core/foot_junctions.gd` | Tatsächliche Wegkreuzungen und Überlappungen im Fußgängernetz |
 | `src/core/foot_network.gd` | Stationsplätze, Gebäudevorplätze, sichtbare Fußwege, Hindernisse und Pistenanschlüsse |
 | `src/core/resort.gd` | Geld, Zeit, Netz, Gäste, Warteschlangen, Schnee, Tagesabschluss, Fortschritt |
 | `src/core/progression.gd` | Karriere, Sterne, Forschung, Aufträge, Ausbau, Jahreszeiten und Finanzhistorie |
@@ -25,19 +29,19 @@ Der Kernkreislauf lautet: Gelände lesen, einen Rundweg planen, Betrieb eröffne
 | `src/world/resort_view.gd` | 3D-Darstellung, Gelände, Baum- und Gästeinstanzen, Bauvorschau, Kamera und Geländeauswahl |
 | `src/world/alpine_art.gd` | Gebündelte eigene Modelle für Chalets, Liftstationen, Fahrzeuge, Tannen, Felsen und Skifahrer |
 | `src/ui/hud.gd` | Menü, Bauwerkzeuge, Anlageninspektor, Preisanpassung, Berichte und Hilfe |
-| `src/ui/management.gd` | Pausierendes Resort-Büro mit fünf handlungsfähigen Verwaltungsseiten |
+| `src/ui/management.gd` | Resort-Büro mit neun Seiten einschließlich Betrieb, Technik, Rettung und Kostenstellen |
 | `src/ui/build_palette.gd` | Baukatalog mit gesperrten, bezahlbaren und ausgewählten Einträgen |
 | `src/ui/drag_scroll.gd` | Finger-, Stift- und Mausziehen mit Klickunterdrückung nach Scrollbewegungen |
 | `src/world/piste_mesh.gd` | Abgerundeter Pistenumriss und geschlossene, ausgeschnittene Rastertriangulierung |
 | `src/ui/lift_icon.gd` | Eigene prozedurale Symbole für die acht Liftarten |
 | `src/ui/route_profile.gd` | Live-Höhenprofil und Abschnittsfarben aus der tatsächlichen Bauprüfung |
 | `src/ui/plan_overlay.gd` | Größengleiche nummerierte Punktgriffe und sichtbare Andockpunkte |
-| `src/ui/atlas.gd` | Vier Gebiete mit Freischaltzielen und eigenem Resortzugang |
+| `src/ui/atlas.gd` | Originalregionen mit Freischaltzielen und eigenem Resortzugang |
 | `src/ui/minimap.gd` | Relief aus der tatsächlichen Kartenhöhe und Navigation zum gewählten Ort |
 | `src/ui/finance_chart.gd` | Finanzdiagramm aus den letzten 28 tatsächlichen Tagesergebnissen |
 | `src/main.gd` | Verbindet Simulation, Darstellung, Eingaben und App-Lebenszyklus |
 
-Die Simulation kann ohne Fenster, Grafikkarte oder Android-Gerät getestet werden. Die Grafik nutzt dieselbe Höhenfunktion wie die Bauprüfung. Die Bauflächen reichen von 2.880 × 2.700 m bis 5.600 × 5.200 m. Die Landschaften sind fest vorgegeben; die Schneedecke auf den Pisten verändert sich lokal. Jede Simulationsinstanz besitzt ihre eigene Karte, sodass Laden und Prüfen anderer Resorts die laufende Landschaft nicht verändern.
+Die Simulation kann ohne Fenster, Grafikkarte oder Android-Gerät getestet werden. Die Grafik nutzt dieselbe Höhenfunktion wie die Bauprüfung. Acht Originalregionen ergänzen vier Offline-Gebiete aus OSM-Linien und unabhängigen Höhendaten; die jeweiligen Baugrenzen stammen aus ihrer Kartenspezifikation. Die Landschaften sind fest vorgegeben; die Schneedecke auf den Pisten verändert sich lokal. Jede Simulationsinstanz besitzt ihre eigene Karte, sodass Laden und Prüfen anderer Resorts die laufende Landschaft nicht verändern.
 
 ## Pisten und Lifte
 
@@ -45,19 +49,22 @@ Pisten bestehen aus zwei bis 64 Wegpunkten. Jeder Abschnitt wird mindestens alle
 
 Lifte verlaufen von der Tal- zur Bergstation. Die Seillinie folgt dem Gelände über Stützen. Zusätzliche Profilpunkte sichern die Bodenfreiheit an lokalen Kuppen. Die tatsächliche räumliche Seillänge bestimmt Kosten und Fahrzeit. Acht Liftarten unterscheiden sich in Bauform, Sitzen, Tempo, Förderleistung, Windgrenze und maximaler Länge. Der Teppich ist auf 250 m und der Tellerlift auf 700 m begrenzt; größere Anlagen reichen bis 3.200 m. Die vollständigen Spielwerte stehen unter [Lifte und Stationsplätze](LIFTE_UND_PLAETZE.md).
 
-Das Wegenetz besteht aus dem Talzugang, sichtbaren Stationsplätzen, angeschlossenen Gebäudevorplätzen und Wegen sowie allen Pistenwegpunkten. Die Bauprüfung legt Pistenenden außerhalb der Liftmaschine auf einen Platz; auch der breite Pistenstreifen darf die Maschine nicht schneiden. Innere Wegpunkte verbinden sich beim tatsächlichen Andocken innerhalb von 2 m. Andere Fußverbindungen folgen ausschließlich dem vorbereiteten Fußwegenetz. Verbindungswege dürfen höchstens 40 m Lücke überbrücken und umgehen Gebäude; Reservierungen vor Türen bleiben frei. Zwei Dijkstra-Suchen mit Prioritätswarteschlange pro Können erschließen alle Ziele vom Tal und zurück. Lifte führen bergauf. Pisten sind in geplanter Fahrtrichtung gerichtet und können berechnete Gegenanstiege enthalten. Die Simulation sucht vollständige, für das Können geeignete Runden zurück zum Talzugang. Unerschlossene Abfahrten können bereits gebaut werden, bringen aber noch keine zahlenden Gäste.
+Das Wegenetz besteht aus dem Talzugang, sichtbaren Stationsplätzen, angeschlossenen Gebäudevorplätzen und Wegen sowie allen Pistenwegpunkten. Die interaktive Bauprüfung erhält die gesetzten Pistenpunkte. Liftmaschinen und der gesamte breite Pistenstreifen müssen frei bleiben. Ältere programmatische Starts und Migrationen können vorbereitete Stationsenden verwenden. Innere Wegpunkte verbinden sich beim tatsächlichen Andocken innerhalb von 2 m. Andere Fußverbindungen folgen ausschließlich dem vorbereiteten Fußwegenetz. Verbindungswege dürfen höchstens 40 m Lücke überbrücken und umgehen Gebäude; Reservierungen vor Türen bleiben frei. Zwei Dijkstra-Suchen mit Prioritätswarteschlange pro Können erschließen alle Ziele vom Tal und zurück. Gondeln können im Betriebsmodus auch talwärts genutzt werden; klassische reguläre Liftkanten führen bergauf. Pisten sind in geplanter Fahrtrichtung gerichtet und können berechnete Gegenanstiege enthalten. Die Simulation sucht vollständige, für das Können geeignete Runden zurück zum Talzugang. Unerschlossene Abfahrten können bereits gebaut werden, bringen aber noch keine zahlenden Gäste.
 
 ## Gäste und Betrieb
 
-Eine Simulationsminute ist ein fester Schritt, unabhängig von der Bildrate. Bei 1× laufen 0,5 Spielminuten je realer Sekunde. Ein Betriebstag dauert etwa 20 Minuten; 4× beschleunigt denselben Ablauf. Eine reale Fahrminute entspricht 30 Spielminuten. Liftgeschwindigkeit und Förderkapazität werden entsprechend umgerechnet, sodass Fahrzeuge und Gäste im Normaltempo nachvollziehbare Fahrzeiten haben.
+Eine Simulationsminute ist ein fester Schritt, unabhängig von der Bildrate. Bei 1× laufen 0,5 Spielminuten je realer Sekunde. Ein klassischer Tagabschnitt dauert etwa 20 reale Minuten; im durchlaufenden Betriebsmodus entsprechen volle 24 Spielstunden etwa 48 realen Minuten. 4× beschleunigt denselben Ablauf. Eine reale Fahrminute entspricht in neuen Originalregionen 30 Spielminuten, in neuen realen Szenarien 10 Spielminuten. Die optionale gespeicherte Zeitskalierung erhält bei alten Spielständen den bisherigen Wert 30; reale Entfernungen und Höhen bleiben unverändert. Liftgeschwindigkeit und Förderkapazität werden entsprechend umgerechnet, sodass Fahrzeuge und Gäste im Normaltempo nachvollziehbare Fahrzeiten haben.
 
-Gäste besitzen Können, Aufenthaltsdauer, Alter, eine konkrete Reiseroute, Wegabschnitt, Wartezeit und Ausgabenstatus. Eine stabile persönliche Kennung bestimmt Namen, Kleidung, Fahrstil und Tempo. Die Darstellung interpoliert den Bruchteil des aktuellen Simulationsschritts; individuelle Skilinien werden auch für Schneeinteraktion und Spuren verwendet. Gäste gehen zu Türen, verbringen 12 bis 20 Spielminuten im Gebäude und kehren auf ihren Rundweg zurück. Pro Gast wird höchstens ein solcher Servicebesuch geplant und erst nach dessen Abschluss berechnet. Ein Ticket wird beim Einlass genau einmal bezahlt. Gebäude führen eigene Besuchs- und Erlöszähler; Komfort und Nachfrage bleiben teilweise abstrahiert.
+Gäste besitzen Können, Aufenthaltsdauer, Alter, eine konkrete Reiseroute, Wegabschnitt, Wartezeit und Ausgabenstatus. Eine stabile persönliche Kennung bestimmt Namen, Kleidung, Fahrstil und Tempo. Die Darstellung interpoliert den Bruchteil des aktuellen Simulationsschritts; individuelle Skilinien werden auch für Schneeinteraktion und Spuren verwendet. Gäste gehen zu Türen, verbringen 12 bis 20 Spielminuten im Gebäude und kehren auf ihren Rundweg zurück. Bedürfnisse können mehrere aufeinanderfolgende Besuche auslösen; abgerechnet wird nach dem tatsächlich abgeschlossenen Besuch. Ein Ticket wird beim Einlass genau einmal bezahlt. Gebäude führen eigene Besuchs- und Erlöszähler; Komfort und Nachfrage bleiben teilweise abstrahiert.
 
-Jeder Lift besitzt eine eigene Uhr und eine Flotte mit festen Abfahrtszeiten. Das Intervall beträgt `1800 × Plätze / Stundenkapazität` Spielminuten. Eine Stationwartezeit ergänzt den Umlauf aus Bergfahrt, Umlenkungen und Talfahrt, damit Fahrzeugzahl und Förderleistung zusammenpassen. Beim Halt frieren Flotte und Mitfahrende gemeinsam ein. Gäste erhalten Fahrzeug, Abfahrt und eindeutigen Sitz; beide Darstellungen lesen dieselbe Position. Ausbauten verändern Tempo und Förderleistung, niemals die Zahl der Sitze.
+Jeder Lift besitzt eine eigene Uhr und eine Flotte mit festen Abfahrtszeiten. Das Intervall beträgt `60 × Reisezeitskalierung × Plätze / Stundenkapazität` Spielminuten. Eine Stationwartezeit ergänzt den Umlauf aus Bergfahrt, Umlenkungen und Talfahrt, damit Fahrzeugzahl und Förderleistung zusammenpassen. Beim Halt frieren Flotte und Mitfahrende gemeinsam ein. Gäste erhalten Fahrzeug, Abfahrt und eindeutigen Sitz; beide Darstellungen lesen dieselbe Position. Ausbauten verändern Tempo und Förderleistung, niemals die Zahl der Sitze.
 
 Gäste werden nach tatsächlicher Anstellzeit abgefertigt; bei gleicher Zeit entscheidet ihre Kennung. Ein später eingetroffener Gast kann kein bereits abgefahrenes Fahrzeug mehr erreichen. Unbenutzte Plätze werden nicht angespart. Sichtbare Reihen und die gemessene Belegung der letzten Abfahrten zeigen die Auslastung. Wartende rücken in begrenztem Gehtempo nach und stehen bei Pause still. Mehrere Routen teilen dieselben Fahrzeuge und Sitze. Lange Wartezeiten senken die Zufriedenheit.
 
-Um 18:00 endet der Einlass. Laufende Liftfahrten, Abfahrten und Rückwege laufen mit denselben Gästen weiter; der nächste sichere Netzknoten dient der Rückwegplanung. Erst wenn das Resort leer ist, berechnet der Tagesabschluss die Betriebskosten einmalig und schreibt den vollständigen Bericht. „Nächsten Tag starten“ setzt auf 08:00 zurück, präpariert die Pisten und bestimmt das neue Wetter. Fahrzeugtakte bleiben erhalten; historische Belegungen werden gelöscht. Die vier Meilensteine zahlen ihre Prämien jeweils einmal aus.
+In klassischen Spielständen endet um 18:00 der Einlass. Laufende Liftfahrten, Abfahrten und Rückwege laufen mit denselben Gästen weiter; der nächste sichere Netzknoten dient der Rückwegplanung. Erst wenn das Resort leer ist, berechnet der Tagesabschluss die Betriebskosten einmalig und schreibt den vollständigen Bericht. „Nächsten Tag starten“ setzt auf 08:00 zurück, präpariert die Pisten und bestimmt das neue Wetter. Fahrzeugtakte bleiben erhalten; historische Belegungen werden gelöscht. Die vier Meilensteine zahlen ihre Prämien jeweils einmal aus.
+
+Im Betriebsmodus der realen Szenarien läuft die Uhr über Mitternacht weiter. Stationsöffnungszeiten, Schichten und Reparaturzustand begrenzen den Liftbetrieb. Neue Routen müssen ihre Lift-Einstiege rechtzeitig erreichen; die letzte Skiabfahrt darf nach dem Schließen der Lifte enden. Um Mitternacht werden Bericht und Kostenstelle abgeschlossen, während Übernachtungsgäste und Abendangebote erhalten bleiben.
+
 
 Für die Routenwahl sind statische Erreichbarkeit und warteschlangengewichtete Wegsuche getrennt. Die Wegsuche verwendet Acht-Personen-Bereiche zur Wiederverwendung ihrer Pfad-Caches; die Aufenthalts- und Feierabendentscheidung rechnet mit der aktuellen Wartezeit. Gäste planen ab ihrem tatsächlichen Pistenende weiter. Zeitabhängige, begrenzte Fahrprofile bilden Hangbeschleunigung, Widerstand und Kurvenbremsen ab und werden gemeinsam für Darstellung und Schneespuren verwendet.
 
@@ -130,3 +137,13 @@ Das Fußnetz enthält sichtbare und tatsächlich benutzte Anschlüsse zu Türen,
 `ski_dynamics.gd` integriert spezifische Bewegungsenergie mit Höhenarbeit, Gleitreibung und geschwindigkeitsabhängigem Widerstand. Kurven und die kontrollierte Ankunft begrenzen das Tempo. Es gibt keine künstliche Mindestgeschwindigkeit beim Bergauffahren: Ohne ausreichende Energie beginnt eine langsame Gehphase. Sie bleibt bis zum folgenden Gefälle zusammenhängend, damit Darstellung und Bewegung nicht bei jedem Messpunkt zwischen Fahren und Stapfen wechseln. Tempo, Schnee und persönlicher Stil werden beim Fahrtbeginn berücksichtigt und als normierte Zeit-/Distanz-/Moduswerte gespeichert. Die Modellmasse kürzt sich; eine Biomechanik- oder Kollisionssimulation ist das nicht.
 
 Format 9 ergänzt die persönlichen Profile und `legacy_foot`. Bei älteren laufenden Resorts bleiben die bisherigen Korridore bis zum vollständigen Tagesabschluss verfügbar, um bestehende Gäste nicht umzuplatzieren. Das nächste leere Resortnetz verwendet die neuen Verbindungen. Die bestehenden Gefälleklassen behalten ihre Grenzwerte, damit alte Pisten beim Laden ihre gültige Einstufung behalten.
+
+## Bestätigte Pistenanschlüsse und gemeinsame Schneeflächen
+
+`PisteLinks` indiziert Mittellinien in räumlichen Zellen. Die Vorschau kann auf ganze Segmente projizieren und prüft Erreichbarkeit ohne Änderungen an Nachbarn. Beim Bestätigen werden gemeinsame kollineare Knoten eingefügt; das bestehende Schneeprofil, der physische Verlauf und die ursprünglichen Baukosten bleiben erhalten. Reine Flächenüberlappung erzeugt keine Abkürzung. Gemeinsame verschobene Punkte werden samt Nachbarn vor der Zahlung geprüft.
+
+Die Schneeflächen erhalten eine feste, disjunkte Flächenzuordnung. Innere Anschlussränder verlieren ihre Randwülste und lokale Verformung weich zugunsten einer gemeinsamen Höhe. Der GPU-Shader und die CPU-Dreiecksauswahl verwenden dieselben Gewichte. Gröbere importierte Raster erhalten feinere gemeinsame Randpunkte. Längenprofile werden einmal pro Korridor vorbereitet; Möbel- und Schilderabstände verwenden denselben Segmentindex.
+
+Der Bildschirmbereich für die Oberfläche kann auf Handys um einen sicheren Rand versetzt sein. Kamera-Projektion und Eingabe bleiben in Viewport-Koordinaten; `PlanOverlay` wandelt beim Zeichnen in seine lokalen Koordinaten um. Jeder sichtbare Planungspunkt bleibt auswählbar. Die Bauvorschau unterteilt ihre Dreiecke an Schneekanten und hält gemeinsame Stützpunkte über der sichtbaren Fläche.
+
+Auf Android speichert Godot 4.5.2 die letzte Bewegungsposition im nativen Eingabeteil und gibt sie beim Loslassen wieder aus. Der mit SHA-256 gepinnte Java-Dispatcher reicht die tatsächlichen Koordinaten von `ACTION_UP` beziehungsweise `ACTION_POINTER_UP` deshalb vor dem Freigeben als letzten Bewegungsschritt weiter. Gestenerkennung und Abbruchpfad werden dabei nicht erneut ausgeführt. Die App übernimmt anschließend die Loslassposition; Desktop-Maus und Touch werden zusätzlich mit fehlender letzter Bewegungsmeldung geprüft. Native Bibliotheken und andere AAR-Ressourcen bleiben unverändert. Quellen und begrenzter Patch stehen in `tools/android/README.md`.

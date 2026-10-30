@@ -1,6 +1,43 @@
-# Prüfung von SkiZones 0.14.0
+# Prüfung von SkiZones 0.14.3
 
-Die neue Fassung ergänzt 87 Modellprüfungen für reale Geografie, alle vier
+**Modell und Grafik: 1.021 Prüfungen in 33 Suiten bestanden.** Die signierte ARM64-APK hat Signatur- und Archivprüfung bestanden.
+
+**Android: 43 echte Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Beide Jobs und die Veröffentlichung sind erfolgreich abgeschlossen.
+
+Geprüfter APK-Quellcode: `75f57a7562e46ea81910a66b9343ccaf4e7880a2`.
+[Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41056304323)
+mit Godot 4.5.2, Android-Versionscode 18 und Spielstandformat 14.
+
+| Bereich | Nachweis |
+|---|---|
+| Pistenverbindungen | 19 Fälle: Projektion auf Segmentmitten, Vorschau ohne Nebenwirkungen, wirkliche Gästerunden über Abzweige, gemeinsame Punktverschiebung, besetzter JSON-Spielstand, Stationskollision ohne automatisches Versetzen und atomare Ablehnung bei ausgeschöpfter Punktzahl |
+| Gemeinsame Schneeflächen | Flächeninhalt entspricht der Vereinigung dreier kreuzender Korridore; gemeinsame Höhen trotz unterschiedlicher Breiten und Schneehistorien; identische GPU-/CPU-Gewichte; gemischte importierte und selbst gebaute Raster auf gekrümmtem Gelände |
+| Sichtbare Punktbearbeitung | 15 Grafikfälle: asymmetrischer Handy-Bildschirmrand, echte Pixelprüfung der Griffposition, alle vier Kameramodi, dichte Punktfolgen, Einzelpunktauswahl, Ziehen und Abbrechen, direkter Bestandseditor, letzte Loslasskoordinate für Touch und Maus sowie geschlossene Bauvorschau über dem Schnee |
+| Bestehende Bau- und Betriebslogik | Gesamter bisheriger Modell- und Grafiklauf einschließlich 24 Bauplatz-/Wegefällen, 103 realen Geografie-/Betriebsfällen und 30 Maschinen-/Rettungs-/Nachtfällen |
+| Übersetzungen | 876 Katalogeinträge mit Platzhaltern und vollständiger Quelltextabdeckung |
+| Android | Tatsächliche Activity, Oberflächenwiederaufnahme, vier Bildschirm-Taps und vier Wischgesten pro API; zusätzlich sichtbare Griffpixel, besetztes Wurmberg aus den APK-Ressourcen und Wiederherstellung nach Prozessneustart |
+| Veröffentlichung | ARM64-APK mit Signatur- und Archivprüfung, SHA-256-Datei und Quellcode-Manifest |
+
+Die Android-Prüfung verlangt außerdem einen Laufzeitnachweis für die korrigierte Weitergabe der letzten Berührungsposition. Die bisherige Zielgenauigkeit wird beibehalten.
+
+Die zusätzlichen Android-Prüfungen verwenden absichtlich asymmetrische sichere
+Bildschirmränder im separaten x86-64-Testexport. Der öffentliche ARM64-Download
+enthält den Testtreiber nicht. Ein physisches Smartphone wurde nicht gemessen.
+Die Prüfung ist kein Nachweis einer bestimmten Bildrate auf allen Geräten.
+
+Zusätzlich wurde Kitzbühel mit 88 Lift- und 448 Pistenabschnitten als vollständige
+3D-Szene auf dem lokalen llvmpipe-Renderer aufgebaut und visuell kontrolliert.
+Dieser einzelne Sichttest misst keine Android-Spielgeschwindigkeit. Große reale
+Gebiete benötigen beim ersten Öffnen merklich mehr Vorbereitungszeit als die
+kleinen Originalresorts.
+
+Reproduzierbare neue Prüfpunkte: `tests/piste_connections.gd`,
+`tests/piste_editor_scene.gd`, `tests/android_lifecycle_driver.gd` und
+`tools/android_resume_smoke.py`. Alle bisherigen Suiten bleiben im Workflow.
+
+# Vorheriger Stand 0.14.0 / 0.14.1
+
+Die neue Fassung ergänzt 103 Modellprüfungen für reale Geografie, alle vier
 Szenarien, Rundwege jeder Könnensstufe, gemeinsame Mittelstationen, Personal,
 Reparaturen, Mitternacht, Speichern und identische feste Simulationsschritte.
 30 weitere Fälle prüfen tatsächliche Pistenraupenarbeit, Stillstand und

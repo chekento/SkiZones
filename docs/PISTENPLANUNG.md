@@ -65,3 +65,15 @@ Ein kleines Stück bergauf sperrt nicht mehr pauschal den gesamten Plan. Das Fah
 Mit genügend Anlauf kann ein Gast einen Gegenanstieg durchfahren. Reicht der Schwung nicht, stapft er auf einem gehbaren Abschnitt langsamer weiter, bis es wieder bergab geht. Seine sichtbare Haltung, Aktivität, Position und Schrittspuren folgen derselben zeitlichen Berechnung. Steile, nicht sicher überwindbare Anstiege bleiben mit einer konkreten Begründung gesperrt. Ein komplett aufwärts führender Verlauf ist weiterhin keine Abfahrt; mindestens 40 m Strecke und 7 m Netto-Höhenverlust bleiben die Grundanforderung.
 
 Format 9 speichert persönliche Ski-/Gehphasen und geplante Fußwege. Bereits laufende ältere Fahrten behalten ihren bisherigen zeitlichen Verlauf. Für die aktiven Gäste bleiben alte Fußkorridore bis zum nächsten abgeschlossenen Betriebstag erhalten.
+
+## Punkte und Anschlüsse ab 0.14.3
+
+Eine gebaute Piste auswählen und **Pistenpunkte bearbeiten** öffnen. Einzelne Griffe lassen sich mit Finger oder Maus ziehen. **Punkt wählen** zentriert einen bestimmten Punkt, auch bei dicht gesetzten Kurven. Gemeinsame Anschlüsse nehmen die angeschlossene Piste mit; die Vorschau prüft beide Verläufe. **Übernehmen** bestätigt und berechnet den Umbau, **Abbrechen** verwirft ihn.
+
+Neue Start-, Zwischen- und Endpunkte können mitten auf einer bestehenden Mittellinie einrasten. Ein zusätzlicher Ring und der Hinweis **Angedockt** zeigen den Anschluss an. Die sichtbare Verschiebung beim Einrasten ist auf 18 Bildschirm-Pixel begrenzt. Erst beim bestätigten Bauen werden im Nachbarverlauf passende gemeinsame Knoten eingefügt. Reine Flächenüberlappung ohne gemeinsamen Mittellinienpunkt erzeugt keine willkürliche Abkürzung.
+
+Ein Punkt in der Lifttechnik bleibt an der angeklickten Stelle und erhält einen ungültigen Bauhinweis. Zum Bauen den freien Stationsplatz daneben wählen. Bestehende alte Stationsenden bleiben beim Laden kompatibel.
+
+Schneekorridore überdecken einander an Anschlüssen nicht mit mehreren Flächen. Ihre Randwülste und lokalen Verformungen laufen zu einer gemeinsamen Höhe aus. Importierte Strecken erhalten an solchen Rändern zusätzliche gemeinsame Stützpunkte, während ihr Inneres gröber bleiben darf.
+
+Auch die letzte Loslassposition wird ausgewertet. Ein seltener Abstand zwischen letzter Bewegungsmeldung und Loslassen lässt einen gezogenen Punkt dadurch nicht mehr kurz vor dem Ziel stehen. Abbrechen erhält weiterhin den ursprünglichen Verlauf.

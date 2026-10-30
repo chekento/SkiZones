@@ -1,6 +1,23 @@
-# Performance in SkiZones 0.13.0
+# Performance in SkiZones 0.14.3
 
-## Aktueller Prüflauf 0.13.0
+## Aktueller Prüflauf 0.14.3
+
+Der [Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41056304323) verwendet den APK-Quellcode `75f57a7562e46ea81910a66b9343ccaf4e7880a2` und Godot 4.5.2. Die Schneeflächen teilen ihre Anschlussbereiche; Figuren und Spuren verwenden dieselben Übergänge.
+
+| Gäste / Lifte | Tempo | CPU-Median in ms | P95 in ms | Maximum in ms |
+|---|---|---:|---:|---:|
+| 80 / 1 | 1× | 2.544 | 3.006 | 29.335 |
+| 80 / 1 | 4× | 4.418 | 5.032 | 5.596 |
+| 360 / 24 | 1× | 14.586 | 16.803 | 27.783 |
+| 360 / 24 | 4× | 24.305 | 26.670 | 36.628 |
+
+Die Messgröße ist das CPU-Darstellungsupdate im Headless-Betrieb, mit 24 Aufwärm- und 120 Messbildern pro Tempo. Beide synthetischen Lastresorts besitzen drei Pisten. Der vollständige Simulationsschritt, GPU-Ausgabe und physische Android-Geräte sind eigene Messaufgaben. Die Werte erlauben keine Bildratenzusage; unterschiedliche Runner und Szenen begrenzen Vergleiche zwischen Versionen.
+
+Der Aufbau dieser synthetischen Szenen dauerte 487.9 beziehungsweise 3314.6 ms. Ein zusätzlicher einzelner lokaler Sichtlauf baute das vollständige Kitzbühel mit 88 Lift- und 448 Pistenabschnitten auf: Modellvorbereitung etwa 83,1 s, danach 3D-Ressourcenaufbau etwa 80,5 s auf dem llvmpipe-Software-Renderer. Das abschließende Bild wurde bei pausierter Simulation aufgenommen. Diese Stichprobe zeigt die längere Erstladezeit großer Realkarten; sie misst deren laufende Spielgeschwindigkeit auf Smartphones nicht.
+
+[Rohdaten 0.14.3](benchmarks/0.14.3-ci.json) · [Messskript](../tools/performance_benchmark.gd) · [Prüfnachweis](VALIDATION.md)
+
+## Vorheriger Prüflauf 0.13.0
 
 Der [Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/40932845746) prüft den APK-Quellcode `5800b9295cdf4ef6102c09aa34ef5cf82d833fcb` mit Godot 4.5.2. Die Grafik enthält die neue Promenade, Dorfdetails und versetzte Fußgänger. Alle erzeugten Gäste und Lifte bleiben erhalten.
 
