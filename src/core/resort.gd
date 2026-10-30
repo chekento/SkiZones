@@ -374,6 +374,8 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 	var entrance := Foot.entrance_bounds(proposed)
 	if not terrain.bounds.encloses(rect) or not terrain.bounds.encloses(entrance):
 		return _result(false, L.text("Gebäude und Eingang müssen vollständig im Baugebiet liegen."))
+	if rect.grow(8).has_point(Terrain.BASE):
+		return _result(false, L.text("Talzugang und Ankunftsfläche freihalten. Das Gebäude daneben setzen."))
 	for building in buildings:
 		var size := Foot.building_size(building)
 		var previous := Rect2(Terrain.unpack(building.point) - size * 0.5, size)
@@ -387,6 +389,9 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 				return _result(false, L.text("Den gebauten Fußweg freihalten. Das Gebäude neben den Weg setzen."))
 
 	for lift in lifts:
+		for top in [false, true]:
+			if rect.grow(4).has_point(Foot.boarding_point(lift, top)):
+				return _result(false, L.text("Die Lifttechnik und den Einstieg freihalten. Das Gebäude am Rand des Stationsplatzes anschließen."))
 		for station in [lift.bottom, lift.top]:
 			var center := Terrain.unpack(station)
 			var closest := rect.position + (center - rect.position).clamp(Vector2.ZERO, rect.size)

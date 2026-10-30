@@ -17,6 +17,7 @@ func fresh() -> RefCounted:
 	return model
 func _init() -> void:
 	var model := fresh()
+	check(not model.preview_building("repair_office", Terrain.BASE).ok, "a building must never block the valley arrival point")
 	check(model.build_building("kiosk", Vector2(100, 300), 2).ok, "place an attached kiosk")
 	check(model.preview_building("kiosk", Vector2(128, 300), 2).ok, "compact sites use actual walls and entrances rather than an arbitrary centre distance")
 	check(not model.preview_building("hotel", model.terrain.bounds.end - Vector2(5, 5)).ok, "the entire footprint and entrance must fit in the map")
@@ -58,6 +59,7 @@ func _init() -> void:
 	var route := {"legs":[{"kind":"walk","minutes":600.0}]}
 	check(model.route_before_lift_closure(route,guest), "a final descent or walk may finish after lift closure")
 	model.new_game(true)
+	check(not model.preview_building("kiosk", Foot.boarding_point(model.lifts[0], false)).ok, "a building must preserve the actual lift boarding point")
 	route = {"legs":[{"kind":"walk","minutes":550.0},{"kind":"lift","id":model.lifts[0].id,"minutes":20.0}]}
 	check(not model.route_before_lift_closure(route,guest), "planning rejects a lift reached after its closing time")
 	print("PLANNING: %d passed; %d failed" % [passed,failed])

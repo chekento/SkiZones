@@ -2613,3 +2613,6 @@ msgstr "Suggest a walkable route"
 
 msgid "Maßstäbliche Berge · verkürzte Reisezeiten"
 msgstr "True-scale mountains · shortened travel times"
+
+msgid "Talzugang und Ankunftsfläche freihalten. Das Gebäude daneben setzen."
+msgstr "Keep the valley entrance and arrival area clear. Place the building beside them."
