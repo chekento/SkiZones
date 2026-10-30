@@ -1,5 +1,10 @@
 # Prüfung von SkiZones 0.15.0
 
+**Modell und Grafik: 1.075 Prüfungen in 34 Suiten bestanden.** Die ARM64-APK hat Signatur- und Archivprüfung bestanden. **Android: 43 Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Beide Jobs und die Veröffentlichung sind erfolgreich abgeschlossen.
+
+Geprüfter APK-Quellcode: `86e97baf0284e9001988ed57de4b90a180e15d17`.
+[Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41095498344) mit Godot 4.5.2, Android-Versionscode 19 und Spielstandformat 14.
+
 Die zusätzlichen Grafikprüfungen kontrollieren volle Rendergröße bei jeder
 Grafikstufe und bei automatischer Überlastanpassung, asymmetrische sichere
 Handyränder, Punktziehen ohne Kameraverschiebung und die Hauptspiel-Reihenfolge.
@@ -19,9 +24,10 @@ Platzhaltern und vollständiger Quelltextabdeckung.
 
 Die Android-Tests prüfen die vier Kameraperspektiven zusammen mit den vier
 Grafikstufen. Bei Automatik wird zusätzlich Überlastung simuliert. Jeder echte
-Emulator-Bildnachweis verlangt eine Rendergröße von 100 %. Die Veröffentlichung
-von Versionscode 19 bleibt von den vollständigen CI- und Android-Läufen abhängig.
+Emulator-Bildnachweis verlangt eine Rendergröße von 100 %. Versionscode 19 wurde nach den erfolgreichen vollständigen CI- und Android-Läufen veröffentlicht.
 Ein physisches Smartphone wurde nicht geprüft.
+
+Die neue Szenariografiksuite besteht 53 Fälle. Dabei wurden 20.818 Schneeflächendreiecke sowie Punkte auf den Pistenmittellinien kontrolliert: keine geprüfte Fläche lag unter dem sichtbaren Boden, keine geprüfte Mittellinie hatte eine Schneelücke.
 
 Neue Regression: `tests/display_staff_scene.gd`. Die zugehörigen tatsächlichen
 Spielbilder werden unter `build/qa/` erzeugt. Die bestehende Prüfung für

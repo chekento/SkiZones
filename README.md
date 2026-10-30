@@ -63,7 +63,7 @@ Für **18 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
-## Quellstand 0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams
+## Neu in 0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams
 
 Das **Hauptspiel** steht im Menü zuerst: Fortsetzen, Karriere und freier Aufbau.
 Die vier realen Szenarien sind unter **Extras** erreichbar und behalten ihre
@@ -81,6 +81,8 @@ der Station einstellen oder vorhandene Reserve zuweisen. Im Resort-Büro helfen
 beschriftete Einstellschritte, Filter und Seiten für größere Teams.
 
 ![Direkte Liftbesetzung mit Tal- und gemeinsamer Mittelstation](docs/screenshots/lift-team-stations-0150.webp)
+
+**Geprüft:** 1.075 Modell-/Grafikprüfungen und 43 Android-11-/Android-16-Emulatorfälle.
 
 [Alle Änderungen in 0.15.0](docs/releases/0.15.0.md) · [Bedienung](docs/SZENARIEN_UND_BETRIEB.md) · [Prüfnachweis](docs/VALIDATION.md)
 
