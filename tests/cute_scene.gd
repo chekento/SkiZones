@@ -28,7 +28,11 @@ func run() -> void:
 	await capture(game,"cute-resort-0100")
 	check(game.view._walkers.multimesh.use_custom_data and game.view.visitor_mesh.material_override==game.view._people_material,"All real visitors keep one shared material with individual cloth tint and neutral faces")
 	var bounded:=true
-	for node in [game.view.visitor_mesh,game.view._walkers,game.view._riders,game.view._cabin_riders,game.view._climbers]:bounded=bounded and node.multimesh.instance_count==game.model.MAX_GUESTS
+	# One decision group can now contain up to five independently drawn people.
+	# Keep the memory bound, and require that visible instances fit its buffer.
+	for node in [game.view.visitor_mesh,game.view._walkers,game.view._riders,game.view._cabin_riders,game.view._climbers]:
+		var batch: MultiMesh=node.multimesh
+		bounded=bounded and batch.instance_count>=game.model.MAX_GUESTS and batch.instance_count<=game.model.MAX_GUESTS*5 and batch.visible_instance_count>=0 and batch.visible_instance_count<=batch.instance_count
 	check(bounded and game.model.guests.size()>20,"The decorated populated resort preserves every guest within fixed-size instance batches")
 	game.view.focus=Vector2(165,275);game.view.zoom=245;game.view.yaw=0.38;game.view.set_camera_pitch(42)
 	await capture(game,"cute-village-0100")
