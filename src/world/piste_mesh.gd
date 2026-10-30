@@ -3,18 +3,26 @@ extends RefCounted
 ## It never rotates a wide strip across a sharp corner or joins inverted rows.
 const Terrain = preload("res://src/core/terrain.gd")
 
-static func nearest(mountain: RefCounted, points: Array, point: Vector2) -> Dictionary:
+static func path_data(mountain: RefCounted, points: Array) -> Dictionary:
+	var positions: Array = []
+	var lengths: Array = [0.0]
+	for value in points: positions.append(Terrain.unpack(value))
+	for index in range(1, positions.size()): lengths.append(lengths[-1] + mountain.world(positions[index - 1]).distance_to(mountain.world(positions[index])))
+	return {"positions": positions, "lengths": lengths, "length": lengths[-1]}
+
+static func nearest(mountain: RefCounted, points: Array, point: Vector2, prepared: Dictionary = {}) -> Dictionary:
+	var path := path_data(mountain, points) if prepared.is_empty() else prepared
 	var distance := INF
 	var result := {"fraction": 0.0, "lateral": 0.0, "distance": INF}
 	for index in range(1, points.size()):
-		var a := Terrain.unpack(points[index - 1])
-		var b := Terrain.unpack(points[index])
+		var a: Vector2 = path.positions[index - 1]
+		var b: Vector2 = path.positions[index]
 		var closest := Geometry2D.get_closest_point_to_segment(point, a, b)
 		var delta := closest.distance_to(point)
 		if delta < distance:
 			distance = delta
 			var weight := a.distance_to(closest) / maxf(a.distance_to(b), 0.001)
-			result = {"fraction": lerpf(mountain.waypoint_fraction(points, index - 1), mountain.waypoint_fraction(points, index), weight), "lateral": (point - closest).dot((b - a).normalized().orthogonal()), "distance": delta}
+			result = {"fraction": lerpf(path.lengths[index - 1], path.lengths[index], weight) / maxf(path.length, 0.001), "lateral": (point - closest).dot((b - a).normalized().orthogonal()), "distance": delta}
 	return result
 
 static func outlines(points: Array, width: float) -> Array:
@@ -65,6 +73,7 @@ static func samples(mountain: RefCounted, points: Array, width: float, step: flo
 					cells[cell + Vector2i(x, y)] = true
 	var result: Array = []
 	var frames: Dictionary = {}
+	var path := path_data(mountain, points)
 	for cell in cells:
 		var p := Vector2(cell) * step
 		var square := PackedVector2Array([p, p + Vector2(step, 0), p + Vector2(step, step), p + Vector2(0, step)])
@@ -88,7 +97,7 @@ static func samples(mountain: RefCounted, points: Array, width: float, step: flo
 					var triangle := [a, b, c] if (b - a).cross(c - a) > 0 else [a, c, b]
 					for at in triangle:
 						if not frames.has(at):
-							var frame := nearest(mountain, points, at)
+							var frame := nearest(mountain, points, at, path)
 							frame.point = at
 							frames[at] = frame
 						result.append(frames[at])

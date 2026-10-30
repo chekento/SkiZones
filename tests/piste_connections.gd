@@ -115,6 +115,11 @@ func _mesh_junctions() -> void:
 	var hit := picker.position(Vector2(0, -40))
 	check(hit.is_finite() and absf(hit.y - mountain.height(Vector2(0, -40)) - 0.65) < 0.001, "Visible-surface picking applies the same junction deformation weights as the GPU")
 	check(renderer.junction_weight(1, Vector2(0, 145)) > 0.999, "Local snow deformation remains active away from junctions")
+	var path := [[-110, -300], [-45, -130], [80, 40], [180, 200]]
+	var point := Terrain.unpack(path[1]).lerp(Terrain.unpack(path[2]), 0.37)
+	var frame := PisteMesh.nearest(mountain, path, point)
+	var expected_fraction: float = lerpf(mountain.waypoint_fraction(path, 1), mountain.waypoint_fraction(path, 2), 0.37)
+	check(absf(frame.fraction - expected_fraction) < 0.00001 and frame.distance < 0.0001, "Prepared mesh path distances retain the simulation's exact along-piste coordinates")
 
 func _mixed_resolution_junction() -> void:
 	var mountain := preload("res://src/core/mountain.gd").new()

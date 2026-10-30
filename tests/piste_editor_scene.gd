@@ -68,7 +68,7 @@ func run() -> void:
 		exact_draws = exact_draws and actual.distance_to(at) < 0.03 and local.distance_to(at) > 80
 	check(exact_clicks, "Touch placement stays under the finger in all camera modes with asymmetric phone safe-area insets")
 	check(exact_draws, "Drawn waypoint centres undo the canvas inset exactly once")
-	var image := await capture("piste-touch-insets-0142")
+	var image := await capture("piste-touch-insets-0143")
 	var at := screen(target)
 	var pixel := Vector2i((at + Vector2(-5, -4)) * Vector2(image.get_size()) / root.get_visible_rect().size)
 	var drawn := image.get_pixelv(pixel)
@@ -139,13 +139,22 @@ func run() -> void:
 	game.hud.show_context("inspect")
 	game.hud.set_map_focus(true)
 	game.hud.refresh()
-	await capture("piste-junction-0142")
+	await capture("piste-junction-0143")
 	check(game.model.pistes.size() == 2 and game.view._piste_meshes.size() == 2 and game.view.snow_renderer.exclusions[game.model.pistes[1].id].size() > 0, "The actual resort renders a joined Y branch using partitioned snow meshes")
 	var branch: Dictionary = game.model.pistes[1]
 	game.begin_edit(branch.id, branch.name, "", 0, 24)
 	game.select_waypoint(1)
 	game.hud.set_map_focus(true)
-	await capture("piste-editor-0142")
+	await capture("piste-editor-0143")
+	var min_clearance := INF
+	for child in game.view.preview_root.get_children():
+		if not child.has_meta("plan_corridor"): continue
+		var faces: PackedVector3Array = child.mesh.get_faces()
+		for index in range(0, faces.size(), 3):
+			var center := (faces[index] + faces[index + 1] + faces[index + 2]) / 3
+			var actual: Vector3 = game.view.surface_position(Vector2(center.x, center.z))
+			min_clearance = minf(min_clearance, center.y - actual.y)
+	check(min_clearance > 0.005, "The translucent editing corridor stays above the rendered snow without clipping holes")
 	print("SCENE: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
 

@@ -758,10 +758,11 @@ func _build_village_details() -> void:
 				piste_furniture.append(instance)
 
 func piste_clear(point: Vector2, radius: float = 0) -> bool:
-	for piste in model.pistes:
-		for i in range(1, piste.points.size()):
-			var at := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]))
-			if point.distance_to(at) < Snow.piste_width(piste) * 0.5 + radius: return false
+	# The largest upgraded half-width is 22 m. Restrict sign/furniture checks
+	# to nearby line segments instead of scanning every imported run per sign.
+	for segment in model.piste_links().nearby(point, 22 + radius):
+		var at := Geometry2D.get_closest_point_to_segment(point, segment.a, segment.b)
+		if point.distance_to(at) < Snow.piste_width(model.asset(int(segment.id))) * 0.5 + radius: return false
 	return true
 
 func _build_lift(lift: Dictionary) -> void:
@@ -854,23 +855,56 @@ func _build_building(building: Dictionary) -> void:
 	var hub := Foot.forecourt(building)
 	_ribbon(asset_root, [Terrain.pack(entrance), Terrain.pack(hub)], 4.5, Color("bbc7c6"), 0.4)
 
+func _plan_vertex(point: Vector2, heights: Dictionary) -> Vector3:
+	if not heights.has(point): heights[point] = surface_position(point) + Vector3.UP * 0.16
+	return heights[point]
+
+func _plan_triangle(triangles: Array, heights: Dictionary, a: Vector2, b: Vector2, c: Vector2, depth: int = 0) -> void:
+	var pa := _plan_vertex(a, heights)
+	var pb := _plan_vertex(b, heights)
+	var pc := _plan_vertex(c, heights)
+	var ab := (a + b) * 0.5
+	var bc := (b + c) * 0.5
+	var ca := (c + a) * 0.5
+	var probes := [ab, bc, ca, (a + b + c) / 3]
+	var levels := [(pa.y + pb.y) * 0.5, (pb.y + pc.y) * 0.5, (pc.y + pa.y) * 0.5, (pa.y + pb.y + pc.y) / 3]
+	var rise := 0.0
+	for index in range(probes.size()): rise = maxf(rise, surface_position(probes[index]).y + 0.035 - levels[index])
+	if rise > 0 and depth < 3:
+		_plan_triangle(triangles, heights, a, ab, ca, depth + 1)
+		_plan_triangle(triangles, heights, ab, b, bc, depth + 1)
+		_plan_triangle(triangles, heights, ca, bc, c, depth + 1)
+		_plan_triangle(triangles, heights, ab, bc, ca, depth + 1)
+	else:
+		# At a snow/ground step a narrow final triangle may straddle the edge.
+		# Share lifted vertices with its neighbours rather than opening a crack.
+		if rise > 0:
+			for point in [a, b, c]: heights[point].y += rise + 0.005
+		triangles.append_array([a, b, c])
+
 func _ribbon(parent: Node3D, points: Array, width: float, color: Color, offset: float) -> void:
 	if points.size() < 2:
 		return
-	var samples := PisteMesh.samples(terrain, points, width, 10 if parent == preview_root else 6)
+	var samples := PisteMesh.samples(terrain, points, width, 4 if parent == preview_root else 6)
 	if samples.is_empty():
 		return
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_smooth_group(0)
-	for sample in samples:
-		surface.add_vertex(surface_position(sample.point) + Vector3.UP * 0.08 if parent == preview_root else terrain.world(sample.point, offset))
+	if parent == preview_root:
+		var triangles: Array = []
+		var heights: Dictionary = {}
+		for index in range(0, samples.size(), 3): _plan_triangle(triangles, heights, samples[index].point, samples[index + 1].point, samples[index + 2].point)
+		for point in triangles: surface.add_vertex(heights[point])
+	else:
+		for sample in samples: surface.add_vertex(terrain.world(sample.point, offset))
 	surface.index()
 	surface.generate_normals()
 	var instance := MeshInstance3D.new()
 	instance.mesh = surface.commit()
 	var material := _material(color)
 	if parent == preview_root:
+		instance.set_meta("plan_corridor", true)
 		material.albedo_color.a = 0.48
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
