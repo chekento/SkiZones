@@ -162,7 +162,7 @@ def main():
         adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-scenario.json", scenario_path)
         state = wait_for(lambda s: s.get("scenario") == "ready" and s["map"] == "braunlage", seconds=180)
         assert state["lifts"] == 9 and state["pistes"] == 26 and state["elevation"] > 500
-        assert state["guests"] and state["staff"] > 0
+        assert state["guests"] and state["staff"] > 0, state
         capture("real-wurmberg", state)
         before = state
         adb("shell", "input", "keyevent", "KEYCODE_HOME")

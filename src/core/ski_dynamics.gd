@@ -1,4 +1,5 @@
 extends RefCounted
+const Terrain = preload("res://src/core/terrain.gd")
 const L = preload("res://src/core/i18n.gd")
 ## Specific energy in J/kg: mass cancels. Uphill skiing cannot create free energy.
 const GRAVITY := 9.81
@@ -67,4 +68,4 @@ static func profile(mountain: RefCounted, points: Array, ability: int, personal:
 			speed = next_speed
 			samples.append([seconds,float(i)/count,0,speed])
 	for sample in samples: sample[0] /= maxf(seconds,0.001)
-	return {"ok":ok,"message":reason,"minutes":maxf(0.15,seconds*0.5),"samples":samples,"hike_meters":walked,"carry_rise":carried}
+	return {"ok":ok,"message":reason,"minutes":maxf(0.15,seconds * 0.5 * Terrain.journey_clock_scale(mountain) / 30.0),"samples":samples,"hike_meters":walked,"carry_rise":carried}

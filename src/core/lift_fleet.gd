@@ -29,10 +29,10 @@ static func basis(lift: Dictionary) -> Basis:
 	var direction := Terrain.unpack(lift.top) - Terrain.unpack(lift.bottom)
 	return Basis(Vector3.UP, atan2(direction.x, direction.y))
 
-static func layout(lift: Dictionary) -> Dictionary:
-	var interval := 60.0 * TIME_SCALE * seats(lift) / capacity(lift)
-	var ride: float = lift.length / speed(lift) * TIME_SCALE
-	var turn := PI * rope_offset(lift) / speed(lift) * TIME_SCALE
+static func layout(lift: Dictionary, time_scale: float = TIME_SCALE) -> Dictionary:
+	var interval := 60.0 * time_scale * seats(lift) / capacity(lift)
+	var ride: float = lift.length / speed(lift) * time_scale
+	var turn := PI * rope_offset(lift) / speed(lift) * time_scale
 	var travel := ride * 2 + turn * 2
 	var count := clampi(ceili(travel / interval), 2, MAX_CARRIERS)
 	return {"basis": basis(lift), "offset": rope_offset(lift), "interval": interval, "ride": ride, "turn": turn, "travel": travel, "count": count, "cycle": maxf(travel, count * interval), "seats": seats(lift)}

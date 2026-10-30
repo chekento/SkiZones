@@ -81,6 +81,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	map_id = area_id if Maps.MAPS.has(area_id) else "sonnenhang"
 	terrain_generation = 2
 	terrain = Mountain.new(map_id, terrain_generation)
+	terrain.journey_scale = 10.0 if map_id in Geo.IDS else 30.0
 	snow_revision += 1
 	money = float(Maps.spec(map_id).budget)
 	day = 1
@@ -173,7 +174,7 @@ func _lift_profile(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 
 func fleet_layout(lift: Dictionary) -> Dictionary:
 	if not _fleet_layouts.has(lift.id):
-		_fleet_layouts[lift.id] = Fleet.layout(lift)
+		_fleet_layouts[lift.id] = Fleet.layout(lift, Terrain.journey_clock_scale(terrain))
 	return _fleet_layouts[lift.id]
 
 func carrier_pose(lift: Dictionary, carrier: int, fraction_tick: float = 0.0) -> Dictionary:
@@ -255,6 +256,12 @@ func _access_nodes(point: Vector2, graph: Dictionary) -> Array:
 		for index in range(piste.points.size()):
 			var key := _piste_node(piste, index)
 			if graph.nodes.has(key) and point.distance_to(Terrain.unpack(piste.points[index])) <= 2: result.append(key)
+	for link in pedestrian_layout().links:
+		if link.get("closed", false): continue
+		for index in range(1, link.points.size()):
+			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(link.points[index - 1]), Terrain.unpack(link.points[index])).distance_to(point) > float(link.get("width", 8)) * 0.5: continue
+			for key in [link.from, link.to]:
+				if graph.nodes.has(key) and not result.has(key): result.append(key)
 	return result
 
 func piste_connections(points: Array, skill: int) -> Dictionary:
@@ -359,21 +366,25 @@ func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
 	if not Catalog.BUILDINGS.has(kind) or not terrain.contains(point):
 		return _result(false, L.text("Einen Standort im Baugebiet wählen."))
-	for building in buildings:
-		if point.distance_to(Terrain.unpack(building.point)) < 32.0:
-			return _result(false, L.text("Hier steht bereits ein Gebäude. Mindestens 32 m Abstand halten."))
 	if kind == "bus" and point.y < 165:
 		return _result(false, L.text("Den Skibus-Terminal im Tal bauen."))
 	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value}
 	var footprint := Foot.building_size(proposed)
 	var rect := Rect2(point - footprint * 0.5, footprint).grow(2)
 	var entrance := Foot.entrance_bounds(proposed)
+	if not terrain.bounds.encloses(rect) or not terrain.bounds.encloses(entrance):
+		return _result(false, L.text("Gebäude und Eingang müssen vollständig im Baugebiet liegen."))
 	for building in buildings:
 		var size := Foot.building_size(building)
 		var previous := Rect2(Terrain.unpack(building.point) - size * 0.5, size)
 		var previous_entrance := Foot.entrance_bounds(building)
 		if rect.intersects(previous.grow(2)) or rect.intersects(previous_entrance) or entrance.intersects(previous.grow(2)):
 			return _result(false, L.text("Gebäude und Eingangsvorplatz freihalten. Einen Standort mit freiem Zugang wählen."))
+	for area in walk_areas:
+		if area.kind != "walkway" or not area.enabled: continue
+		for index in range(1, area.points.size()):
+			if Foot._crosses(Terrain.unpack(area.points[index - 1]), Terrain.unpack(area.points[index]), rect.grow(4)):
+				return _result(false, L.text("Den gebauten Fußweg freihalten. Das Gebäude neben den Weg setzen."))
 
 	for lift in lifts:
 		for station in [lift.bottom, lift.top]:
@@ -388,7 +399,7 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 	if local_grade > 0.42:
 		return _result(false, L.text("Dieser Bauplatz ist zu steil. Einen flacheren Standort wählen."))
 	var connection: Dictionary = {} if kind == "snowmaker" else Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_value)
-	if kind != "snowmaker" and connection.is_empty():
+	if kind != "snowmaker" and (connection.is_empty() or not Foot.clear_walk([Terrain.pack(Foot.door(proposed)), Terrain.pack(Foot.forecourt(proposed))], buildings + [proposed], lifts)):
 		return _result(false, L.text("An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen."))
 	for piste in pistes:
 		for i in range(1, piste.points.size()):
@@ -400,11 +411,30 @@ func building_orientation(kind: String, point: Vector2) -> int:
 	var best := INF
 	var rotation_value := 0
 	for rotation_index in range(4):
-		var access := Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_index)
-		if not access.is_empty() and access.length < best:
+		var check := preview_building(kind, point, rotation_index)
+		var access: Dictionary = check.get("connection", {})
+		if check.ok and not access.is_empty() and access.length < best:
 			best = access.length
 			rotation_value = rotation_index
 	return rotation_value
+
+func suggest_building(kind: String, point: Vector2) -> Dictionary:
+	# Explicit assistance: preserve the tapped site when valid, otherwise search
+	# nearby lots. No construction, money or existing geometry changes here.
+	for distance in [0, 12, 24, 36, 48]:
+		var best: Dictionary = {}
+		var score := INF
+		for side in range(1 if distance == 0 else 8):
+			var at: Vector2 = point + Vector2.RIGHT.rotated(side * PI / 4) * distance
+			for rotation_value in range(4):
+				var check := preview_building(kind, at, rotation_value)
+				if not check.ok: continue
+				var length: float = check.get("connection", {}).get("length", 0)
+				if length < score:
+					score = length
+					best = {"ok": true, "point": Terrain.pack(at), "rotation": rotation_value, "message": L.text("Bauplatz und Eingang vorgeschlagen. Erst Bauen bestätigt den Standort.")}
+		if not best.is_empty(): return best
+	return _result(false, L.text("Kein freier Bauplatz in der Nähe. Einen anderen Bereich oder einen neuen Fußweg wählen."))
 
 func build_building(kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
 	var access := build_access_message(kind, false)
@@ -481,6 +511,12 @@ func preview_walkway(points: Array) -> Dictionary:
 	var attached := false
 	for at in [Terrain.unpack(prepared[0]),Terrain.unpack(prepared[-1])]:
 		attached = attached or Foot.contains(layout_value, at) or not snap_walkway(at, 4).is_empty()
+	if not attached:
+		for link in layout_value.links:
+			if link.get("closed", false) or not (link.get("manual", false) or link.get("promenade", false)): continue
+			for i in range(1, prepared.size()):
+				for j in range(1, link.points.size()):
+					if Geometry2D.segment_intersects_segment(Terrain.unpack(prepared[i - 1]), Terrain.unpack(prepared[i]), Terrain.unpack(link.points[j - 1]), Terrain.unpack(link.points[j])) != null: attached = true
 	if not attached: return _result(false,L.text("Mindestens ein Ende an einen vorhandenen Weg, Liftzugang oder Platz anschließen."))
 	var length := terrain.polyline_length(prepared)
 	if length < 4 or length > 1600: return _result(false,L.text("Ein Fußweg benötigt 4–1.600 m Länge."))
@@ -744,6 +780,13 @@ func snap_anchor(point: Vector2, radius: float = 18, start: bool = false, ignore
 		if candidate < distance:
 			distance = candidate
 			best = anchor
+	for link in pedestrian_layout().links:
+		if link.get("closed", false) or not (link.get("manual", false) or link.get("promenade", false)): continue
+		for index in range(1, link.points.size()):
+			var at := Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(link.points[index - 1]), Terrain.unpack(link.points[index]))
+			if at.distance_to(point) < distance:
+				distance = at.distance_to(point)
+				best = {"point": at, "id": 0, "waypoint": 0, "difficulty": -1, "label": L.text("Fußweganschluss")}
 	return best
 
 func _piste_node(piste: Dictionary, index: int) -> String:
@@ -990,7 +1033,7 @@ func _routes_from(skill: int, source: String, consider_queues: bool = false) -> 
 	cache[key] = result
 	return result
 
-func route_minutes(route: Dictionary, guest: Dictionary) -> float:
+func route_minutes(route: Dictionary, guest: Dictionary, latest_boarding: float = INF) -> float:
 	var cost := 0.0
 	for leg in route.legs:
 		var time: float = leg.minutes
@@ -998,11 +1041,19 @@ func route_minutes(route: Dictionary, guest: Dictionary) -> float:
 			var lift := asset(leg.id)
 			if lift.is_empty() or not lift_open(lift):
 				return INF
-			time += queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) + fleet_layout(lift).interval * 0.5
+			var waiting: float = queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) + fleet_layout(lift).interval * 0.5
+			if minute + cost + waiting >= latest_boarding: return INF
+			if is_finite(latest_boarding) and minute + cost + waiting + fleet_layout(lift).ride > 1080: return INF
+			time += waiting
 		elif leg.kind == "ski":
 			time *= [5.2, 7.5, 10.0][guest.ability] / Motion.style(guest.id, guest.ability, guest.get("sport", "ski")).speed
 		cost += time
 	return cost
+
+func route_before_lift_closure(route: Dictionary, guest: Dictionary) -> bool:
+	# The last descent may finish after the lifts close. Predict boarding times
+	# instead of rejecting a complete, real-scale day trip at the valley gate.
+	return is_finite(route_minutes(route, guest, 1020))
 
 func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	Needs.ensure(guest, weather().temperature)
@@ -1014,10 +1065,10 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if Ops.active(self) and route_skill < 2 and int(guest.id) % 11 == 0 and guest.needs.energy < 60 and not guest.get("assisted", false) and rng.randf() < 0.015:
 		route_skill += 1
 	for route in _routes_from(route_skill, source, true):
-		var time := route_minutes(route, guest)
+		var time := route_minutes(route, guest, 1020 if Ops.continuous(self) else INF)
 		# No new circuit that predictably carries the guest far past closing or
 		# their personal departure time. A later queue increase never teleports them.
-		if (Ops.continuous(self) and (is_closing() or minute + time > 1020)) or (not Ops.continuous(self) and minute + time > CLOSING) or guest.age + time > guest.stay:
+		if (Ops.continuous(self) and is_closing()) or (not Ops.continuous(self) and minute + time > CLOSING) or guest.age + time > guest.stay:
 			continue
 		var weight := 1.0 / (12.0 + time)
 		if int(guest.get("last_piste", -1)) == int(route.target):
@@ -1151,6 +1202,7 @@ func admit_guest(skill: int) -> bool:
 	if guests.size() >= MAX_GUESTS or routes.is_empty() or minute >= CLOSING:
 		return false
 	var guest := {"id": guest_id, "sport": Motion.sport_for(guest_id), "ability": skill, "age": 0, "stay": rng.randi_range(300, 520), "runs": 0, "loops": 0, "leg": 0, "elapsed": 0.0, "phase": "moving", "wait": 0, "total_wait": 0, "spent": false, "ticket_paid": ticket_price * Ops.group_size(self), "spending": float(ticket_price * Ops.group_size(self)), "group_size": Ops.group_size(self), "route": {}}
+	if map_id in Geo.IDS: guest.stay = rng.randi_range(720, 1020)
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -1680,7 +1732,7 @@ func snapshot() -> Dictionary:
 		else:
 			copy.leg = 0
 		visitor_data.append(copy)
-	return {"version":14,"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":14,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -1773,6 +1825,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	if not Terrain.number(generation_value) or (generation_value != 1 and generation_value != 2): return invalid
 	terrain_generation = int(generation_value)
 	terrain = Mountain.new(map_id, terrain_generation)
+	var journey_scale: Variant = data.get("journey_scale", 30.0)
+	if not Terrain.number(journey_scale) or journey_scale not in [10.0, 30.0]: return invalid
+	terrain.journey_scale = float(journey_scale)
 	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [0 if data.version >= 14 else OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 150000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
 	for key in ranges:
 		var value: Variant = data.get(key)

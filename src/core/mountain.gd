@@ -1,4 +1,5 @@
 extends RefCounted
+var journey_scale := 30.0
 const L = preload("res://src/core/i18n.gd")
 ## An instance prevents one open/test resort from changing another map's terrain.
 const Terrain = preload("res://src/core/terrain.gd")

@@ -2580,3 +2580,36 @@ msgstr "Lifts have closed. Evening guests and night work continue; accounts clos
 
 msgid "Abend- und Nachtbetrieb · %d Gäste im Resort"
 msgstr "Evening and night operations · %d guests in the resort"
+
+msgid "Gebäude und Eingang müssen vollständig im Baugebiet liegen."
+msgstr "The building and its entrance must fit entirely inside the building area."
+
+msgid "Den gebauten Fußweg freihalten. Das Gebäude neben den Weg setzen."
+msgstr "Keep the built footpath clear. Place the building beside the path."
+
+msgid "Bauplatz und Eingang vorgeschlagen. Erst Bauen bestätigt den Standort."
+msgstr "Site and entrance suggested. Build confirms the location."
+
+msgid "Kein freier Bauplatz in der Nähe. Einen anderen Bereich oder einen neuen Fußweg wählen."
+msgstr "No free site nearby. Choose another area or build an access path."
+
+msgid "Fußweganschluss"
+msgstr "Footpath connection"
+
+msgid "Kein begehbarer Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen."
+msgstr "No walkable route found. Add more waypoints across the slope."
+
+msgid "Fußweg vorgeschlagen. Verlauf und Anschlüsse prüfen; erst Bauen bestätigt."
+msgstr "Footpath suggested. Check its route and connections; Build confirms it."
+
+msgid "Passenden Bauplatz finden"
+msgstr "Find a suitable site"
+
+msgid "Sucht einen nahen freien Standort und richtet den Eingang zum Zugang aus. Bauen wird separat bestätigt."
+msgstr "Finds a nearby free site and turns its entrance towards the access path. Building requires confirmation."
+
+msgid "Begehbaren Weg vorschlagen"
+msgstr "Suggest a walkable route"
+
+msgid "Maßstäbliche Berge · verkürzte Reisezeiten"
+msgstr "True-scale mountains · shortened travel times"

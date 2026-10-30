@@ -101,3 +101,7 @@ static func analyse(points: Array, difficulty: int) -> Dictionary:
 		result.ok = true
 		result.message = L.text("%s · %.0f m · %.0f m Abfahrt · max. %.0f %%") % L.args([PISTE_NAMES[difficulty], length, result.drop, max_grade])
 	return result
+
+static func journey_clock_scale(mountain: RefCounted) -> float:
+	var value: Variant = mountain.get("journey_scale")
+	return float(value) if value is float or value is int else 30.0

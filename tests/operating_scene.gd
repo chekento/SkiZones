@@ -85,6 +85,34 @@ func run() -> void:
 		await capture("en-evening-pool-0140")
 		check(game.view._swimmers.multimesh.visible_instance_count > 0, "actual booked visitors swim visibly in the pool")
 		check(game.hud.plan_text.text.contains("midnight"), "the evening HUD describes continuous operations and automatic midnight accounts")
+	# Operate the construction helpers through the actual UI buttons.
+	if not pool.is_empty():
+		game.model.minute = 660
+		game.hud.set_map_focus(false)
+		game.view.zoom = 145
+		game.view._update_camera()
+		game.hud.building_choice.select(game.model.Catalog.BUILDINGS.keys().find("restaurant"))
+		game.set_tool("building")
+		game.points = [pool.point.duplicate()]
+		game._update_plan()
+		var funds: float = game.model.money
+		check(not game.last_plan_check.ok, "a building overlapping the pool has a blocked preview")
+		game.hud.palette.site_button.pressed.emit()
+		await process_frame
+		check(game.last_plan_check.ok and game.model.money == funds and game.points[0] != pool.point, "the visible site helper finds a valid lot without charging")
+		await capture("construction-site-0140")
+		game.clear_plan()
+		game.plaza_kind = "walkway"
+		game.set_tool("walkway")
+		game.points = [[185,230],[300,350]]
+		game._update_plan()
+		game.hud.palette.suggest_button.pressed.emit()
+		await process_frame
+		check(game.last_plan_check.ok and game.model.money == funds, "the visible walkway helper preserves confirmation and the budget")
+		game.view.focus = Vector2(242,290)
+		game.view.zoom = 230
+		game.view._update_camera()
+		await capture("construction-path-0140")
 	game.queue_free()
 	await process_frame
 	print("OPERATIONS SCENE: %d passed; %d failed" % [passed, failed])

@@ -52,6 +52,7 @@ func setup(interface: CanvasLayer) -> void:
 		hud._label(card, tasks.strip_edges(), 16, hud.INK, true)
 		hud._label(card, L.text("%.1f km² · Datenstand %s · eigener Spielstand") % [Maps.area(id), str(geo.osm_timestamp).get_slice("T", 0)], 14, hud.MUTED, true)
 		hud._label(card, L.text("24 Stunden · Personal & Schichten · Technik · Rettung · Abendgäste"), 14, hud.TEAL, true)
+		hud._label(card, L.text("Maßstäbliche Berge · verkürzte Reisezeiten"), 14, hud.MUTED, true)
 		hud._button(card, L.text("Szenario öffnen / fortsetzen"), func():
 			hud.game.enter_area(id)
 			hide()

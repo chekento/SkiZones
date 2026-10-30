@@ -1,6 +1,7 @@
 extends RefCounted
 ## Prepared plazas and paths are both visible ground and the pedestrian graph.
 const Terrain = preload("res://src/core/terrain.gd")
+const Junctions = preload("res://src/core/foot_junctions.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const LINK_GAP := 40.0
 const WALK_SPEED := 2.8
@@ -152,6 +153,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 			if not best.is_empty():
 				fixed.append({"from": source, "to": area.key, "points": best, "width": 8.0, "promenade": true})
 				connected.append({"key": area.key, "point": area.point})
+	fixed = Junctions.stitch(fixed, nodes, areas)
 	var candidates: Array = []
 	for i in range(areas.size()):
 		for j in range(i+1,areas.size()):
@@ -159,7 +161,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 			var b: Dictionary = areas[j]
 			var landing_gap: float = 350.0 if mountain.get("id") in ["braunlage", "filzmoos", "kitzbuehel", "seiseralm"] and a.kind == "station" and b.kind == "station" and absf(mountain.height(a.center) - mountain.height(b.center)) < 70 else a.radius + b.radius + LINK_GAP
 			if a.center.distance_to(b.center) > landing_gap: continue
-			if a.id == b.id and a.kind == "walkway" and b.kind == "walkway": continue
+			if a.kind == "walkway" and b.kind == "walkway" and (a.id == b.id or a.center.distance_to(b.center) > 8): continue
 			var path := path_between(a.point,b.point,buildings,lifts,shapes)
 			if not path.is_empty() and gentle(mountain,path): candidates.append({"from":a.key,"to":b.key,"points":path,"length":mountain.polyline_length(path),"width":7.0})
 	candidates.sort_custom(func(a,b): return a.length < b.length if not is_equal_approx(a.length,b.length) else str(a.from)+str(a.to) < str(b.from)+str(b.to))
@@ -307,9 +309,11 @@ static func connection(mountain: RefCounted, layout_value: Dictionary, buildings
 		if area.center.distance_to(entrance) > area.radius + building_radius(proposed) + LINK_GAP:
 			continue
 		var path := path_between(area.point, entrance, buildings + [proposed], layout_value.get("lifts", []))
-		if length < distance and not path.is_empty() and gentle(mountain, path):
-			distance = length
-			nearest = {"area": area.key, "points": path, "length": length}
+		if not path.is_empty() and gentle(mountain, path):
+			var actual_length: float = mountain.polyline_length(path)
+			if actual_length < distance:
+				distance = actual_length
+				nearest = {"area": area.key, "points": path, "length": actual_length}
 	return nearest
 
 static func walk_minutes(mountain: RefCounted, points: Array) -> float:
@@ -324,7 +328,7 @@ static func walk_minutes(mountain: RefCounted, points: Array) -> float:
 			var grade: float = (mountain.height(q)-mountain.height(p))/maxf(p.distance_to(q),0.01)
 			var speed := clampf(1.4*exp(-3.5*maxf(grade,0)-1.2*maxf(-grade-0.12,0)),0.35,1.4)
 			seconds += mountain.world(p).distance_to(mountain.world(q))/speed
-	return seconds*0.5
+	return seconds * 0.5 * Terrain.journey_clock_scale(mountain) / 30.0
 
 static func gentle(mountain: RefCounted, points: Array) -> bool:
 	for index in range(1, points.size()):

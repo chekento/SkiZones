@@ -37,3 +37,15 @@ Landungen, Dorfpromenaden und Servicegebäude ist für das Spiel erzeugt. Angabe
 zum aktuellen realen Betrieb oder zur Vollständigkeit eines offiziellen
 Pistenplans lassen sich daraus nicht ableiten. Quellen und Datennutzungsrechte
 stehen unter **Impressum & Datenquellen** und in `assets/geodata/README.md`.
+
+
+Beim Bauen hilft **Passenden Bauplatz finden** nach dem ersten Antippen eines
+Standorts. Vorschläge berechnen Eingang und freien Zugang; erst **Bauen**
+bestätigt. Selbst gebaute Wege werden von Gebäuden freigehalten. Unter **Wege**
+steht **Begehbaren Weg vorschlagen** zur Verfügung. Kreuzungen bilden echte
+Knoten, und Pistenenden können mitten an einen Fußweg angeschlossen werden.
+
+Neue reale Szenarien verkürzen Reisezeiten gegenüber den ursprünglichen Resorts
+um den Faktor drei, damit Tagesausflüge trotz maßstäblicher Geografie in den
+Spieltag passen. Die letzte Abfahrt darf nach Liftschluss enden; eine erst nach
+Betriebsschluss erreichbare Liftfahrt wird nicht neu eingeplant.

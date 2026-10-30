@@ -77,6 +77,8 @@ jobs:
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/resort_worlds.gd
       - name: Offline real maps, shifts, work orders and continuous nights
         run: 'python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --headless --script tests/real_operations.gd'
+      - name: Building sites, real path crossings and late descents
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/construction_logic.gd'
       - name: Occupied hotels, rescue dispatch and actual groomer work
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/operating_nights.gd'
       - name: Install virtual display for rendered tests

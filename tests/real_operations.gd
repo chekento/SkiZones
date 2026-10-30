@@ -65,7 +65,10 @@ func run() -> void:
 			lift.fault = ""
 		Ops.refresh_duty(model)
 		model._operational_change()
-		for skill in [0, 1, 2]: check(not model.routes_for(skill).is_empty(), id + " complete circuits for ability " + str(skill))
+		for skill in [0, 1, 2]:
+			check(not model.routes_for(skill).is_empty(), id + " complete circuits for ability " + str(skill))
+			check(model.admit_guest(skill), id + " actual geographic day-trip admission for ability " + str(skill))
+		check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, id + " populated geographic save roundtrip")
 	# Test work orders in a controlled classic valley, independently of OSM
 	# completeness, provider names or the shapes of a particular imported map.
 	var model := Resort.new()

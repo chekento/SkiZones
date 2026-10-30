@@ -33,6 +33,9 @@ Imported piste colours use OSM difficulty tags when available; new pistes
 use the slope model. Generated pedestrian access, plazas, buildings and
 forest decoration are game additions. Staffing numbers,
 wages, outages and scenario goals are fictional simulation parameters.
+New real-map games shorten walking, skiing and lift travel times by a factor
+of three relative to the original resorts, so complete trips fit in a game day.
+Distances and terrain remain unchanged. This is a fictional game clock.
 
 Godot Engine · MIT licence:
 [url=https://godotengine.org/license/]godotengine.org/license/[/url]

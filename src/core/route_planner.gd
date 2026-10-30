@@ -42,7 +42,7 @@ static func smooth(model: RefCounted, points: Array, width: float = 20) -> Dicti
 	check.message = L.text("Kurven geglättet. Breite, Gefälle und Anschlüsse prüfen; erst Bauen bestätigt.")
 	return check
 
-static func _clear(model: RefCounted,a: Vector2,b: Vector2,width: float,shapes: Array,max_grade: float = 0.30) -> bool:
+static func _clear(model: RefCounted,a: Vector2,b: Vector2,width: float,shapes: Array,max_grade: float = 0.30, walking: bool = false) -> bool:
 	if not model.terrain.contains(a) or not model.terrain.contains(b): return false
 	for shape in shapes:
 		if Foot.crosses_polygon(a,b,shape): return false
@@ -51,11 +51,11 @@ static func _clear(model: RefCounted,a: Vector2,b: Vector2,width: float,shapes: 
 		var p:=a.lerp(b,float(index)/count)
 		var q:=a.lerp(b,float(index+1)/count)
 		var grade: float=(model.terrain.height(p)-model.terrain.height(q))/maxf(p.distance_to(q),0.01)
-		if grade>max_grade or grade< -0.35: return false
-	return Foot.clear_piste([Terrain.pack(a),Terrain.pack(b)],model.lifts,width*0.5)
+		if grade>max_grade or grade< (-max_grade if walking else -0.35): return false
+	return Foot.clear_walk([Terrain.pack(a), Terrain.pack(b)], model.buildings, model.lifts) if walking else Foot.clear_piste([Terrain.pack(a),Terrain.pack(b)],model.lifts,width*0.5)
 
-static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: float,shapes: Array,budget: Dictionary,max_grade: float = 0.30) -> Array:
-	if _clear(model,start,finish,width,shapes,max_grade): return [Terrain.pack(start),Terrain.pack(finish)]
+static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: float,shapes: Array,budget: Dictionary,max_grade: float = 0.30, walking: bool = false) -> Array:
+	if _clear(model,start,finish,width,shapes,max_grade,walking): return [Terrain.pack(start),Terrain.pack(finish)]
 	var step:=clampf(start.distance_to(finish)/55,10,32)
 	var margin:=clampf(start.distance_to(finish)*0.4,90,360)
 	var region:=Rect2(start,Vector2.ZERO).expand(finish).grow(margin).intersection(model.terrain.bounds.grow(-0.1))
@@ -91,7 +91,7 @@ static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: flo
 			if visited.has(next): continue
 			if next!=terminal and (next.x<0 or next.y<0 or next.x>grid.x or next.y>grid.y): continue
 			var point:=finish if next==terminal else region.position+Vector2(next)*step
-			if not _clear(model,at,point,width,shapes,max_grade): continue
+			if not _clear(model,at,point,width,shapes,max_grade,walking): continue
 			var rise:=maxf(0,model.terrain.height(point)-model.terrain.height(at))
 			var cost: float=costs[cell]+at.distance_to(point)+rise*14
 			if previous.has(cell):
@@ -112,7 +112,7 @@ static func _between(model: RefCounted,start: Vector2,finish: Vector2,width: flo
 	var index:=0
 	while index<path.size()-1:
 		var next:=path.size()-1
-		while next>index+1 and not _clear(model,Terrain.unpack(path[index]),Terrain.unpack(path[next]),width,shapes,max_grade): next-=1
+		while next>index+1 and not _clear(model,Terrain.unpack(path[index]),Terrain.unpack(path[next]),width,shapes,max_grade,walking): next-=1
 		result.append(path[next])
 		index=next
 	return result
@@ -144,4 +144,17 @@ static func suggest(model: RefCounted,points: Array,width: float=20) -> Dictiona
 		var rounded := smooth(model, result, width)
 		if rounded.ok and rounded.grade <= check.grade + 0.01: check = rounded
 	check.message=L.text("Verlauf vorgeschlagen. Höhenprofil und Anschlüsse prüfen; erst Bauen bestätigt den Plan.")
+	return check
+
+static func suggest_walk(model: RefCounted, points: Array) -> Dictionary:
+	if points.size() < 2 or points.size() > 64: return {"ok": false, "points": [], "message": L.text("Zuerst Start und Ziel setzen.")}
+	var shapes := Foot.obstacles(model.buildings, model.lifts)
+	var result: Array = [points[0]]
+	var budget := {"remaining": MAX_SEARCH, "deadline": Time.get_ticks_usec() + 1200000}
+	for index in range(1, points.size()):
+		var part := _between(model, Terrain.unpack(points[index - 1]), Terrain.unpack(points[index]), 8, shapes, budget, 0.55, true)
+		if part.is_empty() or result.size() + part.size() - 1 > 64: return {"ok": false, "points": [], "message": L.text("Kein begehbarer Verlauf gefunden. Weitere Zwischenpunkte quer zum Hang setzen.")}
+		result.append_array(part.slice(1))
+	var check: Dictionary = model.preview_walkway(result)
+	if check.ok: check.message = L.text("Fußweg vorgeschlagen. Verlauf und Anschlüsse prüfen; erst Bauen bestätigt.")
 	return check

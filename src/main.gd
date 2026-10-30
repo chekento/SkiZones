@@ -378,13 +378,24 @@ func _plan_check() -> Dictionary:
 	return {"ok": false, "message": L.text("Talstation, dann Bergstation antippen.") if tool == "lift" else L.text("Einen Bauplatz antippen."), "cost": 0}
 
 func suggest_route() -> void:
-	if tool != "piste" or points.size() < 2: return
+	if tool not in ["piste", "walkway"] or points.size() < 2: return
 	var context: RefCounted=model if editing_id == -1 else model.Edit.context(model,editing_id)
-	var result: Dictionary=context.suggest_piste(points,chosen_piste_width())
+	var result: Dictionary=context.Planner.suggest_walk(context, points) if tool == "walkway" else context.suggest_piste(points,chosen_piste_width())
 	if result.ok:
 		points=result.points.duplicate(true)
 		selected_waypoint=-1
 		snap_target={}
+		_update_plan()
+	hud.toast(result.message)
+
+func suggest_site() -> void:
+	if tool != "building" or points.size() != 1: return
+	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
+	var result: Dictionary = context.suggest_building(hud.building_kind() if editing_id == -1 else model.asset(editing_id).kind, Terrain.unpack(points[0]))
+	if result.ok:
+		points = [result.point]
+		edit_rotation = int(result.rotation)
+		snap_target = {}
 		_update_plan()
 	hud.toast(result.message)
 

@@ -14,6 +14,7 @@ var _state := ""
 var route_profile := RouteProfile.new()
 var suggest_button: Button
 var reverse_button: Button
+var site_button: Button
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -44,6 +45,10 @@ func setup(interface: CanvasLayer) -> void:
 	suggest_button=hud._button(content,L.text("Sanften Verlauf vorschlagen"),game.suggest_route,true)
 	suggest_button.tooltip_text=L.text("Sucht einen sanfteren Verlauf zwischen deinen Punkten. Bauen wird separat bestätigt.")
 	reverse_button=hud._button(content,L.text("Richtung umkehren"),game.reverse_route)
+	site_button=hud._button(content,L.text("Passenden Bauplatz finden"),game.suggest_site,true)
+	site_button.tooltip_text=L.text("Sucht einen nahen freien Standort und richtet den Eingang zum Zugang aus. Bauen wird separat bestätigt.")
+	content.move_child(site_button, 0)
+	content.move_child(suggest_button, 1)
 	refresh(true)
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
@@ -122,8 +127,11 @@ func refresh(force: bool = false) -> void:
 		return
 	_state = fingerprint
 	route_profile.visible = category == "pistes"
-	suggest_button.visible=category == "pistes" and game.tool == "piste"
-	reverse_button.visible=suggest_button.visible
+	suggest_button.visible=(category == "pistes" and game.tool == "piste") or (category == "paths" and game.tool == "walkway")
+	suggest_button.text=L.text("Begehbaren Weg vorschlagen") if game.tool == "walkway" else L.text("Sanften Verlauf vorschlagen")
+	reverse_button.visible=category == "pistes" and game.tool == "piste"
+	site_button.visible=category == "village" and game.tool == "building" and game.points.size() == 1
+	site_button.disabled=game.points.size() != 1
 	suggest_button.disabled=game.points.size()<2
 	reverse_button.disabled=game.points.size()<2
 	hud.tool_buttons.inspect.text = L.text("Plan abbrechen") if game.tool != "inspect" else L.text("Resort ansehen")
