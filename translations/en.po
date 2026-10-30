@@ -2778,3 +2778,30 @@ msgstr "Previous page"
 
 msgid "Nächste Seite"
 msgstr "Next page"
+
+msgid "Community & Feedback"
+msgstr "Community & Feedback"
+
+msgid "SkiZones-Community auf KoSchpendium"
+msgstr "SkiZones community on KoSchpendium"
+
+msgid "Tausche dich mit Spielern aus, teile dein Resort und hilf uns, SkiZones zu verbessern."
+msgstr "Meet other players, share your resort, and help us improve SkiZones."
+
+msgid "Discord · Community-Forum"
+msgstr "Discord · Community forum"
+
+msgid "Fehler melden · GitHub"
+msgstr "Report a bug · GitHub"
+
+msgid "Funktion vorschlagen · GitHub"
+msgstr "Suggest a feature · GitHub"
+
+msgid "Community-Regeln und Hilfe"
+msgstr "Community guidelines and help"
+
+msgid "Externe Links öffnen Discord oder GitHub; dort gelten eigene Nutzungs- und Datenschutzbedingungen."
+msgstr "External links open Discord or GitHub, each with its own terms and privacy policies."
+
+msgid "Link konnte nicht geöffnet werden."
+msgstr "Could not open the link."
