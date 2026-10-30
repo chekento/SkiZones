@@ -2,6 +2,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
+const Agenda = preload("res://src/core/guest_agenda.gd")
 const HOMES := ["Hamburg", "München", "Wien", "Salzburg", "Innsbruck", "Stuttgart", "Bremen", "Berlin", "Graz", "Köln"]
 const MOTIVES := ["Den Winter genießen", "Neue Abfahrten entdecken", "Schöne Schwünge üben", "Aussicht und Hütteneinkehr", "Einen sportlichen Tag verbringen"]
 
@@ -56,5 +57,17 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		emoji = "🆘"
 		activity = L.text("Wartet auf die Pistenrettung")
 		reason = L.text("Ich bleibe an einem sicheren Ort, bis das Rettungsteam mich erreicht.")
-	var score := clampf(78 + guest.get("runs", 0) * 2 - guest.total_wait * 0.17 - maxf(0, hunger - 60) * 0.2, 5, 100)
-	return {"name": Motion.name_for(id), "years": 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": MOTIVES[(id * 11) % MOTIVES.size()], "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}
+	var score := Agenda.satisfaction(model, guest)
+	var motive := L.text(MOTIVES[(id * 11) % MOTIVES.size()])
+	var detail := ""
+	if guest.has("agenda"):
+		var intent: Dictionary = guest.agenda
+		motive = L.text(Agenda.TYPES[intent.kind].name)
+		detail = L.text("\n\n[color=#a56440]WÜNSCHE & URLAUBSZIELE[/color]\n%s\nKomfortgrenze: %s\n%d verschiedene Pisten · %d verschiedene Lifte\n%d Snowpark-Besuche\nZielerfüllung: %.0f %%") % [L.text(Agenda.TYPES[intent.kind].wish), L.text(["Nur Blau", "Blau und Rot", "Blau, Rot und Schwarz"][Agenda.comfort(guest)]), intent.pistes.size(), intent.lifts.size(), intent.park_visits, Agenda.achievement(model, guest) * 100]
+		if intent.kind == "collector": detail += L.text("\nUrlaubsliste: %d Pisten · %d Lifte") % [intent.piste_goal.size(), intent.lift_goal.size()]
+		if guest.has("family"):
+			detail += L.text("\n\nFAMILIE · %d Personen · gemeinsame Route\nPausen richten sich nach dem dringendsten Bedürfnis.") % guest.family.size()
+			for member in guest.family: detail += "\n" + L.text("%s · %d Jahre · Hunger %.0f %% · Wärme %.0f %%") % [member.name, member.years, member.needs.hunger, member.needs.warmth]
+		if score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
+			mood = "impatient"; emotion = L.text("Enttäuscht"); emoji = "😕"; reason = L.text("Mein Urlaub soll zu meinen Wünschen passen. Bisher fehlen mir passende Erlebnisse oder erreichbare Pausen.")
+	return {"name": guest.family[-1].name if guest.has("family") else Motion.name_for(id), "years": guest.family[-1].years if guest.has("family") else 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": motive, "agenda": detail, "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}

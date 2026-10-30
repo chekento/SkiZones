@@ -70,6 +70,7 @@ static func admit_evening(model: RefCounted) -> bool:
 	if model.guests.size() >= model.MAX_GUESTS: return false
 	var guest := {"id": model.guest_id, "sport": "ski", "ability": 0, "age": 0, "stay": 900, "runs": 0, "loops": 0, "leg": 0, "elapsed": 0.0, "phase": "moving", "wait": 0, "total_wait": 0, "spent": false, "ticket_paid": 0, "spending": 0.0, "route": {}, "evening": true}
 	Needs.ensure(guest, model.weather().temperature)
+	model.Agenda.ensure(model, guest, "blue")
 	guest.needs.joy = 8.0
 	guest.needs.energy = 15.0
 	guest.needs.hunger = 60.0
@@ -341,9 +342,9 @@ static func evacuate(model: RefCounted, id: int) -> Dictionary:
 	for guest in model.guests:
 		if guest.phase == "leaving" or guest.leg >= guest.route.legs.size(): continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
-		if leg.kind == "lift" and int(leg.id) == id and guest.phase != "queue":
+		if leg.kind == "lift" and int(leg.id) == id and (guest.phase != "queue" or not guest.get("ride_manifest", []).is_empty()):
 			incident(model, guest, "evacuation")
-			count += 1
+			count += int(guest.get("group_size", 1))
 	return model._result(count > 0, L.text("Hilferufe für %d Passagiere angelegt. Rettungsteams werden nach Erreichbarkeit entsandt.") % count)
 
 static func dispatch(model: RefCounted, id: int) -> Dictionary:
@@ -507,6 +508,9 @@ static func tick(model: RefCounted) -> void:
 						guest.incident = -1
 						guest.assisted = true
 						guest.needs.energy = maxf(60, guest.needs.energy)
+						if guest.has("family"):
+							for member in guest.family: member.needs.energy = maxf(60, member.needs.energy)
+							model.Needs.aggregate_family(guest)
 						if event.reason == "evacuation":
 							# Recovery uses the real graph after lowering the passenger to the ground.
 							var graph: Dictionary = model._routing_graph(int(guest.ability))

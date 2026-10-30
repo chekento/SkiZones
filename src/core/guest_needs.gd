@@ -42,23 +42,54 @@ static func valid(guest: Dictionary) -> bool:
 		if not guest.needs.get(key) is bool: return false
 	for kind in guest.service_history:
 		if not SERVICES.has(kind) or not Terrain.number(guest.service_history[kind]) or guest.service_history[kind]<0 or guest.service_history[kind]>guest.age: return false
+	if guest.has("visit_kind") and not SERVICES.has(guest.visit_kind): return false
+	if guest.has("visit_benefits"):
+		if not guest.get("visit_kind") is String or not SERVICES.has(guest.visit_kind) or not guest.visit_benefits is Dictionary: return false
+		for field in guest.visit_benefits:
+			if field not in FIELDS or not Terrain.number(guest.visit_benefits[field]) or guest.visit_benefits[field] < 0 or guest.visit_benefits[field] > maxf(0, SERVICES[guest.visit_kind][field]) + 0.001: return false
 	return true
 
 static func advance(guest: Dictionary, temperature: float) -> void:
 	ensure(guest,temperature)
-	var state: Dictionary=guest.needs
 	var kind := ""
 	if guest.phase!="leaving" and guest.leg<guest.route.legs.size(): kind=guest.route.legs[guest.leg].kind
-	state.hunger=minf(100,state.hunger+0.20)
-	state.warmth=maxf(0,state.warmth-(maxf(0,2-temperature)*0.012 if kind!="visit" else 0))
-	state.energy=clampf(state.energy+(0.07 if kind=="lift" else -0.12 if kind=="ski" else -0.055),0,100)
-	state.joy=maxf(0,state.joy-(0.18 if guest.phase=="queue" else 0.07))
+	var dose: Dictionary = {}
+	if kind == "visit" and SERVICES.has(guest.get("visit_kind", "")):
+		if not guest.has("visit_benefits"): guest.visit_benefits = {}
+		for field in FIELDS:
+			var total: float = SERVICES[guest.visit_kind][field]
+			var given: float = guest.visit_benefits.get(field, 0.0)
+			dose[field] = minf(maxf(0, total - given), maxf(0, total) / maxf(1, guest.get("duration", 1)))
+			guest.visit_benefits[field] = given + dose[field]
+	if guest.has("family"):
+		for member in guest.family: _advance_values(member.needs, kind, guest.phase == "queue", temperature, member.years < 16, dose)
+		aggregate_family(guest)
+	else: _advance_values(guest.needs, kind, guest.phase == "queue", temperature, false, dose)
+
+static func _advance_values(state: Dictionary, kind: String, queue: bool, temperature: float, child: bool, dose: Dictionary) -> void:
+	state.hunger=minf(100,state.hunger+(0.25 if child else 0.20))
+	state.warmth=maxf(0,state.warmth-(maxf(0,2-temperature)*0.012*(1.3 if child else 1.0) if kind!="visit" else 0))
+	state.energy=clampf(state.energy+(0.07 if kind=="lift" else -0.14 if kind=="ski" and child else -0.12 if kind=="ski" else -0.055),0,100)
+	state.joy=maxf(0,state.joy-(0.18 if queue else 0.07))
+	for field in dose: state[field] = clampf(state[field] + dose[field] * (-1 if field == "hunger" else 1), 0, 100)
+
+static func aggregate_family(guest: Dictionary) -> void:
+	if not guest.has("family") or guest.family.is_empty(): return
+	var summary: Dictionary = guest.family[0].needs.duplicate()
+	for member in guest.family:
+		summary.hunger = maxf(summary.hunger, member.needs.hunger)
+		for field in ["energy", "warmth", "joy"]: summary[field] = minf(summary[field], member.needs[field])
+		for field in ["rental", "lesson"]: summary[field] = summary[field] or member.needs[field]
+	guest.needs = summary
+
+static func urgent(guest: Dictionary) -> bool:
+	return guest.needs.hunger >= 70 or guest.needs.warmth < 35 or guest.needs.energy < 25
 
 static func utility(guest: Dictionary, kind: String) -> float:
 	if not SERVICES.has(kind): return 0
 	var state: Dictionary=guest.needs
 	var service: Dictionary=SERVICES[kind]
-	if guest.age-guest.service_history.get(kind,-10000)<55: return 0
+	if guest.age-guest.service_history.get(kind,-10000)<55 and not (state.hunger > 90 and service.hunger > 0 or state.warmth < 20 and service.warmth > 0 or state.energy < 10 and service.energy > 0): return 0
 	var score:=0.0
 	if state.hunger>=45: score+=minf(service.hunger,state.hunger)*(1.3 if state.hunger>=70 else 0.8)
 	if state.warmth<58: score+=minf(service.warmth,100-state.warmth)*(1.6 if state.warmth<35 else 1.0)
@@ -70,10 +101,14 @@ static func utility(guest: Dictionary, kind: String) -> float:
 
 static func complete(guest: Dictionary, kind: String) -> void:
 	if not SERVICES.has(kind): return
-	for key in FIELDS:
-		var change: float=-SERVICES[kind][key] if key=="hunger" else SERVICES[kind][key]
-		guest.needs[key]=clampf(guest.needs[key]+change,0,100)
-	if kind=="rental": guest.needs.rental=false
-	if kind=="school": guest.needs.lesson=false
+	var states: Array = guest.family.map(func(member): return member.needs) if guest.has("family") else [guest.needs]
+	for state in states:
+		for key in FIELDS:
+			var amount: float = SERVICES[kind][key]
+			if guest.get("visit_kind", "") == kind and amount > 0: amount = maxf(0, amount - guest.get("visit_benefits", {}).get(key, 0))
+			state[key]=clampf(state[key] + (-amount if key=="hunger" else amount),0,100)
+		if kind=="rental": state.rental=false
+		if kind=="school": state.lesson=false
+	aggregate_family(guest)
 	guest.service_history[kind]=guest.age
 	guest.spent=true

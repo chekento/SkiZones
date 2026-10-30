@@ -1,4 +1,16 @@
-# Prüfung von SkiZones 0.15.0
+# Prüfung von SkiZones 0.16.0
+
+Lokal bestehen die neue Gästesimulation mit **70 Fällen** und die gerenderte
+Gäste-/Familienoberfläche mit **18 Fällen**. Der Sprachkatalog umfasst
+969 geprüfte Einträge. Zusätzlich bestehen die vorhandenen Modellprüfungen für
+Gestaltung und Gästeprofile (34), Liftplätze und Gehflächen (52), Tagesablauf
+(54) sowie Nachtbetrieb und Rettung (30).
+
+Die vollständige Pipeline einschließlich Android-Emulatoren und APK ist für
+0.16.0 noch ausstehend. Dieser Abschnitt wird nach ihrem Abschluss durch den
+abschließenden Nachweis ersetzt. Der bisherige erfolgreiche Stand folgt unten.
+
+## Veröffentlichter Nachweis für 0.15.0
 
 **Modell und Grafik: 1.075 Prüfungen in 34 Suiten bestanden.** Die ARM64-APK hat Signatur- und Archivprüfung bestanden. **Android: 43 Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Beide Jobs und die Veröffentlichung sind erfolgreich abgeschlossen.
 

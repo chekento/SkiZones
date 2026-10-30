@@ -142,7 +142,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
 	if prepared != null:
@@ -615,7 +615,9 @@ func _input(event: InputEvent) -> void:
 		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.lift_staff.visible:
+			if hud.audience.visible:
+				hud.audience.hide()
+			elif hud.lift_staff.visible:
 				hud.lift_staff.hide()
 			elif hud.asset_editor.visible:
 				hud.asset_editor.hide()
@@ -637,7 +639,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
+		elif not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -714,6 +716,9 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.audience.visible:
+			hud.audience.hide()
+			return
 		if hud.lift_staff.visible:
 			hud.lift_staff.hide()
 			return

@@ -22,6 +22,7 @@ const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const LiftStaff = preload("res://src/ui/lift_staff.gd")
+const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
 const COMMUNITY_BUG := "https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml"
@@ -96,6 +97,7 @@ var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
 var lift_staff := LiftStaff.new()
+var audience := Audience.new()
 var lift_staff_button: Button
 var lift_staff_status: Label
 var mission_panel: PanelContainer
@@ -154,6 +156,8 @@ func setup(controller: Node) -> void:
 	management.setup(game, self)
 	root.add_child(lift_staff)
 	lift_staff.setup(self)
+	root.add_child(audience)
+	audience.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
 	root.add_child(asset_editor)
@@ -588,6 +592,7 @@ func show_menu() -> void:
 	camera_dialog.hide()
 	management.hide()
 	lift_staff.hide()
+	audience.hide()
 	atlas.hide()
 	scenarios.hide()
 	credits.hide()
@@ -604,7 +609,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -721,6 +726,7 @@ func show_guest(id: int) -> void:
 		game.view._update_camera()
 	, true)
 	_button(inspector_actions, L.text("Kamera lösen"), func(): game.view.follow_guest = -1)
+	_button(inspector_actions, L.text("Gäste & Wünsche"), func(): audience.open(), true)
 	_refresh_context_text()
 
 func _refresh_context_text() -> void:
@@ -733,6 +739,7 @@ func _refresh_context_text() -> void:
 			inspector_title.text = profile.name
 			guest_face.update_face(profile.mood, Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()]))
 			inspector_text.text = L.text("[color=#a56440]%s[/color]\n%s\n\n[color=#347970]%d Jahre · aus %s[/color]\n%s · %s\n\n%s\n\n[color=#a56440]DEIN SKITAG[/color]\n%d %s · %d Runden\n%d Min. im Resort\n%d Min. insgesamt gewartet\nTagesgefühl: %.0f %%\n\nEnergie: %.0f %%\nHunger: %.0f %%\nWärmegefühl: %.0f %%\n\nFahrstil: %s\nTempo: %.1f m/s\nAusgaben: %s €") % L.args([profile.emotion, profile.reason, profile.years, profile.home, [L.text("Anfänger"), L.text("Geübt"), L.text("Profi")][guest.ability] + " · " + profile.equipment, profile.motive, profile.activity, guest.get("runs", 0), L.text("Abfahrt") if guest.get("runs", 0) == 1 else L.text("Abfahrten"), guest.loops, guest.age, guest.total_wait, profile.score, profile.energy, profile.hunger, profile.warmth, profile.style, profile.speed, money_text(profile.spending)])
+			inspector_text.text = inspector_text.text.insert(inspector_text.text.find("\n\n[color=#a56440]"), profile.agenda)
 			return
 		inspector_title.text = L.text("Ein schöner Skitag geht zu Ende")
 		inspector_text.text = L.text("Dieser Gast hat das Resort verlassen. Wähle einen anderen Gast oder eine Anlage.")

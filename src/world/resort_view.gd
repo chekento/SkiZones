@@ -103,6 +103,7 @@ var _environment := Environment.new()
 var _snow := CPUParticles3D.new()
 var _seen_revision := -1
 var _guest_positions: Dictionary = {}
+var _family_positions: Dictionary = {}
 var _guest_targets: Dictionary = {}
 var _guest_tick := ""
 var _queue_paths: Dictionary = {}
@@ -139,27 +140,27 @@ void fragment() {
 	_build_surroundings()
 	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh]:
 		add_child(node)
-	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS,true)
+	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
 	visitor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS,true)
+	_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS * 5,true)
 	_riders.material_override = _people_material
 	_riders.multimesh.visible_instance_count = 0
-	_cabin_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS,true)
+	_cabin_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS * 5,true)
 	_cabin_riders.material_override = _people_material
 	_cabin_riders.multimesh.visible_instance_count = 0
-	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS,true)
+	_walkers.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	_walkers.material_override = _people_material
 	_walkers.multimesh.visible_instance_count = 0
-	_climbers.multimesh = _multimesh(Art.new().skier(false,true),model.MAX_GUESTS,true)
+	_climbers.multimesh = _multimesh(Art.new().skier(false,true),model.MAX_GUESTS * 5,true)
 	_climbers.material_override = _people_material
 	_climbers.multimesh.visible_instance_count = 0
 	for sport in Motion.SPORTS:
 		for pose in ["glide", "seated", "walk", "hike"]:
 			var node := MultiMeshInstance3D.new()
 			node.name = "Equipment_" + sport + "_" + pose
-			node.multimesh = _multimesh(Art.new().equipment(sport, pose), model.MAX_GUESTS)
+			node.multimesh = _multimesh(Art.new().equipment(sport, pose), model.MAX_GUESTS * 5)
 			node.material_override = _solid
 			node.multimesh.visible_instance_count = 0
 			add_child(node)
@@ -172,7 +173,7 @@ void fragment() {
 	_tow_lines.multimesh = _multimesh(tow, 24 * Fleet.MAX_CARRIERS)
 	_tow_lines.material_override = _material(Color("495c60"))
 	_tow_lines.multimesh.visible_instance_count = 0
-	_swimmers.multimesh = _multimesh(Art.new().swimmer(), model.MAX_GUESTS)
+	_swimmers.multimesh = _multimesh(Art.new().swimmer(), model.MAX_GUESTS * 5)
 	_swimmers.material_override = _solid
 	_swimmers.multimesh.visible_instance_count = 0
 	_groomers.multimesh = _multimesh(Art.new().groomer(), 80)
@@ -1043,6 +1044,7 @@ func _process(delta: float) -> void:
 	forest.update(focus, zoom, quality_tier)
 	_adapt_quality(delta)
 	var next_positions: Dictionary = {}
+	_family_positions.clear()
 	var walking := 0
 	var riding := 0
 	var cabin_riding := 0
@@ -1087,6 +1089,14 @@ func _process(delta: float) -> void:
 					_swimmers.multimesh.set_instance_transform(swimmers, Transform3D(Basis(Vector3.UP, facing), position_value))
 					_swimmers.multimesh.set_instance_color(swimmers, Color.WHITE)
 					swimmers += 1
+					if guest.has("family") and zoom < 1200:
+						for index in range(guest.family.size() - 1):
+							var child: Dictionary = guest.duplicate()
+							child.id = int(guest.id) * 5 + index
+							var at: Vector3 = model.guest_position(child, simulation_fraction)
+							_swimmers.multimesh.set_instance_transform(swimmers, Transform3D(Basis(Vector3.UP, facing).scaled(Vector3.ONE * (0.72 if guest.family[index].years < 16 else 1.0)), at))
+							_swimmers.multimesh.set_instance_color(swimmers, Color.WHITE)
+							swimmers += 1
 				if follow_guest == int(guest.id):
 					focus = Vector2(position_value.x, position_value.z)
 					_follow_position = position_value
@@ -1140,6 +1150,14 @@ func _process(delta: float) -> void:
 			visitor_mesh.multimesh.set_instance_color(walking,Color.WHITE)
 			visitor_mesh.multimesh.set_instance_custom_data(walking,color)
 			walking += 1
+		if guest.has("family") and zoom < 1200:
+			var counts := {"ski": walking, "riding": riding, "cabin": cabin_riding, "foot": foot_visitors, "hike": climbers}
+			for index in range(guest.family.size() - 1): _draw_family_member(guest, index, counts, equipment_counts)
+			walking = counts.ski
+			riding = counts.riding
+			cabin_riding = counts.cabin
+			foot_visitors = counts.foot
+			climbers = counts.hike
 		next_positions[guest.id] = position_value
 		if follow_guest == int(guest.id):
 			_follow_position = _follow_position.lerp(position_value, minf(1, delta * 7)) if camera_smoothing and delta > 0 and _follow_position.is_finite() else position_value
@@ -1230,14 +1248,44 @@ func pick_guest(point: Vector2) -> int:
 	for guest in model.guests:
 		if guest.phase == "leaving" or not _guest_positions.has(guest.id):
 			continue
-		var position_value: Vector3 = _guest_positions[guest.id]
-		if camera.is_position_behind(position_value):
-			continue
-		var distance: float = camera.unproject_position(position_value).distance_to(point)
-		if distance < best:
-			best = distance
-			id = guest.id
+		var positions: Array = [_guest_positions[guest.id]] + _family_positions.get(int(guest.id), [])
+		for position_value: Vector3 in positions:
+			if camera.is_position_behind(position_value): continue
+			var distance: float = camera.unproject_position(position_value).distance_to(point)
+			if distance < best:
+				best = distance
+				id = guest.id
 	return id
+
+func _draw_family_member(guest: Dictionary, index: int, counts: Dictionary, equipment: Dictionary) -> void:
+	var pose: Dictionary = model.family_pose(guest, index, simulation_fraction)
+	var leg: Dictionary = guest.route.legs[guest.leg]
+	var at: Vector3 = pose.position
+	if leg.kind == "ski":
+		var point := Vector2(at.x, at.z)
+		at.y += ground_position(point).y - terrain.height(point)
+	var small: bool = guest.family[index].years < 16
+	var color := Color(Motion.COLORS[(int(guest.id) * 5 + index) % Motion.COLORS.size()])
+	var transform_value := Transform3D(Basis(Vector3.UP, pose.yaw).scaled(Vector3.ONE * (0.72 if small else 1.0)), at)
+	var on_foot: bool = pose.waiting or leg.kind == "walk" or leg.kind == "lift" and guest.phase == "queue" and index >= guest.get("ride_manifest", []).size()
+	var fraction: float = clampf((guest.elapsed + simulation_fraction) / maxf(guest.get("duration", 1), 0.001), 0, 1)
+	var hiking: bool = leg.kind == "ski" and Motion.hiking(guest.get("ski_motion", []), fraction)
+	var bucket := "cabin" if pose.cabin else "riding" if pose.seated else "hike" if hiking else "foot" if on_foot else "ski"
+	var node: MultiMeshInstance3D = {"ski": visitor_mesh, "riding": _riders, "cabin": _cabin_riders, "hike": _climbers, "foot": _walkers}[bucket]
+	if not pose.cabin:
+		var gear_key: String = guest.get("sport", "ski") + "/" + ("seated" if pose.seated else "hike" if hiking else "walk" if on_foot else "glide")
+		var gear: MultiMesh = _equipment[gear_key].multimesh
+		gear.set_instance_transform(equipment[gear_key], transform_value)
+		gear.set_instance_color(equipment[gear_key], color)
+		equipment[gear_key] += 1
+	if guest.get("sport", "ski") == "snowboard" and bucket == "ski":
+		transform_value.basis = transform_value.basis * Basis(Vector3.UP, PI * 0.5)
+	node.multimesh.set_instance_transform(counts[bucket], transform_value)
+	node.multimesh.set_instance_color(counts[bucket], Color.WHITE)
+	node.multimesh.set_instance_custom_data(counts[bucket], color)
+	counts[bucket] += 1
+	if not _family_positions.has(int(guest.id)): _family_positions[int(guest.id)] = []
+	_family_positions[int(guest.id)].append(at)
 
 func _draw_snow(piste: Dictionary) -> void:
 	var data := snow_renderer.update(piste)

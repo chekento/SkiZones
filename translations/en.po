@@ -2779,6 +2779,111 @@ msgstr "Previous page"
 msgid "Nächste Seite"
 msgstr "Next page"
 
+msgid "Genuss auf Blau"
+msgstr "Easygoing on blue"
+
+msgid "Nur blaue Pisten, sichere Wege und entspannte Pausen."
+msgstr "Blue runs only, safe routes and relaxing breaks."
+
+msgid "Blau & Rot"
+msgstr "Blue & red"
+
+msgid "Abwechslung auf blauen und roten Abfahrten."
+msgstr "Variety on blue and red runs."
+
+msgid "Alle Schwierigkeitsgrade"
+msgstr "Every difficulty"
+
+msgid "Blaue, rote und schwarze Abfahrten entdecken."
+msgstr "Discover blue, red and black runs."
+
+msgid "Pisten- und Liftsammler"
+msgstr "Run and lift collectors"
+
+msgid "Im Urlaub jede Piste fahren und jeden Lift benutzen."
+msgstr "Ski every run and use every lift during the holiday."
+
+msgid "Schwarz & Snowpark"
+msgstr "Black runs & snowpark"
+
+msgid "Sportliche schwarze Pisten und regelmäßige Snowpark-Besuche."
+msgstr "Challenging black runs and regular snowpark sessions."
+
+msgid "Familien gemeinsam"
+msgstr "Families together"
+
+msgid "Zusammenbleiben, kindgerechte Pisten, Essen und Wärme."
+msgstr "Stay together, child-friendly runs, food and warmth."
+
+msgid "\n\n[color=#a56440]WÜNSCHE & URLAUBSZIELE[/color]\n%s\nKomfortgrenze: %s\n%d verschiedene Pisten · %d verschiedene Lifte\n%d Snowpark-Besuche\nZielerfüllung: %.0f %%"
+msgstr "\n\n[color=#a56440]WISHES & HOLIDAY GOALS[/color]\n%s\nComfort limit: %s\n%d different runs · %d different lifts\n%d snowpark visits\nGoals achieved: %.0f %%"
+
+msgid "Nur Blau"
+msgstr "Blue only"
+
+msgid "Blau und Rot"
+msgstr "Blue and red"
+
+msgid "Blau, Rot und Schwarz"
+msgstr "Blue, red and black"
+
+msgid "\nUrlaubsliste: %d Pisten · %d Lifte"
+msgstr "\nHoliday list: %d runs · %d lifts"
+
+msgid "\n\nFAMILIE · %d Personen · gemeinsame Route\nPausen richten sich nach dem dringendsten Bedürfnis."
+msgstr "\n\nFAMILY · %d people · shared route\nBreaks follow the most urgent individual need."
+
+msgid "%s · %d Jahre · Hunger %.0f %% · Wärme %.0f %%"
+msgstr "%s · %d years · Hunger %.0f %% · Warmth %.0f %%"
+
+msgid "Enttäuscht"
+msgstr "Disappointed"
+
+msgid "Mein Urlaub soll zu meinen Wünschen passen. Bisher fehlen mir passende Erlebnisse oder erreichbare Pausen."
+msgstr "I want a holiday that suits my wishes. So far, I am missing suitable experiences or reachable places to take a break."
+
+msgid "GÄSTE & WÜNSCHE"
+msgstr "GUESTS & WISHES"
+
+msgid "Passende Pisten und erreichbare Pausenangebote ziehen dein Publikum an. Tatsächliche Erlebnisse bestimmen Rückmeldungen, Nachfrage und Erlöse."
+msgstr "Suitable runs and reachable places for a break attract your audience. Actual experiences determine reviews, demand and revenue."
+
+msgid "Werbung ausrichten:"
+msgstr "Advertising focus:"
+
+msgid "Ausgewogen · keine Zusatzkosten"
+msgstr "Balanced · no extra cost"
+
+msgid " · 250 €/Tag"
+msgstr " · €250/day"
+
+msgid "Werbung aktualisiert. Die Ausrichtung verändert die Gästemischung; laufende Kosten sind im Betrieb enthalten."
+msgstr "Advertising updated. The focus changes the visitor mix; ongoing costs are included in operations."
+
+msgid "Ungedeckte Bedürfnisse · Hunger: %d · Kälte: %d · Erschöpfung: %d Personen"
+msgstr "Unmet needs · Hungry: %d · Cold: %d · Exhausted: %d people"
+
+msgid "%d Personen vor Ort · Passung des erreichbaren Angebots: %.0f %%"
+msgstr "%d people here · Match with reachable facilities: %.0f %%"
+
+msgid "Aktuelles Tagesgefühl: %.0f %%"
+msgstr "Current day satisfaction: %.0f %%"
+
+msgid "Noch keine Rückmeldungen nach der Abreise."
+msgstr "No post-departure reviews yet."
+
+msgid "%d Abreisen · durchschnittlich %.0f %% zufrieden"
+msgstr "%d departures · average satisfaction %.0f %%"
+
+msgid "Erfasste Erlöse: %s € Tageskarten · %s € Besuche"
+msgstr "Recorded revenue: €%s day tickets · €%s visits"
+
+msgid "Familien entscheiden gemeinsam nach der niedrigsten Komfortgrenze und dem dringendsten Bedürfnis. Sammler zählen nur tatsächlich abgeschlossene Fahrten; Teilstücke werden zur vollständigen Piste zusammengesetzt."
+msgstr "Families decide together using the lowest comfort limit and most urgent need. Collectors count only completed trips; partial sections combine into a complete run."
+
+msgid "Gäste & Wünsche"
+msgstr "Guests & wishes"
+
 msgid "Community & Feedback"
 msgstr "Community & Feedback"
 

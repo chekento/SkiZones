@@ -77,6 +77,26 @@ Für **18 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
+## Neu in 0.16.0 · Gäste mit eigenen Urlaubswünschen
+
+**Familien fahren zusammen; jeder Gast sucht einen passenden Skitag.** Sechs Besuchergruppen wählen ihre tatsächlichen Routen nach Komfort und Urlaubswünschen. Essen, Snacks, Wärme und Pausen verändern einzelne Bedürfnisse und die spätere Zufriedenheit.
+
+| Änderung | Verhalten im Spiel |
+| --- | --- |
+| **Familien mit Kindern** | Zwei bis fünf einzelne Personen bleiben auf einer gemeinsamen Route. Kleine Liftsessel werden nacheinander genutzt; oben sammelt sich die Familie. |
+| **Persönliche Pistenwünsche** | Blaufahrer bleiben auf Blau, gemischte Gäste suchen Blau und Rot, sportliche Besucher schwarze Pisten und Snowpark. |
+| **Urlaubssammler** | Vollständig gefahrene Pisten und wirklich benutzte Lifte zählen. Im durchgehenden Betrieb können echte Hotelübernachtungen einen mehrtägigen Urlaub ermöglichen. |
+| **Versorgung und Wirtschaft** | Dringende Bedürfnisse führen zu erreichbaren, geöffneten Angeboten mit genügend Plätzen. Erlebnisse und Versorgung bestimmen Bewertungen, Ruf und Nachfrage. |
+| **Gäste & Wünsche** | Die neue Übersicht verbindet Besuchergruppen, passende Angebote, tatsächliche Rückmeldungen, Erlöse und optionale Werbeausrichtung mit ausgewiesenen Kosten. |
+
+[Alle Änderungen in 0.16.0](docs/releases/0.16.0.md) · [Gäste verstehen](docs/GAESTE_UND_URLAUB.md) · [Prüfnachweis](docs/VALIDATION.md)
+
+| Eine Familie auf derselben Abfahrt | Publikum und passende Angebote |
+| --- | --- |
+| ![Fünf einzelne Familienmitglieder auf einer gemeinsamen blauen Abfahrt](docs/screenshots/family-group-0160.webp) | ![Gästeübersicht mit Wünschen, Rückmeldungen, Erlösen und ausgewiesenen Werbekosten](docs/screenshots/audience-0160.webp) |
+
+Die Aufnahmen zeigen die tatsächliche PC-Spielszene mit einer vorbereiteten fünfköpfigen Testfamilie. Die neue Übersicht ist auf Deutsch und Englisch verfügbar.
+
 ## Neu in 0.15.0 · Stabile Karte, klare Missionen und direkte Liftteams
 
 Das **Hauptspiel** steht im Menü zuerst: Fortsetzen, Karriere und freier Aufbau.

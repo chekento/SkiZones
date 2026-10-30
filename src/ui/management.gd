@@ -32,6 +32,10 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 	layout.add_child(header)
 	title = hud._label(header, L.text("RESORT-BÜRO"), 27, hud.ACCENT)
 	hud._spacer(header, false)
+	hud._button(header, L.text("Gäste & Wünsche"), func():
+		hide()
+		hud.audience.open()
+	)
 	hud._button(header, L.text("Zurück zum Berg"), hide, true)
 	feedback = hud._label(layout, "", 17, hud.TEAL, true)
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
