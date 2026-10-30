@@ -1,4 +1,4 @@
-# Android surface lifecycle patch
+# Android surface lifecycle and touch-coordinate patches
 
 The native Android 16 test reproduced a persistent black/frozen frame after a
 short sequence of background/foreground transitions. The game loop stopped
@@ -13,8 +13,8 @@ A late swap or creation error from the previous surface cannot mark the new
 surface bad. EGL work remains on the rendering thread; there is no retry loop,
 reflection, process restart, simulated touch or replacement game state.
 
-Only the existing `GLSurfaceView` Java class family is recompiled against Android
-SDK 35 and inserted into the official Godot Android AAR. The preparation verifies
+The existing `GLSurfaceView` and `InputEventRunnable` Java class families are
+recompiled against Android SDK 35 and inserted into the official Godot Android AAR. The preparation verifies
 that every other AAR member, including every native library, is byte-identical.
 Gradle packages both the public ARM64 app and separate x86-64 test app with the
 same patch. Eight real Home/return cycles, sleep/wake and saved process recreation
@@ -35,3 +35,35 @@ engine starts. This narrowly adds the public asset-path flag, using compile SDK
 SDK 24 remain. The Android 16 test changes and restores an actual system overlay
 while requiring the same process and advancing game frames. Native libraries are
 compressed for the APK download, as in the earlier non-Gradle export.
+
+## Final touch sample
+
+The exact Godot 4.5.2 native input handler releases touches using its cached
+last-motion positions. `ACTION_UP` and `ACTION_POINTER_UP` do not copy the
+coordinates supplied with that release. Consequently a real Android swipe can
+leave a construction point several screen pixels before its intended endpoint.
+Reading the release coordinate in GDScript alone still receives that cached value.
+
+`InputEventRunnable-touch-release.patch` forwards the actual Android release
+coordinates to the unchanged native input handler as one final movement sample,
+immediately before release and on the same dispatch thread. Gesture recognition
+is not re-entered. Cancellation remains unchanged. Pointer-up also updates the
+remaining contacts before the released finger is removed. A single diagnostic
+message, `SkiZonesInput`, lets the emulator test verify the patched dispatch ran.
+
+The original input source is SHA-256 pinned to
+`041ef748632b7f7b1c3607576ab110260114c67ffddf461597de0d206b2da117`:
+https://github.com/godotengine/godot/blob/4.5.2-stable/platform/android/java/lib/src/org/godotengine/godot/input/InputEventRunnable.java
+
+Native cache behavior reviewed here:
+https://github.com/godotengine/godot/blob/4.5.2-stable/platform/android/android_input_handler.cpp
+
+Small AndroidX API declarations are used only while compiling this class.
+Their class files are excluded from the replacement set; the existing AndroidX
+runtime stays unchanged. The complete existing class families must be replaced;
+only compiler-generated helpers inside the input family may be added. Every
+native library and every unrelated AAR member remains byte-identical. The input
+source retains its MIT header; the notice is packaged in
+`assets/licenses/Godot-InputEventRunnable.txt`. Both ARM64 and test x86-64 exports
+use this same preparation. The Android test still requires all four camera modes
+to finish a genuine swipe within the existing target-position tolerance.

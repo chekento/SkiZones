@@ -190,6 +190,7 @@ def main():
         capture("restored-real-wurmberg", state)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
+        assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"
         assert not any("E godot" in line and "ERROR:" in line for line in logs.splitlines()), \
             "Android reported a renderer or engine error"

@@ -1,0 +1,26 @@
+--- InputEventRunnable.java
++++ InputEventRunnable.java
+@@ -52,6 +52,7 @@
+  */
+ final class InputEventRunnable implements Runnable {
+ 	private static final String TAG = InputEventRunnable.class.getSimpleName();
++	private static boolean finalTouchSampleReported;
+ 
+ 	private static final int MAX_TOUCH_POINTER_COUNT = 10; // assuming 10 fingers as max supported concurrent touch pointers
+ 
+@@ -282,6 +283,15 @@
+ 					break;
+ 
+ 				case TOUCH:
++					// Godot 4.5.2 releases cached touch positions in native code.
++					// Flush the real ACTION_UP sample first, without re-running gestures.
++					if (eventAction == MotionEvent.ACTION_UP || eventAction == MotionEvent.ACTION_POINTER_UP) {
++						GodotLib.dispatchTouchEvent(MotionEvent.ACTION_MOVE, actionPointerId, pointerCount, positions, false);
++						if (!finalTouchSampleReported) {
++							Log.i("SkiZonesInput", "Final touch sample preserved before release");
++							finalTouchSampleReported = true;
++						}
++					}
+ 					GodotLib.dispatchTouchEvent(
+ 							eventAction,
+ 							actionPointerId,

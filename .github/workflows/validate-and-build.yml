@@ -47,6 +47,23 @@ jobs:
           print(result.stdout)
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
+      - name: Install Android SDK components
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
+          subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
+          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'platforms;android-36', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
+          PY
+      - name: Compile reviewed Android surface and touch fixes
+        run: |
+          python3 - <<'PYCODE'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          from prepare_android_surface import prepare
+          prepare(Path(os.environ['ANDROID_HOME']), Path(os.environ['JAVA_HOME']))
+          PYCODE
       - name: Simulation regression tests
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Career and multi-winter regression tests
@@ -131,14 +148,6 @@ jobs:
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/regions.gd'
       - name: Scene smoke test
         run: '"$GODOT_BIN" --headless -- --smoke-test'
-      - name: Install Android SDK components
-        run: |
-          python3 - <<'PY'
-          import os, subprocess
-          manager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
-          subprocess.run([manager, '--licenses'], input=('y\n' * 100).encode(), check=True)
-          subprocess.run([manager, 'platform-tools', 'platforms;android-35', 'platforms;android-36', 'build-tools;35.0.0', 'build-tools;35.0.1'], check=True)
-          PY
       - name: Keep debug signing identity between builds
         uses: actions/cache@v4
         with:
