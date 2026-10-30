@@ -90,6 +90,8 @@ Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschrän
 | **Versorgung und Wirtschaft** | Dringende Bedürfnisse führen zu erreichbaren, geöffneten Angeboten mit genügend Plätzen. Erlebnisse und Versorgung bestimmen Bewertungen, Ruf und Nachfrage. |
 | **Gäste & Wünsche** | Die neue Übersicht verbindet Besuchergruppen, passende Angebote, tatsächliche Rückmeldungen, Erlöse und optionale Werbeausrichtung mit ausgewiesenen Kosten. |
 
+**1.165 Modell-/Grafikprüfungen und 43 Android-Emulatorfälle bestanden.**
+
 [Alle Änderungen in 0.16.0](docs/releases/0.16.0.md) · [Gäste verstehen](docs/GAESTE_UND_URLAUB.md) · [Prüfnachweis](docs/VALIDATION.md)
 
 | Eine Familie auf derselben Abfahrt | Publikum und passende Angebote |

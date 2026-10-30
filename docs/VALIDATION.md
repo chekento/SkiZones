@@ -1,16 +1,20 @@
 # Prüfung von SkiZones 0.16.0
 
-Lokal bestehen die neue Gästesimulation mit **72 Fällen** und die gerenderte
-Gäste-/Familienoberfläche mit **18 Fällen**. Der Sprachkatalog umfasst
-969 geprüfte Einträge. Zusätzlich bestehen die vorhandenen Modellprüfungen für
-Gestaltung und Gästeprofile (34), Liftplätze und Gehflächen (52), Tagesablauf
-(54) sowie Nachtbetrieb und Rettung (30).
+**Modell und Grafik: 1.165 Prüfungen in 36 Suiten bestanden. Android: 43 Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Signaturprüfung, APK-Archivprüfung und Veröffentlichung sind abgeschlossen.
 
-Die vollständige Pipeline einschließlich Android-Emulatoren und APK ist für
-0.16.0 noch ausstehend. Dieser Abschnitt wird nach ihrem Abschluss durch den
-abschließenden Nachweis ersetzt. Der bisherige erfolgreiche Stand folgt unten.
+Geprüfter APK-Quellcode: `162e4ade91e653db6bd55f44f91421a5bd2e5015`.
+[Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41106447886) mit Godot 4.5.2, Android-Versionscode 21 und Spielstandformat 14.
+
+Die neuen Gästetests bestehen 72 Fälle: Komfortgrenzen auf allen Routenabschnitten, echte Snowpark-Besuche, Sammler mit vollständiger Pistenabdeckung und unbenutzten Liften, einzelne Familienmitglieder, reale Sitzbelegung, Wiedervereinigung am Berg, Versorgungswege, Platzbedarf, tatsächliche Besuchserlöse, Rückmeldungen, Werbekosten und Übernachtung. Der Speichervergleich mit einem veröffentlichten 0.11-Spielstand sowie die Fortsetzung einer teilweise eingestiegenen Familie sind erfolgreich.
+
+Die neue Grafiksuite besteht 18 Fälle für einzeln sichtbare Familienmitglieder, getrennte Reihen, antippbare Kinder, persönliche Wünsche, die deutsche/englische Übersicht, Kartensperre, Preise und kleine Querformat-Bildschirme. Die bisherige Karten-/Personalprüfung besteht weiterhin 53 Fälle, einschließlich der vier realen Szenarien, voller Renderfläche und passender Planungspunkte. Der Sprachkatalog umfasst 969 geprüfte Einträge.
+
+Die Android-Prüfungen verwenden echte Emulator-Activities und Oberflächenbilder. Die Grafikanpassung bleibt bei 100 % Rendergröße. Ein physisches Smartphone wurde nicht geprüft.
+
+Veröffentlicht: [APK und Prüfsumme](https://github.com/chekento/SkiZones/releases/tag/v0.16.0), ARM64, 33.378.475 Bytes. SHA-256: `9027981b20ee016c84bfb0feb75471a36bf1e3e400b821d0809a0a7d0467a5c7`.
 
 ## Veröffentlichter Nachweis für 0.15.0
+
 
 **Modell und Grafik: 1.075 Prüfungen in 34 Suiten bestanden.** Die ARM64-APK hat Signatur- und Archivprüfung bestanden. **Android: 43 Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Beide Jobs und die Veröffentlichung sind erfolgreich abgeschlossen.
 
