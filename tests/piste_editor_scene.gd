@@ -92,6 +92,18 @@ func run() -> void:
 	at = screen(Terrain.unpack(game.points[1]))
 	touch(at, true); move(at + Vector2(24, 14), Vector2(24, 14)); touch(at + Vector2(24, 14), false, true)
 	check(game.points == moved, "Android cancellation restores a dragged point without changing its neighbours")
+	var perspective_drags := true
+	for mode in range(4):
+		game.points = [[310, -150], [310, -50], [310, 100]]
+		game.view.focus = Vector2(310, -50)
+		game.view.zoom = 130
+		game.view.set_camera_mode(mode)
+		game._update_plan()
+		at = screen(Vector2(310, -50))
+		destination = screen(Vector2(335, -20))
+		touch(at, true); move(destination, destination - at); touch(destination, false)
+		perspective_drags = perspective_drags and game.points.size() == 3 and Terrain.unpack(game.points[1]).distance_to(Vector2(335, -20)) < 0.05
+	check(perspective_drags, "Individual touch dragging follows the visible slope in all four camera perspectives")
 	game.clear_plan()
 	var existing: Dictionary = game.model.pistes[0]
 	game.hud.show_context("inspect", existing.id)
@@ -129,6 +141,11 @@ func run() -> void:
 	game.hud.refresh()
 	await capture("piste-junction-0142")
 	check(game.model.pistes.size() == 2 and game.view._piste_meshes.size() == 2 and game.view.snow_renderer.exclusions[game.model.pistes[1].id].size() > 0, "The actual resort renders a joined Y branch using partitioned snow meshes")
+	var branch: Dictionary = game.model.pistes[1]
+	game.begin_edit(branch.id, branch.name, "", 0, 24)
+	game.select_waypoint(1)
+	game.hud.set_map_focus(true)
+	await capture("piste-editor-0142")
 	print("SCENE: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
 

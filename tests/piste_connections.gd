@@ -71,6 +71,7 @@ func run() -> void:
 	var overflow := full.build_piste([Terrain.pack(midpoint), [380, -20], [340, 190]], -1, 20, false)
 	check(not overflow.ok and full.snapshot() == original, "An exhausted junction-vertex limit rejects construction atomically before charging")
 	_mesh_junctions()
+	_mixed_resolution_junction()
 	print("SURFACES: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
 
@@ -114,5 +115,29 @@ func _mesh_junctions() -> void:
 	var hit := picker.position(Vector2(0, -40))
 	check(hit.is_finite() and absf(hit.y - mountain.height(Vector2(0, -40)) - 0.65) < 0.001, "Visible-surface picking applies the same junction deformation weights as the GPU")
 	check(renderer.junction_weight(1, Vector2(0, 145)) > 0.999, "Local snow deformation remains active away from junctions")
+
+func _mixed_resolution_junction() -> void:
+	var mountain := preload("res://src/core/mountain.gd").new()
+	var pistes: Array = [
+		{"id": 1, "points": [[-170, -350], [-170, -50]], "width": 24, "length": 310.0, "imported": true},
+		{"id": 2, "points": [[-260, -330], [-170, -240], [-85, -150]], "width": 20, "length": 260.0}
+	]
+	var renderer := SnowRender.new()
+	renderer.configure(pistes)
+	var pickers: Array = []
+	for piste in pistes:
+		renderer.update(piste)
+		var mesh := renderer.build(mountain, piste)
+		var picker := Picker.new()
+		picker.add_mesh(str(piste.id), mesh, piste, renderer.pick_frames[piste.id], renderer.pick_weights[piste.id])
+		pickers.append(picker)
+	var worst := 0.0
+	var matched := 0
+	for y in range(-250, -205):
+		var a: Vector3 = pickers[0].position(Vector2(-158.001, y + 0.37))
+		var b: Vector3 = pickers[1].position(Vector2(-157.999, y + 0.37))
+		if not a.is_finite() or not b.is_finite(): continue
+		worst = maxf(worst, absf(a.y - b.y)); matched += 1
+	check(matched > 20 and worst < 0.025, "Imported and hand-built snow corridors share fine boundary vertices on the curved real terrain")
 
 func _init() -> void: call_deferred("run")

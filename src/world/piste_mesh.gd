@@ -27,6 +27,26 @@ static func polygon_bounds(polygon: PackedVector2Array) -> Rect2:
 	for point in polygon: bounds = bounds.expand(point)
 	return bounds
 
+static func shared_boundary(polygon: PackedVector2Array) -> PackedVector2Array:
+	# Imported corridors use larger interior cells. Keep their boundary vertices
+	# on the same four-metre lattice as a player-built neighbour, preventing
+	# cracks where a fine edge would otherwise meet one long coarse edge.
+	var result := PackedVector2Array()
+	for index in range(polygon.size()):
+		var a := polygon[index]
+		var b := polygon[(index + 1) % polygon.size()]
+		var cuts: Array = [0.0]
+		for axis in range(2):
+			if absf(b[axis] - a[axis]) < 0.00001: continue
+			for line in range(floori(minf(a[axis], b[axis]) / 4) + 1, ceili(maxf(a[axis], b[axis]) / 4)):
+				var t: float = (line * 4.0 - a[axis]) / (b[axis] - a[axis])
+				if t > 0.00001 and t < 0.99999: cuts.append(t)
+		cuts.sort()
+		for t in cuts:
+			var point := a.lerp(b, t)
+			if result.is_empty() or result[-1].distance_to(point) > 0.0001: result.append(point)
+	return result
+
 static func samples(mountain: RefCounted, points: Array, width: float, step: float = 4.0, exclusions: Array = []) -> Array:
 	if points.size() < 2:
 		return []
@@ -56,6 +76,7 @@ static func samples(mountain: RefCounted, points: Array, width: float, step: flo
 				for polygon in polygons: remaining.append_array(Geometry2D.clip_polygons(polygon, exclusion.polygon))
 				polygons = remaining
 			for polygon in polygons:
+				if step > 4: polygon = shared_boundary(polygon)
 				var indices := Geometry2D.triangulate_polygon(polygon)
 				for i in range(0, indices.size(), 3):
 					var a: Vector2 = polygon[indices[i]]

@@ -104,7 +104,9 @@ func run() -> void:
 	touch(0, ui_position, true)
 	touch(0, ui_position, false)
 	check(game.points.size() == 1, "Touches over UI panels cannot place map objects")
-	game.points = [[245, -130], [305, 0], [200, 205]]
+	# Explicit fixture preparation: the interactive editor now preserves a tap
+	# inside station machinery and rejects it instead of silently moving it.
+	game.points = game.model.preview_piste([[245, -130], [305, 0], [200, 205]]).points
 	game._update_plan()
 	check(not game.hud.confirm_button.disabled, "Valid affordable build plans can be confirmed")
 	var count: int = game.model.pistes.size()
@@ -132,7 +134,7 @@ func run() -> void:
 	check(not game.hud.blocks_map(ui_position), "Expanded map gives the sidebar area back to world input")
 	game.set_tool("piste")
 	check(not game.hud.map_focus and game.hud.tools_panel.visible and game.hud.plan_panel.visible, "Selecting a build tool restores the controls")
-	game.points = [[245, -130], [305, 0], [200, 205]]
+	game.points = game.model.preview_piste([[245, -130], [305, 0], [200, 205]]).points
 	game._update_plan()
 	game.hud.set_map_focus(true)
 	check(game.points.size() == 3 and game.hud.plan_panel.visible, "Expanded map preserves a pending route and its confirmation")
