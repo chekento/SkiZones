@@ -83,6 +83,32 @@ Für **20 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
+## Neu in 0.18.0 · Anlagen direkt verwalten und leichter anschließen
+
+**Betrieb, Personal und Gestaltung gehören zur ausgewählten Anlage.** Ein gemeinsames Anlagenfenster bündelt die zugehörigen Aktionen; Tal-, Mittel- und Bergstation bleiben als ganzer Liftverbund sichtbar.
+
+| Änderung | Verhalten im Spiel |
+| --- | --- |
+| **Liftanschlüsse** | Sichere markierte Standorte neben bestehenden Stationen, automatische Zuordnung von Tal und Berg, flache Verbindungslifte und tatsächliche Längenhinweise. Neue Anlagen erhalten echte Fußwege; Gipfelerweiterungen können am erreichbaren Stationsplatz anschließen. |
+| **Liftbetrieb** | Alle Stationsteams zusammen oder einzeln besetzen, Schichten und Reserve direkt verwalten, Abschnitte schalten, Störungen reparieren und Ersatzteile bestellen. Gemeinsame Mittelstationen berechnen ein Team. |
+| **Gebäudemenüs** | Eigene Mitarbeiter, Öffnung, Ausbau, Gestaltung und bestätigter Abbau. Werkstätten verwalten ihre Reparaturen, Garagen Fahrzeuge und Präparierung, Bergwachtstationen ihre Einsätze. |
+| **Warme Dorfangebote** | Kakaoladen, Kaiserschmarrn-Laden und Pizzeria mit echten Gästen, Kapazitäten, Personalbedarf und Besuchserlösen. Der Baukatalog beginnt mit günstigen Angeboten und nennt deren Zweck. |
+| **GitHub im Browser** | Die Versionsprüfung bleibt im Spiel; vor dem Öffnen der Veröffentlichung wird gespeichert. Browser und Android übernehmen Download und Aktualisierung. Die eigene Installationsberechtigung und der APK-Installer sind entfernt. |
+
+**Die vorhandene App installiert lassen:** Die neue APK als Aktualisierung über die bisherige App installieren. Die vier Karrieren und anderen Spielstände bleiben bei der gleich signierten Aktualisierung erhalten. Eine unabhängige Aufhebung der gemeldeten Play-Protect-Einstufung ist nicht bestätigt.
+
+[Änderungen in 0.18.0](docs/releases/0.18.0.md) · [Play-Protect-Status](docs/PLAY_PROTECT.md) · [Spielstände und Updates](docs/UPDATES_UND_SPIELSTAENDE.md) · [Prüfnachweis](docs/VALIDATION.md)
+
+| Alle Stationen eines Liftverbunds | Reparaturen direkt in der Werkstatt |
+| --- | --- |
+| ![Tal-, Mittel- und Bergstation gemeinsam mit realer Dienstbesetzung](docs/screenshots/three-stations-0180.webp) | ![Direkte Werkstattverwaltung mit Mitarbeitern, Reparatur und Ersatzteilen](docs/screenshots/asset-operations-0180.webp) |
+
+| Liftplanung mit automatischer Stationszuordnung | Eigene warme Gastronomie mit Betrieb und Team |
+| --- | --- |
+| ![Liftplanung im vollen Kartenfenster mit tatsächlichem Stationszugang](docs/screenshots/lift-docking-0180.webp) | ![Pizzeria mit eigenen Betriebs- und Personalaktionen](docs/screenshots/village-food-0180.webp) |
+
+Tatsächliche PC-Spielaufnahmen aus den reproduzierbaren Prüfszenen mit vorbereiteten Speicherständen.
+
 ## Neu in 0.17.0 · Vier Karrieren und Updates mit erhaltenen Spielständen
 
 **Vier eigene Karrieren, einzeln bewegte Familien und mehr Zeit am Berg.** Im Hauptmenü wählst du einen der vier Speicherplätze. Freier Aufbau und Szenarien behalten zusätzliche Speicherstände.
