@@ -82,7 +82,13 @@ public final class UpdateBridge {
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 action = "installer";
             }
-            // Activity launches are thread-safe; do not report success before a launch can throw.
+            // Keep Android's installer/settings out of the game's task. An
+            // in-place update kills the game's root Activity; on Android 11
+            // reusing that task can leave InstallSuccess in place of the game
+            // even after Open or a launcher intent. The system flow needs its
+            // own task so the replacement app can start a fresh game task.
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // Do not report success before a launch can throw.
             activity.startActivity(intent);
             return action;
         } catch (Exception e) { return "unavailable"; }

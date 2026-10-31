@@ -317,11 +317,12 @@ def main():
                 break
             time.sleep(0.5)
         assert "versionCode=23 " in package_info, "Android did not install the verified update in place"
-        # The installer kills the replaced process itself. Finish through its
-        # real Open button, just as a player does. In Android 11, pm's version
-        # query can update before the installer has released its foreground
-        # task; force-stop plus a bare shell intent does not finish that UI.
-        deadline = time.monotonic() + 90
+        # The installer kills the replaced process itself. Android 11 exposes
+        # Open; newer installers can close their result screen instead. Use
+        # Open when offered and otherwise launch from Home, as a player does.
+        (args.output / "after-install-activities.txt").write_bytes(adb("shell", "dumpsys", "activity", "activities"))
+        (args.output / "after-install-package.txt").write_text(package_info)
+        deadline = time.monotonic() + 20
         opened = False
         while time.monotonic() < deadline:
             try:
@@ -342,7 +343,9 @@ def main():
             except (subprocess.SubprocessError, ET.ParseError):
                 pass
             time.sleep(0.5)
-        assert opened, "The completed Android installer did not expose its Open button"
+        if not opened:
+            adb("shell", "input", "keyevent", "KEYCODE_HOME")
+            launch()
         state = wait_for(lambda s: s.get("installed_code") == 23 and s.get("frames", 0) >= 5, seconds=180)
         assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
         after_files = {name: saved_hash(name) for name in saved_files}
@@ -357,6 +360,15 @@ def main():
             "Android reported a renderer or engine error"
         print(f"ANDROID RESUME: {len(evidence)} real activity/surface checks passed", flush=True)
     finally:
+        for name, command in [
+            ("final-activities.txt", ("shell", "dumpsys", "activity", "activities")),
+            ("final-package.txt", ("shell", "dumpsys", "package", PACKAGE)),
+            ("final-screen.png", ("exec-out", "screencap", "-p")),
+        ]:
+            try:
+                (args.output / name).write_bytes(adb(*command))
+            except subprocess.SubprocessError:
+                pass
         try:
             (args.output / "logcat.txt").write_bytes(adb("logcat", "-d"))
         except subprocess.SubprocessError:
