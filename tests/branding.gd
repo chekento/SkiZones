@@ -48,4 +48,5 @@ func _run() -> void:
         return
     splash_scene.free()
     print("PASS: SkiZones app icon, PNG boot splash and responsive startup scene")
+    print("RESULT: 1 passed; 0 failed")
     quit(0)
