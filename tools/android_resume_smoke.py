@@ -87,7 +87,18 @@ def main():
         assert component.startswith(PACKAGE + "/"), component
 
         def launch():
-            adb("shell", "am", "start", "-W", "-n", component, timeout=60)
+            # PackageManager can expose the new version before Android 11 has
+            # unfrozen its activity. Wait for an actual foreground activity,
+            # rather than accepting am's zero exit code for INTENT_FAILED.
+            deadline = time.monotonic() + 45
+            while time.monotonic() < deadline:
+                adb("shell", "am", "start", "-W", "-n", component, timeout=60)
+                activity = adb("shell", "dumpsys", "activity", "activities").decode(errors="replace")
+                if any(PACKAGE in line and ("mResumedActivity" in line or "topResumedActivity" in line)
+                       for line in activity.splitlines()):
+                    return
+                time.sleep(0.5)
+            raise AssertionError("Android did not bring the installed game activity to the foreground")
 
         def playable(state):
             return not state["background"] and state["camera"] and state["guests"] and not state["paused"]
