@@ -9,7 +9,7 @@ TECHNICAL = {"Color", "Label", "Button", "Control", "Node3D", "VBoxContainer", "
              "OptionButton", "PopupMenu", "Window", "LineEdit", "AcceptDialog", "CheckBox",
              "CheckButton", "ScrollContainer", "MultiMeshInstance3D", "Android", "Godot",
              "AndroidRuntime", "Accept: application/vnd.github+json", "User-Agent: SkiZones/",
-             "Dummy", "FileAccess", "Main", "Snow", "SKI", "N", "SkiZones"}
+             "Dummy", "FileAccess", "PackedScene", "Main", "Snow", "SKI", "N", "SkiZones"}
 
 def catalog():
     result, key = {}, None
