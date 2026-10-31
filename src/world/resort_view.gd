@@ -1069,7 +1069,7 @@ func _process(delta: float) -> void:
 		var on_foot: bool = guest.phase in ["queue","waiting"]
 		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 			var leg: Dictionary = guest.route.legs[guest.leg]
-			var fraction: float = clampf((guest.elapsed + simulation_fraction * (guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0)) / guest.get("duration", leg.minutes), 0, 1)
+			var fraction: float = clampf((guest.elapsed + simulation_fraction * guest.get("party_step",1.0) * (guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0)) / guest.get("duration", leg.minutes), 0, 1)
 			if guest.phase=="waiting":
 				position_value=model.guest_position(guest)
 			elif leg.kind == "ski":
@@ -1356,7 +1356,7 @@ func _draw_tracks(blocking: bool = true) -> void:
 			continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
 		var key: String = guest.get("track", "")
-		live[key] = model.ski_fraction(leg,(guest.elapsed+simulation_fraction)/guest.duration,guest.get("ski_motion",[]))
+		live[key] = model.ski_fraction(leg,(guest.elapsed+simulation_fraction*guest.get("party_step",1.0))/guest.duration,guest.get("ski_motion",[]))
 		if int(guest.id) == follow_guest:
 			followed = key
 			followed_piste = leg.id
@@ -1572,7 +1572,7 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
-	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)
+	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)*guest.get("party_step",1.0)
 	if follow_guest == int(guest.id):
 			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.

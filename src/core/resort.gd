@@ -1219,13 +1219,22 @@ func _collector_lift_routes(guest: Dictionary, source: String) -> Array:
 
 func service_load(id: int, excluding: int = -1) -> int:
 	var count := 0
+	var booked: Dictionary={}
 	for visitor in guests:
 		if int(visitor.id) == excluding or visitor.phase == "leaving": continue
 		for index in range(int(visitor.leg), visitor.route.legs.size()):
 			var leg: Dictionary = visitor.route.legs[index]
 			if leg.kind == "visit" and int(leg.id) == id:
 				count += int(visitor.get("group_size", 1))
+				booked[int(visitor.id)]=true
 				break
+	# Reserve the whole appointment while its people are still approaching
+	# from separate parts of the mountain, without counting a seat twice.
+	for party in parties:
+		if int(party.venue)!=id or party.status not in ["gather","meal"]:continue
+		for person in Parties.members(self,party):
+			if int(person.id)!=excluding and not booked.has(int(person.id)):
+				count+=1;booked[int(person.id)]=true
 	return count
 
 func service_capacity(building: Dictionary) -> int:
@@ -1376,7 +1385,8 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
-	for key in ["ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits"]:
+	if guest.has("party_id"):guest.party_step=1.0
+	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits"]:
 		guest.erase(key)
 	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -1697,6 +1707,8 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	if terrain_generation >= 2:
 		var upcoming := Traffic.steps(self)
 		for guest in guests: guest.traffic_step = upcoming.get(int(guest.id), 1.0)
+	for guest in guests:
+		if guest.has("party_id"):guest.party_step=Parties.pace(self,guest)
 	_check_achievements()
 	Progression.refresh(self)
 	if not Ops.continuous(self) and minute >= CLOSING and guests.is_empty():
@@ -1926,7 +1938,7 @@ func queue_size(id: int = -1) -> int:
 			count += int(guest.get("boarding_remaining", guest.get("group_size", 1)))
 	return count
 
-func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
+func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained: bool = false) -> Vector3:
 	if guest.phase=="leaving" and edge_entries and not portal_path.is_empty():return terrain.world(Terrain.unpack(portal_path[-1]),0.12)
 	if guest.phase=="waiting":
 		var point:=Terrain.unpack(guest.route.legs[int(guest.leg)].points[-1])
@@ -1938,6 +1950,7 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0) -> Vector3:
 		return terrain.world(Terrain.BASE)
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	var display_step: float = guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0
+	if not unconstrained:display_step*=float(guest.get("party_step",1.0))
 	var fraction := clampf((guest.elapsed + fraction_tick * display_step) / guest.get("duration", leg.minutes), 0, 1)
 	if guest.phase == "queue":
 		var lift := asset(leg.id)
@@ -2354,6 +2367,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	for visitor in data.guests:
 		if not visitor is Dictionary:
 			return invalid
+		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:

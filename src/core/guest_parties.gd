@@ -21,7 +21,9 @@ static func cell(model: RefCounted,guest: Dictionary) -> Array:
 static func care_guest(model: RefCounted,guest: Dictionary) -> Dictionary:
 	if not guest.has("party_id"):return guest
 	var copy:=guest.duplicate(true)
-	for person in cell(model,guest):
+	var care:=cell(model,guest)
+	copy.group_size=care.size()
+	for person in care:
 		copy.needs.hunger=maxf(copy.needs.hunger,person.needs.hunger)
 		copy.needs.warmth=minf(copy.needs.warmth,person.needs.warmth)
 		copy.needs.energy=minf(copy.needs.energy,person.needs.energy)
@@ -66,7 +68,7 @@ static func pace(model: RefCounted,guest: Dictionary) -> float:
 	if leg.kind not in ["walk","ski"]:return 1.0
 	var factor:=1.0
 	var position: Vector3=model.guest_position(guest)
-	var next: Vector3=model.guest_position(guest,1.0)
+	var next: Vector3=model.guest_position(guest,1.0,true)
 	for other in cell(model,guest):
 		if int(other.id)==int(guest.id) or other.phase!="moving":continue
 		if guest.has("guardian_id") and int(other.id)!=int(guest.guardian_id):continue

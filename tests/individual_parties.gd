@@ -21,12 +21,14 @@ func _init() -> void:
 	var party: Dictionary=model.parties[0]
 	for guest in model.guests:
 		guest.stay=1000;guest.needs={"hunger":0.0,"warmth":95.0,"energy":95.0,"joy":95.0,"rental":false,"lesson":false}
-	var split:=false;var own_seats:=false;var regroup:=false;var supervised:=true
+	var split:=false;var own_seats:=false;var regroup:=false;var supervised:=true;var still_when_waiting:=false
 	for step in range(900):
 		model.advance_minute(false)
 		var parents: Array=model.guests.filter(func(g):return g.years>=16)
 		if parents.size()==2 and model.guest_position(parents[0]).distance_to(model.guest_position(parents[1]))>18:split=true
 		if model.guests.any(func(g):return g.phase=="waiting"):regroup=true
+		for person in model.guests:
+			if person.phase=="moving" and person.get("party_step",1.0)==0.0 and model.guest_position(person).distance_to(model.guest_position(person,0.5))<0.001:still_when_waiting=true
 		for child in children:
 			var parent:=Parties.actor(model,child.guardian_id)
 			var child_leg: Dictionary=child.route.legs[child.leg]
@@ -37,6 +39,7 @@ func _init() -> void:
 		if riders.size()>=2:own_seats=riders[0].ride_car!=riders[1].ride_car or riders[0].ride_seat!=riders[1].ride_seat
 	check(split,"Adults may explore separately with genuinely different positions and progress")
 	check(own_seats,"Individuals occupy their own actual lift seats and may ride different carriers")
+	check(still_when_waiting,"A supervising pause also stops interpolated motion instead of stepping forward and snapping back")
 	check(supervised,"Parents slow down and keep the children within sight on shared descents")
 	check(regroup,"Guardians wait at real route nodes for the children to catch up")
 	var state:=model.snapshot();var copy:=Resort.new()
@@ -54,6 +57,8 @@ func _init() -> void:
 			if food.is_empty() and model.build_building("restaurant",Vector2(x,z)).ok:food=model.buildings[-1]
 	check(not food.is_empty() and Ops.fill_building(model,food.id).ok,"A reachable restaurant is built and staffed for the lunch appointment")
 	party.meeting_at=Parties.now(model)
+	Parties.tick(model)
+	check(party.venue==food.id and model.service_load(food.id)==5,"The lunch appointment reserves five actual seats before all separate members have arrived")
 	var meal:=false;var returned:=false
 	for step in range(6000):
 		model.advance_minute(false)
@@ -76,4 +81,7 @@ func _init() -> void:
 		model.advance_minute(false)
 		if model.guests.is_empty():break
 	check(model.guests.is_empty(),"Adults and supervised children can all return home without a permanent reunion wait")
+	model=Resort.new();model.new_game(true);Ops.enable(model);model.enable_runtime_rules();model.guest_id=9
+	check(model.admit_guest(1,"mixed") and model.guests.size()==3 and model.guests.all(func(g):return g.years>=16 and not g.has("guardian_id") and g.group_size==1),"A friend group consists of independent adults without artificial child escorts")
+	check(Saves.save_game(model,"user://friends017.json").ok and Saves.load_game(copy,"user://friends017.json").ok and copy.guests.size()==3 and copy.parties.size()==1,"Friends keep their individual needs and common appointments across a saved game")
 	print("INDIVIDUAL PARTIES: %d passed; %d failed"%[passed,failed]);quit(1 if failed else 0)
