@@ -3,12 +3,14 @@ config_version=5
 
 [application]
 config/name="SkiZones"
-config/version="0.18.0"
-run/main_scene="res://scenes/main.tscn"
+config/version="0.19.0"
+run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
-config/icon="res://assets/icon.svg"
-boot_splash/image="res://assets/boot_logo.png"
-boot_splash/bg_color=Color(0.99, 0.98, 0.95, 1)
+config/icon="res://assets/branding/icon_1024.png"
+boot_splash/image="res://assets/branding/splash_1920.png"
+boot_splash/fullsize=true
+boot_splash/minimum_display_time=200
+boot_splash/bg_color=Color(0.04, 0.22, 0.43, 1)
 
 [display]
 window/size/viewport_width=1440

@@ -93,6 +93,8 @@ jobs:
           from prepare_android_surface import prepare
           prepare(Path(os.environ['ANDROID_HOME']), Path(os.environ['JAVA_HOME']))
           PYCODE
+      - name: New PMDD branding and full-screen startup smoke test
+        run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/branding.gd'
       - name: Simulation regression tests
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Career and multi-winter regression tests
@@ -243,7 +245,7 @@ jobs:
       - name: Export x86-64 Android lifecycle test app
         run: python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
       - name: Export signed in-place update fixture
-        run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 24 --output build/android/SkiZones-update-x86_64.apk
+        run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 25 --output build/android/SkiZones-update-x86_64.apk
       - name: Prepare incompatible-signature rejection fixture
         run: |
           "$JAVA_HOME/bin/keytool" -genkeypair -noprompt -keystore build/android/wrong-signer-test.keystore -alias fixture -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 7 -dname 'CN=SkiZones Rejection Test'
