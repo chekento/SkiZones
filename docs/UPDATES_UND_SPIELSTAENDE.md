@@ -17,6 +17,8 @@ Ab Version 0.17 prüft SkiZones beim App-Start nach neuen GitHub-Veröffentlichu
 3. **Installieren** speichert das aktuelle Resort. Falls Android danach fragt, erlaube einmalig Installationen aus SkiZones und kehre zur App zurück.
 4. Bestätige **Aktualisieren** im Android-Installationsfenster. Das Update ersetzt die vorhandene App und behält deren Daten.
 
+Android kann SkiZones bei einer geänderten Installationsfreigabe neu starten. Das bereits geprüfte Update bleibt gespeichert; nach der Rückkehr kannst du die Installation fortsetzen, ohne erneut herunterzuladen.
+
 **Die vorhandene App installiert lassen.** Für den ersten Wechsel von 0.16 auf 0.17 die neue APK herunterladen und über die vorhandene App installieren. Die integrierte Prüfung steht danach für folgende Versionen bereit. „Deinstallieren“ oder „App-Daten löschen“ entfernt die lokal gespeicherten Karrieren und gehört nicht zum Updateablauf.
 
 Android verlangt eine passende Signatur. Eine separat selbst erstellte oder anders signierte APK wird deshalb abgewiesen; SkiZones löscht dafür keine Spielstände. Zusätzlich vergleicht der Veröffentlichungsbuild seine Signatur mit der vorherigen öffentlichen APK und hält bei einer abweichenden Identität an.

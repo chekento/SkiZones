@@ -31,10 +31,12 @@ func _process(delta: float) -> void:
 			var request: Variant=JSON.parse_string(FileAccess.get_file_as_string("user://update-ci.json"))
 			if request is Dictionary and request.get("action","")!=update_action:
 				update_action=str(request.get("action",""))
+				DirAccess.remove_absolute(ProjectSettings.globalize_path("user://update-ci.json"))
 				if update_action=="prepare":call_deferred("_prepare_update_test")
 				elif update_action.begins_with("install"):call_deferred("_install_update_test",request)
 		if scenario_state == "" and FileAccess.file_exists("user://scenario-ci.json"):
 			scenario_state = "loading"
+			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://scenario-ci.json"))
 			call_deferred("_test_real_scenario")
 		write_health()
 
@@ -101,7 +103,7 @@ func write_health() -> void:
 		picking.handle_hit = game.hud.plan_overlay.pick_waypoint(pick_at, 2) == 0
 	var file:=FileAccess.open("user://lifecycle-ci.json.tmp",FileAccess.WRITE)
 	if file == null:return
-	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"installed_code":game.updater.installed_code,"update_path":game.updater.download_path,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
+	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"installed_code":game.updater.installed_code,"updater_state":game.updater.state,"update_path":game.updater.download_path,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
 	file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path("user://lifecycle-ci.json.tmp"),ProjectSettings.globalize_path("user://lifecycle-ci.json"))
 
@@ -120,7 +122,12 @@ func _install_update_test(request: Dictionary) -> void:
 	var hash: String=str(request.get("sha256",""));var size: int=int(request.get("size",0));var code: int=int(request.get("code",0))
 	update_native_validation=updater.bridge.validate(updater.activity,updater.download_path,hash,size,code)
 	if update_native_validation!="ok":update_test_state="rejected";write_health();return
-	updater.build={"sha256":hash,"size_bytes":size,"version_code":code}
+	var version: String="0.17.1"
+	var filename: String="SkiZones-%s-android-arm64.apk"%version
+	var root: String=updater.Catalog.RELEASES+"/download/v"+version+"/"
+	updater.candidate={"version":version,"file_name":filename,"apk":root+filename,"manifest":root+"manifest.json","release":updater.Catalog.RELEASES+"/tag/v"+version}
+	updater.build={"sha256":hash,"size_bytes":size,"version_code":code,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
+	if not updater._remember_pending():update_test_state="receipt_failed";write_health();return
 	updater._set_status("ready","")
 	updater.install()
 	update_test_state="installer_"+updater.state;write_health()

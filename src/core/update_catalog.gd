@@ -51,3 +51,13 @@ static func manifest(value: Variant, release: Dictionary, installed_code: int) -
 	var regex:=RegEx.new();regex.compile("^[0-9a-f]{64}$")
 	if not value.get("sha256") is String or regex.search(value.sha256)==null:return {}
 	return value.duplicate(true)
+static func pending(value: Variant, current: String, installed_code: int) -> Dictionary:
+	if not value is Dictionary or value.get("version")!=1 or not value.get("candidate") is Dictionary:return {}
+	var selected: Dictionary=value.candidate
+	if not newer(selected.get("version"),current):return {}
+	var version: String=selected.version
+	var file: String="SkiZones-%s-android-arm64.apk"%version
+	var root: String=RELEASES+"/download/v"+version+"/"
+	if selected.get("file_name")!=file or selected.get("apk")!=root+file or selected.get("manifest")!=root+"manifest.json" or selected.get("release")!=RELEASES+"/tag/v"+version:return {}
+	var checked:=manifest(value.get("build"),selected,installed_code)
+	return {} if checked.is_empty() else {"candidate":selected.duplicate(true),"build":checked}

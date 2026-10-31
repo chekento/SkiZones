@@ -32,4 +32,12 @@ func _init() -> void:
 	for value in [-1,536870913,123.5,"33000000"]:
 		var invalid:=build.duplicate(true);invalid.size_bytes=value
 		check(Catalog.manifest(invalid,chosen,22).is_empty(),"Invalid APK size is rejected: "+str(value))
+	var receipt: Dictionary={"version":1,"candidate":chosen.duplicate(true),"build":build.duplicate(true)}
+	check(not Catalog.pending(receipt,"0.17.0",22).is_empty(),"A verified staged build retains all metadata needed after Android recreates the app")
+	check(Catalog.pending(receipt,"0.18.0",23).is_empty(),"An already-installed pending update cannot be offered again")
+	var invalid_receipt:=receipt.duplicate(true);invalid_receipt.candidate.apk="https://other.example/update.apk"
+	check(Catalog.pending(invalid_receipt,"0.17.0",22).is_empty(),"Restoring a pending update cannot introduce a foreign download URL")
+	check(Catalog.pending({"version":1,"candidate":"broken"},"0.17.0",22).is_empty(),"A damaged staged-update receipt is rejected safely")
+	invalid_receipt=receipt.duplicate(true);invalid_receipt.build.version_code=22
+	check(Catalog.pending(invalid_receipt,"0.17.0",22).is_empty(),"A stale receipt with an old Android version code is rejected")
 	print("APP UPDATES: %d passed; %d failed"%[passed,failed]);quit(1 if failed else 0)

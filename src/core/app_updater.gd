@@ -1,5 +1,6 @@
 extends Node
 const Catalog=preload("res://src/core/update_catalog.gd")
+const PENDING_PATH="user://pending-update.json"
 const L=preload("res://src/core/i18n.gd")
 signal changed
 var game: Node
@@ -30,11 +31,29 @@ func setup(controller: Node) -> void:
 			var info: Variant=JSON.parse_string(bridge.installedInfo(activity))
 			if info is Dictionary:
 				installed_code=int(info.get("code",22));installed_version=str(info.get("version",installed_version))
-	if OS.get_name()=="Android" and not OS.has_feature("android_lifecycle_test"):
+	if bridge!=null:_restore_pending()
+	if state=="idle" and OS.get_name()=="Android" and not OS.has_feature("android_lifecycle_test"):
 		var config:=ConfigFile.new();config.load("user://updates.cfg")
 		var last: Variant=config.get_value("updates","last_check",0)
 		if (last is int or last is float) and Time.get_unix_time_from_system()-float(last)>21600:
 			call_deferred("check",false)
+func _remember_pending() -> bool:
+	var file:=FileAccess.open(PENDING_PATH+".tmp",FileAccess.WRITE)
+	if file==null:return false
+	file.store_string(JSON.stringify({"version":1,"candidate":candidate,"build":build},"",true,true));file.flush()
+	var error:=file.get_error();file.close()
+	return error==OK and DirAccess.rename_absolute(ProjectSettings.globalize_path(PENDING_PATH+".tmp"),ProjectSettings.globalize_path(PENDING_PATH))==OK
+func _restore_pending() -> void:
+	if not FileAccess.file_exists(PENDING_PATH):return
+	var file:=FileAccess.open(PENDING_PATH,FileAccess.READ)
+	if file==null:return
+	var receipt: Dictionary={}
+	if file.get_length()<=8192:receipt=Catalog.pending(JSON.parse_string(file.get_as_text()),installed_version,installed_code)
+	file.close()
+	if receipt.is_empty() or bridge.validate(activity,download_path,receipt.build.sha256,int(receipt.build.size_bytes),int(receipt.build.version_code))!="ok":
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(PENDING_PATH));DirAccess.remove_absolute(download_path);return
+	candidate=receipt.candidate;build=receipt.build;progress=100
+	_set_status("ready","Das Update ist geprüft und bereit. Vor der Installation wird dein aktuelles Resort gespeichert.")
 func _set_status(value: String, text: String, args: Array=[]) -> void:
 	state=value;message_source=text;message_args=args;changed.emit()
 func check(manual: bool=true) -> void:
@@ -71,6 +90,8 @@ func _completed(result: int, code: int, _headers: PackedStringArray, body: Packe
 		var status: String=bridge.validate(activity,download_path,build.sha256,int(build.size_bytes),int(build.version_code)) if bridge!=null else "unavailable"
 		if status!="ok":
 			DirAccess.remove_absolute(download_path);_set_status("error","Das Update passt nicht zu dieser Installation. Deine Spielstände bleiben erhalten. Installiere die App nicht neu.");return
+		if not _remember_pending():
+			_set_status("error","Das Update konnte nicht zwischengespeichert werden. Bitte gib Speicher frei und versuche es erneut.");return
 		progress=100;_set_status("ready","Das Update ist geprüft und bereit. Vor der Installation wird dein aktuelles Resort gespeichert.")
 func download() -> void:
 	if state!="available" or build.is_empty():return

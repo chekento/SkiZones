@@ -3057,3 +3057,6 @@ msgstr "Updates · %s available"
 
 msgid "Den gebauten Fußweg freihalten. Die Anlage neben den Weg setzen."
 msgstr "Keep the built footpath clear. Place the facility beside the path."
+
+msgid "Das Update konnte nicht zwischengespeichert werden. Bitte gib Speicher frei und versuche es erneut."
+msgstr "The update could not be staged. Free some storage and try again."

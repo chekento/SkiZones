@@ -239,7 +239,11 @@ def main():
         state = wait_for(lambda s: s.get("update_test") == "rejected" and s.get("update_validation") == "signature")
         capture("update-rejects-different-signer", state)
         adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update.apk", state["update_path"])
+        adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
         adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "deny")
+        # Android may kill the process when this app-op changes.
+        launch()
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 22)
         update_request(dict(action="install-permission", sha256=digest, size=len(candidate), code=23))
         state = wait_for(lambda s: s.get("update_test") == "installer_permission")
         # Observe Android's actual per-source permission page before returning.
@@ -257,7 +261,14 @@ def main():
         launch()
         state = wait_for(lambda s: not s["background"] and s["slot"] == 3)
         capture("update-permission-return", state)
+        adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
         adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "allow")
+        adb("shell", "am", "force-stop", PACKAGE)
+        # A saved receipt restores the ready update after process recreation.
+        launch()
+        state = wait_for(lambda s: not s["background"] and s.get("updater_state") == "ready" and s["slot"] == 3)
+        assert state["money"] == 234563 and state["installed_code"] == 22, state
+        capture("update-staged-restart", state)
         update_request(dict(action="install-valid", sha256=digest, size=len(candidate), code=23))
         state = wait_for(lambda s: s.get("update_validation") == "ok")
         # Confirm the real system installer, using its exposed UI nodes rather
@@ -298,7 +309,7 @@ def main():
         after_files = {name: saved_hash(name) for name in saved_files}
         assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"
         capture("updated-four-careers-restored", state)
-        adb("shell", "run-as", PACKAGE, "rm", update_request_path)
+        adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"

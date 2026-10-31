@@ -79,6 +79,7 @@ func _ready() -> void:
 	_update_plan()
 	if OS.get_name() == "Android":
 		await _restore_android_session()
+		if updater.state=="ready":hud.update_dialog.open()
 	if OS.has_feature("android_lifecycle_test"):
 		call_deferred("_start_android_lifecycle_test")
 	# Deterministic captures and boot checks are also used by CI.
