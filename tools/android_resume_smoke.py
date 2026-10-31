@@ -87,18 +87,22 @@ def main():
         assert component.startswith(PACKAGE + "/"), component
 
         def launch():
-            # PackageManager can expose the new version before Android 11 has
-            # unfrozen its activity. Wait for an actual foreground activity,
-            # rather than accepting am's zero exit code for INTENT_FAILED.
+            # Use the same MAIN/LAUNCHER intent as the app icon and require
+            # an actual foreground activity, rather than am's exit code.
             deadline = time.monotonic() + 45
+            result = b""
             while time.monotonic() < deadline:
-                adb("shell", "am", "start", "-W", "-n", component, timeout=60)
+                result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN",
+                             "-c", "android.intent.category.LAUNCHER", "-n", component, timeout=60)
                 activity = adb("shell", "dumpsys", "activity", "activities").decode(errors="replace")
                 if any(PACKAGE in line and ("mResumedActivity" in line or "topResumedActivity" in line)
                        for line in activity.splitlines()):
                     return
                 time.sleep(0.5)
-            raise AssertionError("Android did not bring the installed game activity to the foreground")
+            (args.output / "failed-launch.txt").write_bytes(result)
+            (args.output / "failed-launch-activities.txt").write_text(activity)
+            (args.output / "failed-launch-package.txt").write_bytes(adb("shell", "dumpsys", "package", PACKAGE))
+            raise AssertionError("Android did not foreground the installed game: " + result.decode(errors="replace"))
 
         def playable(state):
             return not state["background"] and state["camera"] and state["guests"] and not state["paused"]
@@ -313,8 +317,32 @@ def main():
                 break
             time.sleep(0.5)
         assert "versionCode=23 " in package_info, "Android did not install the verified update in place"
-        adb("shell", "am", "force-stop", PACKAGE)
-        launch()
+        # The installer kills the replaced process itself. Finish through its
+        # real Open button, just as a player does. In Android 11, pm's version
+        # query can update before the installer has released its foreground
+        # task; force-stop plus a bare shell intent does not finish that UI.
+        deadline = time.monotonic() + 90
+        opened = False
+        while time.monotonic() < deadline:
+            try:
+                adb("shell", "uiautomator", "dump", "/data/local/tmp/skizones-installed.xml", timeout=12)
+                complete = adb("shell", "cat", "/data/local/tmp/skizones-installed.xml")
+                xml = ET.fromstring(complete)
+                for node in xml.iter("node"):
+                    if node.attrib.get("enabled") == "true" and node.attrib.get("text", "").lower() in {"open", "öffnen"}:
+                        import re
+                        left, top, right, bottom = map(int, re.findall(r"\d+", node.attrib["bounds"]))
+                        (args.output / "update-install-complete.xml").write_bytes(complete)
+                        (args.output / "update-install-complete.png").write_bytes(adb("exec-out", "screencap", "-p"))
+                        adb("shell", "input", "tap", str((left + right) // 2), str((top + bottom) // 2))
+                        opened = True
+                        break
+                if opened:
+                    break
+            except (subprocess.SubprocessError, ET.ParseError):
+                pass
+            time.sleep(0.5)
+        assert opened, "The completed Android installer did not expose its Open button"
         state = wait_for(lambda s: s.get("installed_code") == 23 and s.get("frames", 0) >= 5, seconds=180)
         assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
         after_files = {name: saved_hash(name) for name in saved_files}
