@@ -6,13 +6,14 @@ const STAYS={"cocoa":[10,15],"schmarrn":[20,25],"pizzeria":[30,45],"restaurant":
 static func ensure(guest: Dictionary) -> void:
 	if guest.has("life"):return
 	var id:=int(guest.id)
-	guest.life={"version":1,"stance":"goofy" if posmod(id*17,5)<2 else "regular","curiosity":0.35+posmod(id*37,61)/100.0,"sociability":posmod(id*43,101)/100.0,"leisure":0.8+posmod(id*29,41)/100.0,"wallet":float(90+posmod(id*83,420)),"skill_xp":0.0,"tuition_minutes":0,"lesson_count":0,"recent_pistes":[],"switch_runs":0,"practice":0.0}
+	guest.life={"version":1,"stance":"goofy" if posmod(id*17,5)<2 else "regular","curiosity":0.35+posmod(id*37,61)/100.0,"sociability":posmod(id*43,101)/100.0,"leisure":0.8+posmod(id*29,41)/100.0,"wallet":float(90+posmod(id*83,420)),"skill_xp":0.0,"tuition_minutes":0,"lesson_count":0,"recent_pistes":[],"switch_runs":0,"practice":0.0,"level_ready":false}
 static func valid(guest: Dictionary) -> bool:
 	if not guest.get("life") is Dictionary:return false
 	var state: Dictionary=guest.life
 	if state.get("version")!=1 or state.get("stance") not in ["regular","goofy"]:return false
 	for key in ["curiosity","sociability","leisure","wallet","skill_xp","tuition_minutes","lesson_count","switch_runs","practice"]:
 		if not Terrain.number(state.get(key)) or state[key]<0 or state[key]>1000000:return false
+	if state.has("level_ready") and not state.level_ready is bool:return false
 	if state.curiosity>1 or state.sociability>1 or state.leisure>1.3 or state.skill_xp>100:return false
 	if not state.get("recent_pistes") is Array or state.recent_pistes.size()>8:return false
 	for id in state.recent_pistes:
@@ -42,11 +43,12 @@ static func descent(guest: Dictionary, id: int) -> void:
 static func learn(guest: Dictionary, amount: float) -> void:
 	ensure(guest)
 	if int(guest.ability)>=2:return
-	guest.life.skill_xp+=maxf(0,amount)
-	if guest.life.skill_xp>=100:
-		guest.life.skill_xp-=100;guest.ability=int(guest.ability)+1
-		# A personal blue-only preference is retained after technical progress.
-		if guest.get("agenda",{}).get("kind","") not in ["blue","family"]:guest.agenda.comfort=int(guest.ability)
+	guest.life.skill_xp=minf(100,guest.life.skill_xp+maxf(0,amount))
+	guest.life.level_ready=guest.life.skill_xp>=100
+static func commit_level(guest: Dictionary) -> void:
+	if not guest.get("life",{}).get("level_ready",false) or int(guest.ability)>=2:return
+	guest.life.skill_xp=0.0;guest.life.level_ready=false;guest.ability=int(guest.ability)+1
+	if guest.get("agenda",{}).get("kind","") not in ["blue","family"]:guest.agenda.comfort=int(guest.ability)
 static func pose(guest: Dictionary, piste: Dictionary, fraction: float, hiking: bool) -> Dictionary:
 	var result: Dictionary={"yaw":0.0,"switch":false,"stance":"regular","gesture":0.0}
 	if not guest.has("life"):return result

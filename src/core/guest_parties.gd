@@ -216,7 +216,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 			if not Terrain.number(guest.get("guardian_id")) or guest.guardian_id!=floorf(guest.guardian_id):return false
 			var parent:=actor(model,int(guest.get("guardian_id",0)))
 			if parent.is_empty() or parent.get("years",0)<16 or parent.get("party_id",-1)!=guest.party_id:return false
-		if guest.phase=="waiting":
+		if guest.phase=="waiting" and not guest.has("lesson_course"):
 			if guest.get("waiting_reason") not in ["care","meeting","meal"] or guest.get("waiting_node")!=guest.route.legs[int(guest.leg)].to:return false
 			if not Terrain.number(guest.get("waiting_since")) or guest.waiting_since<0 or guest.waiting_since>now(model):return false
 		for field in ["party_id","years","party_comfort","guardian_id"]:

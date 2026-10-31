@@ -15,6 +15,7 @@ const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Access=preload("res://src/core/resort_access.gd")
+const Town=preload("res://src/core/town_context.gd")
 const Life=preload("res://src/core/guest_life.gd")
 const School=preload("res://src/core/ski_school.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
@@ -828,6 +829,7 @@ func pedestrian_graph() -> Dictionary:
 	for key in nodes: edges[key] = []
 	for link in layout_value.links:
 		if not link.get("closed",false): _foot_link(edges,link.from,link.to,link.points)
+	Town.extend_graph(self,nodes,edges)
 	_foot_graph = {"nodes": nodes, "edges": edges}
 	return _foot_graph
 
@@ -1438,6 +1440,7 @@ func _start_leg(guest: Dictionary) -> void:
 		guest.queue_since = movement_clock()
 
 func _finish_leg(guest: Dictionary) -> void:
+	if life_enabled:Life.commit_level(guest)
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	if leg.kind == "lift": Agenda.record_lift(guest, int(leg.id))
 	if leg.kind == "ski":
@@ -1960,7 +1963,7 @@ func repay_loan() -> bool:
 func present_guests() -> int:
 	var count := 0
 	for guest in guests:
-		if guest.phase != "leaving": count += int(guest.get("group_size", 1))
+		if guest.phase != "leaving" and not guest.get("school_teacher",false): count += int(guest.get("group_size", 1))
 	return count
 
 func queue_size(id: int = -1) -> int:
@@ -2140,7 +2143,7 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 		previous = Terrain.unpack(leg.points.back())
 		if leg.kind == "walk":
 			var rescue_walk: bool = Ops.active(self) and leg.get("rescue", false) and operations.incidents.any(func(e): return e.status == "resolved" and e.reason == "evacuation" and e.point == leg.points[0])
-			if leg.id != 0 or (not rescue_walk and not Foot.valid_walk(pedestrian_layout(), leg.points, buildings)):
+			if leg.id != 0 or (not rescue_walk and not Town.checked_walk(self,leg) and not Foot.valid_walk(pedestrian_layout(), leg.points, buildings)):
 				return {}
 		else:
 			var item := asset(int(leg.id))
@@ -2522,7 +2525,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	parties=saved_parties.duplicate(true)
 	if not Parties.valid(self,parties):return invalid
 	for guest in guests:
-		if guest.phase=="waiting" and not guest.has("party_id"):return invalid
+		if guest.phase=="waiting" and not guest.has("party_id") and not guest.has("lesson_course"):return invalid
 	rng.seed = int(data.rng_seed)
 	rng.state = int(data.rng_state)
 	if not Progression.restore(self, data.get("campaign")):
@@ -2575,6 +2578,12 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 
 func enable_life_rules() -> void:
 	life_enabled=true
+	if fresh_world:
+		if map_id in Geo.IDS:Town.seed(self)
+		else:
+			terrain_generation=3;terrain=Mountain.new(map_id,3);terrain.configure_pistes(pistes)
+		fresh_world=false
+		_invalidate()
 	for guest in guests:Life.ensure(guest)
 	for person in operations.staff:
 		if person.role=="hotel" and str(person.assignment).begins_with("building:") and asset(str(person.assignment).get_slice(":",1).to_int()).get("kind")=="school":

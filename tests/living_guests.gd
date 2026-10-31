@@ -17,10 +17,11 @@ func run() -> void:
 	for i in range(3):
 		check(model.admit_guest(0,"blue"),"Real individual pupil admitted")
 		var guest: Dictionary=model.guests[-1];Life.ensure(guest);guest.life.wallet=80;guest.stay=1000;guest.needs.lesson=true;guest.needs.hunger=0;guest.needs.warmth=95;guest.needs.energy=95
-		var route:=model.service_route(guest)
+		var route: Dictionary=guest.route if School.enrolled(guest) else model.service_route(guest)
 		check(not route.is_empty() and School.enrolled(guest),"Pupil books a shared scheduled group through an actual route")
 		if not route.is_empty():guest.route=route;guest.leg=0;model._start_leg(guest)
 	check(model.school_state.courses.size()==1 and model.school_state.courses[0].students.size()==3,"Three reservations share one daily group and meeting point")
+	if model.school_state.courses.is_empty():quit(1);return
 	for i in range(90*24):model.advance_minute(false)
 	var item: Dictionary=model.school_state.courses[0]
 	check(item.status=="active" and item.teacher>0,"The course starts at 09:30 with an actual instructor actor")
@@ -29,7 +30,9 @@ func run() -> void:
 	for i in range(265*24):model.advance_minute(false)
 	check(item.status=="completed","The group finishes at a real network node after its four-hour course")
 	check(model.guests.filter(func(g):return not g.get("school_teacher",false)).all(func(g):return g.life.tuition_minutes>0 and g.life.skill_xp>0),"Actual skiing and instruction create persistent skill progress")
-	var copy:=Resort.new();var restored:=copy.restore(JSON.parse_string(JSON.stringify(model.snapshot())))
+	var saved:=model.snapshot()
+	FileAccess.open("res://build/living-save.json",FileAccess.WRITE).store_string(JSON.stringify(saved))
+	var copy:=Resort.new();var restored:=copy.restore(JSON.parse_string(JSON.stringify(saved)))
 	check(restored.ok,"Lessons and guest learning survive JSON save validation: "+restored.message)
 	var pupil: Dictionary={"id":81,"ability":1,"phase":"moving","needs":{"energy":95},"sport":"snowboard","loops":0};Life.ensure(pupil)
 	for kind in Life.STAYS:

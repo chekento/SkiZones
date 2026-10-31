@@ -109,10 +109,10 @@ func run() -> void:
 	check(texts(menu).contains("BUILDING & TEAM") and texts(menu).contains("Operations") and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
 	menu.hide();game.paused=true
 	# This exercises the same strict handoff used on Android, with only the OS opener injected.
-	var updater: Node=game.updater;var version: String="0.19.0";var filename: String="SkiZones-"+version+"-android-arm64.apk"
+	var updater: Node=game.updater;var version: String="0.20.0";var filename: String="SkiZones-"+version+"-android-arm64.apk"
 	var url: String=updater.Catalog.RELEASES+"/download/v"+version+"/"
 	updater.candidate={"version":version,"file_name":filename,"apk":url+filename,"manifest":url+"manifest.json","release":updater.Catalog.RELEASES+"/tag/v"+version}
-	updater.build={"sha256":"a".repeat(64),"size_bytes":33000000,"version_code":24,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
+	updater.build={"sha256":"a".repeat(64),"size_bytes":33000000,"version_code":25,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
 	updater.link_opener=func(_url):return OK
 	updater._set_status("available","");game.model.money=234567;updater.open_download()
 	check(updater.state=="opened" and updater.last_opened_url==updater.candidate.release and FileAccess.file_exists(game.SaveStore.path_for_map(game.model.map_id)),"The browser handoff opens only the official release after saving the current resort")

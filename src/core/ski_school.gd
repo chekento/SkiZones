@@ -20,7 +20,7 @@ static func settings(model: RefCounted,id: int) -> Dictionary:
 static func configure(model: RefCounted,id: int,start: int,duration: int,price: float) -> Dictionary:
 	if model.asset(id).get("kind")!="school" or start<510 or start>660 or duration not in [240,360] or price<30 or price>180:return model._result(false,L.text("Diese Kursplanung ist nicht möglich."))
 	for item in model.school_state.courses:
-		if int(item.school)==id and item.day==model.day and not item.students.is_empty() and item.status in ["booking","active"]:return model._result(false,L.text("Bereits gebuchte Kurse behalten ihre Zeit. Änderungen sind nach Kursende möglich."))
+		if int(item.school)==id and item.day==model.day and not item.students.is_empty() and item.status in ["booking","active","ending"]:return model._result(false,L.text("Bereits gebuchte Kurse behalten ihre Zeit. Änderungen sind nach Kursende möglich."))
 	model.school_state.settings[str(id)]={"start":start,"minutes":duration,"group_price":price,"private_hour":95.0}
 	return model._result(true,L.text("Kursangebot aktualisiert. Treffpunkt und Startzeit stehen bei den Buchungen."))
 static func _meeting(model: RefCounted,school: Dictionary,level: int) -> String:
@@ -33,7 +33,7 @@ static func _meeting(model: RefCounted,school: Dictionary,level: int) -> String:
 		var route: Dictionary=model._shortest(graph,origin,key)
 		if not route.ok:continue
 		var accessible: bool=model.routes_for(level).any(func(r):return r.legs.any(func(leg):return leg.kind=="lift" and int(leg.id)==int(lift.id)))
-		if accessible and model.route_minutes(route)<best:best=model.route_minutes(route);result=key
+		if accessible and model.route_minutes(route,{"ability":level,"id":0,"sport":"ski"})<best:best=model.route_minutes(route,{"ability":level,"id":0,"sport":"ski"});result=key
 	return result
 static func _create(model: RefCounted,school: Dictionary,level: int,private_lesson: bool,guest: Dictionary) -> Dictionary:
 	if model.school_state.courses.size()>=96:return {}
@@ -96,6 +96,10 @@ static func arrive(model: RefCounted,guest: Dictionary,leg: Dictionary) -> bool:
 		if guest.get("school_stage","")=="meeting" and leg.to==item.meeting:
 			_wait(model,guest,item.meeting,"lesson_meeting");item.present[str(int(guest.id))]=item.meeting;return true
 		return false
+	if item.status=="ending":
+		_finish_actor(model,item,guest,leg.to,bool(item.get("cancelled_end",false)))
+		_close_ended(model,item)
+		return true
 	if item.status=="active":
 		_wait(model,guest,leg.to,"lesson_group");item.present[str(int(guest.id))]=leg.to
 		_release_node(model,item)
@@ -181,24 +185,34 @@ static func _release_node(model: RefCounted,item: Dictionary) -> void:
 		if not _route(model,item,node):_finish(model,item,node,true)
 		return
 	for guest in people:guest.leg+=1;model._start_leg(guest)
-static func _finish(model: RefCounted,item: Dictionary,node: String,cancelled: bool) -> void:
-	item.status="cancelled" if cancelled else "completed"
-	if not cancelled:model.school_state.completed+=1
+static func _finish_actor(model: RefCounted,item: Dictionary,guest: Dictionary,node: String,cancelled: bool) -> void:
+	guest.erase("lesson_course");guest.erase("school_stage")
+	if guest.get("school_teacher",false):
+		guest.phase="leaving";return
+	guest.needs.joy=clampf(guest.needs.joy+(8 if not cancelled else -10),0,100)
+	if cancelled and guest.has("school_fee"):
+		var fraction:=clampf(float(item.end-now(model))/maxf(1,item.minutes),0,1)
+		var refund: float=guest.school_fee*fraction;guest.life.wallet+=refund;guest.spending-=refund
+		model.money-=refund;model.report.services=maxf(0,model.report.services-refund)
+		var school: Dictionary=model.asset(int(item.school));school.revenue=maxf(0,school.revenue-refund)
+	guest.erase("school_fee")
+	if guest.has("party_id"):
+		var party: Dictionary=model.Parties.group(model,guest)
+		if not party.is_empty():party.meeting_at=now(model)+10
+	var next: Dictionary=model.choose_route(guest,node) if guest.age<guest.stay-45 else {}
+	if next.is_empty():model._return_from_node(guest,node)
+	else:guest.route=next;guest.leg=0;guest.heading_home=false;model._start_leg(guest)
+
+static func _close_ended(model: RefCounted,item: Dictionary) -> void:
+	if not _members(model,item).is_empty():return
+	item.status="cancelled" if item.get("cancelled_end",false) else "completed"
+	if item.status=="completed":model.school_state.completed+=1
+static func _finish(model: RefCounted,item: Dictionary,_node: String,cancelled: bool) -> void:
+	item.status="ending";item.cancelled_end=cancelled
 	for guest in _members(model,item):
-		guest.erase("lesson_course");guest.erase("school_stage")
-		if guest.get("school_teacher",false):
-			guest.phase="leaving";continue
-		guest.needs.joy=clampf(guest.needs.joy+(8 if not cancelled else -10),0,100)
-		if cancelled and guest.has("school_fee"):
-			var fraction:=clampf(float(item.end-now(model))/maxf(1,item.minutes),0,1)
-			var refund: float=guest.school_fee*fraction;guest.life.wallet+=refund;guest.spending-=refund
-			model.money-=refund;model.report.services=maxf(0,model.report.services-refund)
-			var school: Dictionary=model.asset(int(item.school));school.revenue=maxf(0,school.revenue-refund)
-		guest.erase("school_fee")
-		if guest.has("party_id"):
-			var party: Dictionary=model.Parties.group(model,guest)
-			if not party.is_empty():party.meeting_at=now(model)+10
-		model._return_from_node(guest,node)
+		if guest.phase=="waiting":_finish_actor(model,item,guest,str(guest.get("waiting_node",guest.route.legs[guest.leg].to)),cancelled)
+		elif guest.phase=="moving" and guest.route.legs[guest.leg].kind=="visit":model._finish_leg(guest)
+	_close_ended(model,item)
 static func tick(model: RefCounted,calendar_tick: bool) -> void:
 	if not model.life_enabled:return
 	var time:=now(model)
@@ -210,7 +224,12 @@ static func tick(model: RefCounted,calendar_tick: bool) -> void:
 				for id in item.students.duplicate():
 					var guest:=actor(model,int(id))
 					if not guest.is_empty() and guest.phase=="waiting":cancel_student(model,guest,item.meeting)
+		elif item.status=="ending":
+			for guest in _members(model,item):
+				if guest.phase=="waiting":_finish_actor(model,item,guest,str(guest.get("waiting_node",guest.route.legs[guest.leg].to)),bool(item.get("cancelled_end",false)))
+			_close_ended(model,item)
 		elif item.status=="active":
+			if time>=item.end:_finish(model,item,item.meeting,false);continue
 			var school: Dictionary=model.asset(int(item.school))
 			var guide:=actor(model,int(item.teacher))
 			if guide.is_empty():item.status="cancelled";continue
@@ -225,7 +244,7 @@ static func tick(model: RefCounted,calendar_tick: bool) -> void:
 			_release_node(model,item)
 	# Retain a bounded history. Future reservations and active courses stay intact.
 	if model.school_state.courses.size()>80:
-		model.school_state.courses=model.school_state.courses.filter(func(c):return c.status in ["booking","active"] or c.day>=model.day-2)
+		model.school_state.courses=model.school_state.courses.filter(func(c):return c.status in ["booking","active","ending"] or c.day>=model.day-2)
 static func describe(model: RefCounted,guest: Dictionary) -> String:
 	var item:=course(model,int(guest.get("lesson_course",0)))
 	if item.is_empty():return ""
@@ -240,7 +259,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 		if not key is String or not key.is_valid_int() or model.asset(key.to_int()).get("kind")!="school" or not config is Dictionary:return false
 		for field in ["start","minutes","group_price","private_hour"]:
 			if not Terrain.number(config.get(field)):return false
-		if config.start<510 or config.start>660 or config.minutes not in [240,360] or config.group_price<30 or config.group_price>180 or config.private_hour!=95:return false
+		if config.start<510 or config.start>660 or int(config.minutes) not in [240,360] or config.minutes!=floorf(config.minutes) or config.group_price<30 or config.group_price>180 or config.private_hour!=95:return false
 	var ids: Array=[]
 	for item in value.courses:
 		if not item is Dictionary or not item.get("id") is float and not item.get("id") is int:return false
@@ -248,7 +267,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 		ids.append(item.id)
 		for key in ["day","start","end","minutes","price","level","teacher","employee","node_since","active_minutes"]:
 			if not Terrain.number(item.get(key)) or item[key]<0 or item[key]>100000000:return false
-		if item.level>1 or item.minutes not in [60,240,360] or item.end!=item.start+item.minutes or not item.get("private") is bool or item.get("status") not in ["booking","active","completed","cancelled","missed"]:return false
+		if item.level>1 or int(item.minutes) not in [60,240,360] or item.minutes!=floorf(item.minutes) or item.end!=item.start+item.minutes or not item.get("private") is bool or item.get("status") not in ["booking","active","ending","completed","cancelled","missed"]:return false
 		if not item.get("meeting") is String or not item.meeting.begins_with("l") or not item.get("students") is Array or item.students.size()>(1 if item.private else 20) or not item.get("present") is Dictionary or not item.get("route") is Dictionary:return false
 		for id in item.students:
 			if not Terrain.number(id) or id<1 or id>=model.guest_id:return false

@@ -1,0 +1,10 @@
+OpenStreetMap-derived town dataset: © OpenStreetMap contributors.
+Distributed under the Open Database License (ODbL) 1.0:
+https://opendatacommons.org/licenses/odbl/1-0/
+https://www.openstreetmap.org/copyright
+
+Each .bin is a deterministic gzip-compressed UTF-8 JSON dataset. The adjacent
+.json records its source timestamp, original Overpass-response SHA-256,
+projection origin and distribution SHA-256. Rebuild with tools/import_places.py.
+Building footprints, streets and named POIs are open geographic data. Rendered
+facades, extra resort shuttles and simulation timetables are game interpretations.

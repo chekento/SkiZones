@@ -360,9 +360,11 @@ func _build_surroundings() -> void:
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
+	if is_instance_valid(_downhill_arrows):_downhill_arrows.visible=slopes_visible
 	if slope_overlay == null:
 		_build_slope_overlay()
 	slope_overlay.visible = slopes_visible
+	if slopes_visible and model.life_enabled:_ensure_downhill_arrows()
 	if topography == null:
 		_build_topography()
 	topography.visible = slopes_visible
@@ -533,6 +535,7 @@ func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 	return instances
 
 func _clear_ground(point: Vector2, margin: float) -> bool:
+	if model.life_enabled and not model.Town.clear_ground(model.map_id,point,margin):return false
 	for area in _pedestrian_snapshot.get("areas", []):
 		if point.distance_to(area.center) < area.radius + 3:
 			return false
@@ -1645,3 +1648,28 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 		if _art_cache.size() > 128: _art_cache.clear()
 		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
 	return _art_cache[key]
+
+var _downhill_arrows: MeshInstance3D
+func _ensure_downhill_arrows() -> void:
+	if is_instance_valid(_downhill_arrows):
+		_downhill_arrows.visible=slopes_visible
+		return
+	var vertices:=PackedVector3Array();var colors:=PackedColorArray()
+	var step:=maxf(80,maxf(terrain.bounds.size.x,terrain.bounds.size.y)/32)
+	for x in range(ceili(terrain.bounds.position.x/step),floori(terrain.bounds.end.x/step)):
+		for y in range(ceili(terrain.bounds.position.y/step),floori(terrain.bounds.end.y/step)):
+			var at:=Vector2(x*step,y*step)
+			var gradient:=Vector2(terrain.height(at+Vector2(4,0))-terrain.height(at-Vector2(4,0)),terrain.height(at+Vector2(0,4))-terrain.height(at-Vector2(0,4)))/8
+			if gradient.length()<0.04:continue
+			var down: Vector2=-gradient.normalized();var side:=down.orthogonal()
+			var length:=clampf(step*0.20,14,55)
+			for pair in [[at-down*length*0.5,at+down*length*0.5],[at+down*length*0.5,at+down*length*0.10+side*length*0.25],[at+down*length*0.5,at+down*length*0.10-side*length*0.25]]:
+				for point in pair:
+					vertices.append(ground_position(point,1.7));colors.append(Color("2e6468"))
+	var arrays: Array=[];arrays.resize(Mesh.ARRAY_MAX);arrays[Mesh.ARRAY_VERTEX]=vertices;arrays[Mesh.ARRAY_COLOR]=colors
+	var mesh:=ArrayMesh.new()
+	if not vertices.is_empty():mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES,arrays)
+	_downhill_arrows=MeshInstance3D.new();_downhill_arrows.mesh=mesh
+	var material:=_material(Color.WHITE,true);material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	_downhill_arrows.material_override=material;_downhill_arrows.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_downhill_arrows)

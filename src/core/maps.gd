@@ -40,7 +40,7 @@ static func base_height(point: Vector2, id: String, generation: int) -> float:
 
 static func extra_height(point: Vector2, id: String, generation: int = 1) -> float:
 	if id in Geo.IDS: return 0.0
-	if generation >= 2: return _resort_height(point, id)
+	if generation >= 2: return _resort_height(point, id) + (mission_relief(point,id) if generation>=3 else 0.0)
 	# The original valley is preserved, including old save geometry.
 	var outside := maxf(maxf(absf(point.x) - 360, -400 - point.y), 0)
 	if outside <= 0:
@@ -85,3 +85,19 @@ static func _resort_height(point: Vector2, id: String) -> float:
 	var detail: float = _noise[key].get_noise_2d(point.x, point.y)
 	var foothills := sin(point.x * 0.0032 + MAPS.keys().find(id)) * sin(point.y * 0.0025) * 32
 	return smoothstep(0, 300, outside) * (h + detail * (24 + maxf(0, h) * 0.15) + foothills)
+
+static func mission_relief(point: Vector2,id: String) -> float:
+	# Independent side valleys, saddles and terraces; preserve the training basin.
+	if id in Geo.IDS:return 0.0
+	var outside:=maxf(maxf(absf(point.x)-360,-400-point.y),0)
+	if outside<=0:return 0.0
+	var bounds: Rect2=spec(id).bounds
+	var index:=maxi(0,FANTASY_MAPS.keys().find(id))
+	var depth:=clampf((-point.y-350)/maxf(1,-bounds.position.y-350),0,1)
+	var width:=bounds.size.x
+	var valley_center:=sin(depth*TAU*0.85+index*0.7)*width*0.16
+	var cross_valley: float=-90*(0.6+index*0.12)*exp(-pow((point.x-valley_center)/(width*0.10+80),2))*exp(-pow((depth-0.54)/0.25,2))
+	var side_bowl: float=-80*(1+index*0.10)*exp(-pow((point.x+width*0.27)/(width*0.15),2)-pow((depth-0.76)/0.16,2))
+	var terrace: float=sin(depth*TAU*2.1+point.x/700.0)*(28+index*3)*exp(-pow(point.x/(width*0.6),2))
+	var saddle: float=-65*exp(-pow((point.x-width*0.12)/(width*0.14),2)-pow((depth-0.33)/0.12,2))
+	return smoothstep(0,350,outside)*(cross_valley+side_bowl+terrace+saddle)
