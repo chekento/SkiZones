@@ -1,6 +1,8 @@
 """Exercise real Android activities, native surfaces and a saved game on an emulator."""
 import argparse
 import io
+import hashlib
+import xml.etree.ElementTree as ET
 import json
 import math
 import subprocess
@@ -19,6 +21,7 @@ def adb(*args, timeout=20):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apk", type=Path, required=True)
+    parser.add_argument("--update-apk", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -189,6 +192,84 @@ def main():
                          and s.get("scenario") == "ready" and s.get("frames", 0) >= 5, seconds=180)
         assert state["paused"] and state["guests"] == before["guests"] and state["staff"] == before["staff"]
         capture("restored-real-wurmberg", state)
+        # Install a newer APK via the same app bridge and Android installer
+        # used by GitHub updates. Four careers must survive byte-for-byte.
+        update_request_path = health_path.rsplit("/", 1)[0] + "/update-ci.json"
+        request_file = args.output / "update-request.json"
+
+        def update_request(data):
+            request_file.write_text(json.dumps(data))
+            adb("push", str(request_file), "/data/local/tmp/skizones-update-request.json")
+            adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update-request.json", update_request_path)
+
+        update_request(dict(action="prepare"))
+        state = wait_for(lambda s: s.get("update_test") == "prepared", seconds=180)
+        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == 22, state
+        save_folder = health_path.rsplit("/", 1)[0]
+        saved_files = [f"career_{slot}_{name}.json" for slot in range(1, 5)
+                       for name in ("sonnenhang", "passport", "index")]
+        def saved_hash(name):
+            content = adb("shell", "run-as", PACKAGE, "cat", save_folder + "/" + name)
+            if name.endswith("_index.json"):
+                metadata = json.loads(content)
+                metadata.pop("saved_at", None)  # A pre-install autosave updates this timestamp.
+                content = json.dumps(metadata, sort_keys=True).encode()
+            return hashlib.sha256(content).hexdigest()
+
+        before_files = {name: saved_hash(name) for name in saved_files}
+        capture("four-careers-before-update", state)
+        candidate = args.update_apk.read_bytes()
+        digest = hashlib.sha256(candidate).hexdigest()
+        adb("push", str(args.update_apk.resolve()), "/data/local/tmp/skizones-update.apk", timeout=90)
+        # The bridge exposes only this private cache subdirectory to Android.
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update.apk", state["update_path"])
+        # A wrong checksum must be rejected before any Android installation.
+        update_request(dict(action="install-bad", sha256="0" * 64, size=len(candidate), code=23))
+        state = wait_for(lambda s: s.get("update_test") == "rejected")
+        assert state["update_validation"] == "hash" and state["installed_code"] == 22, state
+        capture("update-rejects-corruption", state)
+        adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "allow")
+        update_request(dict(action="install-valid", sha256=digest, size=len(candidate), code=23))
+        state = wait_for(lambda s: s.get("update_validation") == "ok")
+        # Confirm the real system installer, using its exposed UI nodes rather
+        # than guessed screen coordinates. The helper itself never taps this.
+        deadline = time.monotonic() + 60
+        tapped = False
+        while time.monotonic() < deadline:
+            try:
+                adb("shell", "uiautomator", "dump", "/data/local/tmp/skizones-installer.xml", timeout=12)
+                xml = ET.fromstring(adb("shell", "cat", "/data/local/tmp/skizones-installer.xml"))
+                for node in xml.iter("node"):
+                    label = node.attrib.get("text", "").lower()
+                    if node.attrib.get("enabled") == "true" and label in {"update", "install", "aktualisieren", "installieren"}:
+                        import re
+                        left, top, right, bottom = map(int, re.findall(r"\d+", node.attrib["bounds"]))
+                        adb("shell", "input", "tap", str((left + right) // 2), str((top + bottom) // 2))
+                        tapped = True
+                        break
+                if tapped:
+                    break
+            except (subprocess.SubprocessError, ET.ParseError):
+                pass
+            time.sleep(0.5)
+        assert tapped, "The real Android update installer did not expose its confirmation"
+        (args.output / "update-installer.xml").write_bytes(adb("shell", "cat", "/data/local/tmp/skizones-installer.xml"))
+        (args.output / "update-installer.png").write_bytes(adb("exec-out", "screencap", "-p"))
+        deadline = time.monotonic() + 90
+        while time.monotonic() < deadline:
+            package_info = adb("shell", "dumpsys", "package", PACKAGE).decode()
+            if "versionCode=23 " in package_info:
+                break
+            time.sleep(0.5)
+        assert "versionCode=23 " in package_info, "Android did not install the verified update in place"
+        adb("shell", "am", "force-stop", PACKAGE)
+        launch()
+        state = wait_for(lambda s: s.get("installed_code") == 23 and s.get("frames", 0) >= 5, seconds=180)
+        assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
+        after_files = {name: saved_hash(name) for name in saved_files}
+        assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"
+        capture("updated-four-careers-restored", state)
+        adb("shell", "run-as", PACKAGE, "rm", update_request_path)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"

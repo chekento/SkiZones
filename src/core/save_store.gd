@@ -44,11 +44,13 @@ static func summary(slot: int) -> Dictionary:
 	if file != null and file.get_length() < 4096:
 		var data: Variant=JSON.parse_string(file.get_as_text())
 		if data is Dictionary and data.get("version")==1 and data.get("map") in Maps.FANTASY_MAPS:
-			if data.get("day") is float or data.get("day") is int:
-				if data.get("money") is float or data.get("money") is int:
-					if FileAccess.file_exists(path_for_map(data.map,slot)) or FileAccess.file_exists(path_for_map(data.map,slot)+".bak"):
-						data.occupied=true
-						return data
+			var valid:=true
+			for field in ["day","money","rank","saved_at"]:
+				if not (data.get(field) is float or data.get(field) is int) or not is_finite(float(data.get(field,0))):valid=false
+			if valid and data.day>=1 and data.day<=100000 and data.day==floorf(data.day) and data.rank>=1 and data.rank<=5 and data.rank==floorf(data.rank) and absf(data.money)<=1000000000:
+				if FileAccess.file_exists(path_for_map(data.map,slot)) or FileAccess.file_exists(path_for_map(data.map,slot)+".bak"):
+					data.occupied=true
+					return data
 	var latest := -1
 	var result := {"occupied":false}
 	for id in Maps.FANTASY_MAPS:

@@ -7,10 +7,14 @@ var pick_nonce := -1
 var picking: Dictionary = {}
 var pick_at := Vector2.ZERO
 var scenario_state := ""
+var update_test_state:=""
+var update_native_validation:=""
+var update_action:=""
 func setup(controller: Node) -> void:
 	game=controller;boot=str(Time.get_unix_time_from_system())
 	if not game.has_game:
 		game.start_game(true)
+		game.model.minute=565
 		for i in range(9):game.model.admit_guest(i%3)
 		for i in range(80):game.model.advance_minute(false)
 		game.speed=4
@@ -23,6 +27,12 @@ func _process(delta: float) -> void:
 	if timer >= 0.5:
 		timer=0
 		read_pick_request()
+		if FileAccess.file_exists("user://update-ci.json"):
+			var request: Variant=JSON.parse_string(FileAccess.get_file_as_string("user://update-ci.json"))
+			if request is Dictionary and request.get("action","")!=update_action:
+				update_action=str(request.get("action",""))
+				if update_action=="prepare":call_deferred("_prepare_update_test")
+				elif update_action.begins_with("install"):call_deferred("_install_update_test",request)
 		if scenario_state == "" and FileAccess.file_exists("user://scenario-ci.json"):
 			scenario_state = "loading"
 			call_deferred("_test_real_scenario")
@@ -91,6 +101,26 @@ func write_health() -> void:
 		picking.handle_hit = game.hud.plan_overlay.pick_waypoint(pick_at, 2) == 0
 	var file:=FileAccess.open("user://lifecycle-ci.json.tmp",FileAccess.WRITE)
 	if file == null:return
-	file.store_string(JSON.stringify({"boot":boot,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
+	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"installed_code":game.updater.installed_code,"update_path":game.updater.download_path,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
 	file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path("user://lifecycle-ci.json.tmp"),ProjectSettings.globalize_path("user://lifecycle-ci.json"))
+
+func _prepare_update_test() -> void:
+	update_test_state="preparing"
+	for slot in range(1,5):
+		game.select_career_slot(slot,true)
+		game.paused=true;game.model.day=slot+10;game.model.money=234560+slot;game.save_game()
+	await game.select_career_slot(3,false)
+	game.paused=true;game.save_game()
+	update_test_state="prepared";write_health()
+
+func _install_update_test(request: Dictionary) -> void:
+	var updater: Node=game.updater
+	if updater.bridge==null:update_test_state="bridge_missing";return
+	var hash: String=str(request.get("sha256",""));var size: int=int(request.get("size",0));var code: int=int(request.get("code",0))
+	update_native_validation=updater.bridge.validate(updater.activity,updater.download_path,hash,size,code)
+	if update_native_validation!="ok":update_test_state="rejected";write_health();return
+	updater.build={"sha256":hash,"size_bytes":size,"version_code":code}
+	updater._set_status("ready","")
+	updater.install()
+	update_test_state="installer_"+updater.state;write_health()

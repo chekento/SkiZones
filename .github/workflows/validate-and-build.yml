@@ -107,6 +107,15 @@ jobs:
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/operating_nights.gd'
       - name: Guest wishes, family regrouping, real needs and audience economy
         run: 'python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd'
+      - name: Four careers, safe GitHub updates, individual parties and resort access
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version017
+        run: |
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/career_slots.gd
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/app_updates.gd
+          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/pacing_and_nights.gd
+          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/individual_parties.gd
+          python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --headless --script tests/resort_access.gd
       - name: Install virtual display for rendered tests
         run: |
           sudo apt-get update -qq
@@ -147,6 +156,12 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-guest-agendas
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/guest_agendas_scene.gd
+      - name: Four career cards, update controls and independent rendered guests
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version017-ui
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/career_slots_scene.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/individual_parties_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -191,10 +206,14 @@ jobs:
 
       - name: Export x86-64 Android lifecycle test app
         run: python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
+      - name: Export signed in-place update fixture
+        run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 23 --output build/android/SkiZones-update-x86_64.apk
       - uses: actions/upload-artifact@v4
         with:
           name: SkiZones-Android-lifecycle
-          path: build/android/SkiZones-lifecycle-x86_64.apk
+          path: |
+            build/android/SkiZones-lifecycle-x86_64.apk
+            build/android/SkiZones-update-x86_64.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -242,7 +261,7 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu host -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --output build/android-qa
+          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --output build/android-qa
       - uses: actions/upload-artifact@v4
         if: always()
         with:

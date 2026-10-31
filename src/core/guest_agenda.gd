@@ -10,7 +10,7 @@ const TYPES := {
 	"alpine": {"name": "Alle Schwierigkeitsgrade", "comfort": 2, "share": 0.16, "wish": "Blaue, rote und schwarze Abfahrten entdecken."},
 	"collector": {"name": "Pisten- und Liftsammler", "comfort": 2, "share": 0.10, "wish": "Im Urlaub jede Piste fahren und jeden Lift benutzen."},
 	"expert": {"name": "Schwarz & Snowpark", "comfort": 2, "share": 0.10, "wish": "Sportliche schwarze Pisten und regelmäßige Snowpark-Besuche."},
-	"family": {"name": "Familien gemeinsam", "comfort": 0, "share": 0.16, "wish": "Zusammenbleiben, kindgerechte Pisten, Essen und Wärme."}
+	"family": {"name": "Familien gemeinsam", "comfort": 0, "share": 0.16, "wish": "Eigene Wege, gemeinsame Treffpunkte, kindgerechte Pisten, Essen und Wärme."}
 }
 
 static func initial() -> Dictionary:
@@ -47,6 +47,7 @@ static func make_family(model: RefCounted, guest: Dictionary, count: int) -> voi
 
 static func comfort(guest: Dictionary) -> int:
 	var limit := mini(int(guest.ability), int(guest.get("agenda", {}).get("comfort", guest.ability)))
+	limit=mini(limit,int(guest.get("party_comfort",limit)))
 	for member in guest.get("family", []): limit = mini(limit, int(member.ability))
 	return limit
 

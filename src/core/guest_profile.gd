@@ -2,6 +2,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
+const Parties=preload("res://src/core/guest_parties.gd")
 const Agenda = preload("res://src/core/guest_agenda.gd")
 const HOMES := ["Hamburg", "München", "Wien", "Salzburg", "Innsbruck", "Stuttgart", "Bremen", "Berlin", "Graz", "Köln"]
 const MOTIVES := ["Den Winter genießen", "Neue Abfahrten entdecken", "Schöne Schwünge üben", "Aussicht und Hütteneinkehr", "Einen sportlichen Tag verbringen"]
@@ -30,7 +31,9 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	if kind == "ski" and Motion.hiking(guest.get("ski_motion",guest.route.legs[guest.leg].get("motion",[])),guest.elapsed/guest.duration):
 		activity = L.text("Stapft den Gegenanstieg hinauf")
 		climbing = true
-	if guest.phase == "queue":
+	if guest.phase=="waiting":
+		activity=L.text("Wartet am Treffpunkt auf seine Gruppe")
+	elif guest.phase == "queue":
 		activity = L.text("Wartet auf den Lift")
 	elif guest.get("heading_home", false):
 		activity = L.text("Auf dem Rückweg ins Tal")
@@ -70,4 +73,12 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 			for member in guest.family: detail += "\n" + L.text("%s · %d Jahre · Hunger %.0f %% · Wärme %.0f %%") % [member.name, member.years, member.needs.hunger, member.needs.warmth]
 		if score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
 			mood = "impatient"; emotion = L.text("Enttäuscht"); emoji = "😕"; reason = L.text("Mein Urlaub soll zu meinen Wünschen passen. Bisher fehlen mir passende Erlebnisse oder erreichbare Pausen.")
-	return {"name": guest.family[-1].name if guest.has("family") else Motion.name_for(id), "years": guest.family[-1].years if guest.has("family") else 18 + (id * 17) % 58, "home": HOMES[(id * 7) % HOMES.size()], "motive": motive, "agenda": detail, "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}
+	if guest.has("party_id"):
+		var party:=Parties.group(model,guest)
+		if not party.is_empty():
+			detail+="\n\n"+L.text("GEMEINSAM IM RESORT · %d Personen\nNächster Treffpunkt: %s · %02d:%02d") % [party.members.size(),L.asset_name(model.asset(int(party.venue))) if party.venue>0 else L.text("Talzugang"),int(party.meeting_at)%1440/60,int(party.meeting_at)%60]
+			for member in Parties.members(model,party):detail+="\n"+L.text("%s · %d Jahre") % [member.person_name,member.years]
+			if guest.has("guardian_id"):
+				var parent:=Parties.actor(model,int(guest.guardian_id))
+				if not parent.is_empty():detail+="\n"+L.text("Wird begleitet von %s") % parent.person_name
+	return {"name": guest.get("person_name",guest.family[-1].name if guest.has("family") else Motion.name_for(id)), "years": guest.get("years",guest.family[-1].years if guest.has("family") else 18 + (id * 17) % 58), "home": HOMES[(id * 7) % HOMES.size()], "motive": motive, "agenda": detail, "mood": mood, "emotion": emotion, "emoji": emoji, "reason": reason, "activity": activity, "energy": energy, "hunger": hunger, "warmth": warmth, "score": score, "sport": sport, "equipment": Motion.SPORT_NAMES[sport], "style": personal.name, "speed": personal.speed, "patience": patience, "spending": guest.get("spending", guest.get("ticket_paid", 0))}

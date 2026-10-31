@@ -2910,3 +2910,147 @@ msgstr "External links open Discord or GitHub, each with its own terms and priva
 
 msgid "Link konnte nicht geöffnet werden."
 msgstr "Could not open the link."
+
+msgid "Willkommen am Berg. Die Tage lassen dir mehr Zeit, die Gäste bewegen sich flotter. Mit 4× spulst du weiter vor. Tippe einen Gast zum Beobachten an."
+msgstr "Welcome to the mountain. Longer days give you more time, and guests move faster. Use 4× to fast-forward. Tap a guest to follow their day."
+
+msgid "Die Sicherung ist fehlgeschlagen. Die Karriere bleibt erhalten."
+msgstr "The backup failed. Your career has been preserved."
+
+msgid "Suche nach neuen Versionen auf GitHub …"
+msgstr "Checking GitHub for new versions …"
+
+msgid "Die Update-Prüfung war nicht möglich. Prüfe deine Internetverbindung und versuche es später erneut."
+msgstr "The update check could not be completed. Check your internet connection and try again later."
+
+msgid "Du hast die aktuelle veröffentlichte Version."
+msgstr "You have the current published version."
+
+msgid "Dieses Update konnte nicht geprüft werden. Bitte versuche es nach der nächsten Veröffentlichung erneut."
+msgstr "This update could not be verified. Please try again after the next release."
+
+msgid "Version %s ist verfügbar. Deine vier Karrieren und die anderen Spielstände bleiben erhalten."
+msgstr "Version %s is available. Your four careers and other saved games will be preserved."
+
+msgid "Der Download ist unvollständig oder beschädigt. Bitte lade das Update erneut herunter."
+msgstr "The download is incomplete or damaged. Please download the update again."
+
+msgid "Das Update passt nicht zu dieser Installation. Deine Spielstände bleiben erhalten. Installiere die App nicht neu."
+msgstr "This update does not match your installation. Your saved games are safe. Keep the existing app installed."
+
+msgid "Das Update ist geprüft und bereit. Vor der Installation wird dein aktuelles Resort gespeichert."
+msgstr "The update is verified and ready. Your current resort will be saved before installation."
+
+msgid "Update wird heruntergeladen …"
+msgstr "Downloading update …"
+
+msgid "Dein Resort konnte nicht gespeichert werden. Die Installation wurde angehalten."
+msgstr "Your resort could not be saved. Installation has been stopped."
+
+msgid "Erlaube Android einmalig, Updates aus SkiZones zu installieren. Kehre danach zurück und tippe erneut auf Installieren."
+msgstr "Allow Android to install updates from SkiZones once. Then return and tap Install again."
+
+msgid "Bestätige das Update im Android-Installationsfenster. Dein Fortschritt bleibt erhalten."
+msgstr "Confirm the update in the Android installer. Your progress will be preserved."
+
+msgid "Android konnte die Installation nicht öffnen. Du kannst sie später erneut starten."
+msgstr "Android could not open the installer. You can try again later."
+
+msgid "Den öffentlichen Zugang zur Kartengrenze freihalten."
+msgstr "Keep the public access road to the map edge clear."
+
+msgid "Für die Talstation fehlt ein sicherer Fußweg zum bestehenden Netz. Wähle einen näheren oder flacheren Standort."
+msgstr "No safe footpath connects this bottom station to the existing network. Choose a closer or gentler site."
+
+msgid " · Fußweg zur Talstation: %.0f m · %d €"
+msgstr " · Bottom station access: %.0f m · %d €"
+
+msgid "Zugang zur Talstation"
+msgstr "Bottom station access"
+
+msgid "Wartet am Treffpunkt auf seine Gruppe"
+msgstr "Waiting for the group at the meeting point"
+
+msgid "GEMEINSAM IM RESORT · %d Personen\nNächster Treffpunkt: %s · %02d:%02d"
+msgstr "TOGETHER AT THE RESORT · %d people\nNext meeting: %s · %02d:%02d"
+
+msgid "%s · %d Jahre"
+msgstr "%s · %d years old"
+
+msgid "Wird begleitet von %s"
+msgstr "Accompanied by %s"
+
+msgid "DEINE VIER KARRIEREN"
+msgstr "YOUR FOUR CAREERS"
+
+msgid "Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau und Szenarien behalten eigene Spielstände."
+msgstr "Four separate careers with their own resorts and unlocks. Free build and scenarios keep separate saves."
+
+msgid "Karriere neu beginnen?"
+msgstr "Start this career again?"
+
+msgid "Diese Karriere wird vor dem Neustart als Sicherung aufbewahrt. Die anderen drei Karrieren bleiben erhalten."
+msgstr "This career will be backed up before restarting. Your other three careers will be preserved."
+
+msgid "Sichern und neu beginnen"
+msgstr "Back up and start again"
+
+msgid "Karriere %d"
+msgstr "Career %d"
+
+msgid "%s · Tag %d · %d Sterne · %s €"
+msgstr "%s · Day %d · %d stars · %s €"
+
+msgid "Diese Karriere fortsetzen"
+msgstr "Continue this career"
+
+msgid "Neue Karriere auf diesem Platz"
+msgstr "New career in this slot"
+
+msgid "Freier Karriereplatz"
+msgstr "Empty career slot"
+
+msgid "Neue Karriere starten"
+msgstr "Start a new career"
+
+msgid "Karriere · vier Spielstände"
+msgstr "Career · four save slots"
+
+msgid "Updates · Spielstände behalten"
+msgstr "Updates · keep your progress"
+
+msgid "SKIZONES AKTUALISIEREN"
+msgstr "UPDATE SKIZONES"
+
+msgid "Updates kommen direkt aus dem SkiZones-Projekt auf GitHub. Deine Karrieren, Resorts und Einstellungen bleiben gespeichert."
+msgstr "Updates come directly from the SkiZones project on GitHub. Your careers, resorts and settings stay saved."
+
+msgid "Nach Updates suchen"
+msgstr "Check for updates"
+
+msgid "Veröffentlichungen auf GitHub ansehen"
+msgstr "View releases on GitHub"
+
+msgid "Android fragt vor der Installation nach deiner Bestätigung. Behalte die vorhandene App installiert, damit dein Fortschritt erhalten bleibt."
+msgstr "Android asks for confirmation before installation. Keep the existing app installed to preserve your progress."
+
+msgid "Installierte Version: %s"
+msgstr "Installed version: %s"
+
+msgid "Suche nach einer neuen Version, wenn du verbunden bist."
+msgstr "Check for a new version when you are online."
+
+msgid "Update herunterladen"
+msgstr "Download update"
+
+msgid "Installieren"
+msgstr "Install"
+
+msgid "Eigene Wege, gemeinsame Treffpunkte, kindgerechte Pisten, Essen und Wärme."
+msgstr "Individual routes, shared meeting points, child-friendly slopes, food and warmth."
+
+msgid "[b]BEOBACHTEN[/b]\nBei 1× dauert eine Spielstunde etwa zwölf Minuten. Die Tage sind sechsmal länger, die Bewegung entspricht dem bisherigen 4×-Tempo. 4× beschleunigt weiterhin den gesamten Betrieb. Leere Nächte werden automatisch bis zum Morgen vorgespult.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Kaufe Pistenraupen in einer Garage und stelle Fahrer ein. Präpariere leere Pisten einzeln oder automatisch in der Nacht. Die Dauer folgt der Streckenlänge; Schicht, Energie und Verschleiß bestimmen die Einsatzbereitschaft.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt acht Fantasiegebiete und ihre Freischaltziele. Unter ‚Szenarien‘ stehen vier reale Gebiete bereit. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license"
+msgstr "[b]WATCH[/b]\nAt 1×, one game hour takes about twelve minutes. Days last six times longer, and movement matches the former 4× speed. The 4× option still speeds up the whole resort. Empty nights automatically fast-forward until morning.\nTap a guest and choose ‘Follow this guest’. Dragging releases the camera. Use + to zoom in closely.\n\n[b]BUILD[/b]\nChoose runs, lifts or village services in the Build Catalogue. Locked and unaffordable facilities cannot be selected; their requirements are shown directly. Choose ‘Plan a run’, place waypoints from the mountain to the valley and confirm with Build. Colour follows the steepest section of the actual route; switchbacks can be gentler than a direct descent. The profile shows elevation loss and gradient. Drag numbered planning points with your finger or mouse. Tap to select a point for deletion. Small circles mark connections to existing runs. Start or end a new link there; colour, cost and profile update immediately. Round signs receive their colour and piste number automatically. Game limits: blue up to 30%, red up to 55%, black up to 110%. For lifts, place the lower station first, then the upper station.\n\n[b]CONNECTIONS[/b]\nBoth lift stations receive walkable plazas. Runs start and end on these plazas, clear of lift machinery. Small circles show connection points. Runs can also connect directly at waypoints. Connected buildings expand the pedestrian area with forecourts and visible paths. Guests walk to other lifts or building entrances. Guests need a complete suitable circuit from the valley entrance and back. Internal waypoints are connections too: build a red or black shortcut between the switchbacks of a blue run. Beginners stay on blue, intermediates can use red and experts can use black. Guests use only the necessary sections of connected runs. All runs share the actual capacity of their lift.\n\n[b]LIFTS AND GUESTS[/b]\nPlatter lifts are slower and limited to 700 m. Single, double and quad chairlifts are separate facilities; the 6-seat lift requires Lift Engineering, the 8-seat lift Alpine Masterclass. Gondolas carry eight guests.\nSkiers, snowboarders and snowbladers have their own equipment, riding postures and tracks. Their sport appears in their personal profile. Every rider is assigned a specific vehicle and seat. Skis remain on the ground on drag lifts. The visible queue follows arrival order. Waiting times and actual occupancy appear at the station and in the inspector.\nBuildings receive actual visits. Guests walk to the entrance and pause inside; service revenue is earned after the visit.\n\n[b]SNOW[/b]\nEvery guest leaves their own line. Skis compact tracks and push snow aside; uneven ground affects later rides. Runs are groomed overnight. With Snow Management and an open garage, you can groom a run during the day too. It closes to new routes for 45 game minutes.\n\n[b]NEW AREAS[/b]\nThe Mountain Pass under Areas shows four maps and their unlock targets. Stars, guests and contracts count across your resorts. Area changes save your progress; each resort keeps its own save. The small area map navigates to the tapped location. Overview shows the whole area; Valley returns to the entrance.\n\n[b]CAREER[/b]\nTime pauses in the Resort Office. Find contracts, research, upgrades and finances there. A winter has 28 operating days; your resort continues across multiple winters. Weather, wind, snow and prices affect operations.\n\n[b]CAMERA AND TERRAIN[/b]\nUnder Camera, choose Resort, Panorama, Building view or vertical Top-down; the viewing angle is adjustable. Terrain shows contours every 20 m, elevation labels every 100 m and downhill arrows. Ground colours show the slope of the terrain; piste colour follows the gradient of your route.\n\n[b]CONTROLS[/b]\nTap to place points or select facilities and guests. Drag a numbered marker to move that planning point; drag the open map to pan. Two fingers pan and zoom. Twist two fingers in opposite directions to rotate around the touched mountain point. Panning, rotation and zoom can be combined. On PC: mouse wheel zooms, Q/E rotates, C changes perspective, B plans a run, M opens the office, Tab enlarges the map, Space pauses, Ctrl+S saves. App suspension and day changes save your resort.\n\nGodot Engine · godotengine.org/license"
+
+msgid "Updates · %s verfügbar"
+msgstr "Updates · %s available"

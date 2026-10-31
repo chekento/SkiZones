@@ -87,6 +87,7 @@ static func admit_evening(model: RefCounted) -> bool:
 	model.report.guests += 1
 	model.audience.segments[guest.agenda.kind].visitors+=1
 	model._start_leg(guest)
+	model.Access.arrive(model,guest)
 	return true
 
 static func continuous(model: RefCounted) -> bool:
