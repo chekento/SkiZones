@@ -109,7 +109,8 @@ func run() -> void:
 	check(texts(menu).contains("BUILDING & TEAM") and texts(menu).contains("Operations") and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
 	menu.hide();game.paused=true
 	# This exercises the same strict handoff used on Android, with only the OS opener injected.
-	var updater: Node=game.updater;var version: String="0.19.0";var filename: String="SkiZones-"+version+"-android-arm64.apk"
+	# Simulate an installed 0.18 build: 0.19 cannot be an update to itself.
+	var updater: Node=game.updater;updater.installed_version="0.18.0";var version: String="0.19.0";var filename: String="SkiZones-"+version+"-android-arm64.apk"
 	var url: String=updater.Catalog.RELEASES+"/download/v"+version+"/"
 	updater.candidate={"version":version,"file_name":filename,"apk":url+filename,"manifest":url+"manifest.json","release":updater.Catalog.RELEASES+"/tag/v"+version}
 	updater.build={"sha256":"a".repeat(64),"size_bytes":33000000,"version_code":24,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
