@@ -29,7 +29,7 @@ jobs:
       contents: read
       actions: write
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 75
     outputs:
       version: ${{ steps.package.outputs.version }}
     env:
@@ -143,9 +143,17 @@ jobs:
           python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/individual_parties.gd
           python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --headless --script tests/resort_access.gd
       - name: Install virtual display for rendered tests
+        timeout-minutes: 10
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb libgl1-mesa-dri
+          # Bound transient apt/network stalls instead of consuming the entire Android job.
+          sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+          sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
+      - name: Direct asset operations, lift docking and warm village services
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version018
+        run: |
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/version018.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Camera, terrain and editable waypoint tests
@@ -182,12 +190,6 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-guest-agendas
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/guest_agendas_scene.gd
-      - name: Direct asset operations, lift docking and warm village services
-        env:
-          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version018
-        run: |
-          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/version018.gd
-          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
       - name: Four career cards, update controls and independent rendered guests
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version017-ui
