@@ -1117,7 +1117,7 @@ func _process(delta: float) -> void:
 			angle = Fleet.basis(model.asset(guest.route.legs[guest.leg].id)).get_euler().y
 			if _guest_positions.has(guest.id) and delta > 0:
 				position_value = _queue_step(guest.id, _guest_positions[guest.id], position_value, delta * 1.6 * motion_rate if motion_running else 0)
-		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
+		var color := Color("47b994") if guest.get("school_teacher",false) else Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
 		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
 		if guest.get("years",18)<16:transform_value.basis=transform_value.basis.scaled(Vector3.ONE*0.72)
 		var sport: String = guest.get("sport", "ski")
@@ -1129,7 +1129,7 @@ func _process(delta: float) -> void:
 			gear.set_instance_color(equipment_counts[equipment_key], color)
 			equipment_counts[equipment_key] += 1
 		if sport == "snowboard" and not on_foot and not hiking and not seated and not in_cabin:
-			transform_value.basis = transform_value.basis * Basis(Vector3.UP, PI * 0.5)
+			transform_value.basis = transform_value.basis * Basis(Vector3.UP, -PI * 0.5 if guest.get("life",{}).get("stance", "regular")=="goofy" else PI * 0.5)
 		if in_cabin:
 			_cabin_riders.multimesh.set_instance_transform(cabin_riding, transform_value)
 			_cabin_riders.multimesh.set_instance_color(cabin_riding,Color.WHITE)
@@ -1565,6 +1565,10 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
 	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
 	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
+	if model.life_enabled:
+		var style: Dictionary=model.Life.pose(guest,piste,fraction,Motion.hiking(guest.get("ski_motion",[]),elapsed/guest.duration))
+		frame.yaw+=style.yaw
+		frame.lean+=style.gesture
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
 	var before: Vector3 = ground_position(frame.before)

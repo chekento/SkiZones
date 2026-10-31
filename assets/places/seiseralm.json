@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "seiseralm",
+  "source": "OpenStreetMap",
+  "license": "ODbL-1.0",
+  "copyright": "© OpenStreetMap contributors",
+  "osm_timestamp": "2026-10-31T18:10:25Z",
+  "source_sha256": "e3857054f4bcd2ed5c91dd5c57d003ba0dc444bd5560b6390d4483ebc844fe63",
+  "projection_origin": [
+    46.539622097736256,
+    11.5637402
+  ],
+  "compression": "gzip",
+  "sha256": "bd3516eff08f7a448181b07fcecd6d7b789128ed61c9007f490d4058f8f747de",
+  "counts": {
+    "roads": 3978,
+    "buildings": 5547,
+    "pois": 612,
+    "stops": 315
+  }
+}

@@ -15,6 +15,8 @@ const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Access=preload("res://src/core/resort_access.gd")
+const Life=preload("res://src/core/guest_life.gd")
+const School=preload("res://src/core/ski_school.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
 const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
@@ -42,6 +44,9 @@ var motion_tick := 0
 var party_mode := false
 var portal_path: Array=[]
 var edge_entries := false
+var life_enabled := false
+var fresh_world := false
+var school_state: Dictionary = School.initial()
 var reputation := 48.0
 var ticket_price := 42
 var weather_index := 0
@@ -89,6 +94,7 @@ var _duty_cache: Dictionary = {}
 var _operating_signature := ""
 
 func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang") -> void:
+	life_enabled=false;fresh_world=true;school_state=School.initial()
 	operations = Ops.initial()
 	audience = Agenda.initial()
 	_audience_offer.clear()
@@ -1260,6 +1266,11 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var best_score := 0.0
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
+		if life_enabled and building.kind=="school":
+			if guest.needs.lesson:
+				var registration:=School.enrol_route(self,guest,source,building)
+				if not registration.is_empty():return registration
+			continue
 		var utility := Needs.utility(guest,building.kind)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
@@ -1275,6 +1286,9 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
 		var visit_minutes: float = maxf(480.0, 1920.0 - minute)*time_divisor if Ops.continuous(self) and building.kind == "hotel" else Needs.SERVICES[building.kind].minutes
+		if life_enabled and not night_activity and building.kind!="hotel":
+			var personal_minutes:=Life.visit_minutes(guest,building)
+			if personal_minutes>0:visit_minutes=personal_minutes*time_divisor
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
 			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
@@ -1391,7 +1405,9 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	Progression.on_admission(self, skill, ticket_price * count)
 	if party_mode and guest.has("family"):Parties.expand(self,guest)
 	for person in guests:
-		if int(person.id)==int(guest.id) or int(person.get("party_id",0))==int(guest.id):Access.arrive(self,person)
+		if int(person.id)==int(guest.id) or int(person.get("party_id",0))==int(guest.id):
+			if life_enabled:Life.ensure(person)
+			Access.arrive(self,person)
 	return true
 
 func _start_leg(guest: Dictionary) -> void:
@@ -1426,6 +1442,7 @@ func _finish_leg(guest: Dictionary) -> void:
 	if leg.kind == "lift": Agenda.record_lift(guest, int(leg.id))
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
+		if life_enabled and not guest.get("school_teacher",false):Life.descent(guest,int(leg.id))
 		Agenda.record_piste(guest, piste, leg)
 		var complete_descent: bool = leg.id == guest.route.target or (is_zero_approx(leg.get("start_fraction", 0.0)) and is_equal_approx(leg.get("end_fraction", 1.0), 1.0))
 		if not piste.is_empty():
@@ -1447,7 +1464,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			guest.pacing_runs=int(guest.get("pacing_runs",0))+int(guest.get("group_size",1))
 			campaign.xp += int(guest.pacing_runs)/time_divisor
 			guest.pacing_runs=int(guest.pacing_runs)%time_divisor
-	if leg.kind == "visit" and not leg.get("pause_only",false):
+	if leg.kind == "visit" and not leg.get("pause_only",false) and not guest.get("school_teacher",false):
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
@@ -1461,6 +1478,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			Needs.complete(guest,building.kind)
 			Agenda.record_service(self, guest, building.kind, revenue)
 			guest.spending = float(guest.get("spending", guest.get("ticket_paid", 0))) + revenue
+	if life_enabled and School.arrive(self,guest,leg):return
 	if guest.has("party_id") and leg.kind=="ski" and int(leg.id)==int(guest.route.target):
 		guest.last_piste=int(leg.id);guest.loops+=1
 	if party_mode and guest.has("family"):
@@ -1537,6 +1555,7 @@ func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
 			_start_leg(guest)
 
 func _depart(guest: Dictionary) -> void:
+	if guest.get("school_teacher",false):return
 	var satisfaction := Agenda.satisfaction(self, guest)
 	Agenda.feedback(self, guest, satisfaction)
 	report.satisfaction += satisfaction * int(guest.get("group_size", 1))
@@ -1710,6 +1729,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 				_finish_leg(guest)
 	for guest in departures:
 		guests.erase(guest)
+	if life_enabled:School.tick(self,clock_tick)
 	Parties.tick(self)
 	# Board the real vehicle that crossed the loading point, with unique seats.
 	for lift in lifts:
@@ -2098,7 +2118,7 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":16,"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":17,"life_enabled":life_enabled,"school_state":school_state.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -2170,7 +2190,7 @@ func restore(data: Dictionary) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path"]:
+	for key in ["life_enabled", "school_state", "map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
@@ -2182,16 +2202,19 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 17:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
 		return invalid
 	legacy_foot = bool(data.get("legacy_foot",false)) if data.version >= 9 else true
 	if data.version >= 9 and not data.get("legacy_foot") is bool: return invalid
+	life_enabled=bool(data.get("life_enabled",false))
+	if data.version>=17 and not data.get("life_enabled") is bool:return invalid
+	school_state=data.get("school_state",School.initial()).duplicate(true) if data.get("school_state",School.initial()) is Dictionary else {}
 	map_id = area
 	var generation_value: Variant = data.get("terrain_generation", 1) if data.version >= 13 else 1
-	if not Terrain.number(generation_value) or (generation_value != 1 and generation_value != 2): return invalid
+	if not Terrain.number(generation_value) or (generation_value != 1 and generation_value != 2 and generation_value != 3): return invalid
 	terrain_generation = int(generation_value)
 	terrain = Mountain.new(map_id, terrain_generation)
 	var journey_scale: Variant = data.get("journey_scale", 30.0)
@@ -2403,6 +2426,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		if data.version >= 10 and visitor.get("sport") not in Motion.SPORTS:
 			return invalid
 		if data.version >= 11 and not Needs.valid(visitor): return invalid
+		if visitor.has("life") and not Life.valid(visitor):return invalid
+		if visitor.has("lesson_course") and (not Terrain.number(visitor.lesson_course) or visitor.lesson_course<1 or visitor.lesson_course!=floorf(visitor.lesson_course)):return invalid
+		if visitor.has("school_teacher") and not visitor.school_teacher is bool:return invalid
 		if not Agenda.valid_guest(visitor, next_id): return invalid
 		visitor.sport = visitor.get("sport", "ski") if data.version >= 10 else "ski"
 		visitor_ids.append(visitor.id)
@@ -2501,6 +2527,10 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	rng.state = int(data.rng_state)
 	if not Progression.restore(self, data.get("campaign")):
 		return invalid
+	if not School.valid(self,school_state):return invalid
+	if life_enabled:
+		for guest in guests:
+			if guest.has("lesson_course") and School.course(self,int(guest.lesson_course)).is_empty():return invalid
 	return _result(true, L.text("Spielstand geprüft."))
 
 func preview_change(id: int, points: Array, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
@@ -2542,3 +2572,11 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+
+func enable_life_rules() -> void:
+	life_enabled=true
+	for guest in guests:Life.ensure(guest)
+	for person in operations.staff:
+		if person.role=="hotel" and str(person.assignment).begins_with("building:") and asset(str(person.assignment).get_slice(":",1).to_int()).get("kind")=="school":
+			person.role="instructor";person.wage=Ops.ROLES.instructor.wage
+	_duty_cache.clear()

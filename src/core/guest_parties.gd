@@ -14,11 +14,12 @@ static func group(model: RefCounted,guest: Dictionary) -> Dictionary:
 		if int(party.id)==int(guest.get("party_id",0)):return party
 	return {}
 static func members(model: RefCounted,party: Dictionary) -> Array:
-	return model.guests.filter(func(g):return int(g.get("party_id",0))==int(party.id) and g.phase!="leaving")
+	return model.guests.filter(func(g):return int(g.get("party_id",0))==int(party.id) and g.phase!="leaving" and int(g.get("lesson_course",0))==0)
 static func cell(model: RefCounted,guest: Dictionary) -> Array:
 	var guardian: int=int(guest.get("guardian_id",guest.id))
 	return model.guests.filter(func(g):return int(g.get("party_id",0))==int(guest.get("party_id",-1)) and (int(g.id)==guardian or int(g.get("guardian_id",0))==guardian) and g.phase!="leaving")
 static func care_guest(model: RefCounted,guest: Dictionary) -> Dictionary:
+	if int(guest.get("lesson_course",0))>0:return guest
 	if not guest.has("party_id"):return guest
 	var copy:=guest.duplicate(true)
 	var care:=cell(model,guest)
@@ -63,6 +64,7 @@ static func expand(model: RefCounted,root: Dictionary,node: String="base") -> vo
 			if int(child.id)==int(parent.id):continue
 			child.party_comfort=parent.party_comfort;child.route=parent.route.duplicate(true);child.leg=int(parent.leg);model._start_leg(child)
 static func pace(model: RefCounted,guest: Dictionary) -> float:
+	if int(guest.get("lesson_course",0))>0:return 1.0
 	if not guest.has("party_id") or guest.phase!="moving":return 1.0
 	var leg: Dictionary=guest.route.legs[int(guest.leg)]
 	if leg.kind not in ["walk","ski"]:return 1.0
@@ -70,6 +72,7 @@ static func pace(model: RefCounted,guest: Dictionary) -> float:
 	var position: Vector3=model.guest_position(guest)
 	var next: Vector3=model.guest_position(guest,1.0,true)
 	for other in cell(model,guest):
+		if int(other.get("lesson_course",0))>0:continue
 		if int(other.id)==int(guest.id) or other.phase!="moving":continue
 		if guest.has("guardian_id") and int(other.id)!=int(guest.guardian_id):continue
 		if not guest.has("guardian_id") and not other.has("guardian_id"):continue
@@ -107,6 +110,7 @@ static func _select_meeting(model: RefCounted,party: Dictionary) -> void:
 		for leg in outward.legs:distance+=float(leg.minutes)
 		if distance<best:best=distance;party.node=door;party.venue=int(building.id)
 static func arrive(model: RefCounted,guest: Dictionary,leg: Dictionary) -> bool:
+	if int(guest.get("lesson_course",0))>0:return false
 	if not guest.has("party_id"):return false
 	var party:=group(model,guest)
 	if party.is_empty():return false

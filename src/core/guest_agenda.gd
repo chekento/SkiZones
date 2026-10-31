@@ -100,6 +100,7 @@ static func route_weight(model: RefCounted, guest: Dictionary, route: Dictionary
 	elif agenda.kind == "expert": weight = 7.0 if black else 0.12
 	elif agenda.kind in ["mixed", "alpine"]: weight += minf(2, fresh_pistes.size()) * 0.7
 	elif agenda.kind == "family": weight = 1.5 if model.asset(int(route.get("target", 0))).get("difficulty", 0) == 0 else 0.8
+	if model.life_enabled:weight*=model.Life.route_weight(guest,int(route.get("target",0)))
 	return weight
 
 static func park_utility(guest: Dictionary) -> float:

@@ -220,7 +220,7 @@ def main():
 
         update_request(dict(action="prepare"))
         state = wait_for(lambda s: s.get("update_test") == "prepared", seconds=180)
-        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == 23, state
+        assert state["slot"] == 3 and state["money"] == 244563 and state["installed_code"] == 24, state
         save_folder = health_path.rsplit("/", 1)[0]
         saved_files = [f"career_{slot}_{name}.json" for slot in range(1, 5)
                        for name in ("sonnenhang", "passport", "index")]
@@ -240,7 +240,7 @@ def main():
         assert "android.permission.REQUEST_INSTALL_PACKAGES" not in package_info, "The app still requests installation privileges"
         update_request(dict(action="open-browser", sha256=digest, size=len(candidate)))
         state = wait_for(lambda s: s.get("update_test") == "browser_opened")
-        assert state["update_url"] == "https://github.com/chekento/SkiZones/releases/tag/v0.19.0", state
+        assert state["update_url"] == "https://github.com/chekento/SkiZones/releases/tag/v0.20.0", state
         deadline = time.monotonic() + 40
         while time.monotonic() < deadline:
             activities = adb("shell", "dumpsys", "activity", "activities").decode()
@@ -253,7 +253,7 @@ def main():
         (args.output / "github-browser-handoff.png").write_bytes(adb("exec-out", "screencap", "-p"))
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
-        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 24)
         capture("browser-return-four-careers", state)
         assert before_files == {name: saved_hash(name) for name in saved_files}, "Browser handoff changed a career"
         adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
@@ -262,21 +262,21 @@ def main():
         rejected = subprocess.run(["adb", "install", "-r", str(args.wrong_signer_apk.resolve())], capture_output=True, timeout=120)
         assert rejected.returncode != 0 and b"INSTALL_FAILED_UPDATE_INCOMPATIBLE" in rejected.stdout + rejected.stderr, rejected.stdout + rejected.stderr
         launch()
-        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 24)
         capture("system-rejects-different-signer", state)
         corrupt = args.output / "corrupt-test.apk"
         corrupt.write_bytes(candidate[:100000])
         rejected = subprocess.run(["adb", "install", "-r", str(corrupt)], capture_output=True, timeout=120)
         assert rejected.returncode != 0 and any(reason in rejected.stdout + rejected.stderr for reason in [b"INSTALL_FAILED_INVALID_APK", b"INSTALL_PARSE_FAILED"]), rejected.stdout + rejected.stderr
         launch()
-        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 24)
         capture("system-rejects-corruption", state)
         assert before_files == {name: saved_hash(name) for name in saved_files}, "Rejected replacement changed a career"
         adb("install", "-r", str(args.update_apk.resolve()), timeout=120)
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
-        state = wait_for(lambda s: s.get("installed_code") == 24 and s.get("frames", 0) >= 5, seconds=180)
-        assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
+        state = wait_for(lambda s: s.get("installed_code") == 25 and s.get("frames", 0) >= 5, seconds=180)
+        assert state["slot"] == 3 and state["money"] == 244563 and state["day"] == 13 and state["paused"], state
         after_files = {name: saved_hash(name) for name in saved_files}
         assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"
         capture("updated-four-careers-restored", state)

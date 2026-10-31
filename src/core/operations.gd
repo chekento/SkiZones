@@ -9,6 +9,7 @@ const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ROLES := {
+	"instructor": {"name":"Skilehrer","wage":26.0},
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
 	"electrician": {"name": "Elektrik", "wage": 26.0},
@@ -247,7 +248,8 @@ static func building_roles(kind: String) -> Array:
 		"disco": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
 		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school": return ["hotel"]
+		"rental": return ["hotel"]
+		"school": return ["instructor"]
 	return []
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:

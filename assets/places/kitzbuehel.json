@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "kitzbuehel",
+  "source": "OpenStreetMap",
+  "license": "ODbL-1.0",
+  "copyright": "© OpenStreetMap contributors",
+  "osm_timestamp": "2026-10-31T18:06:23Z",
+  "source_sha256": "8d24fabb70f5e4e6cbdbdb7ea2aec7b2c5cc553016d8efabb2692bbbfd7b8188",
+  "projection_origin": [
+    47.44264669773626,
+    12.3893632
+  ],
+  "compression": "gzip",
+  "sha256": "29aa66abd7389ab265678429ae6662a288fd77136d93415b331b58dfd485b50b",
+  "counts": {
+    "roads": 10297,
+    "buildings": 21163,
+    "pois": 542,
+    "stops": 183
+  }
+}

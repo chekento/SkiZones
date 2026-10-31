@@ -243,7 +243,7 @@ jobs:
       - name: Export x86-64 Android lifecycle test app
         run: python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
       - name: Export signed in-place update fixture
-        run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 24 --output build/android/SkiZones-update-x86_64.apk
+        run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 25 --output build/android/SkiZones-update-x86_64.apk
       - name: Prepare incompatible-signature rejection fixture
         run: |
           "$JAVA_HOME/bin/keytool" -genkeypair -noprompt -keystore build/android/wrong-signer-test.keystore -alias fixture -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 7 -dname 'CN=SkiZones Rejection Test'

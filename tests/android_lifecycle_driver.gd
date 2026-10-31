@@ -118,11 +118,11 @@ func _prepare_update_test() -> void:
 
 func _open_update_test(request: Dictionary) -> void:
 	var updater: Node=game.updater
-	var version: String="0.19.0"
+	var version: String="0.20.0"
 	var filename: String="SkiZones-%s-android-arm64.apk"%version
 	var root: String=updater.Catalog.RELEASES+"/download/v"+version+"/"
 	updater.candidate={"version":version,"file_name":filename,"apk":root+filename,"manifest":root+"manifest.json","release":updater.Catalog.RELEASES+"/tag/v"+version}
-	updater.build={"sha256":str(request.sha256),"size_bytes":int(request.size),"version_code":24,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
+	updater.build={"sha256":str(request.sha256),"size_bytes":int(request.size),"version_code":25,"version":version,"file_name":filename,"package":updater.Catalog.PACKAGE,"architecture":"arm64-v8a"}
 	updater._set_status("available","")
 	updater.open_download()
 	update_test_state="browser_"+updater.state;write_health()

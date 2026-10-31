@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "filzmoos",
+  "source": "OpenStreetMap",
+  "license": "ODbL-1.0",
+  "copyright": "© OpenStreetMap contributors",
+  "osm_timestamp": "2026-10-31T18:06:23Z",
+  "source_sha256": "a4727f7da118654f62e743b8750aa5b18f237c3a17714598456f5dc678ff3331",
+  "projection_origin": [
+    47.43144539773626,
+    13.5211698
+  ],
+  "compression": "gzip",
+  "sha256": "f6c39e6ad2e3b6139985328001af4d1b023770cf1a98c423079b937d95815c92",
+  "counts": {
+    "roads": 1176,
+    "buildings": 1075,
+    "pois": 75,
+    "stops": 20
+  }
+}

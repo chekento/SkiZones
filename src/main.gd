@@ -162,6 +162,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 		model.new_game(starter, 20261027, area)
 	if not Ops.active(model): Ops.enable(model)
 	model.enable_runtime_rules()
+	model.enable_life_rules()
 	hud.scenarios.hide()
 	passport.record(model)
 	has_game = true
@@ -195,6 +196,7 @@ func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
 		if result.ok:
 			if not Ops.active(candidate): Ops.enable(candidate)
 			candidate.enable_runtime_rules()
+			candidate.enable_life_rules()
 			Ops.refresh_duty(candidate)
 			candidate._operating_signature = Ops.signature(candidate)
 			for skill in [0, 1, 2]:

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "braunlage",
+  "source": "OpenStreetMap",
+  "license": "ODbL-1.0",
+  "copyright": "© OpenStreetMap contributors",
+  "osm_timestamp": "2026-10-31T18:03:17Z",
+  "source_sha256": "ac522678b6f21b6060c60b444e7eee796f44762a33a87a799394f4e480b27b5a",
+  "projection_origin": [
+    51.731311997736256,
+    10.6128964
+  ],
+  "compression": "gzip",
+  "sha256": "8a9b1f3cfeff8fd7f1fc9762cde040ba74bb18b08fb233c1fe8bfd6892170409",
+  "counts": {
+    "roads": 1445,
+    "buildings": 1672,
+    "pois": 204,
+    "stops": 18
+  }
+}
