@@ -16,6 +16,7 @@ Ab Version 0.17 prüft SkiZones beim App-Start nach neuen GitHub-Veröffentlichu
 2. SkiZones prüft Version, Paket, Dateigröße, Prüfsumme und die Android-Signatur der vorhandenen Installation.
 3. **Installieren** speichert das aktuelle Resort. Falls Android danach fragt, erlaube einmalig Installationen aus SkiZones und kehre zur App zurück.
 4. Bestätige **Aktualisieren** im Android-Installationsfenster. Das Update ersetzt die vorhandene App und behält deren Daten.
+5. Starte danach über **Öffnen** oder das App-Symbol weiter. Das zuletzt aktive Resort wird wiederhergestellt.
 
 Android kann SkiZones bei einer geänderten Installationsfreigabe neu starten. Das bereits geprüfte Update bleibt gespeichert; nach der Rückkehr kannst du die Installation fortsetzen, ohne erneut herunterzuladen.
 

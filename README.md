@@ -79,7 +79,7 @@ Für **20 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
-## Neu in 0.17.0 · Vier Karrieren und Updates ohne Neustart
+## Neu in 0.17.0 · Vier Karrieren und Updates mit erhaltenen Spielständen
 
 **Vier eigene Karrieren, einzeln bewegte Familien und mehr Zeit am Berg.** Im Hauptmenü wählst du einen der vier Speicherplätze. Freier Aufbau und Szenarien behalten zusätzliche Speicherstände.
 
@@ -91,6 +91,8 @@ Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschrän
 | **Ankunft und Liftwege** | Gäste betreten und verlassen alle zwölf Karten am Rand. Neue Lifte bekommen einen tatsächlichen, mitberechneten Fußweg zum vorhandenen Netz. |
 
 **Die vorhandene App installiert lassen:** Für den Wechsel von 0.16 auf 0.17 die neue APK als Aktualisierung installieren. Danach stehen integrierte Updates für folgende Versionen bereit.
+
+**1.343 Modell-/Grafikprüfungen und 57 Android-Emulatorfälle bestanden.** Alle vier Karrieren bleiben beim geprüften Android-Update erhalten.
 
 [Änderungen in 0.17.0](docs/releases/0.17.0.md) · [Spielstände und Updates](docs/UPDATES_UND_SPIELSTAENDE.md) · [Gäste verstehen](docs/GAESTE_UND_URLAUB.md) · [Prüfnachweis](docs/VALIDATION.md)
 

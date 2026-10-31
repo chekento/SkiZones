@@ -1,12 +1,23 @@
 # Prüfung von SkiZones 0.17.0
 
-Die vollständige Veröffentlichung wird derzeit geprüft. Der öffentliche Download bleibt bis zum erfolgreichen Abschluss bei 0.16.0.
+**Modell und Grafik: 1.343 Prüfungen in 43 Suiten bestanden. Android: 57 echte Activity-/Oberflächenfälle bestanden — 28 unter Android 11 (API 30), 29 unter Android 16 (API 36).** Signatur-, Archiv- und Updateprüfungen sind erfolgreich abgeschlossen.
 
-Neue Modellprüfungen: vier Karrieren und Migration (29), GitHub-Angebote und Manifestvalidierung und Wiederaufnahme (27), längere Tage und Nachtbesuche (17), einzelne Familienmitglieder mit Betreuung, Treffen und Heimkehr (24), Kartenzugänge und automatische Liftwege und Umbauten (54). Neue gerenderte Prüfungen: Karriereauswahl (16), Personenprofile und Updatebedienung (11).
+Geprüfter APK-Quellcode: `0494168070ccb92b1ffee65dfbc21f2cfd844b6c`.
+[Vollständiger Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41199054373) mit Godot 4.5.2, Android-Versionscode 22 und Spielstandformat 15. Der Sprachkatalog umfasst **1.019** geprüfte Einträge.
 
-Alle zwölf Zugänge wurden zusätzlich auf begehbares Gefälle und freie Wege um Gebäude und Lifttechnik geprüft. Die geänderte Android-Java-Erweiterung wurde bereits im CI-Build erfolgreich kompiliert. Der vollständige Android-Installer-Wechsel und der Abschlusslauf stehen noch aus.
+Die neuen Modellprüfungen umfassen vier Karrieren und kopierende Migration (29), GitHub-Angebote, Manifestvalidierung und Wiederaufnahme (27), längere Tage und Nachtbesuche (17), einzelne Familienmitglieder mit Betreuung, Treffen und Heimkehr (24) sowie Kartenzugänge, automatische Liftwege und Umbauten (54). Neue gerenderte Prüfungen kontrollieren Karriereauswahl (16), Personenprofile und Updatebedienung (11). Alle bisherigen Modell- und Grafikprüfungen bleiben erfolgreich, einschließlich stabiler voller Kartenfläche, präziser Planungspunkte, vier durchgehender Szenariokarten und direkter Liftbesetzung.
 
-Godot 4.5.2 · Android-Versionscode 22 · Spielstandformat 15. Der öffentliche ARM64-Export enthält keinen Emulator-Testtreiber. Ein physisches Smartphone wurde nicht geprüft.
+Auf beiden Android-Versionen installiert der tatsächliche Android-App-Installer eine gleich signierte Test-APK mit höherem Versionscode **23** über die vorhandene Installation mit Code **22**. Danach startet das Spiel wieder in Karriere 3 mit unverändertem Tag 13 und Budget 234.563 €. Die Hashwerte aller vier Karriere-Spielstände und ihrer Freischaltungsdateien stimmen vor und nach der Installation überein. Auch der Inhaltsvergleich der Karriereindizes ist identisch; nur der Zeitstempel der letzten Speicherung wird bei diesem Indexvergleich ausgenommen.
+
+Beschädigte Downloads, falsche Versionsangaben und eine fremde Android-Signatur werden abgewiesen. Die echte Android-Seite für die Installationsfreigabe, die Rückkehr zum Spiel sowie die Wiederaufnahme des bereits geprüften Updates nach einem Prozessneustart sind erfolgreich geprüft. Die Signatur der öffentlichen ARM64-APK stimmt außerdem mit der vorherigen öffentlichen Version **0.16.0** überein.
+
+Der erste Updateablauf ließ den System-Installer im Task des Spiels. Beim Ersetzen der App konnte dessen verwaister Fensterstapel den Neustart verhindern. Die Android-Erweiterung öffnet Installationsfreigabe und Installer jetzt in einem eigenen System-Task. Der Test öffnet die neue App über „Öffnen“, wenn Android diesen Knopf anbietet, andernfalls über die Launcher-Aktion vom Home-Bildschirm. Auf beiden Wegen wird eine tatsächlich aktive Spiel-Activity verlangt. Der vollständige neue Lauf besteht auf beiden APIs. Die Prüfungen auf sichtbare Spielbilder, echte Versionsänderung, unveränderte Dateien und fehlerfreie App-Protokolle bleiben aktiv.
+
+Der öffentliche GitHub-Download wurde nach der Veröffentlichung erneut heruntergeladen und gegen Manifest, Prüfsumme, Architektur und gebündelte Kartenzugänge geprüft. Der tatsächliche Update-Katalog des Spiels akzeptiert das öffentliche Angebot und Manifest für 0.16 und bietet 0.17 auf einer bereits aktuellen Installation nicht erneut an.
+
+Alle zwölf Kartenzugänge sind auf begehbares Gefälle und freie Wege um Gebäude und Lifttechnik geprüft. Der öffentliche ARM64-Export enthält keinen Emulator-Testtreiber. Ein physisches Smartphone wurde nicht geprüft.
+
+Veröffentlicht: [APK und Prüfsumme](https://github.com/chekento/SkiZones/releases/tag/v0.17.0), ARM64, **33.433.833 Bytes**. SHA-256: `059713697b600b32cf7bd73f04046d634065ec3789377e59524b2f9c8e49c9a3`.
 
 # Vorheriger Veröffentlichungsstand 0.16.0
 

@@ -47,7 +47,7 @@ adb install -r build/android/SkiZones-debug.apk
 
 Eine lokal erzeugte APK und eine CI-APK können unterschiedliche Debug-Signaturen haben. Android erlaubt dann kein Update über die bestehende Installation. Vor einer Deinstallation beachten: Die lokalen Spielstände werden dabei normalerweise gelöscht. Den bisherigen Debug-Schlüssel für weitere lokale Builds aufbewahren.
 
-Die App benötigt keinen Account und keine Internet-, Mikrofon-, Kamera- oder allgemeinen Speicherberechtigungen. Spielstände liegen im privaten App-Verzeichnis.
+Das Spiel benötigt keinen Account und ist offline spielbar. Die Internetberechtigung dient der optionalen GitHub-Updateprüfung und dem APK-Download. Mikrofon-, Kamera- oder allgemeine Speicherberechtigungen werden nicht benötigt. Spielstände liegen im privaten App-Verzeichnis. Für Updates bestätigt der Spieler Androids separate Installationsfreigabe und den System-Installer.
 
 ## Noch ausstehende Geräteprüfung
 
