@@ -64,7 +64,7 @@ func _completed(result: int, code: int, _headers: PackedStringArray, body: Packe
 		_set_status("available","Version %s ist verfügbar. Deine vier Karrieren und die anderen Spielstände bleiben erhalten.",[candidate.version])
 func open_download() -> void:
 	if state not in ["available","opened"]:return
-	if Catalog.manifest(build,candidate,installed_code).is_empty() or candidate.get("release", "")!=Catalog.RELEASES+"/tag/v"+str(candidate.get("version", "")):
+	if Catalog.pending({"version":1,"candidate":candidate,"build":build},installed_version,installed_code).is_empty():
 		_set_status("error","Dieses Update konnte nicht geprüft werden. Bitte versuche es nach der nächsten Veröffentlichung erneut.");return
 	if game.has_game:
 		if not game.save_game():

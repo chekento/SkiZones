@@ -69,10 +69,12 @@ use this same preparation. The Android test still requires all four camera modes
 to finish a genuine swipe within the existing target-position tolerance.
 
 
-## Signed in-place updater (0.17)
+## Browser updates and own version information (0.18)
 
-`UpdateBridge.java` and `UpdateFileProvider.java` are app-owned additions compiled alongside the two reviewed Godot Java patches. Only the app-private `cache/skizones-update/` directory is exposed through the non-exported FileProvider with temporary read grants. Internet and `REQUEST_INSTALL_PACKAGES` enable the explicit download/installation flow; no storage or uninstall permission is requested.
+`AppInfoBridge.java` reads only this app's installed version/code and removes the retired updater's exact cache file. It does not download APKs, request installation privileges or launch an installer. The old `UpdateBridge.java`, APK `UpdateFileProvider.java`, provider declaration/XML and `REQUEST_INSTALL_PACKAGES` permission have been removed. The Godot JNI remains unchanged.
 
-The bridge checks the exact cache path, file size, SHA-256, package, higher Android version code and equality of the installed APK signing certificates. It then opens the per-source installation permission or Android installer. GDScript saves the active resort and session before handoff. All JNI libraries remain unchanged. The build verifies its signer against the preceding public APK; Android CI exercises an actual higher-code installer update with four persisted careers and rejects a separately re-signed fixture.
+GDScript accepts this project's exact GitHub release/manifest URLs, saves the active resort and session, and asks the OS to open that release in a browser. Browser and Android own downloading and installation. The package and existing signing identity remain unchanged so in-place updates preserve saved careers.
 
-References: [Android FileProvider](https://developer.android.com/reference/androidx/core/content/FileProvider), [PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager), [Godot JavaClassWrapper and AndroidRuntime](https://docs.godotengine.org/en/4.5/tutorials/platform/android/javaclasswrapper_and_androidruntimeplugin.html).
+The public APK uses release export without debuggability. `tools/verify_apk_security.py` checks its actual binary manifest, declared permissions, ZIP integrity and absence of the retired installer classes. Signature continuity with the preceding public APK is checked separately. Private emulator fixtures remain debuggable for `run-as` test access and are never published as the ARM64 download.
+
+Android CI exercises a real browser/chooser handoff and return, rejects corrupted and foreign-signature replacement APKs through the Android package manager, and replaces a valid higher-code test APK while comparing all four career files. These checks do not establish a Google Play Protect clearance. See [reported warning and review status](../../docs/PLAY_PROTECT.md).

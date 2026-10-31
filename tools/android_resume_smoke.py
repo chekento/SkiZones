@@ -208,8 +208,8 @@ def main():
                          and s.get("scenario") == "ready" and s.get("frames", 0) >= 5, seconds=180)
         assert state["paused"] and state["guests"] == before["guests"] and state["staff"] == before["staff"]
         capture("restored-real-wurmberg", state)
-        # Install a newer APK via the same app bridge and Android installer
-        # used by GitHub updates. Four careers must survive byte-for-byte.
+        # Exercise the real browser handoff, then Android package replacement.
+        # Four careers must survive both operations byte-for-byte.
         update_request_path = health_path.rsplit("/", 1)[0] + "/update-ci.json"
         request_file = args.output / "update-request.json"
 
@@ -220,7 +220,7 @@ def main():
 
         update_request(dict(action="prepare"))
         state = wait_for(lambda s: s.get("update_test") == "prepared", seconds=180)
-        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == 22, state
+        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == 23, state
         save_folder = health_path.rsplit("/", 1)[0]
         saved_files = [f"career_{slot}_{name}.json" for slot in range(1, 5)
                        for name in ("sonnenhang", "passport", "index")]
@@ -236,117 +236,46 @@ def main():
         capture("four-careers-before-update", state)
         candidate = args.update_apk.read_bytes()
         digest = hashlib.sha256(candidate).hexdigest()
-        adb("push", str(args.update_apk.resolve()), "/data/local/tmp/skizones-update.apk", timeout=90)
-        # The bridge exposes only this private cache subdirectory to Android.
-        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update.apk", state["update_path"])
-        # A wrong checksum must be rejected before any Android installation.
-        update_request(dict(action="install-bad", sha256="0" * 64, size=len(candidate), code=23))
-        state = wait_for(lambda s: s.get("update_test") == "rejected")
-        assert state["update_validation"] == "hash" and state["installed_code"] == 22, state
-        capture("update-rejects-corruption", state)
-        update_request(dict(action="install-old-code", sha256=digest, size=len(candidate), code=22))
-        state = wait_for(lambda s: s.get("update_test") == "rejected" and s.get("update_validation") == "version")
-        capture("update-rejects-version-mismatch", state)
-        wrong = args.wrong_signer_apk.read_bytes()
-        adb("push", str(args.wrong_signer_apk.resolve()), "/data/local/tmp/skizones-wrong.apk", timeout=90)
-        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-wrong.apk", state["update_path"])
-        update_request(dict(action="install-wrong-signer", sha256=hashlib.sha256(wrong).hexdigest(), size=len(wrong), code=23))
-        state = wait_for(lambda s: s.get("update_test") == "rejected" and s.get("update_validation") == "signature")
-        capture("update-rejects-different-signer", state)
-        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update.apk", state["update_path"])
-        adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
-        adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "deny")
-        # Android may kill the process when this app-op changes.
-        launch()
-        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 22)
-        update_request(dict(action="install-permission", sha256=digest, size=len(candidate), code=23))
-        state = wait_for(lambda s: s.get("update_test") == "installer_permission")
-        # Observe Android's actual per-source permission page before returning.
-        deadline = time.monotonic() + 30
+        package_info = adb("shell", "dumpsys", "package", PACKAGE).decode()
+        assert "android.permission.REQUEST_INSTALL_PACKAGES" not in package_info, "The app still requests installation privileges"
+        update_request(dict(action="open-browser", sha256=digest, size=len(candidate)))
+        state = wait_for(lambda s: s.get("update_test") == "browser_opened")
+        assert state["update_url"] == "https://github.com/chekento/SkiZones/releases/tag/v0.19.0", state
+        deadline = time.monotonic() + 40
         while time.monotonic() < deadline:
             activities = adb("shell", "dumpsys", "activity", "activities").decode()
-            if any("settings" in line.lower() and ("mResumedActivity" in line or "topResumedActivity" in line)
-                   for line in activities.splitlines()):
+            resumed = [line.lower() for line in activities.splitlines() if "mResumedActivity" in line or "topResumedActivity" in line]
+            if any(any(word in line for word in ["chrome", "browser", "resolveractivity"]) for line in resumed):
                 break
             time.sleep(0.5)
         else:
-            raise AssertionError("The update permission page did not open")
-        (args.output / "update-source-permission.png").write_bytes(adb("exec-out", "screencap", "-p"))
-        adb("shell", "input", "keyevent", "KEYCODE_BACK")
+            raise AssertionError("The official release link did not open a browser or Android browser chooser")
+        (args.output / "github-browser-handoff.png").write_bytes(adb("exec-out", "screencap", "-p"))
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
-        state = wait_for(lambda s: not s["background"] and s["slot"] == 3)
-        capture("update-permission-return", state)
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 23)
+        capture("browser-return-four-careers", state)
+        assert before_files == {name: saved_hash(name) for name in saved_files}, "Browser handoff changed a career"
         adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
-        adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "allow")
-        adb("shell", "am", "force-stop", PACKAGE)
-        # A saved receipt restores the ready update after process recreation.
+        # Installation is owned by Android, outside SkiZones. These rejection
+        # fixtures verify data preservation; they are not a Play Protect verdict.
+        rejected = subprocess.run(["adb", "install", "-r", str(args.wrong_signer_apk.resolve())], capture_output=True, timeout=120)
+        assert rejected.returncode != 0 and b"INSTALL_FAILED_UPDATE_INCOMPATIBLE" in rejected.stdout + rejected.stderr, rejected.stdout + rejected.stderr
         launch()
-        state = wait_for(lambda s: not s["background"] and s.get("updater_state") == "ready" and s["slot"] == 3)
-        assert state["money"] == 234563 and state["installed_code"] == 22, state
-        capture("update-staged-restart", state)
-        update_request(dict(action="install-valid", sha256=digest, size=len(candidate), code=23))
-        state = wait_for(lambda s: s.get("update_validation") == "ok")
-        # Confirm the real system installer, using its exposed UI nodes rather
-        # than guessed screen coordinates. The helper itself never taps this.
-        deadline = time.monotonic() + 60
-        tapped = False
-        while time.monotonic() < deadline:
-            try:
-                adb("shell", "uiautomator", "dump", "/data/local/tmp/skizones-installer.xml", timeout=12)
-                xml = ET.fromstring(adb("shell", "cat", "/data/local/tmp/skizones-installer.xml"))
-                for node in xml.iter("node"):
-                    label = node.attrib.get("text", "").lower()
-                    if node.attrib.get("enabled") == "true" and label in {"update", "install", "aktualisieren", "installieren"}:
-                        import re
-                        left, top, right, bottom = map(int, re.findall(r"\d+", node.attrib["bounds"]))
-                        adb("shell", "input", "tap", str((left + right) // 2), str((top + bottom) // 2))
-                        tapped = True
-                        break
-                if tapped:
-                    break
-            except (subprocess.SubprocessError, ET.ParseError):
-                pass
-            time.sleep(0.5)
-        assert tapped, "The real Android update installer did not expose its confirmation"
-        (args.output / "update-installer.xml").write_bytes(adb("shell", "cat", "/data/local/tmp/skizones-installer.xml"))
-        (args.output / "update-installer.png").write_bytes(adb("exec-out", "screencap", "-p"))
-        deadline = time.monotonic() + 90
-        while time.monotonic() < deadline:
-            package_info = adb("shell", "dumpsys", "package", PACKAGE).decode()
-            if "versionCode=23 " in package_info:
-                break
-            time.sleep(0.5)
-        assert "versionCode=23 " in package_info, "Android did not install the verified update in place"
-        # The installer kills the replaced process itself. Android 11 exposes
-        # Open; newer installers can close their result screen instead. Use
-        # Open when offered and otherwise launch from Home, as a player does.
-        (args.output / "after-install-activities.txt").write_bytes(adb("shell", "dumpsys", "activity", "activities"))
-        (args.output / "after-install-package.txt").write_text(package_info)
-        deadline = time.monotonic() + 20
-        opened = False
-        while time.monotonic() < deadline:
-            try:
-                adb("shell", "uiautomator", "dump", "/data/local/tmp/skizones-installed.xml", timeout=12)
-                complete = adb("shell", "cat", "/data/local/tmp/skizones-installed.xml")
-                xml = ET.fromstring(complete)
-                for node in xml.iter("node"):
-                    if node.attrib.get("enabled") == "true" and node.attrib.get("text", "").lower() in {"open", "öffnen"}:
-                        import re
-                        left, top, right, bottom = map(int, re.findall(r"\d+", node.attrib["bounds"]))
-                        (args.output / "update-install-complete.xml").write_bytes(complete)
-                        (args.output / "update-install-complete.png").write_bytes(adb("exec-out", "screencap", "-p"))
-                        adb("shell", "input", "tap", str((left + right) // 2), str((top + bottom) // 2))
-                        opened = True
-                        break
-                if opened:
-                    break
-            except (subprocess.SubprocessError, ET.ParseError):
-                pass
-            time.sleep(0.5)
-        if not opened:
-            adb("shell", "input", "keyevent", "KEYCODE_HOME")
-            launch()
-        state = wait_for(lambda s: s.get("installed_code") == 23 and s.get("frames", 0) >= 5, seconds=180)
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        capture("system-rejects-different-signer", state)
+        corrupt = args.output / "corrupt-test.apk"
+        corrupt.write_bytes(candidate[:100000])
+        rejected = subprocess.run(["adb", "install", "-r", str(corrupt)], capture_output=True, timeout=120)
+        assert rejected.returncode != 0 and any(reason in rejected.stdout + rejected.stderr for reason in [b"INSTALL_FAILED_INVALID_APK", b"INSTALL_PARSE_FAILED"]), rejected.stdout + rejected.stderr
+        launch()
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        capture("system-rejects-corruption", state)
+        assert before_files == {name: saved_hash(name) for name in saved_files}, "Rejected replacement changed a career"
+        adb("install", "-r", str(args.update_apk.resolve()), timeout=120)
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
+        launch()
+        state = wait_for(lambda s: s.get("installed_code") == 24 and s.get("frames", 0) >= 5, seconds=180)
         assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
         after_files = {name: saved_hash(name) for name in saved_files}
         assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"

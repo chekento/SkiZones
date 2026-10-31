@@ -180,6 +180,12 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-guest-agendas
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/guest_agendas_scene.gd
+      - name: Direct asset operations, lift docking and warm village services
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version018
+        run: |
+          python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/version018.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
       - name: Four career cards, update controls and independent rendered guests
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version017-ui
@@ -218,6 +224,8 @@ jobs:
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones.apk
           unzip -t build/android/SkiZones.apk | tail -1
+      - name: Verify minimal permissions and retired installer removal
+        run: python3 tools/verify_apk_security.py build/android/SkiZones.apk
       - name: Verify update signing continuity with the public APK
         env:
           GH_TOKEN: ${{ github.token }}

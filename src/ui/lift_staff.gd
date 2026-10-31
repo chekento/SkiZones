@@ -13,11 +13,14 @@ var stations: GridContainer
 var tabs: TabContainer
 var cards: Array = []
 var feedback: Label
+var expanded: Dictionary = {}
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	offset_left=42;offset_right=-42;offset_top=116;offset_bottom=-24
 	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),18,20))
+	get_viewport().size_changed.connect(func():
+		if is_instance_valid(stations):stations.columns=_columns())
 	body=hud._vbox(self,10)
 	var header:=HBoxContainer.new();body.add_child(header)
 	title=hud._label(header,L.text("ANLAGE & BETRIEB"),24,hud.ACCENT)
@@ -26,7 +29,15 @@ func setup(interface: CanvasLayer) -> void:
 	summary=hud._label(body,"",19,hud.INK,true)
 	feedback=hud._label(body,"",16,hud.TEAL,true)
 	tabs=TabContainer.new();tabs.size_flags_vertical=Control.SIZE_EXPAND_FILL
-	tabs.add_theme_font_size_override("font_size",19);body.add_child(tabs)
+	tabs.add_theme_font_size_override("font_size",19)
+	tabs.add_theme_stylebox_override("panel",hud._style(Color("f5f5ed"),10,8))
+	for control in [tabs,tabs.get_tab_bar()]:
+		control.add_theme_stylebox_override("tab_selected",hud._style(Color("d3e7dc"),7,13))
+		control.add_theme_stylebox_override("tab_unselected",hud._style(Color("edf3ec"),7,13))
+		control.add_theme_stylebox_override("tab_hovered",hud._style(Color("e2eee6"),7,13))
+		control.add_theme_color_override("font_selected_color",hud.ACCENT)
+		control.add_theme_color_override("font_unselected_color",hud.MUTED)
+	body.add_child(tabs)
 	hud._label(body,L.text("Nach dem Schließen läuft die Zeit weiter. Reparaturen und Einsätze brauchen Arbeitszeit."),15,hud.MUTED,true)
 	hide()
 func _page(caption: String) -> VBoxContainer:
@@ -42,7 +53,7 @@ func _card(parent: Node, caption: String, note: String="") -> VBoxContainer:
 	if note!="":hud._label(box,note,16,hud.MUTED,true)
 	return box
 func _button(parent: Node, caption: String, callback: Callable, enabled: bool=true) -> Button:
-	var button: Button=hud._button(parent,caption,func():action(callback),true)
+	var button: Button=hud._button(parent,caption,func():action(callback))
 	button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;button.disabled=not enabled
 	return button
 func _choice(parent: Node, labels: Array) -> OptionButton:
@@ -51,7 +62,9 @@ func _choice(parent: Node, labels: Array) -> OptionButton:
 	for caption in labels:choice.add_item(caption)
 	parent.add_child(choice);return choice
 func open(id: int) -> void:
-	hud.game._clear_input();lift_id=id;feedback.text="";rebuild()
+	hud.game._clear_input()
+	if lift_id != id: expanded.clear()
+	lift_id=id;feedback.text="";rebuild()
 	tabs.current_tab=1 if hud.game.model.asset(id).has("bottom") else 0
 	show()
 func action(callback: Callable) -> void:
@@ -159,8 +172,18 @@ func _parts(parent: Node) -> void:
 	var box:=_card(parent,L.text("Ersatzteile"),L.text("Resortbestand: %d Ersatzteilpakete") % int(model.operations.parts))
 	if model.operations.delivery_at>=0:hud._label(box,L.text("Ersatzteillieferung in %d Minuten") % maxi(0,int(model.operations.delivery_at)-Ops.clock(model)),16)
 	_button(box,L.text("6 Ersatzteilpakete bestellen · 1.800 €"),func():return Ops.order_parts(model),model.operations.delivery_at<0 and model.money>=1800)
+func _columns() -> int:
+	return 3 if get_window().size.x >= 1250 else 2 if get_window().size.x >= 1100 else 1
+func _team_details(parent: Node, key: String) -> VBoxContainer:
+	var details: VBoxContainer=hud._vbox(parent,8)
+	var toggle: Button=hud._button(parent,L.text("Team & Schichten anzeigen"),func():
+		details.visible=not details.visible
+		expanded[key]=details.visible)
+	parent.move_child(toggle,parent.get_child_count()-2)
+	details.visible=expanded.get(key,false)
+	return details
 func _grid(parent: Node) -> void:
-	stations=GridContainer.new();stations.columns=2 if get_viewport_rect().size.x>=1100 else 1
+	stations=GridContainer.new();stations.columns=_columns()
 	stations.size_flags_horizontal=Control.SIZE_EXPAND_FILL;stations.add_theme_constant_override("h_separation",14);stations.add_theme_constant_override("v_separation",14);parent.add_child(stations)
 func _lift_people(parent: Node, item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
@@ -176,8 +199,9 @@ func _lift_people(parent: Node, item: Dictionary) -> void:
 		var hire:=_button(box,"",func():return Ops.fill_line_station(model,lift_id,row.key))
 		cards.append({"key":row.key,"status":status,"hire":hire})
 		if row.people.is_empty():hud._label(box,L.text("Noch niemand eingeplant."),16,hud.ACCENT,true)
-		_people(box,row.people,row.key)
-		_reserve(box,"operator",row.key,"day")
+		var details:=_team_details(box,row.key)
+		_people(details,row.people,row.key)
+		_reserve(details,"operator",row.key,"day")
 func _building_people(parent: Node, item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
 	var rows:=Ops.building_team(model,item)
@@ -191,8 +215,9 @@ func _building_people(parent: Node, item: Dictionary) -> void:
 		var box:=_card(stations,L.text(Ops.ROLES[row.role].name)+" · "+L.text(Ops.SHIFT_NAMES[row.shift]))
 		hud._label(box,L.text("%d / %d eingeplant · %d im Dienst") % [row.planned,row.minimum,row.present],17,hud.TEAL,true)
 		_button(box,L.text("%d fehlende Person(en) einstellen · %d €") % [row.missing,row.missing*180],func():return _fill_role(row.role,row.shift),row.missing>0 and model.money>=row.missing*180)
-		_people(box,row.people,row.key)
-		_reserve(box,row.role,row.key,row.shift)
+		var details:=_team_details(box,row.key+":"+row.role+":"+row.shift)
+		_people(details,row.people,row.key)
+		_reserve(details,row.role,row.key,row.shift)
 		for person in row.people:shown.append(person.id)
 	var others: Array=model.operations.staff.filter(func(p):return p.assignment=="building:%d" % lift_id and not shown.has(p.id))
 	if not others.is_empty():_people(_card(parent,L.text("Weitere Zuweisungen")),others,"building:%d" % lift_id)

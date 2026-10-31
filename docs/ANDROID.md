@@ -1,18 +1,18 @@
-# Android: Testversion bauen und installieren
+# Android: GitHub-Version bauen und installieren
 
 ## Grundlage
 
-Das Projekt ist auf **Godot 4.5.2 Standard**, GDScript und den **Compatibility-Renderer** festgelegt. Die Test-APK enthält ausschließlich **arm64-v8a** und hat die Paketkennung `cloud.kosch.skizones`. Die Oberfläche läuft im Querformat.
+Das Projekt ist auf **Godot 4.5.2 Standard**, GDScript und den **Compatibility-Renderer** festgelegt. Die öffentliche Release-APK enthält ausschließlich **arm64-v8a** und hat die Paketkennung `cloud.kosch.skizones`. Die Oberfläche läuft im Querformat.
 
 Der Export verwendet das passende offizielle Godot-Android-Source-Template über Gradle. Die Vorbereitung korrigiert gezielt die Java-Anzeigefläche und die Behandlung von System-Overlays; die offiziellen nativen Bibliotheken bleiben erhalten. Compile-SDK 36, Ziel-SDK 35 und Mindest-SDK 24 sind festgelegt. Der Android-Quellbuild wird automatisch unter `android/build/` vorbereitet.
 
 ## GitHub Actions
 
-Der Workflow **Validate and build Android** läuft bei Änderungen an `main`, bei Pull Requests und auf manuellen Start. Er importiert das Projekt, führt Simulations-, Karriere-, Schnee-, Gebiets-, Szenen- und Touch-Tests einschließlich eines Zwei-Winter-Laufs, fester Liftplätze, Stationsplätze, Gebäudebesuche alter Spielstände sowie Bauabbruch, Zwei-Finger-Kamera und Finger-/Stift-Scrollen aus. Die Szenen-, Animations- und Sitzplatzprüfungen verwenden Xvfb mit aktiver Compatibility-Grafikausgabe; echte Gebietswechsel laufen mit isolierten Spielständen. Danach exportiert er die APK und prüft ihre Signatur und ZIP-Struktur. Ein separater x86-64-Testexport läuft zusätzlich in Android-11- und Android-16-Emulatoren. Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart müssen sichtbare Spielbilder sowie erhaltene Gäste und Betriebszeit liefern. Die Veröffentlichung wartet auf beide Emulator-Jobs. Das Ergebnis steht als **SkiZones-Android-debug** im jeweiligen Workflow-Lauf bereit.
+Der Workflow **Validate and build Android** läuft bei Änderungen an `main`, bei Pull Requests und auf manuellen Start. Er importiert das Projekt, führt Simulations-, Karriere-, Schnee-, Gebiets-, Szenen- und Touch-Tests einschließlich eines Zwei-Winter-Laufs, fester Liftplätze, Stationsplätze, Gebäudebesuche alter Spielstände sowie Bauabbruch, Zwei-Finger-Kamera und Finger-/Stift-Scrollen aus. Die Szenen-, Animations- und Sitzplatzprüfungen verwenden Xvfb mit aktiver Compatibility-Grafikausgabe; echte Gebietswechsel laufen mit isolierten Spielständen. Danach exportiert er die APK und prüft ihre Signatur und ZIP-Struktur. Ein separater x86-64-Testexport läuft zusätzlich in Android-11- und Android-16-Emulatoren. Home-/Rückkehrzyklen, Bildschirm aus/an und Prozessneustart müssen sichtbare Spielbilder sowie erhaltene Gäste und Betriebszeit liefern. Die Veröffentlichung wartet auf beide Emulator-Jobs. Das Ergebnis steht als **SkiZones-Android-release** im jeweiligen Workflow-Lauf bereit.
 
 Bei einem erfolgreichen Lauf auf `main` veröffentlicht der anschließende Job eine neue Versionsnummer als GitHub-Preview-Release. Die APK heißt `SkiZones-<Version>-android-arm64.apk`. Prüfsumme und `manifest.json` werden beigefügt. Der direkte Download steht oben in der README. Veröffentlichte Versionen werden nicht nachträglich überschrieben. Eine neue Fassung benötigt passende neue Versionsnummern in Projekt und Export-Preset, einen höheren Android-Versionscode und zugehörige Notizen unter `docs/releases/`.
 
-Die CI erstellt einen Debug-Schlüssel und erhält ihn über den Actions-Cache. Solange dieser Cache erhalten bleibt, können CI-Testversionen mit derselben Signatur aktualisiert werden. Der Schlüssel ist ausschließlich für Tests bestimmt. Er wird nicht ins Repository geschrieben. APK-Artefakte bleiben 30 Tage verfügbar und können erneut gebaut werden.
+Die CI behält die bereits verwendete Signatur über den Actions-Cache bei. Der öffentliche Download wird ab 0.18 ohne Debuggerfreigabe als Release exportiert. Bei fehlender Signaturkontinuität wird die Veröffentlichung angehalten. Solange dieser Cache erhalten bleibt, können CI-Testversionen mit derselben Signatur aktualisiert werden. Der Schlüssel ist ausschließlich für Tests bestimmt. Er wird nicht ins Repository geschrieben. APK-Artefakte bleiben 30 Tage verfügbar und können erneut gebaut werden.
 
 ## Lokal unter Linux bauen
 
@@ -28,6 +28,7 @@ export JAVA_HOME=/pfad/zum/jdk-17
 export ANDROID_HOME=/pfad/zum/android-sdk
 export GODOT_BIN=/pfad/zu/godot
 python3 tools/export_android.py
+python3 tools/verify_apk_security.py build/android/SkiZones.apk
 python3 tools/package_android.py
 ```
 
@@ -39,15 +40,15 @@ Die native Android-Vorbereitung ist für Linux und GitHub Actions vorgesehen. Un
 
 ## Installieren
 
-Die Datei `build/android/SkiZones-debug.apk` auf das Gerät kopieren und öffnen oder mit Android Platform-Tools installieren:
+Die Datei `build/android/SkiZones.apk` auf das Gerät kopieren und öffnen oder mit Android Platform-Tools installieren:
 
 ```bash
-adb install -r build/android/SkiZones-debug.apk
+adb install -r build/android/SkiZones.apk
 ```
 
 Eine lokal erzeugte APK und eine CI-APK können unterschiedliche Debug-Signaturen haben. Android erlaubt dann kein Update über die bestehende Installation. Vor einer Deinstallation beachten: Die lokalen Spielstände werden dabei normalerweise gelöscht. Den bisherigen Debug-Schlüssel für weitere lokale Builds aufbewahren.
 
-Das Spiel benötigt keinen Account und ist offline spielbar. Die Internetberechtigung dient der optionalen GitHub-Updateprüfung und dem APK-Download. Mikrofon-, Kamera- oder allgemeine Speicherberechtigungen werden nicht benötigt. Spielstände liegen im privaten App-Verzeichnis. Für Updates bestätigt der Spieler Androids separate Installationsfreigabe und den System-Installer.
+Das Spiel benötigt keinen Account und ist offline spielbar. Die Internetberechtigung dient der optionalen GitHub-Versions- und Manifestprüfung. Download und Installation übernimmt ab 0.18 der Browser mit Android. Mikrofon-, Kamera- oder allgemeine Speicherberechtigungen werden nicht benötigt. Spielstände liegen im privaten App-Verzeichnis. SkiZones fordert keine eigene Installationsberechtigung an. Die tatsächliche Release-APK wird auf minimale Berechtigungen, fehlende Installerklassen und deaktivierte Debuggerfreigabe geprüft. [Play-Protect-Status](PLAY_PROTECT.md).
 
 ## Noch ausstehende Geräteprüfung
 
@@ -61,7 +62,7 @@ Die automatisierten Eingabetests ersetzen diese Geräteprüfung nicht.
 
 ## Vor einer Veröffentlichung
 
-Separaten Release-Keystore verwalten, Versionscodes erhöhen, Gradle/AAB und aktuelle Store-Anforderungen prüfen, Datenschutz- und Store-Angaben erstellen, Lizenzen erfassen und die Geräteprüfung abschließen. Das bestehende Debug-Preset erstellt keine Store-Veröffentlichung.
+Separaten Release-Keystore verwalten, Versionscodes erhöhen, Gradle/AAB und aktuelle Store-Anforderungen prüfen, Datenschutz- und Store-Angaben erstellen, Lizenzen erfassen und die Geräteprüfung abschließen. Der GitHub-Release verwendet zur Updatekompatibilität weiterhin die bestehende CI-Signatur; er ist keine Play-Store-Veröffentlichung.
 
 Offizielle Referenz: [Godot 4.5 – Exporting for Android](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_android.html).
 

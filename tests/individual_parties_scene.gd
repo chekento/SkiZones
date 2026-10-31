@@ -36,14 +36,14 @@ func run() -> void:
 	game.updater._set_status("available",game.L.text("Version %s ist verfügbar. Deine vier Karrieren und die anderen Spielstände bleiben erhalten.")%"0.18.0")
 	game.hud.update_dialog.open();await process_frame
 	check(game.hud.update_dialog.visible and game.hud.blocks_map(Vector2(700,400)) and not game.simulation_running(),"The update panel pauses the resort and blocks map gestures")
-	check(game.hud.update_dialog.action.visible and game.hud.update_dialog.action.text=="Update herunterladen","A verified available version exposes one clear download action")
+	check(game.hud.update_dialog.action.visible and game.hud.update_dialog.action.text=="GitHub-Download im Browser öffnen","A verified available version exposes one clear download action")
 	var old_tool: String=game.tool;var key:=InputEventKey.new();key.pressed=true;key.keycode=KEY_B;game._input(key)
 	check(game.tool==old_tool,"Construction shortcuts cannot operate beneath the update panel")
 	await capture("github-updates-0170")
 	key.keycode=KEY_ESCAPE;game._input(key)
 	check(not game.hud.update_dialog.visible,"Escape returns from the updater to the resort")
 	game.apply_language("en");game.hud.update_dialog.open();await process_frame
-	check(texts(game.hud.update_dialog).contains("UPDATE SKIZONES") and texts(game.hud.update_dialog).contains("Download update"),"The career update controls have a complete English interface")
+	check(texts(game.hud.update_dialog).contains("UPDATE SKIZONES") and texts(game.hud.update_dialog).contains("Open GitHub download in browser"),"The career update controls have a complete English interface")
 	root.size=Vector2i(960,540)
 	for frame in range(4):await process_frame
 	check(root.get_visible_rect().encloses(game.hud.update_dialog.get_global_rect()),"The update panel remains contained and scrollable on small landscape screens")

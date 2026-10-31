@@ -3060,3 +3060,186 @@ msgstr "Keep the built footpath clear. Place the facility beside the path."
 
 msgid "Das Update konnte nicht zwischengespeichert werden. Bitte gib Speicher frei und versuche es erneut."
 msgstr "The update could not be staged. Free some storage and try again."
+
+msgid "ANLAGE & BETRIEB"
+msgstr "ASSET & OPERATIONS"
+
+msgid "Zurück zur Anlage"
+msgstr "Back to asset"
+
+msgid "Nach dem Schließen läuft die Zeit weiter. Reparaturen und Einsätze brauchen Arbeitszeit."
+msgstr "Time resumes after closing this window. Repairs and callouts take working time."
+
+msgid "Betriebsfreigabe aktualisiert."
+msgstr "Operating permission updated."
+
+msgid "Anlage abbauen?"
+msgstr "Demolish asset?"
+
+msgid "Beim Abbau erhältst du 25 % der Investition zurück."
+msgstr "Demolishing returns 25 % of the investment."
+
+msgid "LIFTBETRIEB & STATIONEN"
+msgstr "LIFT OPERATIONS & STATIONS"
+
+msgid "GEBÄUDE & TEAM"
+msgstr "BUILDING & TEAM"
+
+msgid "In diesem Spielstand wird der Betrieb ohne einzelne Mitarbeiter simuliert."
+msgstr "This save simulates operations without individual employees."
+
+msgid "Gestalten"
+msgstr "Design"
+
+msgid "Name, Farbe und Standort direkt an dieser Anlage ändern."
+msgstr "Change the name, colour and location directly at this asset."
+
+msgid "Betrieb, Team und Gestaltung dieser Anlage."
+msgstr "Operations, team and design for this asset."
+
+msgid "Liftverbund schließen"
+msgstr "Close lift line"
+
+msgid "Liftverbund öffnen"
+msgstr "Open lift line"
+
+msgid "%.0f %% Verschleiß · %d Wartende"
+msgstr "%.0f %% wear · %d waiting"
+
+msgid "Abschnitt schließen"
+msgstr "Close section"
+
+msgid "Abschnitt öffnen"
+msgstr "Open section"
+
+msgid "Besuche & Betriebskosten"
+msgstr "Visits & operating costs"
+
+msgid "%d €/Tag · %d Besuche · %s € Besuchserlöse"
+msgstr "%d €/day · %d visits · %s € visit revenue"
+
+msgid "%d / %d Plätze belegt"
+msgstr "%d / %d places occupied"
+
+msgid "Von dieser Werkstatt reparieren · 900 € + Ersatzteil"
+msgstr "Repair from this workshop · 900 € + spare part"
+
+msgid "Fahrzeuge & Präparierung"
+msgstr "Vehicles & grooming"
+
+msgid "Von hier Rettung entsenden"
+msgstr "Dispatch rescue from here"
+
+msgid "Zimmerpreis für alle Hotels"
+msgstr "Room price for all hotels"
+
+msgid "Resortbestand: %d Ersatzteilpakete"
+msgstr "Resort stock: %d spare-part packages"
+
+msgid "Alle Stationen besetzen · %d Personen · %d €"
+msgstr "Staff all stations · %d people · %d €"
+
+msgid "Gemeinsame Mittelstationen teilen sich ein Team. Pausen ändern den Dienststatus, nicht die geplante Besetzung."
+msgstr "Shared middle stations use one team. Breaks change attendance while preserving planned posts."
+
+msgid "Diese Anlage benötigt kein eigenes Personal."
+msgstr "This asset does not need its own staff."
+
+msgid "Alle Schichten besetzen · %d Personen · %d €"
+msgstr "Staff all shifts · %d people · %d €"
+
+msgid "%d / %d eingeplant · %d im Dienst"
+msgstr "%d / %d scheduled · %d on duty"
+
+msgid "Weitere Zuweisungen"
+msgstr "Other assignments"
+
+msgid "In die Reserve versetzen"
+msgstr "Move to reserve"
+
+msgid "Reserve diesem Gebäude zuweisen · kostenlos"
+msgstr "Assign reserve to this building · free"
+
+msgid "%s · %d / %d im Dienst · %d / %d Abschnitte in Betrieb"
+msgstr "%s · %d / %d on duty · %d / %d sections operating"
+
+msgid "Betrieb & Gebäudeteam"
+msgstr "Operations & building team"
+
+msgid "SkiZones prüft nur die Versionsinformationen. Download und Installation erfolgen über deinen Browser und Android. Die vorhandene App installiert lassen, damit dein Fortschritt erhalten bleibt."
+msgstr "SkiZones only checks version information. Your browser and Android handle downloading and installation. Keep the existing app installed to preserve your progress."
+
+msgid "GitHub-Download im Browser öffnen"
+msgstr "Open GitHub download in browser"
+
+msgid "Reparatur möglich · 900 € und ein Ersatzteilpaket"
+msgstr "Repair available · 900 € and one spare-part package"
+
+msgid "Mittelstation %d"
+msgstr "Middle station %d"
+
+msgid "Alle Stationen dieses Liftverbunds sind eingeplant."
+msgstr "All stations on this lift line are scheduled."
+
+msgid "Stationen zu nah: %.0f m geplant, mindestens %.0f m für %s nötig."
+msgstr "Stations too close: %.0f m planned; at least %.0f m required for %s."
+
+msgid "Lift zu lang: %.0f m geplant, höchstens %.0f m für %s möglich."
+msgstr "Lift too long: %.0f m planned; at most %.0f m possible for %s."
+
+msgid " · Höhengewinn: %.0f m"
+msgstr " · Height gain: %.0f m"
+
+msgid " · Tal und Berg automatisch zugeordnet"
+msgstr " · Valley and summit assigned automatically"
+
+msgid "Neben dem Stationsplatz · eigener Liftzugang"
+msgstr "Beside the station forecourt · separate lift access"
+
+msgid "Kakaoladen"
+msgstr "Hot chocolate shop"
+
+msgid "Kaiserschmarrn-Laden"
+msgstr "Kaiserschmarrn shop"
+
+msgid "Heiße Schokolade wärmt kalte Gäste. Ein günstiger Einstieg mit kurzen Pausen und Gastronomiepersonal."
+msgstr "Hot chocolate warms cold guests. An affordable starting service with short breaks and catering staff."
+
+msgid "Warmer Kaiserschmarrn stillt den Hunger und bietet Familien Platz für eine gemeinsame Pause."
+msgstr "Warm Kaiserschmarrn satisfies hunger and gives families a place to take a break together."
+
+msgid "Pizzeria"
+msgstr "Pizzeria"
+
+msgid "Sättigende Pizza und längere Mittagspausen. Benötigt Gastronomiepersonal und einen erreichbaren Eingang."
+msgstr "Filling pizza and longer lunch breaks. Requires catering staff and an accessible entrance."
+
+msgid "Abendbetrieb von 18 bis 06 Uhr. Benötigt Gastronomiepersonal und Sicherheit."
+msgstr "Night operation from 18:00 to 06:00. Requires catering and security staff."
+
+msgid "Verpflegung & Wärme"
+msgstr "Food & warmth"
+
+msgid "Betrieb & Sicherheit"
+msgstr "Operations & safety"
+
+msgid "Service & Anreise"
+msgstr "Services & arrivals"
+
+msgid "Freizeit & Erholung"
+msgstr "Leisure & relaxation"
+
+msgid "Dein Resort konnte nicht gespeichert werden. Der Download wurde noch nicht geöffnet."
+msgstr "Your resort could not be saved. The download has not been opened yet."
+
+msgid "Der Browser konnte nicht geöffnet werden. Versuche es später erneut."
+msgstr "The browser could not be opened. Try again later."
+
+msgid "GitHub wurde geöffnet. Lade dort die APK herunter und installiere sie über die vorhandene App. Danach über das App-Symbol weiterspielen."
+msgstr "GitHub has opened. Download the APK there and install it over the existing app. Then resume using the app icon."
+
+msgid "Technische Störung · Reparatur und Evakuierung im Anlagenmenü öffnen."
+msgstr "Technical fault · open repairs and evacuation in the asset menu."
+
+msgid "Team & Schichten anzeigen"
+msgstr "Show team & shifts"

@@ -708,7 +708,7 @@ func lift_running(lift: Dictionary) -> bool:
 
 func lift_status(lift: Dictionary) -> String:
 	if Ops.active(self):
-		if lift.get("fault", "") != "": return L.text("Technische Störung · Reparatur oder Evakuierung im Betriebsbüro organisieren.")
+		if lift.get("fault", "") != "": return L.text("Technische Störung · Reparatur und Evakuierung im Anlagenmenü öffnen.")
 		var crew := Ops.staffing(self, lift)
 		if not crew.ok: return L.text("Personal fehlt · %d / %d Stationsplätze besetzt.") % [crew.present, crew.needed]
 		if minute < 480 or minute >= 1020: return L.text("Außerhalb der Liftöffnungszeit · 08–17 Uhr.")

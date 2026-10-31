@@ -12,19 +12,19 @@ Beim ersten Start mit Version 0.17 werden die bisherigen Spielstände kopiert: d
 
 Ab Version 0.17 prüft SkiZones beim App-Start nach neuen GitHub-Veröffentlichungen, frühestens sechs Stunden nach der letzten automatischen Prüfung. **Updates · Spielstände behalten** im Hauptmenü öffnet die manuelle Prüfung. Ein verfügbares Angebot wird direkt am Menüknopf angezeigt. Ohne Internet kannst du normal weiterspielen und später erneut prüfen.
 
-1. **Update herunterladen** lädt die passende Android-ARM64-Datei direkt aus dem SkiZones-GitHub-Release.
-2. SkiZones prüft Version, Paket, Dateigröße, Prüfsumme und die Android-Signatur der vorhandenen Installation.
-3. **Installieren** speichert das aktuelle Resort. Falls Android danach fragt, erlaube einmalig Installationen aus SkiZones und kehre zur App zurück.
-4. Bestätige **Aktualisieren** im Android-Installationsfenster. Das Update ersetzt die vorhandene App und behält deren Daten.
-5. Starte danach über **Öffnen** oder das App-Symbol weiter. Das zuletzt aktive Resort wird wiederhergestellt.
+1. SkiZones prüft öffentliche GitHub-Veröffentlichungen und das zugehörige Manifest auf Version, Paket, ARM64-Architektur und gültige Größen-/Prüfsummenangaben.
+2. **GitHub-Download im Browser öffnen** speichert das aktuelle Resort und den Sitzungspunkt, bevor die offizielle Veröffentlichung geöffnet wird.
+3. Lade dort die APK herunter. Browser und Android übernehmen Download und Installationsbestätigung. SkiZones benötigt dafür keine eigene Installationsberechtigung mehr.
+4. Installiere die APK **über die vorhandene App**. Android prüft die passende Signatur und den höheren Versionscode und behält bei einer Aktualisierung die privaten App-Dateien.
+5. Starte danach über das App-Symbol weiter. Das zuletzt aktive Resort wird wiederhergestellt.
 
-Android kann SkiZones bei einer geänderten Installationsfreigabe neu starten. Das bereits geprüfte Update bleibt gespeichert; nach der Rückkehr kannst du die Installation fortsetzen, ohne erneut herunterzuladen.
+**Die vorhandene App installiert lassen.** „Deinstallieren“ oder „App-Daten löschen“ entfernt normalerweise die lokal gespeicherten Karrieren und gehört nicht zum Updateablauf. Auch der Wechsel von 0.17 auf 0.18 kann direkt mit der GitHub-APK erfolgen.
 
-**Die vorhandene App installiert lassen.** Für den ersten Wechsel von 0.16 auf 0.17 die neue APK herunterladen und über die vorhandene App installieren. Die integrierte Prüfung steht danach für folgende Versionen bereit. „Deinstallieren“ oder „App-Daten löschen“ entfernt die lokal gespeicherten Karrieren und gehört nicht zum Updateablauf.
+Ab 0.18 enthält SkiZones keinen APK-Downloader, keinen eigenen Installer und keinen APK-FileProvider. Alte Update-Zwischendateien werden bereinigt; Karrieren und Einstellungen bleiben erhalten. Eine Installationsfreigabe für SkiZones selbst ist nicht erforderlich. Die Updateprüfung funktioniert weiterhin automatisch alle sechs Stunden und manuell im Menü. Ohne Internet kannst du normal weiterspielen.
 
-Android verlangt eine passende Signatur. Eine separat selbst erstellte oder anders signierte APK wird deshalb abgewiesen; SkiZones löscht dafür keine Spielstände. Zusätzlich vergleicht der Veröffentlichungsbuild seine Signatur mit der vorherigen öffentlichen APK und hält bei einer abweichenden Identität an.
+Eine separat selbst erstellte oder anders signierte APK kann die vorhandene Installation nicht aktualisieren. Der Veröffentlichungsbuild vergleicht seine Signatur deshalb zusätzlich mit der vorherigen öffentlichen APK und hält bei einer abweichenden Identität an. SHA-256-Datei und `manifest.json` dokumentieren Größe, Versionscode, Quellcodekennung und Berechtigungsprüfung des Downloads.
 
-Die Veröffentlichung enthält eine SHA-256-Datei und `manifest.json` mit Größe, Versionscode und Quellcodekennung. Auf dem PC öffnet die Updateansicht den passenden GitHub-Release; der integrierte APK-Installer ist für Android vorgesehen.
+Für 0.17 wurde eine konkrete Play-Protect-Warnung gemeldet. Die Ursache und eine Aufhebung der Einstufung sind nicht bestätigt: [Stand der Prüfung](PLAY_PROTECT.md).
 
 ## Zeit und Nachtbetrieb
 

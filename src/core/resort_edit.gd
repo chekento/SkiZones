@@ -51,7 +51,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	elif item.has("bottom"):
 		if points.size() != 2: return invalid
 		check = candidate.preview_lift(item.kind, Terrain.unpack(points[0]), Terrain.unpack(points[1]),points!=[item.bottom,item.top])
-		if check.ok: check.points = [check.bottom, check.top]
+		if check.ok and check.reversed_ends: check.points = [points[1].duplicate(), points[0].duplicate()]
 		original = [item.bottom, item.top]
 	else:
 		if points.size() != 1: return invalid

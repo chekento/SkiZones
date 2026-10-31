@@ -1,3 +1,9 @@
+# Prüfung von SkiZones 0.18.0
+
+Der vollständige Veröffentlichungsbuild mit Modell-, Grafik-, APK- und Android-Prüfungen läuft vor der Freigabe. Die neuen Modellprüfungen bestehen mit **46 / 46**, die neue dargestellte Anlagenmenüprüfung mit **39 / 39** einschließlich der kompakten Stationsübersicht. Die endgültigen Zahlen und der Veröffentlichungslauf werden nach Abschluss eingetragen. Es liegt keine unabhängige Play-Protect-Freigabe vor.
+
+---
+
 # Prüfung von SkiZones 0.17.0
 
 **Modell und Grafik: 1.343 Prüfungen in 43 Suiten bestanden. Android: 57 echte Activity-/Oberflächenfälle bestanden — 28 unter Android 11 (API 30), 29 unter Android 16 (API 36).** Signatur-, Archiv- und Updateprüfungen sind erfolgreich abgeschlossen.
