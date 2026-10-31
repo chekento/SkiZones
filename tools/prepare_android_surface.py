@@ -21,6 +21,7 @@ SOURCE_SHA256 = "15d56bda1cf68e72bb3b48f8e2b0cd6a57dfab9832a674a6f2b4ce82b2f44db
 PREFIX = "org/godotengine/godot/gl/GLSurfaceView"
 INPUT_URL = "https://raw.githubusercontent.com/godotengine/godot/4.5.2-stable/platform/android/java/lib/src/org/godotengine/godot/input/InputEventRunnable.java"
 INPUT_SHA256 = "041ef748632b7f7b1c3607576ab110260114c67ffddf461597de0d206b2da117"
+UPDATE_PREFIX = "cloud/kosch/skizones/Update"
 INPUT_PREFIX = "org/godotengine/godot/input/InputEventRunnable"
 
 
@@ -39,7 +40,9 @@ def prepare(sdk: Path, java: Path):
     input_patch = ROOT / "tools/android/InputEventRunnable-touch-release.patch"
     stamp = ":".join([SOURCE_SHA256, hashlib.sha256(patch.read_bytes()).hexdigest(), INPUT_SHA256,
                       hashlib.sha256(input_patch.read_bytes()).hexdigest(),
-                      hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "assetsPaths-sdk36"])
+                      hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                      hashlib.sha256((ROOT / "tools/android/UpdateBridge.java").read_bytes()).hexdigest(),
+                      hashlib.sha256((ROOT / "tools/android/UpdateFileProvider.java").read_bytes()).hexdigest(), "assetsPaths-sdk36"])
     build = ROOT / "android/build"
     marker = build / ".skizones-surface-fix"
     if marker.exists() and marker.read_text() == stamp:
@@ -61,7 +64,17 @@ def prepare(sdk: Path, java: Path):
     text, count = re.subn(r'(android:configChanges=")([^"]+)(")',
                          lambda m: m[1] + m[2] + "|assetsPaths" + m[3], manifest.read_text())
     assert count == 1
+    text = text.replace("    <application", '    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application', 1)
+    provider = '''        <provider android:name="cloud.kosch.skizones.UpdateFileProvider"
+            android:authorities="${applicationId}.updates" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/skizones_update_paths" />
+        </provider>
+'''
+    text = text.replace("    </application>", provider + "    </application>")
     manifest.write_text(text)
+    paths = build / "res/xml/skizones_update_paths.xml"
+    paths.parent.mkdir(parents=True, exist_ok=True)
+    paths.write_text('<paths xmlns:android="http://schemas.android.com/apk/res/android"><cache-path name="updates" path="skizones-update/" /></paths>\n')
     config = build / "config.gradle"
     text = config.read_text()
     assert "androidGradlePlugin: '8.6.1'" in text and "compileSdk         : 35" in text
@@ -72,7 +85,7 @@ def prepare(sdk: Path, java: Path):
     (build / "gradlew").chmod(0o755)
     work = ROOT / "build/android-surface-fix"
     work.mkdir(parents=True, exist_ok=True)
-    source_files = []
+    source_files = [ROOT / "tools/android/UpdateBridge.java", ROOT / "tools/android/UpdateFileProvider.java"]
     for name, url, digest, diff in [("GLSurfaceView.java", SOURCE_URL, SOURCE_SHA256, patch),
                                      ("InputEventRunnable.java", INPUT_URL, INPUT_SHA256, input_patch)]:
         with urllib.request.urlopen(url, timeout=45) as response:
@@ -87,6 +100,7 @@ def prepare(sdk: Path, java: Path):
     # a normal Gradle dependency; none of these stubs enters the patched AAR.
     compile_only = work / "compile-only"
     declarations = {
+        "androidx/core/content/FileProvider.java": "package androidx.core.content; public class FileProvider { public FileProvider() {} public static android.net.Uri getUriForFile(android.content.Context context, String authority, java.io.File file) { return null; } }",
         "androidx/annotation/NonNull.java": "package androidx.annotation; @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface NonNull {}",
         "androidx/annotation/Nullable.java": "package androidx.annotation; @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Nullable {}",
         "androidx/core/util/Pools.java": "package androidx.core.util; public final class Pools { public interface Pool<T> { T acquire(); boolean release(T instance); } }",
@@ -107,16 +121,16 @@ def prepare(sdk: Path, java: Path):
                     "-classpath", os.pathsep.join([str(sdk / "platforms/android-35/android.jar"), str(dependencies)]),
                     "-d", str(classes), *map(str, source_files)], check=True)
     compiled = {str(p.relative_to(classes)): p.read_bytes() for p in classes.rglob("*.class")
-                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX))}
+                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX))}
     assert compiled and any(p.startswith(INPUT_PREFIX) for p in compiled), "Missing input patch classes"
     for kind in ["debug", "release"]:
         aar = build / f"libs/{kind}/godot-lib.template_{kind}.aar"
         with zipfile.ZipFile(aar) as original:
             old_jar = original.read("classes.jar")
         with zipfile.ZipFile(io.BytesIO(old_jar)) as jar:
-            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX)) and n.endswith(".class")}
+            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX)) and n.endswith(".class")}
         assert family <= set(compiled), "The complete existing Java class families must be replaced"
-        assert all(p.startswith(INPUT_PREFIX) for p in set(compiled) - family), "Only input-family compiler helpers may be added"
+        assert all(p.startswith((INPUT_PREFIX, UPDATE_PREFIX)) for p in set(compiled) - family), "Only input helpers and the app update bridge may be added"
         new_jar = io.BytesIO()
         rewrite_archive(io.BytesIO(old_jar), new_jar, compiled)
         temporary = aar.with_suffix(".patched.aar")

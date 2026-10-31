@@ -33,6 +33,10 @@ def main():
     patch = ROOT / "tools/android/GLSurfaceView-lifecycle.patch"
     manifest["android_surface_patch_sha256"] = hashlib.sha256(patch.read_bytes()).hexdigest()
     manifest["android_input_patch_sha256"] = hashlib.sha256((ROOT / "tools/android/InputEventRunnable-touch-release.patch").read_bytes()).hexdigest()
+    signing = ROOT / "build/android/update-signing.json"
+    if signing.is_file():
+        manifest["update_signing"] = json.loads(signing.read_text())
+    manifest["android_update_bridge_sha256"] = hashlib.sha256((ROOT / "tools/android/UpdateBridge.java").read_bytes()).hexdigest()
     (folder / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     if os.environ.get("GITHUB_OUTPUT"):
         with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:

@@ -23,7 +23,10 @@ def main():
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
     parser.add_argument("--output", default="build/android/SkiZones-debug.apk")
     parser.add_argument("--preset", default="Android")
+    parser.add_argument("--version-code", type=int, help="Newer code for the private lifecycle update fixture only")
     args = parser.parse_args()
+    if args.version_code is not None and args.preset != "Android lifecycle test":
+        parser.error("Version overrides are allowed only for the private lifecycle fixture")
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
     java = os.environ.get("JAVA_HOME")
     if not sdk or not java:
@@ -57,7 +60,18 @@ def main():
     env = os.environ.copy()
     env["XDG_CONFIG_HOME"] = str(config)
     subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--editor", "--import", "--quit"], env=env, check=True)
-    subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", args.preset, str(output)], env=env, check=True)
+    presets = ROOT / "export_presets.cfg"
+    original = presets.read_text()
+    try:
+        if args.version_code is not None:
+            import re
+            codes = [int(v) for v in re.findall(r"^version/code=(\d+)$", original, re.M)]
+            if args.version_code <= max(codes):
+                raise ValueError("The update fixture must have a strictly newer Android version code")
+            presets.write_text(re.sub(r"^version/code=\d+$", "version/code=" + str(args.version_code), original, flags=re.M))
+        subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", args.preset, str(output)], env=env, check=True)
+    finally:
+        presets.write_text(original)
     if not output.exists() or output.stat().st_size < 1000000:
         sys.exit("Godot did not produce a valid-sized APK.")
     print(f"Debug APK ready: {output}")

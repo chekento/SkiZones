@@ -63,7 +63,7 @@ static func building_radius(building: Dictionary) -> float:
 static func _area(key: String, center: Vector2, point: Vector2, radius: float, root: bool, id: int = 0, kind: String = "base") -> Dictionary:
 	return {"key": key, "center": center, "point": point, "radius": radius, "root": root, "id": id, "kind": kind}
 
-static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = [], pistes: Array = [], dense: bool = false) -> Dictionary:
+static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = [], pistes: Array = [], dense: bool = false, portal_path: Array = []) -> Dictionary:
 	var areas: Array = [_area("base",Terrain.BASE,Terrain.BASE,92,true)]
 	var fixed: Array = []
 	for lift in lifts:
@@ -94,6 +94,12 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 		for top in [true,false]:
 			var at := Terrain.unpack(piste.points[0] if top else piste.points[-1])
 			areas.append(_area("g%d%s" % [piste.id,"s" if top else "e"],at,at,4,false,piste.id,"piste_gate"))
+	for index in range(1,portal_path.size()):
+		var key: String="outside" if index==portal_path.size()-1 else "entry%d"%index
+		var previous: String="base" if index==1 else "entry%d"%(index-1)
+		var at:=Terrain.unpack(portal_path[index])
+		areas.append(_area(key,at,at,6,false,0,"entrance"))
+		fixed.append({"from":previous,"to":key,"points":[portal_path[index-1],portal_path[index]],"width":10.0,"manual":true,"public_entry":true})
 	var nodes: Dictionary = {}
 	for area in areas: nodes[area.key] = Terrain.pack(area.point)
 	var shapes := obstacles(buildings,lifts)

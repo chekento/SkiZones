@@ -74,6 +74,10 @@ static func admit_evening(model: RefCounted) -> bool:
 	guest.needs.joy = 8.0
 	guest.needs.energy = 15.0
 	guest.needs.hunger = 60.0
+	if model.time_divisor>1:
+		guest.night_out=true
+		guest.stay=maxi(60,posmod(360-model.minute,1440))
+		guest.needs.energy=65.0
 	var route: Dictionary = model.service_route(guest)
 	if route.is_empty(): return false
 	guest.route = route
@@ -81,7 +85,9 @@ static func admit_evening(model: RefCounted) -> bool:
 	model.guest_id += 1
 	model.total_guests += 1
 	model.report.guests += 1
+	model.audience.segments[guest.agenda.kind].visitors+=1
 	model._start_leg(guest)
+	model.Access.arrive(model,guest)
 	return true
 
 static func continuous(model: RefCounted) -> bool:
@@ -124,9 +130,21 @@ static func station_demands(lift: Dictionary) -> Array:
 	var result: Array = []
 	for top in [false, true]:
 		var point: Array = lift.top if top else lift.bottom
-		var key := "station:%s:%.1f:%.1f" % [str(lift.get("line", lift.id)), point[0], point[1]]
+		var line: Variant=lift.get("line",int(lift.id))
+		if Terrain.number(line):line=str(int(line))
+		var key := "station:%s:%.1f:%.1f" % [str(line), point[0], point[1]]
 		result.append({"key": key, "minimum": minimum, "top": top, "point": point})
 	return result
+
+static func normalize_assignments(model: RefCounted) -> void:
+	var aliases: Dictionary={}
+	for lift in model.lifts:
+		var line: Variant=lift.get("line",int(lift.id))
+		if not Terrain.number(line):continue
+		for station in station_demands(lift):
+			aliases["station:%s:%.1f:%.1f" % [str(float(line)),station.point[0],station.point[1]]]=station.key
+	for person in model.operations.staff:
+		if person is Dictionary and aliases.has(person.get("assignment","")):person.assignment=aliases[person.assignment]
 
 static func staffing(model: RefCounted, lift: Dictionary) -> Dictionary:
 	var present := 0
@@ -239,6 +257,7 @@ static func fill_building(model: RefCounted, id: int, free: bool = false) -> Dic
 	var shift := "evening" if building.kind in ["disco", "pool", "spa", "maintenance"] else "day"
 	var missing: Array = []
 	var shifts: Array = ["day", "evening", "night"] if building.kind == "hotel" else (["day", "evening"] if building.kind in ["pool", "spa"] else [shift])
+	if model.time_divisor>1 and building.kind in ["disco","pool","spa"] and not shifts.has("night"): shifts.append("night")
 	for shift_value in shifts:
 		var counts: Dictionary = {}
 		for person in model.operations.staff:
@@ -261,8 +280,9 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
 	if not building.enabled or not building_staffed(model, building): return false
 	if not continuous(model): return true
-	if building.kind == "disco": return model.minute >= 1080 or model.minute < 120
-	if building.kind in ["pool", "spa"]: return model.minute >= 600 and model.minute < 1380
+	if building.kind == "disco": return model.minute >= 1080 or model.minute < (360 if model.time_divisor>1 else 120)
+	if building.kind in ["pool", "spa"]:
+		return (model.minute>=600 or model.minute<480) if model.time_divisor>1 else model.minute>=600 and model.minute<1380
 	return true
 
 static func order_parts(model: RefCounted) -> Dictionary:

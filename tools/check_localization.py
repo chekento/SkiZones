@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TECHNICAL = {"Color", "Label", "Button", "Control", "Node3D", "VBoxContainer", "RichTextLabel",
              "OptionButton", "PopupMenu", "Window", "LineEdit", "AcceptDialog", "CheckBox",
              "CheckButton", "ScrollContainer", "MultiMeshInstance3D", "Android", "Godot",
+             "AndroidRuntime", "Accept: application/vnd.github+json", "User-Agent: SkiZones/",
              "Dummy", "FileAccess", "Main", "Snow", "SKI", "N", "SkiZones"}
 
 def catalog():

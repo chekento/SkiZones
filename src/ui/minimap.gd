@@ -62,6 +62,8 @@ func _draw() -> void:
 			var color := Color("eeb674") if feature.tags.has("aerialway") else Color("8ac9df")
 			for i in range(1, feature.points.size()): draw_line(_point(Terrain.unpack(feature.points[i - 1])), _point(Terrain.unpack(feature.points[i])), color, 1.4)
 	if game != null:
+		for i in range(1,game.model.portal_path.size()):draw_line(_point(Terrain.unpack(game.model.portal_path[i-1])),_point(Terrain.unpack(game.model.portal_path[i])),Color("d8bb8e"),2)
+		if not game.model.portal_path.is_empty():draw_circle(_point(Terrain.unpack(game.model.portal_path[-1])),3,Color("82d7c5"))
 		for piste in game.model.pistes:
 			for i in range(1, piste.points.size()):
 				draw_line(_point(Terrain.unpack(piste.points[i - 1])), _point(Terrain.unpack(piste.points[i])), [Color("7cc4f2"), Color("e88790"), Color("b9a9da")][piste.difficulty], 2)

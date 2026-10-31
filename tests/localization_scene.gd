@@ -96,9 +96,8 @@ func run() -> void:
 	var saved:=preferences.save_to();var loaded:=Preferences.new();loaded.path=preferences.path;loaded.load_from()
 	check(saved==OK and loaded.language=="en","An explicit language preference survives a settings roundtrip")
 	game.hud.show_context("inspect")
-	for minute in range(2000):
-		if game.model.day_finished():break
-		game.model.advance_minute(false)
+	game.model.minute=1439;game.model.clock_steps=0;game.model.clock_fraction=0
+	for step in range(game.model.time_divisor):game.model.advance_minute(false)
 	game.hud.show_report()
 	check(game.hud.daily_dialog.visible and english_only(game.hud.daily_dialog),"A real completed day's financial report is fully translated")
 	await capture("en-day-report-0110")

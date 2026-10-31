@@ -21,6 +21,7 @@ func run() -> void:
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await process_frame
 	game.apply_language("de");game.start_game(false);game.paused=true;game.set_process(false);game.view.set_process(false)
 	game.preferences.path="user://guest-agendas-scene.cfg"
+	game.model.party_mode=false;game.model.edge_entries=false
 	game.model.money=3000000
 	check(game.model.build_lift("chair2",Vector2(200,205),Vector2(245,-130)).ok and game.model.build_piste([[245,-130],[275,-30],[255,95],[200,205]]).ok,"The visual test uses a real two-seat lift and connected piste")
 	check(game.Ops.fill_stations(game.model,game.model.lifts[0].id).ok,"The visible family uses a lift with actual employees at its stations")

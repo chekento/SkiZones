@@ -29,7 +29,7 @@ func _init() -> void:
 	check(profiles_ok,"Personal profiles identify the guest's actual equipment")
 	check(motion_ok,"All sports receive finite personal motion and matching persistent snow tracks")
 	var copy := Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version == 14,"Format 14 restores an actual mixed-sport resort")
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version == 15,"Format 14 restores an actual mixed-sport resort")
 	var preserved := copy.guests.size() == model.guests.size()
 	for i in range(copy.guests.size()):
 		preserved = preserved and copy.guests[i].sport == model.guests[i].sport and copy.guest_position(copy.guests[i]).distance_to(positions[i]) < 0.001

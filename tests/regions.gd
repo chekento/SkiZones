@@ -25,7 +25,7 @@ func check(value: bool, title: String) -> void:
 		push_error("FAIL " + title)
 
 func clean() -> void:
-	var paths: Array = [Passport.PATH]
+	var paths: Array = [Saves.passport_path()]
 	for id in Maps.FANTASY_MAPS:
 		paths.append(Saves.path_for_map(id))
 	for path in paths:
@@ -63,7 +63,7 @@ func run() -> void:
 	await game.enter_area("dreigipfel")
 	check(game.model.map_id == "fichtenkamm" and game.model.money == 111111, "A locked destination cannot replace the active resort")
 	var passport := Passport.new()
-	passport.load_from()
+	passport.load_from(Saves.passport_path())
 	check(passport.unlocked("fichtenkamm") and passport.data.last_map == "fichtenkamm", "Unlocks and the active area survive passport reloading")
 	var copy := Resort.new()
 	check(Saves.load_game(copy, Saves.path_for_map("sonnenhang")).ok and copy.map_id == "sonnenhang" and copy.pistes.size() == 2, "The first region save remains independently readable")

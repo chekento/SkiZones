@@ -39,7 +39,7 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	game.set_process(false)
-	var career := button_named(game.hud.menu, "Karriere · Gebiete entdecken")
+	var career := button_named(game.hud.menu, "Karriere · vier Spielstände")
 	var free := button_named(game.hud.menu, "Freier Aufbau · alle Anlagen")
 	var extras := button_named(game.hud.menu, "Szenarien · echte Skigebiete")
 	check(career != null and free != null and extras != null and career.get_global_rect().position.y < extras.get_global_rect().position.y and free.get_global_rect().position.y < extras.get_global_rect().position.y, "Career and free play appear above the optional scenarios")

@@ -7,10 +7,10 @@ var path := "user://app-session.json"
 
 func save(game: Node) -> void:
 	if not game.has_game: return
-	var state := {"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
+	var state := {"slot":SaveStore.active_slot,"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
 	var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null: return
-	file.store_string(JSON.stringify(state));file.flush();file.close()
+	file.store_string(JSON.stringify(state,"",true,true));file.flush();file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path(path+".tmp"),ProjectSettings.globalize_path(path))
 
 func read_state() -> Dictionary:
@@ -21,6 +21,7 @@ func read_state() -> Dictionary:
 	var value: Variant = parser.data
 	if not value is Dictionary or value.get("version") != 1 or not value.get("map") is String or not value.get("checksum") is String: return {}
 	if not Maps.MAPS.has(value.map): return {}
+	if value.has("slot") and (not Terrain.number(value.slot) or value.slot!=floorf(value.slot) or value.slot<0 or value.slot>4): return {}
 	if not value.get("paused") is bool or not value.get("running") is bool or not Terrain.number(value.get("speed")): return {}
 	if value.speed != int(value.speed) or int(value.speed) not in [1,4]: return {}
 	for key in ["accumulator","yaw","zoom","pitch","camera_mode","suspended_at","editing_id","edit_rotation","edit_width","selected_guest","follow_guest"]:
@@ -37,10 +38,18 @@ func read_state() -> Dictionary:
 
 func restore(game: Node, already_loaded: bool = false) -> bool:
 	var state := read_state()
-	if state.is_empty() or state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map)): return false
+	if state.is_empty(): return false
+	var slot:=SaveStore.slot_from_state(state)
+	var save_path:=SaveStore.path_for_map(state.map,slot)
+	if state.checksum != FileAccess.get_sha256(save_path): return false
 	if already_loaded:
 		if game.model.map_id != state.map: return false
-	elif not SaveStore.load_game(game.model,SaveStore.path_for_map(state.map)).ok: return false
+	elif not SaveStore.load_game(game.model,save_path).ok: return false
+	SaveStore.active_slot=slot
+	game.preferences.free_play=slot==0
+	if slot>0:game.preferences.career_slot=slot
+	game.passport=game.Passport.new()
+	game.passport.load_from(SaveStore.passport_path())
 	game.has_game = true;game.paused = state.paused;game.speed = int(state.speed)
 	game._accumulator = state.accumulator
 	game.view.rebuild()

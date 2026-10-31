@@ -22,6 +22,8 @@ const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const LiftStaff = preload("res://src/ui/lift_staff.gd")
+const UpdateDialog=preload("res://src/ui/update_dialog.gd")
+const CareerSlots = preload("res://src/ui/career_slots.gd")
 const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
@@ -97,6 +99,9 @@ var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
 var lift_staff := LiftStaff.new()
+var updates_button: Button
+var update_dialog:=UpdateDialog.new()
+var career_slots := CareerSlots.new()
 var audience := Audience.new()
 var lift_staff_button: Button
 var lift_staff_status: Label
@@ -158,6 +163,10 @@ func setup(controller: Node) -> void:
 	lift_staff.setup(self)
 	root.add_child(audience)
 	audience.setup(self)
+	root.add_child(update_dialog)
+	update_dialog.setup(self)
+	root.add_child(career_slots)
+	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
 	root.add_child(asset_editor)
@@ -560,11 +569,12 @@ func _build_menu() -> void:
 	_spacer(box)
 	_label(box, L.text("HAUPTSPIEL"), 17, TEAL)
 	continue_button = _button(box, L.text("Fortsetzen"), game.continue_main_game, true)
-	_button(box, L.text("Karriere · Gebiete entdecken"), show_atlas, true)
-	_button(box, L.text("Freier Aufbau · alle Anlagen"), func(): game.start_game(false))
+	_button(box, L.text("Karriere · vier Spielstände"), game.show_career_slots, true)
+	_button(box, L.text("Freier Aufbau · alle Anlagen"), game.start_free_play)
 	_label(box, L.text("EXTRAS"), 13, MUTED)
 	_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
 	_button(box, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open())
+	updates_button=_button(box, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
 	_button(box, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(box, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")),13,MUTED,true)
@@ -581,7 +591,7 @@ func _build_dialogs() -> void:
 	help.custom_minimum_size = Vector2(760, 480)
 	help.bbcode_enabled = true
 	help.add_theme_font_size_override("normal_font_size", 18)
-	help.text = L.text("[b]BEOBACHTEN[/b]\nBei 1× dauert eine Spielstunde etwa zwei Minuten. Ein kompletter 24-Stunden-Zyklus dauert etwa 48 Minuten. Skifahrer und Lifte bewegen sich bewusst ruhig. 4× beschleunigt den gesamten Betrieb.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Kaufe Pistenraupen in einer Garage und stelle Fahrer ein. Präpariere leere Pisten einzeln oder automatisch in der Nacht. Die Dauer folgt der Streckenlänge; Schicht, Energie und Verschleiß bestimmen die Einsatzbereitschaft.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt acht Fantasiegebiete und ihre Freischaltziele. Unter ‚Szenarien‘ stehen vier reale Gebiete bereit. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license")
+	help.text = L.text("[b]BEOBACHTEN[/b]\nBei 1× dauert eine Spielstunde etwa zwölf Minuten. Die Tage sind sechsmal länger, die Bewegung entspricht dem bisherigen 4×-Tempo. 4× beschleunigt weiterhin den gesamten Betrieb. Leere Nächte werden automatisch bis zum Morgen vorgespult.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Kaufe Pistenraupen in einer Garage und stelle Fahrer ein. Präpariere leere Pisten einzeln oder automatisch in der Nacht. Die Dauer folgt der Streckenlänge; Schicht, Energie und Verschleiß bestimmen die Einsatzbereitschaft.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt acht Fantasiegebiete und ihre Freischaltziele. Unter ‚Szenarien‘ stehen vier reale Gebiete bereit. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license")
 	help.text += "\n\n" + L.text("‚Sanften Verlauf vorschlagen‘ sucht eine Route zwischen deinen Punkten. Prüfe Höhenprofil und Anschlüsse; Bauen bestätigst du selbst.") + "\n\n" + L.text("Gäste suchen passende erreichbare Gebäude für Hunger, Wärme, Erholung oder Ausrüstung. Besuche und freie Plätze siehst du am Gebäude.")
 	help_dialog.add_child(help)
 
@@ -593,6 +603,8 @@ func show_menu() -> void:
 	management.hide()
 	lift_staff.hide()
 	audience.hide()
+	update_dialog.hide()
+	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
 	credits.hide()
@@ -609,7 +621,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):

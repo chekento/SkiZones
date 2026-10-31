@@ -15,6 +15,8 @@ func run() -> void:
 	# Retain coverage of old saved resorts using the legacy report API.
 	# Automatic midnight reporting is covered by operating_nights.gd.
 	game.model.operations = preload("res://src/core/operations.gd").initial()
+	game.model.time_divisor=1;game.model.clock_steps=0;game.model.clock_fraction=0
+	game.model.party_mode=false
 	game.paused = true
 	game.model.minute = game.model.CLOSING - 1
 	game.model.advance_minute(false)

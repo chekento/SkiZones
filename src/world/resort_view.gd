@@ -52,6 +52,7 @@ var motion_running := false
 var motion_rate := 1.0
 var follow_guest := -1
 var _follow_position := Vector3.INF
+var _portal_signature:=""
 var _terrain_id := ""
 var _terrain_generation := -1
 var _snow_timer := 0.0
@@ -346,8 +347,9 @@ func _build_terrain() -> void:
 	lake.radial_segments = 48
 	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
 	lake_node.scale.z = 0.62
-	_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("cbbda8"), 0.25)
-	_label(landscape, "TALZUGANG", terrain.world(Terrain.BASE + Vector2(0, 65), 8), Color("446774"))
+	if model.portal_path.is_empty():
+		_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("cbbda8"), 0.25)
+	_label(landscape, "TALZUGANG", terrain.world(Terrain.unpack(model.portal_path[-1]) if not model.portal_path.is_empty() else Terrain.BASE + Vector2(0,65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
 	scenery_instance = MeshInstance3D.new()
@@ -557,7 +559,8 @@ func rebuild() -> void:
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
-	if _terrain_id != model.map_id or _terrain_generation != terrain.generation:
+	if _terrain_id != model.map_id or _terrain_generation != terrain.generation or _portal_signature!=str(model.portal_path):
+		_portal_signature=str(model.portal_path)
 		_terrain_id = model.map_id
 		_terrain_generation = terrain.generation
 		for child in landscape.get_children():
@@ -716,8 +719,8 @@ func _build_foot_areas() -> void:
 	surface_picker.add_mesh("plazas", foot_mesh.mesh)
 	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	for link in _pedestrian_snapshot.links:
-		_ribbon(asset_root,link.points,link.get("width",7),Color("d8c8b2") if link.get("promenade", false) else Color("d4dfe8"),0.39)
-		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("c9bba6") if link.get("promenade", false) else Color("cbd8e1"),0.42)
+		_ribbon(asset_root,link.points,link.get("width",7),Color("d8c8b2") if (link.get("promenade", false) or link.get("public_entry",false)) else Color("d4dfe8"),0.39)
+		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("c9bba6") if (link.get("promenade", false) or link.get("public_entry",false)) else Color("cbd8e1"),0.42)
 	_build_village_details()
 	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
@@ -1002,7 +1005,7 @@ func _process(delta: float) -> void:
 		rebuild()
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
-	_visual_minute = model.minute + simulation_fraction
+	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
 	_car_positions.clear()
 	var tows := 0
 	for lift in model.lifts:
@@ -1034,8 +1037,8 @@ func _process(delta: float) -> void:
 				tows += 1
 		data.clock = clock
 	_tow_lines.multimesh.visible_instance_count = tows
-	if _label_tick != model.minute or delta == 0:
-		_label_tick = model.minute
+	if _label_tick != model.motion_tick or delta == 0:
+		_label_tick = model.motion_tick
 		for lift in model.lifts:
 			if _queue_labels.has(lift.id):
 				var load: Dictionary = model.lift_load(lift)
@@ -1063,11 +1066,13 @@ func _process(delta: float) -> void:
 		var seated := false
 		var in_cabin := false
 		var hiking := false
-		var on_foot: bool = guest.phase == "queue"
+		var on_foot: bool = guest.phase in ["queue","waiting"]
 		if guest.phase != "leaving" and guest.leg < guest.route.legs.size():
 			var leg: Dictionary = guest.route.legs[guest.leg]
-			var fraction: float = clampf((guest.elapsed + simulation_fraction * (guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0)) / guest.get("duration", leg.minutes), 0, 1)
-			if leg.kind == "ski":
+			var fraction: float = clampf((guest.elapsed + simulation_fraction * guest.get("party_step",1.0) * (guest.get("traffic_step", 1.0) if leg.kind == "ski" else 1.0)) / guest.get("duration", leg.minutes), 0, 1)
+			if guest.phase=="waiting":
+				position_value=model.guest_position(guest)
+			elif leg.kind == "ski":
 				var piste: Dictionary = model.asset(leg.id)
 				var personal := _ski_pose(piste, guest, leg)
 				position_value = personal.position
@@ -1114,6 +1119,7 @@ func _process(delta: float) -> void:
 				position_value = _queue_step(guest.id, _guest_positions[guest.id], position_value, delta * 1.6 * motion_rate if motion_running else 0)
 		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
 		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
+		if guest.get("years",18)<16:transform_value.basis=transform_value.basis.scaled(Vector3.ONE*0.72)
 		var sport: String = guest.get("sport", "ski")
 		var equipment_pose := "seated" if seated else ("hike" if hiking else ("walk" if on_foot else "glide"))
 		if not in_cabin:
@@ -1186,7 +1192,7 @@ func _process(delta: float) -> void:
 	for piste in model.pistes:
 		if piste.get("grooming_until", 0) <= model.minute:
 			continue
-		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - simulation_fraction) / 45.0, 0, 1)
+		var fraction: float = clampf(1 - (piste.grooming_until - model.minute - model.clock_fraction - simulation_fraction/model.time_divisor) / 45.0, 0, 1)
 		if Ops.active(model):
 			for vehicle in model.operations.vehicles:
 				if int(vehicle.piste) == int(piste.id): fraction = clampf(1 - float(vehicle.remaining) / maxf(1, vehicle.total), 0, 1)
@@ -1350,7 +1356,7 @@ func _draw_tracks(blocking: bool = true) -> void:
 			continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
 		var key: String = guest.get("track", "")
-		live[key] = model.ski_fraction(leg,(guest.elapsed+simulation_fraction)/guest.duration,guest.get("ski_motion",[]))
+		live[key] = model.ski_fraction(leg,(guest.elapsed+simulation_fraction*guest.get("party_step",1.0))/guest.duration,guest.get("ski_motion",[]))
 		if int(guest.id) == follow_guest:
 			followed = key
 			followed_piste = leg.id
@@ -1566,7 +1572,7 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
-	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)
+	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)*guest.get("party_step",1.0)
 	if follow_guest == int(guest.id):
 			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.

@@ -78,6 +78,27 @@ Für **19 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 Alle APKs sind Android-ARM64-Previews. Prüfsummen, Versionshinweise, Einschränkungen und Tests sind in den jeweiligen Release-Notizen dokumentiert. Die Tabelle wird nach Veröffentlichungen und beim stündlichen Release-Abgleich erneuert.
 <!-- VERSION-ARCHIVE:END -->
 
+## Neu in 0.17.0 · Vier Karrieren und Updates ohne Neustart
+
+**Vier eigene Karrieren, einzeln bewegte Familien und mehr Zeit am Berg.** Im Hauptmenü wählst du einen der vier Speicherplätze. Freier Aufbau und Szenarien behalten zusätzliche Speicherstände.
+
+| Änderung | Verhalten im Spiel |
+| --- | --- |
+| **GitHub-Updates** | Automatische und manuelle Prüfung, geprüfter Download und Android-Update über die vorhandene App. Vorher wird gespeichert; die Karrieren bleiben erhalten. |
+| **Eigene Wege in der Gruppe** | Erwachsene dürfen getrennte Runden fahren. Kinder werden begleitet; Treffen zum Essen und zu gemeinsamen Abfahrten führen die Gruppe wieder zusammen. |
+| **Längere Tage und Nächte** | Sechsfach längere Tage; Bewegung bei 1× wie bisher bei 4×, dazu weiterhin 4× Vorspulen. Nachtgäste können bis zum Morgengrauen bleiben; leere Nächte laufen automatisch schneller. |
+| **Ankunft und Liftwege** | Gäste betreten und verlassen alle zwölf Karten am Rand. Neue Lifte bekommen einen tatsächlichen, mitberechneten Fußweg zum vorhandenen Netz. |
+
+**Die vorhandene App installiert lassen:** Für den Wechsel von 0.16 auf 0.17 die neue APK als Aktualisierung installieren. Danach stehen integrierte Updates für folgende Versionen bereit.
+
+[Änderungen in 0.17.0](docs/releases/0.17.0.md) · [Spielstände und Updates](docs/UPDATES_UND_SPIELSTAENDE.md) · [Gäste verstehen](docs/GAESTE_UND_URLAUB.md) · [Prüfnachweis](docs/VALIDATION.md)
+
+| Vier unabhängige Karriereplätze | Einzelne Personen mit gemeinsamen Treffpunkten |
+| --- | --- |
+| ![Vier eigene Karrieren mit getrennten Resorts und Fortsetzen-Aktionen](docs/screenshots/career-slots-0170.webp) | ![Individuelles Familienmitglied und sein nächster Gruppentreffpunkt](docs/screenshots/individual-families-0170.webp) |
+
+Tatsächliche PC-Spielaufnahmen aus den reproduzierbaren Prüfszenen mit vorbereiteten Speicherständen und einer fünfköpfigen Familie.
+
 ## Neu in 0.16.0 · Gäste mit eigenen Urlaubswünschen
 
 **Familien fahren zusammen; jeder Gast sucht einen passenden Skitag.** Sechs Besuchergruppen wählen ihre tatsächlichen Routen nach Komfort und Urlaubswünschen. Essen, Snacks, Wärme und Pausen verändern einzelne Bedürfnisse und die spätere Zufriedenheit.
