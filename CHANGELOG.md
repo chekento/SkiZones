@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **19 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **20 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.17.0](https://github.com/chekento/SkiZones/releases/tag/v0.17.0)** | 31.10.2026 | Vier Karrieren, Updates und eigene Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk) | [Details](docs/releases/0.17.0.md) |
 | **[v0.16.0](https://github.com/chekento/SkiZones/releases/tag/v0.16.0)** | 30.10.2026 | Gäste mit eigenen Urlaubswünschen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk) | [Details](docs/releases/0.16.0.md) |
 | **[v0.15.0](https://github.com/chekento/SkiZones/releases/tag/v0.15.0)** | 30.10.2026 | Stabile Karte, klare Missionen und direkte Liftteams | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk) | [Details](docs/releases/0.15.0.md) |
 | **[v0.14.3](https://github.com/chekento/SkiZones/releases/tag/v0.14.3)** | 30.10.2026 | Pistenpunkte und echte Anschlüsse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.14.3/SkiZones-0.14.3-android-arm64.apk) | [Details](docs/releases/0.14.3.md) |
@@ -29,6 +30,56 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **1
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.17.0 · Vier Karrieren, Updates und eigene Wege (31.10.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.17.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk)** (31.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.17.0/manifest.json) · [Originalnotizen](docs/releases/0.17.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.17.0)
+
+Vier unabhängige Karrieren, Updates über die vorhandene Android-Installation und einzeln simulierte Familienmitglieder stehen im Mittelpunkt dieser Version.
+
+### Speichern und aktualisieren
+
+- **Vier Karriereplätze** mit eigenen Resorts, Finanzen, Gästen und Freischaltungen. Der freie Aufbau und die Szenarien behalten zusätzliche Speicherstände.
+- Bisherige Dateien werden kopierend übernommen. Neue Karrieren ersetzen keine anderen Plätze; beim bewussten Neustart wird der gewählte Platz zuerst archiviert.
+- **GitHub-Updater im Hauptmenü:** automatische und manuelle Prüfung, Download, Größen- und SHA-256-Prüfung sowie Kontrolle von Paket, neuerem Versionscode und identischer Signatur.
+- Vor der Installation wird gespeichert. Android bestätigt das Update über die vorhandene App. Die Dateien der vier Karrieren bleiben erhalten.
+- Der Veröffentlichungsbuild muss zusätzlich mit der Signatur der vorherigen öffentlichen APK übereinstimmen.
+
+### Familien und Gruppen
+
+Jede Person hat eine eigene Position, Geschwindigkeit, Ausrüstung, Liftbelegung, Bedürfnisse und Erlebnisse. Erwachsene können getrennte Runden fahren. Kinder bleiben bei einem zugeordneten Elternteil; die Begleitung achtet auf ihr Tempo, passende Pisten und das Wiederzusammenfinden an tatsächlichen Stations- und Pistenanschlüssen.
+
+Ein gemeinsamer Mittagstermin führt die Gruppe zu einem erreichbaren, geöffneten Restaurant oder Kiosk mit genügend Plätzen. Der Besuch beginnt nach dem Eintreffen der Gruppe und erzeugt echte Besuchserlöse. Spätere Verabredungen ermöglichen gemeinsame Abfahrten, anschließend können Erwachsene wieder eigene Wege gehen. Das persönliche Profil zeigt die ausgewählte Person, Begleitung und nächsten Treffpunkt. Bestehende Familien werden am nächsten geeigneten Routenpunkt übernommen, während einer Liftfahrt bleibt ihre Position erhalten.
+
+### Mehr Zeit am Berg
+
+- Die Tage sind **sechsmal länger** als bisher.
+- Bewegung bei **1× entspricht dem bisherigen 4×-Tempo**; zusätzlich bleibt **4× Vorspulen** verfügbar.
+- Aufenthaltsdauer, Hunger, Kälte, Schichten und Tagesabrechnung folgen dem längeren Kalender. Pistenverschleiß und Karrierepunkte werden an den neuen Takt angepasst.
+- Nachtgäste können längere Besuche wiederholen und bis zum Morgengrauen bleiben. Abend- und Nachtpersonal sind für den tatsächlichen Betrieb erforderlich.
+- Ein vollständig leeres Resort spult nachts automatisch bis zum Morgen vor. Bei neuer Ankunft endet der Zeitraffer.
+
+### Ankommen und Wege
+
+Alle acht Fantasiegebiete und vier realen Szenarien erhalten einen tatsächlichen Zugang von außerhalb der Kartengrenze. Gäste laufen über den sichtbaren öffentlichen Weg ins Resort und verlassen es auf diesem Weg. Gebäude und Lifttechnik dürfen ihn nicht versperren.
+
+Neue Lifte erhalten einen automatisch geplanten Fußweg zur Talstation. Vorschau und Preis enthalten die Verbindung; bestätigt wird der gesamte Bau zusammen. Der Weg umgeht Gebäude und Lifttechnik, liegt im wirklichen Fußwegenetz und bleibt gespeichert. Auch ein verschobener Lift erhält seine mitberechnete Verbindung; versetzte Gebäude müssen den öffentlichen Zugang freihalten. Ein ungeeigneter Standort ohne sichere Verbindung wird mit einem Hinweis abgewiesen.
+
+Außerdem bleiben die volle Kartendarstellung, präzise Planungspunkte, durchgehende Szenariopisten, sichtbare Missionen und die direkte Personalverwaltung an den Stationen erhalten. Ein Ladefehler mit numerischen Stationskennungen wurde korrigiert, damit Mitarbeiter nach dem Laden ihre Liftzuordnung behalten.
+
+### Prüfung und Installation
+
+Neue Prüfungen decken vier getrennte Karrieren, alte Dateimigration, GitHub-Angebotsprüfung, individuelle Familien und gemeinsame Mahlzeiten, längere Tage und Nächte sowie die Zugänge aller zwölf Karten ab. Gerenderte Tests bedienen die wirklichen Karriere- und Updatemenüs. Die vollständigen bisherigen Modell- und Grafikprüfungen bleiben aktiv.
+
+Android CI installiert eine höher versionierte, passend signierte Test-APK mit dem tatsächlichen App-Installer über die vorhandene App. Vier vorbereitete Karrieren und ihre Freischaltungen müssen danach erhalten sein. Beschädigte Dateien, falsche Versionsangaben und eine fremde Signatur werden vorher abgewiesen; auch der Weg zur Android-Installationsfreigabe wird geprüft. Der öffentliche ARM64-Download enthält den Testtreiber nicht.
+
+Godot 4.5.2 · Android ARM64 · Versionscode **22** · Spielstandformat **15**, ältere Formate werden weiter gelesen. Die Haupt-APK wird erst veröffentlicht, wenn Modell-, Grafik-, Signatur-, Archiv- und beide Android-Läufe erfolgreich sind. Ein physisches Smartphone wurde nicht geprüft.
+
+**Nicht deinstallieren:** Die APK als Aktualisierung über die vorhandene App installieren. Ab 0.17 stehen die integrierten GitHub-Updates für folgende Versionen bereit.
+
+[Spielstände und Updates](docs/UPDATES_UND_SPIELSTAENDE.md) · [Gäste und Urlaubswünsche](docs/GAESTE_UND_URLAUB.md) · [Prüfnachweis](docs/VALIDATION.md) · [Community & Hilfe](docs/COMMUNITY.md)
+
+---
 
 ## v0.16.0 · Gäste mit eigenen Urlaubswünschen (30.10.2026)
 
