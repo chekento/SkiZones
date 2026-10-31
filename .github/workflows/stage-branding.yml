@@ -1,0 +1,88 @@
+name: Stage approved PMDD 4.0 branding artwork
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/stage-branding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: skizones-stage-branding
+  cancel-in-progress: false
+
+jobs:
+  stage-assets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare image conversion tools
+        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Download approved source images, verify checksum and render exact Android sizes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          from PIL import Image, ImageFilter
+          import hashlib, io, time
+
+          assets = Path("assets/branding")
+          assets.mkdir(parents=True, exist_ok=True)
+          sources = {
+              "source_icon.png": (
+                  "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e26a54c48eb6762360169c5d7fc7042020194dfb2a819cc20421618b5e566abb.png",
+                  "915a2a5ce1a4f4b7e0b98359edf33f13be7a2f518ebdc5f6004500423f0bd04a",
+              ),
+              "source_splash.png": (
+                  "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/86e965e42c323951cb0e59ae080970de3d55885b387f740dc3226be557637f9c.png",
+                  "29be3ae73cf4c35e061bcbbd8833121561f1021f9cf3f8213d3452589a497abc",
+              ),
+          }
+          for name, (url, sha) in sources.items():
+              data = None
+              for attempt in range(3):
+                  try:
+                      with urlopen(Request(url, headers={"User-Agent": "SkiZones-branding/0.19"}), timeout=90) as reply:
+                          data = reply.read()
+                      break
+                  except Exception:
+                      if attempt == 2: raise
+                      time.sleep(3)
+              digest = hashlib.sha256(data).hexdigest()
+              if digest != sha:
+                  raise RuntimeError(f"{name} checksum mismatch: {digest}; expected {sha}")
+              (assets / name).write_bytes(data)
+              print(f"Verified approved {name}: {len(data)} bytes")
+          icon = Image.open(assets / "source_icon.png").convert("RGB")
+          for size in (192, 512, 1024):
+              icon.resize((size, size), Image.Resampling.LANCZOS).save(assets / f"icon_{size}.png", optimize=True)
+          foreground = Image.new("RGBA", (432, 432), (0, 0, 0, 0))
+          inset = icon.resize((310, 310), Image.Resampling.LANCZOS)
+          foreground.paste(inset, (61, 61))
+          foreground.save(assets / "adaptive_foreground_432.png", optimize=True)
+          icon.resize((432, 432), Image.Resampling.LANCZOS).filter(
+              ImageFilter.GaussianBlur(18)
+          ).save(assets / "adaptive_background_432.png", optimize=True)
+          splash = Image.open(assets / "source_splash.png").convert("RGB")
+          splash.resize((1920, 1080), Image.Resampling.LANCZOS).save(
+              assets / "splash_1920.png", optimize=True
+          )
+          assert (assets / "splash_1920.png").stat().st_size > 500_000
+          PY
+      - name: Preserve original artwork and derived images in the repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/branding
+          git commit -m "assets: stage approved SkiZones PMDD 4.0 icon and loading artwork" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main
