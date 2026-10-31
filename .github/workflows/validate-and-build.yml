@@ -194,6 +194,10 @@ jobs:
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones-debug.apk
           unzip -t build/android/SkiZones-debug.apk | tail -1
+      - name: Verify update signing continuity with the public APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/verify_update_signing.py
       - name: Prepare versioned APK download
         id: package
         run: python3 tools/package_android.py
@@ -208,12 +212,17 @@ jobs:
         run: python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
       - name: Export signed in-place update fixture
         run: python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 23 --output build/android/SkiZones-update-x86_64.apk
+      - name: Prepare incompatible-signature rejection fixture
+        run: |
+          "$JAVA_HOME/bin/keytool" -genkeypair -noprompt -keystore build/android/wrong-signer-test.keystore -alias fixture -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 7 -dname 'CN=SkiZones Rejection Test'
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks build/android/wrong-signer-test.keystore --ks-key-alias fixture --ks-pass pass:android --key-pass pass:android --out build/android/SkiZones-wrong-signer-x86_64.apk build/android/SkiZones-update-x86_64.apk
       - uses: actions/upload-artifact@v4
         with:
           name: SkiZones-Android-lifecycle
           path: |
             build/android/SkiZones-lifecycle-x86_64.apk
             build/android/SkiZones-update-x86_64.apk
+            build/android/SkiZones-wrong-signer-x86_64.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -261,7 +270,7 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu host -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --output build/android-qa
+          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa
       - uses: actions/upload-artifact@v4
         if: always()
         with:

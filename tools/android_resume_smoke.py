@@ -21,6 +21,7 @@ def adb(*args, timeout=20):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apk", type=Path, required=True)
+    parser.add_argument("--wrong-signer-apk", type=Path, required=True)
     parser.add_argument("--update-apk", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -228,6 +229,34 @@ def main():
         state = wait_for(lambda s: s.get("update_test") == "rejected")
         assert state["update_validation"] == "hash" and state["installed_code"] == 22, state
         capture("update-rejects-corruption", state)
+        update_request(dict(action="install-old-code", sha256=digest, size=len(candidate), code=22))
+        state = wait_for(lambda s: s.get("update_test") == "rejected" and s.get("update_validation") == "version")
+        capture("update-rejects-version-mismatch", state)
+        wrong = args.wrong_signer_apk.read_bytes()
+        adb("push", str(args.wrong_signer_apk.resolve()), "/data/local/tmp/skizones-wrong.apk", timeout=90)
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-wrong.apk", state["update_path"])
+        update_request(dict(action="install-wrong-signer", sha256=hashlib.sha256(wrong).hexdigest(), size=len(wrong), code=23))
+        state = wait_for(lambda s: s.get("update_test") == "rejected" and s.get("update_validation") == "signature")
+        capture("update-rejects-different-signer", state)
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-update.apk", state["update_path"])
+        adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "deny")
+        update_request(dict(action="install-permission", sha256=digest, size=len(candidate), code=23))
+        state = wait_for(lambda s: s.get("update_test") == "installer_permission")
+        # Observe Android's actual per-source permission page before returning.
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            activities = adb("shell", "dumpsys", "activity", "activities").decode()
+            if any("settings" in line.lower() and ("mResumedActivity" in line or "topResumedActivity" in line)
+                   for line in activities.splitlines()):
+                break
+            time.sleep(0.5)
+        else:
+            raise AssertionError("The update permission page did not open")
+        (args.output / "update-source-permission.png").write_bytes(adb("exec-out", "screencap", "-p"))
+        adb("shell", "input", "keyevent", "KEYCODE_BACK")
+        launch()
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3)
+        capture("update-permission-return", state)
         adb("shell", "appops", "set", PACKAGE, "REQUEST_INSTALL_PACKAGES", "allow")
         update_request(dict(action="install-valid", sha256=digest, size=len(candidate), code=23))
         state = wait_for(lambda s: s.get("update_validation") == "ok")

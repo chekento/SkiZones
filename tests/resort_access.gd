@@ -15,6 +15,7 @@ func _init() -> void:
 	for map_id in Maps.MAPS:
 		var model:=Resort.new();model.new_game(true,20261027,map_id);model.enable_runtime_rules()
 		check(Access.valid(model,model.portal_path),"A public access road leads outside the map in "+map_id)
+		check(Foot.gentle(model.terrain,model.portal_path),"The public approach follows a walkable gradient in "+map_id)
 		check(Foot.clear_walk(model.portal_path,model.buildings,model.lifts),"The actual entrance road clears buildings and lift machinery in "+map_id)
 	var model:=Resort.new();model.new_game(true);Ops.enable(model);model.enable_runtime_rules();model.party_mode=false
 	check(model.admit_guest(0),"A new guest can enter through the edge access road")

@@ -2,7 +2,13 @@ extends RefCounted
 ## Public edge access and quoted, obstacle-aware lift footpaths.
 const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
+static var _default_entrances: Dictionary={}
 static func entrance(model: RefCounted) -> Array:
+	if _default_entrances.is_empty():
+		var data: Variant=JSON.parse_string(FileAccess.get_file_as_string("res://assets/access/entrances.json"))
+		if data is Dictionary:_default_entrances=data
+	var prepared: Variant=_default_entrances.get(model.map_id,[])
+	if valid(model,prepared):return prepared.duplicate(true)
 	var bounds: Rect2=model.terrain.bounds
 	var targets: Array=[]
 	for offset in [0,-100,100,-240,240,-480,480]:

@@ -74,7 +74,7 @@ func run() -> void:
 		game.model.minute = 1200
 		Ops.tick(game.model)
 		for i in range(4): Ops.admit_evening(game.model)
-		for i in range(120):
+		for i in range(600):
 			if game.model.guests.any(func(g): return g.phase != "leaving" and g.route.legs[g.leg].kind == "visit"): break
 			game.model.advance_minute(false)
 		game.view.focus = Vector2(pool.point[0], pool.point[1])

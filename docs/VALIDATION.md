@@ -1,4 +1,15 @@
-# Prüfung von SkiZones 0.16.0
+# Prüfung von SkiZones 0.17.0
+
+Die vollständige Veröffentlichung wird derzeit geprüft. Der öffentliche Download bleibt bis zum erfolgreichen Abschluss bei 0.16.0.
+
+Neue Modellprüfungen: vier Karrieren und Migration (29), GitHub-Angebote und Manifestvalidierung (22), längere Tage und Nachtbesuche (17), einzelne Familienmitglieder mit Betreuung, Treffen und Heimkehr (20), Kartenzugänge und automatische Liftwege (49). Neue gerenderte Prüfungen: Karriereauswahl (16), Personenprofile und Updatebedienung (11).
+
+Alle zwölf Zugänge wurden zusätzlich auf begehbares Gefälle und freie Wege um Gebäude und Lifttechnik geprüft. Die geänderte Android-Java-Erweiterung wurde bereits im CI-Build erfolgreich kompiliert. Der vollständige Android-Installer-Wechsel und der Abschlusslauf stehen noch aus.
+
+Godot 4.5.2 · Android-Versionscode 22 · Spielstandformat 15. Der öffentliche ARM64-Export enthält keinen Emulator-Testtreiber. Ein physisches Smartphone wurde nicht geprüft.
+
+# Vorheriger Veröffentlichungsstand 0.16.0
+
 
 **Modell und Grafik: 1.165 Prüfungen in 36 Suiten bestanden. Android: 43 Activity-/Oberflächenfälle bestanden — 21 unter Android 11 (API 30), 22 unter Android 16 (API 36).** Signaturprüfung, APK-Archivprüfung und Veröffentlichung sind abgeschlossen.
 

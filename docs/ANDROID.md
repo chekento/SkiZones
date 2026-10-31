@@ -84,3 +84,10 @@ Beide Android-Exporte verwenden den dokumentierten [Java-Lifecycle-Patch](../too
 Android-16-Systemfarben und Navigationsleisten dürfen die laufende Godot-Activity nicht neu erstellen. Der verwaltete Build ergänzt deshalb die öffentliche Konfiguration `assetsPaths` und verwendet dafür Compile-SDK 36 mit AGP 8.9.1 und Gradle 8.11.1. Mindestversion 24 und Zielversion 35 bleiben erhalten. Ein zusätzlicher nativer Test wechselt eine tatsächliche Systemdarstellung und setzt sie zurück. Die APK komprimiert ihre nativen Bibliotheken für den Download.
 
 Die native Grafikprüfung unterdrückt nur den erstmaligen Android-Vollbild-Lehrhinweis in der Emulator-Einrichtung. Auch nach einem absichtlich neu gestarteten Prozess muss das Spiel mindestens fünf neue Bilder selbst gezeichnet haben, bevor eine Aufnahme als wiederhergestellte Spielszene zählt.
+
+
+## Updates und vorhandene Spielstände ab 0.17
+
+Die APK über die vorhandene Installation aktualisieren. Nicht vorher deinstallieren oder App-Daten löschen. Version 0.17 übernimmt bisherige Spielstände kopierend in vier Karriereplätze sowie eigene freie und Szenariospeicher. Danach prüft das Hauptmenü GitHub-Updates und öffnet nach dem geprüften Download Androids Installer.
+
+[Bedienung und Speicherplätze](UPDATES_UND_SPIELSTAENDE.md). Der CI-Build vergleicht den APK-Signer mit der vorherigen öffentlichen Version. Die Emulatoren prüfen zusätzlich einen tatsächlichen Installer-Wechsel von Versionscode 22 auf 23 mit vier gespeicherten Karrieren; die zweite APK ist ausschließlich eine private Testdatei.

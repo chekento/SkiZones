@@ -888,8 +888,10 @@ func _showcase() -> void:
 	for building in model.buildings:
 		if building.kind == "hotel":
 			model.upgrade_asset(building.id)
-	for i in range(60):
+	for i in range(60*model.time_divisor):
 		model.advance_minute()
+	while model.guests.size()<24:
+		if not model.admit_guest(model.guests.size()%3):break
 	Resort.Progression.begin_day(model)
 	set_tool("inspect")
 	view.focus = Vector2(100, 95)

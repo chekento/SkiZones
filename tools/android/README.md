@@ -67,3 +67,12 @@ source retains its MIT header; the notice is packaged in
 `assets/licenses/Godot-InputEventRunnable.txt`. Both ARM64 and test x86-64 exports
 use this same preparation. The Android test still requires all four camera modes
 to finish a genuine swipe within the existing target-position tolerance.
+
+
+## Signed in-place updater (0.17)
+
+`UpdateBridge.java` and `UpdateFileProvider.java` are app-owned additions compiled alongside the two reviewed Godot Java patches. Only the app-private `cache/skizones-update/` directory is exposed through the non-exported FileProvider with temporary read grants. Internet and `REQUEST_INSTALL_PACKAGES` enable the explicit download/installation flow; no storage or uninstall permission is requested.
+
+The bridge checks the exact cache path, file size, SHA-256, package, higher Android version code and equality of the installed APK signing certificates. It then opens the per-source installation permission or Android installer. GDScript saves the active resort and session before handoff. All JNI libraries remain unchanged. The build verifies its signer against the preceding public APK; Android CI exercises an actual higher-code installer update with four persisted careers and rejects a separately re-signed fixture.
+
+References: [Android FileProvider](https://developer.android.com/reference/androidx/core/content/FileProvider), [PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager), [Godot JavaClassWrapper and AndroidRuntime](https://docs.godotengine.org/en/4.5/tutorials/platform/android/javaclasswrapper_and_androidruntimeplugin.html).

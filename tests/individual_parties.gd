@@ -21,16 +21,23 @@ func _init() -> void:
 	var party: Dictionary=model.parties[0]
 	for guest in model.guests:
 		guest.stay=1000;guest.needs={"hunger":0.0,"warmth":95.0,"energy":95.0,"joy":95.0,"rental":false,"lesson":false}
-	var split:=false;var own_seats:=false;var regroup:=false
+	var split:=false;var own_seats:=false;var regroup:=false;var supervised:=true
 	for step in range(900):
 		model.advance_minute(false)
 		var parents: Array=model.guests.filter(func(g):return g.years>=16)
 		if parents.size()==2 and model.guest_position(parents[0]).distance_to(model.guest_position(parents[1]))>18:split=true
 		if model.guests.any(func(g):return g.phase=="waiting"):regroup=true
+		for child in children:
+			var parent:=Parties.actor(model,child.guardian_id)
+			var child_leg: Dictionary=child.route.legs[child.leg]
+			var parent_leg: Dictionary=parent.route.legs[parent.leg]
+			if child.phase=="moving" and parent.phase=="moving" and child_leg.kind=="ski" and child_leg.from==parent_leg.from and child_leg.to==parent_leg.to:
+				supervised=supervised and model.guest_position(child).distance_to(model.guest_position(parent))<40
 		var riders: Array=model.guests.filter(func(g):return g.phase=="moving" and g.route.legs[g.leg].kind=="lift")
 		if riders.size()>=2:own_seats=riders[0].ride_car!=riders[1].ride_car or riders[0].ride_seat!=riders[1].ride_seat
 	check(split,"Adults may explore separately with genuinely different positions and progress")
 	check(own_seats,"Individuals occupy their own actual lift seats and may ride different carriers")
+	check(supervised,"Parents slow down and keep the children within sight on shared descents")
 	check(regroup,"Guardians wait at real route nodes for the children to catch up")
 	var state:=model.snapshot();var copy:=Resort.new()
 	check(Saves.save_game(model,"user://individuals017.json").ok and Saves.load_game(copy,"user://individuals017.json").ok,"Personal movement, guardians and future appointments survive a checked save")
@@ -57,4 +64,16 @@ func _init() -> void:
 	check(model.guests.all(func(g):return g.runs>0),"Every individual participates in actual ski descents")
 	var detail: Dictionary=Profile.describe(model,model.guests[0])
 	check(detail.name==model.guests[0].person_name and detail.agenda.contains("GEMEINSAM IM RESORT"),"The personal profile identifies the selected person and explains the next group appointment")
+	party.meeting_at=Parties.now(model)
+	var outing:=false;var outing_done:=false
+	for step in range(3000):
+		model.advance_minute(false)
+		if party.status=="outing":outing=true
+		if outing and party.status=="free" and party.round>=2:outing_done=true;break
+	check(outing and outing_done,"A later appointment regroups the individuals for an actual shared descent, then allows separate exploration again")
+	for person in model.guests:person.stay=person.age
+	for step in range(3000):
+		model.advance_minute(false)
+		if model.guests.is_empty():break
+	check(model.guests.is_empty(),"Adults and supervised children can all return home without a permanent reunion wait")
 	print("INDIVIDUAL PARTIES: %d passed; %d failed"%[passed,failed]);quit(1 if failed else 0)

@@ -41,7 +41,7 @@ static func expand(model: RefCounted,root: Dictionary,node: String="base") -> vo
 		var guest: Dictionary=root if index==0 else original.duplicate(true)
 		if index>0:guest.id=model.guest_id;model.guest_id+=1;additions.append(guest)
 		guest.erase("family");guest.party_id=id;guest.person_name=person.name;guest.years=int(person.years)
-		guest.ability=int(person.ability);guest.needs=person.needs.duplicate(true);guest.group_size=1
+		guest.ability=int(person.ability);guest.sport=model.Motion.sport_for(int(guest.id));guest.needs=person.needs.duplicate(true);guest.group_size=1
 		guest.ticket_paid=float(original.get("ticket_paid",0))/people.size();guest.spending=float(original.get("spending",0))/people.size()
 		guest.agenda=original.agenda.duplicate(true);guest.agenda.comfort=guest.ability
 		guest.erase("ride_manifest");guest.erase("boarding_remaining");guest.erase("ride_car");guest.erase("ride_seat");guest.erase("ride_departure")
@@ -61,14 +61,23 @@ static func expand(model: RefCounted,root: Dictionary,node: String="base") -> vo
 			if int(child.id)==int(parent.id):continue
 			child.party_comfort=parent.party_comfort;child.route=parent.route.duplicate(true);child.leg=int(parent.leg);model._start_leg(child)
 static func pace(model: RefCounted,guest: Dictionary) -> float:
-	if not guest.has("party_id") or guest.has("guardian_id") or guest.phase!="moving":return 1.0
+	if not guest.has("party_id") or guest.phase!="moving":return 1.0
 	var leg: Dictionary=guest.route.legs[int(guest.leg)]
 	if leg.kind not in ["walk","ski"]:return 1.0
-	for child in cell(model,guest):
-		if not child.has("guardian_id") or child.phase!="moving":continue
-		var child_leg: Dictionary=child.route.legs[int(child.leg)]
-		if leg.from==child_leg.from and leg.to==child_leg.to and guest.elapsed/guest.duration>child.elapsed/child.duration and model.guest_position(guest).distance_to(model.guest_position(child))>18:return 0.0
-	return 1.0
+	var factor:=1.0
+	var position: Vector3=model.guest_position(guest)
+	var next: Vector3=model.guest_position(guest,1.0)
+	for other in cell(model,guest):
+		if int(other.id)==int(guest.id) or other.phase!="moving":continue
+		if guest.has("guardian_id") and int(other.id)!=int(guest.guardian_id):continue
+		if not guest.has("guardian_id") and not other.has("guardian_id"):continue
+		var other_leg: Dictionary=other.route.legs[int(other.leg)]
+		if leg.from!=other_leg.from or leg.to!=other_leg.to or guest.elapsed/guest.duration<=other.elapsed/other.duration:continue
+		var other_position: Vector3=model.guest_position(other)
+		var gap: float=position.distance_to(other_position)
+		var future: float=next.distance_to(other_position)
+		if future>18:factor=minf(factor,clampf((18-gap)/maxf(0.01,future-gap),0,1))
+	return factor
 static func _meeting_route(model: RefCounted,guest: Dictionary,source: String,party: Dictionary) -> Dictionary:
 	var graph: Dictionary=model._routing_graph(Agenda.comfort(guest),true)
 	var outward: Dictionary=model._shortest(graph,source,party.node)
@@ -185,6 +194,9 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 		for member in party.members:
 			if not Terrain.number(member) or member!=floorf(member) or member<1 or member>=model.guest_id or seen.has(int(member)):return false
 			seen.append(int(member))
+		for id in seen:
+			var present:=actor(model,id)
+			if not present.is_empty() and present.get("party_id",0)!=party.id:return false
 		party.members=seen
 	for guest in model.guests:
 		if not guest.has("party_id"):continue
@@ -193,6 +205,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 		if not party.members.has(guest.id) or not guest.get("person_name") is String or guest.person_name.length()>80:return false
 		if not Terrain.number(guest.get("years")) or guest.years!=floorf(guest.years) or guest.years<3 or guest.years>100:return false
 		if not Terrain.number(guest.get("party_comfort")) or guest.party_comfort!=floorf(guest.party_comfort) or guest.party_comfort<0 or guest.party_comfort>2:return false
+		if guest.years>=16 and guest.has("guardian_id"):return false
 		if guest.years<16:
 			if not Terrain.number(guest.get("guardian_id")) or guest.guardian_id!=floorf(guest.guardian_id):return false
 			var parent:=actor(model,int(guest.get("guardian_id",0)))

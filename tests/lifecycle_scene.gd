@@ -103,11 +103,12 @@ func run() -> void:
 		check(visible_pixels>1600,"A real frame after surface/viewport recovery is visibly rendered instead of black")
 	await capture("resumed-game-0100")
 	game.hud.show_context("inspect");game.paused=false;game.speed=4;game._accumulator=0
+	var before_motion: int=game.model.motion_tick
 	minute=game.model.minute;game._suspend_application();game._background_started-=10000;game._resume_application()
 	for i in range(60):
 		game._process(0)
 		if game._accumulator<1:break
-	check(game.model.minute>=minute+20 and game.model.minute<=minute+21,"Ten background seconds at 4× resume through twenty actual simulation minutes without double counting")
+	check(game.model.motion_tick>=before_motion+80 and game.model.motion_tick<=before_motion+82 and game.model.minute>=minute+3 and game.model.minute<=minute+4,"Ten background seconds at 4× restore eighty actual movement steps and the longer calendar without double counting")
 	game.paused=true;game.view.focus=Vector2(235,40);game.view.yaw=1.1;game.view.zoom=250;game.view._update_camera()
 	game._suspend_application()
 	var before:Dictionary=game.model.snapshot()
