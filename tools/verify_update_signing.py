@@ -51,7 +51,7 @@ def main():
         return values[0]
 
     old = certificate(previous)
-    current = certificate(ROOT / "build/android/SkiZones-debug.apk")
+    current = certificate(ROOT / "build/android/SkiZones.apk")
     if old != current:
         raise SystemExit("Signing identity changed: this APK cannot preserve the previous installation. Restore the existing signing key before publishing.")
     evidence = {"previous_version": release["tag_name"], "previous_sha256": hashlib.sha256(previous.read_bytes()).hexdigest(), "signer_sha256": current, "same_signer": True}

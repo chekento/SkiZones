@@ -658,15 +658,16 @@ func show_context(tool: String, id: int = -1) -> void:
 	game.view.selected_guest = -1
 	guest_face.hide()
 	if tool == "piste":
-		palette.select_category("pistes")
+		palette.select_category("pistes", true)
 	elif tool in ["plaza","walkway"]:
-		palette.select_category("paths")
+		palette.select_category("paths", true)
 	elif tool in ["lift", "building"]:
-		palette.select_category("lifts" if tool == "lift" else "village")
+		palette.select_category("lifts" if tool == "lift" else "village", true)
 	selected_id = id
 	var selected: Dictionary = game.model.asset(id) if id != -1 else {}
-	lift_staff_button.visible = selected.has("bottom") and Ops.active(game.model)
-	lift_staff_status.visible = lift_staff_button.visible
+	lift_staff_button.visible = selected.has("bottom") or Catalog.BUILDINGS.has(selected.get("kind", ""))
+	lift_staff_button.text = L.text("Personal & Liftbesetzung") if selected.has("bottom") else L.text("Betrieb & Gebäudeteam")
+	lift_staff_status.visible = selected.has("bottom") and Ops.active(game.model)
 	if tool != "inspect" or id != -1:
 		set_map_focus(false)
 	price_label = null
@@ -686,7 +687,19 @@ func show_context(tool: String, id: int = -1) -> void:
 		_button(inspector_actions, L.text("Schließen") if item.get("enabled", false) else L.text("Öffnen"), func(): game.toggle_asset(id))
 		_button(inspector_actions, L.text("Abbauen · 25 % Erstattung"), func(): game.demolish_asset(id))
 		if not item.has("radius"):
-			_button(inspector_actions, L.text("Anlage ausbauen"), func(): show_management(3), true)
+			if item.has("difficulty"):
+				var upgrade: Dictionary = game.model.upgrade_check(id)
+				_button(inspector_actions, L.text("Anlage ausbauen") + " · " + money_text(upgrade.get("cost",0)) + " €", func():
+					var result: Dictionary = game.model.upgrade_asset(id)
+					toast(result.message)
+					show_context("inspect", id)
+					refresh()
+				, true).disabled = not upgrade.ok
+			else:
+				_button(inspector_actions, L.text("Anlage ausbauen"), func():
+					lift_staff.open(id)
+					lift_staff.tabs.current_tab = 0
+				, true)
 		if item.has("difficulty"):
 			var check: Dictionary = game.model.groom_check(id)
 			var groom := _button(inspector_actions, L.text("Piste präparieren"), func():

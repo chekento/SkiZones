@@ -79,7 +79,6 @@ func _ready() -> void:
 	_update_plan()
 	if OS.get_name() == "Android":
 		await _restore_android_session()
-		if updater.state=="ready":hud.update_dialog.open()
 	if OS.has_feature("android_lifecycle_test"):
 		call_deferred("_start_android_lifecycle_test")
 	# Deterministic captures and boot checks are also used by CI.
@@ -396,15 +395,15 @@ func select_waypoint(index: int) -> void:
 	_update_plan()
 
 func _snap_point(point: Vector2, screen_at: Vector2 = Vector2.INF) -> Vector2:
-	var radius := 18.0
+	var radius := 24.0
 	if screen_at.is_finite():
-		for offset in [Vector2(18, 0), Vector2(0, 18)]:
+		for offset in [Vector2(26, 0), Vector2(0, 26)]:
 			var nearby := view.map_point(screen_at + offset)
-			if nearby.is_finite(): radius = maxf(radius, minf(60, point.distance_to(nearby)))
-	snap_target = model.snap_anchor(point, radius, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else {}
+			if nearby.is_finite(): radius = maxf(radius, minf(100, point.distance_to(nearby)))
+	snap_target = model.snap_anchor(point, radius, _drag_waypoint == 0 or (_drag_waypoint < 0 and points.is_empty()), editing_id, _edit_original if editing_id != -1 else []) if tool == "piste" else model.snap_walkway(point,28,editing_id) if tool == "walkway" else model.snap_lift_station(point,hud.lift_kind(),radius,editing_id) if tool == "lift" else {}
 	if not snap_target.is_empty() and screen_at.is_finite():
 		var at: Vector2 = view.camera.unproject_position(view.surface_position(snap_target.point))
-		if at.distance_to(screen_at) > 18: snap_target = {}
+		if at.distance_to(screen_at) > 26: snap_target = {}
 	return snap_target.point if not snap_target.is_empty() else point
 
 func chosen_piste_width() -> float:

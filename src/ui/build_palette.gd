@@ -53,7 +53,7 @@ func setup(interface: CanvasLayer) -> void:
 
 func _card(key: String, title: String, description: String, cost: int, upkeep: int, type: String, color: Color) -> void:
 	var button := Button.new()
-	button.custom_minimum_size.y = 132 if type == "lift" else (142 if type == "plaza" else 98)
+	button.custom_minimum_size.y = 132 if type == "lift" else (142 if type == "plaza" else 122)
 	button.focus_mode = Control.FOCUS_NONE
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	content.add_child(button)
@@ -105,17 +105,17 @@ func _make_cards() -> void:
 	for key in Catalog.LIFTS:
 		var spec: Dictionary = Catalog.LIFTS[key]
 		_card(key, spec.name, L.text("%.1f m/s · max. %.0f m\n%s € + %d €/m") % L.args([spec.speed / 60, spec.max_length, hud.money_text(spec.cost), spec.per_m]), spec.cost, spec.upkeep, "lift", hud.ACCENT)
-	for key in Catalog.BUILDINGS:
+	for key in Catalog.building_order():
 		var spec: Dictionary = Catalog.BUILDINGS[key]
-		_card(key, spec.name, L.text("%s € · %d €/Tag") % L.args([hud.money_text(spec.cost), spec.upkeep]), spec.cost, spec.upkeep, "building", Color(spec.color).darkened(0.22))
+		_card(key, spec.name, L.text(Catalog.building_group(key)) + "\n" + L.text("%s € · %d €/Tag") % L.args([hud.money_text(spec.cost), spec.upkeep]), spec.cost, spec.upkeep, "building", Color(spec.color).darkened(0.22))
 	for key in Catalog.PLAZAS:
 		var spec: Dictionary = Catalog.PLAZAS[key]
 		if key == "walkway":
 			_card(key,spec.name,L.text("8 m breit · 180 € + 18 €/m\n")+L.text(spec.description),252,0,"plaza",hud.TEAL)
 			continue
 		_card(key, spec.name, L.text("Ø %.0f m · %s €\n%s") % L.args([spec.radius * 2, hud.money_text(spec.cost), spec.description]), spec.cost, 0, "plaza", hud.TEAL)
-func select_category(value: String) -> void:
-	if not game.points.is_empty() and category != value:
+func select_category(value: String, from_tool: bool = false) -> void:
+	if not from_tool and not game.points.is_empty() and category != value:
 		hud.toast(L.text("Erst Bauen oder Abbrechen wählen. Dein Plan bleibt erhalten."))
 		return
 	category = value

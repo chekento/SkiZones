@@ -98,7 +98,7 @@ static func _select_meeting(model: RefCounted,party: Dictionary) -> void:
 	var graph: Dictionary=model._routing_graph(0,true)
 	var best:=INF
 	for building in model.buildings:
-		if building.kind not in ["restaurant","kiosk"] or not model.Ops.building_open(model,building) or model.service_load(int(building.id))+members(model,party).size()>model.service_capacity(building):continue
+		if building.kind not in ["restaurant","kiosk","cocoa","schmarrn","pizzeria"] or not model.Ops.building_open(model,building) or model.service_load(int(building.id))+members(model,party).size()>model.service_capacity(building):continue
 		var door: String="d%d"%int(building.id)
 		var outward: Dictionary=model._shortest(graph,"base",door)
 		var home: Dictionary=model._shortest(graph,door,"base")
@@ -191,7 +191,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 		for key in ["meeting_at","venue","round"]:
 			if not Terrain.number(party.get(key)) or party[key]!=floorf(party[key]) or party[key]<0 or party[key]>1000000000:return false
 		if party.node!="base" and party.node!="d%d"%int(party.venue):return false
-		if party.venue>0 and model.asset(int(party.venue)).get("kind","") not in ["restaurant","kiosk"]:return false
+		if party.venue>0 and model.asset(int(party.venue)).get("kind","") not in ["restaurant","kiosk","cocoa","schmarrn","pizzeria"]:return false
 		var seen: Array=[]
 		for member in party.members:
 			if not Terrain.number(member) or member!=floorf(member) or member<1 or member>=model.guest_id or seen.has(int(member)):return false

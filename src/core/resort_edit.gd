@@ -51,6 +51,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	elif item.has("bottom"):
 		if points.size() != 2: return invalid
 		check = candidate.preview_lift(item.kind, Terrain.unpack(points[0]), Terrain.unpack(points[1]),points!=[item.bottom,item.top])
+		if check.ok: check.points = [check.bottom, check.top]
 		original = [item.bottom, item.top]
 	else:
 		if points.size() != 1: return invalid
@@ -130,8 +131,8 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 			_piste(model.asset(neighbor), check.neighbors[neighbor])
 		model.apply_piste_junctions(check.get("junction_changes", {}))
 	elif item.has("bottom"):
-		item.bottom = points[0].duplicate()
-		item.top = points[1].duplicate()
+		item.bottom = check.points[0].duplicate()
+		item.top = check.points[1].duplicate()
 		item.length = check.length
 		item.recent_departures = []
 		var connection: Dictionary=check.get("foot_connection",{})

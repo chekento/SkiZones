@@ -51,7 +51,7 @@ func _draw() -> void:
 	if game == null or game.view.camera == null:
 		return
 	var bounds := Rect2(Vector2.ZERO, size).grow(30)
-	for anchor in (game.model.walkway_anchors(game.editing_id) if game.tool == "walkway" else game.model.connection_anchors()):
+	for anchor in (game.model.walkway_anchors(game.editing_id) if game.tool == "walkway" else game.model.lift_build_anchors(game.hud.lift_kind(),game.editing_id) if game.tool == "lift" else game.model.connection_anchors()):
 		if not anchor.has("difficulty"): anchor = anchor.merged({"difficulty":-1})
 		if game.tool != "piste" and anchor.difficulty >= 0: continue
 		if anchor.point.distance_to(game.view.focus) > maxf(game.view.zoom * 2, 160): continue

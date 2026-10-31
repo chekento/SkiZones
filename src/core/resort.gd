@@ -356,12 +356,20 @@ func build_piste(points: Array, _legacy_choice: int = -1, width: float = 20, pre
 func preview_lift(kind: String, bottom: Vector2, top: Vector2, check_spacing: bool = true) -> Dictionary:
 	if not Catalog.LIFTS.has(kind) or not terrain.contains(bottom) or not terrain.contains(top):
 		return _result(false, L.text("Beide Stationen müssen im Baugebiet liegen."))
+	var reversed_ends := terrain.height(top) < terrain.height(bottom)
+	if reversed_ends:
+		var previous := bottom
+		bottom = top
+		top = previous
 	var distance: float = _lift_profile(kind, bottom, top).length
 	var spec: Dictionary = Catalog.LIFTS[kind]
 	var rise := terrain.height(top) - terrain.height(bottom)
 	var cost := roundi(spec.cost + distance * spec.per_m)
-	if distance < 65 or distance > spec.max_length or rise < 9:
-		return _result(false, L.text("%s: 65–%.0f m und mindestens 9 m Höhengewinn. Talstation zuerst setzen.") % L.args([spec.name, spec.max_length]), {"cost": cost})
+	var minimum := maxf(24 if spec.family == "carpet" else 42, Foot.machine_radius({"kind":kind}) * 2 + 12)
+	if distance < minimum:
+		return _result(false, L.text("Stationen zu nah: %.0f m geplant, mindestens %.0f m für %s nötig.") % [distance, minimum, L.text(spec.name)], {"cost":cost,"length":distance,"rise":rise})
+	if distance > spec.max_length:
+		return _result(false, L.text("Lift zu lang: %.0f m geplant, höchstens %.0f m für %s möglich.") % [distance, spec.max_length, L.text(spec.name)], {"cost":cost,"length":distance,"rise":rise})
 	if check_spacing:
 		var proposed := {"kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top)}
 		for lift in lifts:
@@ -393,7 +401,7 @@ func preview_lift(kind: String, bottom: Vector2, top: Vector2, check_spacing: bo
 		connection=Access.lift_connection(self,proposed)
 		if connection.is_empty():return _result(false,L.text("Für die Talstation fehlt ein sicherer Fußweg zum bestehenden Netz. Wähle einen näheren oder flacheren Standort."))
 		cost+=int(connection.cost)
-	return _result(true, L.text("%.0f m · %.1f m/s · %.1f Min. Fahrt · %d Pers./Fahrzeug · %d Gäste/h") % L.args([distance, spec.speed / 60, distance / spec.speed, spec.seats, spec.capacity])+(L.text(" · Fußweg zur Talstation: %.0f m · %d €") % [connection.length,connection.cost] if not connection.is_empty() else ""), {"cost": cost, "length": distance,"foot_connection":connection})
+	return _result(true, L.text("%.0f m · %.1f m/s · %.1f Min. Fahrt · %d Pers./Fahrzeug · %d Gäste/h") % L.args([distance, spec.speed / 60, distance / spec.speed, spec.seats, spec.capacity])+(L.text(" · Fußweg zur Talstation: %.0f m · %d €") % [connection.length,connection.cost] if not connection.is_empty() else "") + L.text(" · Höhengewinn: %.0f m") % rise + (L.text(" · Tal und Berg automatisch zugeordnet") if reversed_ends else ""), {"cost":cost,"length":distance,"rise":rise,"foot_connection":connection,"bottom":Terrain.pack(bottom),"top":Terrain.pack(top),"reversed_ends":reversed_ends})
 
 func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 	var access := build_access_message(kind, true)
@@ -406,6 +414,8 @@ func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 		return check
 	if not _spend(check.cost):
 		return _result(false, L.text("Das Budget reicht für diesen Lift noch nicht."))
+	bottom = Terrain.unpack(check.bottom)
+	top = Terrain.unpack(check.top)
 	lifts.append({"id": next_id, "kind": kind, "bottom": Terrain.pack(bottom), "top": Terrain.pack(top), "length": check.length, "cost": check.cost-int(check.get("foot_connection",{}).get("cost",0)), "enabled": true, "credit": 0.0, "clock": 0.0, "boarded": 0, "last_load": 0, "recent_departures": [], "level": 1, "upgrade_total": 0.0, "name": "%s %d" % [Catalog.LIFTS[kind].name, next_id]})
 	var changed_pistes := false
 	for piste in pistes:
@@ -2088,7 +2098,7 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":15,"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":16,"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -2172,7 +2182,7 @@ func restore(data: Dictionary) -> Dictionary:
 
 func _restore_checked(data: Dictionary) -> Dictionary:
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 15:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
@@ -2498,3 +2508,37 @@ func preview_change(id: int, points: Array, rotation_value: int = 0, width: floa
 
 func change_asset(id: int, points: Array, title: String, color: String, rotation_value: int = 0, width: float = 20, prepare_ends: bool = true) -> Dictionary:
 	return Edit.apply(self, id, points, title, color, rotation_value, width, prepare_ends)
+
+var _lift_anchor_revision := -1
+var _lift_anchor_cache: Dictionary = {}
+func lift_build_anchors(kind: String, ignore_id: int = -1) -> Array:
+	if _lift_anchor_revision != revision:
+		_lift_anchor_cache.clear()
+		_lift_anchor_revision = revision
+	var key := kind + ":" + str(ignore_id)
+	if _lift_anchor_cache.has(key): return _lift_anchor_cache[key]
+	var result: Array = []
+	var proposed := {"kind":kind}
+	for lift in lifts:
+		if int(lift.id) == ignore_id: continue
+		var direction := (Terrain.unpack(lift.top) - Terrain.unpack(lift.bottom)).normalized()
+		var perpendicular := Vector2(-direction.y, direction.x)
+		var distance := Foot.machine_radius(lift) + Foot.machine_radius(proposed) + 9
+		for station in [lift.bottom, lift.top]:
+			for side in [-1, 1]:
+				var at: Vector2 = Terrain.unpack(station) + perpendicular * distance * side
+				if not terrain.contains(at) or not Foot.free_of_buildings(at,buildings,Foot.machine_radius(proposed)+3): continue
+				var clear := true
+				for other in lifts:
+					if int(other.id) == ignore_id: continue
+					for endpoint in [other.bottom, other.top]:
+						if at.distance_to(Terrain.unpack(endpoint)) < Foot.machine_radius(other) + Foot.machine_radius(proposed) + 4: clear = false
+				if clear: result.append({"point":at,"id":lift.id,"difficulty":-1,"label":L.text("Neben dem Stationsplatz · eigener Liftzugang")})
+	_lift_anchor_cache[key] = result
+	return result
+func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_id: int = -1) -> Dictionary:
+	var result: Dictionary = {}
+	for anchor in lift_build_anchors(kind,ignore_id):
+		var distance: float = point.distance_to(anchor.point)
+		if distance < radius: radius = distance; result = anchor
+	return result

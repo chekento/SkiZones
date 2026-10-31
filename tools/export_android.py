@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export a debug APK using isolated editor preferences and a local debug key.
+"""Export a release APK using isolated preferences and the existing signing identity.
 
 Requires Godot 4.5.2 + matching export templates, JDK 17 and Android SDK platforms 35/36.
 Never edits the developer's normal Godot settings or creates a release key.
@@ -21,10 +21,12 @@ def main():
         sys.exit("Use Godot's editor to export on Windows/macOS; see docs/ANDROID.md.")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--godot", default=os.environ.get("GODOT_BIN", "godot"))
-    parser.add_argument("--output", default="build/android/SkiZones-debug.apk")
+    parser.add_argument("--output", default="build/android/SkiZones.apk")
     parser.add_argument("--preset", default="Android")
     parser.add_argument("--version-code", type=int, help="Newer code for the private lifecycle update fixture only")
+    parser.add_argument("--debug", action="store_true", help="Private development build only")
     args = parser.parse_args()
+    debug = args.debug or args.preset == "Android lifecycle test"
     if args.version_code is not None and args.preset != "Android lifecycle test":
         parser.error("Version overrides are allowed only for the private lifecycle fixture")
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
@@ -63,18 +65,22 @@ def main():
     presets = ROOT / "export_presets.cfg"
     original = presets.read_text()
     try:
+        adjusted = original
+        if not debug:
+            adjusted = adjusted.replace("package/signed=true", "package/signed=true\nkeystore/release=" + json.dumps(str(key)) + '\nkeystore/release_user="androiddebugkey"\nkeystore/release_password="android"')
         if args.version_code is not None:
             import re
             codes = [int(v) for v in re.findall(r"^version/code=(\d+)$", original, re.M)]
             if args.version_code <= max(codes):
                 raise ValueError("The update fixture must have a strictly newer Android version code")
-            presets.write_text(re.sub(r"^version/code=\d+$", "version/code=" + str(args.version_code), original, flags=re.M))
-        subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug", args.preset, str(output)], env=env, check=True)
+            adjusted = re.sub(r"^version/code=\d+$", "version/code=" + str(args.version_code), adjusted, flags=re.M)
+        presets.write_text(adjusted)
+        subprocess.run([args.godot, "--headless", "--path", str(ROOT), "--export-debug" if debug else "--export-release", args.preset, str(output)], env=env, check=True)
     finally:
         presets.write_text(original)
     if not output.exists() or output.stat().st_size < 1000000:
         sys.exit("Godot did not produce a valid-sized APK.")
-    print(f"Debug APK ready: {output}")
+    print(f"{'Debug fixture' if debug else 'Release'} APK ready: {output}")
 
 
 if __name__ == "__main__":

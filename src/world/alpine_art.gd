@@ -282,7 +282,7 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 			var x := -7.0 + i * 3.5
 			box(Vector3(x, 4.2, depth * 0.5 + 2), Vector3(0.7, 7, 0.4), accent.lightened(i * 0.06), Vector3(0, 0, 0.1 if i % 2 else -0.1))
 		box(Vector3(0, 3, depth * 0.5 + 2.3), Vector3(17, 0.6, 0.6), Color("715a4a"))
-	if kind in ["restaurant", "lodge", "hotel"]:
+	if kind in ["restaurant", "lodge", "hotel", "cocoa", "schmarrn", "pizzeria"]:
 		for i in range(8):
 			var x := -width * 0.48 + (i + 0.5) * width * 0.12
 			box(Vector3(x, 9.5, depth * 0.5 + 2), Vector3(width * 0.12, 0.4, 3.5), accent if i % 2 else Color("f7e9cf"), Vector3(-0.12, 0, 0))
@@ -304,10 +304,23 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		box(Vector3(0, 2.0, depth / 2 + 5), Vector3(9, 3, 7), Color("bd6348"))
 		for x in [-4.8, 4.8]:
 			box(Vector3(x, 1.8, depth / 2 + 5), Vector3(1.2, 2.8, 8), Color("39433f"))
-	if kind == "restaurant" or kind == "lodge":
+	if kind in ["restaurant", "lodge", "cocoa", "schmarrn", "pizzeria"]:
 		for x in [-7, 7]:
 			box(Vector3(x, 2, depth / 2 + 8), Vector3(5, 0.6, 3), Color("9b7550"))
 			box(Vector3(x, 0.9, depth / 2 + 8), Vector3(0.6, 2, 0.6), Color("66513e"))
+	if kind in ["cocoa", "schmarrn", "pizzeria"]:
+		soft_box(Vector3(0,12,depth/2+1.4),Vector3(11,5.5,0.7),Color("fff0cf"))
+		if kind == "pizzeria":
+			sphere(Vector3(0,12,depth/2+2),2.3,Color("d9984e"),Vector3(1,1,0.15))
+			sphere(Vector3(0,12,depth/2+2.4),1.9,Color("f1cf79"),Vector3(1,1,0.15))
+			for x in [-0.9,0.9]: sphere(Vector3(x,12+x,depth/2+2.8),0.45,Color("b45342"),Vector3(1,1,0.2))
+		elif kind == "cocoa":
+			soft_box(Vector3(0,11.8,depth/2+2),Vector3(3.2,3,0.8),Color("fff9e9"))
+			sphere(Vector3(1.9,11.8,depth/2+2),1.1,Color("fff9e9"),Vector3(0.8,1,0.25))
+			sphere(Vector3(0,13.2,depth/2+2.2),1.3,Color("674337"),Vector3(1,0.25,0.2))
+		else:
+			for x in [-2,0,2]: soft_box(Vector3(x,11.8,depth/2+2),Vector3(1.6,1.5,0.9),Color("d4a64c"),Vector3(0,0,x*0.12))
+			for x in [-1,1]: sphere(Vector3(x,12.8,depth/2+2.5),0.35,Color("fffaf2"))
 	if kind == "first_aid":
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.4), Vector3(6, 1.5, 0.6), Color("e9f2ec"))
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.5), Vector3(1.5, 6, 0.6), Color("e9f2ec"))

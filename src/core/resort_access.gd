@@ -50,10 +50,16 @@ static func depart(model: RefCounted,guest: Dictionary) -> void:
 	guest.leg=0;guest.portal_departing=true;guest.heading_home=true;model._start_leg(guest)
 static func lift_connection(model: RefCounted,proposed: Dictionary) -> Dictionary:
 	var graph: Dictionary=model.pedestrian_graph()
+	# Lift travel joins reachable hubs structurally; these are never walking legs.
+	var edges: Dictionary=graph.edges.duplicate(true)
+	for lift in model.lifts:
+		var bottom := "l%db" % int(lift.id)
+		var top := "l%dt" % int(lift.id)
+		if graph.nodes.has(bottom) and graph.nodes.has(top): edges[bottom].append({"to":top})
 	var reachable: Dictionary={"base":true};var open: Array=["base"]
 	while not open.is_empty():
 		var key: String=open.pop_front()
-		for leg in graph.edges.get(key,[]):
+		for leg in edges.get(key,[]):
 			if not reachable.has(leg.to):reachable[leg.to]=true;open.append(leg.to)
 	var hub:=Foot.station_hub(proposed,false,model.buildings)
 	var options: Array=[]

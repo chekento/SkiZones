@@ -115,6 +115,10 @@ static func add(office: Control) -> void:
 	var services: VBoxContainer = office._page(L.text("Technik & Rettung"))
 	for building in model.buildings:
 		var body: VBoxContainer = office._card(services, L.asset_name(building), L.text("Betriebsbereit") if Ops.building_open(model, building) else L.text("Geschlossen oder Personal fehlt"))
+		hud._button(body, L.text("Betrieb & Gebäudeteam"), func():
+			office.hide()
+			hud.lift_staff.open(int(building.id))
+		, true)
 		office._action(body, L.text("Gebäudeteam einstellen"), func(): return Ops.fill_building(model, int(building.id)))
 		if building.kind == "maintenance": office._action(body, L.text("Pistenraupe kaufen · 65.000 €"), func(): return Ops.buy_groomer(model, int(building.id)))
 		if building.kind == "first_aid": hud._label(body, L.text("Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter.") % (1800 * int(building.get("level", 1))), 16, hud.TEAL, true)

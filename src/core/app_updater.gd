@@ -1,6 +1,5 @@
 extends Node
 const Catalog=preload("res://src/core/update_catalog.gd")
-const PENDING_PATH="user://pending-update.json"
 const L=preload("res://src/core/i18n.gd")
 signal changed
 var game: Node
@@ -13,53 +12,35 @@ var candidate: Dictionary={}
 var build: Dictionary={}
 var request: HTTPRequest
 var stage:=""
-var bridge: Variant
-var activity: Variant
-var download_path:=""
-var installed_code:=22
+var installed_code:=23
 var installed_version: String=str(ProjectSettings.get_setting("application/config/version"))
-var progress:=0
+var link_opener: Callable
+var last_opened_url:=""
 func setup(controller: Node) -> void:
 	game=controller
 	request=HTTPRequest.new();request.timeout=40;request.use_threads=true
 	add_child(request);request.request_completed.connect(_completed)
+	# Retire only the old updater receipt; saves and session files stay untouched.
+	if FileAccess.file_exists("user://pending-update.json"):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://pending-update.json"))
 	if OS.get_name()=="Android" and Engine.has_singleton("AndroidRuntime"):
-		activity=Engine.get_singleton("AndroidRuntime").getActivity()
-		bridge=JavaClassWrapper.wrap("cloud.kosch.skizones.UpdateBridge")
+		var activity: Variant=Engine.get_singleton("AndroidRuntime").getActivity()
+		var bridge: Variant=JavaClassWrapper.wrap("cloud.kosch.skizones.AppInfoBridge")
 		if bridge!=null:
-			download_path=bridge.cachePath(activity)
 			var info: Variant=JSON.parse_string(bridge.installedInfo(activity))
 			if info is Dictionary:
-				installed_code=int(info.get("code",22));installed_version=str(info.get("version",installed_version))
-	if bridge!=null:_restore_pending()
-	if state=="idle" and OS.get_name()=="Android" and not OS.has_feature("android_lifecycle_test"):
+				installed_code=int(info.get("code",23));installed_version=str(info.get("version",installed_version))
+			bridge.clearLegacyUpdateCache(activity)
+	if OS.get_name()=="Android" and not OS.has_feature("android_lifecycle_test"):
 		var config:=ConfigFile.new();config.load("user://updates.cfg")
 		var last: Variant=config.get_value("updates","last_check",0)
 		if (last is int or last is float) and Time.get_unix_time_from_system()-float(last)>21600:
 			call_deferred("check",false)
-func _remember_pending() -> bool:
-	var file:=FileAccess.open(PENDING_PATH+".tmp",FileAccess.WRITE)
-	if file==null:return false
-	file.store_string(JSON.stringify({"version":1,"candidate":candidate,"build":build},"",true,true));file.flush()
-	var error:=file.get_error();file.close()
-	return error==OK and DirAccess.rename_absolute(ProjectSettings.globalize_path(PENDING_PATH+".tmp"),ProjectSettings.globalize_path(PENDING_PATH))==OK
-func _restore_pending() -> void:
-	if not FileAccess.file_exists(PENDING_PATH):return
-	var file:=FileAccess.open(PENDING_PATH,FileAccess.READ)
-	if file==null:return
-	var receipt: Dictionary={}
-	if file.get_length()<=8192:receipt=Catalog.pending(JSON.parse_string(file.get_as_text()),installed_version,installed_code)
-	file.close()
-	if receipt.is_empty() or bridge.validate(activity,download_path,receipt.build.sha256,int(receipt.build.size_bytes),int(receipt.build.version_code))!="ok":
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(PENDING_PATH));DirAccess.remove_absolute(download_path);return
-	candidate=receipt.candidate;build=receipt.build;progress=100
-	_set_status("ready","Das Update ist geprüft und bereit. Vor der Installation wird dein aktuelles Resort gespeichert.")
 func _set_status(value: String, text: String, args: Array=[]) -> void:
 	state=value;message_source=text;message_args=args;changed.emit()
 func check(manual: bool=true) -> void:
-	if state in ["checking","downloading"]:return
-	candidate={};build={};progress=0
-	stage="releases";request.download_file="";request.body_size_limit=1048576
+	if state=="checking":return
+	candidate={};build={};stage="releases";request.body_size_limit=1048576
 	_set_status("checking","Suche nach neuen Versionen auf GitHub …")
 	var error:=request.request(Catalog.API,["Accept: application/vnd.github+json","User-Agent: SkiZones/"+installed_version])
 	if error!=OK:_failure()
@@ -68,55 +49,29 @@ func check(manual: bool=true) -> void:
 func _failure() -> void:
 	_set_status("error","Die Update-Prüfung war nicht möglich. Prüfe deine Internetverbindung und versuche es später erneut.")
 func _completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result!=HTTPRequest.RESULT_SUCCESS or code!=200:
-		if stage=="apk":DirAccess.remove_absolute(download_path)
-		_failure();return
+	if result!=HTTPRequest.RESULT_SUCCESS or code!=200:_failure();return
+	var value: Variant=JSON.parse_string(body.get_string_from_utf8())
 	if stage=="releases":
-		candidate=Catalog.select(JSON.parse_string(body.get_string_from_utf8()),installed_version)
-		if candidate.is_empty():
-			if not JSON.parse_string(body.get_string_from_utf8()) is Array:_failure()
-			else:_set_status("current","Du hast die aktuelle veröffentlichte Version.")
-			return
+		if not value is Array:_failure();return
+		candidate=Catalog.select(value,installed_version)
+		if candidate.is_empty():_set_status("current","Du hast die aktuelle veröffentlichte Version.");return
 		stage="manifest"
 		if request.request(candidate.manifest,["User-Agent: SkiZones/"+installed_version])!=OK:_failure()
 	elif stage=="manifest":
-		build=Catalog.manifest(JSON.parse_string(body.get_string_from_utf8()),candidate,installed_code)
+		build=Catalog.manifest(value,candidate,installed_code)
 		if build.is_empty():
 			_set_status("error","Dieses Update konnte nicht geprüft werden. Bitte versuche es nach der nächsten Veröffentlichung erneut.");return
 		_set_status("available","Version %s ist verfügbar. Deine vier Karrieren und die anderen Spielstände bleiben erhalten.",[candidate.version])
-	elif stage=="apk":
-		if not FileAccess.file_exists(download_path) or FileAccess.get_sha256(download_path)!=build.sha256:
-			DirAccess.remove_absolute(download_path);_set_status("error","Der Download ist unvollständig oder beschädigt. Bitte lade das Update erneut herunter.");return
-		var status: String=bridge.validate(activity,download_path,build.sha256,int(build.size_bytes),int(build.version_code)) if bridge!=null else "unavailable"
-		if status!="ok":
-			DirAccess.remove_absolute(download_path);_set_status("error","Das Update passt nicht zu dieser Installation. Deine Spielstände bleiben erhalten. Installiere die App nicht neu.");return
-		if not _remember_pending():
-			_set_status("error","Das Update konnte nicht zwischengespeichert werden. Bitte gib Speicher frei und versuche es erneut.");return
-		progress=100;_set_status("ready","Das Update ist geprüft und bereit. Vor der Installation wird dein aktuelles Resort gespeichert.")
-func download() -> void:
-	if state!="available" or build.is_empty():return
-	if bridge==null:
-		OS.shell_open(candidate.release);return
-	stage="apk";request.timeout=300;request.body_size_limit=int(build.size_bytes)
-	request.download_file=download_path;progress=0
-	_set_status("downloading","Update wird heruntergeladen …")
-	if request.request(candidate.apk,["User-Agent: SkiZones/"+installed_version])!=OK:_failure()
-func install() -> void:
-	if state not in ["ready","permission"] or bridge==null:return
-	# Recheck immediately before handing Android a read-only content URI.
-	var status: String=bridge.validate(activity,download_path,build.sha256,int(build.size_bytes),int(build.version_code))
-	if status!="ok":
-		_set_status("error","Das Update passt nicht zu dieser Installation. Deine Spielstände bleiben erhalten. Installiere die App nicht neu.");return
+func open_download() -> void:
+	if state not in ["available","opened"]:return
+	if Catalog.manifest(build,candidate,installed_code).is_empty() or candidate.get("release", "")!=Catalog.RELEASES+"/tag/v"+str(candidate.get("version", "")):
+		_set_status("error","Dieses Update konnte nicht geprüft werden. Bitte versuche es nach der nächsten Veröffentlichung erneut.");return
 	if game.has_game:
-		var saved: bool=game.save_game()
-		if not saved:
-			_set_status("error","Dein Resort konnte nicht gespeichert werden. Die Installation wurde angehalten.");return
+		if not game.save_game():
+			_set_status("error","Dein Resort konnte nicht gespeichert werden. Der Download wurde noch nicht geöffnet.");return
 		game.app_session.save(game)
-	var action: String=bridge.install(activity,download_path)
-	if action=="permission":_set_status("permission","Erlaube Android einmalig, Updates aus SkiZones zu installieren. Kehre danach zurück und tippe erneut auf Installieren.")
-	elif action=="installer":_set_status("ready","Bestätige das Update im Android-Installationsfenster. Dein Fortschritt bleibt erhalten.")
-	else:_set_status("error","Android konnte die Installation nicht öffnen. Du kannst sie später erneut starten.")
-func _process(_delta: float) -> void:
-	if state!="downloading" or build.is_empty():return
-	var value:=clampi(int(100.0*request.get_downloaded_bytes()/maxi(1,int(build.size_bytes))),0,99)
-	if value!=progress:progress=value;changed.emit()
+	var error: int=link_opener.call(candidate.release) if link_opener.is_valid() else OS.shell_open(candidate.release)
+	if error!=OK:
+		_set_status("error","Der Browser konnte nicht geöffnet werden. Versuche es später erneut.");return
+	last_opened_url=candidate.release
+	_set_status("opened","GitHub wurde geöffnet. Lade dort die APK herunter und installiere sie über die vorhandene App. Danach über das App-Symbol weiterspielen.")

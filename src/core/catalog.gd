@@ -19,8 +19,11 @@ const LIFTS := {
 }
 
 const BUILDINGS := {
+	"cocoa": {"name":"Kakaoladen","cost":11500,"upkeep":90,"income":4.0,"appeal":5,"color":"a3775e","description":"Heiße Schokolade wärmt kalte Gäste. Ein günstiger Einstieg mit kurzen Pausen und Gastronomiepersonal."},
+	"schmarrn": {"name":"Kaiserschmarrn-Laden","cost":17500,"upkeep":155,"income":6.0,"appeal":7,"color":"d9ab62","description":"Warmer Kaiserschmarrn stillt den Hunger und bietet Familien Platz für eine gemeinsame Pause."},
+	"pizzeria": {"name":"Pizzeria","cost":26500,"upkeep":240,"income":8.0,"appeal":8,"color":"b9694e","description":"Sättigende Pizza und längere Mittagspausen. Benötigt Gastronomiepersonal und einen erreichbaren Eingang."},
 	"repair_office": {"name": "Technik- und Reparaturzentrale", "cost": 38000, "upkeep": 180, "income": 0.0, "appeal": 0, "color": "6f99a5", "description": "Techniker und Elektriker einstellen, Ersatzteile bestellen und defekte Lifte reparieren."},
-	"disco": {"name": "Après-Ski & Disco", "cost": 68000, "upkeep": 460, "income": 22.0, "appeal": 14, "color": "b785ba", "description": "Abendbetrieb von 18 bis 02 Uhr. Benötigt Gastronomiepersonal und Sicherheit."},
+	"disco": {"name": "Après-Ski & Disco", "cost": 68000, "upkeep": 460, "income": 22.0, "appeal": 14, "color": "b785ba", "description": "Abendbetrieb von 18 bis 06 Uhr. Benötigt Gastronomiepersonal und Sicherheit."},
 	"pool": {"name": "Beheizter Außenpool", "cost": 85000, "upkeep": 650, "income": 18.0, "appeal": 18, "color": "70bfc7", "description": "Erholung von 10 bis 23 Uhr mit Energiebedarf und Personal für Service und Sicherheit."},
 	"kiosk": {"name": "Punschstand", "cost": 9500, "upkeep": 85, "income": 3.0, "appeal": 4, "color": "b96c4e", "description": "Eine kleine warme Pause: günstiger Einstieg in die Verpflegung mit zusätzlichen Serviceerlösen."},
 	"viewpoint": {"name": "Panoramaterrasse", "cost": 14000, "upkeep": 90, "income": 0.0, "appeal": 10, "color": "739a9d", "description": "Sitzplätze und Fernrohr für den Gipfelblick. Erhöht den Komfort nahe einer Station."},
@@ -45,3 +48,14 @@ const WEATHER := [
 	{"name": "Sturm", "temperature": -9.0, "wind": 58.0, "snowfall": 13.0, "demand": 0.42},
 	{"name": "Tauwetter", "temperature": 4.0, "wind": 16.0, "snowfall": 0.0, "demand": 0.65}
 ]
+
+const FOOD_KINDS = ["kiosk", "cocoa", "schmarrn", "pizzeria", "restaurant", "lodge", "hotel"]
+static func building_group(kind: String) -> String:
+	if kind in FOOD_KINDS or kind == "shelter": return "Verpflegung & Wärme"
+	if kind in ["repair_office", "maintenance", "snowmaker", "first_aid"]: return "Betrieb & Sicherheit"
+	if kind in ["rental", "school", "bus"]: return "Service & Anreise"
+	return "Freizeit & Erholung"
+static func building_order() -> Array:
+	var result := BUILDINGS.keys()
+	result.sort_custom(func(a, b): return BUILDINGS[a].cost < BUILDINGS[b].cost if BUILDINGS[a].cost != BUILDINGS[b].cost else a < b)
+	return result

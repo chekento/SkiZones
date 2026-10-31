@@ -171,7 +171,7 @@ static func station_team(model: RefCounted, lift: Dictionary) -> Array:
 		for person in model.operations.staff:
 			if person.role != "operator" or person.assignment != station.key: continue
 			row.people.append(person)
-			if person.shift == "day" and int(person.absent_until) <= clock(model) and int(person.break_until) <= clock(model): row.planned += 1
+			if person.shift == "day": row.planned += 1
 		row.missing = maxi(0, station.minimum - row.planned)
 		result.append(row)
 	return result
@@ -230,7 +230,7 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 	for station in station_demands(lift):
 		var assigned := 0
 		for person in model.operations.staff:
-			if person.role == "operator" and person.assignment == station.key and person.shift == "day" and int(person.absent_until) <= clock(model) and int(person.break_until) <= clock(model): assigned += 1
+			if person.role == "operator" and person.assignment == station.key and person.shift == "day": assigned += 1
 		for i in range(maxi(0, station.minimum - assigned)): additions.append(station.key)
 	if not free and model.money < additions.size() * 180: return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	if model.operations.staff.size() + additions.size() > 1200: return model._result(false, L.text("Im Personalplan ist kein Platz für dieses Team."))
@@ -246,27 +246,35 @@ static func building_roles(kind: String) -> Array:
 		"hotel": return ["hotel", "hotel", "security"]
 		"disco": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
-		"restaurant", "lodge", "kiosk": return ["catering"]
+		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
 		"rental", "school": return ["hotel"]
 	return []
 
+static func building_shifts(model: RefCounted, kind: String) -> Array:
+	var shifts: Array = ["day", "evening", "night"] if kind == "hotel" else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "maintenance"] else ["day"])
+	if model.time_divisor > 1 and kind in ["disco", "pool", "spa"] and not shifts.has("night"): shifts.append("night")
+	return shifts
+
+static func building_team(model: RefCounted, building: Dictionary) -> Array:
+	var required: Dictionary = {}
+	for role in building_roles(building.kind): required[role] = int(required.get(role, 0)) + 1
+	var rows: Array = []
+	for shift in building_shifts(model, building.kind):
+		for role in required:
+			var target := "building:%d" % int(building.id)
+			var people: Array = model.operations.staff.filter(func(p): return p.role == role and p.assignment == target and p.shift == shift)
+			rows.append({"key":target,"role":role,"shift":shift,"minimum":required[role],"people":people,"planned":people.size(),"present":people.filter(func(p):return on_duty(model,p)).size(),"missing":maxi(0,required[role]-people.size())})
+	return rows
+
 static func fill_building(model: RefCounted, id: int, free: bool = false) -> Dictionary:
 	var building: Dictionary = model.asset(id)
-	if not building.has("point"): return model._result(false, L.text("Ein Gebäude wählen."))
-	var target := "building:%d" % id
-	var shift := "evening" if building.kind in ["disco", "pool", "spa", "maintenance"] else "day"
+	if not model.Catalog.BUILDINGS.has(building.get("kind", "")): return model._result(false, L.text("Ein Gebäude wählen."))
 	var missing: Array = []
-	var shifts: Array = ["day", "evening", "night"] if building.kind == "hotel" else (["day", "evening"] if building.kind in ["pool", "spa"] else [shift])
-	if model.time_divisor>1 and building.kind in ["disco","pool","spa"] and not shifts.has("night"): shifts.append("night")
-	for shift_value in shifts:
-		var counts: Dictionary = {}
-		for person in model.operations.staff:
-			if person.assignment == target and person.shift == shift_value: counts[person.role] = int(counts.get(person.role, 0)) + 1
-		for role in building_roles(building.kind):
-			if int(counts.get(role, 0)) > 0: counts[role] -= 1
-			else: missing.append([role, shift_value])
+	for row in building_team(model, building):
+		for i in range(row.missing): missing.append([row.role, row.shift])
+	if model.operations.staff.size() + missing.size() > 1200: return model._result(false, L.text("Im Personalplan ist kein Platz für dieses Team."))
 	if not free and model.money < missing.size() * 180: return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
-	for entry in missing: hire(model, entry[0], target, entry[1], free)
+	for entry in missing: hire(model, entry[0], "building:%d" % id, entry[1], free)
 	return model._result(true, L.text("Gebäudeteam eingestellt. Im Personalplan sind weitere Schichten möglich."))
 
 static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
@@ -291,7 +299,7 @@ static func order_parts(model: RefCounted) -> Dictionary:
 	model.operations.delivery_at = clock(model) + 120
 	return model._result(true, L.text("Sechs Ersatzteilpakete bestellt. Lieferung in zwei Spielstunden."))
 
-static func repair(model: RefCounted, id: int) -> Dictionary:
+static func repair_check(model: RefCounted, id: int, workshop_id: int = -1) -> Dictionary:
 	var lift: Dictionary = model.asset(id)
 	if not lift.has("bottom") or lift.get("fault", "") == "": return model._result(false, L.text("Diese Anlage benötigt keine Störungsreparatur."))
 	for task in model.operations.repairs:
@@ -299,12 +307,20 @@ static func repair(model: RefCounted, id: int) -> Dictionary:
 	if model.operations.parts <= 0: return model._result(false, L.text("Zuerst Ersatzteile bestellen."))
 	var workshop := -1
 	for building in model.buildings:
-		if building.kind == "repair_office" and building_open(model, building):
+		if building.kind == "repair_office" and (workshop_id < 0 or int(building.id) == workshop_id) and building_open(model, building):
 			var busy := false
 			for task in model.operations.repairs:
 				if int(task.workshop) == int(building.id): busy = true
 			if not busy: workshop = int(building.id)
 	if workshop < 0: return model._result(false, L.text("Eine freie Technikzentrale mit Techniker und Elektriker wird benötigt."))
+	if model.money < 900: return model._result(false, L.text("Das Budget reicht für die Reparatur noch nicht."))
+	return model._result(true, L.text("Reparatur möglich · 900 € und ein Ersatzteilpaket"), {"workshop":workshop,"cost":900})
+
+static func repair(model: RefCounted, id: int, workshop_id: int = -1) -> Dictionary:
+	var check := repair_check(model, id, workshop_id)
+	if not check.ok: return check
+	var lift: Dictionary = model.asset(id)
+	var workshop: int = check.workshop
 	if not _expense(model, 900, "repairs"): return model._result(false, L.text("Das Budget reicht für die Reparatur noch nicht."))
 	model.operations.parts -= 1
 	var distance := Terrain.unpack(lift.bottom).distance_to(Terrain.unpack(model.asset(workshop).point))
@@ -319,10 +335,11 @@ static func buy_groomer(model: RefCounted, garage: int) -> Dictionary:
 	model.operations.next_vehicle += 1
 	return model._result(true, L.text("Pistenraupe gekauft. Fahrer einstellen und eine Piste zuweisen oder Nachtpräparierung aktivieren."))
 
-static func groom(model: RefCounted, id: int) -> Dictionary:
+static func groom(model: RefCounted, id: int, garage_id: int = -1) -> Dictionary:
 	var piste: Dictionary = model.asset(id)
 	if not piste.has("difficulty"): return model._result(false, L.text("Eine Piste wählen."))
 	for vehicle in model.operations.vehicles:
+		if garage_id >= 0 and int(vehicle.garage) != garage_id: continue
 		var garage: Dictionary = model.asset(int(vehicle.garage))
 		if vehicle.piste >= 0 or garage.is_empty() or not building_open(model, garage): continue
 		var busy_count := 0
@@ -367,13 +384,13 @@ static func evacuate(model: RefCounted, id: int) -> Dictionary:
 			count += int(guest.get("group_size", 1))
 	return model._result(count > 0, L.text("Hilferufe für %d Passagiere angelegt. Rettungsteams werden nach Erreichbarkeit entsandt.") % count)
 
-static func dispatch(model: RefCounted, id: int) -> Dictionary:
+static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
 		if int(event.id) != id or event.status != "waiting": continue
 		var best := INF
 		var station := -1
 		for building in model.buildings:
-			if building.kind != "first_aid" or not building_open(model, building): continue
+			if building.kind != "first_aid" or (station_id >= 0 and int(building.id) != station_id) or not building_open(model, building): continue
 			var busy: bool = model.operations.incidents.any(func(e): return e.status == "responding" and int(e.station) == int(building.id))
 			if busy: continue
 			var position := Terrain.unpack(event.point)
@@ -683,3 +700,47 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	for person in state.staff:
 		for key in ["id", "qualification", "worked", "absent_until", "break_until"]: person[key] = int(person[key])
 	return true
+
+static func line_lifts(model: RefCounted, lift: Dictionary) -> Array:
+	var line: Variant = lift.get("line_id", lift.get("line", lift.id))
+	var key := str(int(line)) if line is float or line is int else str(line)
+	var result: Array = model.lifts.filter(func(part):
+		var value: Variant = part.get("line_id", part.get("line", part.id))
+		return (str(int(value)) if value is float or value is int else str(value)) == key)
+	result.sort_custom(func(a,b): return int(a.get("section",0)) < int(b.get("section",0)) if int(a.get("section",0)) != int(b.get("section",0)) else int(a.id) < int(b.id))
+	return result
+
+static func line_station_team(model: RefCounted, lift: Dictionary) -> Array:
+	var result: Array = []
+	for part in line_lifts(model,lift):
+		for row in station_team(model,part):
+			var existing: Array = result.filter(func(s):return s.key == row.key)
+			if not existing.is_empty():
+				existing[0].minimum = maxi(existing[0].minimum,row.minimum)
+				existing[0].missing = maxi(0,existing[0].minimum-existing[0].planned)
+				continue
+			row.lift_id = part.id
+			result.append(row)
+	for index in range(result.size()):
+		result[index].name = L.text("Talstation") if index == 0 else L.text("Bergstation") if index == result.size()-1 else L.text("Mittelstation") if result.size() == 3 else L.text("Mittelstation %d") % index
+	return result
+
+static func fill_line_station(model: RefCounted, id: int, key: String) -> Dictionary:
+	var lift: Dictionary = model.asset(id)
+	if not lift.has("bottom"): return model._result(false,L.text("Einen Lift wählen."))
+	for station in line_station_team(model,lift):
+		if station.key != key: continue
+		if model.operations.staff.size()+station.missing > 1200 or model.money < station.missing*180: return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
+		for i in range(station.missing): hire(model,"operator",key)
+		return model._result(true,L.text("Tagschicht besetzt · 07–18 Uhr. Der Dienststatus zeigt Pausen und Abwesenheiten."))
+	return model._result(false,L.text("Station nicht gefunden."))
+
+static func fill_line(model: RefCounted, id: int) -> Dictionary:
+	var lift: Dictionary = model.asset(id)
+	if not lift.has("bottom"): return model._result(false,L.text("Einen Lift wählen."))
+	var rows := line_station_team(model,lift)
+	var missing := 0
+	for row in rows: missing += row.missing
+	if model.operations.staff.size()+missing > 1200 or model.money < missing*180: return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
+	for row in rows: fill_line_station(model,id,row.key)
+	return model._result(true,L.text("Alle Stationen dieses Liftverbunds sind eingeplant."))
