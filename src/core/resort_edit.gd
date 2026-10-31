@@ -19,6 +19,9 @@ static func context(model: RefCounted, id: int) -> RefCounted:
 	candidate.map_id = model.map_id
 	candidate.terrain_generation = model.terrain_generation
 	candidate.legacy_foot = model.legacy_foot
+	candidate.edge_entries=model.edge_entries
+	candidate.time_divisor=model.time_divisor
+	candidate.portal_path=model.portal_path.duplicate(true)
 	candidate.terrain = model.terrain
 	candidate.money = model.money
 	candidate.campaign = model.campaign
@@ -47,7 +50,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 		original = item.points
 	elif item.has("bottom"):
 		if points.size() != 2: return invalid
-		check = candidate.preview_lift(item.kind, Terrain.unpack(points[0]), Terrain.unpack(points[1]))
+		check = candidate.preview_lift(item.kind, Terrain.unpack(points[0]), Terrain.unpack(points[1]),points!=[item.bottom,item.top])
 		original = [item.bottom, item.top]
 	else:
 		if points.size() != 1: return invalid
@@ -98,7 +101,9 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	var distance := 0.0
 	for index in range(mini(check.points.size(), original.size())):
 		distance += Terrain.unpack(check.points[index]).distance_to(Terrain.unpack(original[index]))
-	check.cost = roundi(maxf(500, item.cost * (0.08 if item.has("bottom") else 0.04) + distance * 8 + maxf(0, check.get("cost", item.cost) - item.cost) * 0.7)) if changed else 0
+	var road_cost: int=int(check.get("foot_connection",{}).get("cost",0)) if item.has("bottom") else 0
+	var construction_cost: float=check.get("cost",item.cost)-road_cost
+	check.cost = roundi(maxf(500, item.cost * (0.08 if item.has("bottom") else 0.04) + distance * 8 + maxf(0, construction_cost - item.cost) * 0.7)+road_cost) if changed else 0
 	check.changed = changed
 	check.message = L.text("Änderung prüfen · %.0f € · erst Übernehmen bestätigt den Umbau.") % L.args(check.cost)
 	return check
@@ -129,6 +134,10 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 		item.top = points[1].duplicate()
 		item.length = check.length
 		item.recent_departures = []
+		var connection: Dictionary=check.get("foot_connection",{})
+		if check.changed and not connection.is_empty():
+			model.walk_areas.append({"id":model.next_id,"kind":"walkway","name":L.text("Zugang zur Talstation"),"points":connection.points.duplicate(true),"point":connection.points[0],"radius":4.0,"length":connection.length,"cost":connection.cost,"enabled":true,"level":1,"upgrade_total":0.0})
+			model.next_id+=1
 		for piste in model.pistes:
 			var prepared := Foot.prepare_piste(piste.points, [item])
 			if prepared != piste.points:
@@ -145,7 +154,7 @@ static func apply(model: RefCounted, id: int, points: Array, title: String, colo
 	item.custom_name = item.get("custom_name",false) or title != item.name
 	item.name = title
 	item.color = color
-	item.upgrade_total = item.get("upgrade_total", 0) + check.cost
+	item.upgrade_total = item.get("upgrade_total", 0) + check.cost - (int(check.get("foot_connection",{}).get("cost",0)) if item.has("bottom") and check.changed else 0)
 	model._invalidate()
 	if check.changed: model._reroute_guests()
 	return {"ok": true, "message": L.text("%s angepasst. Umbau: %.0f €.") % L.args([title, check.cost]), "cost": check.cost}

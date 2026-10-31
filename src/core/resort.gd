@@ -388,6 +388,8 @@ func preview_lift(kind: String, bottom: Vector2, top: Vector2, check_spacing: bo
 		if walk_areas.size()>=80:return _result(false,L.text("Maximal 80 Wege und zusätzliche Gehflächen."))
 		var proposed: Dictionary={"kind":kind,"bottom":Terrain.pack(bottom),"top":Terrain.pack(top)}
 		if not portal_path.is_empty() and not Foot.clear_walk(portal_path,buildings,lifts+[proposed]):return _result(false,L.text("Den öffentlichen Zugang zur Kartengrenze freihalten."))
+		for area in walk_areas:
+			if area.kind=="walkway" and not Foot.clear_walk(area.points,buildings,lifts+[proposed]):return _result(false,L.text("Den gebauten Fußweg freihalten. Die Anlage neben den Weg setzen."))
 		connection=Access.lift_connection(self,proposed)
 		if connection.is_empty():return _result(false,L.text("Für die Talstation fehlt ein sicherer Fußweg zum bestehenden Netz. Wähle einen näheren oder flacheren Standort."))
 		cost+=int(connection.cost)

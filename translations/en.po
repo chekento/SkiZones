@@ -3054,3 +3054,6 @@ msgstr "[b]WATCH[/b]\nAt 1×, one game hour takes about twelve minutes. Days las
 
 msgid "Updates · %s verfügbar"
 msgstr "Updates · %s available"
+
+msgid "Den gebauten Fußweg freihalten. Die Anlage neben den Weg setzen."
+msgstr "Keep the built footpath clear. Place the facility beside the path."
