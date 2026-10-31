@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,6 +23,10 @@ def main():
     source = ROOT / "build/android/SkiZones-debug.apk"
     if not source.is_file():
         raise SystemExit("Export and verify the APK before preparing the download.")
+    with zipfile.ZipFile(source) as archive:
+        resource = "assets/assets/access/entrances.json"
+        if resource not in archive.namelist() or archive.read(resource) != (ROOT / "assets/access/entrances.json").read_bytes():
+            raise SystemExit("The APK is missing the current bundled map-entrance data.")
     folder = ROOT / "build/release"
     folder.mkdir(parents=True, exist_ok=True)
     apk = folder / f"SkiZones-{version}-android-arm64.apk"
