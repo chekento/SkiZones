@@ -60,9 +60,9 @@ Das Spiel benötigt keinen Account und ist offline spielbar. Die Internetberecht
 
 Die automatisierten Eingabetests ersetzen diese Geräteprüfung nicht.
 
-## Vor einer Veröffentlichung
+## Vor einer Play-Store-Veröffentlichung
 
-Separaten Release-Keystore verwalten, Versionscodes erhöhen, Gradle/AAB und aktuelle Store-Anforderungen prüfen, Datenschutz- und Store-Angaben erstellen, Lizenzen erfassen und die Geräteprüfung abschließen. Der GitHub-Release verwendet zur Updatekompatibilität weiterhin die bestehende CI-Signatur; er ist keine Play-Store-Veröffentlichung.
+Für eine künftige Store-Ausgabe Schlüsselverwaltung und gegebenenfalls einen getrennten Veröffentlichungskanal planen, Versionscodes erhöhen, AAB und aktuelle Store-Anforderungen prüfen, Datenschutz- und Store-Angaben erstellen, Lizenzen erfassen und die Geräteprüfung abschließen. Die bestehende GitHub-Signatur darf für Aktualisierungen vorhandener Installationen nicht gewechselt werden. Der GitHub-Release verwendet zur Updatekompatibilität weiterhin die bestehende CI-Signatur; er ist keine Play-Store-Veröffentlichung.
 
 Offizielle Referenz: [Godot 4.5 – Exporting for Android](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_android.html).
 

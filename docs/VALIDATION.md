@@ -1,6 +1,35 @@
 # Prüfung von SkiZones 0.18.0
 
-Der vollständige Veröffentlichungsbuild mit Modell-, Grafik-, APK- und Android-Prüfungen läuft vor der Freigabe. Die neuen Modellprüfungen bestehen mit **46 / 46**, die neue dargestellte Anlagenmenüprüfung mit **39 / 39** einschließlich der kompakten Stationsübersicht. Die endgültigen Zahlen und der Veröffentlichungslauf werden nach Abschluss eingetragen. Es liegt keine unabhängige Play-Protect-Freigabe vor.
+**Modell und Grafik: 1.428 Prüfungen in 45 Suiten bestanden.** Der Sprachkatalog umfasst **1.080** geprüfte Einträge. Android-Prüfung: **53 echte Activity-/Oberflächenfälle bestanden: 26 unter Android 11 (API 30), 27 unter Android 16 (API 36)**.
+
+Geprüfter APK-Quellcode: `b98a2c22bd09cb018803d04cfafbb09c51387e9b`.
+[Vollständiger Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41216584637) mit Godot 4.5.2, Android-Versionscode **23** und Spielstandformat **16**. Ältere Spielstände werden weiter gelesen.
+
+Die neuen Modellprüfungen (**46**) decken flache Verbindungslifte, kompakte Zauberteppiche, tatsächliche Längenhinweise, automatische Stationszuordnung beim Bau, sichere benachbarte Andockpunkte, echte Fußwege zu oberen Erweiterungen, preisaufsteigenden Dorfkatalog, drei neue Gastronomiebetriebe mit Personal, Besuchswegen, erfüllten Bedürfnissen, realen Erlösen und gespeicherten Zuständen sowie die vollständige Besetzung mehrteiliger Liftlinien ab. Gemeinsame Mittelstationen benötigen nur ein Team; geplante Besetzung und tatsächlicher Dienst werden auch bei Pausen unterschieden. Wiederholtes Einstellen dupliziert keine Teams, unzureichendes Budget verändert kein Teilteam.
+
+Die neue dargestellte Anlagenmenüprüfung (**39**) bedient die wirklichen Schaltflächen: passende Palette bei einem Liftumbau, alle drei Stationen vom oberen Abschnitt aus, gemeinsame Einstellungen, aufklappbare Mitarbeiter, eigene Werkstattteams und bezahlte Reparaturen mit Ersatzteilen, Lieferzeiten, Gastronomieteams, Schließen/Öffnen und tatsächlicher Gebäudeausbau. Kleine Querformatfenster und Englisch werden geprüft. Der Browser-Updateweg speichert vor der Übergabe und weist veränderte Veröffentlichungslinks ab. Die bestehenden **53** Grafikprüfungen für volle Kartenfläche, exakte Planungspunkte, durchgehende Szenariopisten, Missionsanzeige und direkte Stationsbesetzung bleiben erfolgreich.
+
+## Tatsächliche Release-APK
+
+Der öffentliche ARM64-Build enthält ausschließlich **`android.permission.INTERNET`** als angeforderte Berechtigung. `REQUEST_INSTALL_PACKAGES`, eigener APK-FileProvider und die alten Installerklassen fehlen. Die APK ist **nicht debuggable**, verwendet den Release-Export und besitzt dieselbe Signatur wie die vorherige öffentliche **0.17.0**. Signatur und ZIP-Struktur sind geprüft. Die gebündelten Zugangswege entsprechen den aktuellen Kartendaten; der Emulator-Testtreiber ist nicht enthalten.
+
+APK: **28.822.386 Bytes**, ARM64. SHA-256: `fd676190edc4e61093df38b778b40fab9094eca89ebc875c071b2959906796a6`.
+Signatur-SHA-256: `405d46b3e54945a502a02ac2630390a74f44a55a326f8f8a4a71a63bd467044b`.
+
+## Android und Spielstände
+
+Auf beiden Android-Versionen öffnet der tatsächliche Betriebssystem-Aufruf die offizielle GitHub-Veröffentlichung im Browser bzw. in der Browserauswahl. Danach kehrt dieselbe Karriere mit sichtbarem Spielbild zurück. Die App benötigt keine eigene Installationsfreigabe.
+
+Der Android-Paketmanager weist fremd signierte und beschädigte APKs ab. Eine gleich signierte Test-APK mit höherem Versionscode **24** ersetzt die Installation mit Code **23**. Anschließend startet Karriere 3 mit unverändertem Tag 13, Budget 234.563 € und pausiertem Zustand. Die Hashwerte aller vier Karriere-Spielstände und Freischaltungsdateien stimmen vor und nach Browser-Rückkehr sowie Aktualisierung überein. Bei den Karriereindizes wird ausschließlich der Speicherzeitstempel aus dem Inhaltsvergleich ausgenommen.
+
+Der erste API-30-Lauf verlor beim abschließenden Paketwechsel die Verbindung zum Emulator; auch dessen abschließende Zustandsabfragen und Beendigung waren nicht mehr möglich. Ein vollständiger gezielter Wiederholungslauf derselben unveränderten APK besteht mit allen 26 Fällen. Der API-36-Lauf besteht mit 27 Fällen. Die Veröffentlichung erfolgte nach beiden erfolgreichen Läufen. Es wurden keine App-, Darstellungs- oder Dateivergleichsprüfungen entfernt.
+
+Der öffentliche APK-Download wurde nach der Veröffentlichung erneut heruntergeladen und stimmt mit Manifest, SHA-256-Datei, Architektur und dem geprüften Release-Artefakt überein. Der tatsächliche Update-Katalog des Spiels akzeptiert das öffentliche 0.18-Angebot und dessen Manifest für eine Installation mit Version 0.17 / Code 22; einer bereits aktuellen Version 0.18 / Code 23 wird dieses Update nicht erneut angeboten.
+
+## Grenze der Prüfung
+
+Für 0.17 wurde die konkrete Google-Play-Protect-Warnung „Schädliche App blockiert“ gemeldet. Die Ursache und eine Aufhebung der Einstufung sind **nicht unabhängig bestätigt**. Berechtigungs-, Signatur-, Archiv- und Emulatorprüfungen sind keine Google-Freigabe. Ein physisches ARM64-Smartphone wurde nicht geprüft. [Play-Protect-Status und offizielle Prüfwege](PLAY_PROTECT.md).
+
 
 ---
 

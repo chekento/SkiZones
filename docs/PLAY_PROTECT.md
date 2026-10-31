@@ -2,11 +2,11 @@
 
 Am 31.10.2026 wurde für die GitHub-APK von **SkiZones 0.17.0** die Meldung **„Schädliche App blockiert“** gemeldet. Das ist eine konkrete Play-Protect-Warnung. Der Screenshot nennt keine technische Ursache oder Schadsoftware-Kategorie. Wir können daraus weder einen bestätigten Befall noch eine bestätigte Fehlklassifizierung ableiten.
 
-## Was wir ändern
+## Änderungen in 0.18
 
-Die Version 0.18 befindet sich in Prüfung. Der direkte APK-Downloader und Installer aus 0.17 werden entfernt. SkiZones prüft weiterhin GitHub-Veröffentlichungen und deren Manifest. Vor dem Öffnen der offiziellen GitHub-Seite wird das aktuelle Resort gespeichert. Download und Installation übernimmt anschließend der vom Spieler gewählte Browser zusammen mit Android.
+In Version 0.18 sind der direkte APK-Downloader und Installer aus 0.17 entfernt. SkiZones prüft weiterhin GitHub-Veröffentlichungen und deren Manifest. Vor dem Öffnen der offiziellen GitHub-Seite wird das aktuelle Resort gespeichert. Download und Installation übernimmt anschließend der vom Spieler gewählte Browser zusammen mit Android.
 
-Die neue APK soll **ohne `REQUEST_INSTALL_PACKAGES`**, ohne eigenen APK-FileProvider und ohne den bisherigen Installations-Bridgecode veröffentlicht werden. Der öffentliche Download wird als **Release-Build ohne Debuggerfreigabe** erstellt. Paketkennung und bisherige Signatur werden für Aktualisierungen mit erhaltenen Spielständen beibehalten.
+Die exportierte Release-APK ist **ohne `REQUEST_INSTALL_PACKAGES`**, ohne eigenen APK-FileProvider und ohne den bisherigen Installations-Bridgecode geprüft. Sie fordert ausschließlich **`android.permission.INTERNET`** an. Der Download ist ein **Release-Build ohne Debuggerfreigabe**. Paketkennung und bisherige Signatur werden für Aktualisierungen mit erhaltenen Spielständen beibehalten.
 
 Die Buildprüfung kontrolliert die tatsächlich exportierte APK: deklarierte Berechtigungen, Debuggerkennzeichen, Archivstruktur, entfernte Installerklassen und Übereinstimmung mit der bisherigen Signatur. Diese technische Prüfung ersetzt keine Einstufung durch Google Play Protect.
 
@@ -25,3 +25,13 @@ Google empfiehlt, Berechtigungen auf den erforderlichen Umfang zu begrenzen, den
 - [Google: Verwendung von REQUEST_INSTALL_PACKAGES](https://support.google.com/googleplay/android-developer/answer/12085295?hl=en)
 
 Für vorhandene Spielstände gilt: Die neue APK wird über die bestehende Installation installiert. Eine Deinstallation oder das Löschen der App-Daten entfernt lokale Spielstände und gehört nicht zum Updateablauf.
+
+## Daten für eine Prüfung durch Google
+
+- Paket: `cloud.kosch.skizones`, Version 0.18.0, Android-Versionscode 23, ARM64.
+- [Offizielle Veröffentlichung und APK](https://github.com/chekento/SkiZones/releases/tag/v0.18.0).
+- APK-SHA-256: `fd676190edc4e61093df38b778b40fab9094eca89ebc875c071b2959906796a6`.
+- Signatur-SHA-256: `405d46b3e54945a502a02ac2630390a74f44a55a326f8f8a4a71a63bd467044b`, unverändert gegenüber 0.17.
+- [Quellcode der geprüften Fassung](https://github.com/chekento/SkiZones/tree/b98a2c22bd09cb018803d04cfafbb09c51387e9b) und [technische Prüfnachweise](VALIDATION.md).
+
+Es wurde keine Einstufungsänderung durch Google bestätigt und kein Einspruch automatisch eingereicht.
