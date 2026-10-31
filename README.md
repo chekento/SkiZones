@@ -1,12 +1,21 @@
 <div align="center">
 
-<img src="assets/icon.svg" width="96" alt="SkiZones Logo">
+<img src="assets/branding/icon_512.png" width="128" alt="SkiZones – winterliches PMDD-App-Icon mit SZ-Monogramm">
 
 # SkiZones
 
 **Dein Berg. Dein Resort. Dein nächster Winter.**
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
+
+<details>
+<summary>❄️ Vorschau: neue SkiZones-Wintergrafik in Version 0.19</summary>
+
+<img src="assets/branding/splash_1920.png" width="960" alt="PMDD 4.0 gestalteter SkiZones-Ladebildschirm mit Wintersportlern, Gondeln und Schneemann">
+
+*Ab Version 0.19 als vollflächiger Ladebildschirm vorgesehen. Die PMDD-Tiefenwirkung ist bildgestalterisch; die statische Grafik verwendet keine Geräte-Sensorparallaxe.*
+
+</details>
 
 <!-- APK-DOWNLOAD:START -->
 [![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk)
