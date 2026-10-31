@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **20 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **21 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.18.0](https://github.com/chekento/SkiZones/releases/tag/v0.18.0)** | 31.10.2026 | Anlagen direkt verwalten und leichter anschließen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk) | [Details](docs/releases/0.18.0.md) |
 | **[v0.17.0](https://github.com/chekento/SkiZones/releases/tag/v0.17.0)** | 31.10.2026 | Vier Karrieren, Updates und eigene Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk) | [Details](docs/releases/0.17.0.md) |
 | **[v0.16.0](https://github.com/chekento/SkiZones/releases/tag/v0.16.0)** | 30.10.2026 | Gäste mit eigenen Urlaubswünschen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk) | [Details](docs/releases/0.16.0.md) |
 | **[v0.15.0](https://github.com/chekento/SkiZones/releases/tag/v0.15.0)** | 30.10.2026 | Stabile Karte, klare Missionen und direkte Liftteams | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.15.0/SkiZones-0.15.0-android-arm64.apk) | [Details](docs/releases/0.15.0.md) |
@@ -30,6 +31,53 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.18.0 · Anlagen direkt verwalten und leichter anschließen (31.10.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.18.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk)** (27.5 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.18.0/manifest.json) · [Originalnotizen](docs/releases/0.18.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.18.0)
+
+Lifte und Dorfgebäude erhalten ein gemeinsames, direkt an der ausgewählten Anlage erreichbares Fenster für **Betrieb, Personal und Gestaltung**. Die Liftplanung zeigt passende Anschlusspunkte neben vorhandenen Stationen. Drei neue warme Gastronomieangebote ergänzen das Dorf.
+
+### Play Protect und Updates
+
+Für 0.17 wurde „Schädliche App blockiert“ gemeldet. Die genaue Ursache und eine mögliche Fehlklassifizierung sind nicht bestätigt. Diese Version entfernt den eigenen APK-Downloader, Installer, APK-FileProvider und `REQUEST_INSTALL_PACKAGES`. Die öffentliche APK wird ohne Debuggerfreigabe exportiert; die bestehende Paketkennung und Signatur bleiben für Aktualisierungen erhalten.
+
+SkiZones prüft weiterhin GitHub-Versionen und Manifeste. **GitHub-Download im Browser öffnen** speichert vorher das aktuelle Resort und die Sitzung. Browser und Android übernehmen Download und Installation über die bestehende App. Die vier Karrieren und anderen Spielstände bleiben bei einer passend signierten Aktualisierung erhalten. Nicht deinstallieren oder App-Daten löschen.
+
+Die exportierte APK wird auf Berechtigungen, entfernte Installerklassen, Debuggerkennzeichen, Archivstruktur und Signaturkontinuität geprüft. **Das ist keine bestätigte Freigabe durch Google Play Protect.** [Gemeldete Warnung, Änderungen und offizielle Prüfwege](docs/PLAY_PROTECT.md).
+
+### Liftplanung und Anschlüsse
+
+- Flache Verbindungslifte und kompakte Zauberteppiche sind möglich. Ein pauschaler Mindesthöhengewinn von neun Metern verhindert den Bau nicht mehr.
+- Tal und Berg werden anhand der tatsächlichen Höhe automatisch zugeordnet, auch bei umgekehrter Klickreihenfolge und Umbauten.
+- Statt der allgemeinen Längenmeldung erscheinen geplante Länge und das tatsächliche Mindest-/Höchstmaß des gewählten Lifttyps.
+- Liftpunkte docken an markierte, freie Standorte **neben** vorhandenen Stationen an. Die benötigte Fläche der Maschinen bleibt frei.
+- Erweiterungen am Berg können einen echten kurzen Fußweg vom erreichbaren Gipfel einer bestehenden Anlage bekommen. Ein Liftseil wird dabei nicht als begehbarer Weg behandelt.
+- Ein bereits befüllter Liftumbau öffnet zuverlässig die Liftpalette statt der Pistenpalette. Vorschau und endgültiger Bau verwenden dieselbe Stationsreihenfolge.
+
+Die vorhandenen Prüfungen für durchgehende Szenariopisten, volle Kartenfläche, präzise Planungspunkte, Maschinenabstände und echte Zugangswege bleiben aktiv.
+
+### Betrieb und Personal an der Anlage
+
+- Ein Menü zeigt den gesamten Liftverbund: Tal-, Mittel- und Bergstation, eingeplante Personen, Dienststatus und Besetzungsbedarf. Eine gemeinsame Mittelstation teilt sich ein Team.
+- Alle fehlenden Stationsplätze zusammen oder eine bestimmte Station einzeln besetzen. Gemeinsame Stationen werden nur einmal berechnet; Pausen führen nicht zu doppelten Einstellungen.
+- Einzelne Mitarbeiter: Schicht ändern, Reserve zuweisen, Pause eintragen oder freistellen. Teamdetails lassen sich aufklappen; die Stationsübersicht bleibt kompakt.
+- Öffnen und Schließen des Verbunds oder einzelner Abschnitte, Ausbaustufe, Verschleiß, Warteschlange, Störung, Reparaturfortschritt, Ersatzteilbestellung und bei betroffenen Mitfahrenden Evakuierung sind direkt erreichbar.
+- Gebäude zeigen ihre eigenen Aufgaben und nötigen Schichten. Restaurants und Läden verwalten ihr Gastronomieteam selbst; Reparaturzentralen beauftragen ihre eigenen Techniker und Elektriker.
+- Garagen verwalten ihre Fahrzeuge, Wartung und Präparierungsaufträge; Bergwachtstationen ihre Einsätze; Hotels den gemeinsamen Zimmerpreis. Gestaltung, Umplanung und bestätigter Abbau bleiben im selben Anlagenfenster.
+- Kleine Querformatfenster nutzen eine einzelne Personalkartenspalte. Die Menüs sind auf Deutsch und Englisch verfügbar.
+
+### Dorf und Gäste
+
+Der Baukatalog ist nach aufsteigendem Preis sortiert und kennzeichnet den Zweck: Verpflegung/Wärme, Betrieb/Sicherheit, Service/Anreise oder Freizeit/Erholung. Günstige sinnvolle Einstiegsangebote stehen vor großen Investitionen.
+
+**Kakaoladen** (11.500 €), **Kaiserschmarrn-Laden** (17.500 €) und **Pizzeria** (26.500 €) bieten eigene erkennbare Gebäudedetails. Sie benötigen Gastronomiepersonal, nutzen echte Kapazitäten und Wege, stillen Hunger bzw. wärmen Gäste und verdienen erst nach tatsächlich abgeschlossenen Besuchen. Familien können sich auch dort zum Mittagessen treffen.
+
+### Technischer Stand
+
+Godot 4.5.2 · Android ARM64 · Versionscode **23** · Spielstandformat **16**, ältere Formate werden weiter gelesen. Neue Modell- und dargestellte Menüprüfungen ergänzen die bisherigen Regressionen. Der öffentliche Download erscheint erst nach erfolgreichem vollständigem Build und den Android-Läufen auf API 30 und 36. Ein physisches Smartphone und eine unabhängige Play-Protect-Neubewertung sind nicht geprüft.
+
+---
 
 ## v0.17.0 · Vier Karrieren, Updates und eigene Wege (31.10.2026)
 
