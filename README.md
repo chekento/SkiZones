@@ -20,6 +20,10 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 *Nur APK-Dateien werden gezählt, einschließlich Previews. Prüfsummen und Metadaten sind ausgeschlossen. Downloads sind keine eindeutigen Installationen. Der Download-Link wird nach dem Build und zusätzlich stündlich aktualisiert; GitHub-Bildcaches können verzögern.*
 <!-- APK-DOWNLOAD:END -->
 
+<!-- PLAY-PROTECT:START -->
+> **Google Play Protect:** Für Version 0.17.0 wurde „Schädliche App blockiert“ gemeldet. Die genaue Ursache und eine mögliche Fehlklassifizierung sind nicht bestätigt. Eine Fassung mit weniger Berechtigungen und Browser-Updates wird geprüft. **[Status, Änderungen und offizielle Prüfmöglichkeiten](docs/PLAY_PROTECT.md).**
+<!-- PLAY-PROTECT:END -->
+
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
 </div>
