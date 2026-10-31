@@ -44,7 +44,7 @@ jobs:
               ),
               "source_splash.png": (
                   "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/86e965e42c323951cb0e59ae080970de3d55885b387f740dc3226be557637f9c.png",
-                  "29be3ae73cf4c35e061bcbbd8833121561f1021f9cf3f8213d3452589a497abc",
+                  "c353ddd03704549f796f25631624163d5112ddbecb4bb0526a4f5c3a48790c2c",
               ),
           }
           for name, (url, sha) in sources.items():
@@ -58,7 +58,7 @@ jobs:
                       if attempt == 2: raise
                       time.sleep(3)
               digest = hashlib.sha256(data).hexdigest()
-              if digest != sha and name != 'source_splash.png':
+              if digest != sha:
                   raise RuntimeError(f"{name} checksum mismatch: {digest}; expected {sha}")
               (assets / name).write_bytes(data)
               print(f"Transferred approved {name}: {len(data)} bytes sha256={digest}")
