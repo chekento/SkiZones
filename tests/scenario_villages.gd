@@ -35,7 +35,7 @@ func run() -> void:
 		check(int(counts.get("disco", 0)) >= 1, id + " has night-time and après-ski trade")
 		check(model.buildings.size() <= 12, id + " keeps core businesses deliberately small")
 		check(model.buildings.all(func(b): return model.terrain.contains(Terrain.unpack(b.point))), id + " businesses fit the terrain")
-		var room := model.buildings.filter(func(b): return b.kind == "hotel")
+		var room: Array = model.buildings.filter(func(b): return b.kind == "hotel")
 		check(not room.is_empty() and Ops.building_team(model, room[0]).size() >= 3, id + " hotel staffing tracks real simulated shifts")
 		# The town overlay has its own OSM source integrity checks; this
 		# scene validates *playable businesses* and does not invent POI data.
