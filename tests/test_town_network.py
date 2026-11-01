@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from build_town_network import build_network, route, choose_game_shuttle
+from build_town_network import build_network, route, choose_game_shuttle, choose_hotel_gondola_shuttle
 
 
 def street(osm_id, highway, nodes, points, oneway=None):
@@ -77,6 +77,39 @@ class RoadGraphTests(unittest.TestCase):
         self.assertEqual(stops[102]["access_node"], "osm:40")
         self.assertFalse(stops[103]["connected"])
         self.assertIsNone(stops[103]["access_node"])
+
+    def test_hotel_to_real_gondola_uses_only_extracted_roads(self):
+        input_data = {"schema": 1, "features": [
+            street(7, "residential", [100, 200, 300],
+                   [[185, 230], [785, 230], [1385, 230]]),
+            {"osm_type": "node", "osm_id": 401, "kind": "lodging",
+             "tags": {"tourism": "hotel"}, "points": [[190, 235]]},
+        ]}
+        network = build_network(input_data)
+        resort = {"lifts": [{"id": 88, "kind": "gondola",
+                             "bottom": [1385, 230]}]}
+        shuttle = choose_hotel_gondola_shuttle(network, resort)
+        self.assertFalse(shuttle["official_route"])
+        self.assertEqual(shuttle["from_hotel"]["osm_id"], 401)
+        self.assertEqual(shuttle["to_lift"]["id"], 88)
+        self.assertEqual(shuttle["to_lift"]["kind"], "gondola")
+        self.assertEqual(shuttle["outbound_metres"], 1200.0)
+        self.assertEqual(shuttle["return_metres"], 1200.0)
+        self.assertEqual(shuttle["outbound"][0], [185.0, 230.0])
+        self.assertEqual(shuttle["outbound"][-1], [1385.0, 230.0])
+
+    def test_no_fabricated_gondola_or_oneway_hotel_link(self):
+        input_data = {"schema": 1, "features": [
+            street(7, "residential", [100, 200, 300],
+                   [[185, 230], [785, 230], [1385, 230]], oneway="yes"),
+            {"osm_type": "node", "osm_id": 401, "kind": "lodging",
+             "tags": {"tourism": "hotel"}, "points": [[185, 230]]},
+        ]}
+        network = build_network(input_data)
+        gondola = {"lifts": [{"id": 88, "kind": "gondola",
+                             "bottom": [1385, 230]}]}
+        self.assertEqual(choose_hotel_gondola_shuttle(network, gondola), {})
+        self.assertEqual(choose_hotel_gondola_shuttle(network, {"lifts": []}), {})
 
     def test_fictional_shuttle_uses_only_real_connected_stops(self):
         data = {"schema": 1, "region": "test", "origin": [47.4, 12.3],
