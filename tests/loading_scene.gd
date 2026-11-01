@@ -8,7 +8,7 @@ func check(ok: bool, title: String) -> void:
 	if ok: passed+=1;print("PASS ",title)
 	else: failed+=1;push_error("FAIL " + title)
 func run() -> void:
-	var game := load("res://scenes/main.tscn").instantiate()
+	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	for frame in range(5): await process_frame
 	Saves.active_slot=4
@@ -24,7 +24,7 @@ func run() -> void:
 	await process_frame
 	var full:=Rect2(Vector2.ZERO,root.get_visible_rect().size)
 	check(game.hud.loading.get_global_rect().position.distance_to(full.position)<0.1 and game.hud.loading.size.distance_to(full.size)<0.1,"PMDD loading art covers the full display even with asymmetric HUD safe insets")
-	var activity:=game.hud.loading_activity.text
+	var activity: String = game.hud.loading_activity.text
 	await create_timer(0.55).timeout
 	check(game.hud.loading_activity.text!=activity and is_equal_approx(game.hud.loading_progress.value,12.3),"A live activity indicator animates without faking completed progress")
 	game.hud.loading.hide()
