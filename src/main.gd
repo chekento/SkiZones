@@ -257,6 +257,7 @@ func _restore_android_session() -> void:
 	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
 	hud.loading.hide()
+	if prepared.result.get("recovered", false): hud.toast(prepared.result.message)
 
 func enter_area(area: String) -> void:
 	if hud.loading.visible: return
