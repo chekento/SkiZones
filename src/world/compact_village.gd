@@ -154,11 +154,14 @@ static func _building(parent: Node3D, mountain: RefCounted, site: Dictionary) ->
 	parent.add_child(node)
 	return node
 
-static func build(parent: Node3D, mountain: RefCounted, id: String, town: Dictionary) -> Dictionary:
+static func build(parent: Node3D, mountain: RefCounted, id: String, town: Dictionary, resort: RefCounted = null) -> Dictionary:
 	var plan := sites(id, mountain, town)
 	var result := {"village_models": 0, "slope_venues": 0, "game_added": 0, "lodging": 0}
 	for kind in ["hotels", "food", "slope_food", "game"]:
 		for entry in plan[kind]:
+			if kind == "game" and resort != null and resort.buildings.any(func(b): return b.kind == entry.kind):
+				# The player-owned, staffable venue already has its own world mesh.
+				continue
 			_building(parent, mountain, entry)
 			result.village_models += 1
 			if kind == "slope_food": result.slope_venues += 1
