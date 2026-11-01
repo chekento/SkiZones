@@ -87,7 +87,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 		if kind == "road":
 			var style := _road_style(tags)
 			if style < 0 or pts.size() < 2: continue
-			var width := [7.2, 4.8, 2.6][style]
+			var width: float = [7.2, 4.8, 2.6][style]
 			var wrote := false
 			for index in range(1, pts.size()):
 				var a := _point(pts[index - 1])
