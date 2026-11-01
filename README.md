@@ -9,11 +9,11 @@
 Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
 <details>
-<summary>❄️ Vorschau: neue SkiZones-Wintergrafik in Version 0.19</summary>
+<summary>❄️ SkiZones 0.19: neues App-Icon und PMDD-Ladebildschirm</summary>
 
 <img src="assets/branding/splash_1920.png" width="960" alt="PMDD 4.0 gestalteter SkiZones-Ladebildschirm mit Wintersportlern, Gondeln und Schneemann">
 
-*Ab Version 0.19 als vollflächiger Ladebildschirm vorgesehen. Die PMDD-Tiefenwirkung ist bildgestalterisch; die statische Grafik verwendet keine Geräte-Sensorparallaxe.*
+*Seit Version 0.19 als vollflächiger Android-Ladebildschirm integriert. Die PMDD-Tiefenwirkung ist bildgestalterisch; die statische Grafik verwendet keine Geräte-Sensorparallaxe.*
 
 </details>
 
