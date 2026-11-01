@@ -89,7 +89,7 @@ def build_network(data: dict) -> dict:
                         edges[(src, dst, mode)] = min(distance, edges.get((src, dst, mode), math.inf))
         elif kind in STOP_KINDS and points:
             stops.append({"osm_type": identifier[0], "osm_id": identifier[1],
-                          "name": str(tags.get("name", "")),
+                          "kind": kind, "name": str(tags.get("name", "")),
                           "point": _point(points[0])})
         elif kind in ("food", "lodging") and points:
             poi.append({"osm_type": identifier[0], "osm_id": identifier[1],
@@ -152,6 +152,54 @@ def route(network: dict, first: str, last: str, mode: str = "bus") -> dict:
     return {}
 
 
+def choose_game_shuttle(network: dict) -> dict:
+    """Optional *fictional SkiZones shuttle* on verified, bus-capable OSM roads.
+
+    This is intentionally not a claim that an operator or timetable exists.
+    Never draw a line to disconnected bus stops, across one-way streets or
+    beyond the road source. Skip completely where no defensible path exists.
+    """
+    origin = [185.0, 230.0]
+    stops = [stop for stop in network["stops"]
+             if stop.get("kind") == "bus_stop" and stop.get("connected")]
+    if len(stops) < 2:
+        return {}
+    stops.sort(key=lambda stop: (_distance(stop["point"], origin),
+                                 stop["osm_id"]))
+    start = stops[0]
+    if _distance(start["point"], origin) > 550.0:
+        return {}
+    possibilities = []
+    for end in stops[1:]:
+        if end["access_node"] == start["access_node"]:
+            continue
+        direct = route(network, start["access_node"], end["access_node"])
+        if not 280.0 <= direct.get("metres", -1.0) <= 3400.0:
+            continue
+        reverse = route(network, end["access_node"], start["access_node"])
+        if not 280.0 <= reverse.get("metres", -1.0) <= 4000.0:
+            continue
+        # A plausible local shuttle: typically 1.2km from the village
+        # gateway, deterministic OSM-ID tie break, not a fictional ski
+        # operator's published connection.
+        score = (abs(direct["metres"] - 1200.0), end["osm_id"])
+        possibilities.append((score, end, direct, reverse))
+    if not possibilities:
+        return {}
+    _, end, out, back = min(possibilities, key=lambda candidate: candidate[0])
+    return {
+        "name": "SkiZones-Spielbus (fiktive Simulation)",
+        "official_route": False,
+        "from_stop": {"osm_type": start["osm_type"], "osm_id": start["osm_id"],
+                      "name": start["name"], "point": start["point"]},
+        "to_stop": {"osm_type": end["osm_type"], "osm_id": end["osm_id"],
+                    "name": end["name"], "point": end["point"]},
+        "outbound": out["points"], "return": back["points"],
+        "outbound_metres": out["metres"],
+        "return_metres": back["metres"],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--region", choices=("braunlage", "filzmoos", "kitzbuehel", "seiseralm"))
@@ -163,6 +211,7 @@ def main():
             raise SystemExit(f"Missing pinned OSM town source: {source}")
         data = json.loads(source.read_text(encoding="utf-8"))
         output = build_network(data)
+        output["game_shuttle_preview"] = choose_game_shuttle(output)
         if not output["edges"]:
             raise SystemExit(f"No routable OSM streets for {region}")
         target = SOURCE / f"{region}-network.json"
