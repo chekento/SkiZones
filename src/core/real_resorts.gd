@@ -2,6 +2,7 @@ extends RefCounted
 ## Offline WGS84-derived geometry and an independent elevation raster.
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
+const VillageServices = preload("res://src/core/scenario_services.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 const L = preload("res://src/core/i18n.gd")
 const IDS := ["braunlage", "filzmoos", "kitzbuehel", "seiseralm"]
@@ -73,6 +74,7 @@ static func seed(model: RefCounted) -> void:
 			for item in collection:
 				for key in ["id", "number", "level", "difficulty", "section", "sections", "boarded", "last_load", "rotation"]:
 					if item.has(key): item[key] = int(item[key])
+		VillageServices.add(model)
 		model.campaign.mode = "career"
 		model._reset_report()
 		model._invalidate()
@@ -148,6 +150,7 @@ static func seed(model: RefCounted) -> void:
 				model.next_id += 1
 				found = true
 				break
+	VillageServices.add(model)
 	model.campaign.mode = "career"
 	model.money = float(map_spec(model.map_id).budget)
 	model._reset_report()
