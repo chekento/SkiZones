@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: real-mountain-venues-import
+  group: real-mountain-venues-offline-v2
   cancel-in-progress: true
 
 jobs:
