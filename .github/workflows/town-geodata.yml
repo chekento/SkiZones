@@ -37,3 +37,45 @@ jobs:
         run: python -m compileall -q tools/import_town_geodata.py tools/build_town_network.py tests/test_town_geodata.py tests/test_town_network.py
       - name: Offline source and routing regression tests
         run: python -m unittest discover -s tests -p 'test_town_*.py' -v
+      - name: Construct road and bus-capable graphs from pinned source
+        run: |
+          python tools/build_town_network.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from tools.build_town_network import route
+          for name in ('braunlage', 'filzmoos', 'kitzbuehel', 'seiseralm'):
+              path = Path('assets/geodata/towns') / (name + '-network.json')
+              data = json.loads(path.read_text())
+              assert len(data['vertices']) > 50, (name, 'too few street vertices')
+              assert any(edge['mode'] == 'bus' for edge in data['edges']), name
+              assert data['region'] == name
+              for stop in data['stops']:
+                  if stop['connected']:
+                      assert stop['access_node'] in data['vertices']
+              print(name, 'vertices=',len(data['vertices']),'edges=',len(data['edges']),
+                    'stops=',len(data['stops']),'connected=',sum(s['connected'] for s in data['stops']))
+          PY
+
+  pin-graphs:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feature/osm-town-transit-issue-10'
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Build four deterministic street/transit graphs
+        run: python3 tools/build_town_network.py
+      - name: Commit pinned, reviewed-source graph outputs
+        run: |
+          git add assets/geodata/towns/*-network.json
+          if git diff --cached --quiet; then
+            echo 'Graph snapshots already match exact input.'
+          else
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'data(osm): pin generated street and transit graphs [skip ci]'
+            git push origin HEAD:feature/osm-town-transit-issue-10
+          fi
