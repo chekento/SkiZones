@@ -94,7 +94,7 @@ static func _bus_part(parent: Node3D, size: Vector3, offset: Vector3, color: Col
 
 static func _bus_node(parent: Node3D, shuttle: Dictionary, mountain: RefCounted) -> Node3D:
 	var bus := Node3D.new()
-	bus.name = "SkiZonesShuttle"
+	bus.name = "skizones_shuttle"
 	bus.set_meta("fictional_service", true)
 	var path: Array = shuttle.outbound.duplicate(true)
 	for point in shuttle["return"].slice(1):
@@ -194,7 +194,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 				labels.append({"point": point, "name": label_name, "kind": kind, "osm_id": feature.get("osm_id", -1)})
 	result.road_quads = quads
 	for style in range(3):
-		_make_road_mesh(roads[style], ROAD_COLORS[style], layer, ["Roads", "Service roads", "Walk and hiking paths"][style])
+		_make_road_mesh(roads[style], ROAD_COLORS[style], layer, ["osm_roads", "osm_service", "osm_walkways"][style])
 	for kind in marker_points:
 		var positions: Array = marker_points[kind]
 		if positions.is_empty(): continue
@@ -212,7 +212,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 			multi.set_instance_transform(index, Transform3D(Basis.IDENTITY, mountain.world(point, 3.6)))
 			index += 1
 		var node := MultiMeshInstance3D.new()
-		node.name = "OSM " + kind
+		node.name = "osm_" + kind
 		node.multimesh = multi
 		node.material_override = _material(POI_COLORS[kind])
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -246,6 +246,6 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 	if not shuttle.is_empty():
 		result.shuttle = _bus_node(layer, shuttle, mountain)
 		result.shuttle_preview = true
-	layer.set_meta("source", "© OpenStreetMap contributors · ODbL 1.0")
+	layer.set_meta("source", "https://www.openstreetmap.org/copyright")
 	layer.set_meta("counts", result)
 	return result
