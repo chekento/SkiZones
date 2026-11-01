@@ -41,7 +41,7 @@ static func add(model: RefCounted) -> int:
 	var added := 0
 	for kind in KINDS:
 		if model.buildings.size() >= MAX_STARTER_BUILDINGS: break
-		var existing := model.buildings.filter(func(b): return b.kind == kind)
+		var existing: Array = model.buildings.filter(func(b): return b.kind == kind)
 		if kind == "hotel":
 			if existing.size() >= 2: continue
 		elif not existing.is_empty():
