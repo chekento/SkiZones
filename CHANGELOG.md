@@ -37,7 +37,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 **Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.19.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk)** (41.0 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.19.0/manifest.json) · [Originalnotizen](docs/releases/0.19.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.19.0)
 
-Datum: 31. Oktober 2026. Android Preview, ARM64.
+Entwicklungsstand: 31. Oktober 2026. **Veröffentlicht: 1. November 2026.** Android Preview, ARM64.
 
 ### Neu
 - Ein eigens für SkiZones entworfenes winterliches App-Icon mit großem SZ-Monogramm, Gondeln und Skipisten ersetzt das bisherige Platzhalter-Symbol in der Android-Startansicht.
@@ -55,6 +55,15 @@ Datum: 31. Oktober 2026. Android Preview, ARM64.
 Siehe [Branding-Auftrag #9](https://github.com/chekento/SkiZones/issues/9).
 
 Grafik: Mit ChatGPT-Bildgenerierung erstellte, projektbezogene Bildmotive. Verarbeitung: Pillow und Godot 4.5.2.
+
+### Abnahme und überprüfbarer Download
+
+- **Vollständiger Build bestanden:** [GitHub Actions #41253862020](https://github.com/chekento/SkiZones/actions/runs/41253862020), Godot-Job 67/67 erfolgreich (einschließlich Grafik- und Simulationsprüfungen, Performance, Export, Sicherheits- und Update-Signaturprüfung).
+- **Android 30 und Android 36:** beide Lifecycle-/Update-Jobs mit je 14 erfolgreichen Workflow-Schritten abgeschlossen, einschließlich Start/Resume, App-Wechsel, Touch/Waypoints und Erhalt der Karriere-Spielstände beim privaten Android-Testupdate.
+- **Publiziertes APK:** [SkiZones-0.19.0-android-arm64.apk](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk), **42.964.556 Bytes**. Dazu [SHA-256-Prüfsummendatei](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk.sha256) und [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.19.0/manifest.json).
+- **Archivierung:** Der GitHub-Release ist veröffentlicht; README und detailliertes CHANGELOG verlinken den historischen Download. Der ursprüngliche Release-Tag bleibt unverändert.
+
+**Nicht durch diese Tests bestätigt:** ein physisches Smartphone, eine unabhängige Google-Play-Protect-Freigabe oder echte perspektivabhängige Parallaxe des statischen PMDD-Bildes. Die weitergehende realistische Ortsbebauung, Straßen-/Busverkehr- und NPC-Erweiterung ist separat in [Issue #10](https://github.com/chekento/SkiZones/issues/10) dokumentiert und noch kein Bestandteil des Releases 0.19.0.
 
 ---
 
