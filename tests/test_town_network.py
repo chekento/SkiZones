@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from build_town_network import build_network, route
+from build_town_network import build_network, route, choose_game_shuttle
 
 
 def street(osm_id, highway, nodes, points, oneway=None):
@@ -77,6 +77,42 @@ class RoadGraphTests(unittest.TestCase):
         self.assertEqual(stops[102]["access_node"], "osm:40")
         self.assertFalse(stops[103]["connected"])
         self.assertIsNone(stops[103]["access_node"])
+
+    def test_fictional_shuttle_uses_only_real_connected_stops(self):
+        data = {"schema": 1, "region": "test", "origin": [47.4, 12.3],
+                "features": [
+                    street(1, "residential", [10, 20, 30],
+                           [[185, 230], [785, 230], [1385, 230]]),
+                    stop(101, [190, 230], "Talstation"),
+                    stop(102, [1380, 230], "Ortsmitte"),
+                    stop(103, [5000, 5000], "Disconnected"),
+                ]}
+        network = build_network(data)
+        result = choose_game_shuttle(network)
+        self.assertFalse(result["official_route"])
+        self.assertIn("fiktive", result["name"])
+        self.assertEqual(result["from_stop"]["osm_id"], 101)
+        self.assertEqual(result["to_stop"]["osm_id"], 102)
+        self.assertEqual(result["outbound"], [[185.0, 230.0], [785.0, 230.0], [1385.0, 230.0]])
+        self.assertEqual(result["return"][0], [1385.0, 230.0])
+        self.assertAlmostEqual(result["outbound_metres"], 1200)
+
+    def test_shuttle_refuses_oneway_without_real_return_path(self):
+        data = {"schema": 1, "features": [
+            street(1, "residential", [10, 20, 30],
+                   [[185, 230], [785, 230], [1385, 230]], oneway="yes"),
+            stop(101, [185, 230]),
+            stop(102, [1385, 230]),
+        ]}
+        self.assertEqual(choose_game_shuttle(build_network(data)), {})
+
+    def test_no_official_route_claim_from_osm_bus_stop_proximity(self):
+        data = {"schema": 1, "features": [
+            street(1, "residential", [10, 20], [[185, 230], [1385, 230]]),
+            stop(1, [185, 230]),
+            stop(2, [5000, 5000]),
+        ]}
+        self.assertEqual(choose_game_shuttle(build_network(data)), {})
 
     def test_invalid_input_and_source_duplicates(self):
         with self.assertRaises(ValueError):
