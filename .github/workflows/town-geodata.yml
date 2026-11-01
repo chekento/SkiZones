@@ -19,6 +19,7 @@ on:
       - 'src/core/ski_motion.gd'
       - 'src/core/resort.gd'
       - 'tests/hotel_holidays.gd'
+      - 'tests/scenario_villages.gd'
       - 'src/core/guest_needs.gd'
       - 'src/core/guest_lodging.gd'
       - 'src/core/operations.gd'
@@ -45,6 +46,7 @@ on:
       - 'src/core/ski_motion.gd'
       - 'src/core/resort.gd'
       - 'tests/hotel_holidays.gd'
+      - 'tests/scenario_villages.gd'
       - 'src/core/guest_needs.gd'
       - 'src/core/guest_lodging.gd'
       - 'src/core/operations.gd'
@@ -152,6 +154,8 @@ jobs:
           "$GODOT_BIN" --headless --check-only --script res://src/world/town_scenery.gd
       - name: Verify sourced streets, POIs and 3D render geometry
         run: python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --headless --script tests/town_scenery.gd
+      - name: Verify compact playable hospitality in four Alpine careers
+        run: python3 tools/run_godot_test.py --timeout 400 -- "$GODOT_BIN" --headless --script tests/scenario_villages.gd
       - name: Verify multi-day hotel reservations, sleeping guests and save continuity
         run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --headless --script tests/hotel_holidays.gd
       - name: Verify passing skiers and per-venue black/red operating results
