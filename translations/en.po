@@ -3243,3 +3243,66 @@ msgstr "Technical fault · open repairs and evacuation in the asset menu."
 
 msgid "Team & Schichten anzeigen"
 msgstr "Show team & shifts"
+
+msgid "SkiZones wird gestartet …"
+msgstr "SkiZones is starting …"
+
+msgid "Spieloberfläche wird vorbereitet …"
+msgstr "Preparing the game interface …"
+
+msgid "Spieloberfläche und Winterwelt werden geladen …"
+msgstr "Loading the game interface and winter landscape …"
+
+msgid "Spieloberfläche bereit"
+msgstr "Game interface ready"
+
+msgid "Starte im kompatiblen Modus …"
+msgstr "Starting in compatibility mode …"
+
+msgid "Gelände und Skigebiet werden geladen …"
+msgstr "Loading mountain terrain and ski resort …"
+
+msgid "Szenario und Gästerouten werden vorbereitet …"
+msgstr "Preparing scenario and guest routes …"
+
+msgid "Bergwelt wird angezeigt …"
+msgstr "Rendering the mountain landscape …"
+
+msgid "Bergwelt bereit"
+msgstr "Mountain landscape ready"
+
+msgid "heutiges Betriebsergebnis"
+msgstr "today's operating result"
+
+msgid "Umsatz %s € · Löhne %s € · Infrastrukturanteil %s €"
+msgstr "Revenue €%s · wages €%s · infrastructure share €%s"
+
+msgid "Geschäfte · Gewinn und Verlust"
+msgstr "Businesses · profit and loss"
+
+msgid "Tagesumsatz minus Löhne und anteilige Infrastruktur. Schwarz = Gewinn, Rot = Verlust. Reale OSM-Ortsobjekte ohne Spielerbetrieb werden nicht als fiktive Einnahmequelle gezählt."
+msgstr "Daily revenue minus wages and allocated infrastructure costs. Black means profit; red means loss. Real OSM businesses not operated by the player are not assigned fictional revenue."
+
+msgid "Umsatz %s € · Betriebskosten %s €"
+msgstr "Revenue €%s · operating costs €%s"
+
+msgid "Vortag: "
+msgstr "Previous day: "
+
+msgid "Dein Resort wird vorbereitet …"
+msgstr "Preparing your resort …"
+
+msgid "%d %%"
+msgstr "%d %%"
+
+msgid "Alpenhotel"
+msgstr "Alpine hotel"
+
+msgid "Berggastronomie"
+msgstr "Mountain dining"
+
+msgid "Hotel ↔ Gondel · Spielbus"
+msgstr "Hotel ↔ gondola · ski shuttle"
+
+msgid "SkiZones-Spielbus"
+msgstr "SkiZones shuttle"

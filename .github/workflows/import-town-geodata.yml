@@ -1,0 +1,69 @@
+name: Preview real town geodata (issue 10)
+
+on:
+  push:
+    branches: [feature/osm-town-transit-issue-10]
+    paths:
+      - '.github/workflows/import-town-geodata.yml'
+      - 'tools/import_town_geodata.py'
+      - 'tests/test_town_geodata.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-real-towns:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate importer offline before requesting OSM
+        run: python3 -m unittest discover -s tests -p test_town_geodata.py -v
+      - name: Fetch and pin actual town roads and POIs (development data only)
+        timeout-minutes: 12
+        run: |
+          set -euo pipefail
+          for area in braunlage filzmoos kitzbuehel seiseralm; do
+            echo "::group::OSM town extract: $area"
+            python3 tools/import_town_geodata.py --region "$area"
+            echo "::endgroup::"
+          done
+      - name: Verify geography, required source metadata and all four extract outputs
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          directory = Path('assets/geodata/towns')
+          for name in ('braunlage','filzmoos','kitzbuehel','seiseralm'):
+              data = json.loads((directory/f'{name}.json').read_text())
+              raw = (directory/'source'/f'{name}-osm.json').read_bytes()
+              query = (directory/'source'/f'{name}-query.txt').read_text()
+              assert data['region'] == name
+              assert data['source_sha256'] == hashlib.sha256(raw).hexdigest()
+              assert data['query'] == query
+              assert data['copyright'] == '© OpenStreetMap contributors'
+              assert data['feature_counts']['road'] > 0
+              assert sum(data['feature_counts'].values()) == len(data['features'])
+              assert all(f.get('osm_id') and f.get('points') and f.get('tags') is not None for f in data['features'])
+              print(name, data['feature_counts'])
+          PY
+          python3 tools/import_town_geodata.py --offline
+          python3 -m unittest discover -s tests -p test_town_geodata.py -v
+      - name: Commit pinned source and reviewed-format derived sets to development branch
+        if: github.ref == 'refs/heads/feature/osm-town-transit-issue-10'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/geodata/towns
+          if git diff --cached --quiet; then
+            echo 'Town source data already pinned; no new commit.'
+          else
+            git commit -m 'data(osm): pin town street, hospitality and bus-stop extracts [skip ci]'
+            git push origin HEAD:feature/osm-town-transit-issue-10
+          fi

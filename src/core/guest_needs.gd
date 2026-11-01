@@ -54,6 +54,8 @@ static func valid(guest: Dictionary) -> bool:
 
 static func advance(guest: Dictionary, temperature: float, natural: bool = true) -> void:
 	ensure(guest,temperature)
+	# Hotel residents rest safely indoors; needs recover when they wake.
+	if guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel": return
 	var kind := ""
 	if guest.phase!="leaving" and guest.leg<guest.route.legs.size(): kind=guest.route.legs[guest.leg].kind
 	if guest.phase=="waiting": kind=""

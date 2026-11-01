@@ -42,3 +42,23 @@ the full line is retained for physical movement and rendering.
 Generated pedestrian access, plazas and service buildings are game additions.
 Imported piste difficulty uses OSM tags where available; missing values use
 the terrain model. Inventory numbers are linked sections, not official totals.
+
+## Real town streets, hospitality and transit source · from 0.20
+
+The separately pinned `towns/<region>.json` files are sourced from new,
+bounded OSM Overpass queries for roads, accommodation, food services and
+transit stops around the existing station origin. The raw OSM replies,
+queries and timestamps are under `towns/source/`. The corresponding
+`towns/<region>-network.json` files are derived, deterministic directed
+street graphs with OSM node identities, explicit pedestrian vs bus modes,
+one-way restrictions and limited-distance stop attachments. They retain
+their source checksums; no disconnected stop is silently joined to a road.
+
+`python tools/import_town_geodata.py --offline` rebuilds the pinned
+town extracts; `python tools/build_town_network.py` rebuilds the graphs.
+See `docs/TOWN_IMPORT.md` and the 0.20 release notes.
+
+The game renders bounded source-derived roads, named points of interest
+and a **fictional SkiZones shuttle illustration** along existing road
+segments. This does **not** represent an official public transit service,
+timetable, surveyed building model or functioning passenger system.

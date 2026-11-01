@@ -20,6 +20,7 @@ const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const Lodging = preload("res://src/core/guest_lodging.gd")
 const PisteLinks = preload("res://src/core/piste_links.gd")
 var _piste_links: RefCounted
 const MINUTES_PER_SECOND := 0.5
@@ -1375,6 +1376,9 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	if party_mode and guest.has("family") and guests.size()+guest.family.size()>MAX_GUESTS:return false
 	count=int(guest.group_size)
 	guest.ticket_paid=ticket_price*count;guest.spending=float(guest.ticket_paid)
+	# Only admitted guests with an actual vacant, reachable resort hotel
+	# become multi-night visitors; day visitors still leave as before.
+	if map_id in Geo.IDS: Lodging.assign(self, guest)
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -1398,7 +1402,7 @@ func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
 	if guest.has("party_id"):guest.party_step=1.0
-	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits"]:
+	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits", "traffic_lane", "traffic_lateral", "traffic_step"]:
 		guest.erase(key)
 	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -1452,9 +1456,10 @@ func _finish_leg(guest: Dictionary) -> void:
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
 			var base_revenue: float = float(operations.room_price) if Ops.active(self) and building.kind == "hotel" else Catalog.BUILDINGS[building.kind].income
-			var revenue: float = base_revenue * (ceilf(float(guest.get("group_size", 1)) / 2) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
+			var revenue: float = base_revenue * (Lodging.billable_rooms(self, guest) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
+			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
 			money += revenue
 			report.services += revenue
 			campaign.turnover += revenue
@@ -1470,6 +1475,18 @@ func _finish_leg(guest: Dictionary) -> void:
 	_continue_leg(guest,leg)
 
 func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
+	if leg.kind == "visit" and guest.get("hotel_night", false) and int(leg.id) == int(guest.get("lodging_id", 0)):
+		Lodging.start_sleep(self, guest)
+		return
+	if Lodging.should_return(self, guest):
+		var night: Dictionary = Lodging.night_route(self, guest, str(leg.to))
+		if not night.is_empty():
+			guest.route = night
+			guest.leg = 0
+			guest.hotel_night = true
+			guest.heading_home = true
+			_start_leg(guest)
+			return
 	# Reconsider urgent needs at the next actual network node, never halfway
 	# down a piste or by teleporting a guest to a restaurant.
 	var decision_guest:=Parties.care_guest(self,guest)
@@ -1686,6 +1703,8 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			_depart(guest)
 			departures.append(guest)
 		elif guest.phase=="waiting":
+			if guest.get("waiting_reason", "") == "hotel":
+				Lodging.wake(self, guest)
 			continue
 		elif guest.phase == "queue":
 			if clock_tick:
@@ -1982,7 +2001,7 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		var piste := asset(leg.id)
 		var hiking := Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
 		fraction = ski_fraction(leg,fraction,guest.get("ski_motion",[]))
-		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
+		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
 		var center: Vector2 = terrain.point_on_path(piste.points,fraction)
 		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
@@ -2317,8 +2336,14 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				for field in ["visits", "revenue"]:
 					if not Terrain.number(item.get(field, 0)) or item.get(field, 0) < 0 or item.get(field, 0) > 1000000000:
 						return invalid
+				for field in ["daily_revenue", "last_day_revenue", "last_day_cost"]:
+					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
+				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
+				# These are optional ledger fields. Preserve their absence when
+				# loading older saves; injecting default keys breaks exact
+				# save/resume determinism even though balance calculations use get().
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
@@ -2381,6 +2406,14 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
+		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane > 2): return invalid
+		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
+		if visitor.has("lodging_id"):
+			if not Terrain.number(visitor.lodging_id) or visitor.lodging_id != floorf(visitor.lodging_id) or int(visitor.lodging_id) <= 0: return invalid
+			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and b.kind == "hotel"): return invalid
+		if visitor.has("hotel_night") and not visitor.hotel_night is bool: return invalid
+		if visitor.has("hotel_sleep_until") and (not Terrain.number(visitor.hotel_sleep_until) or visitor.hotel_sleep_until < 0 or visitor.hotel_sleep_until > 150000000): return invalid
+		if visitor.get("waiting_reason", "") == "hotel" and (visitor.phase != "waiting" or not visitor.has("lodging_id") or not visitor.has("hotel_sleep_until")): return invalid
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:
 				return invalid
@@ -2451,6 +2484,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.id = int(copy.id);copy.ability = int(copy.ability)
 		if copy.has("pacing_runs"): copy.pacing_runs=int(copy.pacing_runs)
+		if copy.has("lodging_id"): copy.lodging_id = int(copy.lodging_id)
+		if copy.has("hotel_sleep_until"): copy.hotel_sleep_until = int(copy.hotel_sleep_until)
 		Needs.ensure(copy, weather().temperature)
 		copy.route = route
 		Agenda.ensure(self, copy)
@@ -2496,7 +2531,15 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	parties=saved_parties.duplicate(true)
 	if not Parties.valid(self,parties):return invalid
 	for guest in guests:
-		if guest.phase=="waiting" and not guest.has("party_id"):return invalid
+		if guest.phase != "waiting": continue
+		if guest.get("waiting_reason", "") == "hotel":
+			# Solo visitors and individual family members must be inside
+			# their own assigned hotel, never merely at a meeting waypoint.
+			if not guest.has("lodging_id") or not guest.has("hotel_sleep_until"): return invalid
+			if guest.leg >= guest.route.legs.size(): return invalid
+			var room_leg: Dictionary = guest.route.legs[int(guest.leg)]
+			if room_leg.kind != "visit" or int(room_leg.id) != int(guest.lodging_id): return invalid
+		elif not guest.has("party_id"): return invalid
 	rng.seed = int(data.rng_seed)
 	rng.state = int(data.rng_state)
 	if not Progression.restore(self, data.get("campaign")):

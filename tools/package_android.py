@@ -27,6 +27,22 @@ def main():
         resource = "assets/assets/access/entrances.json"
         if resource not in archive.namelist() or archive.read(resource) != (ROOT / "assets/access/entrances.json").read_bytes():
             raise SystemExit("The APK is missing the current bundled map-entrance data.")
+        for region in ("braunlage", "filzmoos", "kitzbuehel", "seiseralm"):
+            for suffix in (".json", "-network.json"):
+                name = region + suffix
+                member = "assets/assets/geodata/towns/" + name
+                expected = ROOT / "assets" / "geodata" / "towns" / name
+                if not expected.is_file() or member not in archive.namelist():
+                    raise SystemExit("Android package is missing a pinned real town/road graph: " + member)
+                if archive.read(member) != expected.read_bytes():
+                    raise SystemExit("Android has stale or corrupted town data: " + name)
+            venue = region + ".json"
+            venue_member = "assets/assets/geodata/mountain-venues/" + venue
+            venue_source = ROOT / "assets" / "geodata" / "mountain-venues" / venue
+            if not venue_source.is_file() or venue_member not in archive.namelist():
+                raise SystemExit("Android missing the vetted piste-adjacent hospitality data: " + venue)
+            if archive.read(venue_member) != venue_source.read_bytes():
+                raise SystemExit("Android has stale mountainside OSM hospitality data: " + venue)
     folder = ROOT / "build/release"
     folder.mkdir(parents=True, exist_ok=True)
     apk = folder / f"SkiZones-{version}-android-arm64.apk"

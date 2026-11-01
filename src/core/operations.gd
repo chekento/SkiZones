@@ -431,6 +431,23 @@ static func _charge(model: RefCounted, amount: float, centre: String) -> void:
 	model.report.costs += amount
 	model.operations.cost_centres[centre] = float(model.operations.cost_centres.get(centre, 0.0)) + amount
 
+## Today's branch P&L for player-operated shops, hotels and services.
+## Source-only OSM POIs are not owner-managed businesses and earn no money.
+static func business_balance(model: RefCounted, building: Dictionary) -> Dictionary:
+	var sales: float = float(building.get("daily_revenue", 0.0))
+	var wages: float = float(model.operations.cost_centres.get("building:%d" % int(building.id), 0.0))
+	# Allocate the *actual building's* daily fixed operating cost, not
+	# an arbitrary share of all lift, piste and village expenses.
+	var structure: Dictionary = Catalog.BUILDINGS.get(str(building.kind), {})
+	var upkeep: float = float(structure.get("upkeep", 0.0)) * (1.0 if building.enabled else 0.2)
+	upkeep *= 1.0 + 0.2 * (int(building.get("level", 1)) - 1)
+	# All owned buildings also contribute a 35 €/day basic site expense.
+	upkeep += 35.0
+	var efficiency: float = 0.85 if Progression.has(model, "efficient_snow") else 1.0
+	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
+	var costs := wages + overhead
+	return {"sales": sales, "wages": wages, "overhead": overhead, "costs": costs, "net": sales - costs}
+
 static func tick(model: RefCounted) -> void:
 	if not active(model): return
 	refresh_duty(model)
@@ -594,6 +611,13 @@ static func midnight(model: RefCounted) -> void:
 	Progression.finish_day(model)
 	model.report.closed_at = 1440
 	model.last_report = model.report.duplicate(true)
+	# Archive per-branch results before daily expense buckets reset.
+	for building in model.buildings:
+		var statement := business_balance(model, building)
+		building.last_day_revenue = statement.sales
+		building.last_day_cost = statement.costs
+		building.last_day_profit = statement.net
+		building.daily_revenue = 0.0
 	model.operations.history.append(model.last_report.duplicate(true))
 	if model.operations.history.size() > 28: model.operations.history.pop_front()
 	model.day += 1

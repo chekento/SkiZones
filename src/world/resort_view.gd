@@ -17,6 +17,7 @@ const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
+const TownScenery = preload("res://src/world/town_scenery.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
@@ -53,6 +54,7 @@ var motion_rate := 1.0
 var follow_guest := -1
 var _follow_position := Vector3.INF
 var _portal_signature:=""
+var _town_shuttle: Node3D
 var _terrain_id := ""
 var _terrain_generation := -1
 var _snow_timer := 0.0
@@ -357,6 +359,12 @@ func _build_surroundings() -> void:
 	scenery_instance.material_override = _solid
 	scenery_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	landscape.add_child(scenery_instance)
+	# Read-only real street and POI overlay for the four OSM scenarios.
+	# Isolated from terrain picking, construction logic and savegames.
+	_town_shuttle = null
+	if model.map_id in Geo.IDS:
+		var town_result: Dictionary = TownScenery.build(landscape, terrain, model.map_id, model)
+		_town_shuttle = town_result.get("shuttle")
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
@@ -1006,6 +1014,8 @@ func _process(delta: float) -> void:
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
+	if is_instance_valid(_town_shuttle):
+		TownScenery.position_shuttle(_town_shuttle, terrain, _visual_minute)
 	_car_positions.clear()
 	var tows := 0
 	for lift in model.lifts:
@@ -1563,7 +1573,7 @@ func pick_asset(point: Vector2) -> int:
 
 func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elapsed: float) -> Dictionary:
 	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
-	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
+	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
 	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
@@ -1579,10 +1589,11 @@ func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Diction
 	const QUANTUM := 0.12
 	var offset := float(int(guest.id) % 17) * QUANTUM / 17
 	var index := floori((elapsed + offset) / QUANTUM)
-	var key := "%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index]
+	var lane_key := roundi(float(guest.get("traffic_lateral", 0.0)) * 10.0)
+	var key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index, lane_key]
 	if not _motion_cache.has(guest.id) or _motion_cache[guest.id].key != key:
 		var at := index * QUANTUM - offset
-		var previous_key := "%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1]
+		var previous_key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1, lane_key]
 		var first: Dictionary = _motion_cache[guest.id].b if _motion_cache.has(guest.id) and _motion_cache[guest.id].key == previous_key else _exact_ski_pose(piste, guest, leg, at)
 		_motion_cache[guest.id] = {"key": key, "a": first, "b": _exact_ski_pose(piste, guest, leg, at + QUANTUM)}
 	var data: Dictionary = _motion_cache[guest.id]

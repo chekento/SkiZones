@@ -76,6 +76,17 @@ jobs:
           print(result.stdout)
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
+      - name: Required 0.20 town, lodging and traffic release gates
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          python3 tools/build_town_network.py
+          git diff --exit-code -- 'assets/geodata/towns/*-network.json'
+          python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --language de --headless --script tests/town_scenery.gd
+          python3 tools/run_godot_test.py --timeout 400 -- "$GODOT_BIN" --language de --headless --script tests/scenario_villages.gd
+          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/hotel_holidays.gd
+          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
       - name: Install Android SDK components
         run: |
           python3 - <<'PY'
