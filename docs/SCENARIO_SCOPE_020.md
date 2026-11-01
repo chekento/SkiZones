@@ -18,4 +18,4 @@
 - Kompakte 3D-Geometrie, begrenzte Sichtweite/LOD, Performance bei 1× und 4× sowie Android-Lifecycle-Tests bestehen.
 - Das 0.19-Release bleibt unverändert; 0.20 wird erst nach abgeschlossenen CI- und Android-Tests veröffentlicht.
 
-**Stand:** Aufgabenrahmen beschlossen. Teilfunktionen – OSM-Import, Straßen-/Haltestellengraph, einfache POI-Marker, fiktiver Spielbus, alte Hotel-Buchungsmechanik – existieren bereits, aber diese Kriterien sind ausdrücklich noch **nicht vollständig erfüllt**.
+**Stand der Freigabeprüfung:** Kompakte spielbare Ortskerne, Hotelreservierungen, mehrtägige Einzelgäste sowie belegte Hotel-Gondel-Straßenverbindungen sind vorhanden. Der zusätzliche Familientest sichert jetzt auch die Rückkehr, Zimmerzählung, nächtliches Save/Load und gemeinsame morgendliche Routen ab. Alle Orts- und Hoteltests sind Teil der verbindlichen APK-Pipeline. Die vollständige Auftragserfüllung wird weiterhin nicht behauptet: Der sichtbare Bus befördert noch keine Modell-Gäste; die pistennahe OSM-Abdeckung bleibt partiell. Diese Punkte bleiben als offene Arbeiten dokumentiert.

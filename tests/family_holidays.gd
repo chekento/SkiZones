@@ -107,5 +107,5 @@ func check_capacity() -> void:
 	check(accepted and model.guests.slice(before).all(func(g): return not g.has("lodging_id")) and Lodging.rooms_used(model, int(hotels[0].id)) == 24, "A full hotel admits another family only as day visitors")
 
 func finish() -> void:
-	print("FAMILY HOLIDAYS: %d passed; %d failed" % [passed, failed])
+	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
