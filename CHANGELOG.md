@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **22 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **23 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.20.0](https://github.com/chekento/SkiZones/releases/tag/v0.20.0)** | 01.11.2026 | kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk) | [Details](docs/releases/0.20.0.md) |
 | **[v0.19.0](https://github.com/chekento/SkiZones/releases/tag/v0.19.0)** | 01.11.2026 | PMDD-Winterbranding und vollflächiger Ladebildschirm | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk) | [Details](docs/releases/0.19.0.md) |
 | **[v0.18.0](https://github.com/chekento/SkiZones/releases/tag/v0.18.0)** | 31.10.2026 | Anlagen direkt verwalten und leichter anschließen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk) | [Details](docs/releases/0.18.0.md) |
 | **[v0.17.0](https://github.com/chekento/SkiZones/releases/tag/v0.17.0)** | 31.10.2026 | Vier Karrieren, Updates und eigene Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk) | [Details](docs/releases/0.17.0.md) |
@@ -32,6 +33,92 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.20.0 · kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr (01.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.20.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk)** (44.3 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.20.0/manifest.json) · [Originalnotizen](docs/releases/0.20.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.20.0)
+
+Android-Preview (ARM64) · 1. November 2026. Die Veröffentlichung erfolgt durch die Pipeline erst nach den verbindlichen Modell-, Grafik-, Signatur- und Android-Lifecycle-Prüfungen.
+
+### 1. Vier realistischere Skigebietsorte
+
+Die vorhandenen realen Lifte, Pisten und Höhenraster aus den vorherigen Versionen wurden **nicht ersetzt**. Ein zusätzlicher, unabhängiger OpenStreetMap-Ortsdatensatz zeigt reale Verkehrswege sowie bekannte Punkte für Hotels, Gastronomie und ÖPNV-Haltestellen. Die vier Ausschnitte liegen im Umkreis von zunächst etwa **2,4 km um den bisherigen Talzugang** und bilden nicht die gesamte Kommune ab:
+
+| Region | OSM-Objekte | Straßenobjekte | Unterkunft | Gastronomie | Bushaltestellen | Weitere ÖPNV-Punkte |
+|---|---:|---:|---:|---:|---:|---:|
+| Braunlage | 1.617 | 1.365 | 177 | 42 | 24 | 9 |
+| Filzmoos | 586 | 505 | 45 | 14 | 10 | 12 |
+| Kitzbühel | 2.480 | 2.265 | 76 | 58 | 56 | 25 |
+| Seiser Alm | 1.005 | 806 | 114 | 15 | 68 | 2 |
+
+Die Zahlen beschreiben die **tatsächlich extrahierten OSM-Objekte** in diesen Ausschnitten. Sie sind weder amtliche Objektzahlen noch ein Beleg für die Vollständigkeit aller Orte. Gebäude, Gastronomiebetriebe und Haltestellen werden über ihre vorhandenen OSM-Merkmale am richtigen Koordinatenstandort dargestellt. Der Layer kombiniert sparsame POI-Marker mit wenigen stilisierten 3D-Hotels und Gastronomiegebäuden an belegten OSM-Standorten. Die Fassaden sind Spielgestaltung; sie bilden keine vermessenen Originalgebäude nach. Hotels und Gastronomie verwenden generische Spielnamen.
+
+#### Sichtbare Darstellung
+
+- Eigene, zusammengesetzte **3D-Straßenflächen** aus den tatsächlich importierten Straßenverläufen; Haupt-/Nebenstraßen sowie Fuß- und Wanderwege sind unterscheidbar.
+- Instanzierte Markierungen für Unterkünfte, Restaurants und ÖPNV-Punkte, statt Tausender einzelner komplexer Modelle.
+- Begrenzte Beschriftungen nahe dem Gebietsanfang: Hotels und Gastronomie erhalten generische Namen; Quell-IDs und unveränderte Rohdaten bleiben nachvollziehbar.
+- Maximal 14.000 geländefolgende Straßenquads pro Ort. Der visuelle Layer verändert **keine Kollisionen, spielbaren Wege, Pisten, Liftanschlüsse oder gespeicherten Anlagen**.
+- Acht bereits vorhandene Fantasielandschaften bleiben ohne erfundene OSM-Straßen.
+
+### 2. Straßennetz und erster sichtbarer Spielbus
+
+Ein deterministisch erzeugter Verkehrsgraph erhält Straßenknoten, OSM-Quellidentitäten, Einbahnstraßen, separate Fußgänger- und Busverbindungen sowie die maximale zulässige Entfernung einer echten Haltestelle zum Straßennetz.
+
+In allen vier Karten ist eine **beidseitig routbare Hotel-Gondel-Verbindung auf importierten Straßen** nachgewiesen: Braunlage ca. 912 m, Filzmoos 635 m, Kitzbühel 1.054 m und Seiser Alm 996 m für die jeweilige Hinfahrt. Der gelb-blaue SkiZones-Spielbus nutzt bevorzugt diese Verbindung. Seine Bewegung folgt der Spielzeit und stoppt mit der Pause.
+
+**Wichtige Abgrenzung:** Dieser Bus ist ein *fiktiver SkiZones-Shuttle*. Er gehört keinem realen Verkehrsbetreiber, bildet keinen tatsächlichen Fahrplan ab und befördert in dieser Entwicklungsstufe noch keine simulierten Gäste. Echte Buslinien, Abfahrtszeiten, Umsteigevorgänge und wirtschaftliche Betriebsplanung erfordern eine eigene, überprüfte Erweiterung.
+
+### 3. Datenqualität und Herkunft
+
+- Die originalen Overpass-Abfragen, Rohantworten, Zeitstempel und abgeleiteten Ortsdaten sind unter `assets/geodata/towns/` versioniert.
+- Die vier separat erzeugten Straßengraphen referenzieren jeweils ihren ursprünglichen SHA-256-Quelldatensatz.
+- Alle Karten arbeiten **offline**; beim Spielen werden keine Geodaten aus dem Internet nachgeladen.
+- Quelle: **© OpenStreetMap contributors, Open Database License 1.0 (ODbL)**, [Attribution](https://www.openstreetmap.org/copyright), [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Das eigenständige separate Höhendaten- und Lizenzmodell aus 0.19 bleibt erhalten.
+- Der Ortsdatenimport ist dokumentiert in `docs/TOWN_IMPORT.md`; das Impressum im Hauptmenü nennt die Quellen und kennzeichnet die Spielbusse als Simulation.
+
+### 4. Verbesserter Spielstart, Szenariowechsel, Geschäfte und Pistenverkehr
+
+Zusätzlich zur realistischeren Ortsdarstellung wurden die laufenden Spielsysteme auf Grundlage der Rückmeldungen überarbeitet:
+
+- **PMDD-Ladebildschirm:** Das große winterliche Hintergrundmotiv bleibt sowohl beim eigentlichen Programmstart als auch beim Öffnen realer Szenarien sichtbar. Die Startszene zeigt den vom Godot-Ressourcenlader gemeldeten Fortschritt; beim Szenariowechsel werden abgeschlossene Phasen einschließlich der im Hintergrund vorbereiteten Gästerouten in Prozent angezeigt. Prozentwerte vor Start der Godot-Engine lassen sich technisch nicht präzise messen.
+- **Schnellere und stabilere Szenarien:** Geodaten und Höhendaten werden nur noch für das ausgewählte Gebiet vorgeladen. Die Routen der drei Könnensstufen werden in einem gesonderten Thread berechnet; die Darstellung wird erst nach Abschluss der Vorbereitung freigegeben. Damit entfällt das überflüssige Laden aller vier Geländeraster beim Gebietswechsel.
+- **Rote und schwarze Zahlen:** Unter **Resort-Büro → Kostenstellen** und bei den einzelnen Spieler-Gebäuden werden Tagesumsatz, eigene Löhne, zugeordnete Standortkosten und das positive bzw. negative Betriebsergebnis dargestellt. Der Abschluss des Vortags wird archiviert. **Schwarz/Grün** steht für einen Gewinn und **Rot** für einen Verlust; reale OSM-POIs ohne Spielerbetrieb erhalten keine erfundenen Umsätze. Bestehende Spielstände werden mit optionalen neuen Finanzfeldern ergänzt.
+- **Fließender Pistenverkehr:** Die bisher feste Einteilung nach Gäste-ID wurde durch eine freie, deterministische Spurauswahl mit Sicherheitsabstand ersetzt. Ein langsamer oder kurzzeitig wartender Fahrer blockiert dadurch nicht mehr jeden nachfolgenden Besucher auf derselben Piste. Die sichtbare seitliche Position und die Bewegungsberechnung verwenden identische Spurparameter; schmale Pisten behalten vorsichtige Folgeabstände, Gruppenwartezeiten bleiben individuell.
+- **Regressionsprüfungen:** Zusätzliche Tests für Überholen, Tempo und sichere Abstände mit bis zu 240 simulierten Gästen sowie geschäftsbezogene positive/negative Ergebnisse. Die vollständigen Godot-, Signatur-, Performance- und Android-Gerätetests bleiben weiterhin Veröffentlichungsvoraussetzung.
+
+### 5. Kompatibilität und Qualitätssicherung
+
+- Godot 4.5.2, Android ARM64, Paket `cloud.kosch.skizones`, Versionscode **25** (0.19: 24). Der Update-Schlüssel muss mit 0.19 übereinstimmen.
+- Spielstände und die bestehenden vier Karrieren werden nicht migriert oder überschrieben; das Spielstandformat bleibt unverändert.
+- Der Release-Export weist die exakten acht zusätzlichen Orts- und Netzwerkdateien im APK nach. Fehlende oder veraltete Ressourcen blockieren die Veröffentlichung.
+- Die verbindliche Android-Pipeline führt jetzt auch die bisher separat laufenden Orts-, Quellen-, Hotel-, Finanz- und Überholtests aus. Dazu gehören die Offline-Python-Tests und die Godot-Suiten für Ortskulisse, alle vier Szenariodörfer, mehrtägige Aufenthalte, Familienübernachtung und Pistenverkehr. Ein Fehler verhindert APK-Bau und Veröffentlichung.
+- Der zusätzliche Familientest verwendet fünf unabhängige Personen mit Eltern-Kind-Zuordnung und tatsächlicher Bewegung: gemeinsamer Hotelrückweg, Schlafen, Save/Load, Mitternacht und Fortsetzung am Morgen. Acht Familien mit je fünf Personen dürfen 24 Zimmer belegen; weitere Familien werden bei vollem Hotel als Tagesgäste behandelt.
+- Android-Emulatoren für API 30 und 36 prüfen Appwechsel, Bildschirm-Wiederaufnahme, Prozessneustart, native Planungseingaben in vier Kameramodi sowie den Erhalt aller vier Karrieren beim gleich signierten Testupdate. Die öffentliche ARM64-APK wird separat auf Architektur, Signaturkontinuität zu 0.19 und Paketinhalt geprüft.
+
+### 6. Kompakte spielbare Ortskerne und Hotelurlaub
+
+Alle vier realen Szenarien beginnen mit einem kleinen, spielbaren Ortskern: mindestens zwei Hotels mit zusammen mindestens 48 Zimmern, Restaurant, Snackstand, Skischule und Abendangebot. Diese Betriebe sind klar als Spielwelt angelegt und werden mit Personal und laufenden Kosten simuliert; zusätzliche OSM-Kulissenbetriebe werden dadurch nicht zu erfundenen Einnahmequellen.
+
+Gäste erhalten nur bei freier Kapazität und nachgewiesenem Hin- und Rückweg eine Unterkunft. Der Aufenthalt umfasst mehrere Tage. Nachts kehren sie zu ihrem gebuchten Hotel zurück, schlafen dort und setzen ihren Urlaub am folgenden Morgen fort. Mitternacht erzeugt keine künstlichen Neuankünfte und entfernt keine Hotelbewohner.
+
+Die Freigabeprüfung hat eine Lücke bei unabhängig simulierten Familien aufgedeckt: Die Rückkehr schloss Gruppenmitglieder bisher aus, ihr Schlafzustand war im Gruppen-Spielstandprüfer nicht zulässig, und die Aufteilung in Einzelpersonen konnte Zimmer mehrfach zählen. Jetzt zählt eine Fünferfamilie als eine Reservierung für drei Zimmer. Auch die Zimmerrechnung wird auf diese drei Zimmer aufgeteilt. Kinder verlassen das Hotel am Morgen mit ihrer Betreuung auf derselben echten Route; überfällige Gruppentreffen wecken keine schlafenden Gäste.
+
+### 7. Bekannte Grenzen und weitere Arbeit
+
+Der sichtbare Hotel-Gondel-Bus ist weiterhin eine grafische Spielsimulation **ohne Einsteigen oder Fahrgastkapazität im Gästemodell**. Tatsächliche Passagierbeförderung, Halteschlangen und offizielle Fahrpläne sind offen. Die OSM-Abdeckung ist ausschnittsweise; die 39 pisten- oder liftnahen Hospitality-Quellobjekte belegen keine vollständige Erfassung aller Berghütten. Nicht jeder Kulissenbetrieb ist ein nutzbarer Spielerbetrieb.
+
+Der CPU-Stresstest misst Simulation und Szenenverwaltung bei 1× und 4×; daraus lässt sich keine Bildrate auf einem physischen Smartphone ableiten. Die Android-Lifecycle-Tests verwenden x86-64-Emulatoren. Ein physisches ARM64-Gerät und eine unabhängige Play-Protect-Einstufung wurden nicht geprüft.
+
+Siehe [Entwicklungsauftrag #10](https://github.com/chekento/SkiZones/issues/10), [Pull Request #11](https://github.com/chekento/SkiZones/pull/11) und [Prüfnachweise](docs/VALIDATION.md).
+
+### Addendum: reale Gastronomie nahe den Pisten – Offline-Quellenprüfung
+
+Der zuvor wegen HTTP 502/504 und DNS-/Zeitüberschreitungen unterbrochene externe Overpass-Import wurde durch eine **prüfsummenverifizierte Offline-Ableitung aus bereits archivierten OSM-Rohdaten** ersetzt. Der Stand umfasst gegenwärtig 39 überprüfte pisten- oder liftnah erfasste Hospitality-POIs: Braunlage 4 Gastronomie/7 Unterkünfte, Filzmoos 5/8, Kitzbühel 10/3, Seiser Alm 1/1. Die separaten Datensätze liegen unter `assets/geodata/mountain-venues/<gebiet>.json`. Jede Datei verweist auf die ursprüngliche unveränderte OSM-Rohantwort mit SHA-256.
+
+**Keine Vollständigkeitsbehauptung:** `coverage=partial_town_extract`, `coverage_complete=false`. Da die gesicherten Quellen vor allem den Talort abdecken, können hoch gelegene Bergrestaurants fehlen. Es werden keine erfundenen OSM-Koordinaten oder kopierten Restaurantnamen eingefügt. Die neuen positionsgetreuen, generisch gestalteten Berghütten-/Gastronomiemodelle verwenden diese Teilmenge; ihre Position und Quellenidentität werden separat geprüft. Die Android-Paketprüfung verlangt nun zusätzlich alle vier Hospitality-Datensätze.
+
+---
 
 ## v0.19.0 · PMDD-Winterbranding und vollflächiger Ladebildschirm (01.11.2026)
 
