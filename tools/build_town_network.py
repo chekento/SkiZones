@@ -200,6 +200,77 @@ def choose_game_shuttle(network: dict) -> dict:
     }
 
 
+def choose_hotel_gondola_shuttle(network: dict, resort: dict) -> dict:
+    """Select a fictional shuttle connecting a *mapped hotel* to a gondola.
+
+    Only real OSM street vertices and real extracted accommodation locations
+    are used; any walking distance to the source site remains explicit.
+    Where no legal bidirectional road route exists, return {}.
+    """
+    origin = [185.0, 230.0]
+    bus_nodes = set()
+    for edge in network["edges"]:
+        if edge["mode"] == "bus":
+            bus_nodes.add(edge["from"])
+            bus_nodes.add(edge["to"])
+    if not bus_nodes:
+        return {}
+
+    def access(point, maximum=160.0):
+        closest = min(bus_nodes, key=lambda key: (_distance(network["vertices"][key], point), key))
+        distance = _distance(network["vertices"][closest], point)
+        return (closest, round(distance, 2)) if distance <= maximum else (None, None)
+
+    hotels = sorted(
+        (p for p in network["poi"]
+         if p["kind"] == "lodging" and _distance(p["point"], origin) < 2100),
+        key=lambda p: (_distance(p["point"], origin), p["osm_id"]))[:25]
+    lifts = sorted(
+        (lift for lift in resort.get("lifts", []) if lift.get("kind") == "gondola"),
+        key=lambda p: (_distance(p["bottom"], origin), p["id"]))[:12]
+    # A resort without any gondola does not acquire a fictional gondola.
+    if not lifts:
+        return {}
+    candidates = []
+    for lift in lifts:
+        station_point = lift["bottom"]
+        station_node, station_walk = access(station_point, 200.0)
+        if station_node is None:
+            continue
+        for hotel in hotels:
+            hotel_node, hotel_walk = access(hotel["point"], 140.0)
+            if hotel_node is None or hotel_node == station_node:
+                continue
+            to_station = route(network, hotel_node, station_node)
+            if not 180 <= to_station.get("metres", -1) <= 6500:
+                continue
+            to_hotel = route(network, station_node, hotel_node)
+            if not 180 <= to_hotel.get("metres", -1) <= 7000:
+                continue
+            # Reward a useful connection, not a 20km sightseeing loop.
+            score = (hotel_walk + station_walk +
+                     abs(to_station["metres"] - 1050) * 0.25 +
+                     _distance(station_point, origin) * 0.12)
+            candidates.append((round(score, 2), hotel["osm_id"], lift["id"],
+                               hotel, lift, hotel_walk, station_walk, to_station, to_hotel))
+    if not candidates:
+        return {}
+    _, _, _, hotel, lift, hotel_walk, station_walk, outbound, returning = min(
+        candidates, key=lambda row: row[:3])
+    return {
+        "name": "SkiZones Hotel-Gondelbus · fiktive Simulation",
+        "official_route": False,
+        "from_hotel": {"osm_type": hotel["osm_type"], "osm_id": hotel["osm_id"],
+                       "point": hotel["point"], "access_metres": hotel_walk},
+        "to_lift": {"id": int(lift["id"]), "kind": "gondola",
+                    "point": lift["bottom"], "access_metres": station_walk},
+        "outbound": outbound["points"],
+        "return": returning["points"],
+        "outbound_metres": outbound["metres"],
+        "return_metres": returning["metres"],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--region", choices=("braunlage", "filzmoos", "kitzbuehel", "seiseralm"))
@@ -212,6 +283,10 @@ def main():
         data = json.loads(source.read_text(encoding="utf-8"))
         output = build_network(data)
         output["game_shuttle_preview"] = choose_game_shuttle(output)
+        seed_file = ROOT / "assets" / "geodata" / f"{region}-seed.json"
+        if seed_file.is_file():
+            seed = json.loads(seed_file.read_text(encoding="utf-8"))
+            output["hotel_gondola_shuttle"] = choose_hotel_gondola_shuttle(output, seed)
         if not output["edges"]:
             raise SystemExit(f"No routable OSM streets for {region}")
         target = SOURCE / f"{region}-network.json"
