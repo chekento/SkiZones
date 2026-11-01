@@ -21,6 +21,15 @@ func _init() -> void:
 func run() -> void:
 	var model := Resort.new()
 	model.new_game(true, 20261027, "braunlage")
+	# The career intentionally opens with a broken lift. This test is about
+	# accommodation, not repair-office gameplay: bring the run into service.
+	for lift in model.lifts:
+		lift.fault = ""
+	for lift in model.lifts.slice(0, mini(4, model.lifts.size())):
+		Ops.fill_stations(model, int(lift.id), true)
+	Ops.refresh_duty(model)
+	model._operational_change()
+	check(not model.routes_for(0).is_empty(), "Hotel fixture has a serviced beginner route")
 	var hotels: Array = model.buildings.filter(func(b): return b.kind == "hotel")
 	check(hotels.size() >= 1, "A real ski scenario opens with a player-operated hotel")
 	if hotels.is_empty():
