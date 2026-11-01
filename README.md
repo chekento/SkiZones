@@ -37,7 +37,13 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## Neu in 0.20.0 · Kompakte Skiorte und mehrtägiger Hotelurlaub
+## In Entwicklung: 0.20.2 · Fokus auf den normalen Spielmodus
+
+Die Szenarien werden **vorerst aus dem spielbaren Umfang entfernt**. Karriere, freier Aufbau und die acht Fantasiegebiete bleiben verfügbar. Frühere Szenario-Dateien werden **nicht gelöscht**, die Daten bleiben archiviert. Die geplante 0.20.2 führt die noch unveröffentlichte Reparatur von v0.20.1 weiter: **0.19-Karrieren laden, bestehende Pisten behalten, Ladefortschritt sichtbar machen** sowie Android-Start, App-Wechsel und Installation ohne Verlust der vier Karriere-Slots prüfen.
+
+Die Veröffentlichung erfolgt erst nach bestandenen Tests. **Bis dahin bleibt v0.20.0 die neueste veröffentlichte APK.** Sie enthält weiterhin die damaligen Szenarios. [Geplante Änderungen 0.20.2](docs/releases/0.20.2.md).
+
+## Rückblick: Neu in 0.20.0 · Kompakte Skiorte und mehrtägiger Hotelurlaub
 
 Braunlage, Filzmoos, Kitzbühel und Seiser Alm erhalten kleine spielbare Ortskerne mit Hotels, Restaurant, Snackstand, Skischule und Abendangebot. Zusätzliche stilisierte Häuser nutzen belegte OSM-Standorte und generische Namen.
 
