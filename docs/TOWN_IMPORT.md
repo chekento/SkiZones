@@ -1,8 +1,11 @@
 # Real town and transit source extraction (issue #10)
 
-This is a **development-only data ingestion step**, not a finished bus service
-or populated town in the Android game. The current releases use separate pinned
-piste/lift/terrain extracts under `assets/geodata/`; do not alter those files.
+This stage imports real town geometry and, starting with the 0.20 source,
+renders streets and true OSM POI positions in a separate **decorative**
+3D village layer. It also illustrates one fictional SkiZones shuttle
+per area on connected roads. **It is not yet a passenger transport or
+official bus service.** Earlier piste/lift/terrain extracts remain
+separate and must not be modified.
 
 ## Reproducible execution
 
@@ -14,7 +17,8 @@ python3 tools/import_town_geodata.py --region filzmoos
 python3 tools/import_town_geodata.py --region kitzbuehel
 python3 tools/import_town_geodata.py --region seiseralm
 python3 tools/import_town_geodata.py --offline
-python3 -m unittest discover -s tests -p test_town_geodata.py
+python3 tools/build_town_network.py
+python3 -m unittest discover -s tests -p 'test_town_*.py'
 ```
 
 - Default coverage is a **2.4 km radius around the existing entry-station
@@ -31,10 +35,19 @@ python3 -m unittest discover -s tests -p test_town_geodata.py
   `towns/<region>.json` contains derived, reproducible features.
 - The extractor does not generate fictional hotels or restaurants.
   Missing information is reported as missing.
-- Data is not bundled into gameplay yet. Before shipping, create an
-  appropriately licensed rendered street/POI layer, route graph, sensible
-  walkability and bus agent, LOD, real collision avoidance, migration tests,
-  Android performance tests and updated in-game credits.
+- The 0.20 development source renders street meshes, hotels/food/transit
+  markers and limited real-name labels, while leaving construction,
+  savegames and collision behaviour unchanged.
+- The generated graph preserves one-way restrictions, bus-capable versus
+  pedestrian edges and bounded nearest-stop access. It also describes a
+  **fictional** bidirectional SkiZones shuttle, only if connected real
+  streets and stops permit one. This is never an official route.
+- The first visible SkiZones bus follows the simulation clock. Passenger
+  boarding, realistic local bus timetables, staffing, economic effects,
+  full guest itineraries, accurate building footprints and full town
+  coverage still require separate implementation and Android QA.
+- Never import external official logos, invent missing map features,
+  or automatically refresh and change pinned map data at runtime.
 
 **Licence:** © OpenStreetMap contributors; Open Database License 1.0
 ([ODbL](https://opendatacommons.org/licenses/odbl/1-0/)) and
