@@ -155,7 +155,7 @@ static func position_shuttle(bus: Node3D, mountain: RefCounted, virtual_minute: 
 		travelled -= segment
 
 static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionary:
-	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null, "village_models": 0, "slope_venues": 0, "game_added": 0
+	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null, "village_models": 0, "slope_venues": 0, "game_added": 0}
 	var town := data(id)
 	if town.is_empty(): return result
 	var layer := Node3D.new()
