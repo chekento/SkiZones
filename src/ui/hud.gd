@@ -39,6 +39,9 @@ const APRICOT := Color("f1c5a4")
 var game: Node
 var root := Control.new()
 var loading := PanelContainer.new()
+var loading_percent := Label.new()
+var loading_stage := Label.new()
+var loading_progress := ProgressBar.new()
 var menu := Control.new()
 var scenarios := Scenarios.new()
 var credits := AcceptDialog.new()
@@ -179,12 +182,49 @@ func setup(controller: Node) -> void:
 	_build_community()
 	root.add_child(loading)
 	loading.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	loading.add_theme_stylebox_override("panel", _style(Color("f2f5ef"), 0, 50))
-	var loading_text := _label(loading, L.text("Dein Resort wird vorbereitet …\nGeografie und Gästerouten werden geladen."), 30, INK, true)
-	loading_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	loading_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	loading.add_theme_stylebox_override("panel", _style(Color("152d39"), 0, 0))
 	loading.z_index = 100
 	loading.mouse_filter = Control.MOUSE_FILTER_STOP
+	var loading_canvas := Control.new()
+	loading_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	loading.add_child(loading_canvas)
+	var loading_image := TextureRect.new()
+	loading_image.texture = preload("res://assets/branding/splash_1920.png")
+	loading_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	loading_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	loading_image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	loading_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_canvas.add_child(loading_image)
+	var loading_dim := ColorRect.new()
+	loading_dim.color = Color(0.07, 0.17, 0.22, 0.48)
+	loading_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	loading_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_canvas.add_child(loading_dim)
+	var margins := MarginContainer.new()
+	margins.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margins.add_theme_constant_override("margin_left", 36)
+	margins.add_theme_constant_override("margin_right", 36)
+	margins.add_theme_constant_override("margin_bottom", 55)
+	margins.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_canvas.add_child(margins)
+	var stack := VBoxContainer.new()
+	stack.alignment = BoxContainer.ALIGNMENT_END
+	stack.add_theme_constant_override("separation", 12)
+	margins.add_child(stack)
+	loading_stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	loading_stage.add_theme_font_size_override("font_size", 26)
+	loading_stage.add_theme_color_override("font_color", Color.WHITE)
+	stack.add_child(loading_stage)
+	loading_percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	loading_percent.add_theme_font_size_override("font_size", 24)
+	loading_percent.add_theme_color_override("font_color", Color.WHITE)
+	stack.add_child(loading_percent)
+	loading_progress.custom_minimum_size.y = 20
+	loading_progress.min_value = 0
+	loading_progress.max_value = 100
+	loading_progress.show_percentage = false
+	stack.add_child(loading_progress)
+	set_loading_progress(0.0, L.text("Dein Resort wird vorbereitet …"))
 	loading.hide()
 	root.add_child(data_credit)
 	data_credit.text = "© OpenStreetMap contributors · ODbL 1.0 · Mapzen Terrain Tiles"
@@ -961,3 +1001,8 @@ func _build_credits() -> void:
 	content.text = "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n" + L.text("Eigenständige Managementsimulation. Szenarioprobleme sind erfunden; es besteht keine Verbindung zu den genannten Skigebietsbetreibern.") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/Geodata.txt")
 	content.meta_clicked.connect(func(url): OS.shell_open(str(url)))
 	credits.add_child(content)
+
+func set_loading_progress(fraction: float, stage: String = "") -> void:
+	loading_progress.value = clampf(fraction, 0.0, 1.0) * 100.0
+	loading_percent.text = "%d %%" % roundi(loading_progress.value)
+	if not stage.is_empty(): loading_stage.text = stage
