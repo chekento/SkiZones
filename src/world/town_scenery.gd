@@ -77,7 +77,8 @@ static func preview_shuttle(id: String) -> Dictionary:
 	if not FileAccess.file_exists(path): return {}
 	var network: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not network is Dictionary or network.get("source_sha256") != town.get("source_sha256"): return {}
-	var shuttle: Variant = network.get("game_shuttle_preview", {})
+	var shuttle: Variant = network.get("hotel_gondola_shuttle", {})
+	if not shuttle is Dictionary or shuttle.is_empty(): shuttle = network.get("game_shuttle_preview", {})
 	if not shuttle is Dictionary or shuttle.is_empty() or shuttle.get("official_route", true): return {}
 	var outbound: Variant = shuttle.get("outbound", [])
 	var returning: Variant = shuttle.get("return", [])
@@ -109,8 +110,10 @@ static func _bus_node(parent: Node3D, shuttle: Dictionary, mountain: RefCounted)
 		previous = current
 	bus.set_meta("route", path)
 	bus.set_meta("metres", length)
-	bus.set_meta("from_osm", shuttle.from_stop.osm_id)
-	bus.set_meta("to_osm", shuttle.to_stop.osm_id)
+	var hotel_link: bool = shuttle.has("from_hotel") and shuttle.has("to_lift")
+	bus.set_meta("hotel_gondola_link", hotel_link)
+	bus.set_meta("from_osm", int(shuttle.from_hotel.osm_id) if hotel_link else int(shuttle.from_stop.osm_id))
+	bus.set_meta("to_osm", int(shuttle.to_lift.id) if hotel_link else int(shuttle.to_stop.osm_id))
 	_bus_part(bus, Vector3(3.1, 2.7, 7.8), Vector3(0, 2.05, 0), Color("e5b65c"))
 	_bus_part(bus, Vector3(3.0, 1.3, 5.2), Vector3(0, 3.2, -0.1), Color("6b98ae"))
 	_bus_part(bus, Vector3(3.12, 0.36, 7.85), Vector3(0, 4.05, 0), Color("f7e3a3"))
@@ -118,7 +121,7 @@ static func _bus_node(parent: Node3D, shuttle: Dictionary, mountain: RefCounted)
 		for end in [-2.45, 2.45]:
 			_bus_part(bus, Vector3(0.64, 1.16, 1.2), Vector3(side * 1.6, 0.83, end), Color("334653"))
 	var sign := Label3D.new()
-	sign.text = "SkiZones-Spielbus"
+	sign.text = L.text("Hotel ↔ Gondel · Spielbus") if bus.get_meta("hotel_gondola_link", false) else L.text("SkiZones-Spielbus")
 	sign.font_size = 26
 	sign.pixel_size = 0.12
 	sign.modulate = Color("365462")
