@@ -94,7 +94,7 @@ static func _bus_part(parent: Node3D, size: Vector3, offset: Vector3, color: Col
 
 static func _bus_node(parent: Node3D, shuttle: Dictionary, mountain: RefCounted) -> Node3D:
 	var bus := Node3D.new()
-	bus.name = "SkiZones Skibus · simulierte Strecke"
+	bus.name = "SkiZonesShuttle"
 	bus.set_meta("fictional_service", true)
 	var path: Array = shuttle.outbound.duplicate(true)
 	for point in shuttle["return"].slice(1):
@@ -154,7 +154,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 	var town := data(id)
 	if town.is_empty(): return result
 	var layer := Node3D.new()
-	layer.name = "Real OSM Town · %s" % id
+	layer.name = "OSMTown_%s" % id
 	parent.add_child(layer)
 	var roads := [PackedVector3Array(), PackedVector3Array(), PackedVector3Array()]
 	var marker_points := {"lodging": [], "food": [], "bus_stop": [], "transit_stop": []}
