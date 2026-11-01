@@ -42,6 +42,12 @@ var loading := PanelContainer.new()
 var loading_percent := Label.new()
 var loading_stage := Label.new()
 var loading_progress := ProgressBar.new()
+var loading_units := Label.new()
+var loading_elapsed := Label.new()
+var loading_activity := Label.new()
+var loading_margins := MarginContainer.new()
+var _loading_started := 0
+var _loading_last_work := 0
 var menu := Control.new()
 var scenarios := Scenarios.new()
 var credits := AcceptDialog.new()
@@ -180,7 +186,10 @@ func setup(controller: Node) -> void:
 	scenarios.setup(self)
 	_build_credits()
 	_build_community()
-	root.add_child(loading)
+	# The artwork covers the complete display; only its footer uses safe insets.
+	# Keeping this under the inset HUD root left a strip of the old world visible.
+	add_child(loading)
+	loading.theme = root.theme
 	loading.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	loading.add_theme_stylebox_override("panel", _style(Color("152d39"), 0, 0))
 	loading.z_index = 100
@@ -196,34 +205,62 @@ func setup(controller: Node) -> void:
 	loading_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	loading_canvas.add_child(loading_image)
 	var loading_dim := ColorRect.new()
-	loading_dim.color = Color(0.07, 0.17, 0.22, 0.48)
+	loading_dim.color = Color(0.04, 0.10, 0.16, 0.16)
 	loading_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	loading_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	loading_canvas.add_child(loading_dim)
-	var margins := MarginContainer.new()
+	var margins := loading_margins
 	margins.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margins.add_theme_constant_override("margin_left", 36)
 	margins.add_theme_constant_override("margin_right", 36)
-	margins.add_theme_constant_override("margin_bottom", 55)
+	margins.add_theme_constant_override("margin_bottom", 26)
 	margins.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	loading_canvas.add_child(margins)
 	var stack := VBoxContainer.new()
 	stack.alignment = BoxContainer.ALIGNMENT_END
 	stack.add_theme_constant_override("separation", 12)
 	margins.add_child(stack)
+	var footer := PanelContainer.new()
+	footer.add_theme_stylebox_override("panel", _style(Color(0.035, 0.10, 0.15, 0.92), 14, 18))
+	stack.add_child(footer)
+	var status_stack := VBoxContainer.new()
+	status_stack.add_theme_constant_override("separation", 8)
+	footer.add_child(status_stack)
 	loading_stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	loading_stage.add_theme_font_size_override("font_size", 26)
 	loading_stage.add_theme_color_override("font_color", Color.WHITE)
-	stack.add_child(loading_stage)
+	loading_stage.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_stack.add_child(loading_stage)
+	loading_units.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	loading_units.add_theme_font_size_override("font_size", 19)
+	loading_units.add_theme_color_override("font_color", Color("bddfe5"))
+	status_stack.add_child(loading_units)
 	loading_percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	loading_percent.add_theme_font_size_override("font_size", 24)
 	loading_percent.add_theme_color_override("font_color", Color.WHITE)
-	stack.add_child(loading_percent)
+	loading_percent.add_theme_color_override("font_color", Color("ffe1a0"))
+	status_stack.add_child(loading_percent)
 	loading_progress.custom_minimum_size.y = 20
 	loading_progress.min_value = 0
 	loading_progress.max_value = 100
 	loading_progress.show_percentage = false
-	stack.add_child(loading_progress)
+	loading_progress.add_theme_stylebox_override("background", _style(Color("2e4d5e"), 6, 0))
+	loading_progress.add_theme_stylebox_override("fill", _style(Color("85d9d0"), 6, 0))
+	status_stack.add_child(loading_progress)
+	var activity_row := HBoxContainer.new()
+	activity_row.add_theme_constant_override("separation", 14)
+	status_stack.add_child(activity_row)
+	loading_activity.add_theme_color_override("font_color", Color("ffe1a0"))
+	activity_row.add_child(loading_activity)
+	loading_elapsed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	loading_elapsed.add_theme_font_size_override("font_size", 17)
+	loading_elapsed.add_theme_color_override("font_color", Color("c4dce6"))
+	activity_row.add_child(loading_elapsed)
+	loading.visibility_changed.connect(func():
+		if loading.visible:
+			_loading_started = Time.get_ticks_msec()
+			_loading_last_work = _loading_started
+	)
 	set_loading_progress(0.0, L.text("Dein Resort wird vorbereitet …"))
 	loading.hide()
 	root.add_child(data_credit)
@@ -257,6 +294,9 @@ func _update_safe_area() -> void:
 	root.offset_top = content.position.y
 	root.offset_right = content.end.x - size_value.x
 	root.offset_bottom = content.end.y - size_value.y
+	loading_margins.add_theme_constant_override("margin_left", 30 + roundi(content.position.x))
+	loading_margins.add_theme_constant_override("margin_right", 30 + roundi(size_value.x - content.end.x))
+	loading_margins.add_theme_constant_override("margin_bottom", 20 + roundi(size_value.y - content.end.y))
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -1004,6 +1044,22 @@ func _build_credits() -> void:
 
 func set_loading_progress(percent: float, stage: String = "") -> void:
 	# The scenario loader passes measured milestones on the 0–100 scale.
+	if not is_equal_approx(loading_progress.value, percent) or not stage.is_empty() and loading_stage.text != stage:
+		_loading_last_work = Time.get_ticks_msec()
 	loading_progress.value = clampf(percent, 0.0, 100.0)
-	loading_percent.text = "%d %%" % roundi(loading_progress.value)
+	loading_percent.text = "%.1f %%" % loading_progress.value
 	if not stage.is_empty(): loading_stage.text = stage
+
+func apply_loading_state(state: Dictionary) -> void:
+	set_loading_progress(float(state.percent), str(state.message))
+	loading_units.text = L.format_message("%d von %d abgeschlossen", [int(state.done), int(state.total)]) if int(state.total) > 0 else ""
+	if int(state.updated) > 0: _loading_last_work = int(state.updated)
+
+func _process(_delta: float) -> void:
+	if not loading.visible: return
+	var now := Time.get_ticks_msec()
+	loading_activity.text = ["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][int(now / 250) % 4]
+	var elapsed := maxi(0, int((now - _loading_started) / 1000))
+	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
+	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+

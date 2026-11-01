@@ -8,6 +8,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
+const LoadProgress = preload("res://src/core/load_progress.gd")
 const AppSession = preload("res://src/core/app_session.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
 const Preferences = preload("res://src/core/preferences.gd")
@@ -59,6 +60,7 @@ var _background_running := false
 var _background_speed := 1
 var _resume_scheduled := false
 var resume_count := 0
+var _load_progress: RefCounted = null
 
 func _ready() -> void:
 	preferences.load_from()
@@ -119,6 +121,10 @@ func apply_language(value: String) -> void:
 	hud.toast(L.text("Sprache angewendet."))
 
 func _process(delta: float) -> void:
+	if _load_progress != null and hud.loading.visible:
+		hud.apply_loading_state(_load_progress.snapshot())
+		view.motion_running = false
+		return
 	if _app_background:
 		view.motion_running = false
 		return
@@ -178,63 +184,59 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	hud.refresh()
 
 func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
-	# Display the full-size PMDD art BEFORE potentially expensive terrain work.
-	# The percentage is driven by completed milestones, never by a fake timer.
-	hud.set_loading_progress(0.0, L.text("Dein Resort wird vorbereitet …"))
+	view.loading_in_progress = true
+	_load_progress = LoadProgress.new()
+	_load_progress.report(0.0, L.text("Dein Resort wird vorbereitet …"))
+	hud.apply_loading_state(_load_progress.snapshot())
 	hud.loading.show()
 	await get_tree().process_frame
+	# Shared immutable geodata stays initialized on the main thread; each
+	# expensive worker owns its model and reports actual item counters.
 	if area in Geo.IDS:
-		# Only the selected area is needed. Loading all four terrain rasters
-		# on every scenario switch caused long main-thread stalls and memory use.
-		hud.set_loading_progress(9.0, L.text("Gelände und Skigebiet werden geladen …"))
+		_load_progress.report(1.0, L.text("Höhendaten des ausgewählten Gebiets laden …"))
 		await get_tree().process_frame
 		Geo.height(Terrain.BASE, area)
+		_load_progress.report(4.0, L.text("Lifte und Pisten des Gebiets einlesen …"))
+		await get_tree().process_frame
 		Geo.baked(area)
-	hud.set_loading_progress(21.0, L.text("Szenario und Gästerouten werden vorbereitet …"))
-	await get_tree().process_frame
 	var worker := Thread.new()
-	var stage_mutex := Mutex.new()
-	var worker_stage := [26.0]
+	var status: RefCounted = _load_progress
 	var selected_slot := SaveStore.active_slot if slot < 0 else slot
 	var error := worker.start(func():
 		var candidate := Resort.new()
-		stage_mutex.lock()
-		worker_stage[0] = 35.0
-		stage_mutex.unlock()
+		candidate.load_progress = status
 		var result := {"ok": true, "message": ""}
 		if saved:
-			result = SaveStore.load_game(candidate, SaveStore.path_for_map(area,selected_slot))
+			result = SaveStore.load_game(candidate, SaveStore.path_for_map(area,selected_slot), status)
 		else:
+			status.report(10.0, L.text("Resort und Startgebäude vorbereiten …"))
 			candidate.new_game(selected_slot != 0 or area in Geo.IDS, 20261027, area)
-		stage_mutex.lock()
-		worker_stage[0] = 62.0
-		stage_mutex.unlock()
 		if result.ok:
+			status.report(63.0, L.text("Personal und Betriebsabläufe vorbereiten …"))
 			if not Ops.active(candidate): Ops.enable(candidate)
 			candidate.enable_runtime_rules()
 			Ops.refresh_duty(candidate)
 			candidate._operating_signature = Ops.signature(candidate)
 			for skill in [0, 1, 2]:
+				status.report(65.0 + skill * 4.0, L.text("Gästerouten für alle Könnensstufen vorbereiten …"), skill, 3)
 				candidate.routes_for(skill)
 				candidate._routing_graph(skill, true)
-				stage_mutex.lock()
-				worker_stage[0] = 70.0 + skill * 8.0
-				stage_mutex.unlock()
+			status.report(79.0, L.text("Gästerouten vorbereitet"), 3, 3)
+		candidate.load_progress = null
 		return {"model": candidate, "result": result}
 	)
 	if error != OK:
+		view.loading_in_progress = false
 		hud.loading.hide()
 		return {"result": {"ok": false, "message": L.text("Das Resort konnte nicht vorbereitet werden.")}}
 	while worker.is_alive():
-		stage_mutex.lock()
-		var complete: float = worker_stage[0]
-		stage_mutex.unlock()
-		hud.set_loading_progress(complete, L.text("Szenario und Gästerouten werden vorbereitet …"))
 		await get_tree().process_frame
-	var prepared: Dictionary = worker.wait_to_finish()
-	hud.set_loading_progress(94.0, L.text("Bergwelt wird angezeigt …"))
-	# The view still needs to rebuild on the main thread. The caller closes
-	# the overlay only after that work has completed.
+	var prepared: Variant = worker.wait_to_finish()
+	if not prepared is Dictionary or not prepared.get("result") is Dictionary:
+		view.loading_in_progress = false
+		hud.loading.hide()
+		return {"result": {"ok": false, "message": L.text("Das Laden wurde unterbrochen. Der vorhandene Spielstand bleibt unverändert.")}}
+	_load_progress.report(80.0, L.text("Bergwelt und Gelände anzeigen …"))
 	return prepared
 
 func _restore_android_session() -> void:
@@ -244,13 +246,15 @@ func _restore_android_session() -> void:
 	if state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map,slot)): return
 	var prepared := await _prepare_area(state.map, true,slot)
 	if not prepared.result.ok:
+		view.loading_in_progress = false
 		hud.loading.hide()
 		return
 	model = prepared.model
 	view.model = model
 	view._seen_revision = -1
-	app_session.restore(self, true)
-	hud.set_loading_progress(100.0, L.text("Bergwelt bereit"))
+	await view.rebuild(_load_progress)
+	app_session.restore(self, true, false)
+	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
 	hud.loading.hide()
 
@@ -268,16 +272,18 @@ func enter_area(area: String) -> void:
 	var path := SaveStore.path_for_map(area)
 	var prepared := await _prepare_area(area, FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"))
 	if not prepared.result.ok:
+		view.loading_in_progress = false
 		hud.loading.hide()
 		hud.toast(prepared.result.message)
 		return
 	start_game(true, area, prepared.model)
-	hud.set_loading_progress(100.0, L.text("Bergwelt bereit"))
+	await view.rebuild(_load_progress)
+	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
 	hud.loading.hide()
 	passport.record(model)
 	passport.save_to(SaveStore.passport_path())
-	hud.toast(L.text("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand.") % L.args(Maps.spec(area).name))
+	hud.toast(prepared.result.message if prepared.result.get("recovered", false) else L.text("Willkommen in %s. Jedes Gebiet behält seinen eigenen Spielstand.") % L.args(Maps.spec(area).name))
 	hud.refresh()
 
 func continue_game() -> void:
@@ -1160,3 +1166,4 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 
 func _catalog_index(kind: String, lift: bool) -> int:
 	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+

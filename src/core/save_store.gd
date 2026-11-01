@@ -123,7 +123,8 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	if model.map_id in Maps.FANTASY_MAPS and path==path_for_map(model.map_id): _write_index(model,active_slot)
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
 
-static func _read(path: String) -> Dictionary:
+static func _read(path: String, progress: RefCounted = null) -> Dictionary:
+	if progress != null: progress.report(3.0, L.text("Spielstand lesen …"))
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null or file.get_length() > MAX_BYTES:
 		return {"ok": false, "message": L.text("Kein gültiger Spielstand gefunden.")}
@@ -133,6 +134,7 @@ static func _read(path: String) -> Dictionary:
 	var parsed: Variant = parser.data
 	if not parsed is Dictionary or parsed.get("format") != "SkiZones" or not parsed.get("payload") is String or not parsed.get("checksum") is String:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
+	if progress != null: progress.report(7.0, L.text("Prüfsumme kontrollieren …"))
 	if parsed.payload.sha256_text() != parsed.checksum:
 		return {"ok": false, "message": L.text("Die Prüfsumme des Spielstands stimmt nicht.")}
 	if parser.parse(parsed.payload) != OK:
@@ -142,11 +144,34 @@ static func _read(path: String) -> Dictionary:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
 	return {"ok": true, "data": payload}
 
-static func load_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
+static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
+	model.load_progress = progress
+	var verified: Array = []
 	for candidate in [path, path + ".bak"]:
-		var read := _read(candidate)
+		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
+		var read := _read(candidate, progress)
 		if read.ok:
-			var restored: Dictionary = model.restore(read.data)
+			verified.append({"path":candidate,"data":read.data})
+			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
-				return {"ok": true, "message": L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+				return {"ok": true, "recovered": false, "source": candidate, "message": L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+	# An invalid transient visitor must not make an otherwise valid mountain,
+	# construction history, mission progress and finances inaccessible. Both
+	# complete saves are tried first; never bypass an envelope checksum failure.
+	for original in verified:
+		var world: Dictionary = original.data.duplicate(true)
+		if not world.get("guests") is Array or world.guests.is_empty(): continue
+		world.guests = []
+		world.itineraries = []
+		world.parties = []
+		var check_model: RefCounted = model.get_script().new()
+		check_model.load_progress = progress
+		if progress != null: progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
+		if not check_model.restore(world.duplicate(true)).ok: continue
+		var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK:
+			return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
+		if model.restore(world).ok:
+			return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.")}
 	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten.")}
+
