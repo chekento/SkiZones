@@ -68,8 +68,89 @@ static func _make_road_mesh(geometry: PackedVector3Array, color: Color, parent: 
 	node.set_meta("osm_town_overlay", true)
 	parent.add_child(node)
 
+static func preview_shuttle(id: String) -> Dictionary:
+	var town := data(id)
+	if town.is_empty(): return {}
+	var path := "res://assets/geodata/towns/%s-network.json" % id
+	if not FileAccess.file_exists(path): return {}
+	var network: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not network is Dictionary or network.get("source_sha256") != town.get("source_sha256"): return {}
+	var shuttle: Variant = network.get("game_shuttle_preview", {})
+	if not shuttle is Dictionary or shuttle.is_empty() or shuttle.get("official_route", true): return {}
+	var outbound: Variant = shuttle.get("outbound", [])
+	var returning: Variant = shuttle.get("return", [])
+	if not outbound is Array or not returning is Array or outbound.size() < 2 or returning.size() < 2: return {}
+	return shuttle
+
+static func _bus_part(parent: Node3D, size: Vector3, offset: Vector3, color: Color) -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	var part := MeshInstance3D.new()
+	part.mesh = mesh
+	part.position = offset
+	part.material_override = _material(color)
+	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(part)
+
+static func _bus_node(parent: Node3D, shuttle: Dictionary, mountain: RefCounted) -> Node3D:
+	var bus := Node3D.new()
+	bus.name = "SkiZones Skibus · simulierte Strecke"
+	bus.set_meta("fictional_service", true)
+	var path: Array = shuttle.outbound.duplicate(true)
+	for point in shuttle["return"].slice(1):
+		path.append(point)
+	var length := 0.0
+	var previous := _point(path[0])
+	for index in range(1, path.size()):
+		var current := _point(path[index])
+		if current.is_finite() and previous.is_finite(): length += previous.distance_to(current)
+		previous = current
+	bus.set_meta("route", path)
+	bus.set_meta("metres", length)
+	bus.set_meta("from_osm", shuttle.from_stop.osm_id)
+	bus.set_meta("to_osm", shuttle.to_stop.osm_id)
+	_bus_part(bus, Vector3(3.1, 2.7, 7.8), Vector3(0, 2.05, 0), Color("e5b65c"))
+	_bus_part(bus, Vector3(3.0, 1.3, 5.2), Vector3(0, 3.2, -0.1), Color("6b98ae"))
+	_bus_part(bus, Vector3(3.12, 0.36, 7.85), Vector3(0, 4.05, 0), Color("f7e3a3"))
+	for side in [-1.0, 1.0]:
+		for end in [-2.45, 2.45]:
+			_bus_part(bus, Vector3(0.64, 1.16, 1.2), Vector3(side * 1.6, 0.83, end), Color("334653"))
+	var sign := Label3D.new()
+	sign.text = "SkiZones-Spielbus"
+	sign.font_size = 26
+	sign.pixel_size = 0.12
+	sign.modulate = Color("365462")
+	sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sign.position = Vector3(0, 5.3, 0)
+	sign.visibility_range_end = 350
+	bus.add_child(sign)
+	parent.add_child(bus)
+	position_shuttle(bus, mountain, 0.0)
+	return bus
+
+static func position_shuttle(bus: Node3D, mountain: RefCounted, virtual_minute: float) -> void:
+	if not is_instance_valid(bus): return
+	var raw: Variant = bus.get_meta("route", [])
+	var length: float = float(bus.get_meta("metres", 0.0))
+	if not raw is Array or raw.size() < 2 or length < 1: return
+	# A fictional visual shuttle, synchronized to simulation time (not wall
+	# time). ≈15 km/h on winter roads with a short turnaround pause.
+	var travelled: float = clampf((fposmod(virtual_minute, length / 250.0 + 0.6) - 0.3) * 250.0, 0.0, length)
+	for index in range(1, raw.size()):
+		var a := _point(raw[index - 1])
+		var b := _point(raw[index])
+		var segment := a.distance_to(b)
+		if segment < 0.1: continue
+		if travelled <= segment or index == raw.size() - 1:
+			var current := a.lerp(b, clampf(travelled / segment, 0.0, 1.0))
+			bus.position = mountain.world(current, 0.35)
+			var tangent := (b - a).normalized()
+			bus.rotation.y = atan2(tangent.x, tangent.y)
+			return
+		travelled -= segment
+
 static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionary:
-	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false}
+	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null}
 	var town := data(id)
 	if town.is_empty(): return result
 	var layer := Node3D.new()
@@ -161,6 +242,10 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 		accepted.append(record.point)
 	result.labels = accepted.size()
 	result.osm = true
+	var shuttle := preview_shuttle(id)
+	if not shuttle.is_empty():
+		result.shuttle = _bus_node(layer, shuttle, mountain)
+		result.shuttle_preview = true
 	layer.set_meta("source", "© OpenStreetMap contributors · ODbL 1.0")
 	layer.set_meta("counts", result)
 	return result
