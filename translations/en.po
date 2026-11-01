@@ -3294,3 +3294,9 @@ msgstr "Preparing your resort …"
 
 msgid "%d %%"
 msgstr "%d %%"
+
+msgid "Alpenhotel"
+msgstr "Alpine hotel"
+
+msgid "Berggastronomie"
+msgstr "Mountain dining"
