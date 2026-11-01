@@ -178,35 +178,60 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	hud.refresh()
 
 func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
-	# Prime immutable shared data before a worker starts. Scene nodes stay on
-	# the main thread; only an independent simulation model is constructed here.
-	for id in Geo.IDS:
-		Geo.height(Terrain.BASE, id)
-		Geo.baked(id)
+	# The art and real progress are visible before any disk or routing work.
+	# Only this area's raster is primed: the former four-map prewarm could
+	# allocate hundreds of thousands of elevations for an unrelated scenario.
+	hud.set_loading_progress(0.02, L.text("Landschaft und Spielstand vorbereiten"))
 	hud.loading.show()
 	await get_tree().process_frame
+	if area in Geo.IDS:
+		Geo.data(area)
+		hud.set_loading_progress(0.08, L.text("Geländehöhen laden"))
+		await get_tree().process_frame
+		Geo.height(Terrain.BASE, area)
+		Geo.baked(area)
+	hud.set_loading_progress(0.16, L.text("Szenario initialisieren"))
+	await get_tree().process_frame
+	var selected_slot := SaveStore.active_slot if slot < 0 else slot
+	var progress_mutex := Mutex.new()
+	var worker_state := {"percent": 0.18, "stage": "Spielstand vorbereiten"}
 	var worker := Thread.new()
-	var selected_slot:=SaveStore.active_slot if slot<0 else slot
 	var error := worker.start(func():
 		var candidate := Resort.new()
 		var result := {"ok": true, "message": ""}
-		if saved: result = SaveStore.load_game(candidate, SaveStore.path_for_map(area,selected_slot))
-		else: candidate.new_game(selected_slot!=0 or area in Geo.IDS, 20261027, area)
+		if saved: result = SaveStore.load_game(candidate, SaveStore.path_for_map(area, selected_slot))
+		else: candidate.new_game(selected_slot != 0 or area in Geo.IDS, 20261027, area)
+		progress_mutex.lock()
+		worker_state.percent = 0.42
+		worker_state.stage = "Bergbetrieb und Personal vorbereiten"
+		progress_mutex.unlock()
 		if result.ok:
 			if not Ops.active(candidate): Ops.enable(candidate)
 			candidate.enable_runtime_rules()
 			Ops.refresh_duty(candidate)
 			candidate._operating_signature = Ops.signature(candidate)
 			for skill in [0, 1, 2]:
-				candidate.routes_for(skill)
 				candidate._routing_graph(skill, true)
+				candidate.routes_for(skill)
+				progress_mutex.lock()
+				worker_state.percent = 0.52 + float(skill + 1) * 0.14
+				worker_state.stage = "Gästerouten berechnen (%d/3)" % (skill + 1)
+				progress_mutex.unlock()
 		return {"model": candidate, "result": result}
 	)
 	if error != OK:
 		hud.loading.hide()
 		return {"result": {"ok": false, "message": L.text("Das Resort konnte nicht vorbereitet werden.")}}
-	while worker.is_alive(): await get_tree().process_frame
+	while worker.is_alive():
+		progress_mutex.lock()
+		var percent: float = float(worker_state.percent)
+		var stage: String = str(worker_state.stage)
+		progress_mutex.unlock()
+		hud.set_loading_progress(percent, L.text(stage))
+		await get_tree().process_frame
 	var prepared: Dictionary = worker.wait_to_finish()
+	hud.set_loading_progress(1.0, L.text("Resort ist bereit"))
+	await get_tree().process_frame
 	hud.loading.hide()
 	return prepared
 
