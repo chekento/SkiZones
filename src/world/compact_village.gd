@@ -65,6 +65,33 @@ static func _distinct(entries: Array, at: Vector2, distance: float) -> bool:
 		if at.distance_to(entry.point) < distance: return false
 	return true
 
+static func _archived_mountainside(id: String, town: Dictionary) -> Array:
+	# A generated, exact-source OSM subset, with explicitly partial coverage
+	# when Overpass is unavailable. Never infer sites or reuse original names.
+	var path := "res://assets/geodata/mountain-venues/%s.json" % id
+	if not FileAccess.file_exists(path): return []
+	var doc: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not doc is Dictionary or doc.get("region") != id or doc.get("source") != "OpenStreetMap":
+		return []
+	if doc.get("license") != "ODbL-1.0" or not doc.get("features") is Array:
+		return []
+	if doc.get("coverage") == "partial_town_extract" and doc.get("source_sha256") != town.get("source_sha256"):
+		return []
+	var selected: Array = []
+	for entry in doc.features:
+		if not entry is Dictionary or entry.get("kind") not in ["food", "lodging"]:
+			continue
+		if int(entry.get("osm_id", 0)) <= 0: continue
+		var metres: float = minf(float(entry.get("piste_metres", 100000) if entry.get("piste_metres") != null else 100000), float(entry.get("station_metres", 100000) if entry.get("station_metres") != null else 100000))
+		if metres > float(doc.get("max_distance_metres", 165.0)): continue
+		var at := _point(entry.get("point", []))
+		if not at.is_finite(): continue
+		selected.append({"kind": str(entry.kind), "point": at, "source": "osm",
+			"osm_id": int(entry.osm_id), "osm_type": str(entry.get("osm_type", "")),
+			"distance": metres})
+	selected.sort_custom(func(a, b): return a.distance < b.distance if not is_equal_approx(a.distance, b.distance) else a.osm_id < b.osm_id)
+	return selected
+
 static func sites(id: String, mountain: RefCounted, town: Dictionary) -> Dictionary:
 	var result := {"hotels": [], "food": [], "slope_food": [], "game": []}
 	if id not in Geo.IDS or town.is_empty(): return result
@@ -87,16 +114,25 @@ static func sites(id: String, mountain: RefCounted, town: Dictionary) -> Diction
 		if result[family].size() >= capacity or not _distinct(occupied, candidate.point, 47.0): continue
 		result[family].append(candidate)
 		occupied.append(candidate)
-	# Prefer hospitality whose actual OSM site touches a lift or ski run,
-	# including sites beyond the town core, rather than inventing huts.
+	# Prefer independently verified OSM hospitality near *real runs* and
+	# lift stations; old towns-only snapshots remain a safe offline fallback.
 	var segments: Array = _piste_segments(id)
-	for candidate in candidates:
-		if candidate.kind != "food" or result.slope_food.size() >= MAX_SLOPE_VENUES: continue
+	var mountain_sites: Array = _archived_mountainside(id, town)
+	for candidate in mountain_sites:
+		if result.slope_food.size() >= MAX_SLOPE_VENUES: break
 		if candidate.point.distance_to(Terrain.BASE) < 360.0: continue
+		if not mountain.contains(candidate.point) or mountain.slope_percent(candidate.point) > 55: continue
 		if not _distinct(occupied, candidate.point, 65.0): continue
-		if not _near_piste(candidate.point, segments): continue
 		result.slope_food.append(candidate)
 		occupied.append(candidate)
+	if mountain_sites.is_empty():
+		for candidate in candidates:
+			if candidate.kind != "food" or result.slope_food.size() >= MAX_SLOPE_VENUES: continue
+			if candidate.point.distance_to(Terrain.BASE) < 360.0: continue
+			if not _distinct(occupied, candidate.point, 65.0): continue
+			if not _near_piste(candidate.point, segments): continue
+			result.slope_food.append(candidate)
+			occupied.append(candidate)
 	# These fictional types fill the *small village centre*, never assert
 	# real-world POI coordinates or copied restaurant names.
 	for spec in GENERIC_VENUES:
