@@ -1398,7 +1398,7 @@ func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
 	if guest.has("party_id"):guest.party_step=1.0
-	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits"]:
+	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits", "traffic_lane", "traffic_lateral", "traffic_step"]:
 		guest.erase(key)
 	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -1983,7 +1983,7 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		var piste := asset(leg.id)
 		var hiking := Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
 		fraction = ski_fraction(leg,fraction,guest.get("ski_motion",[]))
-		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
+		point = Motion.position(terrain, piste, guest.id, guest.ability, fraction, guest.loops, leg.get("start_fraction", 0), leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
 		var center: Vector2 = terrain.point_on_path(piste.points,fraction)
 		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
@@ -2389,6 +2389,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
+		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane > 2): return invalid
+		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:
 				return invalid
