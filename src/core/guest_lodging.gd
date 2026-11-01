@@ -17,12 +17,26 @@ static func room_count(building: Dictionary) -> int:
 static func rooms_needed(guest: Dictionary) -> int:
 	return maxi(1, ceili(float(guest.get("group_size", 1)) / 2.0))
 
+static func _reservation(guest: Dictionary) -> String:
+	return "party:%d" % int(guest.party_id) if guest.has("party_id") else "guest:%d" % int(guest.id)
+
 static func rooms_used(model: RefCounted, id: int) -> int:
-	var total := 0
+	var reservations := {}
 	for guest in model.guests:
-		if int(guest.get("lodging_id", 0)) == id and guest.phase != "leaving":
-			total += rooms_needed(guest)
+		if int(guest.get("lodging_id", 0)) != id or guest.phase == "leaving": continue
+		var key := _reservation(guest)
+		reservations[key] = int(reservations.get(key, 0)) + maxi(1, int(guest.get("group_size", 1)))
+	var total := 0
+	for people in reservations.values(): total += ceili(float(people) / 2.0)
 	return total
+
+static func billable_rooms(model: RefCounted, guest: Dictionary) -> float:
+	if not guest.has("party_id") or not guest.has("lodging_id"): return float(rooms_needed(guest))
+	var people := 0
+	for person in model.guests:
+		if person.get("party_id", 0) == guest.party_id and person.get("lodging_id", 0) == guest.lodging_id and person.phase != "leaving":
+			people += 1
+	return float(ceili(float(people) / 2.0)) / float(maxi(1, people))
 
 static func assign(model: RefCounted, guest: Dictionary) -> bool:
 	if model.map_id not in Geo.IDS or guest.get("evening", false): return false
@@ -46,7 +60,7 @@ static func assign(model: RefCounted, guest: Dictionary) -> bool:
 	return true
 
 static func should_return(model: RefCounted, guest: Dictionary) -> bool:
-	if not guest.has("lodging_id") or guest.has("party_id") or guest.get("hotel_night", false) or guest.get("heading_home", false): return false
+	if not guest.has("lodging_id") or guest.get("hotel_night", false) or guest.get("heading_home", false): return false
 	if guest.phase != "moving" or int(guest.age) >= int(guest.stay): return false
 	if model.minute < 1000 and model.minute >= 420: return false
 	var hotel: Dictionary = model.asset(int(guest.lodging_id))
@@ -78,12 +92,22 @@ static func start_sleep(model: RefCounted, guest: Dictionary) -> void:
 	guest.phase = "waiting"
 	guest.waiting_reason = "hotel"
 	guest.waiting_node = "d%d" % int(guest.lodging_id)
+	guest.waiting_since = current
 	guest.wait = 0
 	guest.heading_home = true
 
 static func wake(model: RefCounted, guest: Dictionary) -> void:
 	if guest.phase != "waiting" or guest.get("waiting_reason", "") != "hotel": return
 	if Ops.clock(model) < int(guest.get("hotel_sleep_until", 0)): return
+	var guardian: Dictionary = {}
+	if guest.has("guardian_id"):
+		guardian = model.Parties.actor(model, int(guest.guardian_id))
+		if guardian.is_empty() or guardian.get("waiting_reason", "") == "hotel": return
+		if int(guardian.leg) != 0 or guardian.route.legs.is_empty() or guardian.route.legs[0].from != "d%d" % int(guest.lodging_id): return
+	else:
+		for child in model.Parties.cell(model, guest):
+			if not child.has("guardian_id"): continue
+			if child.get("waiting_reason", "") != "hotel" or Ops.clock(model) < int(child.get("hotel_sleep_until", 0)): return
 	guest.erase("hotel_sleep_until")
 	guest.erase("hotel_night")
 	guest.erase("heading_home")
@@ -99,7 +123,11 @@ static func wake(model: RefCounted, guest: Dictionary) -> void:
 		model.Access.depart(model, guest)
 		return
 	var source := "d%d" % int(guest.lodging_id)
-	var route: Dictionary = model.choose_route(guest, source)
+	var route: Dictionary
+	if not guardian.is_empty():
+		route = guardian.route.duplicate(true)
+	else:
+		route = model.choose_route(model.Parties.care_guest(model, guest), source)
 	if route.is_empty():
 		# A closure can temporarily isolate a hotel. Recheck later; never
 		# teleport out or remove a paid-for holiday guest arbitrarily.

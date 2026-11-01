@@ -110,6 +110,7 @@ static func arrive(model: RefCounted,guest: Dictionary,leg: Dictionary) -> bool:
 	if not guest.has("party_id"):return false
 	var party:=group(model,guest)
 	if party.is_empty():return false
+	if guest.get("hotel_night",false):return false
 	if guest.get("heading_home",false):
 		# The care cell still rejoins at every station and piste junction.
 		pass
@@ -139,7 +140,7 @@ static func _release(model: RefCounted,people: Array) -> void:
 		for key in ["waiting_node","waiting_reason","waiting_since"]:guest.erase(key)
 		if int(guest.id)!=int(leader.id) and (party.get("status")=="outing" or guest.get("guardian_id",0)==leader.id):
 			guest.route=leader.route.duplicate(true);guest.leg=int(leader.leg)
-			for flag in ["heading_home","portal_departing"]:
+			for flag in ["heading_home","portal_departing","hotel_night"]:
 				if leader.get(flag,false):guest[flag]=true
 			if leader.phase=="leaving":guest.phase="leaving"
 			else: model._start_leg(guest)
@@ -149,7 +150,10 @@ static func tick(model: RefCounted) -> void:
 	for party in model.parties.duplicate():
 		var people:=members(model,party)
 		if people.is_empty():model.parties.erase(party);continue
-		if party.status=="free" and now(model)>=int(party.meeting_at):_select_meeting(model,party)
+		# A hotel stay has priority over a new late-night meeting. Existing
+		# meals finish normally; sleeping residents keep their hotel state.
+		var hotel_return: bool=people.any(func(g):return g.get("hotel_night",false) or (g.has("lodging_id") and (model.minute>=1000 or model.minute<420)))
+		if party.status=="free" and not hotel_return and now(model)>=int(party.meeting_at):_select_meeting(model,party)
 		if party.status=="gather":
 			if int(party.venue)>0 and not model.Ops.building_open(model,model.asset(int(party.venue))):party.node="base";party.venue=0
 			for guest in people:
@@ -179,7 +183,7 @@ static func tick(model: RefCounted) -> void:
 			for guest in people:
 				if guest.has("guardian_id"):continue
 				var care:=cell(model,guest)
-				if care.size()>1 and _together(care):_release(model,care)
+				if care.size()>1 and _together(care,"care"):_release(model,care)
 static func valid(model: RefCounted,value: Variant) -> bool:
 	if not value is Array or value.size()>model.MAX_GUESTS:return false
 	var ids: Array=[]
@@ -213,7 +217,7 @@ static func valid(model: RefCounted,value: Variant) -> bool:
 			var parent:=actor(model,int(guest.get("guardian_id",0)))
 			if parent.is_empty() or parent.get("years",0)<16 or parent.get("party_id",-1)!=guest.party_id:return false
 		if guest.phase=="waiting":
-			if guest.get("waiting_reason") not in ["care","meeting","meal"] or guest.get("waiting_node")!=guest.route.legs[int(guest.leg)].to:return false
+			if guest.get("waiting_reason") not in ["care","meeting","meal","hotel"] or guest.get("waiting_node")!=guest.route.legs[int(guest.leg)].to:return false
 			if not Terrain.number(guest.get("waiting_since")) or guest.waiting_since<0 or guest.waiting_since>now(model):return false
 		for field in ["party_id","years","party_comfort","guardian_id"]:
 			if guest.has(field):guest[field]=int(guest[field])

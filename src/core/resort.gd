@@ -1456,7 +1456,7 @@ func _finish_leg(guest: Dictionary) -> void:
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
 			var base_revenue: float = float(operations.room_price) if Ops.active(self) and building.kind == "hotel" else Catalog.BUILDINGS[building.kind].income
-			var revenue: float = base_revenue * (ceilf(float(guest.get("group_size", 1)) / 2) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
+			var revenue: float = base_revenue * (Lodging.billable_rooms(self, guest) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
@@ -2531,13 +2531,15 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	parties=saved_parties.duplicate(true)
 	if not Parties.valid(self,parties):return invalid
 	for guest in guests:
-		if guest.phase == "waiting" and not guest.has("party_id"):
-			# Previous saves only permitted party meetings. A solo resident
-			# may now be asleep in a verified, assigned hotel room.
-			if guest.get("waiting_reason", "") != "hotel" or not guest.has("lodging_id") or not guest.has("hotel_sleep_until"): return invalid
+		if guest.phase != "waiting": continue
+		if guest.get("waiting_reason", "") == "hotel":
+			# Solo visitors and individual family members must be inside
+			# their own assigned hotel, never merely at a meeting waypoint.
+			if not guest.has("lodging_id") or not guest.has("hotel_sleep_until"): return invalid
 			if guest.leg >= guest.route.legs.size(): return invalid
 			var room_leg: Dictionary = guest.route.legs[int(guest.leg)]
 			if room_leg.kind != "visit" or int(room_leg.id) != int(guest.lodging_id): return invalid
+		elif not guest.has("party_id"): return invalid
 	rng.seed = int(data.rng_seed)
 	rng.state = int(data.rng_state)
 	if not Progression.restore(self, data.get("campaign")):
