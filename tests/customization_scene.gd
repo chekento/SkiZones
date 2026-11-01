@@ -92,10 +92,28 @@ func run() -> void:
 	check(not data.node.visible and data.clock == old_clock, "A distant lift skips vehicle updates while the model clock remains available")
 	game.view.focus=Terrain.unpack(lift.bottom);game.view._process(0)
 	check(data.node.visible and data.node.multimesh.get_instance_transform(0).origin.distance_to(game.model.carrier_pose(lift,0,0.5).transform.origin) < 0.002, "Returning to a lift restores its current physical position without slowing the simulation")
-	game.model.admit_guest(0)
-	var guest: Dictionary = game.model.guests[-1]
-	for index in range(guest.route.legs.size()):
-		if guest.route.legs[index].kind == "ski": guest.leg=index;game.model._start_leg(guest);break
+	var admitted: bool = game.model.admit_guest(0)
+	var ski_guest: Dictionary = {}
+	if admitted:
+		var candidate: Dictionary = game.model.guests[-1]
+		# A deterministic scene test must select an actual ski leg; the
+		# guest agenda may first choose a food/service visit instead.
+		for option in game.model.routes_for(0):
+			if option.legs.any(func(step): return step.kind == "ski"):
+				candidate.route = option.duplicate(true)
+				for index in range(candidate.route.legs.size()):
+					if candidate.route.legs[index].kind == "ski":
+						candidate.leg = index
+						game.model._start_leg(candidate)
+						ski_guest = candidate
+						break
+				break
+	check(not ski_guest.is_empty(), "The rendered guest picking fixture has a genuine ski descent")
+	if ski_guest.is_empty():
+		print("SCENE RESULT: %d passed; %d failed" % [passed, failed])
+		quit(1)
+		return
+	var guest: Dictionary = ski_guest
 	guest.elapsed=guest.duration*0.5
 	game.view.focus=game.model.terrain.point_on_path(game.model.asset(guest.route.legs[guest.leg].id).points,0.5)
 	game.view.simulation_fraction=0;game.view._process(0)
