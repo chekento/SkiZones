@@ -363,7 +363,7 @@ func _build_surroundings() -> void:
 	# Isolated from terrain picking, construction logic and savegames.
 	_town_shuttle = null
 	if model.map_id in Geo.IDS:
-		var town_result: Dictionary = TownScenery.build(landscape, terrain, model.map_id)
+		var town_result: Dictionary = TownScenery.build(landscape, terrain, model.map_id, model)
 		_town_shuttle = town_result.get("shuttle")
 
 func toggle_slopes() -> void:
