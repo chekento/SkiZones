@@ -3,6 +3,7 @@ extends RefCounted
 ## timetable is inferred. The imported way shapes and POI identities survive.
 const Geo = preload("res://src/core/real_resorts.gd")
 const CompactVillage = preload("res://src/world/compact_village.gd")
+const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const MAX_ROAD_QUADS := 14000
 const MAX_POI_LABELS := 20
@@ -230,7 +231,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 		if accepted.size() >= MAX_POI_LABELS: break
 		if accepted.any(func(p): return p.distance_to(record.point) < 28): continue
 		var label := Label3D.new()
-		label.text = ("Alpenhotel" if record.kind == "lodging" else "Berggastronomie" if record.kind == "food" else str(record.name).substr(0, 42))
+		label.text = (L.text("Alpenhotel") if record.kind == "lodging" else L.text("Berggastronomie") if record.kind == "food" else str(record.name).substr(0, 42))
 		label.font_size = 27
 		label.pixel_size = 0.12
 		label.modulate = POI_COLORS[record.kind]
