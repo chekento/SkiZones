@@ -1002,7 +1002,8 @@ func _build_credits() -> void:
 	content.meta_clicked.connect(func(url): OS.shell_open(str(url)))
 	credits.add_child(content)
 
-func set_loading_progress(fraction: float, stage: String = "") -> void:
-	loading_progress.value = clampf(fraction, 0.0, 1.0) * 100.0
+func set_loading_progress(percent: float, stage: String = "") -> void:
+	# The scenario loader passes measured milestones on the 0–100 scale.
+	loading_progress.value = clampf(percent, 0.0, 100.0)
 	loading_percent.text = "%d %%" % roundi(loading_progress.value)
 	if not stage.is_empty(): loading_stage.text = stage
