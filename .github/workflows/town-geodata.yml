@@ -93,6 +93,11 @@ jobs:
               for stop in data['stops']:
                   if stop['connected']:
                       assert stop['access_node'] in data['vertices']
+              sh = data.get('hotel_gondola_shuttle') or {}
+              print(name, 'hotel_to_gondola=',bool(sh),
+                    'hotel_osm_id=',sh.get('from_hotel',{}).get('osm_id'),
+                    'lift_id=',sh.get('to_lift',{}).get('id'),
+                    'road_metres=',sh.get('outbound_metres'))
               print(name, 'vertices=',len(data['vertices']),'edges=',len(data['edges']),
                     'stops=',len(data['stops']),'connected=',sum(s['connected'] for s in data['stops']))
           PY
