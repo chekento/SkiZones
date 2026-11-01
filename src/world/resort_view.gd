@@ -1573,7 +1573,7 @@ func pick_asset(point: Vector2) -> int:
 
 func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elapsed: float) -> Dictionary:
 	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
-	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"))
+	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
 	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
 	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
@@ -1589,10 +1589,11 @@ func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Diction
 	const QUANTUM := 0.12
 	var offset := float(int(guest.id) % 17) * QUANTUM / 17
 	var index := floori((elapsed + offset) / QUANTUM)
-	var key := "%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index]
+	var lane_key := roundi(float(guest.get("traffic_lateral", 0.0)) * 10.0)
+	var key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index, lane_key]
 	if not _motion_cache.has(guest.id) or _motion_cache[guest.id].key != key:
 		var at := index * QUANTUM - offset
-		var previous_key := "%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1]
+		var previous_key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1, lane_key]
 		var first: Dictionary = _motion_cache[guest.id].b if _motion_cache.has(guest.id) and _motion_cache[guest.id].key == previous_key else _exact_ski_pose(piste, guest, leg, at)
 		_motion_cache[guest.id] = {"key": key, "a": first, "b": _exact_ski_pose(piste, guest, leg, at + QUANTUM)}
 	var data: Dictionary = _motion_cache[guest.id]
