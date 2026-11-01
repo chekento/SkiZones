@@ -1,3 +1,49 @@
+# Prüfung von SkiZones 0.20.0
+
+**Modell und Grafik: 1.558 Prüfungen in 52 Suiten bestanden. Offline-Python-Quellenprüfung: 22 Tests bestanden.**
+
+Geprüfter APK-Quellcode: `f820f5359f6c08b63d44cb9acfb428f5e62f0df2`.
+[Vollständiger Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41334979060), Godot 4.5.2, Android ARM64, Versionscode **25**, bisheriges Spielstandformat **16**.
+
+**Android-Status:** API 30 hat 26 echte Activity-/Oberflächenfälle bestanden. Im ersten API-36-Lauf war das Testupdate installiert, der abschließende Launcher-Start blieb jedoch mit einem 60-Sekunden-Timeout im Zustand INITIALIZING. Die Fehleraufzeichnung enthält keinen Java-/Godot-Absturz. Der gezielte Wiederholungslauf mit unveränderter APK und unveränderten Prüfungen läuft; eine Veröffentlichung ist bis zu dessen Abschluss gesperrt.
+
+## Zusätzliche verbindliche Freigabeprüfungen
+
+Die bisher gesonderten Orts- und Hotelprüfungen sind jetzt Pflichtschritte vor dem Export in derselben APK-Pipeline. Dies umfasst Ortsgeometrie und Quellen (42), kompakte spielbare Dörfer in allen vier realen Szenarien (36), Einzelgast-Urlaub und Save/Load (14), unabhängige Familien im Hotel (16), Pistenüberholen und Geschäftsergebnisse (10) sowie dichten Pistenverkehr (10). Die unveränderten bisherigen Modell-, UI-, Grafik-, Karriere- und Migrationsprüfungen bleiben aktiv.
+
+Die Familienprüfung verwendet fünf tatsächlich bewegte Einzelpersonen mit Eltern-Kind-Zuordnung. Sie belegt Rückweg, Schlaf, unveränderte Identitäten über Mitternacht, nächtliches Save/Load, Morgenrouten mit Betreuung und das Verbot fremder Hotelzuordnungen. Eine Fünferfamilie belegt und bezahlt drei Zimmer. Acht solche Familien füllen 24 Zimmer; weitere Ankömmlinge erhalten keine überbuchte Unterkunft.
+
+Die Prüfung fand den vorherigen Ausschluss von Gruppenmitgliedern aus der Hotelrückkehr und die Ablehnung schlafender Familien im Gruppen-Spielstandprüfer. Beides ist korrigiert; die Zimmerzählung und Zimmerrechnung sind auf gemeinsame Reservierungen umgestellt. Die erste Testausführung bestand bereits alle 16 fachlichen Fälle; die Ausgabe wurde anschließend auf die vom bestehenden Test-Runner geforderte Ergebniszeile vereinheitlicht.
+
+## CPU-Stressmessung
+
+[Maschinenlesbarer CI-Benchmark](benchmarks/0.20.0-ci.json). Je Geschwindigkeit 24 Aufwärm- und 120 Messbilder, Headless-CPU-Messung in der CI:
+
+| Gäste / Lifte | Geschwindigkeit | Median CPU / Bild | 95. Perzentil |
+|---|---|---:|---:|
+| 80 / 1 | 1× | 2,397 ms | 2,933 ms |
+| 80 / 1 | 4× | 4,173 ms | 4,779 ms |
+| 360 / 24 | 1× | 15,668 ms | 17,107 ms |
+| 360 / 24 | 4× | 25,579 ms | 26,913 ms |
+
+Die Werte erfassen Simulation und Szenenverwaltung auf dem CI-Rechner. Sie sind keine GPU-Messung und kein Nachweis der Bildrate eines physischen Smartphones. Unterschiede zwischen CI-Rechnern erlauben keinen unbereinigten Versionsvergleich.
+
+## Geprüfte ARM64-Kandidatdatei
+
+- Datei: `SkiZones-0.20.0-android-arm64.apk` · **46.496.642 Bytes**
+- SHA-256: `c3c50fb84ee7947d11a2fc29672a4943fcc5cc47bd0bd15567a7e6374be46a86`
+- Paket: `cloud.kosch.skizones` · Release-Export · Code **25**.
+- Archiv, ARM64-Bibliothek, Geodaten für alle vier Szenarien, Manifest und Prüfsummendatei stimmen überein. Testskripte und x86-64-Test-APKs gehören nicht zum öffentlichen Download.
+- Signaturschlüssel stimmt mit v0.19.0 überein: `405d46b3e54945a502a02ac2630390a74f44a55a326f8f8a4a71a63bd467044b`.
+- Die Paketprüfung weist nur Internetzugriff nach, keinen App-eigenen APK-Installer und kein Debug-Flag.
+
+## Bewusst offene Funktionen
+
+Der Hotel-Gondel-Bus ist eine sichtbare, auf importierten Straßen routbare Spielsimulation ohne modellierte Fahrgastbeförderung. Die 39 belegten pisten-/liftnahen Hospitality-Objekte sind eine partielle Quellmenge. Diese Grenzen bleiben in den Release-Notizen und in #10 offen.
+
+
+---
+
 # Prüfung von SkiZones 0.18.0
 
 **Modell und Grafik: 1.428 Prüfungen in 45 Suiten bestanden.** Der Sprachkatalog umfasst **1.080** geprüfte Einträge. Android-Prüfung: **53 echte Activity-/Oberflächenfälle bestanden: 26 unter Android 11 (API 30), 27 unter Android 16 (API 36)**.
