@@ -16,7 +16,7 @@ func setup(interface: CanvasLayer) -> void:
 	var row:=HBoxContainer.new();body.add_child(row)
 	hud._label(row,L.text("DEINE VIER KARRIEREN"),26,hud.ACCENT)
 	hud._spacer(row,false);hud._button(row,L.text("Zurück"),hide)
-	hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau und Szenarien behalten eigene Spielstände."),17,hud.MUTED,true)
+	hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
 	var scroll:=DragScroll.new();scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL;body.add_child(scroll)
 	cards=GridContainer.new();cards.columns=2;cards.add_theme_constant_override("h_separation",14);cards.add_theme_constant_override("v_separation",14)
 	cards.size_flags_horizontal=Control.SIZE_EXPAND_FILL;scroll.add_child(cards)
