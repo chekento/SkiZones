@@ -436,12 +436,15 @@ static func _charge(model: RefCounted, amount: float, centre: String) -> void:
 static func business_balance(model: RefCounted, building: Dictionary) -> Dictionary:
 	var sales: float = float(building.get("daily_revenue", 0.0))
 	var wages: float = float(model.operations.cost_centres.get("building:%d" % int(building.id), 0.0))
-	var active_sites := 0
-	for site in model.buildings:
-		if site.enabled: active_sites += 1
-	var overhead: float = 0.0
-	if building.enabled and active_sites > 0:
-		overhead = float(model.operations.cost_centres.get("infrastructure", 0.0)) / float(active_sites)
+	# Allocate the *actual building's* daily fixed operating cost, not
+	# an arbitrary share of all lift, piste and village expenses.
+	var structure: Dictionary = model.Catalog.BUILDINGS.get(str(building.kind), {})
+	var upkeep: float = float(structure.get("upkeep", 0.0)) * (1.0 if building.enabled else 0.2)
+	upkeep *= 1.0 + 0.2 * (int(building.get("level", 1)) - 1)
+	# All owned buildings also contribute a 35 €/day basic site expense.
+	upkeep += 35.0
+	var efficiency: float = 0.85 if model.Progression.has(model, "efficient_snow") else 1.0
+	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
 	var costs := wages + overhead
 	return {"sales": sales, "wages": wages, "overhead": overhead, "costs": costs, "net": sales - costs}
 
