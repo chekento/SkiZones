@@ -56,8 +56,8 @@ static func position(mountain: RefCounted, piste: Dictionary, id: int, ability: 
 
 static func frame(mountain: RefCounted, piste: Dictionary, id: int, ability: int, fraction: float, run: int = 0, range_start: float = 0.0, range_end: float = 1.0, walks: Array = [], sport: String = "ski", traffic_lateral: float = INF) -> Dictionary:
 	var point := position(mountain, piste, id, ability, fraction, run, range_start, range_end, walks, sport, traffic_lateral)
-	var before := position(mountain, piste, id, ability, maxf(0, fraction - 0.003), run, range_start, range_end, walks, sport)
-	var ahead := position(mountain, piste, id, ability, minf(1, fraction + 0.003), run, range_start, range_end, walks, sport)
+	var before := position(mountain, piste, id, ability, maxf(0, fraction - 0.003), run, range_start, range_end, walks, sport, traffic_lateral)
+	var ahead := position(mountain, piste, id, ability, minf(1, fraction + 0.003), run, range_start, range_end, walks, sport, traffic_lateral)
 	var direction := (ahead - before).normalized()
 	var personal := style(id, ability, sport)
 	return {"point": point, "before": before, "ahead": ahead, "direction": direction, "yaw": atan2(direction.x, direction.y), "lean": sin(piste.length * fraction / personal.wave * TAU + personal.phase + run * 1.7) * (0.13 + ability * 0.07)}
