@@ -4,7 +4,7 @@ extends RefCounted
 ## Progress is deterministic; rendered skiing follows the same lane index.
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
-const MAX_LANES := 4
+const MAX_LANES := 3
 const LANE_METRES := 7.0
 const HEADWAY_METRES := 3.5
 const MIN_OVERTAKE_GAIN_METRES := 0.9
@@ -49,7 +49,7 @@ static func steps(model: RefCounted) -> Dictionary:
 			var duration: float = maxf(float(guest.duration), 0.001)
 			var current: float = clampf(float(entry.at), 0.0, 1.0)
 			var desired: float = clampf(model.ski_fraction(leg, (float(guest.elapsed) + 1.0) / duration, samples), current, 1.0)
-			var existing: int = int(guest.get("traffic_lane_index", posmod(int(guest.id), number)))
+			var existing: int = int(guest.get("traffic_lane", posmod(int(guest.id), number)))
 			if existing < 0 or existing >= number: existing = posmod(int(guest.id), number)
 			var best_lane := existing
 			var best_limit := maxf(current, minf(desired, float(fronts[existing]) - HEADWAY_METRES / width))
@@ -61,8 +61,12 @@ static func steps(model: RefCounted) -> Dictionary:
 				if (allowed - best_limit) * width > MIN_OVERTAKE_GAIN_METRES:
 					best_limit = allowed
 					best_lane = lane
-			guest.traffic_lane_index = best_lane
-			guest.traffic_lane_count = number
+			# The render and save pipeline use metres of lateral separation.
+			# Keep this consistent with ski_motion.gd and the Android picker.
+			guest.traffic_lane = best_lane
+			var width_metres: float = Snow.piste_width(piste)
+			var lane_ratio: float = 0.0 if number <= 1 else (2.0 * float(best_lane) / float(number - 1) - 1.0)
+			guest.traffic_lateral = clampf(lane_ratio * width_metres * 0.30, -24.0, 24.0)
 			var local := inverse_lerp(float(leg.get("start_fraction", 0.0)), float(leg.get("end_fraction", 1.0)), best_limit)
 			var elapsed: float = _time_at(samples, clampf(local, 0.0, 1.0)) * duration
 			result[int(guest.id)] = clampf(elapsed - float(guest.elapsed), 0.0, 1.0)
