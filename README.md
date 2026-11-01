@@ -37,6 +37,20 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
+## Neu in 0.20.0 · Kompakte Skiorte und mehrtägiger Hotelurlaub
+
+Braunlage, Filzmoos, Kitzbühel und Seiser Alm erhalten kleine spielbare Ortskerne mit Hotels, Restaurant, Snackstand, Skischule und Abendangebot. Zusätzliche stilisierte Häuser nutzen belegte OSM-Standorte und generische Namen.
+
+- **Mehrere Urlaubstage:** belegbare Hotelzimmer, tatsächlicher Rückweg, Schlafen und Fortsetzung am Morgen; dieselben Personen bleiben über Mitternacht und Save/Load erhalten.
+- **Familien im Hotel:** unabhängige Eltern und Kinder übernachten gemeinsam. Fünf Personen buchen und bezahlen drei Zimmer; Kinder verlassen das Hotel mit ihrer Betreuung.
+- **Geschäftsergebnisse:** Tagesumsatz, Personalkosten, Standortkosten und Gewinn/Verlust pro eigenem Betrieb.
+- **Pistenverkehr:** freie Überholspuren mit seitlichem Sicherheitsabstand statt durchgehender Anhalteketten.
+- **PMDD-Laden:** Prozentfortschritt beim Start und Szenariowechsel; nur das ausgewählte reale Gebiet wird vorbereitet.
+
+Auf belegten Straßen fährt ein sichtbarer fiktiver **Hotel-Gondel-Spielbus**. Er hat in dieser Version **noch keine modellierte Fahrgastbeförderung**. Die pistennahe OSM-Abdeckung ist weiterhin partiell.
+
+**Freigabe:** 1.558 Modell-/Grafikprüfungen, 22 Offline-Quellentests und 53 Android-Emulatorfälle bestanden. [Detaillierte Release-Notizen](docs/releases/0.20.0.md) · [Prüfnachweis und Benchmark](docs/VALIDATION.md).
+
 ## Community & Feedback
 
 **SkiZones auf KoSchpendium** ist unser Treffpunkt für Spieler, Ideen, Fragen und Screenshots. Für reproduzierbare Fehler und konkrete Verbesserungen gibt es strukturierte GitHub-Issues.

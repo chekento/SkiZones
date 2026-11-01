@@ -5,7 +5,13 @@
 Geprüfter APK-Quellcode: `f820f5359f6c08b63d44cb9acfb428f5e62f0df2`.
 [Vollständiger Veröffentlichungslauf](https://github.com/chekento/SkiZones/actions/runs/41334979060), Godot 4.5.2, Android ARM64, Versionscode **25**, bisheriges Spielstandformat **16**.
 
-**Android-Status:** API 30 hat 26 echte Activity-/Oberflächenfälle bestanden. Im ersten API-36-Lauf war das Testupdate installiert, der abschließende Launcher-Start blieb jedoch mit einem 60-Sekunden-Timeout im Zustand INITIALIZING. Die Fehleraufzeichnung enthält keinen Java-/Godot-Absturz. Der gezielte Wiederholungslauf mit unveränderter APK und unveränderten Prüfungen läuft; eine Veröffentlichung ist bis zu dessen Abschluss gesperrt.
+**Android: 53 echte Activity-/Oberflächenfälle bestanden — 26 unter Android 11 (API 30), 27 unter Android 16 (API 36).** Beide nativen Jobs und die Veröffentlichung sind erfolgreich abgeschlossen.
+
+Die Prüfung umfasst acht Home-Wechsel, Bildschirm-Wiederaufnahme, absichtlichen Prozessneustart, native Bildschirm-Taps und Punktziehen in vier Kameramodi, Wiederherstellung des realen Braunlage-Szenarios sowie die Aktualisierung einer gleich signierten Testinstallation von Code 25 auf Code 26. Danach stimmen die vier Karriere-Spielstände, Freischaltungen und der inhaltsverglichene Karriereindex mit den vorherigen Daten überein. Falsche Signatur und beschädigtes Testpaket werden vom Android-Installer abgewiesen.
+
+Im ersten API-36-Veröffentlichungslauf war das Testupdate installiert, der abschließende Launcher-Start blieb jedoch mit einem 60-Sekunden-Timeout im Zustand INITIALIZING. Das Fehlerprotokoll enthält keinen Java-/Godot-Absturz; die Ursache dieses einzelnen Start-Timeouts ist nicht abschließend bestimmt. Ein gezielter vollständiger Wiederholungslauf derselben unveränderten APK besteht alle 27 Fälle. Keine Activity-, Bild-, Versions- oder Spielstandprüfung wurde entfernt oder abgeschwächt.
+
+Veröffentlicht: [0.20.0 · APK, Manifest und Prüfsumme](https://github.com/chekento/SkiZones/releases/tag/v0.20.0). Die Größe und die von GitHub ermittelten SHA-256-Digests aller drei öffentlichen Assets stimmen mit dem unabhängig heruntergeladenen und geprüften Workflow-Artefakt überein.
 
 ## Zusätzliche verbindliche Freigabeprüfungen
 
@@ -28,7 +34,7 @@ Die Prüfung fand den vorherigen Ausschluss von Gruppenmitgliedern aus der Hotel
 
 Die Werte erfassen Simulation und Szenenverwaltung auf dem CI-Rechner. Sie sind keine GPU-Messung und kein Nachweis der Bildrate eines physischen Smartphones. Unterschiede zwischen CI-Rechnern erlauben keinen unbereinigten Versionsvergleich.
 
-## Geprüfte ARM64-Kandidatdatei
+## Öffentliche ARM64-Datei
 
 - Datei: `SkiZones-0.20.0-android-arm64.apk` · **46.496.642 Bytes**
 - SHA-256: `c3c50fb84ee7947d11a2fc29672a4943fcc5cc47bd0bd15567a7e6374be46a86`
@@ -40,6 +46,8 @@ Die Werte erfassen Simulation und Szenenverwaltung auf dem CI-Rechner. Sie sind 
 ## Bewusst offene Funktionen
 
 Der Hotel-Gondel-Bus ist eine sichtbare, auf importierten Straßen routbare Spielsimulation ohne modellierte Fahrgastbeförderung. Die 39 belegten pisten-/liftnahen Hospitality-Objekte sind eine partielle Quellmenge. Diese Grenzen bleiben in den Release-Notizen und in #10 offen.
+
+Ein physisches ARM64-Smartphone wurde nicht geprüft. Eine unabhängige Play-Protect-Einstufung liegt weiterhin nicht vor; siehe [Prüfgrenzen](PLAY_PROTECT.md).
 
 
 ---
