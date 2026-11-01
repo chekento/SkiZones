@@ -2,9 +2,10 @@ extends RefCounted
 ## Decorative, non-colliding, real OSM town layer. No fictional road or bus
 ## timetable is inferred. The imported way shapes and POI identities survive.
 const Geo = preload("res://src/core/real_resorts.gd")
+const CompactVillage = preload("res://src/world/compact_village.gd")
 const Terrain = preload("res://src/core/terrain.gd")
-const MAX_ROAD_QUADS := 22000
-const MAX_POI_LABELS := 52
+const MAX_ROAD_QUADS := 14000
+const MAX_POI_LABELS := 20
 const ROAD_COLORS := [Color("98aab0"), Color("ad9e8f"), Color("c5b9a7")]
 const POI_COLORS := {
 	"lodging": Color("6a9fb6"),
@@ -150,7 +151,7 @@ static func position_shuttle(bus: Node3D, mountain: RefCounted, virtual_minute: 
 		travelled -= segment
 
 static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionary:
-	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null}
+	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null, "village_models": 0, "slope_venues": 0, "game_added": 0
 	var town := data(id)
 	if town.is_empty(): return result
 	var layer := Node3D.new()
@@ -174,6 +175,8 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 				var a := _point(pts[index - 1])
 				var b := _point(pts[index])
 				if not a.is_finite() or not b.is_finite() or not mountain.contains(a) or not mountain.contains(b): continue
+				# A miniature travel corridor is useful; a full reconstructed town is not.
+				if minf(a.distance_to(Terrain.BASE), b.distance_to(Terrain.BASE)) > 1800.0: continue
 				var length := a.distance_to(b)
 				if length < 0.2 or length > 6000: continue
 				# Steep terrain crosses must be tessellated; no buried streets.
@@ -227,7 +230,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 		if accepted.size() >= MAX_POI_LABELS: break
 		if accepted.any(func(p): return p.distance_to(record.point) < 28): continue
 		var label := Label3D.new()
-		label.text = str(record.name).substr(0, 42)
+		label.text = ("Alpenhotel" if record.kind == "lodging" else "Berggastronomie" if record.kind == "food" else str(record.name).substr(0, 42))
 		label.font_size = 27
 		label.pixel_size = 0.12
 		label.modulate = POI_COLORS[record.kind]
@@ -242,6 +245,10 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 		accepted.append(record.point)
 	result.labels = accepted.size()
 	result.osm = true
+	# Draw a few source-positioned alpine buildings plus explicitly fictional
+	# resort services; avoid reconstructing or naming an entire city.
+	var village: Dictionary = CompactVillage.build(layer, mountain, id, town)
+	for key in village: result[key] = village[key]
 	var shuttle := preview_shuttle(id)
 	if not shuttle.is_empty():
 		result.shuttle = _bus_node(layer, shuttle, mountain)
