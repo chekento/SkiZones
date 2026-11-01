@@ -135,3 +135,5 @@ jobs:
         run: python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --headless --script tests/town_scenery.gd
       - name: Verify passing skiers and per-venue black/red operating results
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/traffic_and_finances.gd
+      - name: Verify free-lane passing under a crowded resort
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/ski_traffic.gd
