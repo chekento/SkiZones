@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **21 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **22 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.19.0](https://github.com/chekento/SkiZones/releases/tag/v0.19.0)** | 01.11.2026 | PMDD-Winterbranding und vollflächiger Ladebildschirm | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk) | [Details](docs/releases/0.19.0.md) |
 | **[v0.18.0](https://github.com/chekento/SkiZones/releases/tag/v0.18.0)** | 31.10.2026 | Anlagen direkt verwalten und leichter anschließen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk) | [Details](docs/releases/0.18.0.md) |
 | **[v0.17.0](https://github.com/chekento/SkiZones/releases/tag/v0.17.0)** | 31.10.2026 | Vier Karrieren, Updates und eigene Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.17.0/SkiZones-0.17.0-android-arm64.apk) | [Details](docs/releases/0.17.0.md) |
 | **[v0.16.0](https://github.com/chekento/SkiZones/releases/tag/v0.16.0)** | 30.10.2026 | Gäste mit eigenen Urlaubswünschen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.16.0/SkiZones-0.16.0-android-arm64.apk) | [Details](docs/releases/0.16.0.md) |
@@ -31,6 +32,31 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.19.0 · PMDD-Winterbranding und vollflächiger Ladebildschirm (01.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.19.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk)** (41.0 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.19.0/manifest.json) · [Originalnotizen](docs/releases/0.19.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.19.0)
+
+Datum: 31. Oktober 2026. Android Preview, ARM64.
+
+### Neu
+- Ein eigens für SkiZones entworfenes winterliches App-Icon mit großem SZ-Monogramm, Gondeln und Skipisten ersetzt das bisherige Platzhalter-Symbol in der Android-Startansicht.
+- Android-Launcher-Icons in 192 px und adaptiv 432 px mit sicherem Motivabstand, eigenem Hintergrund und korrekter Exportkonfiguration für die Android- und Lifecycle-Presets.
+- Ein neuer 1920 × 1080 Pixel großer, lustiger SkiZones-Ladebildschirm zeigt Wintersportler, Gondeln, eine lebendige Resort-Landschaft und einen Schneemann.
+- Sowohl die native Godot-Bootphase als auch eine neue, bildschirmfüllende Startszene verwenden das neue Motiv. Die Startszene wahrt die Proportionen und skaliert ohne Verzerrungen.
+- Die originale Bildvorlage und die exportierten Formate werden im Repository versioniert und archiviert. Zusätzlicher Regressionstest prüft alle Pfade, Bildgrößen und die Einstiegsszene.
+
+### Qualität, Kompatibilität und Grenzen
+- Basierend auf dem bereits bestehenden Spielstand 0.18.0: Keine Savegame-Formate, NPCs, Szenarien oder Steuerungsmechaniken werden verändert.
+- PMDD 4.0 beeinflusst die Bildgestaltung (Tiefenstaffelung und Bewegungsassoziation). Das Einzelbild führt **keine** echte Kopf- oder Gerätesensor-Parallaxe aus.
+- Die Android-Installationskennung bleibt `cloud.kosch.skizones`; Android-Versionscode steigt von 23 auf 24. Die Update-Fixierung der bisherigen Signatur ist weiter Bestandteil der CI-Prüfung.
+- Android-Pakete werden erst veröffentlicht, wenn Godot-Regressions-, Render-, Signatur- und Android-Emulatortests erfolgreich durchlaufen sind.
+
+Siehe [Branding-Auftrag #9](https://github.com/chekento/SkiZones/issues/9).
+
+Grafik: Mit ChatGPT-Bildgenerierung erstellte, projektbezogene Bildmotive. Verarbeitung: Pillow und Godot 4.5.2.
+
+---
 
 ## v0.18.0 · Anlagen direkt verwalten und leichter anschließen (31.10.2026)
 
