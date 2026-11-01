@@ -32,16 +32,16 @@ func _init() -> void:
 func run() -> void:
 	var mock := MockTraffic.new()
 	var stopped := skier(2, 0.501, 1000000.0)
-	var overtaking := skier(4, 0.498, 100.0)
-	var another := skier(6, 0.492, 100.0)
+	var overtaking := skier(5, 0.498, 100.0)
+	var another := skier(8, 0.492, 100.0)
 	mock.guests = [stopped, overtaking, another]
 	var first := Traffic.steps(mock)
-	check(float(first[2]) < 0.02, "Resting guest stays effectively stationary")
-	check(float(first[4]) > 0.9 and int(overtaking.traffic_lane) != int(stopped.traffic_lane), "Fast guest overtakes a stopped guest on a free lane")
-	check(float(first[6]) > 0.0, "Third guest keeps moving instead of freezing in an entire queue")
+	check(float(first[2]) * float(mock.slope.length) / float(stopped.duration) < 0.02, "Resting guest advances less than two centimetres per simulation tick")
+	check(float(first[5]) > 0.9 and int(overtaking.traffic_lane) != int(stopped.traffic_lane), "Fast guest overtakes a stopped guest on a free lane")
+	check(float(first[8]) > 0.0, "Third guest keeps moving instead of freezing in an entire queue")
 	check(absf(float(overtaking.traffic_lateral)) > 0.1, "Passing uses a physical lateral ski offset")
 	var subsequent := Traffic.steps(mock)
-	check(float(subsequent[4]) > 0.9, "Passing choice stays stable across successive traffic calculations")
+	check(float(subsequent[5]) > 0.9, "Passing choice stays stable across successive traffic calculations")
 	var narrow := MockTraffic.new()
 	narrow.slope.width = 10.0
 	narrow.guests = [skier(2, 0.501, 1000000.0), skier(4, 0.499, 100.0)]
