@@ -40,7 +40,17 @@ func run() -> void:
 	var stats: Dictionary = Town.build(scene, mountain, "braunlage")
 	check(stats.osm and stats.roads >= 100 and stats.road_quads > stats.roads and stats.road_quads <= Town.MAX_ROAD_QUADS, "Actual road polylines become a bounded visible 3D surface")
 	check(stats.poi >= 100 and stats.stops >= 20, "Real hotels, restaurants and transit markers are placed at sourced points")
-	check(stats.labels > 0 and stats.labels <= Town.MAX_POI_LABELS, "Named POIs use capped labels")
+	check(stats.labels > 0 and stats.labels <= Town.MAX_POI_LABELS, "Town labels remain bounded in a miniature rather than a full city")
+	check(int(stats.village_models) >= 5 and int(stats.village_models) <= 25, "Compact 3D town has real-source chalet/hotel/dining models and a bounded display budget")
+	check(int(stats.game_added) >= 2 and int(stats.game_added) <= 3, "Snack stand, ski school and nightlife are labelled as gameplay scenery, not fictitious OSM")
+	var village_root: Node = scene.get_child(0)
+	var real_sites := 0
+	var game_sites := 0
+	for child in village_root.get_children():
+		if not child.has_meta("village_venue"): continue
+		if child.get_meta("source") == "osm" and int(child.get_meta("source_osm", 0)) > 0: real_sites += 1
+		if child.get_meta("source") == "game" and int(child.get_meta("source_osm", -1)) == 0: game_sites += 1
+	check(real_sites >= 2 and game_sites >= 2, "Source-mapped accommodation and fictional village services remain independently traceable")
 	if stats.shuttle_preview:
 		check(stats.shuttle != null and stats.shuttle.get_meta("fictional_service", false), "Illustrated skibus is explicitly marked as a fictional service")
 		var before: Vector3 = stats.shuttle.position
