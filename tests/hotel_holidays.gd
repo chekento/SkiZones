@@ -47,6 +47,8 @@ func run() -> void:
 	check(guest.stay >= Lodging.MIN_HOLIDAY_MINUTES and guest.stay <= Lodging.MAX_HOLIDAY_MINUTES, "Resident plans a multi-day skiing holiday rather than daily arrivals")
 	check(Lodging.rooms_used(model, int(hotel.id)) <= Lodging.room_count(hotel), "Hotel reservations respect the actual room capacity")
 	var id: int = int(guest.id)
+	var baseline_copy := Resort.new()
+	check(baseline_copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "A normally admitted real-scenario hotel guest has a valid baseline save")
 	model.minute = 1080
 	model._duty_cache.clear()
 	var night: Dictionary = Lodging.night_route(model, guest, "base")
@@ -67,6 +69,10 @@ func run() -> void:
 			reached = true
 			break
 	check(reached and guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel" and guest.hotel_sleep_until > Ops.clock(model), "At night guest enters hotel rather than continuing to ski")
+	print("HOTEL_DIAG route_valid=", not model._checked_itinerary(guest.route, int(guest.ability)).is_empty(),
+		" route_legs=", guest.route.legs.size(), " target=", guest.route.target,
+		" visiting_leg=", guest.leg, " sleeping_until=", guest.get("hotel_sleep_until"),
+		" phase=", guest.phase, " assigned=", guest.get("lodging_id"))
 	var snapshot: Dictionary = JSON.parse_string(JSON.stringify(model.snapshot()))
 	var copy := Resort.new()
 	check(copy.restore(snapshot).ok, "Active multi-day hotel residence survives saved game validation")
