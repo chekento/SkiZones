@@ -1,4 +1,4 @@
-GEODATA & ATTRIBUTION · SkiZones 0.14
+GEODATA & ATTRIBUTION · SkiZones 0.20
 
 Map geometry: © OpenStreetMap contributors.
 Open Database License (ODbL) 1.0:
@@ -9,6 +9,22 @@ The offline OSM-derived database, original extracts, query, timestamps and
 reproducible importer are published under ODbL 1.0 in assets/geodata/:
 [url=https://github.com/chekento/SkiZones/tree/main/assets/geodata]github.com/chekento/SkiZones/tree/main/assets/geodata[/url]
 Source service: Overpass API (FOSSGIS). Import: 29 October 2026.
+
+NEW: Real towns and access ways extracted 31 October 2026 (UTC), in
+assets/geodata/towns/: streets, food services, accommodation, named stops,
+and generated source-verified road networks for Braunlage, Filzmoos,
+Kitzbühel and Seiser Alm. The default extraction covers a radius of about
+2.4 km around the selected access station, not an entire municipality.
+Mapped geometry may be incomplete or outdated; building/POI markers
+do not imply surveyed exact footprints. All extracted OSM identifiers,
+queries, upstream timestamps and pinned raw responses are included in
+the source repository under ODbL 1.0.
+
+Animated yellow SkiZones buses are fictional in-game simulation shuttles,
+calculated only along mapped, connected, bidirectionally usable bus roads.
+They are NOT official routes, bus operators or published departure times.
+They do not yet carry guests or affect public transport simulation.
+No public transport operator's branding is copied.
 
 Elevation: Mapzen Terrain Tiles, accessed 29 October 2026.
 [url=https://registry.opendata.aws/terrain-tiles/]registry.opendata.aws/terrain-tiles/[/url]
