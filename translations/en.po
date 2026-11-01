@@ -3280,8 +3280,8 @@ msgstr "Revenue €%s · wages €%s · infrastructure share €%s"
 msgid "Geschäfte · Gewinn und Verlust"
 msgstr "Businesses · profit and loss"
 
-msgid "Tagesumsatz minus Löhne und anteilige Infrastruktur. Grün = Gewinn, Rot = Verlust. Reale OSM-Ortsobjekte ohne Spielerbetrieb werden nicht als fiktive Einnahmequelle gezählt."
-msgstr "Daily revenue minus wages and allocated infrastructure costs. Green means profit; red means loss. Real OSM businesses not operated by the player are not assigned fictional revenue."
+msgid "Tagesumsatz minus Löhne und anteilige Infrastruktur. Schwarz = Gewinn, Rot = Verlust. Reale OSM-Ortsobjekte ohne Spielerbetrieb werden nicht als fiktive Einnahmequelle gezählt."
+msgstr "Daily revenue minus wages and allocated infrastructure costs. Black means profit; red means loss. Real OSM businesses not operated by the player are not assigned fictional revenue."
 
 msgid "Umsatz %s € · Betriebskosten %s €"
 msgstr "Revenue €%s · operating costs €%s"
