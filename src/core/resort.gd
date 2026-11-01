@@ -2323,10 +2323,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
-				item.daily_revenue = item.get("daily_revenue", 0.0)
-				item.last_day_revenue = item.get("last_day_revenue", 0.0)
-				item.last_day_cost = item.get("last_day_cost", 0.0)
-				item.last_day_profit = item.get("last_day_profit", 0.0)
+				# These are optional ledger fields. Preserve their absence when
+				# loading older saves; injecting default keys breaks exact
+				# save/resume determinism even though balance calculations use get().
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
