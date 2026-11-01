@@ -1,0 +1,71 @@
+name: Pin real mountainside hospitality sources
+
+on:
+  push:
+    branches: [feature/osm-town-transit-issue-10]
+    paths:
+      - 'tools/import_mountain_venues.py'
+      - 'tests/test_mountain_venues.py'
+      - '.github/workflows/import-mountain-venues.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: real-mountain-venues-import
+  cancel-in-progress: false
+
+jobs:
+  import-real-huts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and constrained-source offline tests
+        run: |
+          python -m compileall -q tools/import_mountain_venues.py tests/test_mountain_venues.py
+          python -m unittest discover -s tests -p 'test_mountain_venues.py' -v
+      - name: Import only mapped actual hospitality near ski pistes and lifts
+        run: |
+          for region in braunlage filzmoos kitzbuehel seiseralm; do
+            python tools/import_mountain_venues.py --region "$region"
+          done
+      - name: Verify pinned OSM response and deterministic offline rebuild
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, hashlib
+          from tools.import_mountain_venues import REGIONS, prepare
+          for region in REGIONS:
+              output = Path('assets/geodata/mountain-venues') / (region + '.json')
+              before = output.read_bytes()
+              doc = json.loads(before)
+              assert doc['region'] == region and doc['license'] == 'ODbL-1.0'
+              assert doc['source'] == 'OpenStreetMap'
+              raw = (output.parent / 'source' / (region + '-osm.json')).read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == doc['source_sha256']
+              for venue in doc['features']:
+                  assert venue['kind'] in ('food', 'lodging')
+                  assert venue['osm_id'] > 0
+                  assert 'name' not in venue['tags']
+                  distance = min(x for x in [venue.get('piste_metres'),venue.get('station_metres')] if x is not None)
+                  assert distance <= doc['max_distance_metres'] + 0.01
+              prepare(region, offline=True)
+              assert output.read_bytes() == before
+              print(region, 'verified mountainside venues', len(doc['features']))
+          PY
+      - name: Pin original source queries, raw replies and extracted venues
+        run: |
+          git add assets/geodata/mountain-venues/
+          if git diff --cached --quiet; then
+            echo 'Existing pinned hospitality data matches exact offline source.'
+          else
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'data(osm): pin actual piste-adjacent restaurants and mountain huts [skip ci]'
+            git push origin HEAD:feature/osm-town-transit-issue-10
+          fi
