@@ -12,11 +12,17 @@ import json
 import math
 from pathlib import Path
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+from time import sleep
 
 ROOT = Path(__file__).resolve().parents[1]
 GEO = ROOT / "assets" / "geodata"
 OUT = GEO / "mountain-venues"
-API = "https://overpass-api.de/api/interpreter"
+ENDPOINTS = (
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.nchc.org.tw/api/interpreter",
+)
 REGIONS = ("braunlage", "filzmoos", "kitzbuehel", "seiseralm")
 MAX_DISTANCE_METRES = 165.0
 
@@ -121,10 +127,28 @@ def prepare(region, *, offline=False):
     elif offline:
         raise FileNotFoundError("Missing pinned OSM hospitality query: " + region)
     else:
-        request = Request(API, data=query.encode("utf-8"),
-                          headers={"User-Agent": "SkiZones/0.20 (+https://github.com/chekento/SkiZones)"})
-        with urlopen(request, timeout=180) as response:
-            raw = response.read(20 * 1024 * 1024 + 1)
+        raw = b""
+        exceptions = []
+        for index, endpoint in enumerate(ENDPOINTS * 2):
+            request = Request(endpoint, data=query.encode("utf-8"),
+                              headers={"User-Agent": "SkiZones/0.20 (+https://github.com/chekento/SkiZones)",
+                                       "Content-Type": "text/plain; charset=utf-8"})
+            try:
+                with urlopen(request, timeout=100) as response:
+                    raw = response.read(20 * 1024 * 1024 + 1)
+                # An unavailable mirror may return HTML with HTTP 200.
+                if b'"elements"' not in raw:
+                    raise ValueError("Overpass returned no elements collection")
+                break
+            except (HTTPError, URLError, TimeoutError, ValueError) as error:
+                exceptions.append(str(error))
+                print(region, "Overpass attempt", index + 1, endpoint,
+                      "unavailable:", str(error), flush=True)
+                if index < len(ENDPOINTS) * 2 - 1:
+                    sleep(3 + index * 2)
+        if not raw or b'"elements"' not in raw:
+            raise RuntimeError(region + ": no verifiable real OSM hospitality data: " +
+                               "; ".join(exceptions[-3:]))
         if len(raw) > 20 * 1024 * 1024:
             raise ValueError("OSM response exceeds hospitality-only limit")
         raw_path.write_bytes(raw)
