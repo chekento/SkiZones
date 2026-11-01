@@ -18,6 +18,7 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
+	var preview_count := 0
 	for id in Geo.IDS:
 		var source: Dictionary = Town.data(id)
 		check(source.get("region") == id and source.get("license") == "ODbL-1.0" and source.get("features", []).size() > 200, id + " has pinned real OSM town features")
@@ -26,6 +27,11 @@ func run() -> void:
 		if FileAccess.file_exists(path):
 			var network: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 			check(network is Dictionary and network.get("source_sha256") == source.get("source_sha256") and network.get("vertices", {}).size() > 50, id + " graph matches exact pinned source checksum")
+			var shuttle: Dictionary = Town.preview_shuttle(id)
+			if not shuttle.is_empty():
+				preview_count += 1
+				check(not shuttle.official_route and shuttle.outbound.size() > 2 and shuttle["return"].size() > 2, id + " fictional shuttle uses a real bidirectional OSM road path")
+	check(preview_count >= 1, "At least one real resort provides a connected illustrated SkiZones game shuttle")
 	# One real loaded 3D landscape is enough to check runtime geometry:
 	# the four offline town inputs are validated separately above.
 	var scene := Node3D.new()
@@ -35,6 +41,11 @@ func run() -> void:
 	check(stats.osm and stats.roads >= 100 and stats.road_quads > stats.roads and stats.road_quads <= Town.MAX_ROAD_QUADS, "Actual road polylines become a bounded visible 3D surface")
 	check(stats.poi >= 100 and stats.stops >= 20, "Real hotels, restaurants and transit markers are placed at sourced points")
 	check(stats.labels > 0 and stats.labels <= Town.MAX_POI_LABELS, "Named POIs use capped labels")
+	if stats.shuttle_preview:
+		check(stats.shuttle != null and stats.shuttle.get_meta("fictional_service", false), "Illustrated skibus is explicitly marked as a fictional service")
+		var before: Vector3 = stats.shuttle.position
+		Town.position_shuttle(stats.shuttle, mountain, 3.0)
+		check(stats.shuttle.position.is_finite(), "Simulated vehicle stays on valid source geometry")
 	var town_nodes := scene.get_children()
 	check(town_nodes.size() == 1 and town_nodes[0].get_meta("source", "").contains("OpenStreetMap"), "Town layer preserves attribution independently of user buildings")
 	if not town_nodes.is_empty():
