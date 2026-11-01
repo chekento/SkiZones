@@ -25,6 +25,18 @@ def main():
     parser.add_argument("--update-apk", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    # Derive actual installed APK code and a synthetic newer patch release.
+    import re
+    root = Path(__file__).resolve().parents[1]
+    presets = (root / "export_presets.cfg").read_text(encoding="utf-8")
+    codes = [int(code) for code in re.findall(r"(?m)^version/code=(\d+)$", presets)]
+    assert codes and len(set(codes)) == 1, "Android presets have inconsistent version codes"
+    installed_code = codes[0]
+    project = (root / "project.godot").read_text(encoding="utf-8")
+    match = re.search(r'(?m)^config/version="(\d+\.\d+\.\d+)"$', project)
+    assert match, "Missing semantic app version in project.godot"
+    version_parts = [int(part) for part in match.group(1).split(".")]
+    update_version = f"{version_parts[0]}.{version_parts[1]}.{version_parts[2] + 1}"
     args.output.mkdir(parents=True, exist_ok=True)
     health_path = None
     evidence = []
@@ -220,7 +232,7 @@ def main():
 
         update_request(dict(action="prepare"))
         state = wait_for(lambda s: s.get("update_test") == "prepared", seconds=180)
-        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == 23, state
+        assert state["slot"] == 3 and state["money"] == 234563 and state["installed_code"] == installed_code, state
         save_folder = health_path.rsplit("/", 1)[0]
         saved_files = [f"career_{slot}_{name}.json" for slot in range(1, 5)
                        for name in ("sonnenhang", "passport", "index")]
@@ -240,7 +252,7 @@ def main():
         assert "android.permission.REQUEST_INSTALL_PACKAGES" not in package_info, "The app still requests installation privileges"
         update_request(dict(action="open-browser", sha256=digest, size=len(candidate)))
         state = wait_for(lambda s: s.get("update_test") == "browser_opened")
-        assert state["update_url"] == "https://github.com/chekento/SkiZones/releases/tag/v0.19.0", state
+        assert state["update_url"] == f"https://github.com/chekento/SkiZones/releases/tag/v{update_version}", state
         deadline = time.monotonic() + 40
         while time.monotonic() < deadline:
             activities = adb("shell", "dumpsys", "activity", "activities").decode()
@@ -253,7 +265,7 @@ def main():
         (args.output / "github-browser-handoff.png").write_bytes(adb("exec-out", "screencap", "-p"))
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
-        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3 and s["installed_code"] == installed_code)
         capture("browser-return-four-careers", state)
         assert before_files == {name: saved_hash(name) for name in saved_files}, "Browser handoff changed a career"
         adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
@@ -262,20 +274,20 @@ def main():
         rejected = subprocess.run(["adb", "install", "-r", str(args.wrong_signer_apk.resolve())], capture_output=True, timeout=120)
         assert rejected.returncode != 0 and b"INSTALL_FAILED_UPDATE_INCOMPATIBLE" in rejected.stdout + rejected.stderr, rejected.stdout + rejected.stderr
         launch()
-        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == installed_code)
         capture("system-rejects-different-signer", state)
         corrupt = args.output / "corrupt-test.apk"
         corrupt.write_bytes(candidate[:100000])
         rejected = subprocess.run(["adb", "install", "-r", str(corrupt)], capture_output=True, timeout=120)
         assert rejected.returncode != 0 and any(reason in rejected.stdout + rejected.stderr for reason in [b"INSTALL_FAILED_INVALID_APK", b"INSTALL_PARSE_FAILED"]), rejected.stdout + rejected.stderr
         launch()
-        state = wait_for(lambda s: not s["background"] and s["installed_code"] == 23)
+        state = wait_for(lambda s: not s["background"] and s["installed_code"] == installed_code)
         capture("system-rejects-corruption", state)
         assert before_files == {name: saved_hash(name) for name in saved_files}, "Rejected replacement changed a career"
         adb("install", "-r", str(args.update_apk.resolve()), timeout=120)
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
-        state = wait_for(lambda s: s.get("installed_code") == 24 and s.get("frames", 0) >= 5, seconds=180)
+        state = wait_for(lambda s: s.get("installed_code") == installed_code + 1 and s.get("frames", 0) >= 5, seconds=180)
         assert state["slot"] == 3 and state["money"] == 234563 and state["day"] == 13 and state["paused"], state
         after_files = {name: saved_hash(name) for name in saved_files}
         assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"
