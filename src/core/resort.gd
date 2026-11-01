@@ -1455,6 +1455,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			var revenue: float = base_revenue * (ceilf(float(guest.get("group_size", 1)) / 2) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
+			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
 			money += revenue
 			report.services += revenue
 			campaign.turnover += revenue
@@ -2317,8 +2318,15 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				for field in ["visits", "revenue"]:
 					if not Terrain.number(item.get(field, 0)) or item.get(field, 0) < 0 or item.get(field, 0) > 1000000000:
 						return invalid
+				for field in ["daily_revenue", "last_day_revenue", "last_day_cost"]:
+					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
+				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
+				item.daily_revenue = item.get("daily_revenue", 0.0)
+				item.last_day_revenue = item.get("last_day_revenue", 0.0)
+				item.last_day_cost = item.get("last_day_cost", 0.0)
+				item.last_day_profit = item.get("last_day_profit", 0.0)
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
