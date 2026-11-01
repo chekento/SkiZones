@@ -154,7 +154,7 @@ static func position_shuttle(bus: Node3D, mountain: RefCounted, virtual_minute: 
 			return
 		travelled -= segment
 
-static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionary:
+static func build(parent: Node3D, mountain: RefCounted, id: String, resort: RefCounted = null) -> Dictionary:
 	var result := {"roads": 0, "road_quads": 0, "poi": 0, "labels": 0, "stops": 0, "osm": false, "shuttle_preview": false, "shuttle": null, "village_models": 0, "slope_venues": 0, "game_added": 0}
 	var town := data(id)
 	if town.is_empty(): return result
@@ -251,7 +251,7 @@ static func build(parent: Node3D, mountain: RefCounted, id: String) -> Dictionar
 	result.osm = true
 	# Draw a few source-positioned alpine buildings plus explicitly fictional
 	# resort services; avoid reconstructing or naming an entire city.
-	var village: Dictionary = CompactVillage.build(layer, mountain, id, town)
+	var village: Dictionary = CompactVillage.build(layer, mountain, id, town, resort)
 	for key in village: result[key] = village[key]
 	var shuttle := preview_shuttle(id)
 	if not shuttle.is_empty():
