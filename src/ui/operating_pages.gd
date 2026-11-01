@@ -157,8 +157,8 @@ static func add(office: Control) -> void:
 	for building in model.buildings:
 		var statement: Dictionary = Ops.business_balance(model, building)
 		var profit: float = float(statement.net)
-		var signal := "▲ +" if profit >= 0 else "▼ −"
-		hud._label(branches, L.asset_name(building) + " · " + signal + hud.money_text(absf(profit)) + " €", 17, Color("22333d") if profit >= 0 else Color("ba3f45"), true)
+		var profit_symbol := "▲ +" if profit >= 0 else "▼ −"
+		hud._label(branches, L.asset_name(building) + " · " + profit_symbol + hud.money_text(absf(profit)) + " €", 17, Color("22333d") if profit >= 0 else Color("ba3f45"), true)
 		hud._label(branches, L.text("Umsatz %s € · Betriebskosten %s €") % [hud.money_text(statement.sales), hud.money_text(statement.costs)], 14, hud.MUTED, true)
 		if building.has("last_day_profit"):
 			var prior: float = float(building.last_day_profit)
