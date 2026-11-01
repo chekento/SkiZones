@@ -54,6 +54,7 @@ var motion_rate := 1.0
 var follow_guest := -1
 var _follow_position := Vector3.INF
 var _portal_signature:=""
+var _town_shuttle: Node3D
 var _terrain_id := ""
 var _terrain_generation := -1
 var _snow_timer := 0.0
@@ -360,8 +361,10 @@ func _build_surroundings() -> void:
 	landscape.add_child(scenery_instance)
 	# Read-only real street and POI overlay for the four OSM scenarios.
 	# Isolated from terrain picking, construction logic and savegames.
+	_town_shuttle = null
 	if model.map_id in Geo.IDS:
-		TownScenery.build(landscape, terrain, model.map_id)
+		var town_result: Dictionary = TownScenery.build(landscape, terrain, model.map_id)
+		_town_shuttle = town_result.get("shuttle")
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
@@ -1011,6 +1014,8 @@ func _process(delta: float) -> void:
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
+	if is_instance_valid(_town_shuttle):
+		TownScenery.position_shuttle(_town_shuttle, terrain, _visual_minute)
 	_car_positions.clear()
 	var tows := 0
 	for lift in model.lifts:
