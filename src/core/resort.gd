@@ -20,6 +20,7 @@ const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const Lodging = preload("res://src/core/guest_lodging.gd")
 const PisteLinks = preload("res://src/core/piste_links.gd")
 var _piste_links: RefCounted
 const MINUTES_PER_SECOND := 0.5
@@ -1375,6 +1376,9 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	if party_mode and guest.has("family") and guests.size()+guest.family.size()>MAX_GUESTS:return false
 	count=int(guest.group_size)
 	guest.ticket_paid=ticket_price*count;guest.spending=float(guest.ticket_paid)
+	# Only admitted guests with an actual vacant, reachable resort hotel
+	# become multi-night visitors; day visitors still leave as before.
+	if map_id in Geo.IDS: Lodging.assign(self, guest)
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -1471,6 +1475,18 @@ func _finish_leg(guest: Dictionary) -> void:
 	_continue_leg(guest,leg)
 
 func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
+	if leg.kind == "visit" and guest.get("hotel_night", false) and int(leg.id) == int(guest.get("lodging_id", 0)):
+		Lodging.start_sleep(self, guest)
+		return
+	if Lodging.should_return(self, guest):
+		var night: Dictionary = Lodging.night_route(self, guest, str(leg.to))
+		if not night.is_empty():
+			guest.route = night
+			guest.leg = 0
+			guest.hotel_night = true
+			guest.heading_home = true
+			_start_leg(guest)
+			return
 	# Reconsider urgent needs at the next actual network node, never halfway
 	# down a piste or by teleporting a guest to a restaurant.
 	var decision_guest:=Parties.care_guest(self,guest)
@@ -1687,6 +1703,8 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			_depart(guest)
 			departures.append(guest)
 		elif guest.phase=="waiting":
+			if guest.get("waiting_reason", "") == "hotel":
+				Lodging.wake(self, guest)
 			continue
 		elif guest.phase == "queue":
 			if clock_tick:
@@ -2390,6 +2408,12 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
 		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane > 2): return invalid
 		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
+		if visitor.has("lodging_id"):
+			if not Terrain.number(visitor.lodging_id) or visitor.lodging_id != floorf(visitor.lodging_id) or int(visitor.lodging_id) <= 0: return invalid
+			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and b.kind == "hotel"): return invalid
+		if visitor.has("hotel_night") and not visitor.hotel_night is bool: return invalid
+		if visitor.has("hotel_sleep_until") and (not Terrain.number(visitor.hotel_sleep_until) or visitor.hotel_sleep_until < 0 or visitor.hotel_sleep_until > 150000000): return invalid
+		if visitor.get("waiting_reason", "") == "hotel" and (visitor.phase != "waiting" or not visitor.has("lodging_id") or not visitor.has("hotel_sleep_until")): return invalid
 		for field in ["id", "ability", "age", "stay", "loops", "leg", "elapsed", "wait", "total_wait", "target"]:
 			if not Terrain.number(visitor.get(field)) or visitor[field] < 0 or visitor[field] > 1000000000:
 				return invalid
