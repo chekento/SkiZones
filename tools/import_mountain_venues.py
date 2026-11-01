@@ -120,12 +120,31 @@ def prepare(region, *, offline=False):
     source.mkdir(parents=True, exist_ok=True)
     raw_path = source / f"{region}-osm.json"
     query_path = source / f"{region}-query.txt"
+    source_path = raw_path
+    source_query = query_path
+    source_scope = "resort_bbox"
     if raw_path.is_file():
         if not query_path.is_file() or query_path.read_text(encoding="utf-8") != query:
             raise ValueError("Cached OSM source has different query: " + region)
         raw = raw_path.read_bytes()
     elif offline:
-        raise FileNotFoundError("Missing pinned OSM hospitality query: " + region)
+        # The larger OSM Overpass bounding boxes can fail with HTTP 502/504.
+        # Use only the genuine, already-pinned town source as a *limited*
+        # fallback. It does NOT claim to cover every high-altitude hut.
+        source_path = GEO / "towns" / "source" / f"{region}-osm.json"
+        source_query = GEO / "towns" / "source" / f"{region}-query.txt"
+        town_extract = GEO / "towns" / f"{region}.json"
+        if not source_path.is_file() or not source_query.is_file() or not town_extract.is_file():
+            raise FileNotFoundError("Missing authentic offline OSM town source: " + region)
+        raw = source_path.read_bytes()
+        town = json.loads(town_extract.read_text(encoding="utf-8"))
+        if hashlib.sha256(raw).hexdigest() != town.get("source_sha256"):
+            raise ValueError("Pinned town source checksum mismatch: " + region)
+        if source_query.read_text(encoding="utf-8") != town.get("query"):
+            raise ValueError("Pinned town OSM query mismatch: " + region)
+        if town.get("region") != region or town.get("source") != "OpenStreetMap":
+            raise ValueError("Pinned town source attribution mismatch: " + region)
+        source_scope = "partial_town_extract"
     else:
         raw = b""
         exceptions = []
@@ -168,12 +187,17 @@ def prepare(region, *, offline=False):
                                  s["osm_type"], s["osm_id"]))
     record = {"schema": 1, "region": region, "source": "OpenStreetMap",
               "license": "ODbL-1.0", "source_sha256": hashlib.sha256(raw).hexdigest(),
+              "source_file": source_path.relative_to(ROOT).as_posix(),
+              "source_query_file": source_query.relative_to(ROOT).as_posix(),
+              "coverage": source_scope,
+              "coverage_complete": False,
               "osm_timestamp": dataset.get("osm3s", {}).get("timestamp_osm_base"),
               "max_distance_metres": MAX_DISTANCE_METRES, "features": selected}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{region}.json").write_text(json.dumps(record, ensure_ascii=False,
         sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     print(region, len(selected), "verified mountainside hospitality POIs",
+          "coverage", source_scope, "(limited)" if source_scope != "resort_bbox" else "(requested extent)",
           "piste-near",sum(s["piste_metres"] is not None and s["piste_metres"]<=MAX_DISTANCE_METRES for s in selected))
     return record
 
