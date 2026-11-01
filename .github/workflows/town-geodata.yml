@@ -9,6 +9,10 @@ on:
       - 'tools/build_town_network.py'
       - 'tests/test_town_geodata.py'
       - 'tests/test_town_network.py'
+      - 'src/world/town_scenery.gd'
+      - 'src/world/resort_view.gd'
+      - 'tests/town_scenery.gd'
+      - 'assets/geodata/towns/*.json'
       - '.github/workflows/town-geodata.yml'
   pull_request:
     paths:
@@ -16,6 +20,10 @@ on:
       - 'tools/build_town_network.py'
       - 'tests/test_town_geodata.py'
       - 'tests/test_town_network.py'
+      - 'src/world/town_scenery.gd'
+      - 'src/world/resort_view.gd'
+      - 'tests/town_scenery.gd'
+      - 'assets/geodata/towns/*.json'
       - '.github/workflows/town-geodata.yml'
   workflow_dispatch:
 
@@ -79,3 +87,27 @@ jobs:
             git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'data(osm): pin generated street and transit graphs [skip ci]'
             git push origin HEAD:feature/osm-town-transit-issue-10
           fi
+
+  render-town:
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot 4.5.2
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import Godot project
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+      - name: Verify sourced streets, POIs and 3D render geometry
+        run: python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --headless --script tests/town_scenery.gd
