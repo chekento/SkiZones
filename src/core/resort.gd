@@ -2484,6 +2484,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.id = int(copy.id);copy.ability = int(copy.ability)
 		if copy.has("pacing_runs"): copy.pacing_runs=int(copy.pacing_runs)
+		if copy.has("lodging_id"): copy.lodging_id = int(copy.lodging_id)
+		if copy.has("hotel_sleep_until"): copy.hotel_sleep_until = int(copy.hotel_sleep_until)
 		Needs.ensure(copy, weather().temperature)
 		copy.route = route
 		Agenda.ensure(self, copy)
