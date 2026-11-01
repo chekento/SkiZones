@@ -17,6 +17,7 @@ const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
+const TownScenery = preload("res://src/world/town_scenery.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
@@ -357,6 +358,10 @@ func _build_surroundings() -> void:
 	scenery_instance.material_override = _solid
 	scenery_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	landscape.add_child(scenery_instance)
+	# Read-only real street and POI overlay for the four OSM scenarios.
+	# Isolated from terrain picking, construction logic and savegames.
+	if model.map_id in Geo.IDS:
+		TownScenery.build(landscape, terrain, model.map_id)
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
