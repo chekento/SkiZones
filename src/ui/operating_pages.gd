@@ -115,6 +115,10 @@ static func add(office: Control) -> void:
 	var services: VBoxContainer = office._page(L.text("Technik & Rettung"))
 	for building in model.buildings:
 		var body: VBoxContainer = office._card(services, L.asset_name(building), L.text("Betriebsbereit") if Ops.building_open(model, building) else L.text("Geschlossen oder Personal fehlt"))
+		var account: Dictionary = Ops.business_balance(model, building)
+		var net: float = float(account.net)
+		hud._label(body, ("▲ +" if net >= 0 else "▼ −") + hud.money_text(absf(net)) + " € · " + L.text("heutiges Betriebsergebnis"), 18, Color("246f50") if net >= 0 else Color("ba3f45"), true)
+		hud._label(body, L.text("Umsatz %s € · Löhne %s € · Infrastrukturanteil %s €") % [hud.money_text(account.sales), hud.money_text(account.wages), hud.money_text(account.overhead)], 15, hud.MUTED, true)
 		hud._button(body, L.text("Betrieb & Gebäudeteam"), func():
 			office.hide()
 			hud.lift_staff.open(int(building.id))
@@ -149,6 +153,16 @@ static func add(office: Control) -> void:
 	room.suffix = " €"
 	room.value_changed.connect(func(value): model.operations.room_price = int(value))
 	finance.add_child(room)
+	var branches: VBoxContainer = office._card(finance, L.text("Geschäfte · Gewinn und Verlust"), L.text("Tagesumsatz minus Löhne und anteilige Infrastruktur. Grün = Gewinn, Rot = Verlust. Reale OSM-Ortsobjekte ohne Spielerbetrieb werden nicht als fiktive Einnahmequelle gezählt."))
+	for building in model.buildings:
+		var statement: Dictionary = Ops.business_balance(model, building)
+		var profit: float = float(statement.net)
+		var signal := "▲ +" if profit >= 0 else "▼ −"
+		hud._label(branches, L.asset_name(building) + " · " + signal + hud.money_text(absf(profit)) + " €", 17, Color("246f50") if profit >= 0 else Color("ba3f45"), true)
+		hud._label(branches, L.text("Umsatz %s € · Betriebskosten %s €") % [hud.money_text(statement.sales), hud.money_text(statement.costs)], 14, hud.MUTED, true)
+		if building.has("last_day_profit"):
+			var prior: float = float(building.last_day_profit)
+			hud._label(branches, L.text("Vortag: ") + ("+" if prior >= 0 else "−") + hud.money_text(absf(prior)) + " €", 13, hud.TEAL if prior >= 0 else Color("ba3f45"), true)
 	for centre in model.operations.cost_centres:
 		var name_value: String = centre
 		if str(centre).begins_with("building:"): name_value = L.asset_name(model.asset(str(centre).get_slice(":", 1).to_int()))
