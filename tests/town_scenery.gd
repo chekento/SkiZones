@@ -47,7 +47,7 @@ func run() -> void:
 		Town.position_shuttle(stats.shuttle, mountain, 3.0)
 		check(stats.shuttle.position.is_finite(), "Simulated vehicle stays on valid source geometry")
 	var town_nodes := scene.get_children()
-	check(town_nodes.size() == 1 and town_nodes[0].get_meta("source", "").contains("OpenStreetMap"), "Town layer preserves attribution independently of user buildings")
+	check(town_nodes.size() == 1 and town_nodes[0].get_meta("source", "").contains("openstreetmap.org/copyright"), "Town layer preserves attribution independently of user buildings")
 	if not town_nodes.is_empty():
 		var children: Array = town_nodes[0].get_children()
 		check(children.any(func(n): return n is MeshInstance3D and n.has_meta("osm_town_overlay") and n.mesh.get_surface_count() > 0), "OSM streets are rendered as triangle meshes")
