@@ -3300,3 +3300,9 @@ msgstr "Alpine hotel"
 
 msgid "Berggastronomie"
 msgstr "Mountain dining"
+
+msgid "Hotel ↔ Gondel · Spielbus"
+msgstr "Hotel ↔ gondola · ski shuttle"
+
+msgid "SkiZones-Spielbus"
+msgstr "SkiZones shuttle"
