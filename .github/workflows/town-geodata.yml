@@ -29,6 +29,7 @@ on:
       - 'src/ui/hud.gd'
       - 'translations/en.po'
       - 'assets/geodata/towns/*.json'
+      - 'assets/geodata/mountain-venues/*.json'
       - '.github/workflows/town-geodata.yml'
   pull_request:
     paths:
@@ -56,6 +57,7 @@ on:
       - 'src/ui/hud.gd'
       - 'translations/en.po'
       - 'assets/geodata/towns/*.json'
+      - 'assets/geodata/mountain-venues/*.json'
       - '.github/workflows/town-geodata.yml'
   workflow_dispatch:
 

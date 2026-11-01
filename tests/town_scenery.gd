@@ -1,6 +1,7 @@
 extends SceneTree
 ## Render smoke and source-integrity checks for OSM town overlay (#10).
 const Town = preload("res://src/world/town_scenery.gd")
+const Village = preload("res://src/world/compact_village.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 var passed := 0
@@ -21,6 +22,13 @@ func run() -> void:
 	var preview_count := 0
 	for id in Geo.IDS:
 		var source: Dictionary = Town.data(id)
+		var mountain_path := "res://assets/geodata/mountain-venues/%s.json" % id
+		check(FileAccess.file_exists(mountain_path), id + " has independently pinned, true mountainside OSM hospitality locations")
+		if FileAccess.file_exists(mountain_path):
+			var subset: Variant = JSON.parse_string(FileAccess.get_file_as_string(mountain_path))
+			check(subset is Dictionary and subset.get("coverage") == "partial_town_extract" and subset.get("source_sha256") == source.get("source_sha256"), id + " mountainside hospitality subset proves genuine (limited) OSM source")
+			var sites: Array = Village._archived_mountainside(id, source)
+			check(sites.size() > 0 and sites.all(func(v): return int(v.osm_id) > 0 and v.source == "osm"), id + " mountain food and hotel positions are sourced and nameless")
 		check(source.get("region") == id and source.get("license") == "ODbL-1.0" and source.get("features", []).size() > 200, id + " has pinned real OSM town features")
 		var path := "res://assets/geodata/towns/%s-network.json" % id
 		check(FileAccess.file_exists(path), id + " has a generated street and transit graph")
