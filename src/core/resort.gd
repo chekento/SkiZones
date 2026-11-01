@@ -2531,7 +2531,13 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	parties=saved_parties.duplicate(true)
 	if not Parties.valid(self,parties):return invalid
 	for guest in guests:
-		if guest.phase=="waiting" and not guest.has("party_id"):return invalid
+		if guest.phase == "waiting" and not guest.has("party_id"):
+			# Previous saves only permitted party meetings. A solo resident
+			# may now be asleep in a verified, assigned hotel room.
+			if guest.get("waiting_reason", "") != "hotel" or not guest.has("lodging_id") or not guest.has("hotel_sleep_until"): return invalid
+			if guest.leg >= guest.route.legs.size(): return invalid
+			var room_leg: Dictionary = guest.route.legs[int(guest.leg)]
+			if room_leg.kind != "visit" or int(room_leg.id) != int(guest.lodging_id): return invalid
 	rng.seed = int(data.rng_seed)
 	rng.state = int(data.rng_state)
 	if not Progression.restore(self, data.get("campaign")):
