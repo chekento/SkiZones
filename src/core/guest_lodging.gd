@@ -73,7 +73,7 @@ static func night_route(model: RefCounted, guest: Dictionary, source: String) ->
 
 static func start_sleep(model: RefCounted, guest: Dictionary) -> void:
 	var current := Ops.clock(model)
-	var morning := ((model.day - 1) if model.minute < 420 else model.day) * 1440 + 420
+	var morning: int = ((int(model.day) - 1) if int(model.minute) < 420 else int(model.day)) * 1440 + 420
 	guest.hotel_sleep_until = maxi(current + 1, morning)
 	guest.phase = "waiting"
 	guest.waiting_reason = "hotel"
