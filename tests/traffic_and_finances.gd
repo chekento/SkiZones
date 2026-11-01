@@ -39,7 +39,7 @@ func run() -> void:
 	check(float(first[2]) * float(mock.slope.length) / float(stopped.duration) < 0.02, "Resting guest advances less than two centimetres per simulation tick")
 	check(float(first[5]) > 0.9 and int(overtaking.traffic_lane) != int(stopped.traffic_lane), "Fast guest overtakes a stopped guest on a free lane")
 	check(float(first[8]) > 0.0, "Third guest keeps moving instead of freezing in an entire queue")
-	check(absf(float(overtaking.traffic_lateral)) > 0.1, "Passing uses a physical lateral ski offset")
+	check(absf(float(overtaking.traffic_lateral) - float(stopped.traffic_lateral)) > 2.0, "Passing uses physical separation from the slower skier")
 	var subsequent := Traffic.steps(mock)
 	check(float(subsequent[5]) > 0.9, "Passing choice stays stable across successive traffic calculations")
 	var narrow := MockTraffic.new()
