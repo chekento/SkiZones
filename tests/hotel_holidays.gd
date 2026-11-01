@@ -51,6 +51,8 @@ func run() -> void:
 	for index in range(guest.route.legs.size()):
 		if guest.route.legs[index].kind == "visit":
 			guest.leg = index
+			guest.hotel_night = true
+			guest.heading_home = true
 			model._start_leg(guest)
 			model._continue_leg(guest, guest.route.legs[index])
 			reached = true
@@ -60,7 +62,7 @@ func run() -> void:
 	var copy := Resort.new()
 	check(copy.restore(snapshot).ok, "Active multi-day hotel residence survives saved game validation")
 	if not copy.guests.is_empty():
-		check(copy.guests[0].get("lodging_id") == id + int(hotel.id) - id and copy.guests[0].phase == "waiting", "Identical hotel room and sleeping guest are preserved after restoration")
+		check(copy.guests[0].get("lodging_id") == int(hotel.id) and int(copy.guests[0].id) == id and copy.guests[0].phase == "waiting", "Identical hotel room and sleeping guest are preserved after restoration")
 	var existing: int = model.total_guests
 	var before: int = model.guests.size()
 	Ops.midnight(model)
