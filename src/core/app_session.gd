@@ -36,7 +36,7 @@ func read_state() -> Dictionary:
 	if not Terrain.number(value.get("plan_width", 20)) or value.get("plan_width", 20) < 14 or value.get("plan_width", 20) > 36: return {}
 	return value
 
-func restore(game: Node, already_loaded: bool = false) -> bool:
+func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true) -> bool:
 	var state := read_state()
 	if state.is_empty(): return false
 	var slot:=SaveStore.slot_from_state(state)
@@ -52,7 +52,7 @@ func restore(game: Node, already_loaded: bool = false) -> bool:
 	game.passport.load_from(SaveStore.passport_path())
 	game.has_game = true;game.paused = state.paused;game.speed = int(state.speed)
 	game._accumulator = state.accumulator
-	game.view.rebuild()
+	if rebuild_view: game.view.rebuild()
 	game.view.focus = Terrain.unpack(state.focus).clamp(game.model.terrain.bounds.position+Vector2(20,20),game.model.terrain.bounds.end-Vector2(20,20))
 	game.view.yaw = state.yaw;game.view.zoom = state.zoom;game.view.camera_mode = int(state.camera_mode);game.view.pitch_degrees = state.pitch
 	game.view.selected_guest = int(state.selected_guest);game.view.follow_guest = int(state.follow_guest)
@@ -72,3 +72,4 @@ func restore(game: Node, already_loaded: bool = false) -> bool:
 	if state.running and state.suspended_at > 0:
 		game._queue_background_time(maxf(0,Time.get_unix_time_from_system()-state.suspended_at),int(state.speed))
 	return true
+

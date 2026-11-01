@@ -116,6 +116,7 @@ var _solid: StandardMaterial3D
 var _people_material := ShaderMaterial.new()
 var _vehicles: Dictionary = {}
 var _vehicle_counts: Dictionary = {}
+var loading_in_progress := false
 
 func setup(resort: RefCounted) -> void:
 	model = resort
@@ -339,6 +340,7 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 func _build_terrain() -> void:
 	terrain_instance = MeshInstance3D.new()
 	terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
+	_terrain_grading = terrain.grading.signature
 	ground_surface.configure(terrain_instance.mesh)
 	terrain_instance.material_override = _solid
 	landscape.add_child(terrain_instance)
@@ -563,7 +565,11 @@ func _clear_ground(point: Vector2, margin: float) -> bool:
 func _build_trees() -> void:
 	forest.build(self)
 
-func rebuild() -> void:
+func rebuild(progress: RefCounted = null) -> void:
+	loading_in_progress = true
+	if progress != null:
+		progress.report(80.0, L.text("Bergwelt und Gelände anzeigen …"))
+		await get_tree().process_frame
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
@@ -628,6 +634,9 @@ func rebuild() -> void:
 	_vehicle_glass.clear()
 	_queue_labels.clear()
 	_pedestrian_snapshot = model.pedestrian_layout()
+	if progress != null:
+		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
+		await get_tree().process_frame
 	_build_foot_areas()
 	var title_positions: Array[Vector2] = []
 	var junctions: Dictionary = {}
@@ -635,7 +644,12 @@ func rebuild() -> void:
 		for point in piste.points:
 			var key := Terrain.unpack(point).snapped(Vector2.ONE * 0.5)
 			junctions[key] = junctions.get(key, 0) + 1
+	var piste_done := 0
 	for piste in model.pistes:
+		if progress != null:
+			progress.report(84.0 + 8.0 * float(piste_done) / maxf(1, model.pistes.size()), L.text("Schneeflächen und Pistenschilder aufbauen …"), piste_done, model.pistes.size())
+			await get_tree().process_frame
+		piste_done += 1
 		var color: Color = PISTE_COLORS[piste.difficulty]
 		var width: float = Snow.piste_width(piste)
 		var snow_mesh := MeshInstance3D.new()
@@ -684,12 +698,26 @@ func rebuild() -> void:
 			title_positions.append(start)
 			var marker:=_label(asset_root,L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][piste.difficulty]]),terrain.world(start,24),color)
 			marker.set_meta("piste_id",int(piste.id))
+	var lift_done := 0
 	for lift in model.lifts:
+		if progress != null:
+			progress.report(92.0 + 4.0 * float(lift_done) / maxf(1, model.lifts.size()), L.text("Lifte und Stationen aufbauen …"), lift_done, model.lifts.size())
+			await get_tree().process_frame
+		lift_done += 1
 		_build_lift(lift)
+	var building_done := 0
 	for building in model.buildings:
+		if progress != null:
+			progress.report(96.0 + 2.0 * float(building_done) / maxf(1, model.buildings.size()), L.text("Gebäude und Bergdorf aufbauen …"), building_done, model.buildings.size())
+			await get_tree().process_frame
+		building_done += 1
 		_build_building(building)
+	if progress != null:
+		progress.report(98.0, L.text("Wald und Landschaft gestalten …"))
+		await get_tree().process_frame
 	_build_trees()
 	_guest_tick = ""
+	loading_in_progress = false
 
 func _build_foot_areas() -> void:
 	# One shared grid avoids z-fighting where plazas grow into one another.
@@ -993,21 +1021,21 @@ func _update_atmosphere() -> void:
 		return
 	_atmosphere_tick = key
 	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
-	_sun.light_energy = ((0.09 + daylight * 0.55) if Ops.continuous(model) else (0.35 + daylight * 0.17)) * (0.65 if model.weather_index in [2, 3] else 1.0)
+	_sun.light_energy = ((0.10 + daylight * 0.66) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0)
 	_sun.light_color = Color("f5d7cc").lerp(Color("fff1dc"), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	var palette := Color(Maps.spec(model.map_id).sky)
 	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
 	sky_material.sky_top_color = Color("12243f").lerp(Color("a9cddd").lerp(palette, 0.32), daylight) if Ops.continuous(model) else Color("a9cddd").lerp(palette, 0.32)
 	sky_material.sky_horizon_color = Color("344563").lerp(Color("f3e8df").lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color("f3e8df").lerp(palette, 0.18)
-	_environment.ambient_light_energy = 0.20 + daylight * 0.12
+	_environment.ambient_light_energy = 0.22 + daylight * 0.15
 	_environment.fog_light_color = Color("d7e2f0").lerp(palette, 0.18)
 	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
 	_snow.position = terrain.world(focus, 130)
 
 func _process(delta: float) -> void:
-	if model == null:
+	if model == null or loading_in_progress:
 		return
 	if model.revision != _seen_revision:
 		rebuild()
@@ -1626,6 +1654,7 @@ func _apply_quality() -> void:
 	# this scale on Android can shrink the world into the upper-left corner
 	# while the HUD and camera projections still cover the entire viewport.
 	get_viewport().scaling_3d_scale = 1.0
+	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][quality_tier]
 	trace_budget = [700, 1200, 2000][quality_tier]
 	_sun.shadow_enabled = quality_tier > 0
 	var flakes: int = [50, 90, 140][quality_tier]
@@ -1652,3 +1681,4 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 		if _art_cache.size() > 128: _art_cache.clear()
 		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
 	return _art_cache[key]
+

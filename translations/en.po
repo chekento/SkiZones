@@ -3306,3 +3306,91 @@ msgstr "Hotel ↔ gondola · ski shuttle"
 
 msgid "SkiZones-Spielbus"
 msgstr "SkiZones shuttle"
+
+
+msgid "Fußwege und Anschlüsse verbinden …"
+msgstr "Connecting footpaths and access routes…"
+
+msgid "Pistenanschlüsse vorbereiten …"
+msgstr "Preparing piste connections…"
+
+msgid "Spielstand und Karriere prüfen …"
+msgstr "Checking saved game and career…"
+
+msgid "Pisten, Lifte und Gebäude prüfen …"
+msgstr "Checking pistes, lifts and buildings…"
+
+msgid "Gäste und gespeicherte Routen prüfen …"
+msgstr "Checking guests and saved routes…"
+
+msgid "Spielstand lesen …"
+msgstr "Reading saved game…"
+
+msgid "Prüfsumme kontrollieren …"
+msgstr "Verifying checksum…"
+
+msgid "Vorherige Sicherung prüfen …"
+msgstr "Checking the previous backup…"
+
+msgid "Strecke und Karriere wiederherstellen …"
+msgstr "Recovering resort and career…"
+
+msgid "Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert."
+msgstr "The original file could not be backed up. The saved game remains unchanged."
+
+msgid "Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert."
+msgstr "Resort and career recovered. Current guest positions were reset; the original file remains backed up."
+
+msgid "%d von %d abgeschlossen"
+msgstr "%d of %d complete"
+
+msgid "Ladezeit %s · letzter Fortschritt vor %s"
+msgstr "Loading time %s · last progress %s ago"
+
+msgid "%.1f %%"
+msgstr "%.1f %%"
+
+msgid "%s   %d:%02d"
+msgstr "%s   %d:%02d"
+
+msgid "%d s"
+msgstr "%d s"
+
+msgid "Höhendaten des ausgewählten Gebiets laden …"
+msgstr "Loading elevation data for the selected area…"
+
+msgid "Lifte und Pisten des Gebiets einlesen …"
+msgstr "Reading the area's lifts and pistes…"
+
+msgid "Resort und Startgebäude vorbereiten …"
+msgstr "Preparing resort and starting buildings…"
+
+msgid "Personal und Betriebsabläufe vorbereiten …"
+msgstr "Preparing staff and resort operations…"
+
+msgid "Gästerouten für alle Könnensstufen vorbereiten …"
+msgstr "Preparing guest routes for all skill levels…"
+
+msgid "Gästerouten vorbereitet"
+msgstr "Guest routes prepared"
+
+msgid "Das Laden wurde unterbrochen. Der vorhandene Spielstand bleibt unverändert."
+msgstr "Loading was interrupted. The existing saved game remains unchanged."
+
+msgid "Bergwelt und Gelände anzeigen …"
+msgstr "Building the mountain landscape…"
+
+msgid "Fußwege und Vorplätze gestalten …"
+msgstr "Building footpaths and station forecourts…"
+
+msgid "Schneeflächen und Pistenschilder aufbauen …"
+msgstr "Building snow surfaces and piste signs…"
+
+msgid "Lifte und Stationen aufbauen …"
+msgstr "Building lifts and stations…"
+
+msgid "Gebäude und Bergdorf aufbauen …"
+msgstr "Building resort facilities and village…"
+
+msgid "Wald und Landschaft gestalten …"
+msgstr "Building forest and scenery…"

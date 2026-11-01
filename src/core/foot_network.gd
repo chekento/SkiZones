@@ -63,7 +63,7 @@ static func building_radius(building: Dictionary) -> float:
 static func _area(key: String, center: Vector2, point: Vector2, radius: float, root: bool, id: int = 0, kind: String = "base") -> Dictionary:
 	return {"key": key, "center": center, "point": point, "radius": radius, "root": root, "id": id, "kind": kind}
 
-static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = [], pistes: Array = [], dense: bool = false, portal_path: Array = []) -> Dictionary:
+static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_areas: Array = [], pistes: Array = [], dense: bool = false, portal_path: Array = [], progress: Callable = Callable()) -> Dictionary:
 	var areas: Array = [_area("base",Terrain.BASE,Terrain.BASE,92,true)]
 	var fixed: Array = []
 	for lift in lifts:
@@ -162,6 +162,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 	fixed = Junctions.stitch(fixed, nodes, areas)
 	var candidates: Array = []
 	for i in range(areas.size()):
+		if progress.is_valid(): progress.call(i, areas.size())
 		for j in range(i+1,areas.size()):
 			var a: Dictionary = areas[i]
 			var b: Dictionary = areas[j]
@@ -549,3 +550,4 @@ static func clear_piste(points: Array, lifts: Array, half_width: float = 10) -> 
 				if Vector2(longitudinal, lateral).length() < machine_radius(lift):
 					return false
 	return true
+

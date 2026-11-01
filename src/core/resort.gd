@@ -88,6 +88,14 @@ var audience: Dictionary = Agenda.initial()
 var _audience_offer: Dictionary = {}
 var _duty_cache: Dictionary = {}
 var _operating_signature := ""
+var load_progress: RefCounted = null
+var _checked_walks: Dictionary = {}
+
+func _loading(percent: float, message: String, done: int = 0, total: int = 0) -> void:
+	if load_progress != null: load_progress.report(percent, message, done, total)
+
+func _loading_detail(message: String, done: int = 0, total: int = 0) -> void:
+	if load_progress != null: load_progress.detail(message, done, total)
 
 func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang") -> void:
 	operations = Ops.initial()
@@ -159,6 +167,7 @@ func _reset_report() -> void:
 	report = {"day": day, "tickets": 0.0, "services": 0.0, "costs": 0.0, "guests": 0, "rides": 0, "departures": 0, "satisfaction": 0.0, "rewards": 0.0, "investments": 0.0}
 
 func _invalidate() -> void:
+	_checked_walks.clear()
 	_audience_offer.clear()
 	_piste_links = null
 	terrain.configure_pistes(pistes)
@@ -807,7 +816,9 @@ func _edge(from_key: String, to_key: String, kind: String, id: int, points: Arra
 func pedestrian_layout() -> Dictionary:
 	if _foot_revision != revision:
 		_foot_revision = revision
-		_foot_layout = Foot.layout(terrain,lifts,buildings,walk_areas,pistes,legacy_foot,portal_path)
+		_loading_detail(L.text("Fußwege und Anschlüsse verbinden …"))
+		var report := func(done: int, total: int): _loading_detail(L.text("Fußwege und Anschlüsse verbinden …"), done, total)
+		_foot_layout = Foot.layout(terrain,lifts,buildings,walk_areas,pistes,legacy_foot,portal_path, report if load_progress != null else Callable())
 		for piste in pistes:
 			piste.plaza_start = Foot.attachments(_foot_layout,Terrain.unpack(piste.points[0])).any(func(a): return a.kind != "piste_gate")
 			piste.plaza_end = Foot.attachments(_foot_layout,Terrain.unpack(piste.points[-1])).any(func(a): return a.kind != "piste_gate")
@@ -970,7 +981,10 @@ func _geometry_graph(skill: int) -> Dictionary:
 		for point in piste.points:
 			var at := Terrain.unpack(point).snapped(Vector2.ONE)
 			junction_use[at] = int(junction_use.get(at, 0)) + 1
+	var prepared_pistes := 0
 	for piste in pistes:
+		prepared_pistes += 1
+		_loading_detail(L.text("Pistenanschlüsse vorbereiten …"), prepared_pistes, pistes.size())
 		if piste.difficulty <= skill:
 			var indices: Array = []
 			for index in range(piste.points.size()):
@@ -2139,7 +2153,10 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 		previous = Terrain.unpack(leg.points.back())
 		if leg.kind == "walk":
 			var rescue_walk: bool = Ops.active(self) and leg.get("rescue", false) and operations.incidents.any(func(e): return e.status == "resolved" and e.reason == "evacuation" and e.point == leg.points[0])
-			if leg.id != 0 or (not rescue_walk and not Foot.valid_walk(pedestrian_layout(), leg.points, buildings)):
+			var walk_key := JSON.stringify(leg.points)
+			if not rescue_walk and not _checked_walks.has(walk_key):
+				_checked_walks[walk_key] = Foot.valid_walk(pedestrian_layout(), leg.points, buildings)
+			if leg.id != 0 or (not rescue_walk and not _checked_walks[walk_key]):
 				return {}
 		else:
 			var item := asset(int(leg.id))
@@ -2186,6 +2203,7 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 func restore(data: Dictionary) -> Dictionary:
 	# Validate into a separate instance, so a failed load never damages this game.
 	var candidate = get_script().new()
+	candidate.load_progress = load_progress
 	var check: Dictionary = candidate._restore_checked(data)
 	if not check.ok:
 		return check
@@ -2195,11 +2213,18 @@ func restore(data: Dictionary) -> Dictionary:
 	rng.seed = candidate.rng.seed
 	rng.state = candidate.rng.state
 	_invalidate()
+	# The validated pedestrian geometry belongs to the same transferred assets.
+	# Reuse it instead of solving every walkway a second time on a large career.
+	if candidate._foot_revision == candidate.revision:
+		_foot_revision = revision
+		_foot_layout = candidate._foot_layout
+		_foot_graph = candidate._foot_graph
 	Ops.refresh_duty(self)
 	_operating_signature=Ops.signature(self)
 	return _result(true, L.text("Spielstand geladen."))
 
 func _restore_checked(data: Dictionary) -> Dictionary:
+	_loading(12.0, L.text("Spielstand und Karriere prüfen …"))
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
 	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
@@ -2246,8 +2271,12 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		return invalid
 	var used_ids: Array = []
 	var piste_numbers: Array = []
+	var asset_total: int = data.pistes.size() + data.lifts.size() + data.buildings.size() + data.walk_areas.size()
+	var asset_done := 0
 	for key in ["pistes", "lifts", "buildings", "walk_areas"]:
 		for item in data[key]:
+			asset_done += 1
+			_loading(15.0 + 28.0 * float(asset_done) / maxf(1, asset_total), L.text("Pisten, Lifte und Gebäude prüfen …"), asset_done, asset_total)
 			if not item is Dictionary or not Terrain.number(item.get("id")) or int(item.id) != item.id or item.id < 1 or item.id >= data.next_id or used_ids.has(item.id):
 				return invalid
 			used_ids.append(item.id)
@@ -2402,6 +2431,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	var route_cache: Dictionary = {}
 	var visitor_ids: Array = []
 	for visitor in data.guests:
+		_loading(45.0 + 17.0 * float(visitor_ids.size()) / maxf(1, data.guests.size()), L.text("Gäste und gespeicherte Routen prüfen …"), visitor_ids.size(), data.guests.size())
 		if not visitor is Dictionary:
 			return invalid
 		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
@@ -2585,3 +2615,4 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+

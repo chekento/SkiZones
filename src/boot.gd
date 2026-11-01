@@ -5,12 +5,15 @@ const GAME_SCENE := "res://scenes/main.tscn"
 var percent := Label.new()
 var detail := Label.new()
 var progress := ProgressBar.new()
+var activity := Label.new()
+var _started := 0
 
 func _ready() -> void:
+	_started = Time.get_ticks_msec()
 	var footer := PanelContainer.new()
 	footer.name = "LoadFooter"
 	footer.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	footer.offset_top = -150
+	footer.offset_top = -185
 	footer.offset_bottom = -18
 	footer.offset_left = 26
 	footer.offset_right = -26
@@ -37,12 +40,21 @@ func _ready() -> void:
 	progress.show_percentage = false
 	progress.custom_minimum_size.y = 16
 	content.add_child(progress)
+	activity.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	activity.add_theme_font_size_override("font_size", 18)
+	activity.add_theme_color_override("font_color", Color("bfdfeb"))
+	content.add_child(activity)
 	_open_game.call_deferred()
+
+func _process(_delta: float) -> void:
+	var now := Time.get_ticks_msec()
+	var seconds := maxi(0, int((now - _started) / 1000))
+	activity.text = "%s   %d:%02d" % [["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][int(now / 250) % 4], seconds / 60, seconds % 60]
 
 func _set_progress(value: float, message: String) -> void:
 	var amount := clampf(value, 0.0, 100.0)
 	progress.value = amount
-	percent.text = "%d %%" % roundi(amount)
+	percent.text = "%.1f %%" % amount
 	detail.text = message
 
 func _open_game() -> void:
@@ -67,3 +79,4 @@ func _open_game() -> void:
 	_set_progress(0.0, "Starte im kompatiblen Modus …")
 	await get_tree().process_frame
 	get_tree().change_scene_to_file(GAME_SCENE)
+
