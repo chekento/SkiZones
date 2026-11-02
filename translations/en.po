@@ -3481,3 +3481,24 @@ msgstr "04  ·  SERVICE & COMMUNITY"
 
 msgid "Updates, Feedback und Informationen"
 msgstr "Updates, feedback and information"
+
+msgid "Wähle zuerst eine Anlage und platziere sie anschließend direkt auf dem Berg."
+msgstr "Choose a facility, then place it directly on the mountain."
+
+msgid "PLAN IN ARBEIT · %d Punkte. Ziehen zum Verschieben; Bauen oder Abbrechen bestätigt deine Entscheidung."
+msgstr "PLAN IN PROGRESS · %d points. Drag to adjust; Build or Cancel confirms your decision."
+
+msgid "BAUMODUS · Setze die nächsten Punkte direkt am Hang."
+msgstr "BUILD MODE · Place the next points directly on the slope."
+
+msgid "1 · Abfahrt wählen  2 · Punkte setzen  3 · Bau prüfen"
+msgstr "1 · Choose piste  2 · Place points  3 · Review build"
+
+msgid "1 · Lift wählen  2 · Tal & Berg markieren  3 · Bauen"
+msgstr "1 · Choose lift  2 · Mark valley and summit  3 · Build"
+
+msgid "1 · Gebäude wählen  2 · Standort suchen  3 · Bauen"
+msgstr "1 · Choose building  2 · Pick a site  3 · Build"
+
+msgid "1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen"
+msgstr "1 · Pick paths & plazas  2 · Connect  3 · Build"
