@@ -18,7 +18,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	hud = owner_hud
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var veil := ColorRect.new()
-	veil.color = Color(0.02, 0.06, 0.09, 0.7)
+	veil.color = Color(0.02, 0.06, 0.09, 0.38)
 	add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel: PanelContainer=hud._panel(self,-315,32,315,-32,0.5,1)
@@ -52,8 +52,12 @@ func setup(owner_hud: CanvasLayer) -> void:
 		swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		swatch_row.add_child(swatch)
 		style_swatches.append(swatch)
-	style_choice.item_selected.connect(func(index: int): _describe_style(index))
-	hud._label(box, L.text("Bildstil verändert Licht, Schnee und Felsfarben, aber weder Pisten noch Spielstände."), 15, hud.MUTED, true)
+	style_choice.item_selected.connect(func(index: int):
+		_describe_style(index)
+		if visible:
+			hud.game.view.set_visual_style(VisualStyles.IDS[index])
+	)
+	hud._label(box, L.text("Live-Vorschau: Der Berg ändert sich sofort. Zurück verwirft die Auswahl; Speichern übernimmt sie dauerhaft."), 15, hud.MUTED, true)
 	hud._label(box, L.text("Grafikqualität · unabhängig vom Stil"), 16, hud.MUTED)
 	for caption in [L.text("Automatisch · passt sich an"), L.text("Sparsam · für mehr Reserven"), L.text("Ausgewogen"), L.text("Detailreich")]: quality_choice.add_item(caption)
 	quality_choice.custom_minimum_size.y = 46
@@ -88,6 +92,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	, true)
 	hud._button(box, L.text("Zurück"), hide)
 	hide()
+	visibility_changed.connect(_restore_unsaved_preview)
 
 func open() -> void:
 	var preferences: RefCounted = hud.game.preferences
@@ -99,6 +104,10 @@ func open() -> void:
 	smoothing.button_pressed = preferences.camera_smoothing
 	language_choice.select(LANGUAGES.find(preferences.language))
 	show()
+
+func _restore_unsaved_preview() -> void:
+	if not visible and hud != null and hud.game != null:
+		hud.game.view.set_visual_style(hud.game.preferences.visual_style)
 
 func _describe_style(index: int) -> void:
 	style_hint.text = L.text(VisualStyles.DESCRIPTIONS[clampi(index, 0, VisualStyles.IDS.size() - 1)])
