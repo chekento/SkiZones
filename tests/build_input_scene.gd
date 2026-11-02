@@ -98,6 +98,11 @@ func run() -> void:
 	touch(0,at-Vector2(0,90),false,true); await process_frame
 	check(scroll.scroll_vertical > 50 and game.tool == "inspect", "Finger dragging over a lift card also scrolls without choosing it")
 	check(game.points.is_empty() and game._touches.is_empty(), "Scrolling the GUI leaves no hidden map gesture or build point")
+	game.hud._update_responsive_layout(920.0)
+	check(game.hud.compact_layout and game.hud.compact_header_columns.all(func(node): return not node.visible), "Narrow Android HUD retains key indicators and hides secondary KPIs")
+	check(game.hud.compact_camera_buttons.all(func(node): return not node.visible) and game.hud.map_focus_button.visible, "Narrow camera bar retains essential controls without overflowing")
+	game.hud._update_responsive_layout(1440.0)
+	check(not game.hud.compact_layout and game.hud.compact_header_columns.all(func(node): return node.visible) and game.hud.compact_camera_buttons.all(func(node): return node.visible), "Wide desktop HUD restores the full navigation and stats")
 	game.queue_free(); await process_frame; await process_frame
 	print("BUILD INPUT SCENE: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
