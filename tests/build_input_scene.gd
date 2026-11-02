@@ -114,6 +114,23 @@ func run() -> void:
 	check(game.points.size() == remembered.size() - 1 and game.undone_points.size() == 1 and not game.hud.redo_button.disabled, "Undo preserves a removed piste point for explicit redo")
 	game.redo_point()
 	check(game.points == remembered and game.undone_points.is_empty() and game.hud.redo_button.disabled, "Redo accurately restores the removed piste waypoint")
+	# Tap jitter and interrupted multi-touch gestures must never shift a point.
+	var start_at: Vector2 = game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[0])))
+	var stable: Array = game.points.duplicate(true)
+	game.undo_point()
+	var previous_redo: Array = game.undone_points.duplicate(true)
+	game._begin_waypoint_drag(0, start_at)
+	game._drag_screen_offset = Vector2.ZERO
+	game._move_waypoint(start_at + Vector2(3, 4))
+	game._end_waypoint_drag()
+	check(game.points.size() == 1 and game.points[0] == stable[0] and game.undone_points == previous_redo, "Touch jitter selects an existing waypoint without shifting coordinates or clearing redo")
+	game._begin_waypoint_drag(0, start_at)
+	game._drag_screen_offset = Vector2.ZERO
+	game._move_waypoint(start_at + Vector2(28, 18))
+	game._end_waypoint_drag(true)
+	check(game.points[0] == stable[0] and game.undone_points == previous_redo, "Canceled two-finger drag restores original waypoint and retains redo history")
+	game.redo_point()
+	check(game.points == stable, "Redo remains available after canceled or tiny touch gestures")
 	var key := InputEventKey.new()
 	key.pressed = true
 	key.ctrl_pressed = true
