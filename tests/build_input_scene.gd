@@ -42,6 +42,9 @@ func run() -> void:
 	game.set_tool("lift"); game.hud.palette.select_category("lifts")
 	check(game.tool == "piste" and game.points == original and game.hud.lift_kind() == kind, "An unfinished piste cannot be replaced by a lift tool")
 	check(game.hud.palette.categories.lifts.disabled and game.hud.palette.category == "pistes", "The catalogue visibly locks other categories until build or cancel")
+	game.hud.palette.refresh(true)
+	check(game.hud.palette.categories.lifts.custom_minimum_size.y >= 54 and game.hud.palette.categories.village.custom_minimum_size.y >= 54, "The redesigned build categories have comfortable finger-sized targets")
+	check(game.hud.palette.guidance.text.contains("PLAN IN ARBEIT") and game.hud.palette.guidance.text.contains(str(game.points.size())), "The build guide shows live pending point counts without discarding the plan")
 	check(not game.hud.inspector_panel.visible and game.hud.plan_panel.visible, "Building leaves more map space while keeping the commit and cancel actions visible")
 	game.paused = false
 	var minute: int = game.model.minute
