@@ -1693,7 +1693,9 @@ func set_visual_style(id: String) -> void:
 	terrain_instance.mesh = _recolor_ground_mesh(terrain_instance.mesh)
 	if is_instance_valid(scenery_instance):
 		scenery_instance.mesh = _recolor_ground_mesh(scenery_instance.mesh)
-	rebuild()
+	# Never reset guest animations, snow tracks, piste meshes, lift fleets or
+	# cached collision geometry just to change the mountain's appearance.
+	forest.apply_style(self)
 	_update_atmosphere()
 
 func set_quality(mode: String) -> void:
