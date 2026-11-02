@@ -37,6 +37,10 @@ func run() -> void:
 	for rank in range(2,501):
 		check(Book.xp_for_rank(rank)>Book.xp_for_rank(rank-1) and Book.mastery_for_xp(Book.xp_for_rank(rank)) == rank,
 			"Rank %d has a distinct, attainable threshold" % rank)
+	check(Progression.construction_xp("lift") > Progression.construction_xp("building") and
+		Progression.construction_xp("piste") > Progression.construction_xp("piste",true) and
+		Progression.construction_xp("unknown") == 0,
+		"Constructing useful new lifts and pistes grants more XP than cosmetic remodeling")
 	var model := Resort.new()
 	model.new_game(true)
 	var initial: int = model.achievements.size()
