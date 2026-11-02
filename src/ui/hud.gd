@@ -50,6 +50,8 @@ var loading_activity := Label.new()
 var loading_margins := MarginContainer.new()
 var _loading_started := 0
 var _loading_last_work := 0
+var _loading_activity_clock := 0.0
+var _loading_activity_phase := 0
 var menu := Control.new()
 var scenarios := Scenarios.new()
 var credits := AcceptDialog.new()
@@ -1162,10 +1164,16 @@ func apply_loading_state(state: Dictionary) -> void:
 	loading_units.text = L.format_message("%d von %d abgeschlossen", [int(state.done), int(state.total)]) if int(state.total) > 0 else ""
 	if int(state.updated) > 0: _loading_last_work = int(state.updated)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not loading.visible: return
 	var now := Time.get_ticks_msec()
-	loading_activity.text = ["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][int(now / 250) % 4]
+	# Advance by rendered frames rather than sampling absolute clock phases.
+	# A slow Android frame can no longer alias the same indicator every time.
+	_loading_activity_clock += maxf(0.0,delta)
+	if _loading_activity_clock >= 0.23:
+		_loading_activity_clock = 0.0
+		_loading_activity_phase = (_loading_activity_phase + 1) % 4
+	loading_activity.text = ["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][_loading_activity_phase]
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
