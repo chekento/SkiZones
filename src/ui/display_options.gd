@@ -1,8 +1,11 @@
 extends Control
 const L = preload("res://src/core/i18n.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 var hud: CanvasLayer
 var quality_choice := OptionButton.new()
 var fps_choice := OptionButton.new()
+var style_choice := OptionButton.new()
+var style_hint := Label.new()
 var snow := CheckButton.new()
 var smoothing := CheckButton.new()
 var language_choice := OptionButton.new()
@@ -29,7 +32,18 @@ func setup(owner_hud: CanvasLayer) -> void:
 	for caption in [L.text("Systemsprache"),L.text("Deutsch"),L.text("English")]: language_choice.add_item(caption)
 	language_choice.custom_minimum_size.y=46
 	box.add_child(language_choice)
-	hud._label(box, L.text("Grafik"), 16, hud.MUTED)
+	hud._label(box, L.text("Bildstil · fünf Looks"), 16, hud.MUTED)
+	for title in VisualStyles.NAMES:
+		style_choice.add_item(L.text(title))
+	style_choice.custom_minimum_size.y = 54
+	box.add_child(style_choice)
+	style_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	style_hint.add_theme_font_size_override("font_size", 16)
+	style_hint.add_theme_color_override("font_color", hud.TEAL)
+	box.add_child(style_hint)
+	style_choice.item_selected.connect(func(index: int): _describe_style(index))
+	hud._label(box, L.text("Bildstil verändert Licht, Schnee und Felsfarben, aber weder Pisten noch Spielstände."), 15, hud.MUTED, true)
+	hud._label(box, L.text("Grafikqualität · unabhängig vom Stil"), 16, hud.MUTED)
 	for caption in [L.text("Automatisch · passt sich an"), L.text("Sparsam · für mehr Reserven"), L.text("Ausgewogen"), L.text("Detailreich")]: quality_choice.add_item(caption)
 	quality_choice.custom_minimum_size.y = 46
 	box.add_child(quality_choice)
@@ -48,6 +62,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	hud._button(box, L.text("Einstellungen speichern"), func():
 		var preferences: RefCounted = hud.game.preferences
 		preferences.quality = MODES[quality_choice.selected]
+		preferences.visual_style = VisualStyles.IDS[style_choice.selected]
 		preferences.target_fps = 60 if fps_choice.selected == 0 else 30
 		preferences.snowfall = snow.button_pressed
 		preferences.camera_smoothing = smoothing.button_pressed
@@ -66,8 +81,13 @@ func setup(owner_hud: CanvasLayer) -> void:
 func open() -> void:
 	var preferences: RefCounted = hud.game.preferences
 	quality_choice.select(MODES.find(preferences.quality))
+	style_choice.select(maxi(0, VisualStyles.IDS.find(preferences.visual_style)))
+	_describe_style(style_choice.selected)
 	fps_choice.select(0 if preferences.target_fps == 60 else 1)
 	snow.button_pressed = preferences.snowfall
 	smoothing.button_pressed = preferences.camera_smoothing
 	language_choice.select(LANGUAGES.find(preferences.language))
 	show()
+
+func _describe_style(index: int) -> void:
+	style_hint.text = L.text(VisualStyles.DESCRIPTIONS[clampi(index, 0, VisualStyles.IDS.size() - 1)])
