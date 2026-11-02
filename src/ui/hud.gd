@@ -912,6 +912,7 @@ func show_context(tool: String, id: int = -1) -> void:
 
 func show_guest(id: int) -> void:
 	show_context("inspect")
+	inspector_collapsed = false
 	selected_guest = id
 	game.view.selected_guest = id
 	set_map_focus(false)
