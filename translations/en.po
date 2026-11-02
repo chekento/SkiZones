@@ -3502,3 +3502,6 @@ msgstr "1 · Choose building  2 · Pick a site  3 · Build"
 
 msgid "1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen"
 msgstr "1 · Pick paths & plazas  2 · Connect  3 · Build"
+
+msgid "Punkt wiederholen"
+msgstr "Redo point"
