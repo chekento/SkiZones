@@ -99,6 +99,8 @@ var map_focus_button: Button
 var slopes_button: Button
 var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
+var inspector_collapsed := false
+var inspector_toggle_button: Button
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
 var management := Management.new()
@@ -553,6 +555,8 @@ func _build_camera_bar() -> void:
 	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
+	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
+	inspector_toggle_button.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
@@ -635,6 +639,12 @@ func toggle_slopes() -> void:
 	slopes_button.modulate = ACCENT if game.view.slopes_visible else Color.WHITE
 	_apply_panel_visibility()
 
+func toggle_inspector() -> void:
+	# Frees the right-hand side of the mountain for planning and exploration.
+	# This only changes HUD visibility, never the active tool or its points.
+	inspector_collapsed = not inspector_collapsed
+	_apply_panel_visibility()
+
 func set_map_focus(enabled: bool) -> void:
 	map_focus = enabled
 	map_focus_button.text = L.text("Werkzeuge") if map_focus else L.text("Mehr Karte")
@@ -647,7 +657,9 @@ func _apply_panel_visibility() -> void:
 		if panel.get_parent() == root:
 			panel.visible = show_game
 	tools_panel.visible = show_game and not map_focus
-	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect"
+	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
+	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
 	mission_panel.offset_left = 24 if map_focus else 340
 	mission_panel.offset_right = -24 if map_focus else -328
@@ -824,6 +836,7 @@ func show_context(tool: String, id: int = -1) -> void:
 	elif tool in ["lift", "building"]:
 		palette.select_category("lifts" if tool == "lift" else "village", true)
 	selected_id = id
+	if id != -1: inspector_collapsed = false
 	var selected: Dictionary = game.model.asset(id) if id != -1 else {}
 	lift_staff_button.visible = selected.has("bottom") or Catalog.BUILDINGS.has(selected.get("kind", ""))
 	lift_staff_button.text = L.text("Personal & Liftbesetzung") if selected.has("bottom") else L.text("Betrieb & Gebäudeteam")
