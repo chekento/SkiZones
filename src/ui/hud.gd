@@ -69,7 +69,7 @@ var redo_button: Button
 var clear_button: Button
 var delete_point_button: Button
 var suggest_route_button: Button
-var piste_controls: HBoxContainer
+var piste_controls: HFlowContainer
 var piste_width_choice := OptionButton.new()
 var waypoint_choice := OptionButton.new()
 var smooth_route_button: Button
@@ -317,6 +317,28 @@ func _update_responsive_layout(available_width: float) -> void:
 		button.visible = not compact_layout
 	if labels.has("weather"):
 		labels.weather.custom_minimum_size.x = 100 if compact_layout else 145
+	if is_instance_valid(undo_button):
+		undo_button.text = "↶" if compact_layout else L.text("Letzten Punkt zurück")
+		undo_button.tooltip_text = L.text("Letzten Punkt zurück")
+		undo_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(redo_button):
+		redo_button.text = "↷" if compact_layout else L.text("Punkt wiederholen")
+		redo_button.tooltip_text = L.text("Punkt wiederholen")
+		redo_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(delete_point_button):
+		delete_point_button.text = "✕" if compact_layout else L.text("Punkt löschen")
+		delete_point_button.tooltip_text = L.text("Punkt löschen")
+		delete_point_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(confirm_button):
+		confirm_button.custom_minimum_size.x = 118 if compact_layout else 165
+		var action_name: String = L.text("Übernehmen") if game.editing_id != -1 else L.text("Bauen")
+		if compact_layout and not confirm_button.disabled:
+			confirm_button.tooltip_text = confirm_button.text
+			confirm_button.text = action_name
+		if not compact_layout and not confirm_button.tooltip_text.is_empty() and confirm_button.text == action_name:
+			confirm_button.text = confirm_button.tooltip_text
+	if labels.has("status"):
+		labels.status.visible = not compact_layout
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -475,8 +497,9 @@ func _build_plan_bar() -> void:
 	box.add_child(plan_text)
 	plan_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	plan_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	piste_controls = HBoxContainer.new()
-	piste_controls.add_theme_constant_override("separation", 10)
+	piste_controls = HFlowContainer.new()
+	piste_controls.add_theme_constant_override("h_separation", 10)
+	piste_controls.add_theme_constant_override("v_separation", 6)
 	box.add_child(piste_controls)
 	_label(piste_controls, L.text("Pistenbreite"), 16, INK)
 	piste_width_choice.custom_minimum_size = Vector2(110, 42)
@@ -1014,7 +1037,7 @@ func refresh() -> void:
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
 	piste_controls.visible = current_tool == "piste"
-	plan_panel.offset_top = -204 if current_tool == "piste" else -156
+	plan_panel.offset_top = (-310 if compact_layout else -204) if current_tool == "piste" else (-206 if compact_layout else -156)
 	piste_width_choice.select(piste_width_choice.get_item_index(roundi(game.chosen_piste_width())))
 	var extra := 0
 	if game.editing_id != -1: extra = (int(game.model.asset(game.editing_id).get("level", 1)) - 1) * 4
@@ -1023,6 +1046,9 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	confirm_button.text = L.text("Bauen · %s €") % L.args(money_text(cost)) if cost > 0 else L.text("Bauen")
 	if game.editing_id != -1:
 		confirm_button.text = L.text("Übernehmen · %s €") % L.args(money_text(cost))
+	confirm_button.tooltip_text = confirm_button.text
+	if compact_layout:
+		confirm_button.text = L.text("Übernehmen") if game.editing_id != -1 else L.text("Bauen")
 	design_button.visible = game.editing_id != -1
 	rotate_building_button.visible = current_tool == "building"
 	confirm_button.disabled = not can_build
