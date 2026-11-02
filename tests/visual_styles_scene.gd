@@ -34,6 +34,9 @@ func run() -> void:
 	var map_before: String = game.model.map_id
 	var revision_before: int = game.model.revision
 	var original_vertices: PackedVector3Array = game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].duplicate()
+	var original_assets: Array = game.view.asset_root.get_children().duplicate()
+	var original_forest_nodes: Array = game.view.forest.root.get_children().duplicate()
+	var original_surface_picker: RefCounted = game.view.surface_picker
 	var alpine_color: Color = game.view._ground_color(Vector2(300, -150), 400.0, 65.0)
 	check(Styles.IDS.size() == 5 and game.hud.display_options.style_choice.item_count == 5, "Five selectable styles are offered in the real graphics screen")
 	check(Styles.valid("not-a-style") == "alpine", "Unknown saved style falls back to classic alpine")
@@ -45,6 +48,16 @@ func run() -> void:
 		distinct[str(sample)] = true
 		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] == original_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
 	check(distinct.size() == Styles.IDS.size(), "All five styles produce different snow and rock colors")
+	check(game.view.asset_root.get_children() == original_assets and game.view.forest.root.get_children() == original_forest_nodes and game.view.surface_picker == original_surface_picker, "Visual style changes preserve rendered assets, forest node identities and terrain picking without resort rebuild")
+	preferences.visual_style = "alpine"
+	preferences.apply(game.view)
+	game.hud.display_options.open()
+	var preview_index: int = Styles.IDS.find("comic")
+	game.hud.display_options.style_choice.select(preview_index)
+	game.hud.display_options.style_choice.item_selected.emit(preview_index)
+	check(game.view.visual_style == "comic" and preferences.visual_style == "alpine", "Settings show an immediate temporary comic preview without changing saved preferences")
+	game.hud.display_options.hide()
+	check(game.view.visual_style == "alpine" and preferences.visual_style == "alpine", "Backing out of graphics settings restores the original look")
 	check(game.model.map_id == map_before and is_equal_approx(game.model.terrain.height(Vector2(240, -150)), height_before) and game.model.revision == revision_before, "Switching styles does not change the mountain or game state")
 	preferences.visual_style = "cinematic"
 	check(preferences.save_to() == OK, "Visual style can be saved to display settings")
