@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const Sponsorship = preload("res://src/core/sponsorship.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
@@ -30,7 +31,7 @@ const CONTRACTS := {
 }
 
 static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary:
-	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "mastery_rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
+	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "mastery_rank": 1, "sponsor": {}, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
 
 static func has(model: RefCounted, id: String) -> bool:
 	return model.campaign.get("research", []).has(id)
@@ -324,6 +325,8 @@ static func finish_day(model: RefCounted) -> void:
 		pay_reward(model, prize)
 		state.points += state.rank * 2
 		set_notice(state,"Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten.",[season_number(model),prize])
+	# Sponsors pay once per completed day, independently of build actions.
+	Sponsorship.daily_reward(model)
 	var income: float = model.report.tickets + model.report.services
 	var investments: float = model.report.get("investments", 0.0)
 	state.profit += income - model.report.costs
@@ -367,6 +370,8 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		if not Terrain.number(state.abilities[i]) or state.abilities[i] < 0 or state.abilities[i] > 1000000000 or state.abilities[i] != floorf(state.abilities[i]):
 			return false
 		state.abilities[i] = int(state.abilities[i])
+	if state.has("sponsor") and not Sponsorship.valid(state.sponsor,model.day):
+		return false
 	if not state.get("project") is Dictionary or not state.get("notice") is String or state.notice.length() > 500:
 		return false
 	if state.has("notice_key"):
