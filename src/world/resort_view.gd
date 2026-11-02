@@ -8,6 +8,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
@@ -36,6 +37,7 @@ var _tracks_pending := false
 var trace_budget := 1200
 var _motion_cache: Dictionary = {}
 var quality := "auto"
+var visual_style := "alpine"
 var quality_tier := 1
 var effects_enabled := true
 var camera_smoothing := true
@@ -271,7 +273,7 @@ func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Co
 	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf((height_value - (terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0)) / 420.0, 0, 1))
 	if grade > 38:
 		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.74))
-	return snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018)
+	return VisualStyles.ground_color(snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018), grade, visual_style)
 
 func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
 	var nx := ceili(bounds.size.x / step_size) + 1
@@ -1021,16 +1023,20 @@ func _update_atmosphere() -> void:
 		return
 	_atmosphere_tick = key
 	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
-	_sun.light_energy = ((0.10 + daylight * 0.66) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0)
-	_sun.light_color = Color("f5d7cc").lerp(Color("fff1dc"), daylight)
+	var style: Dictionary = VisualStyles.palette(visual_style)
+	_sun.light_energy = ((0.10 + daylight * 0.66) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0) * float(style.sun_gain)
+	_sun.light_color = Color("f5d7cc").lerp(Color(style.sun), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	var palette := Color(Maps.spec(model.map_id).sky)
 	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
-	sky_material.sky_top_color = Color("12243f").lerp(Color("a9cddd").lerp(palette, 0.32), daylight) if Ops.continuous(model) else Color("a9cddd").lerp(palette, 0.32)
-	sky_material.sky_horizon_color = Color("344563").lerp(Color("f3e8df").lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color("f3e8df").lerp(palette, 0.18)
-	_environment.ambient_light_energy = 0.22 + daylight * 0.15
-	_environment.fog_light_color = Color("d7e2f0").lerp(palette, 0.18)
-	_environment.fog_density = 0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)
+	sky_material.sky_top_color = Color("12243f").lerp(Color(style.top).lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color(style.top).lerp(palette, 0.18)
+	sky_material.sky_horizon_color = Color("344563").lerp(Color(style.horizon).lerp(palette, 0.12), daylight) if Ops.continuous(model) else Color(style.horizon).lerp(palette, 0.12)
+	sky_material.ground_horizon_color = Color(style.horizon)
+	sky_material.ground_bottom_color = Color(style.ground)
+	_environment.ambient_light_color = Color(style.ambient)
+	_environment.ambient_light_energy = (0.22 + daylight * 0.15) * float(style.ambient_gain)
+	_environment.fog_light_color = Color(style.fog).lerp(palette, 0.08)
+	_environment.fog_density = (0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)) * float(style.fog_gain)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
 	_snow.position = terrain.world(focus, 130)
 
@@ -1643,6 +1649,22 @@ func _rider_pose(guest: Dictionary) -> Dictionary:
 		if Fleet.family(lift) == "gondola" and seat >= 4:
 			transform_value.basis = transform_value.basis.rotated(Vector3.UP, PI)
 	return {"transform": transform_value, "seated": Fleet.family(lift) in ["chair", "gondola"]}
+
+func set_visual_style(id: String) -> void:
+	var chosen: String = VisualStyles.valid(id)
+	if visual_style == chosen:
+		return
+	visual_style = chosen
+	_atmosphere_tick = ""
+	if not is_instance_valid(terrain_instance):
+		return
+	# Style switches regenerate only presentation; mountain geometry, Pisten,
+	# guests, finances and save files are never changed.
+	if is_instance_valid(scenery_instance):
+		scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
+	_terrain_grading = -1
+	rebuild()
+	_update_atmosphere()
 
 func set_quality(mode: String) -> void:
 	quality = mode if mode in ["auto", "economy", "balanced", "high"] else "auto"
