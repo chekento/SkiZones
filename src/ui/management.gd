@@ -12,6 +12,8 @@ var game: Node
 var hud: CanvasLayer
 var tabs := TabContainer.new()
 var title: Label
+var guest_button: Button
+var compact_layout := false
 var feedback: Label
 var _feedback := ""
 var staff_role := ""
@@ -31,8 +33,10 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 	var header := HBoxContainer.new()
 	layout.add_child(header)
 	title = hud._label(header, L.text("RESORT-BÜRO"), 27, hud.ACCENT)
-	hud._spacer(header, false)
-	hud._button(header, L.text("Gäste & Wünsche"), func():
+	title.clip_text = true
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	guest_button = hud._button(header, L.text("Gäste & Wünsche"), func():
 		hide()
 		hud.audience.open()
 	)
@@ -49,7 +53,23 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 		control.add_theme_color_override("font_selected_color", hud.ACCENT)
 		control.add_theme_color_override("font_unselected_color", hud.MUTED)
 	layout.add_child(tabs)
+	get_viewport().size_changed.connect(func(): _apply_responsive_layout(get_viewport().get_visible_rect().size.x))
+	_apply_responsive_layout(get_viewport().get_visible_rect().size.x)
 	hide()
+
+func _apply_responsive_layout(available_width: float) -> void:
+	# A compact office must remain usable with one hand and limited Android
+	# safe area. The guest action keeps the same callback in both layouts.
+	compact_layout = available_width < 1160.0
+	offset_left = 12 if compact_layout else 48
+	offset_right = -12 if compact_layout else -48
+	offset_top = 104 if compact_layout else 124
+	offset_bottom = -12 if compact_layout else -28
+	if is_instance_valid(title):
+		title.add_theme_font_size_override("font_size", 21 if compact_layout else 27)
+	if is_instance_valid(guest_button):
+		guest_button.text = L.text("Gäste") if compact_layout else L.text("Gäste & Wünsche")
+		guest_button.tooltip_text = L.text("Gäste & Wünsche")
 
 func open() -> void:
 	game._clear_input()
