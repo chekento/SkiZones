@@ -1160,6 +1160,7 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 	var item: Dictionary = model.asset(id)
 	if item.is_empty(): return false
 	_clear_input()
+	undone_points.clear()
 	var continuing := editing_id == id
 	editing_id = id
 	edit_title = title
