@@ -6,6 +6,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const Sponsorship = preload("res://src/core/sponsorship.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
 
@@ -130,6 +131,7 @@ func refresh() -> void:
 	_research(_page(L.text("Forschung")))
 	_upgrades(_page(L.text("Ausbau")))
 	_finances(_page(L.text("Finanzen")))
+	_sponsoring(_page(L.text("Sponsoring")))
 	OperatingPages.add(self)
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
@@ -272,6 +274,28 @@ func _upgrades(page: VBoxContainer) -> void:
 			var check: Dictionary = model.upgrade_check(id)
 			hud._label(body, check.message, 16, hud.TEAL, true)
 			_action(body, L.text("Ausbauen"), func(): return model.upgrade_asset(id), check.ok)
+
+func _sponsoring(page: VBoxContainer) -> void:
+	var model: RefCounted = game.model
+	var state: Dictionary = model.campaign
+	var contract: Dictionary = state.get("sponsor",{})
+	_card(page,L.text("PARTNER FÜR DEIN RESORT"),
+		L.text("Sponsoren unterstützen den Bau neuer Anlagen mit sieben Tage lang begrenzten Einnahmen. Gute Gästezufriedenheit erhöht die Auszahlung. Nur ein Vertrag gleichzeitig."))
+	if not contract.is_empty():
+		var spec: Dictionary = Sponsorship.OFFERS.get(str(contract.id),{})
+		var label: String = L.text("Aktiv") if Sponsorship.active(state,model.day) else L.text("Abgeschlossen")
+		_card(page,L.text("%s · %s") % L.args([L.text(spec.name),label]),
+			L.text("Bis Tag %d · bisher %s € erhalten") % L.args([int(contract.end),hud.money_text(float(contract.earned))]))
+	hud._label(page,L.text("VERFÜGBARE SPONSOREN"),18,hud.ACCENT)
+	for id_value in Sponsorship.OFFERS:
+		var id: String = id_value
+		var offer: Dictionary = Sponsorship.OFFERS[id]
+		var overview := _card(page,L.text(offer.name), L.text(offer.detail) + "\n" +
+			L.text("%s €/Tag für %d Tage · ab %d %% Ruf und %d Lift(en)") % L.args([
+				hud.money_text(float(offer.daily)),Sponsorship.CONTRACT_DAYS,int(offer.rep),int(offer.lifts)]))
+		var eligibility: Dictionary = Sponsorship.check(model,id)
+		_action(overview,L.text("Sponsorvertrag abschließen"),func(): return Sponsorship.sign(model,id),eligibility.ok)
+		if not eligibility.ok: hud._label(overview,eligibility.message,14,hud.MUTED,true)
 
 func _finances(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
