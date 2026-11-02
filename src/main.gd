@@ -34,6 +34,7 @@ var plaza_kind := "plaza"
 var _committing := false
 var _plan_dirty := false
 var points: Array = []
+var undone_points: Array = []
 var last_plan_check: Dictionary = {}
 var selected_waypoint := -1
 var _drag_waypoint := -1
@@ -409,6 +410,7 @@ func set_tool(value: String) -> void:
 	edit_rotation = 0
 	tool = "piste" if value in ["blue", "red", "black"] else value
 	points.clear()
+	undone_points.clear()
 	selected_waypoint = -1
 	_drag_waypoint = -1
 	snap_target = {}
@@ -424,8 +426,19 @@ func clear_plan() -> void:
 	hud.toast(L.text("Planung beendet. Es wurde nichts ausgegeben."))
 
 func undo_point() -> void:
-	if not points.is_empty():
-		points.pop_back()
+	if tool not in ["piste", "lift", "walkway"] or points.is_empty():
+		return
+	undone_points.append(points.pop_back())
+	selected_waypoint = -1
+	snap_target = {}
+	_update_plan()
+
+func redo_point() -> void:
+	if tool not in ["piste", "lift", "walkway"] or undone_points.is_empty():
+		return
+	if points.size() >= (2 if tool == "lift" else 64):
+		return
+	points.append(undone_points.pop_back())
 	selected_waypoint = -1
 	snap_target = {}
 	_update_plan()
@@ -433,6 +446,7 @@ func undo_point() -> void:
 func delete_waypoint() -> void:
 	if selected_waypoint >= 0 and selected_waypoint < points.size():
 		points.remove_at(selected_waypoint)
+		undone_points.clear()
 	selected_waypoint = -1
 	snap_target = {}
 	_update_plan()
@@ -479,6 +493,7 @@ func _move_waypoint(screen_point: Vector2) -> void:
 	var point := view.map_point(cursor)
 	if model.terrain.contains(point):
 		points[_drag_waypoint] = Terrain.pack(_snap_point(point, cursor))
+		undone_points.clear()
 		_plan_dirty = true
 
 func _end_waypoint_drag(canceled: bool = false) -> void:
@@ -515,6 +530,7 @@ func suggest_route() -> void:
 	var context: RefCounted=model if editing_id == -1 else model.Edit.context(model,editing_id)
 	var result: Dictionary=context.Planner.suggest_walk(context, points) if tool == "walkway" else context.suggest_piste(points,chosen_piste_width())
 	if result.ok:
+		undone_points.clear()
 		points=result.points.duplicate(true)
 		selected_waypoint=-1
 		snap_target={}
@@ -526,6 +542,7 @@ func suggest_site() -> void:
 	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
 	var result: Dictionary = context.suggest_building(hud.building_kind() if editing_id == -1 else model.asset(editing_id).kind, Terrain.unpack(points[0]))
 	if result.ok:
+		undone_points.clear()
 		points = [result.point]
 		edit_rotation = int(result.rotation)
 		snap_target = {}
@@ -534,6 +551,7 @@ func suggest_site() -> void:
 
 func reverse_route() -> void:
 	if tool != "piste" or points.size() < 2: return
+	undone_points.clear()
 	points.reverse()
 	selected_waypoint=-1
 	snap_target={}
@@ -544,6 +562,7 @@ func smooth_route() -> void:
 	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
 	var result: Dictionary = model.Planner.smooth(context, points, chosen_piste_width())
 	if result.ok:
+		undone_points.clear()
 		points = result.points.duplicate(true)
 		selected_waypoint = -1
 		snap_target = {}
@@ -613,6 +632,7 @@ func confirm_plan() -> void:
 	if result.ok:
 		_clear_input()
 		points.clear()
+		undone_points.clear()
 		selected_waypoint = -1
 		snap_target = {}
 		if edited != -1:
@@ -649,6 +669,7 @@ func _map_tap(position_value: Vector2) -> void:
 			hud.show_context(tool, view.pick_asset(point))
 		return
 	point = _snap_point(point, position_value)
+	undone_points.clear()
 	if tool in ["building", "plaza"]:
 		points = [Terrain.pack(point)]
 		if tool == "building" and editing_id == -1: edit_rotation = model.building_orientation(hud.building_kind(), point)
