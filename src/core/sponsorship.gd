@@ -36,7 +36,7 @@ static func sign(model: RefCounted, id: String) -> Dictionary:
 	if not result.ok: return result
 	model.campaign.sponsor = {"id":id, "start":model.day, "end":model.day+CONTRACT_DAYS-1,
 		"last_paid":0, "earned":0.0}
-	return {"ok":true,"message":L.text("Sponsorvertrag abgeschlossen: %s · %d Betriebstage.") % L.args([OFFERS[id].name,CONTRACT_DAYS])}
+	return {"ok":true,"message":L.text("Sponsorvertrag abgeschlossen: %s · %d Betriebstage.") % L.args([L.text(OFFERS[id].name),CONTRACT_DAYS])}
 
 static func daily_reward(model: RefCounted) -> float:
 	var sponsor: Dictionary = model.campaign.get("sponsor",{})
