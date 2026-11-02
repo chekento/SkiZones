@@ -69,20 +69,37 @@ def main():
         # frame (especially while the emulator compiles fresh shader programs).
         # Require real pixels within a bounded deadline, never accept a splash.
         deadline = time.monotonic() + 30
+        lit = 0.0
+        mean = 0.0
+        unique_colors = 0
         while True:
-            data = adb("exec-out", "screencap", "-p")
-            (args.output / f"{label}.png").write_bytes(data)
-            image = Image.open(io.BytesIO(data)).convert("RGB").resize((128, 72))
+            try:
+                # ADB can deliver a truncated PNG while Android redraws a new
+                # 3D surface. Retry a corrupt capture; never treat it as a
+                # successful frame or disable Pillow's integrity checks.
+                data = adb("exec-out", "screencap", "-p")
+                with Image.open(io.BytesIO(data)) as source:
+                    source.load()
+                    image = source.convert("RGB").resize((128, 72))
+            except (OSError, ValueError, subprocess.SubprocessError) as error:
+                if time.monotonic() >= deadline:
+                    raise AssertionError(
+                        f"Android screenshot remained unavailable for {label}: {error}"
+                    ) from error
+                time.sleep(0.5)
+                continue
             pixels = list(image.get_flattened_data())
             lit = sum(sum(pixel) > 30 for pixel in pixels) / len(pixels)
             mean = sum(ImageStat.Stat(image).mean) / 3
-            if lit > 0.65 and mean > 18 and len(set(pixels)) > 300:
+            unique_colors = len(set(pixels))
+            (args.output / f"{label}.png").write_bytes(data)
+            if lit > 0.65 and mean > 18 and unique_colors > 300:
                 break
             if time.monotonic() >= deadline:
                 break
             time.sleep(0.5)
-        assert lit > 0.65 and mean > 18 and len(set(pixels)) > 300, \
-            f"The resumed game is black or blank: lit={lit}, mean={mean}"
+        assert lit > 0.65 and mean > 18 and unique_colors > 300, \
+            f"The resumed game is black or blank: lit={lit}, mean={mean}, colors={unique_colors}"
         state = health()
         assert state["render_scale"] == 1.0, "The Android world render target must remain full-screen"
         evidence.append(dict(case=label, lit_fraction=lit, mean_brightness=mean, state=state))
