@@ -179,13 +179,14 @@ func _visits() -> void:
 			break
 	check(visit >= 0 and not model._checked_itinerary(guest.route.duplicate(true), 0).is_empty(), "The guest itinerary includes an actual door visit and valid walking paths")
 	var money: float = model.money
+	var initial_rewards: float = model.report.rewards
 	guest.leg = visit
 	model._start_leg(guest)
 	check(model.report.services == 0 and model.buildings[0].visits == 0, "A building does not earn service money before a guest visits")
 	var duration: float = guest.duration
 	for i in range(ceili(duration)):
 		model.advance_minute(false)
-	check(model.buildings[0].visits == 1 and model.report.services == 7 and model.money == money + 7 and guest.spent, "Completing the restaurant visit charges its actual service once")
+	check(model.buildings[0].visits == 1 and model.report.services == 7 and is_equal_approx(model.money - money - (model.report.rewards - initial_rewards), 7.0) and guest.spent, "Completing the restaurant visit charges its actual service once")
 	var checked := true
 	for leg in guest.route.legs:
 		if leg.kind == "walk":
