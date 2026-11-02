@@ -772,6 +772,12 @@ func _input(event: InputEvent) -> void:
 				KEY_E: view.rotate_view(0.2)
 				KEY_B: set_tool("piste")
 				KEY_DELETE: delete_waypoint()
+				KEY_Z:
+					if event.ctrl_pressed:
+						if event.shift_pressed: redo_point()
+						else: undo_point()
+				KEY_Y:
+					if event.ctrl_pressed: redo_point()
 				KEY_R: set_tool("piste")
 				KEY_K: set_tool("piste")
 				KEY_L: set_tool("lift")
