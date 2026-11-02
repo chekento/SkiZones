@@ -39,6 +39,8 @@ var last_plan_check: Dictionary = {}
 var selected_waypoint := -1
 var _drag_waypoint := -1
 var _drag_original: Array = []
+var _drag_press_position := Vector2.INF
+var _drag_has_moved := false
 var snap_target: Dictionary = {}
 var paused := false
 var speed := 1
@@ -479,28 +481,42 @@ func set_piste_width(value: float) -> void:
 	else: plan_width = value
 	_update_plan()
 
-func _begin_waypoint_drag(index: int) -> void:
+func _begin_waypoint_drag(index: int, pressed_at: Vector2 = Vector2.INF) -> void:
 	_drag_waypoint = index
 	selected_waypoint = index
 	_drag_original = points[index].duplicate()
+	_drag_press_position = pressed_at
+	_drag_has_moved = false
 	_drag_screen_offset = Vector2.ZERO
 	_update_plan()
 
 func _move_waypoint(screen_point: Vector2) -> void:
 	if _drag_waypoint < 0 or _drag_waypoint >= points.size():
 		return
+	# A finger can jitter on ACTION_UP. Merely selecting a numbered handle
+	# must never shift the piste into a different triangle on the mountain.
+	if _drag_press_position.is_finite() and screen_point.distance_to(_drag_press_position) < 8.0:
+		return
 	var cursor := screen_point - _drag_screen_offset
 	var point := view.map_point(cursor)
 	if model.terrain.contains(point):
-		points[_drag_waypoint] = Terrain.pack(_snap_point(point, cursor))
-		undone_points.clear()
-		_plan_dirty = true
+		var moved_to: Array = Terrain.pack(_snap_point(point, cursor))
+		if points[_drag_waypoint] != moved_to:
+			points[_drag_waypoint] = moved_to
+			_drag_has_moved = true
+			_plan_dirty = true
 
 func _end_waypoint_drag(canceled: bool = false) -> void:
 	if canceled and _drag_waypoint >= 0 and _drag_waypoint < points.size():
 		points[_drag_waypoint] = _drag_original.duplicate()
+	elif _drag_has_moved:
+		# Do not discard redo history when the user only selected the point,
+		# or canceled a two-finger gesture halfway through a drag.
+		undone_points.clear()
 	_drag_waypoint = -1
 	_drag_original = []
+	_drag_press_position = Vector2.INF
+	_drag_has_moved = false
 	_update_plan()
 
 func _plan_check() -> Dictionary:
@@ -705,7 +721,7 @@ func _input(event: InputEvent) -> void:
 					return
 				var handle := hud.plan_overlay.pick_waypoint(event.position) if event.button_index == MOUSE_BUTTON_LEFT else -1
 				if handle >= 0:
-					_begin_waypoint_drag(handle)
+					_begin_waypoint_drag(handle, event.position)
 					_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
 				_mouse_down = true
 				_mouse_origin = event.position
@@ -804,9 +820,9 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 				_end_waypoint_drag(true)
 			_gesture_used = true
 		else:
-			var handle := hud.plan_overlay.pick_waypoint(event.position, 28)
+			var handle := hud.plan_overlay.pick_waypoint(event.position, 34)
 			if handle >= 0:
-				_begin_waypoint_drag(handle)
+				_begin_waypoint_drag(handle, event.position)
 				_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
 	elif _touches.has(event.index):
 		if _drag_waypoint >= 0:
