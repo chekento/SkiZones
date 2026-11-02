@@ -9,6 +9,7 @@ var game: Node
 var category := "pistes"
 var content: VBoxContainer
 var categories: Dictionary = {}
+var guidance: Label
 var cards: Array = []
 var _state := ""
 var route_profile := RouteProfile.new()
@@ -23,15 +24,23 @@ func setup(interface: CanvasLayer) -> void:
 	hud._label(self, L.text("BAUKATALOG"), 13, hud.TEAL)
 	hud._label(self, L.text("Dein nächster Ausbau"), 20)
 	hud.tool_buttons.inspect = hud._button(self, L.text("Resort ansehen"), func(): game.clear_plan())
-	var bar := HBoxContainer.new()
-	bar.add_theme_constant_override("separation", 5)
+	# Two columns give every category a comfortable finger target on phones.
+	# A horizontal four-button row squeezed important names below legibility.
+	var bar := GridContainer.new()
+	bar.columns = 2
+	bar.add_theme_constant_override("h_separation", 7)
+	bar.add_theme_constant_override("v_separation", 7)
 	add_child(bar)
 	for entry in [["pistes", L.text("Pisten")], ["lifts", L.text("Lifte")], ["village", L.text("Dorf")], ["paths", L.text("Wege")]]:
 		var key: String = entry[0]
 		var button: Button = hud._button(bar, entry[1], func(): select_category(key))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 14)
+		button.add_theme_font_size_override("font_size", 16)
+		button.custom_minimum_size.y = 54
 		categories[key] = button
+	guidance = hud._label(self, "", 14, hud.MUTED, true)
+	guidance.custom_minimum_size.y = 54
+	guidance.tooltip_text = L.text("Wähle zuerst eine Anlage und platziere sie anschließend direkt auf dem Berg.")
 	hud.tool_buttons.lift = categories.lifts
 	hud.tool_buttons.building = categories.village
 	var scroll := DragScroll.new()
@@ -122,10 +131,21 @@ func select_category(value: String, from_tool: bool = false) -> void:
 	refresh(true)
 
 func refresh(force: bool = false) -> void:
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.is_empty()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
+	if not game.points.is_empty():
+		guidance.text = L.text("PLAN IN ARBEIT · %d Punkte. Ziehen zum Verschieben; Bauen oder Abbrechen bestätigt deine Entscheidung.") % game.points.size()
+	elif game.tool != "inspect":
+		guidance.text = L.text("BAUMODUS · Setze die nächsten Punkte direkt am Hang.")
+	else:
+		guidance.text = {
+			"pistes": L.text("1 · Abfahrt wählen  2 · Punkte setzen  3 · Bau prüfen"),
+			"lifts": L.text("1 · Lift wählen  2 · Tal & Berg markieren  3 · Bauen"),
+			"village": L.text("1 · Gebäude wählen  2 · Standort suchen  3 · Bauen"),
+			"paths": L.text("1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen")
+		}.get(category, "")
 	route_profile.visible = category == "pistes"
 	suggest_button.visible=(category == "pistes" and game.tool == "piste") or (category == "paths" and game.tool == "walkway")
 	suggest_button.text=L.text("Begehbaren Weg vorschlagen") if game.tool == "walkway" else L.text("Sanften Verlauf vorschlagen")

@@ -38,7 +38,9 @@ func displayed_waypoints() -> Array:
 		var at: Vector2 = game.view.camera.unproject_position(world)
 		if not get_viewport().get_visible_rect().grow(18).has_point(at): continue
 		var hit: Dictionary = game.view.surface_picker.intersect(game.view.camera.project_ray_origin(at), game.view.camera.project_ray_normal(at))
-		if not hit.is_empty() and hit.position.distance_to(world) > 0.2: continue
+		# Tolerate a small snow-relief/triangulation mismatch in screen-space
+		# selection without allowing handles hidden behind an entire mountain.
+		if not hit.is_empty() and hit.position.distance_to(world) > 1.5: continue
 		result.append({"index": index, "at": at})
 	return result
 

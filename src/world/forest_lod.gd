@@ -2,6 +2,7 @@ extends RefCounted
 ## Independent forest chunks can be culled; distant trees keep their silhouette.
 const Terrain = preload("res://src/core/terrain.gd")
 const Maps = preload("res://src/core/maps.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Art = preload("res://src/world/alpine_art.gd")
@@ -70,6 +71,9 @@ func build(view: Node3D) -> void:
 		_line(blocked, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top), maxf(16, Fleet.rope_offset(lift) + 15))
 	for building in view.model.buildings:
 		_disk(blocked, Terrain.unpack(building.point), 29 if building.kind == "hotel" else 23)
+	var style: Dictionary = VisualStyles.palette(view.visual_style)
+	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
+	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
 	var chunks: Dictionary = {}
 	var rocks: Array = []
 	var used := 0
@@ -92,9 +96,9 @@ func build(view: Node3D) -> void:
 		node.multimesh = view._multimesh(distant, entries.size())
 		for i in range(entries.size()):
 			node.multimesh.set_instance_transform(i, entries[i].transform)
-			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72))
+			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72) * foliage_tint)
 		root.add_child(node)
-		groups.append({"node": node, "center": (Vector2(key) + Vector2.ONE * 0.5) * CHUNK, "detail": false})
+		groups.append({"node": node, "center": (Vector2(key) + Vector2.ONE * 0.5) * CHUNK, "detail": false, "base_tints": entries.map(func(entry): return entry.color)})
 	if not groups.is_empty():
 		view.trees = groups[0].node
 	var mesh := Art.new().rock()
@@ -102,9 +106,25 @@ func build(view: Node3D) -> void:
 	view.rocks.multimesh = view._multimesh(mesh, rocks.size())
 	for i in range(rocks.size()):
 		view.rocks.multimesh.set_instance_transform(i, rocks[i].transform)
-		view.rocks.multimesh.set_instance_color(i, Color.WHITE)
+		view.rocks.multimesh.set_instance_color(i, rock_tint)
 	view.rocks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	update(view.focus, view.zoom, 1)
+
+func apply_style(view: Node3D) -> void:
+	# Recolor existing instances instead of regenerating 11,000 forest
+	# candidates, blocking footprints or mountain meshes on each style switch.
+	var style: Dictionary = VisualStyles.palette(view.visual_style)
+	var foliage: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
+	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.72)
+	for group in groups:
+		var mesh: MultiMesh = group.node.multimesh
+		var tints: Array = group.base_tints
+		for i in range(tints.size()):
+			mesh.set_instance_color(i, Color(tints[i]) * tree_base * foliage)
+	if view.rocks.multimesh != null:
+		var tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
+		for i in range(view.rocks.multimesh.instance_count):
+			view.rocks.multimesh.set_instance_color(i, tint)
 
 func update(focus: Vector2, zoom: float, tier: int) -> void:
 	for group in groups:

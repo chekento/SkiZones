@@ -54,6 +54,9 @@ var credits := AcceptDialog.new()
 var community := AcceptDialog.new()
 var data_credit := Label.new()
 var map_panels: Array = []
+var compact_header_columns: Array = []
+var compact_camera_buttons: Array = []
+var compact_layout := false
 var labels: Dictionary = {}
 var tool_buttons: Dictionary = {}
 var inspector_title := Label.new()
@@ -62,10 +65,11 @@ var inspector_actions := VBoxContainer.new()
 var plan_text := Label.new()
 var confirm_button: Button
 var undo_button: Button
+var redo_button: Button
 var clear_button: Button
 var delete_point_button: Button
 var suggest_route_button: Button
-var piste_controls: HBoxContainer
+var piste_controls: HFlowContainer
 var piste_width_choice := OptionButton.new()
 var waypoint_choice := OptionButton.new()
 var smooth_route_button: Button
@@ -95,6 +99,8 @@ var map_focus_button: Button
 var slopes_button: Button
 var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
+var inspector_collapsed := false
+var inspector_toggle_button: Button
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
 var management := Management.new()
@@ -301,6 +307,41 @@ func _update_safe_area() -> void:
 	loading_margins.add_theme_constant_override("margin_left", 30 + roundi(content.position.x))
 	loading_margins.add_theme_constant_override("margin_right", 30 + roundi(size_value.x - content.end.x))
 	loading_margins.add_theme_constant_override("margin_bottom", 20 + roundi(size_value.y - content.end.y))
+	_update_responsive_layout(content.size.x)
+
+func _update_responsive_layout(available_width: float) -> void:
+	# The wider desktop HUD has five KPIs and all shortcuts. Phone-sized
+	# viewports retain the critical stats and actions without overflowing.
+	compact_layout = available_width < 1160.0
+	for column in compact_header_columns:
+		column.visible = not compact_layout
+	for button in compact_camera_buttons:
+		button.visible = not compact_layout
+	if labels.has("weather"):
+		labels.weather.custom_minimum_size.x = 100 if compact_layout else 145
+	if is_instance_valid(undo_button):
+		undo_button.text = "↶" if compact_layout else L.text("Letzten Punkt zurück")
+		undo_button.tooltip_text = L.text("Letzten Punkt zurück")
+		undo_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(redo_button):
+		redo_button.text = "↷" if compact_layout else L.text("Punkt wiederholen")
+		redo_button.tooltip_text = L.text("Punkt wiederholen")
+		redo_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(delete_point_button):
+		delete_point_button.text = "✕" if compact_layout else L.text("Punkt löschen")
+		delete_point_button.tooltip_text = L.text("Punkt löschen")
+		delete_point_button.custom_minimum_size.x = 44 if compact_layout else 0
+	if is_instance_valid(confirm_button):
+		confirm_button.custom_minimum_size.x = 118 if compact_layout else 165
+		var action_name: String = L.text("Übernehmen") if game.editing_id != -1 else L.text("Bauen")
+		if compact_layout and not confirm_button.disabled:
+			confirm_button.tooltip_text = confirm_button.text
+			confirm_button.text = action_name
+		if not compact_layout and not confirm_button.tooltip_text.is_empty() and confirm_button.text == action_name:
+			confirm_button.text = confirm_button.tooltip_text
+	if labels.has("status"):
+		labels.status.visible = true
+		labels.status.custom_minimum_size.x = 120 if compact_layout else 170
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -387,6 +428,7 @@ func _build_header() -> void:
 	for item in [["money", L.text("BUDGET")], ["guests", L.text("GÄSTE")], ["rep", L.text("RUF")], ["rides", L.text("ABFAHRTEN")], ["clock", L.text("BETRIEBSTAG")]]:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if item[0] in ["rep", "rides"]: compact_header_columns.append(column)
 		_label(column, item[1], 12, MUTED)
 		labels[item[0]] = _label(column, "—", 22)
 	_button(box, L.text("Speichern"), game.save_game)
@@ -458,8 +500,9 @@ func _build_plan_bar() -> void:
 	box.add_child(plan_text)
 	plan_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	plan_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	piste_controls = HBoxContainer.new()
-	piste_controls.add_theme_constant_override("separation", 10)
+	piste_controls = HFlowContainer.new()
+	piste_controls.add_theme_constant_override("h_separation", 10)
+	piste_controls.add_theme_constant_override("v_separation", 6)
 	box.add_child(piste_controls)
 	_label(piste_controls, L.text("Pistenbreite"), 16, INK)
 	piste_width_choice.custom_minimum_size = Vector2(110, 42)
@@ -467,12 +510,14 @@ func _build_plan_bar() -> void:
 	piste_width_choice.item_selected.connect(func(index): game.set_piste_width(piste_width_choice.get_item_id(index)))
 	piste_controls.add_child(piste_width_choice)
 	piste_width_total = _label(piste_controls, "", 15, MUTED)
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 10)
+	var actions := HFlowContainer.new()
+	actions.add_theme_constant_override("h_separation", 10)
+	actions.add_theme_constant_override("v_separation", 6)
 	box.add_child(actions)
 	confirm_button = _button(actions, L.text("Bauen"), game.confirm_plan, true)
 	confirm_button.custom_minimum_size.x = 165
 	undo_button = _button(actions, L.text("Letzten Punkt zurück"), game.undo_point)
+	redo_button = _button(actions, L.text("Punkt wiederholen"), game.redo_point)
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
@@ -505,12 +550,17 @@ func _build_camera_bar() -> void:
 	labels.weather.clip_text = true
 	labels.weather.custom_minimum_size.x = 145
 	labels.weather.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_button(box, L.text("Gebiete"), show_atlas).custom_minimum_size.y = 40
+	var regions_button: Button = _button(box, L.text("Gebiete"), show_atlas)
+	regions_button.custom_minimum_size.y = 40
+	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
+	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
+	inspector_toggle_button.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
+	compact_camera_buttons.append(slopes_button)
 	slopes_button.tooltip_text = L.text("Höhenlinien alle 20 m, Höhenangaben und Pfeile bergab. Hangneigung und Pistenverlauf sind verschieden.")
 	map_focus_button = _button(box, L.text("Mehr Karte"), func(): set_map_focus(not map_focus))
 	map_focus_button.custom_minimum_size.y = 40
@@ -522,6 +572,7 @@ func _build_camera_bar() -> void:
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], [L.text("Tal"), func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
 		button.custom_minimum_size = Vector2(48, 40)
+		compact_camera_buttons.append(button)
 	for child in box.get_children():
 		if child is Button:
 			child.add_theme_font_size_override("font_size", 16)
@@ -588,6 +639,12 @@ func toggle_slopes() -> void:
 	slopes_button.modulate = ACCENT if game.view.slopes_visible else Color.WHITE
 	_apply_panel_visibility()
 
+func toggle_inspector() -> void:
+	# Frees the right-hand side of the mountain for planning and exploration.
+	# This only changes HUD visibility, never the active tool or its points.
+	inspector_collapsed = not inspector_collapsed
+	_apply_panel_visibility()
+
 func set_map_focus(enabled: bool) -> void:
 	map_focus = enabled
 	map_focus_button.text = L.text("Werkzeuge") if map_focus else L.text("Mehr Karte")
@@ -600,7 +657,9 @@ func _apply_panel_visibility() -> void:
 		if panel.get_parent() == root:
 			panel.visible = show_game
 	tools_panel.visible = show_game and not map_focus
-	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect"
+	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
+	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
 	mission_panel.offset_left = 24 if map_focus else 340
 	mission_panel.offset_right = -24 if map_focus else -328
@@ -624,6 +683,15 @@ func _build_missions() -> void:
 	mission_next = _label(text_box, "", 16, INK, true)
 	_button(row, L.text("Missionen"), func(): show_management_page(L.text("Betrieb")), true)
 
+func _menu_group(parent: Node, title: String, detail: String) -> VBoxContainer:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _style(Color("edf5f1"), 14, 14))
+	parent.add_child(card)
+	var stack := _vbox(card, 7)
+	_label(stack, L.text(title), 16, TEAL)
+	_label(stack, L.text(detail), 14, MUTED, true)
+	return stack
+
 func _build_menu() -> void:
 	root.add_child(menu)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -636,33 +704,52 @@ func _build_menu() -> void:
 	menu.add_child(panorama)
 	panorama.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var veil := ColorRect.new()
-	veil.color = Color(0.025, 0.08, 0.12, 0.25)
+	veil.color = Color(0.018, 0.047, 0.072, 0.35)
 	menu.add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var panel := _panel(menu, 72, 72, 570, -72, 0, 1)
-	panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"),24,32))
+	var panel := _panel(menu, 50, 24, 610, -24, 0, 1)
+	panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"), 20, 22))
 	var scroll := DragScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	panel.add_child(scroll)
-	var box := _vbox(scroll, 10)
+	var box := _vbox(scroll, 13)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_label(box, L.text("DEIN BERG. DEINE REGELN."), 16, TEAL)
-	_label(box, "SKI\nZONES", 64, INK)
-	_label(box, L.text("Vom ersten Lift zum\nlebendigen Ski-Resort."), 26, ACCENT)
-	_label(box, L.text("Plane Abfahrten, erschließe neue Hänge und schaffe einen Ort, an den deine Gäste zurückkehren wollen."), 18, MUTED, true)
-	_spacer(box)
-	_label(box, L.text("HAUPTSPIEL"), 17, TEAL)
-	continue_button = _button(box, L.text("Fortsetzen"), game.continue_main_game, true)
-	_button(box, L.text("Karriere · vier Spielstände"), game.show_career_slots, true)
-	_button(box, L.text("Freier Aufbau · alle Anlagen"), game.start_free_play)
-	_label(box, L.text("EXTRAS"), 13, MUTED)
+	_label(box, L.text("DEIN BERG. DEINE REGELN."), 15, TEAL)
+	_label(box, "SKI / ZONES", 46, INK)
+	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
+	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
+	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
+	continue_button = _button(play, L.text("Fortsetzen"), game.continue_main_game, true)
+	_button(play, L.text("Karriere · vier Spielstände"), game.show_career_slots)
+	_button(play, L.text("Freier Aufbau · alle Anlagen"), game.start_free_play)
+	var manage := _menu_group(box, "02  ·  RESORT & BERGWELT", "Dein Betrieb und deine acht Skiberge")
+	_button(manage, L.text("Bergpass · alle Gebiete"), func():
+		hide_menu()
+		show_atlas()
+	)
+	_button(manage, L.text("Resort-Büro · Betrieb & Forschung"), func():
+		hide_menu()
+		show_management()
+	)
+	_button(manage, L.text("Bauwerkzeuge · Pisten, Lifte, Dorf"), func():
+		hide_menu()
+		set_map_focus(false)
+		game.clear_plan()
+	)
+	var options := _menu_group(box, "03  ·  DARSTELLUNG & STEUERUNG", "Bildstile, Kamera und Komfort")
+	_button(options, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open(), true)
+	_button(options, L.text("Kamera & Perspektive"), func():
+		hide_menu()
+		show_camera()
+	)
+	_button(options, L.text("Spielhilfe & Steuerung"), show_help)
+	var service := _menu_group(box, "04  ·  SERVICE & COMMUNITY", "Updates, Feedback und Informationen")
 	if Maps.SCENARIOS_ENABLED:
-		_button(box, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
-	_button(box, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open())
-	updates_button=_button(box, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
-	_button(box, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
-	_button(box, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
-	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")),13,MUTED,true)
+		_button(service, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
+	updates_button = _button(service, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
+	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
+	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
+	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")), 13, MUTED, true)
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -749,6 +836,7 @@ func show_context(tool: String, id: int = -1) -> void:
 	elif tool in ["lift", "building"]:
 		palette.select_category("lifts" if tool == "lift" else "village", true)
 	selected_id = id
+	if id != -1: inspector_collapsed = false
 	var selected: Dictionary = game.model.asset(id) if id != -1 else {}
 	lift_staff_button.visible = selected.has("bottom") or Catalog.BUILDINGS.has(selected.get("kind", ""))
 	lift_staff_button.text = L.text("Personal & Liftbesetzung") if selected.has("bottom") else L.text("Betrieb & Gebäudeteam")
@@ -824,6 +912,7 @@ func show_context(tool: String, id: int = -1) -> void:
 
 func show_guest(id: int) -> void:
 	show_context("inspect")
+	inspector_collapsed = false
 	selected_guest = id
 	game.view.selected_guest = id
 	set_map_focus(false)
@@ -964,7 +1053,7 @@ func refresh() -> void:
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
 	piste_controls.visible = current_tool == "piste"
-	plan_panel.offset_top = -204 if current_tool == "piste" else -156
+	plan_panel.offset_top = (-340 if compact_layout else -224) if current_tool == "piste" else (-230 if compact_layout else -174)
 	piste_width_choice.select(piste_width_choice.get_item_index(roundi(game.chosen_piste_width())))
 	var extra := 0
 	if game.editing_id != -1: extra = (int(game.model.asset(game.editing_id).get("level", 1)) - 1) * 4
@@ -973,12 +1062,17 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	confirm_button.text = L.text("Bauen · %s €") % L.args(money_text(cost)) if cost > 0 else L.text("Bauen")
 	if game.editing_id != -1:
 		confirm_button.text = L.text("Übernehmen · %s €") % L.args(money_text(cost))
+	confirm_button.tooltip_text = confirm_button.text
+	if compact_layout:
+		confirm_button.text = L.text("Übernehmen") if game.editing_id != -1 else L.text("Bauen")
 	design_button.visible = game.editing_id != -1
 	rotate_building_button.visible = current_tool == "building"
 	confirm_button.disabled = not can_build
 	confirm_button.visible = current_tool != "inspect"
 	undo_button.visible = current_tool in ["piste","lift","walkway"]
 	undo_button.disabled = point_count == 0
+	redo_button.visible = current_tool in ["piste", "lift", "walkway"]
+	redo_button.disabled = game.undone_points.is_empty()
 	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	waypoint_choice.visible = game.tool == "piste" and point_count > 0

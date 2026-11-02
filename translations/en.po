@@ -3397,3 +3397,126 @@ msgstr "Building forest and scenery…"
 
 msgid "Szenarien sind in dieser Version nicht verfügbar. Deine Spielstände bleiben erhalten."
 msgstr "Scenarios are unavailable in this version. Your saved games remain intact."
+
+msgid "Alpin · klassisch"
+msgstr "Alpine · classic"
+
+msgid "Comic · lebendig"
+msgstr "Cartoon · vibrant"
+
+msgid "Pastell · gemütlich"
+msgstr "Pastel · cozy"
+
+msgid "Filmisch · naturbetont"
+msgstr "Cinematic · natural"
+
+msgid "Winterklar · kontrastreich"
+msgstr "Crisp winter · high contrast"
+
+msgid "Die vertraute SkiZones-Winterwelt."
+msgstr "The familiar SkiZones winter world."
+
+msgid "Kräftige Farben, klare Fels- und Schneekanten."
+msgstr "Bold colors, crisp rock faces and snow edges."
+
+msgid "Warme Lichter und sanfte Bonbonfarben."
+msgstr "Warm lighting and soft candy colors."
+
+msgid "Kühle Gipfel, steinige Hänge und tiefe Täler."
+msgstr "Cool mountain peaks, rocky slopes and deep valleys."
+
+msgid "Glasklare Luft und deutlich erkennbare Geländeformen."
+msgstr "Crystal-clear air and distinct terrain shapes."
+
+msgid "Bildstil · fünf Looks"
+msgstr "Visual style · five looks"
+
+msgid "Bildstil verändert Licht, Schnee und Felsfarben, aber weder Pisten noch Spielstände."
+msgstr "Visual styles alter light, snow and rock colors, but never pistes or save files."
+
+msgid "Grafikqualität · unabhängig vom Stil"
+msgstr "Graphics quality · independent of style"
+
+msgid "Dein Skigebiet, deine Geschichten."
+msgstr "Your ski resort, your stories."
+
+msgid "Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."
+msgstr "Plan smart, shape the mountains and follow your guests through lively winter days."
+
+msgid "01  ·  HAUPTSPIEL"
+msgstr "01  ·  PLAY"
+
+msgid "Karriere fortsetzen oder ganz frei bauen"
+msgstr "Resume your career or build freely"
+
+msgid "02  ·  RESORT & BERGWELT"
+msgstr "02  ·  RESORT & MOUNTAINS"
+
+msgid "Dein Betrieb und deine acht Skiberge"
+msgstr "Your operations and eight ski mountains"
+
+msgid "Bergpass · alle Gebiete"
+msgstr "Mountain Pass · all regions"
+
+msgid "Resort-Büro · Betrieb & Forschung"
+msgstr "Resort Office · operations & research"
+
+msgid "Bauwerkzeuge · Pisten, Lifte, Dorf"
+msgstr "Build tools · pistes, lifts, village"
+
+msgid "03  ·  DARSTELLUNG & STEUERUNG"
+msgstr "03  ·  VISUALS & CONTROLS"
+
+msgid "Bildstile, Kamera und Komfort"
+msgstr "Visual styles, camera and comfort"
+
+msgid "Kamera & Perspektive"
+msgstr "Camera & perspective"
+
+msgid "Spielhilfe & Steuerung"
+msgstr "Game help & controls"
+
+msgid "04  ·  SERVICE & COMMUNITY"
+msgstr "04  ·  SERVICE & COMMUNITY"
+
+msgid "Updates, Feedback und Informationen"
+msgstr "Updates, feedback and information"
+
+msgid "Wähle zuerst eine Anlage und platziere sie anschließend direkt auf dem Berg."
+msgstr "Choose a facility, then place it directly on the mountain."
+
+msgid "PLAN IN ARBEIT · %d Punkte. Ziehen zum Verschieben; Bauen oder Abbrechen bestätigt deine Entscheidung."
+msgstr "PLAN IN PROGRESS · %d points. Drag to adjust; Build or Cancel confirms your decision."
+
+msgid "BAUMODUS · Setze die nächsten Punkte direkt am Hang."
+msgstr "BUILD MODE · Place the next points directly on the slope."
+
+msgid "1 · Abfahrt wählen  2 · Punkte setzen  3 · Bau prüfen"
+msgstr "1 · Choose piste  2 · Place points  3 · Review build"
+
+msgid "1 · Lift wählen  2 · Tal & Berg markieren  3 · Bauen"
+msgstr "1 · Choose lift  2 · Mark valley and summit  3 · Build"
+
+msgid "1 · Gebäude wählen  2 · Standort suchen  3 · Bauen"
+msgstr "1 · Choose building  2 · Pick a site  3 · Build"
+
+msgid "1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen"
+msgstr "1 · Pick paths & plazas  2 · Connect  3 · Build"
+
+msgid "Punkt wiederholen"
+msgstr "Redo point"
+
+msgid "Übernehmen"
+msgstr "Apply"
+
+msgid "Live-Vorschau: Der Berg ändert sich sofort. Zurück verwirft die Auswahl; Speichern übernimmt sie dauerhaft."
+msgstr "Live preview: the mountain updates immediately. Back discards the change; Save keeps it permanently."
+
+msgid "Info anzeigen"
+msgstr "Show details"
+
+msgid "Info ausblenden"
+msgstr "Hide details"
+
+msgid "Gäste"
+msgstr "Guests"
