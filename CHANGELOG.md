@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **24 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **25 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.21.0](https://github.com/chekento/SkiZones/releases/tag/v0.21.0)** | 02.11.2026 | Bergwelt, Spielgefühl und fünf Bildstile | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk) | [Details](docs/releases/0.21.0.md) |
 | **[v0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2)** | 02.11.2026 | Hauptspiel vor Szenarien | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk) | [Details](docs/releases/0.20.2.md) |
 | **[v0.20.0](https://github.com/chekento/SkiZones/releases/tag/v0.20.0)** | 01.11.2026 | kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk) | [Details](docs/releases/0.20.0.md) |
 | **[v0.19.0](https://github.com/chekento/SkiZones/releases/tag/v0.19.0)** | 01.11.2026 | PMDD-Winterbranding und vollflächiger Ladebildschirm | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk) | [Details](docs/releases/0.19.0.md) |
@@ -34,6 +35,46 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.21.0 · Bergwelt, Spielgefühl und fünf Bildstile (02.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.21.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk)** (44.4 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.21.0/manifest.json) · [Originalnotizen](docs/releases/0.21.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.21.0)
+
+> **Android-Preview 0.21.0.** Diese Ausgabe konzentriert sich auf den normalen Karriere- und freien Baumodus. Die Szenarien bleiben deaktiviert; die Vollständigkeit der Spielstand-, Godot-, APK- und Android-Lifecycle-Prüfungen ist Voraussetzung jeder Veröffentlichung.
+
+### Neuerungen in 0.21.0
+
+- **Neue Hauptmenüarchitektur:** Hauptspiel, Resort & Bergwelt, Darstellung & Steuerung, Service & Community. Direktzugang zu Bergpass, Resort-Büro, Bauwerkzeugen, Kamera, Hilfe und Updates.
+- **Fünf voneinander unabhängige Bildstile** im Einstellungsmenü: Alpin (klassisch), Comic (lebendig), Pastell (gemütlich), Filmisch (naturbetont), Winterklar (kontrastreich). Jeder Stil besitzt eine eigene Farbpalette für Himmel, Sonne, Nebel, Licht, Schnee, Felsen und Vegetation; der Dialog zeigt erklärende Vorschauen und fünf passende Farbfelder.
+- **Feineres Gelände:** visuelle Felsbänder, Windspuren im Schneefarbverlauf, abgeschattete Steilhänge und kühlere Talmulden. Die vorhandenen Höhen- und Kollisionsdaten werden nicht verändert.
+- **Sichere Grafikwahl:** separates `visual_style`-Feld in `user://display.cfg`, vollständig unabhängig von FPS, Grafikqualität, Sprache, Karriere- und Freispiel-Slots. Unbekannte Werte fallen auf Alpin zurück.
+- **Regressionstest:** fünf tatsächlich gerenderte Bildstile, unveränderte Berggeometrie, Höhen, Spielzustand und gespeicherte Einstellung.
+- **Bildstile als echte QA-Szenen:** fünf reproduzierbare 3D-Screenshots im Godot-Workflow (Alpin, Comic, Pastell, Filmisch, Winterklar), je ein vollständiger Blick auf den Berg und das spielbare HUD statt nur Farbmuster.
+- **Baukatalog und Touch-Bedienung:** Zweispaltige, größere Werkzeug-Kategorien, aktive Bauhinweise und Punktezähler; unfertige Pläne lassen sich nicht versehentlich durch einen Kategorie-Wechsel verwerfen.
+- **Flexibles Ingame-HUD:** angepasste Kennzahlen und Kameraleiste auf schmalen Android-Landschaften; der Pisteneditor und seine Aktionsleiste verteilen Elemente automatisch auf mehrere Zeilen. Fehlermeldungen und Bau-Rückmeldungen bleiben sichtbar.
+- **Undo/Redo im Baueditor:** Pisten-, Lift- und Wegpunkte lassen sich einzeln zurücknehmen und wiederherstellen, inklusive Ctrl+Z, Ctrl+Y und Ctrl+Shift+Z. Neue Bearbeitungen oder ein Bauabbruch verwerfen den alten Wiederholen-Verlauf.
+- **Resort-Kompass:** Der rechte Infobereich kann für mehr Platz am Berg eingeklappt werden; Auswahl eines Gastes oder einer Anlage öffnet ihn wieder. Der Zustand bleibt beim Wechsel in die große Kartenansicht erhalten.
+- **Robustere Ladeanzeige:** Der Regressionstest beobachtet einen tatsächlichen Animationswechsel, statt zwei zufällig identische Phasen eines periodischen Symbols zu vergleichen.
+
+### Weitere Ausbaustufen nach diesem Preview
+
+1. **Weitere Ingame-HUD-Arbeit:** zusätzliche frei konfigurierbare Ansichten, konsistente mobile Safe-Areas und Touch-Ziele, Kontrastprüfungen und die vollständige Überarbeitung der Dialoge.
+2. **Berg- und Taloptik:** differenziertere Schneekanten, Felsformationen, Waldgrenze, See-/Bachufer, Hangvegetation, stimmige Nachtszenen und LOD-Stufen mit Android-Performancebudget.
+3. **Bauen und Editieren:** präziserer Finger-/Stift-Treffpunkt, weiter verbesserte Pistenverzweigungen und Andockgeometrie, umfassendere Bearbeitungshistorie sowie bessere Platzierung von Wegen und Gebäuden.
+4. **NPC-Spielsimulation:** individuelle Tagespläne und Fähigkeiten, Gruppeninteraktionen, echte Warteschlangen, Orientierung im Dorf, Wärme-/Hungerbedürfnisse, erkennbare Reaktionen auf Sperrungen und Liftstörungen.
+5. **Betrieb und Wirtschaft:** bessere Priorisierung bei Ausfällen, Reparatur-/Schicht-Dialoge, transparente Prognosen, Betriebsszenarien im normalen Karrieremodus und verständliche Entscheidungen.
+6. **Stabilität:** Speichern/Laden bestehender Karrieren, Android-Appwechsel, Ladefortschritt, Rückwärtskompatibilität und wiederholte Performance-Tests.
+
+### Kompatibilität und Freigabekriterien
+
+- Spielstände von 0.19/0.20 dürfen nicht gelöscht oder durch Grafikstile verändert werden.
+- Die realen Szenarien bleiben für diese Version deaktiviert und ihre Dateien unangetastet.
+- Nur visuelle Daten dürfen sich zwischen den fünf Styles unterscheiden; alle Spielfunktionen und Weltkoordinaten müssen gleich bleiben.
+- Die fünf Stile müssen in Deutsch/Englisch auswählbar, speicherbar und auf Android mit GL Compatibility darstellbar sein.
+- Keine Veröffentlichung ohne vollständig grüne Godot-, Paket-/Signatur- und Android-30/36-Tests. Testartefakte sind keine offiziell veröffentlichten APKs.
+- Weiterreichende NPC-, Verwaltungs- und Kartenverbesserungen bleiben eigenständige Folgearbeiten und sind nicht als vollständig implementiert auszugeben.
+
+---
 
 ## v0.20.2 · Hauptspiel vor Szenarien (02.11.2026)
 
