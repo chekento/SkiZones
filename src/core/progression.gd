@@ -283,7 +283,7 @@ static func refresh(model: RefCounted) -> void:
 				pay_reward(model, minf(3500.0, 450.0+float(new_rank)*12.0))
 		# Consolidate huge retroactive leaps into one animated notification.
 		if model.recent_unlocks.size() < 24:
-			model.recent_unlocks.append({"kind":"rank","title":"MEISTERSCHAFTSRANG %d / 500" % desired_mastery, "detail":"+%d Ränge" % (desired_mastery-mastery), "reward":0})
+			model.recent_unlocks.append({"kind":"rank","title":L.text("MEISTERSCHAFTSRANG %d / 500") % L.args(desired_mastery), "detail":L.text("+%d Ränge") % L.args(desired_mastery-mastery), "reward":0})
 	state.mastery_rank = desired_mastery
 
 static func next_goal(model: RefCounted) -> String:
