@@ -6,6 +6,7 @@ var quality_choice := OptionButton.new()
 var fps_choice := OptionButton.new()
 var style_choice := OptionButton.new()
 var style_hint := Label.new()
+var style_swatches: Array = []
 var snow := CheckButton.new()
 var smoothing := CheckButton.new()
 var language_choice := OptionButton.new()
@@ -41,6 +42,16 @@ func setup(owner_hud: CanvasLayer) -> void:
 	style_hint.add_theme_font_size_override("font_size", 16)
 	style_hint.add_theme_color_override("font_color", hud.TEAL)
 	box.add_child(style_hint)
+	var swatch_row := HBoxContainer.new()
+	swatch_row.add_theme_constant_override("separation", 7)
+	box.add_child(swatch_row)
+	for unused in range(5):
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(45, 24)
+		swatch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		swatch_row.add_child(swatch)
+		style_swatches.append(swatch)
 	style_choice.item_selected.connect(func(index: int): _describe_style(index))
 	hud._label(box, L.text("Bildstil verändert Licht, Schnee und Felsfarben, aber weder Pisten noch Spielstände."), 15, hud.MUTED, true)
 	hud._label(box, L.text("Grafikqualität · unabhängig vom Stil"), 16, hud.MUTED)
@@ -91,3 +102,6 @@ func open() -> void:
 
 func _describe_style(index: int) -> void:
 	style_hint.text = L.text(VisualStyles.DESCRIPTIONS[clampi(index, 0, VisualStyles.IDS.size() - 1)])
+	var colors: Dictionary = VisualStyles.palette(VisualStyles.IDS[clampi(index, 0, VisualStyles.IDS.size() - 1)])
+	for i in range(style_swatches.size()):
+		style_swatches[i].color = Color(colors[["top", "horizon", "snow", "rock", "ambient"][i]])
