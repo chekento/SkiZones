@@ -72,8 +72,8 @@ func build(view: Node3D) -> void:
 	for building in view.model.buildings:
 		_disk(blocked, Terrain.unpack(building.point), 29 if building.kind == "hotel" else 23)
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
-	var foliage_tint: Color = Color(style.ambient).lerp(Color.WHITE, 0.75)
-	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.65)
+	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
+	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
 	var chunks: Dictionary = {}
 	var rocks: Array = []
 	var used := 0
@@ -114,7 +114,7 @@ func apply_style(view: Node3D) -> void:
 	# Recolor existing instances instead of regenerating 11,000 forest
 	# candidates, blocking footprints or mountain meshes on each style switch.
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
-	var foliage: Color = Color(style.ambient).lerp(Color.WHITE, 0.75)
+	var foliage: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
 	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.72)
 	for group in groups:
 		var mesh: MultiMesh = group.node.multimesh
@@ -122,7 +122,7 @@ func apply_style(view: Node3D) -> void:
 		for i in range(tints.size()):
 			mesh.set_instance_color(i, Color(tints[i]) * tree_base * foliage)
 	if view.rocks.multimesh != null:
-		var tint: Color = Color(style.rock).lerp(Color.WHITE, 0.65)
+		var tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
 		for i in range(view.rocks.multimesh.instance_count):
 			view.rocks.multimesh.set_instance_color(i, tint)
 
