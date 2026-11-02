@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **23 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **24 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2)** | 02.11.2026 | Hauptspiel vor Szenarien | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk) | [Details](docs/releases/0.20.2.md) |
 | **[v0.20.0](https://github.com/chekento/SkiZones/releases/tag/v0.20.0)** | 01.11.2026 | kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk) | [Details](docs/releases/0.20.0.md) |
 | **[v0.19.0](https://github.com/chekento/SkiZones/releases/tag/v0.19.0)** | 01.11.2026 | PMDD-Winterbranding und vollflächiger Ladebildschirm | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk) | [Details](docs/releases/0.19.0.md) |
 | **[v0.18.0](https://github.com/chekento/SkiZones/releases/tag/v0.18.0)** | 31.10.2026 | Anlagen direkt verwalten und leichter anschließen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk) | [Details](docs/releases/0.18.0.md) |
@@ -33,6 +34,29 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.20.2 · Hauptspiel vor Szenarien (02.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.20.2) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk)** (44.4 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.20.2/manifest.json) · [Originalnotizen](docs/releases/0.20.2.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.20.2)
+
+Diese Android-Preview konzentriert sich auf **Karrieren, freien Aufbau und acht Fantasiegebiete**. Die Szenarien sind aus dem Menü und der normalen Gebietssteuerung entfernt. Bereits vorhandene Szenario-Dateien bleiben unverändert auf dem Gerät, werden aber nicht mehr automatisch geöffnet. Die OSM-Daten und Szenario-Implementierungen bleiben als Entwicklungsarchiv bestehen.
+
+### Wichtigste Änderungen
+
+- **Karriere retten:** Die noch nicht veröffentlichte Korrektur aus 0.20.1 bleibt erhalten. Alte 0.19.0-Karrieredateien werden mit dem Originalrelease erzeugt und anschließend mit unveränderten Checksummen, Pisten, Liften, Gebäuden, Budget und Karrierefortschritt geprüft. Ist nur der flüchtige Gastzustand beschädigt, wird die geprüfte Dauerwelt nach Sicherung der Originaldatei wiederhergestellt.
+- **Echter Ladefortschritt:** Die 0.20.1-Fortschrittsanzeigen für Datei, Prüfsumme, Bauwerke, Routen, Gelände und Landschaft bleiben aktiv. Zeit, Objektzähler und laufende Animation unterscheiden Ladefortschritt von Stillstand. Die Szenario-Karten werden bei der Hauptspielinitialisierung nicht mehr erstellt.
+- **Android-Stabilität:** Der API-36-Emulatortest hängt nicht mehr unnötig bis zu 60 Sekunden im `am start -W` des Betriebssystems. Stattdessen wird gestartet und der tatsächliche Vordergrundstatus geprüft. Spielgrafik, Prozesswechsel, Touch, Installation und Hashgleichheit der vier Karriere-Dateisätze bleiben harte Voraussetzungen.
+- **Freigabeprüfung:** Szenario-Tests werden aus dem nächsten Release-Gate ausgeklammert. Pflicht bleiben die normalen Karriere-, Pisten-, Gäste-, Betriebs-, Render-, Speicher- und Android-Prüfungen. Ein neuer Test prüft ausdrücklich, dass Szenarien nicht angeboten und alte Dateipfade nicht verändert werden.
+
+### Versionsinformation
+
+Version **0.20.2**, Android-Versioncode **27**. Dies ist eine geplante Preview, noch **nicht veröffentlicht**. Bis zu erfolgreich abgeschlossener CI und signierter APK bleibt v0.20.0 der letzte öffentliche Download.
+
+### Einschränkungen
+
+Der private alte Spielstand des betroffenen Android-Geräts liegt nicht vor. Die Wiederherstellung wird anhand echter mit v0.19.0 erzeugter Testdateien geprüft, jedoch nicht anhand des konkreten Gerätestands. Durch Deinstallation bereits gelöschte App-Daten können durch eine neue APK nicht rekonstruiert werden.
+
+---
 
 ## v0.20.0 · kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr (01.11.2026)
 
