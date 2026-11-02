@@ -54,6 +54,9 @@ var credits := AcceptDialog.new()
 var community := AcceptDialog.new()
 var data_credit := Label.new()
 var map_panels: Array = []
+var compact_header_columns: Array = []
+var compact_camera_buttons: Array = []
+var compact_layout := false
 var labels: Dictionary = {}
 var tool_buttons: Dictionary = {}
 var inspector_title := Label.new()
@@ -301,6 +304,18 @@ func _update_safe_area() -> void:
 	loading_margins.add_theme_constant_override("margin_left", 30 + roundi(content.position.x))
 	loading_margins.add_theme_constant_override("margin_right", 30 + roundi(size_value.x - content.end.x))
 	loading_margins.add_theme_constant_override("margin_bottom", 20 + roundi(size_value.y - content.end.y))
+	_update_responsive_layout(content.size.x)
+
+func _update_responsive_layout(available_width: float) -> void:
+	# The wider desktop HUD has five KPIs and all shortcuts. Phone-sized
+	# viewports retain the critical stats and actions without overflowing.
+	compact_layout = available_width < 1160.0
+	for column in compact_header_columns:
+		column.visible = not compact_layout
+	for button in compact_camera_buttons:
+		button.visible = not compact_layout
+	if labels.has("weather"):
+		labels.weather.custom_minimum_size.x = 100 if compact_layout else 145
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -387,6 +402,7 @@ func _build_header() -> void:
 	for item in [["money", L.text("BUDGET")], ["guests", L.text("GÄSTE")], ["rep", L.text("RUF")], ["rides", L.text("ABFAHRTEN")], ["clock", L.text("BETRIEBSTAG")]]:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if item[0] in ["rep", "rides"]: compact_header_columns.append(column)
 		_label(column, item[1], 12, MUTED)
 		labels[item[0]] = _label(column, "—", 22)
 	_button(box, L.text("Speichern"), game.save_game)
@@ -505,12 +521,15 @@ func _build_camera_bar() -> void:
 	labels.weather.clip_text = true
 	labels.weather.custom_minimum_size.x = 145
 	labels.weather.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_button(box, L.text("Gebiete"), show_atlas).custom_minimum_size.y = 40
+	var regions_button: Button = _button(box, L.text("Gebiete"), show_atlas)
+	regions_button.custom_minimum_size.y = 40
+	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
+	compact_camera_buttons.append(slopes_button)
 	slopes_button.tooltip_text = L.text("Höhenlinien alle 20 m, Höhenangaben und Pfeile bergab. Hangneigung und Pistenverlauf sind verschieden.")
 	map_focus_button = _button(box, L.text("Mehr Karte"), func(): set_map_focus(not map_focus))
 	map_focus_button.custom_minimum_size.y = 40
@@ -522,6 +541,7 @@ func _build_camera_bar() -> void:
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], [L.text("Tal"), func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
 		button.custom_minimum_size = Vector2(48, 40)
+		compact_camera_buttons.append(button)
 	for child in box.get_children():
 		if child is Button:
 			child.add_theme_font_size_override("font_size", 16)
