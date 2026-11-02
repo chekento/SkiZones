@@ -3517,3 +3517,6 @@ msgstr "Show details"
 
 msgid "Info ausblenden"
 msgstr "Hide details"
+
+msgid "Gäste"
+msgstr "Guests"
