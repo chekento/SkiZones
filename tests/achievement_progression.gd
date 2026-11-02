@@ -2,6 +2,7 @@ extends SceneTree
 const Resort = preload("res://src/core/resort.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Book = preload("res://src/core/achievement_book.gd")
+const Sponsorship = preload("res://src/core/sponsorship.gd")
 var passed := 0
 var failed := 0
 
@@ -75,5 +76,31 @@ func run() -> void:
 	check(model.campaign.rank >= 1 and model.campaign.rank <= 5,
 		"Mastery preserves all five original career-star gates")
 	model.campaign.xp = current_xp
+	var sponsor_model := Resort.new()
+	sponsor_model.new_game(true)
+	check(Sponsorship.check(sponsor_model,"winter_cocoa").ok,
+		"A starter resort can affordably enter regional sponsorship")
+	var signed := Sponsorship.sign(sponsor_model,"winter_cocoa")
+	check(signed.ok and not Sponsorship.sign(sponsor_model,"winter_cocoa").ok,
+		"Only one seven-day sponsor contract may be active")
+	var sponsor_cash: float = sponsor_model.money
+	var first_reward: float = Sponsorship.daily_reward(sponsor_model)
+	check(first_reward > 0 and sponsor_model.money == sponsor_cash+first_reward,
+		"An active lift generates a clear sponsor payment")
+	check(Sponsorship.daily_reward(sponsor_model) == 0 and sponsor_model.money == sponsor_cash+first_reward,
+		"Recalculating one day cannot double-pay sponsorship")
+	var saved_sponsor: Dictionary = sponsor_model.snapshot()
+	var sponsor_copy := Resort.new()
+	sponsor_copy.new_game(false)
+	check(sponsor_copy.restore(saved_sponsor).ok and
+		Sponsorship.daily_reward(sponsor_copy) == 0,
+		"Paid sponsorship state survives saves without duplicate income")
+	sponsor_model.day += Sponsorship.CONTRACT_DAYS
+	check(Sponsorship.daily_reward(sponsor_model) == 0 and Sponsorship.check(sponsor_model,"alpine_craft").ok == false,
+		"An expired sponsor cannot pay beyond the seventh business day")
+	var corrupted := sponsor_copy.snapshot()
+	corrupted.campaign.sponsor.end = -1
+	check(not sponsor_copy.restore(corrupted).ok,
+		"Invalid or forged sponsor agreements are rejected")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
