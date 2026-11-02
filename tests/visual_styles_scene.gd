@@ -22,6 +22,9 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	game.start_game(false)
+	# Synchronize the view after the new resort replaces the bootstrap model.
+	# Otherwise the first style swap also performs the outstanding terrain rebuild.
+	game.view.rebuild()
 	game.paused = true
 	game.set_process(false)
 	game.view.set_process(false)
