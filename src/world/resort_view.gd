@@ -270,10 +270,21 @@ func _build_environment() -> void:
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf((height_value - (terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0)) / 420.0, 0, 1))
+	var relative_height: float = height_value - (terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0.0)
+	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf(relative_height / 420.0, 0, 1))
+	# Banded rock ledges and sheltered blue valleys add visible topographic
+	# detail without changing the collision mesh, lift cables or saved routes.
+	var wind_ripple := sin(point.x * 0.027 + point.y * 0.017) * cos(point.y * 0.039 - point.x * 0.013)
+	var rock_band := sin(height_value * 0.043 + point.x * 0.012 + wind_ripple * 1.2)
+	var cliff := smoothstep(26.0, 72.0, grade)
+	snow = snow.lerp(Color("8f9fae"), cliff * (0.23 + 0.28 * smoothstep(-0.2, 0.7, rock_band)))
+	var sheltered := (1.0 - smoothstep(15.0, 250.0, relative_height)) * (1.0 - cliff)
+	snow = snow.lerp(Color("d4e9f1"), sheltered * 0.12)
+	var powder := 0.024 * (0.5 + 0.5 * sin(point.x * 0.053 + point.y * 0.029 + wind_ripple))
+	snow = snow.lerp(Color("ffffff"), powder * (1.0 - cliff))
 	if grade > 38:
-		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.74))
-	return VisualStyles.ground_color(snow.darkened(0.018 + sin(point.x * 0.047 + point.y * 0.027) * 0.018), grade, visual_style)
+		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.42))
+	return VisualStyles.ground_color(snow.darkened(0.014 + wind_ripple * 0.012), grade, visual_style)
 
 func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
 	var nx := ceili(bounds.size.x / step_size) + 1
