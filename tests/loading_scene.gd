@@ -24,9 +24,18 @@ func run() -> void:
 	await process_frame
 	var full:=Rect2(Vector2.ZERO,root.get_visible_rect().size)
 	check(game.hud.loading.get_global_rect().position.distance_to(full.position)<0.1 and game.hud.loading.size.distance_to(full.size)<0.1,"PMDD loading art covers the full display even with asymmetric HUD safe insets")
+	# The indicator intentionally ping-pongs: phase 1 and phase 3 look the
+	# same. Comparing only two samples 550 ms apart can report a false stall.
+	# Observe at least one actual frame transition instead of relying on phase.
 	var activity: String = game.hud.loading_activity.text
-	await create_timer(0.55).timeout
-	check(game.hud.loading_activity.text!=activity and is_equal_approx(game.hud.loading_progress.value,12.3),"A live activity indicator animates without faking completed progress")
+	var indicator_changed := false
+	var indicator_deadline := Time.get_ticks_msec() + 1250
+	while Time.get_ticks_msec() < indicator_deadline:
+		await process_frame
+		if game.hud.loading_activity.text != activity:
+			indicator_changed = true
+			break
+	check(indicator_changed and is_equal_approx(game.hud.loading_progress.value,12.3),"A live activity indicator animates without faking completed progress")
 	game.hud.loading.hide()
 	var done:=[false]
 	var start:=func():
