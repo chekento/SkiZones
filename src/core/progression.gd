@@ -4,6 +4,7 @@ const L = preload("res://src/core/i18n.gd")
 
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
@@ -29,7 +30,7 @@ const CONTRACTS := {
 }
 
 static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary:
-	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
+	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "mastery_rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
 
 static func has(model: RefCounted, id: String) -> bool:
 	return model.campaign.get("research", []).has(id)
@@ -270,6 +271,20 @@ static func refresh(model: RefCounted) -> void:
 		state.points += 3
 		pay_reward(model, state.rank * 7500)
 		set_notice(state,"Resort-Stern %d erreicht: %s.",[state.rank,RANK_NAMES[state.rank-1]])
+	# The 500 mastery ranks complement (rather than override) five
+	# research-gated resort stars. Costs and unlocks stay stable for old saves.
+	var desired_mastery: int = AchievementBook.mastery_for_xp(float(state.xp))
+	var mastery: int = int(state.get("mastery_rank",desired_mastery))
+	if mastery < desired_mastery:
+		for new_rank in range(mastery+1,desired_mastery+1):
+			if new_rank % 10 == 0:
+				state.points += 1
+			if new_rank % 5 == 0:
+				pay_reward(model, minf(3500.0, 450.0+float(new_rank)*12.0))
+		# Consolidate huge retroactive leaps into one animated notification.
+		if model.recent_unlocks.size() < 24:
+			model.recent_unlocks.append({"kind":"rank","title":"MEISTERSCHAFTSRANG %d / 500" % desired_mastery, "detail":"+%d Ränge" % (desired_mastery-mastery), "reward":0})
+	state.mastery_rank = desired_mastery
 
 static func next_goal(model: RefCounted) -> String:
 	match int(model.campaign.rank):
@@ -325,7 +340,11 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	if not value is Dictionary or value.get("version") != 1 or value.get("mode") not in ["career", "free"]:
 		return false
 	var state: Dictionary = value.duplicate(true)
-	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
+	# Migrated 0.19–0.21 games start at their earned XP rank; no
+	# automatic retroactive payouts are triggered just by loading.
+	if not state.has("mastery_rank"):
+		state.mastery_rank = AchievementBook.mastery_for_xp(float(state.get("xp",0)))
+	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "mastery_rank": [1, 500], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
 	for key in ranges:
 		if not Terrain.number(state.get(key)) or state[key] < ranges[key][0] or state[key] > ranges[key][1]:
 			return false
