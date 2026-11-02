@@ -101,19 +101,29 @@ def main():
         def launch():
             # Use the same MAIN/LAUNCHER intent as the app icon and require
             # an actual foreground activity, rather than am's exit code.
-            deadline = time.monotonic() + 45
+            # The Android 36 emulator may block on am start -W despite accepting
+            # a launcher intent. Verify the actual resumed activity separately.
+            deadline = time.monotonic() + 60
             result = b""
+            activity = ""
             while time.monotonic() < deadline:
-                result = adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN",
-                             "-c", "android.intent.category.LAUNCHER", "-n", component, timeout=60)
-                activity = adb("shell", "dumpsys", "activity", "activities").decode(errors="replace")
-                if any(PACKAGE in line and ("mResumedActivity" in line or "topResumedActivity" in line)
-                       for line in activity.splitlines()):
-                    return
-                time.sleep(0.5)
+                try:
+                    result = adb("shell", "am", "start", "-a", "android.intent.action.MAIN",
+                                 "-c", "android.intent.category.LAUNCHER", "-n", component, timeout=15)
+                    activity = adb("shell", "dumpsys", "activity", "activities",
+                                   timeout=15).decode(errors="replace")
+                    if any(PACKAGE in line and ("mResumedActivity" in line or "topResumedActivity" in line)
+                           for line in activity.splitlines()):
+                        return
+                except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+                    result = str(exc).encode()
+                time.sleep(1)
             (args.output / "failed-launch.txt").write_bytes(result)
             (args.output / "failed-launch-activities.txt").write_text(activity)
-            (args.output / "failed-launch-package.txt").write_bytes(adb("shell", "dumpsys", "package", PACKAGE))
+            try:
+                (args.output / "failed-launch-package.txt").write_bytes(adb("shell", "dumpsys", "package", PACKAGE))
+            except subprocess.SubprocessError:
+                pass
             raise AssertionError("Android did not foreground the installed game: " + result.decode(errors="replace"))
 
         def playable(state):
@@ -201,25 +211,9 @@ def main():
                              and math.dist(s["picking"]["point"], hit["destination"]) < 0.9)
             capture(f"dragging-mode-{mode}", state)
         adb("shell", "run-as", PACKAGE, "rm", request_path)
-        # Verify bundled real-map resources and worker-based loading in Android.
-        scenario_path = health_path.rsplit("/", 1)[0] + "/scenario-ci.json"
-        scenario_file = args.output / "scenario-request.json"
-        scenario_file.write_text(json.dumps(dict(map="braunlage")))
-        adb("push", str(scenario_file), "/data/local/tmp/skizones-scenario.json")
-        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-scenario.json", scenario_path)
-        state = wait_for(lambda s: s.get("scenario") == "ready" and s["map"] == "braunlage", seconds=180)
-        assert state["lifts"] == 9 and state["pistes"] == 26 and state["elevation"] > 500
-        assert state["guests"] and state["staff"] > 0, state
-        capture("real-wurmberg", state)
-        before = state
-        adb("shell", "input", "keyevent", "KEYCODE_HOME")
-        time.sleep(2)
-        adb("shell", "am", "force-stop", PACKAGE)
-        launch()
-        state = wait_for(lambda s: s["boot"] != before["boot"] and s["map"] == "braunlage"
-                         and s.get("scenario") == "ready" and s.get("frames", 0) >= 5, seconds=180)
-        assert state["paused"] and state["guests"] == before["guests"] and state["staff"] == before["staff"]
-        capture("restored-real-wurmberg", state)
+        # In main-only releases the normal resort remains the active session.
+        # Scenario-specific assets and UI are not exercised by this gate.
+        assert state["map"] == "sonnenhang", "A scenario replaced the main-mode session"
         # Exercise the real browser handoff, then Android package replacement.
         # Four careers must survive both operations byte-for-byte.
         update_request_path = health_path.rsplit("/", 1)[0] + "/update-ci.json"

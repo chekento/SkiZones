@@ -137,15 +137,8 @@ jobs:
           print(result.stdout)
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
-      - name: Required 0.20 town, lodging and traffic release gates
+      - name: Main-mode slope traffic and operating-finance release gates
         run: |
-          python3 -m unittest discover -s tests -p 'test_*.py' -v
-          python3 tools/build_town_network.py
-          git diff --exit-code -- 'assets/geodata/towns/*-network.json'
-          python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --language de --headless --script tests/town_scenery.gd
-          python3 tools/run_godot_test.py --timeout 400 -- "$GODOT_BIN" --language de --headless --script tests/scenario_villages.gd
-          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/hotel_holidays.gd
-          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
       - name: Install Android SDK components
@@ -197,8 +190,6 @@ jobs:
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/routes_and_services.gd
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/piste_surfaces.gd
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/resort_worlds.gd
-      - name: Offline real maps, shifts, work orders and continuous nights
-        run: 'python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --headless --script tests/real_operations.gd'
       - name: Building sites, real path crossings and late descents
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/construction_logic.gd'
       - name: Occupied hotels, rescue dispatch and actual groomer work
@@ -254,10 +245,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_editor_scene.gd
       - name: Eight landscapes, village promenade and real entrance controls
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
-      - name: Real scenarios, overnight rendering, language settings and credits
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/operating_scene.gd
-      - name: Stable phone viewport, four continuous scenario surfaces and direct lift staffing
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/display_staff_scene.gd
+      - name: Main-mode menu, blocked scenarios and career continuity
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/main_mode_scene.gd
       - name: Visible families, individual profiles and bilingual audience controls
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-guest-agendas

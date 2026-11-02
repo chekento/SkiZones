@@ -160,6 +160,9 @@ func simulation_running() -> bool:
 	return has_game and not _app_background and not paused and points.is_empty() and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
+	if not Maps.FANTASY_MAPS.has(area):
+		hud.toast(L.text("Szenarien sind in dieser Version nicht verfügbar. Deine Spielstände bleiben erhalten."))
+		return
 	if prepared != null:
 		model = prepared
 		view.model = model
@@ -241,7 +244,8 @@ func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
 
 func _restore_android_session() -> void:
 	var state := app_session.read_state()
-	if state.is_empty(): return
+	# Preserve dormant scenario saves without opening them on normal-mode startup.
+	if state.is_empty() or not Maps.FANTASY_MAPS.has(state.map): return
 	var slot:=SaveStore.slot_from_state(state)
 	if state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map,slot)): return
 	var prepared := await _prepare_area(state.map, true,slot)
@@ -261,6 +265,9 @@ func _restore_android_session() -> void:
 
 func enter_area(area: String) -> void:
 	if hud.loading.visible: return
+	if not Maps.FANTASY_MAPS.has(area):
+		hud.toast(L.text("Szenarien sind in dieser Version nicht verfügbar. Deine Spielstände bleiben erhalten."))
+		return
 	if not passport.unlocked(area):
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
@@ -289,7 +296,7 @@ func enter_area(area: String) -> void:
 
 func continue_game() -> void:
 	if not has_game:
-		await enter_area(passport.data.last_map)
+		await enter_area(main_game_area())
 		return
 	hud.hide_menu()
 	hud.atlas.hide()
