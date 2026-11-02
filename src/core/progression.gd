@@ -278,10 +278,10 @@ static func refresh(model: RefCounted) -> void:
 	var mastery: int = int(state.get("mastery_rank",desired_mastery))
 	if mastery < desired_mastery:
 		for new_rank in range(mastery+1,desired_mastery+1):
+			# Mastery awards research points, not an extra payment on top of
+			# contracts. Keeps the displayed contract cash reward exact.
 			if new_rank % 10 == 0:
 				state.points += 1
-			if new_rank % 5 == 0:
-				pay_reward(model, minf(3500.0, 450.0+float(new_rank)*12.0))
 		# Consolidate huge retroactive leaps into one animated notification.
 		if model.recent_unlocks.size() < 24:
 			model.recent_unlocks.append({"kind":"rank","title":L.text("MEISTERSCHAFTSRANG %d / 500") % L.args(desired_mastery), "detail":L.text("+%d Ränge") % L.args(desired_mastery-mastery), "reward":0})
