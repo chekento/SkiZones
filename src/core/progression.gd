@@ -287,6 +287,13 @@ static func refresh(model: RefCounted) -> void:
 			model.recent_unlocks.append({"kind":"rank","title":L.text("MEISTERSCHAFTSRANG %d / 500") % L.args(desired_mastery), "detail":L.text("+%d Ränge") % L.args(desired_mastery-mastery), "reward":0})
 	state.mastery_rank = desired_mastery
 
+static func construction_xp(tool: String, remodeling: bool = false) -> int:
+	# Building earns XP even before the first visitor boards a lift.
+	# Editing awards less than creating new infrastructure to discourage spam.
+	if remodeling: return 35
+	return {"piste": 140, "lift": 220, "building": 110,
+		"walkway": 50, "plaza": 70}.get(tool, 0)
+
 static func next_goal(model: RefCounted) -> String:
 	match int(model.campaign.rank):
 		1: return L.text("800 Erfahrung und zwei erreichbare Abfahrten für Stern 2.")
