@@ -30,7 +30,7 @@ func run() -> void:
 	var height_before: float = game.model.terrain.height(Vector2(240, -150))
 	var map_before: String = game.model.map_id
 	var revision_before: int = game.model.revision
-	var terrain_vertices: int = game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size()
+	var original_vertices: PackedVector3Array = game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].duplicate()
 	var alpine_color: Color = game.view._ground_color(Vector2(300, -150), 400.0, 65.0)
 	check(Styles.IDS.size() == 5 and game.hud.display_options.style_choice.item_count == 5, "Five selectable styles are offered in the real graphics screen")
 	check(Styles.valid("not-a-style") == "alpine", "Unknown saved style falls back to classic alpine")
@@ -40,7 +40,7 @@ func run() -> void:
 		preferences.apply(game.view)
 		var sample: Color = game.view._ground_color(Vector2(300, -150), 400.0, 65.0)
 		distinct[str(sample)] = true
-		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() == terrain_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
+		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] == original_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
 	check(distinct.size() == Styles.IDS.size(), "All five styles produce different snow and rock colors")
 	check(game.model.map_id == map_before and is_equal_approx(game.model.terrain.height(Vector2(240, -150)), height_before) and game.model.revision == revision_before, "Switching styles does not change the mountain or game state")
 	preferences.visual_style = "cinematic"
