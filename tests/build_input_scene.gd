@@ -101,8 +101,10 @@ func run() -> void:
 	game.hud._update_responsive_layout(920.0)
 	check(game.hud.compact_layout and game.hud.compact_header_columns.all(func(node): return not node.visible), "Narrow Android HUD retains key indicators and hides secondary KPIs")
 	check(game.hud.compact_camera_buttons.all(func(node): return not node.visible) and game.hud.map_focus_button.visible, "Narrow camera bar retains essential controls without overflowing")
+	check(game.hud.piste_controls is HFlowContainer and game.hud.labels.status.visible and game.hud.undo_button.text == "↶" and game.hud.redo_button.text == "↷", "Compact build controls wrap into rows while retaining status, undo and redo")
 	game.hud._update_responsive_layout(1440.0)
 	check(not game.hud.compact_layout and game.hud.compact_header_columns.all(func(node): return node.visible) and game.hud.compact_camera_buttons.all(func(node): return node.visible), "Wide desktop HUD restores the full navigation and stats")
+	check(game.hud.undo_button.text == "Letzten Punkt zurück" and game.hud.redo_button.text == "Punkt wiederholen", "Desktop restores readable full-size build action labels")
 	game.clear_plan()
 	game.set_tool("piste")
 	game.points = [[220,-180],[260,30]]
@@ -112,6 +114,15 @@ func run() -> void:
 	check(game.points.size() == remembered.size() - 1 and game.undone_points.size() == 1 and not game.hud.redo_button.disabled, "Undo preserves a removed piste point for explicit redo")
 	game.redo_point()
 	check(game.points == remembered and game.undone_points.is_empty() and game.hud.redo_button.disabled, "Redo accurately restores the removed piste waypoint")
+	var key := InputEventKey.new()
+	key.pressed = true
+	key.ctrl_pressed = true
+	key.keycode = KEY_Z
+	game._input(key)
+	check(game.points.size() == remembered.size() - 1 and game.undone_points.size() == 1, "Ctrl+Z removes the latest planned waypoint")
+	key.keycode = KEY_Y
+	game._input(key)
+	check(game.points == remembered and game.undone_points.is_empty(), "Ctrl+Y redoes the last planned waypoint")
 	game.undo_point()
 	game.clear_plan()
 	game.redo_point()
