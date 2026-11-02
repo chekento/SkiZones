@@ -338,7 +338,8 @@ func _update_responsive_layout(available_width: float) -> void:
 		if not compact_layout and not confirm_button.tooltip_text.is_empty() and confirm_button.text == action_name:
 			confirm_button.text = confirm_button.tooltip_text
 	if labels.has("status"):
-		labels.status.visible = not compact_layout
+		labels.status.visible = true
+		labels.status.custom_minimum_size.x = 120 if compact_layout else 170
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -507,8 +508,9 @@ func _build_plan_bar() -> void:
 	piste_width_choice.item_selected.connect(func(index): game.set_piste_width(piste_width_choice.get_item_id(index)))
 	piste_controls.add_child(piste_width_choice)
 	piste_width_total = _label(piste_controls, "", 15, MUTED)
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 10)
+	var actions := HFlowContainer.new()
+	actions.add_theme_constant_override("h_separation", 10)
+	actions.add_theme_constant_override("v_separation", 6)
 	box.add_child(actions)
 	confirm_button = _button(actions, L.text("Bauen"), game.confirm_plan, true)
 	confirm_button.custom_minimum_size.x = 165
@@ -1037,7 +1039,7 @@ func refresh() -> void:
 func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -> void:
 	plan_text.text = message
 	piste_controls.visible = current_tool == "piste"
-	plan_panel.offset_top = (-310 if compact_layout else -204) if current_tool == "piste" else (-206 if compact_layout else -156)
+	plan_panel.offset_top = (-340 if compact_layout else -224) if current_tool == "piste" else (-230 if compact_layout else -174)
 	piste_width_choice.select(piste_width_choice.get_item_index(roundi(game.chosen_piste_width())))
 	var extra := 0
 	if game.editing_id != -1: extra = (int(game.model.asset(game.editing_id).get("level", 1)) - 1) * 4
