@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Progression = preload("res://src/core/progression.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
@@ -58,6 +59,7 @@ var walk_areas: Array = []
 var parties: Array=[]
 var guests: Array = []
 var achievements: Array = []
+var recent_unlocks: Array = []
 var report: Dictionary = {}
 var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
@@ -130,6 +132,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	parties.clear()
 	portal_path.clear()
 	achievements.clear()
+	recent_unlocks.clear()
 	last_report.clear()
 	rng.seed = game_seed + Maps.MAPS.keys().find(map_id) * 7919
 	campaign = Progression.new_state(self, not starter)
@@ -1907,6 +1910,12 @@ func _check_achievements() -> void:
 			achievements.append(i)
 			money += rewards[i]
 			report.rewards += rewards[i]
+	var new_awards: Array = AchievementBook.unlock(self)
+	for award in new_awards:
+		recent_unlocks.append({"kind": "achievement", "title": award.name, "detail": award.goal, "reward": award.reward})
+	# Keep a bounded HUD queue even when a migrated resort satisfies many milestones.
+	if recent_unlocks.size() > 24:
+		recent_unlocks = recent_unlocks.slice(recent_unlocks.size() - 24)
 
 func operating_costs(include_staff: bool = true) -> float:
 	var amount := 450.0 + lifts.size() * 80 + buildings.size() * 35
@@ -2383,9 +2392,13 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				break
 			if not Terrain.number(data[key].get(field)) or data[key][field] < 0:
 				return invalid
+	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL:
+		return invalid
+	var achievement_seen := {}
 	for achievement in data.achievements:
-		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement > 3:
+		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement >= AchievementBook.START_ID + AchievementBook.TOTAL or achievement_seen.has(int(achievement)):
 			return invalid
+		achievement_seen[int(achievement)] = true
 	if not data.get("rng_seed") is String or not data.get("rng_state") is String or not data.rng_seed.is_valid_int() or not data.rng_state.is_valid_int():
 		return invalid
 	for key in ranges:
@@ -2395,6 +2408,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	buildings = data.buildings.duplicate(true)
 	walk_areas = data.walk_areas.duplicate(true)
 	achievements.clear()
+	recent_unlocks.clear()
 	for achievement in data.achievements:
 		achievements.append(int(achievement))
 	report = data.report.duplicate(true)
