@@ -65,6 +65,7 @@ var inspector_actions := VBoxContainer.new()
 var plan_text := Label.new()
 var confirm_button: Button
 var undo_button: Button
+var redo_button: Button
 var clear_button: Button
 var delete_point_button: Button
 var suggest_route_button: Button
@@ -489,6 +490,7 @@ func _build_plan_bar() -> void:
 	confirm_button = _button(actions, L.text("Bauen"), game.confirm_plan, true)
 	confirm_button.custom_minimum_size.x = 165
 	undo_button = _button(actions, L.text("Letzten Punkt zurück"), game.undo_point)
+	redo_button = _button(actions, L.text("Punkt wiederholen"), game.redo_point)
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
@@ -1027,6 +1029,8 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	confirm_button.visible = current_tool != "inspect"
 	undo_button.visible = current_tool in ["piste","lift","walkway"]
 	undo_button.disabled = point_count == 0
+	redo_button.visible = current_tool in ["piste", "lift", "walkway"]
+	redo_button.disabled = game.undone_points.is_empty()
 	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	waypoint_choice.visible = game.tool == "piste" and point_count > 0
