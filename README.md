@@ -37,7 +37,13 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## In Entwicklung: 0.20.2 · Fokus auf den normalen Spielmodus
+## In Entwicklung: 0.21.0 · Menü-Neustart, fünf Bildstile und detailliertere Bergwelt
+
+Für die nächste Preview werden die Spielmenüs nach **Spielen, Resort-Verwaltung, Grafik & Steuerung sowie Service** neu strukturiert. Im Einstellungsmenü sind bereits **Alpin, Comic, Pastell, Filmisch und Winterklar** als getrennte, dauerhaft gespeicherte Darstellungsstile vorgesehen. Schnee, Hänge, Felsen, Wald und Atmosphäre erhalten zusätzliche rein grafische Details, ohne das Berggelände oder vorhandene Pisten zu verändern.
+
+**0.21.0 ist noch ein Entwicklungsstand; die weitergehende HUD-, NPC-, Bau- und Wirtschaftssimulation bleibt Teil des Arbeitsplans.** Die vollständige Funktions- und Android-Freigabe ist erforderlich. [Änderungen und verbleibende Aufgaben für 0.21.0](docs/releases/0.21.0.md).
+
+## Rückblick: Vorbereitet in 0.20.2 · Fokus auf den normalen Spielmodus
 
 Die Szenarien werden **vorerst aus dem spielbaren Umfang entfernt**. Karriere, freier Aufbau und die acht Fantasiegebiete bleiben verfügbar. Frühere Szenario-Dateien werden **nicht gelöscht**, die Daten bleiben archiviert. Die geplante 0.20.2 führt die noch unveröffentlichte Reparatur von v0.20.1 weiter: **0.19-Karrieren laden, bestehende Pisten behalten, Ladefortschritt sichtbar machen** sowie Android-Start, App-Wechsel und Installation ohne Verlust der vier Karriere-Slots prüfen.
 
