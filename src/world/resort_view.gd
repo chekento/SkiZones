@@ -1661,6 +1661,25 @@ func _rider_pose(guest: Dictionary) -> Dictionary:
 			transform_value.basis = transform_value.basis.rotated(Vector3.UP, PI)
 	return {"transform": transform_value, "seated": Fleet.family(lift) in ["chair", "gondola"]}
 
+func _recolor_ground_mesh(source: Mesh) -> ArrayMesh:
+	# Retain exactly the original vertices, normals, indices and triangulation.
+	# Rebuilding the mountain from scratch can silently change refined cells.
+	var arrays: Array = source.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var colors := PackedColorArray()
+	colors.resize(vertices.size())
+	for index in range(vertices.size()):
+		var point: Vector3 = vertices[index]
+		var normal: Vector3 = normals[index]
+		var grade: float = Vector2(normal.x, normal.z).length() / maxf(normal.y, 0.01) * 100.0
+		colors[index] = _ground_color(Vector2(point.x, point.z), point.y, grade)
+	arrays[Mesh.ARRAY_COLOR] = colors
+	var recolored := ArrayMesh.new()
+	recolored.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	recolored.set_meta("ground_cell", source.get_meta("ground_cell", 32.0))
+	return recolored
+
 func set_visual_style(id: String) -> void:
 	var chosen: String = VisualStyles.valid(id)
 	if visual_style == chosen:
@@ -1669,11 +1688,11 @@ func set_visual_style(id: String) -> void:
 	_atmosphere_tick = ""
 	if not is_instance_valid(terrain_instance):
 		return
-	# Style switches regenerate only presentation; mountain geometry, Pisten,
-	# guests, finances and save files are never changed.
+	# Materials change, but the mesh topology, collision, stored piste routes
+	# and every gameplay coordinate remain completely untouched.
+	terrain_instance.mesh = _recolor_ground_mesh(terrain_instance.mesh)
 	if is_instance_valid(scenery_instance):
-		scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
-	_terrain_grading = -1
+		scenery_instance.mesh = _recolor_ground_mesh(scenery_instance.mesh)
 	rebuild()
 	_update_atmosphere()
 
