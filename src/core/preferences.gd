@@ -1,6 +1,7 @@
 extends RefCounted
 var path := "user://display.cfg"
 var quality := "auto"
+var visual_style := "alpine"
 var target_fps := 60
 var snowfall := true
 var camera_smoothing := true
@@ -13,6 +14,8 @@ func load_from() -> void:
 	if config.load(path) != OK: return
 	var value: Variant = config.get_value("display", "quality", "auto")
 	quality = value if value is String and value in ["auto", "economy", "balanced", "high"] else "auto"
+	value = config.get_value("display", "visual_style", "alpine")
+	visual_style = value if value is String and value in ["alpine", "comic", "pastel", "cinematic", "crisp"] else "alpine"
 	value = config.get_value("display", "target_fps", 60)
 	target_fps = value if value is int and value in [30, 60] else 60
 	value = config.get_value("display", "snowfall", true)
@@ -28,7 +31,7 @@ func load_from() -> void:
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
-	for key in ["quality", "target_fps", "snowfall", "camera_smoothing", "language"]:
+	for key in ["quality", "visual_style", "target_fps", "snowfall", "camera_smoothing", "language"]:
 		config.set_value("display", key, get(key))
 	config.set_value("play","career_slot",career_slot)
 	config.set_value("play","free_play",free_play)
@@ -37,6 +40,7 @@ func save_to() -> Error:
 func apply(view: Node3D) -> void:
 	Engine.max_fps = target_fps
 	view.set_quality(quality)
+	view.set_visual_style(visual_style)
 	view.frame_target = 1.0 / target_fps
 	view._frame_average = view.frame_target
 	view.effects_enabled = snowfall
