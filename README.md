@@ -37,17 +37,17 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## In Entwicklung: 0.21.0 · Menü-Neustart, fünf Bildstile und detailliertere Bergwelt
+## 0.21.0 · Fünf Grafikstile, neuer Baukatalog und mehr Platz für den Berg
 
-Für die nächste Preview werden die Spielmenüs nach **Spielen, Resort-Verwaltung, Grafik & Steuerung sowie Service** neu strukturiert. Im Einstellungsmenü sind bereits **Alpin, Comic, Pastell, Filmisch und Winterklar** als getrennte, dauerhaft gespeicherte Darstellungsstile vorgesehen. Schnee, Hänge, Felsen, Wald und Atmosphäre erhalten zusätzliche rein grafische Details, ohne das Berggelände oder vorhandene Pisten zu verändern.
+Die neue 0.21-Preview führt **Alpin, Comic, Pastell, Filmisch und Winterklar** als fünf unabhängig von der Qualitätsstufe speicherbare Grafikstile ein. Schnee, Felsen, Wald, Himmel und Licht besitzen separate Paletten, ohne Pisten, Geländephysik oder gespeicherte Anlagen zu verändern. Das Hauptmenü ist nach Hauptspiel, Resort, Darstellung und Community neu gegliedert; reale Szenarien bleiben deaktiviert.
 
-**0.21.0 ist noch ein Entwicklungsstand; die weitergehende HUD-, NPC-, Bau- und Wirtschaftssimulation bleibt Teil des Arbeitsplans.** Die vollständige Funktions- und Android-Freigabe ist erforderlich. [Änderungen und verbleibende Aufgaben für 0.21.0](docs/releases/0.21.0.md).
+Beim Bauen helfen größere Finger-Ziele, automatische Zeilenumbrüche, ein ausblendbarer Resort-Kompass, **Rückgängig/Wiederholen für Pisten-, Lift- und Wegpunkte** sowie eine präzisere Fingerbedienung. Die vollständigen automatisierten Tests inklusive alter Karrieren und Android 30/36 sind die Release-Voraussetzung. Weitere NPC-, Wirtschafts- und Landschaftsverbesserungen bleiben auf der [offenen Roadmap](https://github.com/chekento/SkiZones/issues/15). [Ausführliche Änderungen zu 0.21.0](docs/releases/0.21.0.md).
 
-## Rückblick: Vorbereitet in 0.20.2 · Fokus auf den normalen Spielmodus
+## Rückblick: 0.20.2 · Fokus auf den normalen Spielmodus
 
-Die Szenarien werden **vorerst aus dem spielbaren Umfang entfernt**. Karriere, freier Aufbau und die acht Fantasiegebiete bleiben verfügbar. Frühere Szenario-Dateien werden **nicht gelöscht**, die Daten bleiben archiviert. Die geplante 0.20.2 führt die noch unveröffentlichte Reparatur von v0.20.1 weiter: **0.19-Karrieren laden, bestehende Pisten behalten, Ladefortschritt sichtbar machen** sowie Android-Start, App-Wechsel und Installation ohne Verlust der vier Karriere-Slots prüfen.
+Version 0.20.2 deaktiviert die Szenarien im Spielmenü und konzentriert sich auf Karriere, freien Aufbau und die acht Fantasiegebiete. Historische Szenariodateien bleiben erhalten. Die Veröffentlichung vom 2. November 2026 repariert die Wiederherstellung alter 0.19-Karrieren und verbessert die Ladefortschrittsanzeige sowie Android-Appwechsel und die Sicherheit der vier Karriere-Slots.
 
-Die Veröffentlichung erfolgt erst nach bestandenen Tests. **Bis dahin bleibt v0.20.0 die neueste veröffentlichte APK.** Sie enthält weiterhin die damaligen Szenarios. [Geplante Änderungen 0.20.2](docs/releases/0.20.2.md).
+[Release 0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2) · [Änderungen 0.20.2](docs/releases/0.20.2.md).
 
 ## Rückblick: Neu in 0.20.0 · Kompakte Skiorte und mehrtägiger Hotelurlaub
 
