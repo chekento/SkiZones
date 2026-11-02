@@ -251,6 +251,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/main_mode_scene.gd
       - name: Five art directions, terrain geometry stability and persistent display settings
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+      - name: Curved 0.22 achievement and mastery rank animation
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/achievement_scene.gd
       - name: Visible families, individual profiles and bilingual audience controls
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-guest-agendas
