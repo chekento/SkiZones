@@ -3505,3 +3505,6 @@ msgstr "1 · Pick paths & plazas  2 · Connect  3 · Build"
 
 msgid "Punkt wiederholen"
 msgstr "Redo point"
+
+msgid "Übernehmen"
+msgstr "Apply"
