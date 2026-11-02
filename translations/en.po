@@ -3520,3 +3520,144 @@ msgstr "Hide details"
 
 msgid "Gäste"
 msgstr "Guests"
+
+msgid "Schwung für Schwung"
+msgstr "Turn by Turn"
+
+msgid "Beliebter Berg"
+msgstr "Popular Mountain"
+
+msgid "Pistenarchitekt"
+msgstr "Slope Architect"
+
+msgid "Gipfelverbinder"
+msgstr "Peak Connector"
+
+msgid "Alpendorf"
+msgstr "Alpine Village"
+
+msgid "Gebäude"
+msgstr "Buildings"
+
+msgid "Wegebauer"
+msgstr "Trail Builder"
+
+msgid "Wege & Plätze"
+msgstr "Paths & Plazas"
+
+msgid "Lieblingsresort"
+msgstr "Favorite Resort"
+
+msgid "% Ruf"
+msgstr "% Reputation"
+
+msgid "Finanzgenie"
+msgstr "Financial Genius"
+
+msgid "€ Kontostand"
+msgstr "€ Cash Balance"
+
+msgid "Auftragsprofi"
+msgstr "Contract Pro"
+
+msgid "XP"
+msgstr "XP"
+
+msgid "Winter für Winter"
+msgstr "Winter After Winter"
+
+msgid "Betriebstage"
+msgstr "Operating Days"
+
+msgid "Glückliche Gäste"
+msgstr "Happy Guests"
+
+msgid "% Zufriedenheit"
+msgstr "% Satisfaction"
+
+msgid "Umsatzwunder"
+msgstr "Revenue Miracle"
+
+msgid "€ Gesamtumsatz"
+msgstr "€ Total Revenue"
+
+msgid "Solide Kasse"
+msgstr "Solid Finances"
+
+msgid "€ Überschuss"
+msgstr "€ Surplus"
+
+msgid "Gastgeber"
+msgstr "Host of the Alps"
+
+msgid "Hotels"
+msgstr "Hotels"
+
+msgid "Genussgipfel"
+msgstr "Gourmet Peaks"
+
+msgid "Gastronomie"
+msgstr "Food Services"
+
+msgid "Schneeband"
+msgstr "Snow Trail"
+
+msgid "Pistenmeter"
+msgstr "Piste Meters"
+
+msgid "Höhenmeterjäger"
+msgstr "Altitude Hunter"
+
+msgid "Liftmeter"
+msgstr "Lift Meters"
+
+msgid "Feinschliff"
+msgstr "Fine Tuning"
+
+msgid "Ausbaustufen"
+msgstr "Upgrade Levels"
+
+msgid "Bergwärts"
+msgstr "Mountain Bound"
+
+msgid "Liftfahrten"
+msgstr "Lift Rides"
+
+msgid "%s · %02d"
+msgstr "%s · %02d"
+
+msgid "%d %s"
+msgstr "%d %s"
+
+msgid "MEISTERSCHAFTSRANG %d / 500"
+msgstr "MASTERY RANK %d / 500"
+
+msgid "+%d Ränge"
+msgstr "+%d Ranks"
+
+msgid "Erfolge"
+msgstr "Achievements"
+
+msgid "MEISTERSCHAFT · RANG %d / 500"
+msgstr "MASTERY · RANK %d / 500"
+
+msgid "Resort-Level unabhängig von den fünf Sternen. Erfahrung: %.0f XP · nächster Rang bei %d XP."
+msgstr "Resort level independent of the five stars. Experience: %.0f XP · next rank at %d XP."
+
+msgid "1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET"
+msgstr "1,000 ACHIEVEMENTS · %d / 1,000 UNLOCKED"
+
+msgid "20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."
+msgstr "20 themes with 50 real objectives each. Every new achievement brings a small construction reward. All achievements remain in your saved game."
+
+msgid "%s · %d / 50"
+msgstr "%s · %d / 50"
+
+msgid "Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen."
+msgstr "Choose a category above to see all 50 milestones."
+
+msgid "%s "
+msgstr "%s "
+
+msgid "   +%d €"
+msgstr "   +%d €"
