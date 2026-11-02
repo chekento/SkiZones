@@ -3661,3 +3661,75 @@ msgstr "%s "
 
 msgid "   +%d €"
 msgstr "   +%d €"
+
+msgid "Winterkakao-Partner"
+msgstr "Winter Cocoa Partner"
+
+msgid "Kleiner regionaler Partner. Stabiler Einstieg für dein junges Resort."
+msgstr "Small regional partner. A reliable start for your young resort."
+
+msgid "Alpenhandwerk"
+msgstr "Alpine Craft"
+
+msgid "Ein gemütlicher Sponsor für liebevoll ausgebaute Berghütten."
+msgstr "A welcoming sponsor for thoughtfully built alpine lodges."
+
+msgid "Schneespuren-Club"
+msgstr "Snow Trails Club"
+
+msgid "Belohnt ein vielfältiges Netz aus Liften und Pisten."
+msgstr "Rewards a varied network of lifts and ski runs."
+
+msgid "Gipfelbewegung"
+msgstr "Peak Motion"
+
+msgid "Höhere Einnahmen für ein zuverlässig erreichbares Bergresort."
+msgstr "Higher earnings for a well-connected mountain resort."
+
+msgid "Aurora-Wintertage"
+msgstr "Aurora Winter Days"
+
+msgid "Prestigepartner für etablierte Resorts mit gutem Gästeruf."
+msgstr "Prestige partner for established resorts with high guest satisfaction."
+
+msgid "Sponsorangebot nicht gefunden."
+msgstr "Sponsor offer not found."
+
+msgid "Ein Sponsorvertrag läuft bereits."
+msgstr "A sponsorship contract is already active."
+
+msgid "Mindestens %d %% Ruf erforderlich."
+msgstr "At least %d %% reputation required."
+
+msgid "Mindestens %d Lifte erforderlich."
+msgstr "At least %d lifts required."
+
+msgid "Vertrag kann abgeschlossen werden."
+msgstr "Contract can be signed."
+
+msgid "Sponsorvertrag abgeschlossen: %s · %d Betriebstage."
+msgstr "Sponsorship signed: %s · %d operating days."
+
+msgid "Sponsoring"
+msgstr "Sponsorship"
+
+msgid "PARTNER FÜR DEIN RESORT"
+msgstr "PARTNERS FOR YOUR RESORT"
+
+msgid "Sponsoren unterstützen den Bau neuer Anlagen mit sieben Tage lang begrenzten Einnahmen. Gute Gästezufriedenheit erhöht die Auszahlung. Nur ein Vertrag gleichzeitig."
+msgstr "Sponsors help fund new facilities with seven days of limited revenue. Higher guest satisfaction improves payouts. Only one contract at a time."
+
+msgid "Aktiv"
+msgstr "Active"
+
+msgid "Bis Tag %d · bisher %s € erhalten"
+msgstr "Until day %d · %s € earned so far"
+
+msgid "VERFÜGBARE SPONSOREN"
+msgstr "AVAILABLE SPONSORS"
+
+msgid "%s €/Tag für %d Tage · ab %d %% Ruf und %d Lift(en)"
+msgstr "%s €/day for %d days · requires %d %% reputation and %d lift(s)"
+
+msgid "Sponsorvertrag abschließen"
+msgstr "Sign sponsorship contract"
