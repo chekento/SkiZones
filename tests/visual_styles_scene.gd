@@ -17,6 +17,23 @@ func check(ok: bool, description: String) -> void:
 		failed += 1
 		push_error("FAIL " + description)
 
+func capture_style(style_id: String) -> void:
+	# Visual release evidence uses the same 3D world and UI, not palette
+	# swatches; capture after the renderer has presented the new materials.
+	if DisplayServer.get_name() == "headless":
+		return
+	for frame in range(3):
+		await process_frame
+	await RenderingServer.frame_post_draw
+	var directory := ProjectSettings.globalize_path("res://build/qa")
+	var created := DirAccess.make_dir_recursive_absolute(directory)
+	if created != OK:
+		check(false, "QA screenshot directory for " + style_id)
+		return
+	var file_path := directory.path_join("visual-021-" + style_id + ".png")
+	var snapshot: Image = root.get_texture().get_image()
+	check(snapshot != null and snapshot.get_width() >= 1200 and snapshot.get_height() >= 700 and snapshot.save_png(file_path) == OK, "Full-scene screenshot captured for " + style_id)
+
 func run() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -47,6 +64,7 @@ func run() -> void:
 		var sample: Color = game.view._ground_color(Vector2(300, -150), 400.0, 65.0)
 		distinct[str(sample)] = true
 		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] == original_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
+		await capture_style(id)
 	check(distinct.size() == Styles.IDS.size(), "All five styles produce different snow and rock colors")
 	check(game.view.asset_root.get_children() == original_assets and game.view.forest.root.get_children() == original_forest_nodes and game.view.surface_picker == original_surface_picker, "Visual style changes preserve rendered assets, forest node identities and terrain picking without resort rebuild")
 	preferences.visual_style = "alpine"
