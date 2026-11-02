@@ -28,6 +28,7 @@ const TRACKS := [
 ]
 const TOTAL := 1000
 const MAX_RANK := 500
+const MASTERY_XP_FACTOR := 5.0
 
 static func target(track: int, tier: int) -> int:
 	if track < 0 or track >= TRACKS.size() or tier < 1 or tier > TIERS:
@@ -44,11 +45,11 @@ static func entry(id: int) -> Dictionary:
 		"goal": L.text("%d %s") % L.args([target(track,tier), L.text(spec.unit)]), "reward": 350 + tier * 90}
 
 static func mastery_for_xp(xp: float) -> int:
-	return clampi(1 + floori(sqrt(maxf(0.0,xp) / 65.0)),1,MAX_RANK)
+	return clampi(1 + floori(sqrt(maxf(0.0,xp) / MASTERY_XP_FACTOR)),1,MAX_RANK)
 
 static func xp_for_rank(rank: int) -> int:
 	var n: int = clampi(rank,1,MAX_RANK)-1
-	return 65*n*n
+	return roundi(MASTERY_XP_FACTOR*float(n)*float(n))
 
 static func values(model: RefCounted) -> Array:
 	var hotel := 0
