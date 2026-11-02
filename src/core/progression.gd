@@ -340,11 +340,12 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	if not value is Dictionary or value.get("version") != 1 or value.get("mode") not in ["career", "free"]:
 		return false
 	var state: Dictionary = value.duplicate(true)
-	# Migrated 0.19–0.21 games start at their earned XP rank; no
-	# automatic retroactive payouts are triggered just by loading.
-	if not state.has("mastery_rank"):
-		state.mastery_rank = AchievementBook.mastery_for_xp(float(state.get("xp",0)))
-	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "mastery_rank": [1, 500], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
+	# Preserve byte-for-byte legacy campaign fields at the moment of load.
+	# Old careers use an implicit rank until their next normal progress tick;
+	# only a truly stored mastery rank requires separate validation.
+	if state.has("mastery_rank") and (not Terrain.number(state.mastery_rank) or state.mastery_rank < 1 or state.mastery_rank > 500 or state.mastery_rank != floorf(float(state.mastery_rank))):
+		return false
+	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
 	for key in ranges:
 		if not Terrain.number(state.get(key)) or state[key] < ranges[key][0] or state[key] > ranges[key][1]:
 			return false
