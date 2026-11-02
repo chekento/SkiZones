@@ -186,7 +186,7 @@ func _achievements(page: VBoxContainer) -> void:
 	var picker := OptionButton.new()
 	picker.custom_minimum_size.y = 52
 	for track in AchievementBook.TRACKS:
-		picker.add_item(str(track.name))
+		picker.add_item(L.text(str(track.name)))
 	picker.select(clampi(selected_achievement_track,0,AchievementBook.TRACKS.size()-1))
 	page.add_child(picker)
 	picker.item_selected.connect(func(index: int):
@@ -198,7 +198,7 @@ func _achievements(page: VBoxContainer) -> void:
 	for tier in range(1,AchievementBook.TIERS+1):
 		var id: int = AchievementBook.START_ID+selected*AchievementBook.TIERS+tier-1
 		if earned.has(id): current += 1
-	var progress_card := _card(page,"%s · %d / 50" % [AchievementBook.TRACKS[selected].name,current],
+	var progress_card := _card(page,L.text("%s · %d / 50") % L.args([L.text(AchievementBook.TRACKS[selected].name),current]),
 		"Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen.")
 	var bar := ProgressBar.new()
 	bar.max_value = AchievementBook.TIERS
