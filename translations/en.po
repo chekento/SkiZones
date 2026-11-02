@@ -3508,3 +3508,6 @@ msgstr "Redo point"
 
 msgid "Übernehmen"
 msgstr "Apply"
+
+msgid "Live-Vorschau: Der Berg ändert sich sofort. Zurück verwirft die Auswahl; Speichern übernimmt sie dauerhaft."
+msgstr "Live preview: the mountain updates immediately. Back discards the change; Save keeps it permanently."
