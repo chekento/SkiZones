@@ -1,4 +1,5 @@
 extends RefCounted
+const L = preload("res://src/core/i18n.gd")
 ## Deterministic 20 x 50 achievement catalogue: no thousand static save objects.
 ## IDs 0..3 are the historic achievements and remain unchanged.
 const TIERS := 50
@@ -39,8 +40,8 @@ static func entry(id: int) -> Dictionary:
 	var track: int = (id - START_ID) / TIERS
 	var tier: int = (id - START_ID) % TIERS + 1
 	var spec: Dictionary = TRACKS[track]
-	return {"id": id, "track": track, "tier": tier, "name": "%s · %02d" % [spec.name, tier],
-		"goal": "%d %s" % [target(track,tier), spec.unit], "reward": 350 + tier * 90}
+	return {"id": id, "track": track, "tier": tier, "name": L.text("%s · %02d") % L.args([L.text(spec.name), tier]),
+		"goal": L.text("%d %s") % L.args([target(track,tier), L.text(spec.unit)]), "reward": 350 + tier * 90}
 
 static func mastery_for_xp(xp: float) -> int:
 	return clampi(1 + floori(sqrt(maxf(0.0,xp) / 65.0)),1,MAX_RANK)
