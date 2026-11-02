@@ -2,6 +2,7 @@ extends RefCounted
 ## Independent forest chunks can be culled; distant trees keep their silhouette.
 const Terrain = preload("res://src/core/terrain.gd")
 const Maps = preload("res://src/core/maps.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Art = preload("res://src/world/alpine_art.gd")
@@ -70,6 +71,9 @@ func build(view: Node3D) -> void:
 		_line(blocked, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top), maxf(16, Fleet.rope_offset(lift) + 15))
 	for building in view.model.buildings:
 		_disk(blocked, Terrain.unpack(building.point), 29 if building.kind == "hotel" else 23)
+	var style: Dictionary = VisualStyles.palette(view.visual_style)
+	var foliage_tint: Color = Color(style.ambient).lerp(Color.WHITE, 0.75)
+	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.65)
 	var chunks: Dictionary = {}
 	var rocks: Array = []
 	var used := 0
@@ -92,7 +96,7 @@ func build(view: Node3D) -> void:
 		node.multimesh = view._multimesh(distant, entries.size())
 		for i in range(entries.size()):
 			node.multimesh.set_instance_transform(i, entries[i].transform)
-			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72))
+			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72) * foliage_tint)
 		root.add_child(node)
 		groups.append({"node": node, "center": (Vector2(key) + Vector2.ONE * 0.5) * CHUNK, "detail": false})
 	if not groups.is_empty():
@@ -102,7 +106,7 @@ func build(view: Node3D) -> void:
 	view.rocks.multimesh = view._multimesh(mesh, rocks.size())
 	for i in range(rocks.size()):
 		view.rocks.multimesh.set_instance_transform(i, rocks[i].transform)
-		view.rocks.multimesh.set_instance_color(i, Color.WHITE)
+		view.rocks.multimesh.set_instance_color(i, rock_tint)
 	view.rocks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	update(view.focus, view.zoom, 1)
 
