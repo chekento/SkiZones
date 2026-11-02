@@ -18,6 +18,7 @@ const Saves = preload("res://src/core/save_store.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
+const AchievementToast = preload("res://src/ui/achievement_toast.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
@@ -38,6 +39,7 @@ const APRICOT := Color("f1c5a4")
 
 var game: Node
 var root := Control.new()
+var achievement_overlay := AchievementToast.new()
 var loading := PanelContainer.new()
 var loading_percent := Label.new()
 var loading_stage := Label.new()
@@ -196,6 +198,9 @@ func setup(controller: Node) -> void:
 		scenarios.hide()
 	_build_credits()
 	_build_community()
+	root.add_child(achievement_overlay)
+	achievement_overlay.z_index = 80
+	achievement_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# The artwork covers the complete display; only its footer uses safe insets.
 	# Keeping this under the inset HUD root left a strip of the old world visible.
 	add_child(loading)
@@ -1024,6 +1029,9 @@ func money_text(amount: float) -> String:
 
 func refresh() -> void:
 	var model: RefCounted = game.model
+	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
+		for index in range(mini(3,model.recent_unlocks.size())):
+			achievement_overlay.announce(model.recent_unlocks.pop_front())
 	labels.money.text = money_text(model.money) + " €"
 	labels.guests.text = "%d / %d" % [model.present_guests(), model.total_guests]
 	labels.rep.text = "%.0f %%" % model.reputation
