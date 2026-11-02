@@ -42,6 +42,14 @@ func run() -> void:
 	# Synchronize the view after the new resort replaces the bootstrap model.
 	# Otherwise the first style swap also performs the outstanding terrain rebuild.
 	game.view.rebuild()
+	# Use a low panoramic angle and a wide, unobstructed mountain view.
+	# The QA snapshots must reveal real terrain and forest differences rather
+	# than five near-identical overhead shots of the HUD.
+	game.view.set_camera_mode(1)
+	game.view.focus = Vector2(40, -120)
+	game.view.zoom = 465.0
+	game.view._update_camera()
+	game.hud.set_map_focus(true)
 	game.paused = true
 	game.set_process(false)
 	game.view.set_process(false)
