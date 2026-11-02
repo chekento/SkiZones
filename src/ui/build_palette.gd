@@ -131,7 +131,7 @@ func select_category(value: String, from_tool: bool = false) -> void:
 	refresh(true)
 
 func refresh(force: bool = false) -> void:
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.is_empty()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
