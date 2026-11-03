@@ -1,5 +1,7 @@
 extends SceneTree
 const Terrain = preload("res://src/core/terrain.gd")
+const DayRhythm = preload("res://src/core/day_rhythm.gd")
+const Resort = preload("res://src/core/resort.gd")
 var game: Node
 var passed := 0
 var failed := 0
@@ -104,11 +106,20 @@ func run() -> void:
 	await capture("resumed-game-0100")
 	game.hud.show_context("inspect");game.paused=false;game.speed=4;game._accumulator=0
 	var before_motion: int=game.model.motion_tick
-	minute=game.model.minute;game._suspend_application();game._background_started-=10000;game._resume_application()
-	for i in range(60):
+	var fractional_before:int=game.model.clock_steps
+	minute=game.model.minute
+	# In 0.23, the selectable day-length preset accelerates the foreground
+	# clock. Background catch-up must honor exactly the same preset, rather
+	# than comparing against the old hard-coded 80 steps from 0.22.
+	var expected_steps:int=roundi(10.0 * game.speed * Resort.MINUTES_PER_SECOND * (4.0 if game.model.time_divisor>1 else 1.0) * DayRhythm.playback(minute,game.preferences.day_length))
+	game._suspend_application();game._background_started-=10000;game._resume_application()
+	for i in range(80):
 		game._process(0)
 		if game._accumulator<1:break
-	check(game.model.motion_tick>=before_motion+80 and game.model.motion_tick<=before_motion+82 and game.model.minute>=minute+3 and game.model.minute<=minute+4,"Ten background seconds at 4× restore eighty actual movement steps and the longer calendar without double counting")
+	var actual_steps:int=game.model.motion_tick-before_motion
+	var expected_minutes:int=(fractional_before+expected_steps)/game.model.time_divisor
+	print("LIFECYCLE PACING: expected %d ticks/%d minutes, got %d ticks/%d minutes (remainder %.2f)" % [expected_steps,expected_minutes,actual_steps,game.model.minute-minute,game._accumulator])
+	check(absi(actual_steps-expected_steps)<=3 and absi(game.model.minute-minute-expected_minutes)<=1 and game._accumulator<1.0,"Ten background seconds at 4× follow the selected 0.23 day-length speed without duplicated movement or clock drift")
 	game.paused=true;game.view.focus=Vector2(235,40);game.view.yaw=1.1;game.view.zoom=250;game.view._update_camera()
 	game._suspend_application()
 	var before:Dictionary=game.model.snapshot()
