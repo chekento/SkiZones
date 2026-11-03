@@ -35,7 +35,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	page.add_child(genre_choice)
 	genre_choice.custom_minimum_size.y=55
 	genre_choice.item_selected.connect(func(index:int):
-		if is_instance_valid(hud.game.audio):hud.game.audio.set_genre(str(Design.GENRES[index]))
+		if is_instance_valid(hud.game.audio):hud.game.audio.set_genre(str(Design.GENRES[index]),true)
 	)
 	hud._label(page,L.text("Musiklautstärke"),17,hud.MUTED)
 	music_slider.min_value=0;music_slider.max_value=1;music_slider.step=0.05
@@ -53,6 +53,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 		prefs.music_volume=float(music_slider.value)
 		prefs.ambient_volume=float(ambience_slider.value)
 		var error:Error=prefs.save_to()
+		hud.game.audio.set_genre(prefs.music_genre,false)
 		hud.game.audio.sync()
 		hud.toast(L.text("Audio gespeichert.") if error==OK else L.text("Audio angewendet; Speichern fehlgeschlagen."))
 		close(false)
@@ -62,6 +63,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 
 func open() -> void:
 	var prefs:RefCounted=hud.game.preferences
+	hud.game.audio.set_genre(str(prefs.music_genre),false)
 	genre_choice.select(maxi(0,Design.GENRES.find(prefs.music_genre)))
 	music_slider.value=prefs.music_volume
 	ambience_slider.value=prefs.ambient_volume
@@ -71,5 +73,5 @@ func open() -> void:
 
 func close(restore: bool = true) -> void:
 	if restore and hud!=null and hud.game!=null:
-		hud.game.audio.set_genre(str(hud.game.preferences.music_genre))
+		hud.game.audio.set_genre(str(hud.game.preferences.music_genre),false)
 	hide()
