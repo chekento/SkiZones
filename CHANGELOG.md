@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **27 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **28 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
 | **[v0.23.0](https://github.com/chekento/SkiZones/releases/tag/v0.23.0)** | 03.11.2026 | Landschaft, Pistenwerkstatt und freiere Dorfplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk) | [Details](docs/releases/0.23.0.md) |
 | **[v0.22.0](https://github.com/chekento/SkiZones/releases/tag/v0.22.0)** | 03.11.2026 | Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.22.0/SkiZones-0.22.0-android-arm64.apk) | [Details](docs/releases/0.22.0.md) |
 | **[v0.21.0](https://github.com/chekento/SkiZones/releases/tag/v0.21.0)** | 02.11.2026 | Bergwelt, Spielgefühl und fünf Bildstile | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk) | [Details](docs/releases/0.21.0.md) |
@@ -37,6 +38,27 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.24.0 · Hotel-Mikrowelten und sechs neue Landschaftsdetails (03.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.24.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk)** (44.5 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.24.0/manifest.json) · [Originalnotizen](docs/releases/0.24.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.24.0)
+
+**Versionierte Android-Preview – Veröffentlichung erst nach GitHub-Freigabetests.**
+
+### Änderungen gegenüber 0.23.0
+- **Hotelabenteuer in fünf Kapiteln**: Anreise, Zimmer, Frühstück, Gästewünsche und Abreise. Die verfügbaren Antworten berücksichtigen den realen Hotelzustand. Fortschritt, erreichte Punkte und Besuche bleiben im Gebäudedatensatz gespeichert.
+- **Hotel-Illustrationen**: geschichtete, in Godot gezeichnete Szenentableaus je Kapitel und Stilwahl, vorbereitet für später einzeln erstellte PMDD-Szenen. Noch keine vollständige sensorgestützte Parallaxe und keine 25 fertigen Grafikdateien.
+- **Achievements**: lesbarere, leicht gebogene und plastisch wirkende Erfolgseinblendungen mit Farbgestaltung pro Stilrichtung.
+- **Bildstile**: stärker eigenständige Farb- und Materialpaletten für Comic, Pastell, Filmisch und Winterklar; der klassische Alpin-Look bleibt im Basisspiel erhalten.
+- **Naturassets**: sechs zusätzliche, vor allem in alternativen Grafikstilen verwendete Modelle (Eiskristalle, zugefrorener Teich, Wegweiser, Flora, Fels und vereister Grat).
+- **Tests**: automatisierte Hotel-, Erfolgseinblendungs-, Landschafts- und zweisprachige Oberflächenprüfungen.
+
+### Kompatibilität und bekannte Ausbaustufen
+Die bestehenden Karriere- und Hotelgebäude sollen erhalten bleiben. Die Mikrowelt schreibt keine künstlichen Zimmerbelegungen. Ein vollständiger Hotel-Tycoon mit Raumverwaltung, Personallogistik und echten 3D-Hotelzimmern folgt in weiteren Versionen.
+
+**APK-Dateiname nach erfolgreicher Freigabe:** `SkiZones-0.24.0-android-arm64.apk`. Nicht als veröffentlicht betrachten, solange der GitHub-Release `v0.24.0` nicht tatsächlich besteht.
+
+---
 
 ## v0.23.0 · Landschaft, Pistenwerkstatt und freiere Dorfplanung (03.11.2026)
 
