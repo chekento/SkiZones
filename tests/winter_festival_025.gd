@@ -65,5 +65,5 @@ func run() -> void:
 	check(model.demolish(1001).get("ok",false)==false,"Hotel demolition is prevented until its attached businesses are detached")
 	check(Complex.detach(model,1001,1002).ok and Complex.valid_all(model.buildings),"Module detach does not demolish the operating business")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(cal.path))
-	print("ANNUAL FESTIVAL AND HOTEL MODULES: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
