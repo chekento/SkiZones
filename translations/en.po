@@ -4905,3 +4905,9 @@ msgstr "Visual style · six looks"
 
 msgid "Pisten-Punk"
 msgstr "Piste punk"
+
+msgid "Berg-Techno"
+msgstr "Mountain techno"
+
+msgid "Winter-Klassik"
+msgstr "Winter classics"
