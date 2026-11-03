@@ -2,6 +2,7 @@ extends Control
 ## Touch-friendly building interiors, pizza workshop and hotel management.
 const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 var hud: CanvasLayer
 var asset_id := -1
@@ -10,6 +11,7 @@ var heading := Label.new()
 var session: Dictionary = {}
 var game_box: VBoxContainer
 var task: Dictionary = {}
+var artwork: Control
 var meter: ProgressBar
 var cursor := 0.0
 var elapsed := 0.0
@@ -43,6 +45,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hud._button(row, L.text("Zurück ins Dorf"), close)
 	hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
+	tabs.add_theme_stylebox_override("panel", hud._style(Color("f6f2e8"), 10, 10))
+	tabs.add_theme_stylebox_override("tab_selected", hud._style(Color("bddccd"), 10, 12))
+	tabs.add_theme_stylebox_override("tab_unselected", hud._style(Color("e2e8db"), 10, 12))
+	tabs.add_theme_color_override("font_selected_color", hud.INK)
+	tabs.add_theme_color_override("font_unselected_color", hud.MUTED)
 	body.add_child(tabs)
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	hide()
@@ -147,11 +154,19 @@ func _pizza(building: Dictionary) -> void:
 		name_field.custom_minimum_size.y = 48
 		card.add_child(name_field)
 		_recipe_names.append(name_field)
+		var preview := ActivityArt.new()
+		preview.custom_minimum_size = Vector2(0, 145)
+		preview.toppings = recipe.toppings.duplicate()
+		card.add_child(preview)
 		var toppings := HFlowContainer.new()
 		card.add_child(toppings)
 		var checks := {}
 		for key in Hospitality.TOPPINGS:
 			checks[key] = _check(toppings, L.text(Hospitality.TOPPINGS[key]), recipe.toppings.has(key))
+			checks[key].toggled.connect(func(value):
+				if value: preview.toppings.append(key)
+				else: preview.toppings.erase(key)
+				preview.queue_redraw())
 		_pizza_checks.append(checks)
 	hud._button(page, L.text("Drei Pizzen auf die Karte setzen"), func():
 		var recipes: Array = []
@@ -249,6 +264,13 @@ func _next_task() -> void:
 	elapsed = 0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
 	hud._label(game_box, task.prompt, 32, hud.INK, true)
+	artwork = ActivityArt.new()
+	artwork.kind = str(hud.game.model.asset(asset_id).kind)
+	artwork.mode = str(task.mode)
+	artwork.target = float(task.target)
+	artwork.gate = int(task.get("answer", 1))
+	artwork.custom_minimum_size.y = 190
+	game_box.add_child(artwork)
 	if task.mode == "timing":
 		hud._label(game_box, L.text("Ziel: %.0f %% · grüner Bereich ± 10 %%") % (float(task.target) * 100.0), 18, hud.TEAL)
 		meter = ProgressBar.new()
@@ -266,7 +288,9 @@ func _next_task() -> void:
 			var check := _check(row, L.text(Hospitality.TOPPINGS[key]), false)
 			check.toggled.connect(func(value):
 				if value: picked.append(key)
-				else: picked.erase(key))
+				else: picked.erase(key)
+				artwork.toppings = picked.duplicate()
+				artwork.queue_redraw())
 		hud._button(game_box, L.text("Pizza backen und servieren"), func(): _submit(picked.duplicate()), true)
 	else:
 		var row := HFlowContainer.new()
@@ -293,5 +317,6 @@ func _process(delta: float) -> void:
 	if not visible or not is_instance_valid(meter) or task.get("mode", "") != "timing": return
 	elapsed += delta
 	cursor = (sin(elapsed * 1.9 - PI * 0.5) + 1.0) * 0.5
+	artwork.cursor = cursor
 	meter.value = cursor * 100.0
 	meter.modulate = Color("66b395") if absf(cursor - float(task.target)) <= 0.1 else Color("d6aa70")

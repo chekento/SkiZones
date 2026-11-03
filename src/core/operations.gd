@@ -29,7 +29,7 @@ const GOALS := {
 }
 
 static func initial() -> Dictionary:
-	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 140, "auto_groom": true}
+	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
 
 static func group_size(model: RefCounted) -> int:
 	return [1, 2, 8, 5][Geo.IDS.find(model.map_id)] if model.map_id in Geo.IDS else 1

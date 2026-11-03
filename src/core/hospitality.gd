@@ -103,6 +103,10 @@ static func planned_cost(model: RefCounted, building: Dictionary) -> float:
 		if person.assignment != "building:%d" % int(building.id): continue
 		var times: Array = model.Ops.SHIFTS[person.shift]
 		wages += float(person.wage) * posmod(int(times[1]) - int(times[0]), 1440) / 60.0
+	# Include the required team even when the player has not hired it yet.
+	for row in model.Ops.building_team(model, building):
+		var times: Array = model.Ops.SHIFTS[row.shift]
+		wages += int(row.missing) * float(model.Ops.ROLES[row.role].wage) * posmod(int(times[1]) - int(times[0]), 1440) / 60.0
 	return wages + float(Catalog.BUILDINGS[building.kind].upkeep) * (1.0 + 0.2 * (int(building.get("level", 1)) - 1)) + 35 + extra_upkeep(building)
 
 static func dashboard(model: RefCounted, building: Dictionary) -> Dictionary:

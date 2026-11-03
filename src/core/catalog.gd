@@ -52,7 +52,7 @@ const LODGING := {
 	"apartment":{"rooms":4, "price":95},
 	"chalet":{"rooms":6, "price":145},
 	"guesthouse":{"rooms":10, "price":110},
-	"hotel":{"rooms":24, "price":140},
+	"hotel":{"rooms":24, "price":165},
 	"grand_hotel":{"rooms":48, "price":210}
 }
 
