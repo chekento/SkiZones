@@ -118,7 +118,7 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 	if style_id == "comic": tint = tint.lightened(0.12)
 	if style_id == "cinematic": tint = tint.darkened(0.18)
 	cone(Vector3(0,7,0),0.55,14,bark,0.16)
-	var spread: float={"alpine":1.0,"comic":1.12,"pastel":0.92,"cinematic":1.04,"crisp":0.98}.get(style_id,1.0)
+	var spread: float={"alpine":1.0,"comic":1.12,"pastel":0.92,"cinematic":1.04,"crisp":0.98,"piste_map":0.86}.get(style_id,1.0)
 	var layers := 3 if simplified else 6
 	for i in range(layers):
 		var y := 4.0 + i * 9.0 / layers
@@ -386,6 +386,14 @@ func pine_painted(style_id: String, simplified: bool = false) -> ArrayMesh:
 						var tip := Vector3(cos(angle)*radius*0.78,y-0.65,sin(angle)*radius*0.78)
 						link(Vector3(0,y+0.55,0),tip,0.22,Color("576b61"))
 						sphere(tip,0.84,Color("d7e0df"),Vector3(1.45,0.34,1.0))
+		"piste_map":
+			# Flat editorial pines, blocky silhouette from a printed ski map.
+			for tier in range(3 if simplified else 5):
+				var y:=3.2+tier*2.6
+				var radius:=5.0-tier*0.72
+				cone(Vector3(0,y,0),radius,2.45,Color("62866c"),radius*0.08)
+				box(Vector3(0,y+1.1,0),Vector3(radius*0.7,0.4,radius*0.7),Color("f2f0dc"))
+			cone(Vector3(0,16,0),0.65,1.4,Color("739b77"),0.03)
 		"crisp":
 			# Sharp frosty layers and little facets, like paper-cut glass.
 			for tier in range(4 if simplified else 6):
