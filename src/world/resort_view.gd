@@ -298,6 +298,11 @@ func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Co
 	snow = snow.lerp(Color("ffffff"), powder * (1.0 - cliff))
 	if grade > 38:
 		snow = snow.lerp(Color("929cb3"), clampf((grade - 38) / 65.0, 0, 0.42))
+	if visual_style=="piste_map":
+		# Paper-map relief: printed altitude bands, not a replacement terrain mesh.
+		var band:float=fposmod(height_value,60.0)
+		if band<5.0:snow=snow.lerp(Color("708e7d"),0.36*(1-band/5.0))
+		elif band>55.0:snow=snow.lerp(Color("708e7d"),0.36*(band-55.0)/5.0)
 	return VisualStyles.ground_color(snow.darkened(0.014 + wind_ripple * 0.012), grade, visual_style)
 
 func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMesh:
@@ -1603,11 +1608,19 @@ func set_camera_pitch(value: float) -> void:
 
 func _update_camera() -> void:
 	camera.size = zoom
-	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
+	var cartographic:bool=visual_style=="piste_map"
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if cartographic or camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
+	camera.size=zoom*(1.12 if cartographic else 1.0)
 	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
 	if follow_guest != -1 and _follow_position.is_finite():
 		target = _follow_position + Vector3.UP
-	if camera_mode == 3:
+	if cartographic:
+		# An illustrated piste map is orthographic but slightly tilted so the
+		# mountain relief remains legible instead of flattening into a schematic.
+		var slope_view:=Vector3(sin(yaw)*0.22,1.0,cos(yaw)*0.29).normalized()
+		camera.position=target+slope_view*maxf(zoom*1.5,900.0)
+		camera.look_at(target,Vector3.UP)
+	elif camera_mode == 3:
 		camera.position = target + Vector3.UP * maxf(zoom * 1.6, 1500)
 		camera.look_at(target, Vector3(-sin(yaw), 0, -cos(yaw)))
 	else:
@@ -1803,6 +1816,16 @@ func set_visual_style(id: String) -> void:
 	landscape_details.build(self)
 	_build_hotel_connectors()
 	festival_scene.build(self)
+	# Printed piste atlas overlays: retain player-selected contours in every
+	# other theme, and never alter the underlying navigation/collision geometry.
+	if visual_style=="piste_map":
+		_relief.set_shader_parameter("contours",true)
+		if not is_instance_valid(topography):_build_topography()
+		topography.visible=true
+	else:
+		_relief.set_shader_parameter("contours",contours_enabled)
+		if is_instance_valid(topography):topography.visible=slopes_visible
+	_update_camera()
 	_update_atmosphere()
 
 func set_quality(mode: String) -> void:
