@@ -41,7 +41,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | [**0.24.0**](https://github.com/chekento/SkiZones/pull/19) | Hotel-Mikrowelten, plastische Erfolge und Theme-Grafik | Hauptzweig · Releaseprüfung |
 | [**0.25.0**](https://github.com/chekento/SkiZones/pull/22) | Lineare Hotelmodule, traditionelle Gewerbe, jährlicher Weihnachts-/Silvestermodus | Entwicklungszweig |
 | [**0.26.0**](https://github.com/chekento/SkiZones/pull/24) | Alpine Radio, Mitarbeiterunterkunft, Rettungsfiguren, Pistenatlas und zusätzliche Assets | Entwicklungszweig |
-| [**0.27.0**](https://github.com/chekento/SkiZones/pull/26) | Sanfte Akustikübergänge, Musik-Crossfades und direktes Vorhören in der Jukebox | **Aktuelle Arbeitsversion** |
+| [**0.27.0**](https://github.com/chekento/SkiZones/pull/27) | Sanfte Akustikübergänge, Musik-Crossfades und direktes Vorhören in der Jukebox | **Aktuelle Arbeitsversion** |
 
 **Versionsprinzip:** Nur erfolgreich geprüfte und in [GitHub Releases](https://github.com/chekento/SkiZones/releases) tatsächlich hochgeladene APKs erscheinen als öffentlicher Download. Entwicklungszweige tragen jeweils ihre zukünftigen Spiel- und Android-Versionsnummern, sind aber keine installierbaren Veröffentlichungen. Die [vollständigen geplanten Änderungstexte](docs/releases/) sind ebenfalls keine Behauptung über veröffentlichte APKs.
 
