@@ -12,6 +12,12 @@ var _cache: Dictionary={}
 var _poll := 0.0
 var active_zone := "wilderness"
 var current_genre := "off"
+var active := true
+var preview_settings: Dictionary = {}
+var _targets: Dictionary = {}
+var _levels: Dictionary = {}
+var _crowd_gain := 0.0
+var _machinery_gain := 1.0
 
 func setup(resort_view: Node3D, prefs: RefCounted) -> void:
 	scene=resort_view
@@ -99,28 +105,86 @@ func set_genre(id: String) -> void:
 		return
 	player.stream=_create(wanted)
 	player.play()
+	player.stream_paused=not active
+
+func settings() -> Dictionary:
+	var result := {"genre":"off","music":0.35,"ambient":0.45,"master":1.0,"enabled":true}
+	if preferences!=null:
+		result={"genre":preferences.music_genre,"music":preferences.music_volume,"ambient":preferences.ambient_volume,"master":preferences.master_volume,"enabled":preferences.sound_enabled}
+	result.merge(preview_settings,true)
+	return result
+
+func set_preview(changes: Dictionary) -> void:
+	preview_settings=changes.duplicate()
 	sync()
+
+func clear_preview() -> void:
+	preview_settings.clear()
+	sync()
+
+func set_active(value: bool) -> void:
+	if active==value: return
+	active=value
+	if not active:
+		for layer in players:
+			players[layer].stream_paused=true
+			_levels[layer]=0.0
+	else: sync()
 
 func sync() -> void:
 	if preferences==null:return
-	var station: String=Design.genre_valid(str(preferences.music_genre))
+	var chosen := settings()
+	var station: String=Design.genre_valid(str(chosen.genre))
 	if station!=current_genre:set_genre(station)
-	var ambient:float=clampf(float(preferences.ambient_volume),0,1)
-	var music:float=clampf(float(preferences.music_volume),0,1)
+	var master: float=clampf(float(chosen.master),0,1) if bool(chosen.enabled) and active else 0.0
+	var ambient: float=clampf(float(chosen.ambient),0,1)*master
+	var music: float=clampf(float(chosen.music),0,1)*master
 	var profile: Dictionary=Design.SOUND_MIX.get(active_zone,Design.SOUND_MIX.wilderness)
 	for layer in LAYERS:
-		if not players.has(layer):continue
-		var target:float=ambient*float(profile.get(layer,0.0))
-		players[layer].volume_db=linear_to_db(maxf(0.001,target))
-	if players.has("music"):
-		var target:float=music*(0.22+float(profile.get("music",0))*0.72)
-		players.music.volume_db=linear_to_db(maxf(0.001,target))
+		var target: float=ambient*float(profile.get(layer,0.0))
+		if layer=="crowd":target*=_crowd_gain
+		if layer=="machinery":target*=_machinery_gain
+		_targets[layer]=target
+	_targets.music=music*(0.22+float(profile.get("music",0))*0.72) if station!="off" else 0.0
+	_mix(0.0)
+
+func _mix(delta: float) -> void:
+	var weight := 1.0-exp(-maxf(0,delta)*5.0)
+	for layer in players:
+		var target: float=_targets.get(layer,0.0) if active else 0.0
+		var level := lerpf(float(_levels.get(layer,0.0)),target,weight)
+		_levels[layer]=level
+		# Exact silence stops a channel; a zero slider never leaves a quiet loop.
+		players[layer].stream_paused=target<=0.00001
+		players[layer].volume_db=linear_to_db(maxf(0.0001,level))
+
+func population(focus: Vector2) -> int:
+	if scene==null or scene.model==null:return 0
+	var count := 0
+	for guest in scene.model.guests:
+		if guest.phase=="leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):continue
+		var at: Vector3=scene._guest_positions.get(guest.id,Vector3.INF)
+		if int(guest.leg)<guest.route.legs.size() and guest.route.legs[int(guest.leg)].kind=="visit":
+			var building: Dictionary=scene.model.asset(int(guest.route.legs[int(guest.leg)].id))
+			if building.has("point"):
+				var point := preload("res://src/core/terrain.gd").unpack(building.point)
+				at=Vector3(point.x,0,point.y)
+		if at.is_finite() and Vector2(at.x,at.z).distance_to(focus)<90:
+			count+=int(guest.get("group_size",1))
+	return count
 
 func _process(delta: float) -> void:
 	if scene==null or preferences==null or scene.model==null:return
+	_mix(delta)
+	if not active:return
 	_poll+=maxf(0.0,delta)
 	if _poll<0.35:return
 	_poll=0.0
 	var area: Dictionary=Design.nearby(scene.model,scene.focus)
 	active_zone=str(area.kind)
+	_crowd_gain=clampf(log(1.0+population(scene.focus))/log(16.0),0,1)
+	_machinery_gain=1.0
+	if active_zone=="lift":
+		var lift: Dictionary=scene.model.asset(int(area.target_id))
+		_machinery_gain=1.0 if not lift.is_empty() and scene.model.lift_running(lift) else 0.0
 	sync()

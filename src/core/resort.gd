@@ -804,6 +804,7 @@ func lift_speed(lift: Dictionary) -> float:
 	return Fleet.speed(lift)
 
 func build_access_message(kind: String, is_lift: bool) -> String:
+	if not is_lift and kind == "newsstand" and building_count("printing_press") == 0: return L.text("Zuerst eine Druckerei & Zeitungsredaktion eröffnen.")
 	if not is_lift and kind in ["repair_office", "first_aid", "maintenance", "disco", "pool"] and Ops.active(self): return ""
 	return Progression.access_message(self, kind, is_lift)
 
@@ -2094,7 +2095,7 @@ func family_pose(guest: Dictionary, member_index: int, fraction_tick: float = 0.
 		direction = (terrain.point_on_path(piste.points, minf(1, ski_at + 0.002)) - terrain.point_on_path(piste.points, maxf(0, ski_at - 0.002))).normalized()
 		var side := direction.orthogonal()
 		var lateral := minf(2.4, Snow.piste_width(piste) * 0.32) * (1.0 if index % 2 == 0 else -1.0)
-		lateral=PisteFeatures.safe_lateral(piste,ski_at,lateral,int(guest.ability))
+		lateral=PisteFeatures.safe_lateral(piste,ski_at,lateral,int(guest.ability),lateral)
 		point = center + side * lateral
 		position_value = terrain.world(point, Snow.mesh_height(piste, ski_at, lateral) - 0.05 + PisteFeatures.height_offset(piste,ski_at,lateral,int(guest.ability)))
 	elif Foot.free_of_buildings(point, buildings, 1.1): position_value = terrain.world(point, 0.3)
@@ -2647,6 +2648,7 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+
 
 
 

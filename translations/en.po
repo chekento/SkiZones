@@ -4903,3 +4903,229 @@ msgstr "Alpine Radio · music and soundscape"
 msgid "Bildstil · sechs Looks"
 msgstr "Visual style · six looks"
 
+
+
+msgid "Dieses Gebiet steht nicht zur Verfügung."
+msgstr "This area is not available."
+
+msgid "Talstation · "
+msgstr "Valley station · "
+
+msgid "Bergstation · "
+msgstr "Summit station · "
+
+msgid "Piste · "
+msgstr "Piste · "
+
+msgid "Talpanorama"
+msgstr "Valley panorama"
+
+msgid "Bergpanorama"
+msgstr "Mountain panorama"
+
+msgid "♫ Radio"
+msgstr "♫ Radio"
+
+msgid "Filmische Kamerafahrt · Resort-Tour"
+msgstr "Cinematic camera · resort tour"
+
+msgid "Cinematic Resort Tour"
+msgstr "Cinematic Resort Tour"
+
+msgid "Medaillen & Erfolgsarchiv"
+msgstr "Medals & achievement archive"
+
+msgid "05  ·  SZENARIEN"
+msgstr "05  ·  SCENARIOS"
+
+msgid "Optionale Herausforderungen an realen Orten"
+msgstr "Optional challenges in real places"
+
+msgid "Szenarien · vier echte Skigebiete"
+msgstr "Scenarios · four real ski resorts"
+
+msgid "Zusatzmodus – dein Hauptspiel und deine vier Karriereplätze bleiben unverändert."
+msgstr "An additional mode; your main game and four career slots are preserved."
+
+msgid "Kamerafahrt · "
+msgstr "Camera tour · "
+
+msgid " · Tag %d"
+msgstr " · Day %d"
+
+msgid "DAS ALPEN-EXTRABLATT"
+msgstr "THE ALPINE EXTRA"
+
+msgid "Eine Dorfzeitung über echte Meilensteine deiner Karriere. Die letzten fünf Erfolge erscheinen als neue Ausgabe – ohne erfundene Erwerbsdaten."
+msgstr "A village newspaper about real career milestones. Your five latest achievements form a new edition using actual progress."
+
+msgid "Ausgabe: Betriebstag %d · %d Zeitungen verkauft · %s € Einnahmen"
+msgstr "Edition: resort day %d · %d papers sold · %s € revenue"
+
+msgid "Eine Dorfredaktion wird benötigt"
+msgstr "A village newsroom is needed"
+
+msgid "Baue zuerst eine Druckerei. Danach können Zeitungskioske Exemplare verkaufen."
+msgstr "Build a print office first. Newspaper stands can then sell copies."
+
+msgid "Dein Kiosk"
+msgstr "Your newsstand"
+
+msgid "%d Zeitungen verkauft · %.0f € Umsatz an diesem Stand"
+msgstr "%d newspapers sold · %.0f € revenue at this stand"
+
+msgid "Noch keine Schlagzeilen"
+msgstr "No headlines yet"
+
+msgid "Sobald du das nächste Achievement erreichst, veröffentlicht deine Druckerei die erste Ausgabe."
+msgstr "Your print office publishes the first edition when you earn your next achievement."
+
+msgid "Die Redaktion berichtet: %s. Gäste und Personal verfolgen gemeinsam den Erfolg des Resorts."
+msgstr "The newsroom reports: %s. Guests and staff celebrate the resort’s progress."
+
+msgid "Alpen-ExtraBlatt · Achievement #%d"
+msgstr "Alpine Extra · achievement #%d"
+
+msgid "Audio einschalten"
+msgstr "Enable audio"
+
+msgid "Gesamtlautstärke"
+msgstr "Master volume"
+
+msgid "Deine Medaillensammlung"
+msgstr "Your medal collection"
+
+msgid "Jedes Jahr eine neue Erinnerung"
+msgstr "A new memory every year"
+
+msgid "Die Jahresmedaillen liegen unabhängig vom aktuellen Karrierespielstand im dauerhaften Spielerarchiv."
+msgstr "Annual medals stay in your permanent player archive independently of the current career save."
+
+msgid "Noch keine Medaillen"
+msgstr "No medals yet"
+
+msgid "Nimm im Dezember an einem Adventstag teil oder meistere ein Szenario."
+msgstr "Take part in an Advent day in December or complete a scenario."
+
+msgid "Weihnachtsteilnahme"
+msgstr "Christmas participation"
+
+msgid "Neujahrsfeier"
+msgstr "New Year celebration"
+
+msgid "Erfolgreich abgeschlossenes reales Resort-Szenario"
+msgstr "A successfully completed real resort scenario"
+
+msgid "Aktuelle Karriere: %d freigeschaltete Achievements · 1000 mögliche Leistungserfolge."
+msgstr "Current career: %d unlocked achievements · 1000 possible milestones."
+
+msgid "Vier reale Gebiete mit jeweils drei wählbaren Betriebsintensitäten. Geografie aus offenen Daten, Missionsereignisse sind spielerisch erfunden."
+msgstr "Four real areas with three operating intensities each. Geography uses open data; mission events are fictional gameplay."
+
+msgid "Geodatenprüfung: %d / %d importierte Pistenabschnitte als befahrbar markiert."
+msgstr "Geodata check: %d / %d imported piste sections marked skiable."
+
+msgid "Entspannt · weniger Ansturm"
+msgstr "Relaxed · lower demand"
+
+msgid "Normal · klassischer Betrieb"
+msgstr "Normal · classic operation"
+
+msgid "Experte · höhere Nachfrage"
+msgstr "Expert · higher demand"
+
+msgid "Druckerei & Zeitungsredaktion"
+msgstr "Print office & newsroom"
+
+msgid "Druckt ein ExtraBlatt mit den fünf neuesten Achievements. Erst danach können Kioske Zeitungen verkaufen."
+msgstr "Prints an Extra with the five latest achievements. Newspaper stands can sell copies once it opens."
+
+msgid "Alpiner Zeitungsstand"
+msgstr "Alpine newsstand"
+
+msgid "Verkauft Zeitungen an Besucher, sofern eine geöffnete Dorfredaktion betrieben wird."
+msgstr "Sells newspapers to visitors while a village newsroom is open."
+
+msgid "Zuerst eine Druckerei & Zeitungsredaktion eröffnen."
+msgstr "Open a print office and newsroom first."
+
+msgid "Weihnachtsmedaille %s"
+msgstr "Christmas medal %s"
+
+msgid "Silvestermedaille %d/%d"
+msgstr "New Year medal %d/%d"
+
+msgid "Szenariomedaille · "
+msgstr "Scenario medal · "
+
+msgid "Bronze"
+msgstr "Bronze"
+
+msgid "Silber"
+msgstr "Silver"
+
+msgid "Gold"
+msgstr "Gold"
+
+msgid "Bereite eine saubere Ausgabe für den Druck vor."
+msgstr "Prepare a clean edition for printing."
+
+msgid "Papier"
+msgstr "Paper"
+
+msgid "Druckplatte"
+msgstr "Printing plate"
+
+msgid "Druckfarbe"
+msgstr "Printing ink"
+
+msgid "Setzkasten"
+msgstr "Type case"
+
+msgid "Zeitungsstand"
+msgstr "Newsstand"
+
+msgid "Stelle die gewünschte Zeitung für den Gast bereit."
+msgstr "Prepare the requested newspaper for the guest."
+
+msgid "ExtraBlatt"
+msgstr "Extra edition"
+
+msgid "Bergwetter"
+msgstr "Mountain weather"
+
+msgid "Pistenjournal"
+msgstr "Piste journal"
+
+msgid "Dorfleben"
+msgstr "Village life"
+
+msgid "Der hundertste Schwung"
+msgstr "The hundredth turn"
+
+msgid "Buntes Pistennetz"
+msgstr "A colorful piste network"
+
+msgid "750 Gäste feiern den Berg"
+msgstr "750 guests celebrate the mountain"
+
+msgid "Ein Resort mit ausgezeichnetem Ruf"
+msgstr "A resort with an excellent reputation"
+
+msgid "Neuer Meilenstein in den Bergen"
+msgstr "A new mountain milestone"
+
+msgid "Die Redaktion gratuliert dem Skigebiet"
+msgstr "The newsroom congratulates the resort"
+
+msgid "Eine bemerkenswerte Wintersaison"
+msgstr "A remarkable winter season"
+
+msgid "Stolz auf das Team am Berg"
+msgstr "Proud of the mountain team"
+
+msgid "Ein großer Tag für das Resort"
+msgstr "A great day for the resort"
+
+msgid "Ein historischer Erfolg des Resorts."
+msgstr "A historic resort achievement."

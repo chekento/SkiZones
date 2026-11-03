@@ -1,6 +1,7 @@
 extends RefCounted
 ## Annual local-time holidays. Entirely device-local; no GPS or network calls.
 ## The separate archive prevents a saved career from resetting previous doors.
+const L = preload("res://src/core/i18n.gd")
 const PATH := "user://skizones_annual_festival.cfg"
 const DECORATIONS := {
 	"lanterns":{"name":"Winter-Laternen","price":6},
@@ -90,12 +91,25 @@ func _save(state: Dictionary) -> Error:
 	if error!=OK: DirAccess.remove_absolute(temp)
 	return error
 
+static func annual_medals(state: Dictionary) -> Array:
+	# Derived from the durable historical event ledger, not from an
+	# individual career save. Every participating year has its own medal.
+	var medals: Array=[]
+	for year_key in state.get("claims",{}):
+		var doors: Array=state.claims[year_key]
+		if not doors.is_empty():
+			medals.append({"event":"christmas","year":int(year_key),"title":L.text("Weihnachtsmedaille %s") % str(year_key),"special":doors.has(24)})
+	for year in state.get("new_years",[]):
+		medals.append({"event":"new_year","year":int(year),"title":L.text("Silvestermedaille %d/%d") % [int(year),int(year)+1],"special":true})
+	medals.sort_custom(func(a,b): return a.year>b.year if a.year!=b.year else a.event<b.event)
+	return medals
+
 func overview(date: Dictionary = {}) -> Dictionary:
 	var now: Dictionary = device_now() if date.is_empty() else date
 	var state := _state()
 	var year := festive_year(now)
 	var claimed: Array=state.claims.get(str(year),[])
-	return {"season":season(now),"year":year,"claimed":claimed.duplicate(),"coins":int(state.coins),"owned":state.owned.duplicate(),"new_year_done":state.new_years.has(year)}
+	return {"season":season(now),"year":year,"claimed":claimed.duplicate(),"coins":int(state.coins),"owned":state.owned.duplicate(),"new_year_done":state.new_years.has(year),"medals":annual_medals(state)}
 
 func claim(door: int, date: Dictionary = {}) -> Dictionary:
 	var now: Dictionary=device_now() if date.is_empty() else date
@@ -142,3 +156,4 @@ func celebrate_new_year(date: Dictionary = {}) -> Dictionary:
 	state.coins=mini(100000,int(state.coins)+18)
 	if _save(state)!=OK: return {"ok":false,"message":"Feier konnte nicht sicher gespeichert werden."}
 	return {"ok":true,"message":"Ein frohes neues Jahr! +18 Wintertaler für dein Bergdorf."}
+

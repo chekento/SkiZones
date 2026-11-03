@@ -53,7 +53,9 @@ static func position(mountain: RefCounted, piste: Dictionary, id: int, ability: 
 		# Leave a little individual carving in each lane, without allowing
 		# its free-form sine wave to cross the neighbor's safe overtaking line.
 		lateral = (traffic_lateral + (wave + secondary) * minf(1.15, width * 0.055)) * taper
-	lateral=Features.safe_lateral(piste,fraction,clampf(lateral,-width*0.43,width*0.43),ability)
+	lateral=clampf(lateral,-width*0.43,width*0.43)
+	var reference_lane: float=traffic_lateral if absf(traffic_lateral)<10000 else lane
+	lateral=lerpf(lateral,Features.safe_lateral(piste,fraction,lateral,ability,reference_lane),taper)
 	return center + near.normalized().orthogonal() * lateral
 
 static func frame(mountain: RefCounted, piste: Dictionary, id: int, ability: int, fraction: float, run: int = 0, range_start: float = 0.0, range_end: float = 1.0, walks: Array = [], sport: String = "ski", traffic_lateral: float = INF) -> Dictionary:
@@ -125,4 +127,5 @@ static func valid_profile(value: Variant) -> bool:
 		if sample.size() == 4 and (not Terrain.number(sample[2]) or (sample[2] != 0 and sample[2] != 1) or not Terrain.number(sample[3]) or sample[3] < 0 or sample[3] > 30): return false
 		previous = Vector2(sample[0],sample[1])
 	return value[0][0] == 0 and value[0][1] == 0 and value[-1][0] == 1 and value[-1][1] == 1
+
 

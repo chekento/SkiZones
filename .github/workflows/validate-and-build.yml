@@ -164,6 +164,11 @@ jobs:
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Modular piste features, day pacing and sleeping guest regressions
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
+      - name: Combined hotel modules, annual events, spatial audio and scenario media
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/winter_festival_025.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_crew_026.gd
+          python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/scenario_cinema_026.gd
       - name: Village minigames, hotel chains and seven-day ticket accounting
         run: |
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality.gd
@@ -231,6 +236,10 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/planning_scene.gd
       - name: Rendered landscape, wildlife and floating construction windows
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/landscape_workbench_scene.gd
+      - name: Shared radio, camera tours, crew clearing and annual scene integration
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/integration_quality_026.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
       - name: Rendered lift occupants and station plazas
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Build cancellation, two-finger camera and pen/finger scrolling
@@ -435,6 +444,7 @@ jobs:
               --notes-file "docs/releases/${VERSION}.md" \
               --prerelease --latest=false
           fi
+
 
 
 

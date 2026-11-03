@@ -13,6 +13,7 @@ var lodge_point := Vector2.INF
 var staff_mesh: MultiMeshInstance3D
 var emergency_mesh: MultiMeshInstance3D
 var route_cache: Dictionary={}
+var rescue_durations: Dictionary={}
 var snapshot_revision := -1
 var _tick := 0.0
 
@@ -21,8 +22,14 @@ static func staff_home(view: Node3D) -> Vector2:
 	for offset in [Vector2(-115,55),Vector2(-145,-40),Vector2(120,85),Vector2(-110,-95),Vector2(130,-110),Vector2(-210,90)]:
 		var candidate:Vector2=Terrain.BASE+offset
 		if not view.terrain.contains(candidate) or not view.piste_clear(candidate,40):continue
-		if not Foot.free_of_buildings(candidate,view.model.buildings,42):continue
-		return candidate
+		if not Foot.free_of_buildings(candidate,view.model.buildings,42) or view.terrain.slope_percent(candidate)>28:continue
+		var clear := true
+		for area in view._pedestrian_snapshot.get("areas",[]):
+			if candidate.distance_to(area.center)<float(area.radius)+30:clear=false
+		for link in view._pedestrian_snapshot.get("links",[]):
+			for i in range(1,link.points.size()):
+				if Geometry2D.get_closest_point_to_segment(candidate,Terrain.unpack(link.points[i-1]),Terrain.unpack(link.points[i])).distance_to(candidate)<float(link.get("width",7))*0.5+30:clear=false
+		if clear:return candidate
 	return Vector2.INF
 
 static func destination(model: RefCounted, staff: Dictionary) -> Vector2:
@@ -114,6 +121,7 @@ func build(view: Node3D) -> void:
 	view.add_child(root)
 	lodge_point=staff_home(view)
 	route_cache.clear()
+	rescue_durations.clear()
 	snapshot_revision=view.model.revision
 	if lodge_point.is_finite():
 		var dorm:=MeshInstance3D.new()
@@ -142,7 +150,7 @@ func _person_pos(view: Node3D, staff: Dictionary) -> Vector2:
 	var id:int=int(staff.id)
 	var key: String=str(id)+":"+str(staff.assignment)+":"+str(view.model.revision)
 	if not route_cache.has(key):
-		var path:Array=Foot.path_between(lodge_point,destination_value,view.model.buildings,view.model.lifts,view._pedestrian_snapshot.get("obstacles",[]))
+		var path:Array=Foot.path_between(lodge_point+Vector2(0,18),destination_value,view.model.buildings,view.model.lifts,view._pedestrian_snapshot.get("obstacles",[]))
 		route_cache[key]=path
 	var path:Array=route_cache[key]
 	if path.size()<2:
@@ -192,10 +200,13 @@ func update(view: Node3D,delta: float) -> void:
 		if minf(from.distance_to(view.focus),to.distance_to(view.focus))>maxf(view.zoom*2.0,240):continue
 		# Visual travel progress based on response time. An exact path for rescue
 		# vehicles is a separate future routing feature.
-		var ratio:float=clampf(1.0-float(incident.get("remaining",0))/60.0,0,1)
+		var total: float=float(incident.get("response_duration",rescue_durations.get(incident.id,maxf(1,float(incident.get("remaining",1))))))
+		rescue_durations[incident.id]=total
+		var ratio:float=clampf(1.0-float(incident.get("remaining",0))/maxf(1,total),0,1)
 		var pos:Vector2=from.lerp(to,ratio)
 		var angle:float=atan2(to.x-from.x,to.y-from.y)
 		emergency_mesh.multimesh.set_instance_transform(rescue_count,Transform3D(Basis(Vector3.UP,angle),view.terrain.world(pos,0.5)))
 		emergency_mesh.multimesh.set_instance_color(rescue_count,Color.WHITE)
 		rescue_count+=1
 	emergency_mesh.multimesh.visible_instance_count=rescue_count
+

@@ -4,7 +4,7 @@ extends RefCounted
 const PRESETS := ["balanced", "compact", "cozy"]
 const DAY_SPEED := {"balanced":1.8, "compact":2.2, "cozy":1.35}
 const QUIET_FROM := 1320
-const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental"]
+const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenirs", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
 
 static func playback(minute: int, preset: String = "balanced") -> float:
 	# Keep an unhurried 17–22h evening after the shorter skiing day.
@@ -23,3 +23,4 @@ static func indoors_only(model: RefCounted) -> bool:
 
 static func quiet_night(model: RefCounted) -> bool:
 	return model.time_divisor > 1 and model.Ops.continuous(model) and (int(model.minute) < int(model.OPENING) or int(model.minute) >= QUIET_FROM) and indoors_only(model)
+

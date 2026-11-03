@@ -1,0 +1,60 @@
+name: Combined 0.26 integration and visual proof
+on:
+  push:
+    branches: ['work/026-*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: integration026-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  combined:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and localization coverage
+        run: |
+          python3 - <<'PY'
+          import os,subprocess,sys
+          p=subprocess.run([os.environ['GODOT_BIN'],'--headless','--editor','--import','--quit'],capture_output=True,text=True,timeout=220)
+          print(p.stdout+p.stderr)
+          sys.exit(1 if p.returncode or 'SCRIPT ERROR' in p.stdout+p.stderr else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Hotel, winter, audio and restored scenario regression
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/winter_festival_025.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_crew_026.gd
+          python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/scenario_cinema_026.gd
+      - name: Virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Actual mixer, tours, housing and main menu
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/integration_quality_026.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/main_mode_scene.gd
+      - name: Six styles, hotel stories and annual scenery
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/village_hospitality_scene.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: combined-026-visual-QA
+          path: build/qa/*
+          if-no-files-found: ignore
+          retention-days: 60

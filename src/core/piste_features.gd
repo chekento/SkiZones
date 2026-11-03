@@ -97,19 +97,19 @@ static func height_offset(piste: Dictionary, fraction: float, lateral: float, ab
 		result=maxf(result,height_value*(1.0-smoothstep(half_width*0.65,half_width,side_distance)))
 	return result
 
-static func safe_lateral(piste: Dictionary, fraction: float, lateral: float, ability: int) -> float:
-	if ability>=1: return lateral
+static func safe_lateral(piste: Dictionary, fraction: float, lateral: float, ability: int, reference_lane: float = 0.0) -> float:
+	if ability>=1:return lateral
 	for feature in piste.get("features",[]):
 		var along := absf(fraction-float(feature.fraction))*float(piste.length)
-		if along>=16: continue
+		if along>=24:continue
 		var clearance := 2.1 if feature.kind=="rail" else 3.6
 		var center: float=feature.lateral
-		if absf(lateral-center)>=clearance: continue
 		var edge := Snow.piste_width(piste)*0.43
 		var left := center-clearance
 		var right := center+clearance
-		var target := left if absf(lateral-left)<absf(lateral-right) else right
-		if target < -edge: target=right
-		if target > edge: target=left
-		lateral=lerpf(lateral,clampf(target,-edge,edge),1-smoothstep(8,16,along))
+		var use_left := reference_lane<=center
+		if left < -edge:use_left=false
+		if right > edge:use_left=true
+		var target := minf(lateral,left) if use_left else maxf(lateral,right)
+		lateral=lerpf(lateral,clampf(target,-edge,edge),1-smoothstep(8,24,along))
 	return lateral

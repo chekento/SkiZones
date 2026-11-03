@@ -27,6 +27,7 @@ const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const WinterFestival = preload("res://src/ui/winter_festival.gd")
+const MedalCabinet = preload("res://src/ui/medal_cabinet.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
@@ -49,6 +50,7 @@ var game: Node
 var root := Control.new()
 var achievement_overlay := AchievementToast.new()
 var winter_festival := WinterFestival.new()
+var medal_cabinet := MedalCabinet.new()
 var winter_group: VBoxContainer
 var winter_toolbar_button: Button
 var loading := PanelContainer.new()
@@ -100,6 +102,9 @@ const DayReport = preload("res://src/ui/day_report.gd")
 var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
+var cinema_overlay := PanelContainer.new()
+var cinema_title := Label.new()
+var cinema_mode := false
 var camera_panel: PanelContainer
 var camera_choice := OptionButton.new()
 var pitch_slider := HSlider.new()
@@ -192,6 +197,7 @@ func setup(controller: Node) -> void:
 	_build_menu()
 	_build_dialogs()
 	_build_camera_dialog()
+	_build_cinema_overlay()
 	root.add_child(management)
 	management.setup(game, self)
 	root.add_child(lift_staff)
@@ -221,6 +227,8 @@ func setup(controller: Node) -> void:
 	style_framing.z_index=35
 	root.add_child(winter_festival)
 	winter_festival.setup(self)
+	root.add_child(medal_cabinet)
+	medal_cabinet.setup(self)
 	if Maps.SCENARIOS_ENABLED:
 		root.add_child(scenarios)
 		scenarios.setup(self)
@@ -598,6 +606,7 @@ func _build_camera_bar() -> void:
 	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
 	inspector_toggle_button.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
+	_button(box,L.text("♫ Radio"),show_radio).custom_minimum_size.y=40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
 	compact_camera_buttons.append(slopes_button)
@@ -616,6 +625,10 @@ func _build_camera_bar() -> void:
 	for child in box.get_children():
 		if child is Button:
 			child.add_theme_font_size_override("font_size", 16)
+
+func show_radio() -> void:
+	if jukebox.visible: jukebox.close()
+	else: jukebox.open()
 
 func _build_camera_dialog() -> void:
 	root.add_child(camera_dialog)
@@ -651,11 +664,39 @@ func _build_camera_dialog() -> void:
 	box.add_child(orbit)
 	for entry in [[L.text("↶ Drehen"), func(): game.view.rotate_view(-0.3)], [L.text("Drehen ↷"), func(): game.view.rotate_view(0.3)], [L.text("Talansicht"), func(): game.view.home()]]:
 		_button(orbit, entry[0], entry[1]).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_button(box,L.text("Filmische Kamerafahrt · Resort-Tour"),func():
+		camera_dialog.hide()
+		game.start_cinematic_tour()
+	,true)
 	_label(box, L.text("Draufsicht: präzise planen. Panorama: Gelände und Gäste beobachten. Q / E dreht, C wechselt die Perspektive."), 14, MUTED, true)
 	_spacer(box)
 	_button(box, L.text("Zurück zum Berg"), camera_dialog.hide, true)
 	camera_dialog.hide()
 	_sync_camera_controls()
+
+func _build_cinema_overlay() -> void:
+	root.add_child(cinema_overlay)
+	cinema_overlay.anchor_top=1.0
+	cinema_overlay.anchor_bottom=1.0
+	cinema_overlay.offset_left=20
+	cinema_overlay.offset_top=-98
+	cinema_overlay.offset_right=510
+	cinema_overlay.offset_bottom=-20
+	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.78),12,10))
+	var bar:=HBoxContainer.new()
+	bar.add_theme_constant_override("separation",12)
+	cinema_overlay.add_child(bar)
+	cinema_title=_label(bar,L.text("Cinematic Resort Tour"),17,Color("f5f7fc"),true)
+	cinema_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var exit_button:=_button(bar,L.text("Zurück"),func(): game.stop_cinematic_tour())
+	exit_button.custom_minimum_size=Vector2(95,52)
+	cinema_overlay.hide()
+
+func set_cinema_mode(on: bool) -> void:
+	cinema_mode=on
+	if on: jukebox.close()
+	cinema_overlay.visible=on
+	_apply_panel_visibility()
 
 func _sync_camera_controls() -> void:
 	camera_choice.select(game.view.camera_mode)
@@ -692,7 +733,7 @@ func set_map_focus(enabled: bool) -> void:
 
 func _apply_panel_visibility() -> void:
 	data_credit.visible = game.model.map_id in Geo.IDS and not menu.visible
-	var show_game := not menu.visible
+	var show_game := not menu.visible and not cinema_mode
 	for panel in map_panels:
 		if panel.get_parent() == root:
 			panel.visible = show_game
@@ -791,8 +832,11 @@ func _build_menu() -> void:
 	)
 	_button(options, L.text("Spielhilfe & Steuerung"), show_help)
 	var service := _menu_group(box, "04  ·  SERVICE & COMMUNITY", "Updates, Feedback und Informationen")
+	_button(service,L.text("Medaillen & Erfolgsarchiv"),func(): medal_cabinet.open(),true)
 	if Maps.SCENARIOS_ENABLED:
-		_button(service, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
+		var scenarios_group := _menu_group(box, "05  ·  SZENARIEN", "Optionale Herausforderungen an realen Orten")
+		_button(scenarios_group,L.text("Szenarien · vier echte Skigebiete"),func(): scenarios.open())
+		_label(scenarios_group,L.text("Zusatzmodus – dein Hauptspiel und deine vier Karriereplätze bleiben unverändert."),14,MUTED,true)
 	updates_button = _button(service, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
 	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
@@ -826,9 +870,11 @@ func show_menu() -> void:
 	lift_staff.hide()
 	audience.hide()
 	update_dialog.hide()
+	if medal_cabinet.visible: medal_cabinet.close()
 	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
+	jukebox.close()
 	credits.hide()
 	community.hide()
 	menu.show()
@@ -843,8 +889,10 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
+	if jukebox.visible:return true
+	if medal_cabinet.visible: return true
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if experience.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -1090,6 +1138,7 @@ func refresh() -> void:
 	if winter_group != null: winter_group.visible=seasonal
 	if winter_toolbar_button != null: winter_toolbar_button.visible=seasonal
 	var model: RefCounted = game.model
+	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	# Styling is synced before displaying queued achievements.
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
 	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
@@ -1112,7 +1161,7 @@ func refresh() -> void:
 		mission_title.text = L.text("SZENARIO · %s · %d / %d Missionen") % [L.text(Maps.spec(model.map_id).name), goals.count(true), goals.size()]
 		var next := goals.find(false)
 		mission_next.text = L.text("Alle Missionen erfüllt · der Betrieb geht weiter.") if next < 0 else L.text("Nächste Mission: ") + L.text(Ops.GOALS[scenario][next])
-	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and scenario != ""
+	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and not cinema_mode and scenario != ""
 	palette.refresh()
 	if current_tool == "inspect":
 		plan_text.text = L.text("Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht.") if model.is_closing() and Ops.continuous(model) else L.text("Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind.") if model.is_closing() else L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.")
@@ -1238,6 +1287,7 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 
 
 

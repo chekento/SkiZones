@@ -87,6 +87,7 @@ func build(view: Node3D) -> void:
 		_line(blocked, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top), maxf(16, Fleet.rope_offset(lift) + 15))
 	for building in view.model.buildings:
 		_disk(blocked, Terrain.unpack(building.point), 36 if building.kind == "grand_hotel" else 29 if building.kind == "hotel" else 23)
+	for reserve in view._extra_clearings: _disk(blocked,reserve.point,reserve.radius)
 	clearing = blocked
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
 	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
@@ -158,4 +159,5 @@ func update(focus: Vector2, zoom: float, tier: int) -> void:
 			group.node.multimesh.mesh = variants[group.species].near if detail else variants[group.species].far
 		group.node.multimesh.visible_instance_count = int(group.node.multimesh.instance_count * (0.65 if tier == 0 else 1.0))
 		group.node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if detail and tier == 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
 
