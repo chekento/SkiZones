@@ -23,6 +23,7 @@ const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
+const CrewLife=preload("res://src/world/crew_life.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
@@ -37,6 +38,7 @@ var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var festival_scene := FestivalScenery.new()
+var crew_life:=CrewLife.new()
 var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
@@ -820,6 +822,7 @@ func rebuild(progress: RefCounted = null) -> void:
 		await get_tree().process_frame
 	_build_hotel_connectors()
 	_build_trees()
+	crew_life.build(self)
 	festival_scene.build(self)
 	_guest_tick = ""
 	loading_in_progress = false
@@ -1203,6 +1206,7 @@ func _process(delta: float) -> void:
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	crew_life.update(self,delta)
 	festival_scene.update(self,delta)
 	_adapt_quality(delta)
 	var next_positions: Dictionary = {}
@@ -1815,6 +1819,7 @@ func set_visual_style(id: String) -> void:
 	# placement remains deterministic and cleared of all player structures.
 	landscape_details.build(self)
 	_build_hotel_connectors()
+	crew_life.build(self)
 	festival_scene.build(self)
 	# Printed piste atlas overlays: retain player-selected contours in every
 	# other theme, and never alter the underlying navigation/collision geometry.
