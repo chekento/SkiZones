@@ -124,7 +124,7 @@ func claim(door: int, date: Dictionary = {}) -> Dictionary:
 	state.claims[key]=doors
 	state.coins+=reward(door)
 	if _save(state)!=OK: return {"ok":false,"message":"Kalender konnte nicht sicher gespeichert werden."}
-	return {"ok":true,"coins":reward(door),"message":"Türchen %d geöffnet · +%d Wintertaler!" % [door,reward(door)]}
+	return {"ok":true,"coins":reward(door),"message":L.format_message("Türchen %d geöffnet · +%d Wintertaler!",[door,reward(door)])}
 
 func buy_decoration(kind: String) -> Dictionary:
 	var state := _state()
@@ -134,7 +134,7 @@ func buy_decoration(kind: String) -> Dictionary:
 	state.coins-=int(DECORATIONS[kind].price)
 	state.owned.append(kind)
 	if _save(state)!=OK: return {"ok":false,"message":"Dekoration konnte nicht sicher gespeichert werden."}
-	return {"ok":true,"message":"Dekoration dauerhaft freigeschaltet: "+str(DECORATIONS[kind].name)}
+	return {"ok":true,"message":L.format_message("Dekoration dauerhaft freigeschaltet: %s",str(DECORATIONS[kind].name))}
 
 static func countdown(date: Dictionary) -> int:
 	if not valid_date(date) or int(date.month)!=12 or int(date.day)!=31: return -1
@@ -144,12 +144,18 @@ static func countdown(date: Dictionary) -> int:
 	if seconds<0 or seconds>=86400: return -1
 	return 86400-seconds
 
+static func can_celebrate(date: Dictionary) -> bool:
+	if not valid_date(date): return false
+	for key in ["hour","minute","second"]:
+		if not date.get(key) is int: return false
+	if int(date.hour)<0 or int(date.hour)>23 or int(date.minute)<0 or int(date.minute)>59 or int(date.second)<0 or int(date.second)>59: return false
+	return (int(date.month)==12 and int(date.day)==31 and int(date.hour)==23 and int(date.minute)>=55) or (int(date.month)==1 and int(date.day)==1 and int(date.hour)==0)
+
 func celebrate_new_year(date: Dictionary = {}) -> Dictionary:
 	var now: Dictionary=device_now() if date.is_empty() else date
 	var year:=festive_year(now)
 	if not valid_date(now): return {"ok":false,"message":"Ungültiges Systemdatum."}
-	var allowed: bool=(int(now.month)==12 and int(now.day)==31 and int(now.get("hour",0))==23 and int(now.get("minute",0))>=55) or (int(now.month)==1 and int(now.day)==1 and int(now.get("hour",0))==0)
-	if not allowed: return {"ok":false,"message":"Jahreswechsel ab 23:55 Uhr bis 01:00 Uhr verfügbar."}
+	if not can_celebrate(now): return {"ok":false,"message":"Jahreswechsel ab 23:55 Uhr bis 01:00 Uhr verfügbar."}
 	var state:=_state()
 	if state.new_years.has(year): return {"ok":false,"message":"Die Silvesterfeier wurde in diesem Jahr bereits gestartet."}
 	state.new_years.append(year)

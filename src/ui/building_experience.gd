@@ -95,7 +95,7 @@ func _card(parent: Node, title: String, description: String = "") -> VBoxContain
 func _action(parent: Node, label_text: String, action: Callable) -> Button:
 	return hud._button(parent, label_text, func():
 		var result: Dictionary = action.call()
-		hud.toast(result.get("message", ""))
+		hud.toast(L.text(str(result.get("message", ""))))
 		_rebuild()
 	, true)
 

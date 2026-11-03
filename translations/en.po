@@ -5177,3 +5177,6 @@ msgstr "Alpine Extra Edition"
 
 msgid "Heiligabend-Goldstern"
 msgstr "Christmas Eve gold star"
+
+msgid "Dekoration dauerhaft freigeschaltet: %s"
+msgstr "Decoration permanently unlocked: %s"

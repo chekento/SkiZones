@@ -8,6 +8,18 @@ const Calendar = preload("res://src/core/annual_festival.gd")
 var passed := 0
 var failed := 0
 
+class CalendarWindow extends "res://src/ui/winter_festival.gd":
+	var today := {"year":2026,"month":12,"day":5,"hour":23,"minute":59,"second":59}
+	func current_date() -> Dictionary:
+		return today.duplicate()
+
+func find_button(node: Node, prefix: String) -> Button:
+	if node is Button and node.text.begins_with(prefix): return node
+	for child in node.get_children():
+		var found:=find_button(child,prefix)
+		if found!=null: return found
+	return null
+
 func check(ok: bool, message: String) -> void:
 	if ok: passed+=1; print("PASS ",message)
 	else: failed+=1; push_error("FAIL "+message)
@@ -62,6 +74,43 @@ func run() -> void:
 	festive.build(game.view)
 	check(festive.root.get_child_count()==0,"All event-only decor automatically retires after January 1")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(festive.store.path))
+	game.apply_language("en")
+	var panel:=CalendarWindow.new()
+	game.hud.root.add_child(panel)
+	panel.setup(game.hud)
+	panel.archive.path="user://winter25_calendar_ui_test.cfg"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(panel.archive.path))
+	panel.open()
+	check(panel.visible and find_button(panel,"★ 6").disabled,"An open December 5 calendar keeps tomorrow's bonus door locked")
+	panel.today={"year":2026,"month":12,"day":6,"hour":0,"minute":0,"second":0}
+	panel._process(0.1)
+	var door:=find_button(panel,"★ 6")
+	check(door!=null and not door.disabled,"A calendar left open over midnight unlocks the actual new day's door")
+	door.pressed.emit()
+	check(panel.archive.overview(panel.today).claimed.has(6) and game.hud.labels.status.text=="Door 6 opened · +12 Winter Coins!","The real door action saves one reward and shows its English numbered confirmation")
+	var decoration:=find_button(panel,"Wooden stars")
+	check(decoration!=null and decoration.text.ends_with("Winter Coins"),"Decoration prices use the selected language")
+	decoration.pressed.emit()
+	check(panel.archive.overview(panel.today).owned.has("star") and game.hud.labels.status.text=="Decoration permanently unlocked: Wooden stars","Buying decoration translates both the action and the item name")
+	await capture("winter25-calendar-en")
+	panel.today={"year":2026,"month":12,"day":31,"hour":23,"minute":54,"second":59}
+	panel._process(0.1)
+	check(find_button(panel,"Celebrate New Year").disabled,"The real celebration button stays locked before 23:55")
+	panel.today.minute=55
+	panel.today.second=0
+	panel._process(0.1)
+	check(not find_button(panel,"Celebrate New Year").disabled,"The open celebration button unlocks at 23:55 using the shared rule")
+	panel.today={"year":2027,"month":1,"day":1,"hour":0,"minute":0,"second":0}
+	panel._process(0.1)
+	find_button(panel,"Celebrate New Year").pressed.emit()
+	check(panel.archive.overview(panel.today).new_year_done and find_button(panel,"Celebrate New Year").disabled,"The real New Year action archives the correct winter and disables duplicate claims")
+	panel.today.hour=1
+	panel._process(0.1)
+	check(find_button(panel,"Celebrate New Year").disabled,"A calendar kept open past 01:00 no longer offers the expired celebration")
+	panel.today.day=2
+	panel._process(0.1)
+	check(not panel.visible and game.paused,"The calendar closes after the season and preserves a previously paused game")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(panel.archive.path))
 	game.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
