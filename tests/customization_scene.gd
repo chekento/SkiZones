@@ -37,8 +37,10 @@ func run() -> void:
 	game.begin_edit(item.id,"Bergblick","4a998f",1,20);game.points=[[405,300]];game._update_plan()
 	check(not game.hud.confirm_button.disabled and game.hud.confirm_button.text.begins_with("Übernehmen"), "The actual plan shows an enabled remodeling confirmation and its fee")
 	var fee: float = game.last_plan_check.cost
+	var rewards_before: float = game.model.report.rewards
 	game.confirm_plan();game.confirm_plan()
-	check(item.rotation == 1 and item.color == "4a998f" and item.point == [405,300] and game.model.money == balance-fee and game.editing_id == -1, "Repeated confirmation applies and charges a remodel exactly once")
+	var paid: float = balance - game.model.money + (game.model.report.rewards - rewards_before)
+	check(item.rotation == 1 and item.color == "4a998f" and item.point == [405,300] and is_equal_approx(paid,fee) and game.editing_id == -1, "Repeated confirmation applies and charges a remodel exactly once, excluding separately booked achievements")
 	game.view.rebuild()
 	var rendered := false
 	for mesh in game.view._occluders:
