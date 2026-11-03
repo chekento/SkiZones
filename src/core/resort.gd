@@ -22,6 +22,7 @@ const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const PisteFeatures = preload("res://src/core/piste_features.gd")
 const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Lodging = preload("res://src/core/guest_lodging.gd")
@@ -679,6 +680,11 @@ func set_enabled(id: int, enabled: bool) -> void:
 		_reroute_guests(true)
 
 func demolish(id: int) -> Dictionary:
+	# Do not strand linear hotel wings or remove their host while modules exist.
+	for building in buildings:
+		var a: Dictionary=building.get("hotel_attachment",{})
+		if int(a.get("hotel_id",-1)) == id or int(a.get("after_id",-1)) == id:
+			return _result(false,"Zuerst die Hotelmodule vom Ende der Kette trennen.")
 	for collection in [pistes, lifts, buildings, walk_areas]:
 		for i in range(collection.size()):
 			if collection[i].id == id:
@@ -2392,6 +2398,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				# These are optional ledger fields. Preserve their absence when
 				# loading older saves; injecting default keys breaks exact
 				# save/resume determinism even though balance calculations use get().
+	if not HotelComplex.valid_all(data.buildings): return invalid
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
