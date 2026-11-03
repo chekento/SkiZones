@@ -120,7 +120,8 @@ func _music_stream(id: String) -> AudioStream:
 		var wav: AudioStreamWAV = track
 		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		wav.loop_begin = 0
-		wav.loop_end = int(wav.data.size() / 2)
+		# Imported WAV can be QOA-compressed; data bytes are not PCM frames.
+		wav.loop_end = roundi(wav.get_length() * wav.mix_rate)
 	return track
 
 func set_genre(id: String) -> void:
