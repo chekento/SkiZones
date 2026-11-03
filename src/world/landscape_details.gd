@@ -21,14 +21,15 @@ func build(view: Node3D) -> void:
 		var point: Vector2 = entry.point
 		if entry.grade > 58 or not view.terrain.bounds.has_point(point): continue
 		var cell := Vector2i((point/192).floor())
-		var kind := posmod(roundi(point.x*3+point.y*7),6)
+		var variety := 6 if view.visual_style == "alpine" else 12
+		var kind := posmod(roundi(point.x*3+point.y*7),variety)
 		var key := Vector3i(cell.x,cell.y,kind)
 		if not buckets.has(key): buckets[key]=[]
 		buckets[key].append(entry)
 		count += 1
 	var meshes: Array = []
-	for kind in range(6):
-		var mesh: ArrayMesh = Art.new().landscape_detail(kind)
+	for kind in range(6 if view.visual_style == "alpine" else 12):
+		var mesh: ArrayMesh = Art.new().landscape_detail(kind,view.visual_style)
 		mesh.surface_set_material(0,view._solid)
 		meshes.append(mesh)
 	for key in buckets:
