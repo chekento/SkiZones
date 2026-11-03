@@ -8,6 +8,7 @@ const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
 const ROLES := {
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
@@ -701,6 +702,9 @@ static func evaluate(model: RefCounted) -> Array:
 		model.money += 75000
 		model.report.rewards += 75000
 		model.campaign.points += 30
+		var rank: String=str(model.operations.get("scenario_difficulty","normal"))
+		ScenarioMedals.new().record(scenario,rank)
+		model.recent_unlocks.append({"kind":"medal","title":"Szenariomedaille · "+str(Geo.map_spec(scenario).name),"detail":rank,"reward":0})
 	return values
 
 static func valid(state: Variant, model: RefCounted) -> bool:
