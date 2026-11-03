@@ -32,7 +32,18 @@ static func initial() -> Dictionary:
 	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
 
 static func group_size(model: RefCounted) -> int:
-	return [1, 2, 8, 5][Geo.IDS.find(model.map_id)] if model.map_id in Geo.IDS else 1
+	if model.map_id not in Geo.IDS: return 1
+	var size: int=[1,2,8,5][Geo.IDS.find(model.map_id)]
+	match str(model.operations.get("scenario_difficulty","normal")):
+		"relaxed": return maxi(1,ceili(size*0.6))
+		"expert": return mini(12,ceili(size*1.35))
+	return size
+
+static func set_scenario_difficulty(model: RefCounted, difficulty: String) -> bool:
+	if model.map_id not in Geo.IDS or difficulty not in ["relaxed","normal","expert"]: return false
+	model.operations["scenario_difficulty"]=difficulty
+	model._operational_change()
+	return true
 
 static func clock(model: RefCounted) -> int:
 	return (model.day - 1) * 1440 + model.minute
@@ -704,6 +715,7 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	if state.has("weekly_discount") and (not Terrain.number(state.weekly_discount) or state.weekly_discount < 5 or state.weekly_discount > 20 or state.weekly_discount != floorf(state.weekly_discount)): return false
 	if state.parts > 10000 or state.room_price < 40 or state.room_price > 250: return false
 	if state.scenario != "" and state.scenario not in Geo.IDS: return false
+	if state.has("scenario_difficulty") and state.scenario_difficulty not in ["relaxed","normal","expert"]: return false
 	if state.staff.size() > 1200 or state.vehicles.size() > 24 or state.repairs.size() > 160 or state.incidents.size() > 100 or state.history.size() > 28: return false
 	var ids: Dictionary = {}
 	for person in state.staff:
