@@ -853,7 +853,7 @@ func show_menu() -> void:
 	lift_staff.hide()
 	audience.hide()
 	update_dialog.hide()
-	medal_cabinet.hide()
+	if medal_cabinet.visible: medal_cabinet.close()
 	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
