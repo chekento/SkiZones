@@ -30,7 +30,7 @@ func build(view: Node3D) -> void:
 	if is_instance_valid(root): root.queue_free()
 	root=Node3D.new()
 	root.name="Winterfest Ambient Art"
-	view.asset_root.add_child(root)
+	view.add_child(root)
 	clock_label=null
 	firework_nodes.clear()
 	var now:=date_now()
