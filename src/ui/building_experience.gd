@@ -263,18 +263,19 @@ func _next_task() -> void:
 	picked.clear()
 	elapsed = 0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
-	hud._label(game_box, task.prompt, 24 if task.mode == "hotel_story" else 32, hud.INK, true)
+	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode == "hotel_story" else 32, hud.INK, true)
 	if task.mode == "hotel_story":
+		hud._label(game_box,L.text(str(task.title)),22,hud.TEAL,true)
 		var story_art := HotelStoryArt.new()
 		story_art.scene_id = str(task.scene)
 		story_art.style_id = hud.game.preferences.visual_style
 		story_art.custom_minimum_size = Vector2(0,240)
 		game_box.add_child(story_art)
-		hud._label(game_box, str(task.guest) + " · " + str(task.intro), 18, hud.TEAL, true)
-		hud._label(game_box, str(task.wish), 16, hud.MUTED, true)
+		hud._label(game_box, L.text(str(task.guest)) + " · " + L.text(str(task.intro)), 18, hud.TEAL, true)
+		hud._label(game_box, L.text(str(task.wish)), 16, hud.MUTED, true)
 		for choice_index in range(task.choices.size()):
 			var chosen: int = choice_index
-			hud._button(game_box,str(task.choices[choice_index]),func(): _submit(chosen),true)
+			hud._button(game_box,L.text(str(task.choices[choice_index])),func(): _submit(chosen),true)
 		status = hud._label(game_box,L.text("Punkte bisher: %d") % int(session.score),18,hud.MUTED)
 		return
 	artwork = ActivityArt.new()
