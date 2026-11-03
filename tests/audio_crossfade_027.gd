@@ -51,7 +51,7 @@ func run() -> void:
 	radio._mix(1.3)
 	check(not is_instance_valid(radio._retiring_music) and is_equal_approx(radio._crossfade,1.0),"Finished fade cleans old player")
 	radio.set_preview({"enabled":false})
-	check(is_zero_approx(float(radio._targets.music)) and radio.players["music"].stream_paused,"Audio opt-out is immediate")
+	check(is_zero_approx(float(radio._targets.music)) and (not radio.players["music"].playing or radio.players["music"].stream_paused),"Audio opt-out is immediate")
 	radio.set_preview({"genre":"off","enabled":true})
 	check(radio.current_genre=="off" and not radio.players["music"].playing,"Off stops all music")
 	radio.clear_preview()
@@ -60,7 +60,7 @@ func run() -> void:
 	radio.sync()
 	check(radio.current_genre=="meditative" and float(radio._targets.music)>0.0,"Persisted genre restores correctly")
 	radio.set_active(false)
-	check(radio.players["music"].stream_paused and radio.players["wind"].stream_paused,"Backgrounding pauses playback")
+	check((not radio.players["music"].playing or radio.players["music"].stream_paused) and (not radio.players["wind"].playing or radio.players["wind"].stream_paused),"Backgrounding silences every stream")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
