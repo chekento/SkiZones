@@ -33,7 +33,7 @@ func setup(resort_view: Node3D, prefs: RefCounted) -> void:
 		add_child(player)
 		players[layer]=player
 	var alternate:=AudioStreamPlayer.new()
-	alternate.name="SkiZones music alternate"
+	alternate.name="music_alt"
 	alternate.bus="Master"
 	alternate.volume_db=-60.0
 	add_child(alternate)
