@@ -83,7 +83,7 @@ func _rebuild() -> void:
 	elif stage=="new_year":
 		hud._label(contents,L.text("Frohes neues Jahr!"),30,hud.TEAL,true)
 	if stage in ["new_year_eve","new_year"]:
-		var celebrate:=hud._button(contents,L.text("Jahreswechsel feiern · einmal im Jahr"),func():
+		var celebrate: Button=hud._button(contents,L.text("Jahreswechsel feiern · einmal im Jahr"),func():
 			var result=archive.celebrate_new_year()
 			hud.toast(L.text(str(result.message)))
 			_rebuild()
@@ -95,7 +95,7 @@ func _rebuild() -> void:
 		var key: String=kind
 		var spec: Dictionary=AnnualFestival.DECORATIONS[kind]
 		var already: bool=state.owned.has(key)
-		var button:=hud._button(contents,L.text(str(spec.name)) + (" ✓" if already else " · %d Wintertaler" % int(spec.price)),func():
+		var button: Button=hud._button(contents,L.text(str(spec.name)) + (" ✓" if already else " · %d Wintertaler" % int(spec.price)),func():
 			var result=archive.buy_decoration(key)
 			hud.toast(L.text(str(result.message)))
 			_rebuild()
