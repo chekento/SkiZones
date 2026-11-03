@@ -10,7 +10,7 @@ const MAX_EDGE_GAP := 24.0
 const LINK_COST := 4500
 
 static func _id(value: Variant) -> bool:
-	return value is int and value > 0 and value <= 100000000
+	return Terrain.number(value) and value==floorf(float(value)) and value > 0 and value <= 100000000
 
 static func is_module(building: Dictionary) -> bool:
 	return str(building.get("kind","")) in MODULES
