@@ -5,6 +5,10 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const ACTIVITIES := {
+	"fitness":{"title":"Alpines Fitnessstudio","mode":"timing","hint":"Trainiere im gesunden Pulsbereich und betreue die Gäste.","choices":[]},
+	"souvenir":{"title":"Souveniratelier","mode":"orders","hint":"Finde das passende Urlaubsandenken für deinen Gast.","choices":["Holzfigur","Kuhglocke","Postkarte","Schneekugel"]},
+	"watchmaker":{"title":"Uhrmacherwerkstatt","mode":"orders","hint":"Prüfe eine feine Uhr und wähle das passende Ersatzteil.","choices":["Zeiger","Feder","Krone","Uhrglas"]},
+	"craftshop":{"title":"Handwerksstube","mode":"orders","hint":"Stelle das bestellte traditionelle Andenken her.","choices":["Holzlöffel","Schnitzfigur","Alpenglocke","Bergmotiv"]},
 	"pizzeria":{"title":"Pizza-Werkstatt", "mode":"orders", "hint":"Belege die bestellte Pizza mit genau den Zutaten deiner eigenen Karte.", "choices":["Tomate", "Käse", "Pilze", "Paprika"]},
 	"school":{"title":"Slalom-Skischule", "mode":"slalom", "hint":"Fahre durch das markierte Tor. Fünf Schwünge ergeben eine Unterrichtsrunde.", "choices":["Links", "Mitte", "Rechts"]},
 	"restaurant":{"title":"Restaurant-Service", "mode":"orders", "hint":"Merke dir die Bestellung und serviere das passende Gericht.", "choices":["Suppe", "Knödel", "Pasta", "Salat"]},

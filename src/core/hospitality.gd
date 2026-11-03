@@ -3,6 +3,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TOPPINGS := {"tomato":"Tomate", "cheese":"Käse", "mushroom":"Pilze", "pepper":"Paprika", "olive":"Oliven", "ham":"Schinken", "salami":"Salami", "pineapple":"Ananas", "spinach":"Spinat", "onion":"Zwiebeln"}
 const DEFAULT_PIZZAS := [{"name":"Margherita", "toppings":["tomato", "cheese"]}, {"name":"Alpengarten", "toppings":["tomato", "cheese", "mushroom", "pepper"]}, {"name":"Gipfelpizza", "toppings":["tomato", "cheese", "ham", "onion"]}]
 const HOTEL_DEFAULTS := {"price":0, "family_share":30, "premium_share":20, "comfort":1, "breakfast":true, "auto_clean":true, "cleanliness":100.0, "rating":3.5, "marketing":0, "chain":"", "nights":0, "last_review_day":0}
@@ -158,7 +159,7 @@ static func attraction(model: RefCounted, building: Dictionary, guest: Dictionar
 	var settings := config(building)
 	var family: bool = int(guest.get("group_size", 1)) > 1 or guest.has("party_id")
 	var chain := maxi(0, chain_members(model, building).size() - 1)
-	return float(settings.rating) * 2.0 + float(settings.cleanliness) * 0.03 + int(settings.marketing) * 0.6 + mini(chain, 4) * 0.35 + (float(settings.family_share) * 0.02 if family else 0.0) - room_price(model, building) / 45.0
+	return float(settings.rating) * 2.0 + float(settings.cleanliness) * 0.03 + int(settings.marketing) * 0.6 + mini(chain, 4) * 0.35 + minf(2.0,HotelComplex.ordered(model.buildings,int(building.id)).size()*0.38) + (float(settings.family_share) * 0.02 if family else 0.0) - room_price(model, building) / 45.0
 
 static func night_charge(model: RefCounted, building: Dictionary, guest: Dictionary) -> float:
 	if not guest.get("hotel_night", false) or int(guest.get("lodging_id", 0)) != int(building.id): return float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))

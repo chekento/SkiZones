@@ -1,0 +1,55 @@
+name: 0.25 hotel modules and annual winter festival
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: winter25-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  hotel-and-winter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install Godot 4.5.2
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile scripts and verify both language catalogs
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=180)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in (p.stdout+p.stderr) else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Annual dates, rewards, hotel modules and alpine businesses
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/winter_festival_025.gd
+      - name: Existing hotels, recipes, NPCs and service accounting
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality.gd
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Render hotel module windows
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/village_hospitality_scene.gd
+      - name: Render 5 styles with new environment items
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+      - name: Render five Christmas scenes and real year-end countdown in Godot
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ski-zones-025-visual-regressions
+          path: build/qa/*
+          if-no-files-found: ignore
+          retention-days: 30

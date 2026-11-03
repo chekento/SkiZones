@@ -27,7 +27,20 @@ func _draw() -> void:
 	draw_rect(Rect2(12,75,80,4),Color("d6e3e8"))
 	var at := Vector2(96,66)
 	draw_circle(at,15,Color("fff7e8"))
-	if kind=="pizzeria":
+	if kind=="fitness":
+		for side in [-1,1]: draw_circle(at+Vector2(side*8,0),6,Color("446b7a"))
+		draw_line(at+Vector2(-9,0),at+Vector2(9,0),Color("446b7a"),3,true)
+	elif kind=="watchmaker":
+		draw_circle(at,12,Color("e0b36f"))
+		draw_circle(at,9,Color("fff8e8"))
+		draw_line(at,at+Vector2(0,-7),Color("4a6570"),2,true)
+		draw_line(at,at+Vector2(5,3),Color("4a6570"),2,true)
+	elif kind in ["souvenir","craftshop"]:
+		draw_rect(Rect2(at-Vector2(9,10),Vector2(18,19)),Color("bd976f"))
+		for i in range(3):
+			draw_circle(at+Vector2(-5+i*5,3),2,Color("f1dfb2"))
+		draw_line(at+Vector2(-9,-3),at+Vector2(9,-3),Color("6e5a4c"),2,true)
+	elif kind=="pizzeria":
 		draw_circle(at,10,Color("d9aa64"))
 		draw_circle(at,8,Color("d57f54"))
 		for offset in [Vector2(-3,-3),Vector2(4,-1),Vector2(0,4)]: draw_circle(at+offset,2,Color("f2dab0"))

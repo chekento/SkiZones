@@ -7,6 +7,7 @@ const Hospitality = preload("res://src/core/hospitality.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
+const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const HotelStoryArt = preload("res://src/ui/hotel_story_art.gd")
 var hud: CanvasLayer
 var asset_id := -1
@@ -222,6 +223,32 @@ func _hotel(building: Dictionary) -> void:
 		var body := _card(chains, L.asset_name(member), L.text("%d / %d Zimmer · %.0f € je Nacht") % [int(data.occupied), int(data.capacity), float(data.price)])
 		hud._button(body, L.text("Dieses Haus verwalten"), func(): open(int(member.id)))
 	_weekly(chains)
+	var module_page := _page(L.text("Hotelkomplex & Module"))
+	var modules: Array = HotelComplex.ordered(model.buildings,int(building.id))
+	var overview := _card(module_page,L.text("Deine Hotelzeile"),L.text("Erweitere dein Hotel von links nach rechts. Bestehende, benachbarte Dorfgebäude können als eigenständig wirtschaftende Module an das Kettenende andocken."))
+	var drawing := HBoxContainer.new()
+	var strip := ScrollContainer.new()
+	strip.custom_minimum_size.y=118
+	strip.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
+	overview.add_child(strip)
+	strip.add_child(drawing)
+	hud._label(drawing,L.asset_name(building),18,hud.TEAL,true)
+	for module in modules:
+		hud._label(drawing," → "+L.asset_name(module),17,hud.INK,true)
+	var summary := _card(module_page,L.text("Verbunden: %d / %d Module") % [modules.size(),HotelComplex.MAX_MODULES],L.text("Jeder Betrieb behält Personal, Umsatz und eigene Serviceaktivitäten. Die Verbindung kostet 4.500 €; die Gebäude werden nicht teleportiert."))
+	if not modules.is_empty():
+		var last: Dictionary = modules.back()
+		var last_id: int=int(last.id)
+		_action(summary,L.text("Letztes Modul lösen · %s") % L.args(L.asset_name(last)),func(): return HotelComplex.detach(model,int(building.id),last_id))
+	var candidates := 0
+	for other in model.buildings:
+		var module_id: int=int(other.id)
+		var check: Dictionary=HotelComplex.check(model,int(building.id),module_id)
+		if not check.ok: continue
+		candidates+=1
+		_action(module_page,L.text("%s als nächstes Modul andocken · 4.500 €") % L.args(L.asset_name(other)),func(): return HotelComplex.attach(model,int(building.id),module_id))
+	if candidates==0:
+		hud._label(module_page,L.text("Noch kein freier Nachbarbau am Kettenende. Baue im Dorfkatalog einen Pool, Spa, Fitnessraum, Restaurant oder ein Handwerksgeschäft in direkter Nähe."),16,hud.MUTED,true)
 
 func _weekly(page: Node) -> void:
 	var model: RefCounted = hud.game.model

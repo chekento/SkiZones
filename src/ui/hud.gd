@@ -23,6 +23,8 @@ const Traffic = preload("res://src/core/guest_traffic.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
+const AnnualFestival = preload("res://src/core/annual_festival.gd")
+const WinterFestival = preload("res://src/ui/winter_festival.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
@@ -44,6 +46,9 @@ const APRICOT := Color("f1c5a4")
 var game: Node
 var root := Control.new()
 var achievement_overlay := AchievementToast.new()
+var winter_festival := WinterFestival.new()
+var winter_group: VBoxContainer
+var winter_toolbar_button: Button
 var loading := PanelContainer.new()
 var loading_percent := Label.new()
 var loading_stage := Label.new()
@@ -205,6 +210,8 @@ func setup(controller: Node) -> void:
 	asset_editor.setup(self)
 	root.add_child(display_options)
 	display_options.setup(self)
+	root.add_child(winter_festival)
+	winter_festival.setup(self)
 	if Maps.SCENARIOS_ENABLED:
 		root.add_child(scenarios)
 		scenarios.setup(self)
@@ -575,6 +582,9 @@ func _build_camera_bar() -> void:
 	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
+	winter_toolbar_button=_button(box,L.text("Advent & Feste"),func(): winter_festival.open())
+	winter_toolbar_button.custom_minimum_size.y=40
+	winter_toolbar_button.visible=AnnualFestival.visible(AnnualFestival.device_now())
 	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
 	inspector_toggle_button.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
@@ -756,6 +766,12 @@ func _build_menu() -> void:
 		set_map_focus(false)
 		game.clear_plan()
 	)
+	winter_group = _menu_group(box,"❄  ·  WINTERFESTE","Adventskalender und Silvester, jedes Jahr")
+	_button(winter_group,L.text("Adventskalender & Neujahrsfeier"),func():
+		hide_menu()
+		winter_festival.open()
+	,true)
+	winter_group.visible=AnnualFestival.visible(AnnualFestival.device_now())
 	var options := _menu_group(box, "03  ·  DARSTELLUNG & STEUERUNG", "Bildstile, Kamera und Komfort")
 	_button(options, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open(), true)
 	_button(options, L.text("Kamera & Perspektive"), func():
@@ -1059,6 +1075,9 @@ func money_text(amount: float) -> String:
 	return output
 
 func refresh() -> void:
+	var seasonal: bool=AnnualFestival.visible(AnnualFestival.device_now())
+	if winter_group != null: winter_group.visible=seasonal
+	if winter_toolbar_button != null: winter_toolbar_button.visible=seasonal
 	var model: RefCounted = game.model
 	# Styling is synced before displaying queued achievements.
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
