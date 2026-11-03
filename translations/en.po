@@ -5147,3 +5147,33 @@ msgstr "Workshop"
 
 msgid "Bergrettung"
 msgstr "Mountain rescue"
+
+msgid "Berg-Techno"
+msgstr "Mountain techno"
+
+msgid "Pisten-Punk"
+msgstr "Piste punk"
+
+msgid "Winter-Klassik"
+msgstr "Winter classical"
+
+msgid "Winter-Laternen"
+msgstr "Winter lanterns"
+
+msgid "Neujahrs-Countdown-Schild"
+msgstr "New Year countdown sign"
+
+msgid "Druckerei-Schicht"
+msgstr "Printing press shift"
+
+msgid "Check-in"
+msgstr "Check-in"
+
+msgid "Resort-Legende"
+msgstr "Resort legend"
+
+msgid "Alpen-ExtraBlatt"
+msgstr "Alpine Extra Edition"
+
+msgid "Heiligabend-Goldstern"
+msgstr "Christmas Eve gold star"

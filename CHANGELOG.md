@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **26 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **28 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,8 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
+| **[v0.23.0](https://github.com/chekento/SkiZones/releases/tag/v0.23.0)** | 03.11.2026 | Landschaft, Pistenwerkstatt und freiere Dorfplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk) | [Details](docs/releases/0.23.0.md) |
 | **[v0.22.0](https://github.com/chekento/SkiZones/releases/tag/v0.22.0)** | 03.11.2026 | Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.22.0/SkiZones-0.22.0-android-arm64.apk) | [Details](docs/releases/0.22.0.md) |
 | **[v0.21.0](https://github.com/chekento/SkiZones/releases/tag/v0.21.0)** | 02.11.2026 | Bergwelt, Spielgefühl und fünf Bildstile | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk) | [Details](docs/releases/0.21.0.md) |
 | **[v0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2)** | 02.11.2026 | Hauptspiel vor Szenarien | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk) | [Details](docs/releases/0.20.2.md) |
@@ -36,6 +38,75 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.24.0 · Hotel-Mikrowelten und sechs neue Landschaftsdetails (03.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.24.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk)** (44.5 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.24.0/manifest.json) · [Originalnotizen](docs/releases/0.24.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.24.0)
+
+**Versionierte Android-Preview – Veröffentlichung erst nach GitHub-Freigabetests.**
+
+### Änderungen gegenüber 0.23.0
+- **Hotelabenteuer in fünf Kapiteln**: Anreise, Zimmer, Frühstück, Gästewünsche und Abreise. Die verfügbaren Antworten berücksichtigen den realen Hotelzustand. Fortschritt, erreichte Punkte und Besuche bleiben im Gebäudedatensatz gespeichert.
+- **Hotel-Illustrationen**: geschichtete, in Godot gezeichnete Szenentableaus je Kapitel und Stilwahl, vorbereitet für später einzeln erstellte PMDD-Szenen. Noch keine vollständige sensorgestützte Parallaxe und keine 25 fertigen Grafikdateien.
+- **Achievements**: lesbarere, leicht gebogene und plastisch wirkende Erfolgseinblendungen mit Farbgestaltung pro Stilrichtung.
+- **Bildstile**: stärker eigenständige Farb- und Materialpaletten für Comic, Pastell, Filmisch und Winterklar; der klassische Alpin-Look bleibt im Basisspiel erhalten.
+- **Naturassets**: sechs zusätzliche, vor allem in alternativen Grafikstilen verwendete Modelle (Eiskristalle, zugefrorener Teich, Wegweiser, Flora, Fels und vereister Grat).
+- **Tests**: automatisierte Hotel-, Erfolgseinblendungs-, Landschafts- und zweisprachige Oberflächenprüfungen.
+
+### Kompatibilität und bekannte Ausbaustufen
+Die bestehenden Karriere- und Hotelgebäude sollen erhalten bleiben. Die Mikrowelt schreibt keine künstlichen Zimmerbelegungen. Ein vollständiger Hotel-Tycoon mit Raumverwaltung, Personallogistik und echten 3D-Hotelzimmern folgt in weiteren Versionen.
+
+**APK-Dateiname nach erfolgreicher Freigabe:** `SkiZones-0.24.0-android-arm64.apk`. Nicht als veröffentlicht betrachten, solange der GitHub-Release `v0.24.0` nicht tatsächlich besteht.
+
+---
+
+## v0.23.0 · Landschaft, Pistenwerkstatt und freiere Dorfplanung (03.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.23.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk)** (44.5 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.23.0/manifest.json) · [Originalnotizen](docs/releases/0.23.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.23.0)
+
+Die Bergwelt lässt sich leichter lesen und gezielter gestalten. Der Dorfkatalog erhält Gebäudevorschauen und bewegliche Fenster; Skitage werden kürzer und ruhige Nächte deutlich schneller.
+
+### Landschaft und Darstellung
+
+- Dezente, standardmäßig aktive Höhenlinien in 20-m-Schritten, kräftigere 100-m-Linien und Höhenangaben. Die farbige Hangneigungsanalyse bleibt zusätzlich verfügbar. Höhenlinien lassen sich in den Einstellungen abschalten.
+- Richtungsabhängige Geländeschattierung und klarere Schatten für mehr Tiefe. Die vorhandenen Geländeformen, Pistenanschlüsse und Spielstandkoordinaten bleiben erhalten.
+- Zusätzliche Tannen, Lärchen und kahle Bergbäume, mit individuellen Formen in allen fünf Bildstilen. Die Waldobergrenze steigt um 50 Prozent; Qualitätseinstellungen und Entfernungsstufen begrenzen die Darstellung auf schwächeren Geräten.
+- Sechs Gruppen kleiner Landschaftsobjekte: Steine, schneebedeckte Felsen, Sträucher, Baumstümpfe, liegende Stämme und Schneeverwehungen. Sie teilen die automatisch freigehaltenen Baukorridore des Waldes.
+- Erste Rehe, Füchse und Schneehasen auf kurzen Wegen abseits der Pisten, Lifte und Dorfwege. Das ist eine dekorative Wildtierdarstellung, noch keine Tierpopulation mit Ökosystemsimulation. Tiere können ausgeblendet werden und bleiben bei Pause stehen.
+- Wege und Plätze werden als gemeinsame, abgerundete Fläche gezeichnet. Übergänge zwischen verschiedenen Breiten erhalten zusammenhängende Ränder und kleine Schneeböschungen.
+- Überarbeitete Lichtflächen für sämtliche gebackenen 3D-Assets, zusätzliche Fassaden- und Eingangsdetails sowie sichtbar angewinkelte Skifahrerbeine.
+- Schleppliftgehänge sind unbelastet eingezogen und hängen leicht durch. Bei echten Fahrgästen wird das Seil ausgezogen und nach hinten geneigt. Kabelumlauf, belegte Fahrzeuge und individuelle Sitzplätze bleiben an die Simulation gebunden.
+
+### Pisten abschnittsweise ausstatten
+
+Eine gebaute Piste auswählen und **Pistenmodule · Rampen & Rails** öffnen:
+
+- Kleine Sprungrampe für 850 €, breite Rail für 1.200 € und sanfte Schneewelle für 600 €.
+- Bis zu 24 unabhängige Module je Piste; Position entlang der Piste und seitlicher Abstand sind einstellbar. Ein Schema zeigt die Verteilung.
+- Bereits eingebaute Module können für 120 € versetzt oder kostenlos entfernt werden. Entfernen erstattet keine Baukosten.
+- Mindestabstände zu Enden, Kurven und benachbarten Modulen schützen die Durchfahrt. Anfänger fahren an Modulen vorbei; geübte Gäste nutzen die Elemente, wenn ihre tatsächliche Linie darüberführt. Kleine Rampen erhalten eine kurze Flug- und Landephase.
+- Module und Kosten werden im Spielstand gespeichert und beim Laden geprüft. Pistenumbauten, die vorhandenen Modulen zu wenig Platz lassen, werden erklärt und vor dem Bezahlen abgelehnt.
+
+### Dorf und Gebäude
+
+- Die Kategorie **Dorf** öffnet einen großen Gebäudekatalog mit schematischen Vorschauen, Suche, fünf Kategorien, Baupreisen, Tageskosten und Freischaltungsinformationen.
+- **Verkleinern / Vollbild**, Ziehen an der Titelzeile und die Größenänderung unten rechts erlauben eine freie Anordnung. Der kompakte Katalog kann beim Bauen offen bleiben; die Karte außerhalb seines Fensters bleibt bedienbar.
+- Auch die Gebäude mit Minispielen, Pizzakarten und der Hotelverwaltung erhalten den beweglichen Fensterrahmen. Während eines Gebäudebesuchs bleibt die Simulation pausiert.
+- Ferienhütten, Apartments, Chalets, Pensionen und Hotels sowie Hotelketten, Wochenkarten und die Gebäudeminispiele aus 0.22 sind weiterhin enthalten.
+
+### Tagesrhythmus
+
+- **Ausgewogen** beschleunigt die Zeit am Berg auf das 1,8-Fache: Ein Skitag ist gegenüber 0.22 rund 44 Prozent kürzer. **Kompakt** verwendet 2,2 und **Gemütlich** 1,35.
+- Von 17 bis 22 Uhr bleibt das bisherige gemütliche Tempo erhalten. Wege, Fahrten, Bedürfnisse, Löhne und Umsätze folgen gemeinsam derselben Spielzeit. Pro realer Spielstunde kommt das Resort tagsüber schneller voran.
+- Nach 22 Uhr und vor der morgendlichen Öffnung kann der automatische Vorlauf ruhige Minuten gesammelt berechnen. Schlafende Hotelgäste verhindern ihn nicht mehr und erscheinen während ihres Schlafs nicht auf der Straße.
+- Sobald jemand draußen unterwegs ist, ein Liftgast fährt oder ein Vorfall Hilfe benötigt, stoppt der automatische Vorlauf. Reale spätere Ankünfte, Heimwege, Mitternachtsabrechnung und das Aufwachen im Hotel werden berücksichtigt. Eine Mitternacht im Vorlauf löst ebenfalls das Speichern aus.
+- Tageslänge, Höhenlinien, Wildtiere und Nachtvorlauf werden in den Komforteinstellungen gespeichert.
+
+### Prüfung und Kompatibilität
+
+Neue Prüfungen decken Modulbau, Kosten, Abstände, Umsetzen, beschädigte Spielstände, Geländekonstanz, Nachtvorlauf mit Hotelgästen, Wildtierkorridore und die tatsächlichen Fenster ab. Gerenderte Nachweise ergänzen die bestehenden Tests für Liftbefestigung, fünf Bildstile, Touch-Bedienung, Spielstandmigration und Android. Die APK wird erst nach den vollständigen Release-Prüfungen veröffentlicht.
+
+---
 
 ## v0.22.0 · Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge (03.11.2026)
 
