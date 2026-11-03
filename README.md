@@ -33,14 +33,15 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der automatisch gepflegte Downloadblock oben verweist ausschließlich auf die neueste **tatsächlich veröffentlichte GitHub-Release-APK** (maßgeblich ist die im Downloadblock genannte tatsächliche Release-Version).
 
-**APK, an der wir aktuell arbeiten: SkiZones v0.26.0 (Android ARM64, VersionCode 33)** – [Entwicklungs-Pull-Request #24](https://github.com/chekento/SkiZones/pull/24). **Noch keine freigegebene APK und kein Downloadlink**: Grafik-, Karriere-, Signatur- und Android-30/36-Prüfungen müssen erfolgreich abgeschlossen sein.
+**APK, an der wir aktuell arbeiten: SkiZones v0.27.0 (Android ARM64, VersionCode 34)** – [Entwicklungs-Pull-Request #24](https://github.com/chekento/SkiZones/pull/24). **Noch keine freigegebene APK und kein Downloadlink**: Grafik-, Karriere-, Signatur- und Android-30/36-Prüfungen müssen erfolgreich abgeschlossen sein.
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
 | [**0.23.0**](https://github.com/chekento/SkiZones/releases/tag/v0.23.0) | Landschaft, Pistenmodule, Dorfkatalog, Android-Lifecycle-Korrektur | **Veröffentlicht** |
 | [**0.24.0**](https://github.com/chekento/SkiZones/pull/19) | Hotel-Mikrowelten, plastische Erfolge und Theme-Grafik | Hauptzweig · Releaseprüfung |
 | [**0.25.0**](https://github.com/chekento/SkiZones/pull/22) | Lineare Hotelmodule, traditionelle Gewerbe, jährlicher Weihnachts-/Silvestermodus | Entwicklungszweig |
-| [**0.26.0**](https://github.com/chekento/SkiZones/pull/24) | Alpine Radio, Mitarbeiterunterkunft, Rettungsfiguren, Pistenatlas und zusätzliche Assets | **Aktuelle Arbeitsversion** |
+| [**0.26.0**](https://github.com/chekento/SkiZones/pull/24) | Alpine Radio, Mitarbeiterunterkunft, Rettungsfiguren, Pistenatlas und zusätzliche Assets | Entwicklungszweig |
+| [**0.27.0**](https://github.com/chekento/SkiZones/pull/26) | Sanfte Akustikübergänge, Musik-Crossfades und direktes Vorhören in der Jukebox | **Aktuelle Arbeitsversion** |
 
 **Versionsprinzip:** Nur erfolgreich geprüfte und in [GitHub Releases](https://github.com/chekento/SkiZones/releases) tatsächlich hochgeladene APKs erscheinen als öffentlicher Download. Entwicklungszweige tragen jeweils ihre zukünftigen Spiel- und Android-Versionsnummern, sind aber keine installierbaren Veröffentlichungen. Die [vollständigen geplanten Änderungstexte](docs/releases/) sind ebenfalls keine Behauptung über veröffentlichte APKs.
 
