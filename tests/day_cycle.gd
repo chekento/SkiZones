@@ -58,10 +58,11 @@ func _late_skier() -> void:
 	var before: Vector3 = model.guest_position(guest)
 	var age: int = guest.age
 	var paid: float = model.money
+	var awards_before: float = model.report.rewards
 	model.advance_minute(false)
 	check(model.is_closing() and model.guests.size() == 1 and model.guests[0].id == guest.id, "18:00 preserves the identity of a skier halfway down a piste")
 	check(guest.elapsed > 0 and guest.age == age + 1 and model.guest_position(guest).distance_to(before) < 40, "Closing advances actual progress instead of teleporting the skier")
-	check(model.last_report.is_empty() and model.money == paid and not model.next_day(), "Report, operating costs and next morning wait for the last guest")
+	check(model.last_report.is_empty() and is_equal_approx(model.money - paid - (model.report.rewards - awards_before),0.0) and not model.next_day(), "Report, operating costs and next morning wait for the last guest")
 	check(not model.admit_guest(0), "No new tickets are sold during the return phase")
 	var copy := Resort.new()
 	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "An after-hours skier can be saved and loaded")

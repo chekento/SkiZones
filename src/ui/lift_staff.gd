@@ -163,10 +163,10 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 			if event.status=="resolved":continue
 			var box:=_card(parent,L.text("Hilferuf · Gast %d") % int(event.guest),L.text("Wartet auf Hilfe") if event.status=="waiting" else L.text("Rettung unterwegs · %.0f Minuten") % float(event.remaining))
 			if event.status=="waiting":_button(box,L.text("Von hier Rettung entsenden"),func():return Ops.dispatch(model,int(event.id),lift_id))
-	if item.kind=="hotel":
-		var box:=_card(parent,L.text("Zimmerpreis für alle Hotels"))
-		var room:=SpinBox.new();room.min_value=40;room.max_value=250;room.step=5;room.value=model.operations.room_price;room.suffix=" €"
-		room.value_changed.connect(func(value):model.operations.room_price=int(value));box.add_child(room)
+	if model.Hospitality.lodging(str(item.kind)):
+		var box := _card(parent, L.text("Unterkunft verwalten"))
+		hud._button(box, L.text("Hotel, Zimmer und Ketten öffnen"), func(): hide(); hud.experience.open(lift_id), true)
+
 func _parts(parent: Node) -> void:
 	var model: RefCounted=hud.game.model
 	var box:=_card(parent,L.text("Ersatzteile"),L.text("Resortbestand: %d Ersatzteilpakete") % int(model.operations.parts))
@@ -269,3 +269,4 @@ func refresh_status() -> void:
 		summary.text=L.text("%s · %d / %d im Dienst · %d / %d Abschnitte in Betrieb") % [L.asset_name(item),present,needed,parts.filter(func(p):return model.lift_open(p)).size(),parts.size()]
 	elif Catalog.BUILDINGS.has(item.get("kind","")):
 		summary.text=L.asset_name(item)+" · "+(L.text("Betriebsbereit") if Ops.building_open(model,item) else L.text("Geschlossen oder Personal fehlt"))
+

@@ -3520,3 +3520,760 @@ msgstr "Hide details"
 
 msgid "Gäste"
 msgstr "Guests"
+
+msgid "Schwung für Schwung"
+msgstr "Turn by Turn"
+
+msgid "Beliebter Berg"
+msgstr "Popular Mountain"
+
+msgid "Pistenarchitekt"
+msgstr "Slope Architect"
+
+msgid "Gipfelverbinder"
+msgstr "Peak Connector"
+
+msgid "Alpendorf"
+msgstr "Alpine Village"
+
+msgid "Gebäude"
+msgstr "Buildings"
+
+msgid "Wegebauer"
+msgstr "Trail Builder"
+
+msgid "Wege & Plätze"
+msgstr "Paths & Plazas"
+
+msgid "Lieblingsresort"
+msgstr "Favorite Resort"
+
+msgid "% Ruf"
+msgstr "% Reputation"
+
+msgid "Finanzgenie"
+msgstr "Financial Genius"
+
+msgid "€ Kontostand"
+msgstr "€ Cash Balance"
+
+msgid "Auftragsprofi"
+msgstr "Contract Pro"
+
+msgid "XP"
+msgstr "XP"
+
+msgid "Winter für Winter"
+msgstr "Winter After Winter"
+
+msgid "Betriebstage"
+msgstr "Operating Days"
+
+msgid "Glückliche Gäste"
+msgstr "Happy Guests"
+
+msgid "% Zufriedenheit"
+msgstr "% Satisfaction"
+
+msgid "Umsatzwunder"
+msgstr "Revenue Miracle"
+
+msgid "€ Gesamtumsatz"
+msgstr "€ Total Revenue"
+
+msgid "Solide Kasse"
+msgstr "Solid Finances"
+
+msgid "€ Überschuss"
+msgstr "€ Surplus"
+
+msgid "Gastgeber"
+msgstr "Host of the Alps"
+
+msgid "Hotels"
+msgstr "Hotels"
+
+msgid "Genussgipfel"
+msgstr "Gourmet Peaks"
+
+msgid "Gastronomie"
+msgstr "Food Services"
+
+msgid "Schneeband"
+msgstr "Snow Trail"
+
+msgid "Pistenmeter"
+msgstr "Piste Meters"
+
+msgid "Höhenmeterjäger"
+msgstr "Altitude Hunter"
+
+msgid "Liftmeter"
+msgstr "Lift Meters"
+
+msgid "Feinschliff"
+msgstr "Fine Tuning"
+
+msgid "Ausbaustufen"
+msgstr "Upgrade Levels"
+
+msgid "Bergwärts"
+msgstr "Mountain Bound"
+
+msgid "Liftfahrten"
+msgstr "Lift Rides"
+
+msgid "%s · %02d"
+msgstr "%s · %02d"
+
+msgid "%d %s"
+msgstr "%d %s"
+
+msgid "MEISTERSCHAFTSRANG %d / 500"
+msgstr "MASTERY RANK %d / 500"
+
+msgid "+%d Ränge"
+msgstr "+%d Ranks"
+
+msgid "Erfolge"
+msgstr "Achievements"
+
+msgid "MEISTERSCHAFT · RANG %d / 500"
+msgstr "MASTERY · RANK %d / 500"
+
+msgid "Resort-Level unabhängig von den fünf Sternen. Erfahrung: %.0f XP · nächster Rang bei %d XP."
+msgstr "Resort level independent of the five stars. Experience: %.0f XP · next rank at %d XP."
+
+msgid "1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET"
+msgstr "1,000 ACHIEVEMENTS · %d / 1,000 UNLOCKED"
+
+msgid "20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."
+msgstr "20 themes with 50 real objectives each. Every new achievement brings a small construction reward. All achievements remain in your saved game."
+
+msgid "%s · %d / 50"
+msgstr "%s · %d / 50"
+
+msgid "Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen."
+msgstr "Choose a category above to see all 50 milestones."
+
+msgid "%s "
+msgstr "%s "
+
+msgid "   +%d €"
+msgstr "   +%d €"
+
+msgid "Winterkakao-Partner"
+msgstr "Winter Cocoa Partner"
+
+msgid "Kleiner regionaler Partner. Stabiler Einstieg für dein junges Resort."
+msgstr "Small regional partner. A reliable start for your young resort."
+
+msgid "Alpenhandwerk"
+msgstr "Alpine Craft"
+
+msgid "Ein gemütlicher Sponsor für liebevoll ausgebaute Berghütten."
+msgstr "A welcoming sponsor for thoughtfully built alpine lodges."
+
+msgid "Schneespuren-Club"
+msgstr "Snow Trails Club"
+
+msgid "Belohnt ein vielfältiges Netz aus Liften und Pisten."
+msgstr "Rewards a varied network of lifts and ski runs."
+
+msgid "Gipfelbewegung"
+msgstr "Peak Motion"
+
+msgid "Höhere Einnahmen für ein zuverlässig erreichbares Bergresort."
+msgstr "Higher earnings for a well-connected mountain resort."
+
+msgid "Aurora-Wintertage"
+msgstr "Aurora Winter Days"
+
+msgid "Prestigepartner für etablierte Resorts mit gutem Gästeruf."
+msgstr "Prestige partner for established resorts with high guest satisfaction."
+
+msgid "Sponsorangebot nicht gefunden."
+msgstr "Sponsor offer not found."
+
+msgid "Ein Sponsorvertrag läuft bereits."
+msgstr "A sponsorship contract is already active."
+
+msgid "Mindestens %d %% Ruf erforderlich."
+msgstr "At least %d %% reputation required."
+
+msgid "Mindestens %d Lifte erforderlich."
+msgstr "At least %d lifts required."
+
+msgid "Vertrag kann abgeschlossen werden."
+msgstr "Contract can be signed."
+
+msgid "Sponsorvertrag abgeschlossen: %s · %d Betriebstage."
+msgstr "Sponsorship signed: %s · %d operating days."
+
+msgid "Sponsoring"
+msgstr "Sponsorship"
+
+msgid "PARTNER FÜR DEIN RESORT"
+msgstr "PARTNERS FOR YOUR RESORT"
+
+msgid "Sponsoren unterstützen den Bau neuer Anlagen mit sieben Tage lang begrenzten Einnahmen. Gute Gästezufriedenheit erhöht die Auszahlung. Nur ein Vertrag gleichzeitig."
+msgstr "Sponsors help fund new facilities with seven days of limited revenue. Higher guest satisfaction improves payouts. Only one contract at a time."
+
+msgid "Aktiv"
+msgstr "Active"
+
+msgid "Bis Tag %d · bisher %s € erhalten"
+msgstr "Until day %d · %s € earned so far"
+
+msgid "VERFÜGBARE SPONSOREN"
+msgstr "AVAILABLE SPONSORS"
+
+msgid "%s €/Tag für %d Tage · ab %d %% Ruf und %d Lift(en)"
+msgstr "%s €/day for %d days · requires %d %% reputation and %d lift(s)"
+
+msgid "Sponsorvertrag abschließen"
+msgstr "Sign sponsorship contract"
+
+msgid "Belebt"
+msgstr "Busy"
+
+msgid "Engpass"
+msgstr "Congested"
+
+msgid "Zugeordnete Skifahrer: %d · Richtwert %d\nFahrspuren: %d · Verkehr: %s"
+msgstr "Assigned skiers: %d · guideline %d\nSki lanes: %d · traffic: %s"
+
+msgid "Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser."
+msgstr "Tip: Wider or alternative runs distribute visitors more evenly."
+
+
+msgid "Ferienhütte"
+msgstr "Holiday cabin"
+
+msgid "Zwei gemütliche Ferienzimmer mit Selbst-Check-in. Ein günstiger Einstieg in mehrtägigen Skiurlaub."
+msgstr "Two cosy rooms with self check-in. An affordable start to overnight ski holidays."
+
+msgid "Ferienapartments"
+msgstr "Holiday apartments"
+
+msgid "Vier Ferienwohnungen mit Selbst-Check-in für einen längeren Aufenthalt im Dorf."
+msgstr "Four holiday apartments with self check-in for longer stays in the village."
+
+msgid "Alpenchalet"
+msgstr "Alpine chalet"
+
+msgid "Sechs hochwertige Ferienzimmer mit Selbst-Check-in, Komfortausbau und eigenem Preis."
+msgstr "Six premium holiday rooms with self check-in, comfort upgrades and individual pricing."
+
+msgid "Alpenpension"
+msgstr "Alpine guesthouse"
+
+msgid "Zehn Gästezimmer mit Rezeption und Frühstück. Benötigt Hotelpersonal in allen Schichten."
+msgstr "Ten guest rooms with reception and breakfast. Requires hotel staff on every shift."
+
+msgid "Grandhotel"
+msgstr "Grand hotel"
+
+msgid "48 Zimmer mit umfassender Verwaltung, Familienangebot, Premiumzimmern und Hotelketten."
+msgstr "48 rooms with hotel management, family offers, premium rooms and hotel chains."
+
+msgid "Alpenbar"
+msgstr "Alpine bar"
+
+msgid "Abendliche Getränke, ein eigenes Ausschankspiel und zusätzliche Umsätze nach dem Skitag."
+msgstr "Evening drinks, a pouring minigame and additional sales after skiing."
+
+msgid "Unterkünfte & Hotels"
+msgstr "Accommodation & hotels"
+
+msgid "Pizza-Werkstatt"
+msgstr "Pizza workshop"
+
+msgid "Belege die bestellte Pizza mit genau den Zutaten deiner eigenen Karte."
+msgstr "Prepare the ordered pizza using the exact toppings from your own menu."
+
+msgid "Tomate"
+msgstr "Tomato"
+
+msgid "Käse"
+msgstr "Cheese"
+
+msgid "Pilze"
+msgstr "Mushrooms"
+
+msgid "Paprika"
+msgstr "Pepper"
+
+msgid "Oliven"
+msgstr "Olives"
+
+msgid "Schinken"
+msgstr "Ham"
+
+msgid "Salami"
+msgstr "Salami"
+
+msgid "Ananas"
+msgstr "Pineapple"
+
+msgid "Spinat"
+msgstr "Spinach"
+
+msgid "Zwiebeln"
+msgstr "Onions"
+
+msgid "Slalom-Skischule"
+msgstr "Slalom ski school"
+
+msgid "Fahre durch das markierte Tor. Fünf Schwünge ergeben eine Unterrichtsrunde."
+msgstr "Ski through the marked gate. Five turns complete a lesson."
+
+msgid "Links"
+msgstr "Left"
+
+msgid "Mitte"
+msgstr "Centre"
+
+msgid "Rechts"
+msgstr "Right"
+
+msgid "Restaurant-Service"
+msgstr "Restaurant service"
+
+msgid "Merke dir die Bestellung und serviere das passende Gericht."
+msgstr "Remember the order and serve the matching dish."
+
+msgid "Suppe"
+msgstr "Soup"
+
+msgid "Knödel"
+msgstr "Dumplings"
+
+msgid "Pasta"
+msgstr "Pasta"
+
+msgid "Salat"
+msgstr "Salad"
+
+msgid "Bar-Schicht"
+msgstr "Bar shift"
+
+msgid "Stoppe den Ausschank im grünen Bereich. Fünf Getränke ergeben eine Schicht."
+msgstr "Stop pouring in the green zone. Five drinks complete a shift."
+
+msgid "Après-Ski-Bar"
+msgstr "Après-ski bar"
+
+msgid "Triff den grünen Bereich und schenke die richtige Menge aus."
+msgstr "Hit the green zone to pour the right amount."
+
+msgid "Snack-Bestellungen"
+msgstr "Snack orders"
+
+msgid "Stelle die richtige Snackbestellung für deinen Gast zusammen."
+msgstr "Put together the right snack order for your guest."
+
+msgid "Brezel"
+msgstr "Pretzel"
+
+msgid "Toast"
+msgstr "Toast"
+
+msgid "Punsch"
+msgstr "Punch"
+
+msgid "Apfelsaft"
+msgstr "Apple juice"
+
+msgid "Kaiserschmarrn-Pfanne"
+msgstr "Kaiserschmarrn pan"
+
+msgid "Wende den Teig im grünen Bereich, damit der Kaiserschmarrn goldbraun wird."
+msgstr "Flip in the green zone to cook the shredded pancake golden brown."
+
+msgid "Kakao-Atelier"
+msgstr "Cocoa studio"
+
+msgid "Erfülle den Kakaowunsch deines Gastes."
+msgstr "Make the cocoa your guest requested."
+
+msgid "Sahne"
+msgstr "Whipped cream"
+
+msgid "Zimt"
+msgstr "Cinnamon"
+
+msgid "Marshmallows"
+msgstr "Marshmallows"
+
+msgid "Vanille"
+msgstr "Vanilla"
+
+msgid "Ausrüstungs-Service"
+msgstr "Equipment service"
+
+msgid "Gib die gewünschte Wintersportausrüstung aus."
+msgstr "Hand out the requested winter sports equipment."
+
+msgid "Helm"
+msgstr "Helmet"
+
+msgid "Schuhe"
+msgstr "Boots"
+
+msgid "Werkstatt-Prüfstand"
+msgstr "Workshop bench"
+
+msgid "Wähle das angeforderte Ersatzteil am Prüfstand."
+msgstr "Select the requested spare part at the workbench."
+
+msgid "Seilrolle"
+msgstr "Pulley"
+
+msgid "Sensor"
+msgstr "Sensor"
+
+msgid "Sicherung"
+msgstr "Fuse"
+
+msgid "Lager"
+msgstr "Bearing"
+
+msgid "Pistenraupen-Training"
+msgstr "Groomer training"
+
+msgid "Lenke die Pistenraupe durch die markierten Schneefelder."
+msgstr "Steer the groomer through the marked snow fields."
+
+msgid "Schnee-Labor"
+msgstr "Snow laboratory"
+
+msgid "Stelle die Düse im grünen Bereich ein und erzeuge feinen Schnee."
+msgstr "Adjust the nozzle in the green zone to make fine snow."
+
+msgid "Shuttle-Disposition"
+msgstr "Shuttle dispatch"
+
+msgid "Ordne den Hotel- und Stationswünschen die richtige Abfahrt zu."
+msgstr "Match hotel and station requests with the right departure."
+
+msgid "Hotel"
+msgstr "Hotel"
+
+msgid "Dorfplatz"
+msgstr "Village square"
+
+msgid "Bergwacht-Logistik"
+msgstr "Mountain rescue logistics"
+
+msgid "Packe das angeforderte Material in den Einsatzrucksack."
+msgstr "Pack the requested supplies into the rescue backpack."
+
+msgid "Decke"
+msgstr "Blanket"
+
+msgid "Funkgerät"
+msgstr "Radio"
+
+msgid "Trage"
+msgstr "Stretcher"
+
+msgid "Wärmepack"
+msgstr "Heat pack"
+
+msgid "Snowpark-Linie"
+msgstr "Snowpark line"
+
+msgid "Wähle die markierte Linie durch den Snowpark."
+msgstr "Choose the marked line through the snowpark."
+
+msgid "Pool-Service"
+msgstr "Pool service"
+
+msgid "Regle den Wasserkomfort im grünen Bereich."
+msgstr "Set the water comfort in the green zone."
+
+msgid "Wellness-Rhythmus"
+msgstr "Wellness rhythm"
+
+msgid "Triff den ruhigen grünen Bereich für eine perfekte Wellnessrunde."
+msgstr "Hit the calm green zone for a perfect wellness session."
+
+msgid "Hütten-Service"
+msgstr "Lodge service"
+
+msgid "Reiche deinen Gästen die richtige Hüttenbestellung."
+msgstr "Serve the right lodge order to your guests."
+
+msgid "Tee"
+msgstr "Tea"
+
+msgid "Kuchen"
+msgstr "Cake"
+
+msgid "Wärmepause"
+msgstr "Warm-up break"
+
+msgid "Versorge die wartenden Gäste mit dem gewünschten Komfort."
+msgstr "Give waiting guests the comfort they requested."
+
+msgid "Sitzkissen"
+msgstr "Seat cushion"
+
+msgid "Handwärmer"
+msgstr "Hand warmer"
+
+msgid "Panorama-Fotos"
+msgstr "Panorama photos"
+
+msgid "Löse die Kamera im grünen Bereich aus und fange das Bergpanorama ein."
+msgstr "Take the photo in the green zone to capture the mountain panorama."
+
+msgid "Rezeption & Zimmerservice"
+msgstr "Reception & room service"
+
+msgid "Erfülle die Wünsche deiner Übernachtungsgäste."
+msgstr "Fulfil your overnight guests' requests."
+
+msgid "Frühstück"
+msgstr "Breakfast"
+
+msgid "Handtücher"
+msgstr "Towels"
+
+msgid "Gepäck"
+msgstr "Luggage"
+
+msgid "Zuerst das Gebäude errichten und öffnen."
+msgstr "Build and open the building first."
+
+msgid "Im grünen Bereich stoppen"
+msgstr "Stop in the green zone"
+
+msgid "Das Gebäude ist nicht mehr verfügbar."
+msgstr "This building is no longer available."
+
+msgid "Schicht beendet · %d Punkte · %d € Prämie · +%d %% Service heute"
+msgstr "Shift complete · %d points · %d € bonus · +%d %% service today"
+
+msgid "Margherita"
+msgstr "Margherita"
+
+msgid "Alpengarten"
+msgstr "Alpine garden"
+
+msgid "Gipfelpizza"
+msgstr "Summit pizza"
+
+msgid "Genau drei Pizzen mit Namen und zwei bis sechs verschiedenen Zutaten anlegen."
+msgstr "Create exactly three named pizzas with two to six different toppings."
+
+msgid "Deine drei Pizzen stehen jetzt auf der Karte."
+msgstr "Your three pizzas are now on the menu."
+
+msgid "Eine eigene Unterkunft wählen."
+msgstr "Select accommodation that you own."
+
+msgid "Diese Hoteleinstellung ist ungültig."
+msgstr "This hotel setting is invalid."
+
+msgid "Unterkunft und Hotelverbund aktualisiert."
+msgstr "Accommodation and hotel chain updated."
+
+msgid "Für diesen Komfortausbau reicht das Budget oder die Ausbaustufe nicht."
+msgstr "This comfort upgrade exceeds the available budget or upgrade level."
+
+msgid "Zimmerkomfort verbessert. Gäste bewerten Ausstattung und Sauberkeit."
+msgstr "Room comfort improved. Guests review facilities and cleanliness."
+
+msgid "Das Budget reicht für die Zimmerreinigung noch nicht."
+msgstr "The budget is not sufficient for room cleaning."
+
+msgid "Zimmer gereinigt und für die Gäste vorbereitet."
+msgstr "Rooms cleaned and prepared for your guests."
+
+msgid "Unterkunft verwalten"
+msgstr "Manage accommodation"
+
+msgid "Hotel, Zimmer und Ketten öffnen"
+msgstr "Open hotel, rooms and chains"
+
+msgid "Zurück ins Dorf"
+msgstr "Back to the village"
+
+msgid "DEIN BETRIEB · DEINE IDEEN"
+msgstr "YOUR BUSINESS · YOUR IDEAS"
+
+msgid "Betrieb & Team"
+msgstr "Operations & team"
+
+msgid "Dein Betriebsergebnis"
+msgstr "Your operating result"
+
+msgid "Umsatz %s € · Kosten %s € · Ergebnis %s €"
+msgstr "Sales %s € · Costs %s € · Result %s €"
+
+msgid "Personal, Status und Reparatur"
+msgstr "Staff, status and repairs"
+
+msgid "Minispiele sind freiwillig. Deine Betriebe arbeiten auch ohne manuelle Schichten weiter. Drei belohnte Schichten pro Gebäude und Tag; danach bleibt freies Üben möglich."
+msgstr "Minigames are optional. Your businesses keep running without manual shifts. Three rewarded shifts per building each day; practice remains available afterwards."
+
+msgid "Meine Pizzakarte"
+msgstr "My pizza menu"
+
+msgid "Drei eigene Pizzen · zwei bis sechs Zutaten pro Pizza"
+msgstr "Three custom pizzas · two to six toppings per pizza"
+
+msgid "Pizza %d"
+msgstr "Pizza %d"
+
+msgid "Drei Pizzen auf die Karte setzen"
+msgstr "Save the three-pizza menu"
+
+msgid "Hotelverwaltung"
+msgstr "Hotel management"
+
+msgid "Deine Gäste bleiben länger"
+msgstr "Your guests stay longer"
+
+msgid "%d / %d Zimmer belegt · %.0f %% Auslastung\nBewertung %.1f / 5 · Sauberkeit %.0f %%\nGeplante Kosten %s €/Tag · Kostendeckung ab %d belegten Zimmern"
+msgstr "%d / %d rooms occupied · %.0f %% occupancy\nRating %.1f / 5 · Cleanliness %.0f %%\nPlanned costs %s €/day · Break-even at %d occupied rooms"
+
+msgid "Übernachtung und Ertrag"
+msgstr "Overnight stays and profit"
+
+msgid "Vorsichtige Zimmerprognose bei aktueller Belegung: %s €/Tag nach geplanten Kosten. Tatsächliche Abrechnung erfolgt je Übernachtung; Tagesbesuche sind keine Zimmerbuchung."
+msgstr "Conservative room forecast at current occupancy: %s €/day after planned costs. Actual billing is per overnight stay; day visits are not room bookings."
+
+msgid "Zimmerpreis je Nacht · €"
+msgstr "Room price per night · €"
+
+msgid "Familienzimmer · Anteil in Prozent"
+msgstr "Family rooms · Percentage"
+
+msgid "Premiumzimmer · Anteil in Prozent"
+msgstr "Premium rooms · Percentage"
+
+msgid "Frühstück anbieten"
+msgstr "Offer breakfast"
+
+msgid "Automatischer Reinigungsservice"
+msgstr "Automatic cleaning service"
+
+msgid "Hotelmarketing · Stufe 0 bis 3"
+msgstr "Hotel marketing · Level 0 to 3"
+
+msgid "Hoteleinstellungen übernehmen"
+msgstr "Apply hotel settings"
+
+msgid "Zimmerkomfort · Stufe %d / 5"
+msgstr "Room comfort · Level %d / 5"
+
+msgid "Komfort ausbauen · %s €"
+msgstr "Upgrade comfort · %s €"
+
+msgid "Alle Zimmer reinigen · %s €"
+msgstr "Clean all rooms · %s €"
+
+msgid "Zimmer & Gäste"
+msgstr "Rooms & guests"
+
+msgid "Zimmer %d\n%s"
+msgstr "Room %d\n%s"
+
+msgid "Belegt"
+msgstr "Occupied"
+
+msgid "Frei"
+msgstr "Vacant"
+
+msgid "Aktuelle Übernachtungsgäste"
+msgstr "Current overnight guests"
+
+msgid "Gast %d · noch %d Urlaubstage · %s"
+msgstr "Guest %d · %d holiday days left · %s"
+
+msgid "Wochenkarte"
+msgstr "Weekly pass"
+
+msgid "Tageskarte"
+msgstr "Day pass"
+
+msgid "Hotelketten"
+msgstr "Hotel chains"
+
+msgid "Deinen Hotelverbund aufbauen"
+msgstr "Build your hotel chain"
+
+msgid "Gib mehreren eigenen Unterkünften denselben Kettennamen. Gemeinsames Marketing verbessert ihre Attraktivität. Gäste werden auf verfügbare, erreichbare Häuser verteilt."
+msgstr "Give multiple properties the same chain name. Shared marketing improves their appeal. Guests are distributed across available, reachable properties."
+
+msgid "Name deiner Hotelkette"
+msgstr "Your hotel chain name"
+
+msgid "Hotelkette speichern"
+msgstr "Save hotel chain"
+
+msgid "Hotelverbund verlassen"
+msgstr "Leave hotel chain"
+
+msgid "%d / %d Zimmer · %.0f € je Nacht"
+msgstr "%d / %d rooms · %.0f € per night"
+
+msgid "Dieses Haus verwalten"
+msgstr "Manage this property"
+
+msgid "Wochenkarten für Urlaubsgäste"
+msgstr "Weekly passes for holiday guests"
+
+msgid "Sieben aufeinanderfolgende Tage · %d € statt %.0f € · %.1f %% Ersparnis. Eine Kostenuntergrenze mit 20 %% Deckungsaufschlag begrenzt den Rabatt."
+msgstr "Seven consecutive days · %d € instead of %.0f € · %.1f %% saving. An operating-cost floor with a 20 %% contribution markup limits the discount."
+
+msgid "Die aktuelle Kostenuntergrenze lässt noch keinen Wochenrabatt zu. Mehr Gäste oder ein höherer Tagespreis machen das Angebot möglich."
+msgstr "Current operating costs do not yet allow a weekly discount. More guests or a higher day price can make the offer available."
+
+msgid "Wochenkarten anbieten"
+msgstr "Offer weekly passes"
+
+msgid "Gewünschter Wochenrabatt · Prozent"
+msgstr "Requested weekly discount · Percent"
+
+msgid "Ticketangebot übernehmen"
+msgstr "Apply ticket offer"
+
+msgid "Selber spielen"
+msgstr "Play yourself"
+
+msgid "Die Resortzeit pausiert während deines Gebäudebesuchs."
+msgstr "Resort time pauses while you visit a building."
+
+msgid "Schicht starten · fünf Aufgaben"
+msgstr "Start shift · Five tasks"
+
+msgid "Aufgabe %d / 5"
+msgstr "Task %d / 5"
+
+msgid "Ziel: %.0f %% · grüner Bereich ± 10 %%"
+msgstr "Target: %.0f %% · Green zone ± 10 %%"
+
+msgid "Jetzt stoppen"
+msgstr "Stop now"
+
+msgid "Bestellung: %s"
+msgstr "Order: %s"
+
+msgid "Pizza backen und servieren"
+msgstr "Bake and serve pizza"
+
+msgid "Punkte bisher: %d"
+msgstr "Points so far: %d"
+
+msgid "Deine Schicht ist geschafft!"
+msgstr "Your shift is complete!"
+
+msgid "Noch eine Runde"
+msgstr "Another round"
+
+msgid "Gebäude betreten · Spielen & Verwalten"
+msgstr "Enter building · Play & manage"

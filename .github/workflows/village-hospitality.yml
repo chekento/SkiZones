@@ -1,0 +1,55 @@
+name: Village activities and hotels
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hospitality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  village:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile all game scripts
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          p = subprocess.run([os.environ['GODOT_BIN'], '--headless', '--editor', '--import', '--quit'], capture_output=True, text=True, timeout=180)
+          print(p.stdout + p.stderr)
+          raise SystemExit(1 if p.returncode or 'SCRIPT ERROR' in p.stdout + p.stderr else 0)
+          PY
+      - name: Hotel, pizza, minigame, ticket and save regressions
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality.gd
+      - name: Night reservations and descending gondola save regression
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/operating_nights.gd
+      - name: Original building tariff and service regression
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/version018.gd
+      - name: Touch UI and paused-world regression
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality_scene.gd
+      - name: Verify translations
+        run: python3 tools/check_localization.py
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Render hotel and pizza screens
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/village_hospitality_scene.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: village-hospitality-visual-QA
+          path: build/qa/*
+          retention-days: 90

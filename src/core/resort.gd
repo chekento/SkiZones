@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Progression = preload("res://src/core/progression.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
@@ -20,6 +21,7 @@ const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const Hospitality = preload("res://src/core/hospitality.gd")
 const Lodging = preload("res://src/core/guest_lodging.gd")
 const PisteLinks = preload("res://src/core/piste_links.gd")
 var _piste_links: RefCounted
@@ -58,6 +60,7 @@ var walk_areas: Array = []
 var parties: Array=[]
 var guests: Array = []
 var achievements: Array = []
+var recent_unlocks: Array = []
 var report: Dictionary = {}
 var last_report: Dictionary = {}
 var rng := RandomNumberGenerator.new()
@@ -130,6 +133,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	parties.clear()
 	portal_path.clear()
 	achievements.clear()
+	recent_unlocks.clear()
 	last_report.clear()
 	rng.seed = game_seed + Maps.MAPS.keys().find(map_id) * 7919
 	campaign = Progression.new_state(self, not starter)
@@ -1185,6 +1189,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var total := 0.0
 	var route_skill: int = Agenda.comfort(guest)
 	var routes: Array = _routes_from(route_skill, source, true).duplicate()
+	var piste_load: Dictionary = Traffic.load_by_piste(self)
 	if guest.agenda.kind == "collector": routes.append_array(_collector_lift_routes(guest, source))
 	for route in routes:
 		var time := route_minutes(route, guest, 1020 if Ops.continuous(self) else INF)
@@ -1199,6 +1204,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 			weight *= 0.28
 		var piste := asset(route.target)
 		weight *= 1.4 if piste.get("difficulty", -1) == route_skill else 1.0
+		weight *= Traffic.route_pressure(self, piste, piste_load)
 		choices.append({"route": route, "weight": weight})
 		total += weight
 	if choices.is_empty():
@@ -1276,7 +1282,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
 		var utility := Needs.utility(guest,building.kind)
-		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","pool","spa"]
+		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
 		if building.kind == "hotel" and guest.agenda.kind == "collector" and Ops.continuous(self) and (minute >= 1020 or minute < 420) and guest.stay - guest.age > 600: utility += 100
@@ -1289,7 +1295,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
-		var visit_minutes: float = maxf(480.0, 1920.0 - minute)*time_divisor if Ops.continuous(self) and building.kind == "hotel" else Needs.SERVICES[building.kind].minutes
+		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
 			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
@@ -1392,7 +1398,7 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	guest.ticket_paid=ticket_price*count;guest.spending=float(guest.ticket_paid)
 	# Only admitted guests with an actual vacant, reachable resort hotel
 	# become multi-night visitors; day visitors still leave as before.
-	if map_id in Geo.IDS: Lodging.assign(self, guest)
+	if Ops.continuous(self): Lodging.assign(self, guest)
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -1400,13 +1406,14 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	guest_id += 1
 	guests.append(guest)
 	_start_leg(guest)
-	money += ticket_price * count
-	report.tickets += ticket_price * count
+	var ticket_revenue: float = Hospitality.ticket_sale(self, guest)
+	money += ticket_revenue
+	report.tickets += ticket_revenue
 	report.guests += count
 	total_guests += count
 	audience.segments[guest.agenda.kind].visitors += count
-	audience.segments[guest.agenda.kind].tickets += ticket_price * count
-	Progression.on_admission(self, skill, ticket_price * count)
+	audience.segments[guest.agenda.kind].tickets += ticket_revenue
+	Progression.on_admission(self, skill, ticket_revenue)
 	if party_mode and guest.has("family"):Parties.expand(self,guest)
 	for person in guests:
 		if int(person.id)==int(guest.id) or int(person.get("party_id",0))==int(guest.id):Access.arrive(self,person)
@@ -1469,8 +1476,8 @@ func _finish_leg(guest: Dictionary) -> void:
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
-			var base_revenue: float = float(operations.room_price) if Ops.active(self) and building.kind == "hotel" else Catalog.BUILDINGS[building.kind].income
-			var revenue: float = base_revenue * (Lodging.billable_rooms(self, guest) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
+			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
+			var revenue: float = base_revenue * (1.0 if Hospitality.lodging(str(building.kind)) else 1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
@@ -1907,6 +1914,12 @@ func _check_achievements() -> void:
 			achievements.append(i)
 			money += rewards[i]
 			report.rewards += rewards[i]
+	var new_awards: Array = AchievementBook.unlock(self)
+	for award in new_awards:
+		recent_unlocks.append({"kind": "achievement", "title": award.name, "detail": award.goal, "reward": award.reward})
+	# Keep a bounded HUD queue even when a migrated resort satisfies many milestones.
+	if recent_unlocks.size() > 24:
+		recent_unlocks = recent_unlocks.slice(recent_unlocks.size() - 24)
 
 func operating_costs(include_staff: bool = true) -> float:
 	var amount := 450.0 + lifts.size() * 80 + buildings.size() * 35
@@ -1917,6 +1930,7 @@ func operating_costs(include_staff: bool = true) -> float:
 		amount += Catalog.LIFTS[lift.kind].upkeep * (1.0 if lift.enabled else 0.25) * (1.0 + 0.18 * (lift.get("level", 1) - 1))
 	for building in buildings:
 		amount += Catalog.BUILDINGS[building.kind].upkeep * (1.0 if building.enabled else 0.2) * (1.0 + 0.2 * (building.get("level", 1) - 1))
+		amount += Hospitality.extra_upkeep(building)
 	for piste in pistes:
 		amount += piste.length * (0.4 if piste.enabled else 0.08) * float(piste.get("width", 20)) / 20
 	var staff_cost := 0.0
@@ -2368,6 +2382,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				for field in ["daily_revenue", "last_day_revenue", "last_day_cost"]:
 					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
 				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
+				if not Hospitality.valid_building(item): return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
 				# These are optional ledger fields. Preserve their absence when
@@ -2383,9 +2398,13 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				break
 			if not Terrain.number(data[key].get(field)) or data[key][field] < 0:
 				return invalid
+	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL:
+		return invalid
+	var achievement_seen := {}
 	for achievement in data.achievements:
-		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement > 3:
+		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement >= AchievementBook.START_ID + AchievementBook.TOTAL or achievement_seen.has(int(achievement)):
 			return invalid
+		achievement_seen[int(achievement)] = true
 	if not data.get("rng_seed") is String or not data.get("rng_state") is String or not data.rng_seed.is_valid_int() or not data.rng_state.is_valid_int():
 		return invalid
 	for key in ranges:
@@ -2395,6 +2414,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 	buildings = data.buildings.duplicate(true)
 	walk_areas = data.walk_areas.duplicate(true)
 	achievements.clear()
+	recent_unlocks.clear()
 	for achievement in data.achievements:
 		achievements.append(int(achievement))
 	report = data.report.duplicate(true)
@@ -2436,11 +2456,12 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
-		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane > 2): return invalid
+		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane >= Traffic.MAX_LANES): return invalid
 		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
 		if visitor.has("lodging_id"):
 			if not Terrain.number(visitor.lodging_id) or visitor.lodging_id != floorf(visitor.lodging_id) or int(visitor.lodging_id) <= 0: return invalid
-			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and b.kind == "hotel"): return invalid
+			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and Hospitality.lodging(str(b.kind))): return invalid
+		if not Hospitality.valid_ticket(visitor): return invalid
 		if visitor.has("hotel_night") and not visitor.hotel_night is bool: return invalid
 		if visitor.has("hotel_sleep_until") and (not Terrain.number(visitor.hotel_sleep_until) or visitor.hotel_sleep_until < 0 or visitor.hotel_sleep_until > 150000000): return invalid
 		if visitor.get("waiting_reason", "") == "hotel" and (visitor.phase != "waiting" or not visitor.has("lodging_id") or not visitor.has("hotel_sleep_until")): return invalid
@@ -2615,4 +2636,5 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+
 

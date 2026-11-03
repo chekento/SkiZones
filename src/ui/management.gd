@@ -5,6 +5,8 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
 
 const Progression = preload("res://src/core/progression.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
+const Sponsorship = preload("res://src/core/sponsorship.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
 
@@ -19,6 +21,7 @@ var _feedback := ""
 var staff_role := ""
 var staff_target := ""
 var staff_page := 0
+var selected_achievement_track := 0
 
 func setup(controller: Node, interface: CanvasLayer) -> void:
 	game = controller
@@ -123,10 +126,12 @@ func refresh() -> void:
 	title.text = L.text("RESORT-BÜRO  ·  %s  ·  %d FP") % L.args(["★".repeat(state.rank), state.points])
 	feedback.text = _feedback if _feedback != "" else Progression.notice_text(state)
 	_career(_page(L.text("Karriere")))
+	_achievements(_page(L.text("Erfolge")))
 	_contracts(_page(L.text("Aufträge")))
 	_research(_page(L.text("Forschung")))
 	_upgrades(_page(L.text("Ausbau")))
 	_finances(_page(L.text("Finanzen")))
+	_sponsoring(_page(L.text("Sponsoring")))
 	OperatingPages.add(self)
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
@@ -145,6 +150,17 @@ func _career(page: VBoxContainer) -> void:
 		bar.custom_minimum_size.y = 22
 		bar.show_percentage = false
 		summary.add_child(bar)
+	var mastery: int = int(state.get("mastery_rank",AchievementBook.mastery_for_xp(float(state.xp))))
+	var needed: int = AchievementBook.xp_for_rank(mini(500,mastery+1))
+	var mastery_card := _card(page,L.text("MEISTERSCHAFT · RANG %d / 500") % L.args(mastery),
+		L.text("Resort-Level unabhängig von den fünf Sternen. Erfahrung: %.0f XP · nächster Rang bei %d XP.") % L.args([state.xp,needed]))
+	var mastery_progress := ProgressBar.new()
+	mastery_progress.min_value = AchievementBook.xp_for_rank(mastery)
+	mastery_progress.max_value = maxi(mastery_progress.min_value+1,needed)
+	mastery_progress.value = clampf(float(state.xp),mastery_progress.min_value,mastery_progress.max_value)
+	mastery_progress.custom_minimum_size.y = 26
+	mastery_progress.show_percentage = false
+	mastery_card.add_child(mastery_progress)
 	var event := Progression.event(model)
 	_card(page, L.text("Heute: ") + event.name, event.description)
 	if not state.project.is_empty():
@@ -157,6 +173,47 @@ func _career(page: VBoxContainer) -> void:
 	else:
 		_card(page, L.text("Den nächsten Wintertag vorbereiten"), L.text("Erforsche die Bergwetterstation für eine Wettervorschau. Jeden Tag erscheinen neue Auftragsangebote. Am Ende eines 28-tägigen Winters erhältst du eine Wertung und eine Saisonprämie; dein Resort bleibt bestehen."))
 	_card(page, L.text("Karriere und freier Aufbau"), L.text("Karriere: Forschung schaltet neue Technik und Ausbaustufen frei. Im freien Aufbau sind die Anlagen direkt verfügbar; Aufträge, Forschungseffekte und Winterwertung bleiben nutzbar. Im Resort-Büro pausiert die Zeit, damit du in Ruhe planen kannst."))
+
+func _achievements(page: VBoxContainer) -> void:
+	# A virtual catalogue: show the chosen theme in detail instead of
+	# creating 1,000 UI cards every time the resort office opens.
+	var model: RefCounted = game.model
+	var earned: Dictionary = {}
+	for id in model.achievements: earned[int(id)] = true
+	var expanded := 0
+	for id in model.achievements:
+		if int(id) >= AchievementBook.START_ID: expanded += 1
+	_card(page, L.text("1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET") % L.args(expanded),
+		L.text("20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."))
+	var picker := OptionButton.new()
+	picker.custom_minimum_size.y = 52
+	for track in AchievementBook.TRACKS:
+		picker.add_item(L.text(str(track.name)))
+	picker.select(clampi(selected_achievement_track,0,AchievementBook.TRACKS.size()-1))
+	page.add_child(picker)
+	picker.item_selected.connect(func(index: int):
+		selected_achievement_track = index
+		refresh()
+	)
+	var selected: int = clampi(selected_achievement_track,0,AchievementBook.TRACKS.size()-1)
+	var current := 0
+	for tier in range(1,AchievementBook.TIERS+1):
+		var id: int = AchievementBook.START_ID+selected*AchievementBook.TIERS+tier-1
+		if earned.has(id): current += 1
+	var progress_card := _card(page,L.text("%s · %d / 50") % L.args([L.text(AchievementBook.TRACKS[selected].name),current]),
+		L.text("Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen."))
+	var bar := ProgressBar.new()
+	bar.max_value = AchievementBook.TIERS
+	bar.value = current
+	bar.custom_minimum_size.y = 22
+	progress_card.add_child(bar)
+	for tier in range(1,AchievementBook.TIERS+1):
+		var id: int = AchievementBook.START_ID+selected*AchievementBook.TIERS+tier-1
+		var goal: Dictionary = AchievementBook.entry(id)
+		var done: bool = earned.has(id)
+		hud._label(page,("%s " % ("✦" if done else "○")) + str(goal.name) +
+			"   ·   " + str(goal.goal) + ("  ✓" if done else ""),
+			16,hud.TEAL if done else hud.MUTED,true)
 
 func _contracts(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
@@ -217,6 +274,28 @@ func _upgrades(page: VBoxContainer) -> void:
 			var check: Dictionary = model.upgrade_check(id)
 			hud._label(body, check.message, 16, hud.TEAL, true)
 			_action(body, L.text("Ausbauen"), func(): return model.upgrade_asset(id), check.ok)
+
+func _sponsoring(page: VBoxContainer) -> void:
+	var model: RefCounted = game.model
+	var state: Dictionary = model.campaign
+	var contract: Dictionary = state.get("sponsor",{})
+	_card(page,L.text("PARTNER FÜR DEIN RESORT"),
+		L.text("Sponsoren unterstützen den Bau neuer Anlagen mit sieben Tage lang begrenzten Einnahmen. Gute Gästezufriedenheit erhöht die Auszahlung. Nur ein Vertrag gleichzeitig."))
+	if not contract.is_empty():
+		var spec: Dictionary = Sponsorship.OFFERS.get(str(contract.id),{})
+		var label: String = L.text("Aktiv") if Sponsorship.active(state,model.day) else L.text("Abgeschlossen")
+		_card(page,L.text("%s · %s") % L.args([L.text(spec.name),label]),
+			L.text("Bis Tag %d · bisher %s € erhalten") % L.args([int(contract.end),hud.money_text(float(contract.earned))]))
+	hud._label(page,L.text("VERFÜGBARE SPONSOREN"),18,hud.ACCENT)
+	for id_value in Sponsorship.OFFERS:
+		var id: String = id_value
+		var offer: Dictionary = Sponsorship.OFFERS[id]
+		var overview := _card(page,L.text(offer.name), L.text(offer.detail) + "\n" +
+			L.text("%s €/Tag für %d Tage · ab %d %% Ruf und %d Lift(en)") % L.args([
+				hud.money_text(float(offer.daily)),Sponsorship.CONTRACT_DAYS,int(offer.rep),int(offer.lifts)]))
+		var eligibility: Dictionary = Sponsorship.check(model,id)
+		_action(overview,L.text("Sponsorvertrag abschließen"),func(): return Sponsorship.sign(model,id),eligibility.ok)
+		if not eligibility.ok: hud._label(overview,eligibility.message,14,hud.MUTED,true)
 
 func _finances(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model

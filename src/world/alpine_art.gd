@@ -159,6 +159,60 @@ func pine_distant() -> ArrayMesh:
 		cone(Vector3(0, y + 3, 0), radius * 0.94, 5.2, Color("f2f6fc"),radius*0.06)
 	return finish()
 
+func pine_painted(style_id: String, simplified: bool = false) -> ArrayMesh:
+	# Original silhouette variants; a visual style changes the tree's actual
+	# geometry rather than simply tinting the same alpine conical pine.
+	if style_id == "alpine":
+		return pine_distant() if simplified else pine()
+	var trunk := Color("826954")
+	cone(Vector3(0, 2.6, 0), 0.66, 5.2, trunk, 0.36)
+	match style_id:
+		"comic":
+			# Round, cute snow-puff tree with playful separate foliage balls.
+			for tier in range(3 if simplified else 4):
+				var y := 4.0 + tier * 3.2
+				var radius := 4.8 - tier * 0.78
+				sphere(Vector3(0, y, 0), radius, Color("43a7a1").lightened(tier*0.08), Vector3(1.06, 0.60, 1.06))
+				sphere(Vector3(0, y + radius*0.42, 0), radius*0.76, Color("f8fcff"), Vector3(1.0, 0.35, 1.0))
+			sphere(Vector3(0, 15.3, 0), 0.75, Color("fff2ae"))
+		"pastel":
+			# Impressionistic lavender clusters and delicate snowy light beads.
+			for tier in range(3 if simplified else 5):
+				var y := 3.8 + tier * 2.48
+				var radius := 4.7 - tier * 0.56
+				var main := Color("bca7d5") if tier % 2 == 0 else Color("8ebdb6")
+				for cluster in range(3 if simplified else 5):
+					var angle := tier*0.67 + cluster*TAU/(3.0 if simplified else 5.0)
+					var at := Vector3(cos(angle)*radius*0.48, y + sin(angle*1.4)*0.30, sin(angle)*radius*0.48)
+					sphere(at, radius*0.58, main.lightened(cluster*0.035), Vector3(1.0, 0.75, 1.0))
+					if not simplified:
+						sphere(at+Vector3(0,radius*0.33,0),radius*0.43,Color("fff1f9"),Vector3(1.0,0.35,1.0))
+			sphere(Vector3(0,16.1,0),0.62,Color("ffe5ea"))
+		"cinematic":
+			# Tall dark forest trees: clearly separated branches and deep
+			# shadow cones for a dramatic painterly mountain forest.
+			for tier in range(4 if simplified else 6):
+				var y := 3.0 + tier * 2.45
+				var radius := 5.0 - tier * 0.68
+				cone(Vector3(0,y,0),radius,3.5,Color("345451").lightened(tier*0.028),radius*0.07)
+				if not simplified:
+					for side in range(4):
+						var angle := side*PI*0.5 + tier*0.39
+						var tip := Vector3(cos(angle)*radius*0.78,y-0.65,sin(angle)*radius*0.78)
+						link(Vector3(0,y+0.55,0),tip,0.22,Color("576b61"))
+						sphere(tip,0.84,Color("d7e0df"),Vector3(1.45,0.34,1.0))
+		"crisp":
+			# Sharp frosty layers and little facets, like paper-cut glass.
+			for tier in range(4 if simplified else 6):
+				var y := 3.15 + tier * 2.25
+				var radius := 5.2 - tier * 0.74
+				cone(Vector3(0,y,0),radius,3.85,Color("467f93").lightened(tier*0.035),0.10)
+				cone(Vector3(0,y+0.84,0),radius*0.92,2.75,Color("eefaff"),0.02)
+			cone(Vector3(0,16.45,0),0.75,1.9,Color("ffffff"),0.0)
+		_:
+			return pine_distant() if simplified else pine()
+	return finish()
+
 func plaza_details() -> ArrayMesh:
 	# One batched set: timber seat, bin, warm lantern and a little route board.
 	box(Vector3(0, 1.1, 0), Vector3(5.2, 0.38, 1.9), Color("b28b5b"))
@@ -245,11 +299,11 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		return snow_cannon(level)
 	if kind in ["viewpoint", "shelter", "snowpark", "bus", "kiosk"]:
 		return amenity(kind, accent)
-	var big := kind == "hotel"
+	var big := kind in ["hotel", "grand_hotel", "guesthouse"]
 	var wide := kind in ["maintenance", "repair_office"]
-	var width := 35.0 if big else (29.0 if wide else 22.0)
-	var depth := 28.0 if big else (24.0 if wide else 18.0)
-	var floors := 2 + int(level >= 2) if big else 1 + int(level == 3)
+	var width := 44.0 if kind == "grand_hotel" else 16.0 if kind == "cabin" else 35.0 if kind == "hotel" else 29.0 if wide else 22.0
+	var depth := 32.0 if kind == "grand_hotel" else 14.0 if kind == "cabin" else 28.0 if kind == "hotel" else 24.0 if wide else 18.0
+	var floors := 3 + int(level >= 2) if kind == "grand_hotel" else 2 + int(level >= 2) if big else 1 + int(level == 3)
 	var height_value := floors * 8.0 + 3.0
 	soft_box(Vector3(0, 1, 0), Vector3(width + 3, 2, depth + 3), Color("c9c5c1"),Vector3.ZERO,0.6)
 	soft_box(Vector3(0, height_value / 2 + 1, 0),Vector3(width,height_value,depth),Color("e5cdb0") if big else Color("c79e7e"),Vector3.ZERO,0.65)
@@ -591,3 +645,4 @@ func groomer() -> ArrayMesh:
 	box(Vector3(0, 1.2, -4), Vector3(8, 0.7, 1.6), Color("486773"))
 	sphere(Vector3(0, 5.1, 1), 0.4, Color("f3bb60"))
 	return finish()
+

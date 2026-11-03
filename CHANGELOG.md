@@ -4,6 +4,10 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
+## In Entwicklung · 0.22.0 · Dorfaktivitäten und Hotelverwaltung
+
+Die kommende Ausgabe ergänzt die bereits vorbereiteten 1.000 Achievements, 500 Meisterschaftsränge, Sponsoren und Bildstile um interaktive Gebäude, eigene Pizzarezepte, sechs Unterkunftstypen, Hotelketten und korrekt abgerechnete Wochenkarten. Mehrtägige Aufenthalte funktionieren nun auch im Normalmodus. Die vollständigen Änderungen und Balancingwerte stehen in den [Release-Notizen 0.22.0](docs/releases/0.22.0.md). Ein neuer Download wird erst nach den vorhandenen Android-Freigabetests ergänzt.
+
 ## Versionen und Downloads
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
@@ -1081,3 +1085,4 @@ Godot-Import, Simulations-, Speicherstand-, UI- und Touch-Tests sowie der Androi
 Dies ist eine frühe spielbare Testversion. Eine Prüfung auf einem physischen Android-Gerät steht noch aus. Personal, Forschung, echte Hotelbuchungen und Geländebearbeitung sind weitere Ausbaustufen.
 
 ---
+

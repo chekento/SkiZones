@@ -4,10 +4,13 @@ extends RefCounted
 ## Progress is deterministic; rendered skiing follows the same lane index.
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
-const MAX_LANES := 3
-const LANE_METRES := 7.0
-const HEADWAY_METRES := 3.5
-const MIN_OVERTAKE_GAIN_METRES := 0.9
+# Use the actual piste width: broad snow corridors support parallel tracks.
+# The 0.21 three-lane cap made long, visible columns in popular resorts.
+const MAX_LANES := 6
+const LANE_METRES := 4.5
+const EDGE_BUFFER_METRES := 1.2
+const HEADWAY_METRES := 2.4
+const MIN_OVERTAKE_GAIN_METRES := 0.55
 
 static func _time_at(samples: Array, fraction: float) -> float:
 	if samples.is_empty(): return fraction
@@ -18,7 +21,33 @@ static func _time_at(samples: Array, fraction: float) -> float:
 
 static func lane_count(piste: Dictionary) -> int:
 	# Every skier still requires sufficient side room to pass safely.
-	return clampi(floori(Snow.piste_width(piste) / LANE_METRES), 1, MAX_LANES)
+	return clampi(floori(maxf(0.0, Snow.piste_width(piste)-2.0*EDGE_BUFFER_METRES) / LANE_METRES), 1, MAX_LANES)
+
+static func load_by_piste(model: RefCounted) -> Dictionary:
+	# Count users currently on each descent and those about to start it.
+	# Route choice uses this to spread guests over alternative runs without
+	# ever rejecting the sole accessible route.
+	var load: Dictionary = {}
+	for guest in model.guests:
+		if guest.phase == "leaving" or not guest.has("route"): continue
+		var plan: Array = guest.route.get("legs", [])
+		for index in range(int(guest.get("leg",0)),plan.size()):
+			var leg: Dictionary = plan[index]
+			if leg.kind == "ski":
+				var key: int = int(leg.id)
+				load[key] = int(load.get(key,0)) + int(guest.get("group_size",1))
+				break
+	return load
+
+static func route_pressure(model: RefCounted, piste: Dictionary, counts: Dictionary) -> float:
+	if piste.is_empty(): return 1.0
+	var lanes := lane_count(piste)
+	var metres := maxf(float(piste.get("length",1.0)),30.0)
+	var capacity: float = maxf(1.0, lanes * metres / 12.0)
+	var density: float = float(counts.get(int(piste.id),0)) / capacity
+	# Modest penalty below capacity, strong diversion when critically loaded.
+	# Keep minimum weight for isolated routes and returning guests.
+	return clampf(1.0 / (1.0 + 2.5 * density * density),0.18,1.0)
 
 static func steps(model: RefCounted) -> Dictionary:
 	var groups: Dictionary = {}

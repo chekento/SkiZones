@@ -1,7 +1,8 @@
 extends RefCounted
 ## Hotel capacity, persistent holiday visitors and a real walkway-based nightly
 ## return. Does not invent remote hotel travel or a bus boarding system.
-const Geo = preload("res://src/core/real_resorts.gd")
+const Catalog = preload("res://src/core/catalog.gd")
+const Hospitality = preload("res://src/core/hospitality.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
@@ -12,7 +13,7 @@ const MIN_HOLIDAY_MINUTES := 2880
 const MAX_HOLIDAY_MINUTES := 6480
 
 static func room_count(building: Dictionary) -> int:
-	return ROOMS_PER_LEVEL * maxi(1, int(building.get("level", 1))) if building.get("kind", "") == "hotel" and building.get("enabled", false) else 0
+	return int(Catalog.LODGING.get(building.get("kind", ""), {}).get("rooms", 0)) * maxi(1, int(building.get("level", 1))) if building.get("enabled", false) else 0
 
 static func rooms_needed(guest: Dictionary) -> int:
 	return maxi(1, ceili(float(guest.get("group_size", 1)) / 2.0))
@@ -39,10 +40,10 @@ static func billable_rooms(model: RefCounted, guest: Dictionary) -> float:
 	return float(ceili(float(people) / 2.0)) / float(maxi(1, people))
 
 static func assign(model: RefCounted, guest: Dictionary) -> bool:
-	if model.map_id not in Geo.IDS or guest.get("evening", false): return false
+	if not Ops.continuous(model) or guest.get("evening", false): return false
 	var options: Array = []
 	for hotel in model.buildings:
-		if hotel.kind != "hotel" or not Ops.building_open(model, hotel): continue
+		if not Hospitality.lodging(str(hotel.kind)) or not Ops.building_open(model, hotel): continue
 		var vacancies := room_count(hotel) - rooms_used(model, int(hotel.id))
 		if vacancies < rooms_needed(guest): continue
 		# Existing foot-network connects this hotel with actual resort
@@ -53,10 +54,15 @@ static func assign(model: RefCounted, guest: Dictionary) -> bool:
 		if not to_hotel.get("ok", false) or not to_base.get("ok", false): continue
 		options.append(hotel)
 	if options.is_empty(): return false
-	options.sort_custom(func(a, b): return rooms_used(model, int(a.id)) < rooms_used(model, int(b.id)) if rooms_used(model, int(a.id)) != rooms_used(model, int(b.id)) else int(a.id) < int(b.id))
+	options.sort_custom(func(a, b):
+		var score_a: float = Hospitality.attraction(model, a, guest) - 4.0 * rooms_used(model, int(a.id)) / maxi(1, room_count(a))
+		var score_b: float = Hospitality.attraction(model, b, guest) - 4.0 * rooms_used(model, int(b.id)) / maxi(1, room_count(b))
+		return int(a.id) < int(b.id) if is_equal_approx(score_a, score_b) else score_a > score_b)
 	var selected: Dictionary = options[0]
 	guest.lodging_id = int(selected.id)
 	guest.stay = maxi(int(guest.stay), model.rng.randi_range(MIN_HOLIDAY_MINUTES, MAX_HOLIDAY_MINUTES))
+	if model.operations.get("weekly_enabled", false) and int(guest.id) % 4 == 0 and Hospitality.weekly_offer(model).available:
+		guest.stay = maxi(int(guest.stay), 7 * 1440)
 	return true
 
 static func should_return(model: RefCounted, guest: Dictionary) -> bool:
@@ -122,6 +128,8 @@ static func wake(model: RefCounted, guest: Dictionary) -> void:
 	if guest.age >= guest.stay:
 		model.Access.depart(model, guest)
 		return
+	guest.erase("evening")
+	Hospitality.renew_day_ticket(model, guest)
 	var source := "d%d" % int(guest.lodging_id)
 	var route: Dictionary
 	if not guardian.is_empty():
@@ -139,3 +147,4 @@ static func wake(model: RefCounted, guest: Dictionary) -> void:
 	guest.route = route
 	guest.leg = 0
 	model._start_leg(guest)
+

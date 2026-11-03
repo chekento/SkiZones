@@ -147,13 +147,13 @@ func _needs() -> void:
 	guest.family[0].needs.hunger=95;Needs.aggregate_family(guest)
 	check(guest.needs.hunger==95 and visit_id(model.service_route(guest))==int(food.id),"One hungry child sends the whole family to actual food")
 	var trip: Dictionary=model.service_route(guest);guest.route=trip;guest.leg=0;model._start_leg(guest)
-	var balance: float=model.money;var midpoint:=false
+	var balance: float=model.money;var reward_before: float=model.report.rewards;var midpoint:=false
 	for i in range(100):
 		if guest.route.legs[guest.leg].kind=="visit" and guest.elapsed>3 and food.visits==0:midpoint=guest.family[0].needs.hunger<95
 		if food.visits>0:break
 		model.advance_minute(false)
 	check(midpoint,"Eating improves individual hunger progressively during the actual visit")
-	check(food.visits==4 and model.money==balance+28 and model.report.services==28,"The completed family meal accounts for four visits and four actual fees once")
+	check(food.visits==4 and is_equal_approx(model.money-balance-(model.report.rewards-reward_before),52.0) and model.report.services==52,"The completed family meal accounts for four visits and four actual fees once")
 	check(guest.family[0].needs.hunger<25 and guest.family[-1].needs.hunger<5,"Children and parents receive the meal without losing their individual needs")
 	healthy(guest);guest.family[1].needs.warmth=5;Needs.aggregate_family(guest)
 	check(visit_id(model.service_route(guest))==int(model.buildings[0].id),"The coldest child triggers a shared reachable warm shelter")
@@ -216,3 +216,4 @@ func _overnight() -> void:
 	for i in range(125):model.advance_minute(false)
 	check(model.day==2 and model.minute==5 and model.guests.has(guest) and guest.agenda.lifts.size()==1,"The same holiday guest and completed lift list persist across midnight")
 	check(Resort.new().restore(save(model)).ok,"An occupied collector hotel stay survives a populated save")
+

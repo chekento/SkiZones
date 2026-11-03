@@ -5,6 +5,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const GuestProfile = preload("res://src/core/guest_profile.gd")
 const GuestFace = preload("res://src/ui/guest_face.gd")
+const BuildingExperience = preload("res://src/ui/building_experience.gd")
 const AssetEditor = preload("res://src/ui/asset_editor.gd")
 const DisplayOptions = preload("res://src/ui/display_options.gd")
 const Terrain = preload("res://src/core/terrain.gd")
@@ -16,8 +17,10 @@ const Minimap = preload("res://src/ui/minimap.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Saves = preload("res://src/core/save_store.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
+const Traffic = preload("res://src/core/guest_traffic.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
+const AchievementToast = preload("res://src/ui/achievement_toast.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
@@ -38,6 +41,7 @@ const APRICOT := Color("f1c5a4")
 
 var game: Node
 var root := Control.new()
+var achievement_overlay := AchievementToast.new()
 var loading := PanelContainer.new()
 var loading_percent := Label.new()
 var loading_stage := Label.new()
@@ -48,6 +52,8 @@ var loading_activity := Label.new()
 var loading_margins := MarginContainer.new()
 var _loading_started := 0
 var _loading_last_work := 0
+var _loading_activity_clock := 0.0
+var _loading_activity_phase := 0
 var menu := Control.new()
 var scenarios := Scenarios.new()
 var credits := AcceptDialog.new()
@@ -108,6 +114,7 @@ var atlas := Atlas.new()
 var palette := Palette.new()
 var selected_guest := -1
 var guest_face := GuestFace.new()
+var experience := BuildingExperience.new()
 var asset_editor := AssetEditor.new()
 var display_options := DisplayOptions.new()
 var design_button: Button
@@ -184,6 +191,8 @@ func setup(controller: Node) -> void:
 	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
+	root.add_child(experience)
+	experience.setup(self)
 	root.add_child(asset_editor)
 	asset_editor.setup(self)
 	root.add_child(display_options)
@@ -196,6 +205,9 @@ func setup(controller: Node) -> void:
 		scenarios.hide()
 	_build_credits()
 	_build_community()
+	root.add_child(achievement_overlay)
+	achievement_overlay.z_index = 80
+	achievement_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# The artwork covers the complete display; only its footer uses safe insets.
 	# Keeping this under the inset HUD root left a strip of the old world visible.
 	add_child(loading)
@@ -793,7 +805,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if experience.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -856,6 +868,8 @@ func show_context(tool: String, id: int = -1) -> void:
 		inspector_title.text = L.asset_name(item)
 		if item.has("difficulty"):
 			_button(inspector_actions, L.text("Pistenpunkte bearbeiten"), func(): game.begin_edit(id, item.name, item.get("color", ""), 0, item.get("width", 20)), true)
+		if Catalog.BUILDINGS.has(item.get("kind", "")):
+			_button(inspector_actions, L.text("Gebäude betreten · Spielen & Verwalten"), func(): experience.open(id), true)
 		_button(inspector_actions, L.text("Gestalten & umplanen"), func(): asset_editor.open(id), true)
 		_button(inspector_actions, L.text("Schließen") if item.get("enabled", false) else L.text("Öffnen"), func(): game.toggle_asset(id))
 		_button(inspector_actions, L.text("Abbauen · 25 % Erstattung"), func(): game.demolish_asset(id))
@@ -960,6 +974,15 @@ func _refresh_context_text() -> void:
 				grooming_label.text = grooming.message
 			text_value += L.text("Piste %d · %s\n%.0f m Länge · ↓ %.0f m\nØ %.0f %% · Max. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s") % L.args([item.number, [L.text("Blau · leicht"), L.text("Rot · mittel"), L.text("Schwarz · schwer")][item.difficulty], item.length, item.drop, item.average, item.grade, item.condition, item.snow, item.rides, L.text("Mit Rundweg erreichbar") if model.reachable_piste_ids().has(item.id) else L.text("Noch kein nutzbarer Rundweg")])
 			text_value += L.text("\nPistenbreite: %.0f m") % L.args(Snow.piste_width(item))
+			# Count people assigned to this descent, including guests approaching
+			# on a lift; these figures are a planning guideline, not hard limits.
+			var assigned: int = int(Traffic.load_by_piste(model).get(int(item.id), 0))
+			var lanes: int = Traffic.lane_count(item)
+			var reference_capacity: int = maxi(1,roundi(float(lanes)*maxf(30.0,float(item.length))/12.0))
+			var traffic_label: String = L.text("Entspannt") if assigned < reference_capacity*0.5 else (L.text("Belebt") if assigned < reference_capacity*0.85 else L.text("Engpass"))
+			text_value += "\n" + L.text("Zugeordnete Skifahrer: %d · Richtwert %d\nFahrspuren: %d · Verkehr: %s") % L.args([assigned, reference_capacity,lanes,traffic_label])
+			if assigned >= reference_capacity*0.85:
+				text_value += "\n" + L.text("Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser.")
 			text_value += L.text("\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel.") % L.args((Snow.roughness(item) * 100))
 		elif item.has("bottom"):
 			if lift_staff_status.visible:
@@ -1024,6 +1047,9 @@ func money_text(amount: float) -> String:
 
 func refresh() -> void:
 	var model: RefCounted = game.model
+	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
+		for index in range(mini(3,model.recent_unlocks.size())):
+			achievement_overlay.announce(model.recent_unlocks.pop_front())
 	labels.money.text = money_text(model.money) + " €"
 	labels.guests.text = "%d / %d" % [model.present_guests(), model.total_guests]
 	labels.rep.text = "%.0f %%" % model.reputation
@@ -1154,11 +1180,18 @@ func apply_loading_state(state: Dictionary) -> void:
 	loading_units.text = L.format_message("%d von %d abgeschlossen", [int(state.done), int(state.total)]) if int(state.total) > 0 else ""
 	if int(state.updated) > 0: _loading_last_work = int(state.updated)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not loading.visible: return
 	var now := Time.get_ticks_msec()
-	loading_activity.text = ["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][int(now / 250) % 4]
+	# Advance by rendered frames rather than sampling absolute clock phases.
+	# A slow Android frame can no longer alias the same indicator every time.
+	_loading_activity_clock += maxf(0.0,delta)
+	if _loading_activity_clock >= 0.23:
+		_loading_activity_clock = 0.0
+		_loading_activity_phase = (_loading_activity_phase + 1) % 4
+	loading_activity.text = ["● ○ ○", "○ ● ○", "○ ○ ●", "○ ● ○"][_loading_activity_phase]
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 

@@ -54,6 +54,10 @@ func run() -> void:
 	game.paused = true
 	await process_frame
 	check(not game.hud.menu.visible and game.has_game, "Starting a scenario opens the map and HUD")
+	game.hud.show_context("inspect",int(game.model.pistes[0].id))
+	check(game.hud.inspector_text.text.contains("Zugeordnete Skifahrer") and game.hud.inspector_text.text.contains("Fahrspuren:"),
+		"The real piste inspector shows upcoming traffic density and usable passing lanes")
+	game.hud.show_context("inspect")
 	var map_position := Vector2(740, 390)
 	check(not game.hud.blocks_map(map_position), "Map has a usable input region between the panels")
 	var hit: Vector2 = game.view.map_point(map_position)
@@ -111,8 +115,9 @@ func run() -> void:
 	check(not game.hud.confirm_button.disabled, "Valid affordable build plans can be confirmed")
 	var count: int = game.model.pistes.size()
 	var balance: float = game.model.money
+	var rewards_before: float = game.model.report.rewards
 	game.confirm_plan()
-	check(game.model.pistes.size() == count + 1 and game.model.money < balance and game.points.is_empty(), "Build confirmation creates the piste and charges its displayed cost")
+	check(game.model.pistes.size() == count + 1 and game.model.money - (game.model.report.rewards - rewards_before) < balance and game.points.is_empty(), "Build confirmation creates the piste and charges its displayed cost")
 	game.points = [[-170, -235], [-160, -50], [-80, 90], [100, 190]]
 	game._update_plan()
 	check(not game.hud.confirm_button.disabled and game.last_plan_check.difficulty == 2 and game.hud.palette.route_profile.analysis.difficulty == 2, "The real HUD automatically changes a steep plan to black and updates the profile")
@@ -155,23 +160,28 @@ func run() -> void:
 	check(safe.position.is_equal_approx(Vector2(60, 0)) and safe.size.is_equal_approx(Vector2(1940, 880)), "Android cutouts and navigation insets map to logical UI coordinates")
 	check(game.hud.safe_content_rect(Vector2.ZERO, Vector2(1440, 900), Rect2()) == Rect2(0, 0, 1440, 900), "Missing display metrics leave the full UI usable")
 	check(game.hud.safe_content_rect(Vector2(2400, 1080), Vector2(2000, 900), Rect2(-100, 0, 2600, 1200)) == Rect2(0, 0, 2000, 900), "Safe areas are clipped to the display bounds")
-	game.hud.show_management(2)
+	game.hud.show_management_page("Forschung")
 	await process_frame
 	var office: PanelContainer = game.hud.management
-	check(office.visible and office.tabs.get_tab_count() == 9 and office.tabs.current_tab == 2, "The resort office opens the requested one of nine management pages")
+	var research_tab: int = office.tabs.current_tab
+	check(office.visible and office.tabs.get_tab_count() >= 11 and office.tabs.get_tab_title(research_tab) == "Forschung", "The resort office opens research by stable page title despite new tabs")
 	check(game.hud.blocks_map(map_position) and bounds.encloses(office.get_global_rect()), "The complete office fits the viewport and blocks building underneath")
 	clock = game.model.minute
 	game.paused = false
 	for i in range(8):
 		game._process(0.25)
 	check(game.model.minute == clock, "Office planning pauses the operating day without changing the user's pause setting")
-	var research := find_button(office.tabs.get_child(2), "Forschung starten")
+	var research := find_button(office.tabs.get_child(research_tab), "Forschung starten")
 	check(research != null and not research.disabled, "Available research has an enabled action in the actual office")
 	research.pressed.emit()
 	await process_frame
-	check(game.model.campaign.project.get("id") == "snowcraft" and office.tabs.current_tab == 2, "Office action starts the selected research and retains the current page")
-	office.tabs.current_tab = 1
-	var accept := find_button(office.tabs.get_child(1), "Auftrag annehmen")
+	check(game.model.campaign.project.get("id") == "snowcraft" and office.tabs.current_tab == research_tab, "Office action starts the selected research and retains the current page")
+	var contracts_tab: int = -1
+	for i in range(office.tabs.get_tab_count()):
+		if office.tabs.get_tab_title(i) == "Aufträge": contracts_tab = i
+	check(contracts_tab >= 0, "The contracts page remains discoverable by title")
+	office.tabs.current_tab = maxi(0,contracts_tab)
+	var accept := find_button(office.tabs.get_child(maxi(0,contracts_tab)), "Auftrag annehmen")
 	accept.pressed.emit()
 	await process_frame
 	check(game.model.campaign.contracts.size() == 1, "Accepting an office offer creates a persistent simulation contract")

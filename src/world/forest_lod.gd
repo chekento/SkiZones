@@ -13,6 +13,7 @@ var root := Node3D.new()
 var candidates: Dictionary = {}
 var detailed: ArrayMesh
 var distant: ArrayMesh
+var style_meshes: Dictionary = {}
 
 func _disk(blocked: Dictionary, point: Vector2, radius: float) -> void:
 	for x in range(floori((point.x - radius) / CELL), ceili((point.x + radius) / CELL) + 1):
@@ -25,6 +26,17 @@ func _line(blocked: Dictionary, a: Vector2, b: Vector2, width: float) -> void:
 	for i in range(count + 1):
 		_disk(blocked, a.lerp(b, float(i) / count), width)
 
+func _choose_meshes(view: Node3D) -> void:
+	var id: String = VisualStyles.valid(view.visual_style)
+	if not style_meshes.has(id):
+		var near_mesh: ArrayMesh = Art.new().pine_painted(id, false)
+		var far_mesh: ArrayMesh = Art.new().pine_painted(id, true)
+		near_mesh.surface_set_material(0, view._solid)
+		far_mesh.surface_set_material(0, view._solid)
+		style_meshes[id] = {"near":near_mesh, "far":far_mesh}
+	detailed = style_meshes[id].near
+	distant = style_meshes[id].far
+
 func build(view: Node3D) -> void:
 	if not root.is_inside_tree():
 		view.add_child(root)
@@ -32,11 +44,7 @@ func build(view: Node3D) -> void:
 		root.remove_child(child)
 		child.queue_free()
 	groups.clear()
-	if detailed == null:
-		detailed = Art.new().pine()
-		distant = Art.new().pine_distant()
-		detailed.surface_set_material(0, view._solid)
-		distant.surface_set_material(0, view._solid)
+	_choose_meshes(view)
 	var mountain: RefCounted = view.terrain
 	var map_id: String = view.model.map_id
 	var id := "%s/%d" % [map_id, mountain.generation]
@@ -111,13 +119,15 @@ func build(view: Node3D) -> void:
 	update(view.focus, view.zoom, 1)
 
 func apply_style(view: Node3D) -> void:
-	# Recolor existing instances instead of regenerating 11,000 forest
-	# candidates, blocking footprints or mountain meshes on each style switch.
+	# Switch prebuilt models and colors without regenerating 11,000 forest
+	# candidates, changing their transforms or touching terrain geometry.
+	_choose_meshes(view)
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
 	var foliage: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
 	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.72)
 	for group in groups:
 		var mesh: MultiMesh = group.node.multimesh
+		mesh.mesh = detailed if group.detail else distant
 		var tints: Array = group.base_tints
 		for i in range(tints.size()):
 			mesh.set_instance_color(i, Color(tints[i]) * tree_base * foliage)

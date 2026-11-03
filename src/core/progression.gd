@@ -4,6 +4,8 @@ const L = preload("res://src/core/i18n.gd")
 
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
+const Sponsorship = preload("res://src/core/sponsorship.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
@@ -29,7 +31,7 @@ const CONTRACTS := {
 }
 
 static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary:
-	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
+	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "mastery_rank": 1, "sponsor": {}, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
 
 static func has(model: RefCounted, id: String) -> bool:
 	return model.campaign.get("research", []).has(id)
@@ -82,7 +84,7 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:
-		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality"}.get(kind, "")
+		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality"}.get(kind, "")
 	return L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name) if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
@@ -270,6 +272,27 @@ static func refresh(model: RefCounted) -> void:
 		state.points += 3
 		pay_reward(model, state.rank * 7500)
 		set_notice(state,"Resort-Stern %d erreicht: %s.",[state.rank,RANK_NAMES[state.rank-1]])
+	# The 500 mastery ranks complement (rather than override) five
+	# research-gated resort stars. Costs and unlocks stay stable for old saves.
+	var desired_mastery: int = AchievementBook.mastery_for_xp(float(state.xp))
+	var mastery: int = int(state.get("mastery_rank",desired_mastery))
+	if mastery < desired_mastery:
+		for new_rank in range(mastery+1,desired_mastery+1):
+			# Mastery awards research points, not an extra payment on top of
+			# contracts. Keeps the displayed contract cash reward exact.
+			if new_rank % 10 == 0:
+				state.points += 1
+		# Consolidate huge retroactive leaps into one animated notification.
+		if model.recent_unlocks.size() < 24:
+			model.recent_unlocks.append({"kind":"rank","title":L.text("MEISTERSCHAFTSRANG %d / 500") % L.args(desired_mastery), "detail":L.text("+%d Ränge") % L.args(desired_mastery-mastery), "reward":0})
+	state.mastery_rank = desired_mastery
+
+static func construction_xp(tool: String, remodeling: bool = false) -> int:
+	# Building earns XP even before the first visitor boards a lift.
+	# Editing awards less than creating new infrastructure to discourage spam.
+	if remodeling: return 35
+	return {"piste": 140, "lift": 220, "building": 110,
+		"walkway": 50, "plaza": 70}.get(tool, 0)
 
 static func next_goal(model: RefCounted) -> String:
 	match int(model.campaign.rank):
@@ -309,6 +332,8 @@ static func finish_day(model: RefCounted) -> void:
 		pay_reward(model, prize)
 		state.points += state.rank * 2
 		set_notice(state,"Winter %d abgeschlossen: %d € Saisonprämie. Dein Resort bleibt für den nächsten Winter erhalten.",[season_number(model),prize])
+	# Sponsors pay once per completed day, independently of build actions.
+	Sponsorship.daily_reward(model)
 	var income: float = model.report.tickets + model.report.services
 	var investments: float = model.report.get("investments", 0.0)
 	state.profit += income - model.report.costs
@@ -325,6 +350,11 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	if not value is Dictionary or value.get("version") != 1 or value.get("mode") not in ["career", "free"]:
 		return false
 	var state: Dictionary = value.duplicate(true)
+	# Preserve byte-for-byte legacy campaign fields at the moment of load.
+	# Old careers use an implicit rank until their next normal progress tick;
+	# only a truly stored mastery rank requires separate validation.
+	if state.has("mastery_rank") and (not Terrain.number(state.mastery_rank) or state.mastery_rank < 1 or state.mastery_rank > 500 or state.mastery_rank != floorf(float(state.mastery_rank))):
+		return false
 	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
 	for key in ranges:
 		if not Terrain.number(state.get(key)) or state[key] < ranges[key][0] or state[key] > ranges[key][1]:
@@ -347,6 +377,8 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		if not Terrain.number(state.abilities[i]) or state.abilities[i] < 0 or state.abilities[i] > 1000000000 or state.abilities[i] != floorf(state.abilities[i]):
 			return false
 		state.abilities[i] = int(state.abilities[i])
+	if state.has("sponsor") and not Sponsorship.valid(state.sponsor,model.day):
+		return false
 	if not state.get("project") is Dictionary or not state.get("notice") is String or state.notice.length() > 500:
 		return false
 	if state.has("notice_key"):
@@ -394,3 +426,4 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 				return false
 	model.campaign = state
 	return true
+

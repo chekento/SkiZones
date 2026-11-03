@@ -85,7 +85,7 @@ func _init() -> void:
 	model._operational_change()
 	check(Ops.building_open(model, hotel), "hotel is staffed at 22:00")
 	check(Ops.admit_evening(model), "a real evening guest walks to an available service")
-	check(not model.guests.is_empty() and model.guests[0].route.legs.any(func(l): return l.kind == "visit" and int(l.id) == int(hotel.id) and l.minutes >= 480), "overnight stay reserves an actual hotel visit")
+	check(not model.guests.is_empty() and model.guests[0].route.legs.any(func(l): return l.kind == "visit" and int(l.id) == int(hotel.id) and int(model.guests[0].get("lodging_id", 0)) == int(hotel.id)), "overnight stay reserves an actual hotel visit")
 	var day: int = model.day
 	var ids: Array = model.guests.map(func(g): return g.id)
 	for i in range(125): model.advance_minute(false)
@@ -125,6 +125,9 @@ func _init() -> void:
 		guest.service_history = {}
 		guest.erase("heading_home")
 		guest.erase("replan")
+		# This passenger is transplanted to a different, hotel-free resort.
+		# A reservation from the original resort must not follow the fixture.
+		for key in ["lodging_id", "hotel_night", "hotel_sleep_until", "lodging_billed_night"]: guest.erase(key)
 		guest.route = {"target": 0, "origin": graph.nodes[top_key], "legs": [down[0]] + cable._shortest(graph, bottom_key, "base").legs}
 		guest.leg = 0
 		cable.guests.append(guest)
@@ -137,3 +140,4 @@ func _init() -> void:
 		check(Resort.new().restore(JSON.parse_string(JSON.stringify(cable.snapshot()))).ok, "downhill carrier, departure offset and assigned seat survive a populated save")
 	print("OPERATIONS: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
+
