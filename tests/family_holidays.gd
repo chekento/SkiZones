@@ -64,7 +64,7 @@ func run() -> void:
 			print("FAMILY_DIAG ", person.id, " ", person.phase, " ", person.get("waiting_reason", ""), " night=", person.get("hotel_night", false), " leg=", person.leg)
 		finish()
 		return
-	check(is_equal_approx(float(hotel.revenue) - initial_revenue, 3.0 * float(model.operations.room_price)), "The family's night bills three rooms rather than five duplicate charges")
+	check(is_equal_approx(float(hotel.revenue) - initial_revenue, 3.0 * model.Hospitality.nightly_price(model, hotel, family[0])), "The family's night bills three rooms rather than five duplicate charges")
 	# Even an overdue meal appointment must not wake sleeping children.
 	model.parties[0].meeting_at = Parties.now(model)
 	for step in range(10): Parties.tick(model)
@@ -109,3 +109,4 @@ func check_capacity() -> void:
 func finish() -> void:
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
+

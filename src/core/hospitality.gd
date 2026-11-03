@@ -126,7 +126,7 @@ static func upgrade(model: RefCounted, id: int) -> Dictionary:
 static func housekeeping(model: RefCounted, id: int) -> Dictionary:
 	var building: Dictionary = model.asset(id)
 	if not lodging(str(building.get("kind", ""))): return model._result(false, L.text("Eine eigene Unterkunft wählen."))
-	var cost := 8.0 * model.Lodging.room_count(building)
+	var cost: float = 8.0 * model.Lodging.room_count(building)
 	if not model.Ops._expense(model, cost, "building:%d" % id): return model._result(false, L.text("Das Budget reicht für die Zimmerreinigung noch nicht."))
 	var settings := config(building)
 	settings.cleanliness = 100.0

@@ -95,7 +95,7 @@ func run() -> void:
 	check(dashboard.cost > 0 and dashboard.break_even > 0, "Hotel dashboard includes planned staff, infrastructure and service costs")
 	var saved: Dictionary = JSON.parse_string(JSON.stringify(model.snapshot()))
 	check(Resort.new().restore(saved).ok, "Menus, hotel chains, activities and occupied normal-mode lodging survive JSON save/load")
-	var bad := JSON.parse_string(JSON.stringify(model.snapshot()))
+	var bad: Dictionary = JSON.parse_string(JSON.stringify(model.snapshot()))
 	for building in bad.buildings:
 		if int(building.id) == int(hotel.id): building.hotel.cleanliness = INF
 	check(not Resort.new().restore(bad).ok, "Non-finite hotel settings are rejected without altering the active save")
