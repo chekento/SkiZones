@@ -37,7 +37,7 @@ func run() -> void:
 	var first_party=saved.celebrate_new_year({"year":2027,"month":1,"day":1,"hour":0,"minute":0,"second":1})
 	check(first_party.ok and not saved.celebrate_new_year({"year":2027,"month":1,"day":1,"hour":0,"minute":12,"second":0}).ok,"New Year party happens once for a yearly event")
 	check(saved.celebrate_new_year({"year":2028,"month":1,"day":1,"hour":0,"minute":15,"second":0}).ok,"A separate year may hold the annual party again")
-	var currency_before:=saved.overview(dec24).coins
+	var currency_before: int=int(saved.overview(dec24).coins)
 	var bought=saved.buy_decoration("star")
 	check(bought.ok and saved.overview(dec24).owned.has("star") and saved.overview(dec24).coins<currency_before,"Decorations persist and consume hard-capped earned winter tokens")
 	check(not saved.buy_decoration("star").ok,"One decoration cannot be bought twice")
