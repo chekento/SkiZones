@@ -4,12 +4,12 @@ const Terrain = preload("res://src/core/terrain.gd")
 const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
-	"alpine":"Alpenfolk & Hüttenklang",
-	"techno":"Berg-Techno",
-	"hiphop":"Snowpark Hip-Hop",
-	"punk":"Pisten-Punk",
-	"classical":"Winter-Klassik",
-	"meditative":"Meditative Bergluft"
+	"alpine":"AlpenWelle FM · Hüttenmorgen",
+	"techno":"SnowBeat Radio · Gipfelpuls",
+	"hiphop":"Powder Flow · Park Lines",
+	"punk":"PistenPunk · Kantenwind",
+	"classical":"Alpine Classic · Schneelicht",
+	"meditative":"Mountain Chill · Wolkenmeer"
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {

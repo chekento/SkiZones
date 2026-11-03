@@ -1,7 +1,15 @@
 extends Node
-## Built-in original procedural placeholder sounds. No third-party tracks,
-## no recording of NPC voices, no hidden streaming and no external services.
+## Original locally composed multi-instrument WAV arrangements and ambient synthesis.
+## All offline; no third-party samples, voice recordings or network streams.
 const Design=preload("res://src/core/audio_design.gd")
+const MUSIC_TRACKS := {
+	"alpine": preload("res://assets/music/alpine.wav"),
+	"techno": preload("res://assets/music/techno.wav"),
+	"hiphop": preload("res://assets/music/hiphop.wav"),
+	"punk": preload("res://assets/music/punk.wav"),
+	"classical": preload("res://assets/music/classical.wav"),
+	"meditative": preload("res://assets/music/meditative.wav")
+}
 const SAMPLE_RATE := 12000
 const LOOP_SECONDS := 8
 const LAYERS := ["wind","crowd","machinery"]
@@ -103,6 +111,18 @@ func _create(mode: String) -> AudioStreamWAV:
 	_cache[mode]=wav
 	return wav
 
+## Load a real arranged music bed; keep the old synthesizer as a fallback for QA.
+func _music_stream(id: String) -> AudioStream:
+	var track: AudioStream = MUSIC_TRACKS.get(id)
+	if track == null:
+		return _create(id)
+	if track is AudioStreamWAV:
+		var wav: AudioStreamWAV = track
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = int(wav.data.size() / 2)
+	return track
+
 func set_genre(id: String) -> void:
 	var wanted:String=Design.genre_valid(id)
 	if current_genre==wanted and (wanted=="off" or (players.has("music") and players.music.playing)):return
@@ -129,7 +149,7 @@ func set_genre(id: String) -> void:
 		if alternate!=null:alternate.stop()
 		_retiring_music=null
 	_crossfade=0.0
-	primary.stream=_create(wanted)
+	primary.stream=_music_stream(wanted)
 	primary.volume_db=-60.0
 	primary.play()
 	primary.stream_paused=not active
