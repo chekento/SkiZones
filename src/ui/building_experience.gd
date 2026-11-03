@@ -8,6 +8,7 @@ const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
+const Newspaper = preload("res://src/core/newspaper.gd")
 const HotelStoryArt = preload("res://src/ui/hotel_story_art.gd")
 var hud: CanvasLayer
 var asset_id := -1
@@ -128,12 +129,37 @@ func _rebuild() -> void:
 	heading.text = L.asset_name(building)
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
+	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
 	_activity(building)
 	var operation := _page(L.text("Betrieb & Team"))
 	var balance: Dictionary = model.Ops.business_balance(model, building)
 	_card(operation, L.text("Dein Betriebsergebnis"), L.text("Umsatz %s € · Kosten %s € · Ergebnis %s €") % [hud.money_text(balance.sales), hud.money_text(balance.costs), hud.money_text(balance.net)])
 	hud._button(operation, L.text("Personal, Status und Reparatur"), func(): close(); hud.lift_staff.open(asset_id), true)
 	hud._label(operation, L.text("Minispiele sind freiwillig. Deine Betriebe arbeiten auch ohne manuelle Schichten weiter. Drei belohnte Schichten pro Gebäude und Tag; danach bleibt freies Üben möglich."), 16, hud.MUTED, true)
+
+func _newspaper(building: Dictionary) -> void:
+	var model: RefCounted=hud.game.model
+	var page:=_page(L.text("Alpen-ExtraBlatt"))
+	var edition: Dictionary=Newspaper.statistics(model)
+	var head:=_card(page,L.text("DAS ALPEN-EXTRABLATT"),L.text("Eine Dorfzeitung über echte Meilensteine deiner Karriere. Die letzten fünf Erfolge erscheinen als neue Ausgabe – ohne erfundene Erwerbsdaten."))
+	hud._label(head,L.text("Ausgabe: Betriebstag %d · %d Zeitungen verkauft · %s € Einnahmen") % [model.day,int(edition.sold),hud.money_text(float(edition.revenue))],17,hud.TEAL,true)
+	if not Newspaper.press_available(model):
+		_card(page,L.text("Eine Dorfredaktion wird benötigt"),L.text("Baue zuerst eine Druckerei. Danach können Zeitungskioske Exemplare verkaufen."))
+		return
+	if building.kind=="newsstand":
+		_card(page,L.text("Dein Kiosk"),L.text("%d Zeitungen verkauft · %.0f € Umsatz an diesem Stand") % [int(building.get("visits",0)),float(building.get("revenue",0.0))])
+	var articles: Array=edition.edition
+	if articles.is_empty():
+		_card(page,L.text("Noch keine Schlagzeilen"),L.text("Sobald du das nächste Achievement erreichst, veröffentlicht deine Druckerei die erste Ausgabe."))
+	for article in articles:
+		var column:=PanelContainer.new()
+		column.add_theme_stylebox_override("panel",hud._style(Color("f9f1dd"),10,18,Color("d2c2a5")))
+		page.add_child(column)
+		var content:=hud._vbox(column,8)
+		hud._label(content,L.text(str(article.lead)),13,Color("8a7158"),true)
+		hud._label(content,L.text(str(article.title)),25,Color("3e4345"),true)
+		hud._label(content,L.text("Die Redaktion berichtet: %s. Gäste und Personal verfolgen gemeinsam den Erfolg des Resorts.") % [L.text(str(article.detail))],16,Color("5c615e"),true)
+		hud._label(content,L.text("Alpen-ExtraBlatt · Achievement #%d") % int(article.id),12,Color("8a7158"),true)
 
 func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))
