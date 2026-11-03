@@ -44,6 +44,10 @@ const BUILDINGS := {
 	"guesthouse":{"name":"Alpenpension", "cost":46000, "upkeep":180, "income":6.0, "appeal":11, "color":"d3b681", "description":"Zehn Gästezimmer mit Rezeption und Frühstück. Benötigt Hotelpersonal in allen Schichten."},
 	"grand_hotel":{"name":"Grandhotel", "cost":195000, "upkeep":1250, "income":18.0, "appeal":25, "color":"a3b8cd", "description":"48 Zimmer mit umfassender Verwaltung, Familienangebot, Premiumzimmern und Hotelketten."},
 	"bar":{"name":"Alpenbar", "cost":23500, "upkeep":160, "income":12.0, "appeal":9, "color":"a67a98", "description":"Abendliche Getränke, ein eigenes Ausschankspiel und zusätzliche Umsätze nach dem Skitag."},
+	"fitness": {"name":"Fitnessstudio","cost":46500,"upkeep":370,"income":9.0,"appeal":10,"color":"72a1b5","description":"Trainingsraum mit Hantelstation, Fahrradergometer und Bergpanorama. Auch als Hotelmodul möglich."},
+	"souvenir": {"name":"Alpiner Souvenirshop","cost":18500,"upkeep":155,"income":9.0,"appeal":9,"color":"be8c65","description":"Handgeschnitzte Andenken, kleine Kuhglocken und liebevolle Urlaubsmitbringsel."},
+	"watchmaker": {"name":"Uhrmacher & Werkstatt","cost":27500,"upkeep":195,"income":10.0,"appeal":10,"color":"8c7f99","description":"Traditioneller Uhrmacher mit Miniatur-Zifferblättern, Reparaturen und Reiseandenken."},
+	"craftshop": {"name":"Alpine Handwerksstube","cost":21500,"upkeep":170,"income":9.0,"appeal":11,"color":"aa885e","description":"Handgefertigte Schnitzereien, Holzwerkzeuge, lokale Souvenirs und Bergtradition."},
 	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."}
 }
 
@@ -69,7 +73,7 @@ static func building_group(kind: String) -> String:
 	if LODGING.has(kind): return "Unterkünfte & Hotels"
 	if kind in FOOD_KINDS or kind == "shelter": return "Verpflegung & Wärme"
 	if kind in ["repair_office", "maintenance", "snowmaker", "first_aid"]: return "Betrieb & Sicherheit"
-	if kind in ["rental", "school", "bus"]: return "Service & Anreise"
+	if kind in ["rental", "school", "bus", "souvenir", "watchmaker", "craftshop"]: return "Service & Anreise"
 	return "Freizeit & Erholung"
 static func building_order() -> Array:
 	var result := BUILDINGS.keys()
