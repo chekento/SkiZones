@@ -12,6 +12,11 @@ const GENRE_NAMES := {
 	"meditative":"Meditative Bergluft"
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
+const ZONE_NAMES := {
+	"wilderness":"Freier Berg", "piste":"Piste", "lift":"Lift", "village":"Dorf",
+	"hotel":"Hotel", "restaurant":"Gastronomie", "disco":"Après-Ski",
+	"spa":"Wellness", "workshop":"Werkstatt", "rescue":"Bergrettung"
+}
 const SOUND_MIX := {
 	"wilderness":{"wind":0.9,"crowd":0.0,"machinery":0.0,"music":0.0},
 	"piste":{"wind":1.0,"crowd":0.12,"machinery":0.0,"music":0.0},
@@ -74,3 +79,4 @@ static func license_policy(provider: String, permission: bool = false) -> bool:
 	# Only the built-in synthesis can be played without a documented rights record.
 	# External providers are intentionally rejected until explicit permission.
 	return provider=="internal" or (provider=="cc0" and permission)
+

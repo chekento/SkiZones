@@ -5129,3 +5129,21 @@ msgstr "A great day for the resort"
 
 msgid "Ein historischer Erfolg des Resorts."
 msgstr "A historic resort achievement."
+
+msgid "Kürzerer Skitag · gemütlicher Abend · Tempo im Menü einstellbar"
+msgstr "Shorter ski day · relaxed evening · adjust pacing in the menu"
+
+msgid "Freier Berg"
+msgstr "Open mountain"
+
+msgid "Après-Ski"
+msgstr "Après-ski"
+
+msgid "Wellness"
+msgstr "Wellness"
+
+msgid "Werkstatt"
+msgstr "Workshop"
+
+msgid "Bergrettung"
+msgstr "Mountain rescue"

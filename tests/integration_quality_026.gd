@@ -35,6 +35,10 @@ func run() -> void:
 	game.preferences.master_volume=1.0
 	game.audio.set_active(true)
 	game.view._process(0)
+	var radio_count := 0
+	for button in game.hud.camera_bar.get_child(0).get_children():
+		if button is Button and "Radio" in button.text:radio_count+=1
+	check(radio_count==1,"The shared camera bar exposes exactly one radio shortcut")
 	check(game.audio.players.size()==4,"One shared audio engine owns music, wind, crowd and machinery")
 	check(game.audio.population(game.view.focus)==0,"An empty resort does not invent a crowd")
 	game.audio._process(0.5)
@@ -105,6 +109,7 @@ func run() -> void:
 	check(continuous,"Novices bypass ramps continuously while their carving wave changes sides")
 	piste.erase("features")
 	game.hud.set_map_focus(true)
+	check(game.hud.style_framing.presentation_rect().position.y>game.hud.camera_bar.get_rect().end.y,"Atlas labels and comic framing stay below the actual HUD toolbar")
 	var previous := {"focus":game.view.focus,"yaw":game.view.yaw,"pitch":game.view.pitch_degrees,"zoom":game.view.zoom}
 	game.start_cinematic_tour()
 	check(game.view.tour.active and game.hud.cinema_mode,"Cinematic tour starts in the same resort with its dedicated controls")

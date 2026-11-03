@@ -33,7 +33,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der automatisch gepflegte Downloadblock oben verweist ausschließlich auf die neueste **tatsächlich veröffentlichte GitHub-Release-APK** (Stand 03.11.2026: **v0.22.0**).
 
-**APK, an der wir aktuell arbeiten: SkiZones v0.26.0 (Android ARM64, VersionCode 33)** – [Gemeinsamer Entwicklungsstand](https://github.com/chekento/SkiZones/tree/work/026-integrated-resort-quality). **Noch keine freigegebene APK und kein Downloadlink**: Grafik-, Karriere-, Signatur- und Android-30/36-Prüfungen müssen erfolgreich abgeschlossen sein.
+**APK, an der wir aktuell arbeiten: SkiZones v0.26.0 (Android ARM64, VersionCode 33)** – [Gemeinsamer Entwicklungsstand · PR #26](https://github.com/chekento/SkiZones/pull/26). **Noch keine freigegebene APK und kein Downloadlink**: Grafik-, Karriere-, Signatur- und Android-30/36-Prüfungen müssen erfolgreich abgeschlossen sein.
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |

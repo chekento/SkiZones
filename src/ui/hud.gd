@@ -105,6 +105,7 @@ var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
 var cinema_title := Label.new()
 var cinema_mode := false
+var camera_bar: PanelContainer
 var camera_panel: PanelContainer
 var camera_choice := OptionButton.new()
 var pitch_slider := HSlider.new()
@@ -224,7 +225,7 @@ func setup(controller: Node) -> void:
 	jukebox.setup(self)
 	root.add_child(style_framing)
 	style_framing.setup(self)
-	style_framing.z_index=35
+	style_framing.z_index=-1
 	root.add_child(winter_festival)
 	winter_festival.setup(self)
 	root.add_child(medal_cabinet)
@@ -585,7 +586,8 @@ func _build_plan_bar() -> void:
 	labels.status.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 func _build_camera_bar() -> void:
-	var panel := _panel(root, 24, 108, -24, 156, 1)
+	camera_bar = _panel(root, 24, 108, -24, 156, 1)
+	var panel := camera_bar
 	panel.add_theme_stylebox_override("panel", _style(Color("edf3ec"), 12, 4))
 	var box := HBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
@@ -599,7 +601,6 @@ func _build_camera_bar() -> void:
 	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
-	_button(box,L.text("Radio"),func(): jukebox.open()).custom_minimum_size.y=40
 	winter_toolbar_button=_button(box,L.text("Advent & Feste"),func(): winter_festival.open())
 	winter_toolbar_button.custom_minimum_size.y=40
 	winter_toolbar_button.visible=AnnualFestival.visible(AnnualFestival.device_now())
@@ -616,7 +617,7 @@ func _build_camera_bar() -> void:
 	pause_button = _button(box, L.text("Pause"), game.toggle_pause)
 	for speed in [1, 4]:
 		var speed_button := _button(box, "%d×" % speed, func(): game.set_speed(speed))
-		speed_button.tooltip_text = L.text("Ruhiges Normaltempo · ein Betriebstag dauert etwa 20 Minuten") if speed == 1 else L.text("Zeitraffer · vierfaches Tempo für Bau und Entwicklung")
+		speed_button.tooltip_text = L.text("Kürzerer Skitag · gemütlicher Abend · Tempo im Menü einstellbar") if speed == 1 else L.text("Zeitraffer · vierfaches Tempo für Bau und Entwicklung")
 		speed_buttons.append(speed_button)
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], [L.text("Tal"), func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
@@ -686,7 +687,7 @@ func _build_cinema_overlay() -> void:
 	var bar:=HBoxContainer.new()
 	bar.add_theme_constant_override("separation",12)
 	cinema_overlay.add_child(bar)
-	cinema_title=_label(bar,L.text("Cinematic Resort Tour"),17,Color("f5f7fc"),true)
+	cinema_title=_label(bar,L.text("Filmische Kamerafahrt · Resort-Tour"),17,Color("f5f7fc"),true)
 	cinema_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var exit_button:=_button(bar,L.text("Zurück"),func(): game.stop_cinematic_tour())
 	exit_button.custom_minimum_size=Vector2(95,52)
@@ -694,7 +695,9 @@ func _build_cinema_overlay() -> void:
 
 func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
-	if on: jukebox.close()
+	if on:
+		jukebox.close()
+		cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % game.model.day
 	cinema_overlay.visible=on
 	_apply_panel_visibility()
 
@@ -751,6 +754,7 @@ func _apply_panel_visibility() -> void:
 	slope_legend.offset_right = -24 if map_focus else -328
 	slope_legend.offset_top = 256 if mission_panel.visible else 176
 	slope_legend.offset_bottom = 326 if mission_panel.visible else 246
+	style_framing.queue_redraw()
 
 func _build_missions() -> void:
 	mission_panel = _panel(root, 340, 170, -328, 248, 1)

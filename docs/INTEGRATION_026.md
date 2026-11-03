@@ -26,6 +26,7 @@ Die jüngsten Testkorrekturen aus 0.24 und 0.25 wurden mit dem Radio-Zweig vergl
 - Neue Rettungseinsätze speichern ihre tatsächliche Reaktionsdauer; die visuelle Fahrt beginnt dadurch am Ausgangspunkt statt schon weit entlang der Strecke.
 - Anfänger wählen eine gleichbleibende Umfahrungsseite für Pistenmodule. Ein Wechsel ihrer Schwungkurve versetzt sie nicht plötzlich über die Rampe.
 - Kameradrehung bleibt an Übergängen zwischen Tourstationen stetig. Beim Verlassen der Tour werden die vorherigen Kamerawerte wiederhergestellt.
+- Der gemeinsame Radiozugang erscheint einmal in der Kameraleiste. Atlasbeschriftung, Comicrahmen und Filmbalken bleiben innerhalb der sichtbaren Karte und überdecken keine Budget- oder Kamerabedienung. Hörbereiche tragen übersetzte Namen; der Tempo-Hinweis beschreibt den kürzeren Skitag.
 - Zusätzliche deutsche und englische Texte, insbesondere für Szenarien, Zeitung, Medaillen und Audio, wurden ergänzt. Der Hauptmodus-Test prüft jetzt den Vorrang des Hauptspiels bei optional erreichbaren Szenarien.
 
 ## Prüfung

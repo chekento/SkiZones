@@ -82,7 +82,7 @@ func open() -> void:
 	genre_choice.select(maxi(0,Design.GENRES.find(prefs.music_genre)))
 	music_slider.set_value_no_signal(prefs.music_volume)
 	ambience_slider.set_value_no_signal(prefs.ambient_volume)
-	area_label.text=L.text("Aktueller Hörbereich: ")+str(hud.game.audio.active_zone)
+	area_label.text=L.text("Aktueller Hörbereich: ")+L.text(str(Design.ZONE_NAMES.get(hud.game.audio.active_zone,Design.ZONE_NAMES.wilderness)))
 	show()
 	window._fit()
 	_preview()
