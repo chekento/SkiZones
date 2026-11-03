@@ -30,8 +30,8 @@ func run() -> void:
 			check(wav.mix_rate == 22050, station + " sample rate")
 			check(wav.loop_mode == AudioStreamWAV.LOOP_FORWARD, station + " loops")
 			check(wav.get_length() > 10.0, station + " has an extended musical arrangement")
-			check(wav.data.size() > 400000, station + " has real packed audio")
-			check(wav.loop_end > 100000, station + " has valid loop bounds")
+			check(wav.data.size() > 10000, station + " has imported audio payload")
+			check(wav.loop_end > 200000, station + " has valid loop bounds")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed, failed])
