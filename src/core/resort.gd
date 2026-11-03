@@ -1188,6 +1188,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var total := 0.0
 	var route_skill: int = Agenda.comfort(guest)
 	var routes: Array = _routes_from(route_skill, source, true).duplicate()
+	var piste_load: Dictionary = Traffic.load_by_piste(self)
 	if guest.agenda.kind == "collector": routes.append_array(_collector_lift_routes(guest, source))
 	for route in routes:
 		var time := route_minutes(route, guest, 1020 if Ops.continuous(self) else INF)
@@ -1202,6 +1203,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 			weight *= 0.28
 		var piste := asset(route.target)
 		weight *= 1.4 if piste.get("difficulty", -1) == route_skill else 1.0
+		weight *= Traffic.route_pressure(self, piste, piste_load)
 		choices.append({"route": route, "weight": weight})
 		total += weight
 	if choices.is_empty():
@@ -2450,7 +2452,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 			return invalid
 		if visitor.has("party_step") and (not Terrain.number(visitor.party_step) or visitor.party_step<0 or visitor.party_step>1):return invalid
 		if not Terrain.number(visitor.get("traffic_step", 1.0)) or visitor.get("traffic_step", 1.0) < 0 or visitor.get("traffic_step", 1.0) > 1: return invalid
-		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane > 2): return invalid
+		if visitor.has("traffic_lane") and (not Terrain.number(visitor.traffic_lane) or visitor.traffic_lane != floorf(visitor.traffic_lane) or visitor.traffic_lane < 0 or visitor.traffic_lane >= Traffic.MAX_LANES): return invalid
 		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
 		if visitor.has("lodging_id"):
 			if not Terrain.number(visitor.lodging_id) or visitor.lodging_id != floorf(visitor.lodging_id) or int(visitor.lodging_id) <= 0: return invalid
