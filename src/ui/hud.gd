@@ -16,6 +16,7 @@ const Minimap = preload("res://src/ui/minimap.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Saves = preload("res://src/core/save_store.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
+const Traffic = preload("res://src/core/guest_traffic.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
@@ -967,6 +968,15 @@ func _refresh_context_text() -> void:
 				grooming_label.text = grooming.message
 			text_value += L.text("Piste %d · %s\n%.0f m Länge · ↓ %.0f m\nØ %.0f %% · Max. %.0f %% Gefälle\nZustand: %.0f %%\nSchnee: %.0f cm\n%d Abfahrten\n\n%s") % L.args([item.number, [L.text("Blau · leicht"), L.text("Rot · mittel"), L.text("Schwarz · schwer")][item.difficulty], item.length, item.drop, item.average, item.grade, item.condition, item.snow, item.rides, L.text("Mit Rundweg erreichbar") if model.reachable_piste_ids().has(item.id) else L.text("Noch kein nutzbarer Rundweg")])
 			text_value += L.text("\nPistenbreite: %.0f m") % L.args(Snow.piste_width(item))
+			# Count people assigned to this descent, including guests approaching
+			# on a lift; these figures are a planning guideline, not hard limits.
+			var assigned: int = int(Traffic.load_by_piste(model).get(int(item.id), 0))
+			var lanes: int = Traffic.lane_count(item)
+			var reference_capacity: int = maxi(1,roundi(float(lanes)*maxf(30.0,float(item.length))/12.0))
+			var traffic_label: String = L.text("Entspannt") if assigned < reference_capacity*0.5 else (L.text("Belebt") if assigned < reference_capacity*0.85 else L.text("Engpass")
+			text_value += L.text("\nZugeordnete Skifahrer: %d · Richtwert %d\nFahrspuren: %d · Verkehr: %s") % L.args([assigned, reference_capacity,lanes,traffic_label])
+			if assigned >= reference_capacity*0.85:
+				text_value += "\n" + L.text("Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser.")
 			text_value += L.text("\nLokale Unebenheiten: %.0f %%\nNächtliche Präparierung glättet Spuren und Buckel.") % L.args((Snow.roughness(item) * 100))
 		elif item.has("bottom"):
 			if lift_staff_status.visible:
