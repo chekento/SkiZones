@@ -111,7 +111,7 @@ func build(view: Node3D) -> void:
 		root.queue_free()
 	root=Node3D.new()
 	root.name="Mitarbeiterunterkunft & lebendige Crew"
-	view.asset_root.add_child(root)
+	view.add_child(root)
 	lodge_point=staff_home(view)
 	route_cache.clear()
 	snapshot_revision=view.model.revision
