@@ -2,6 +2,7 @@ extends Node3D
 
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
+const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Resort = preload("res://src/core/resort.gd")
 const Progression = preload("res://src/core/progression.gd")
 const L = preload("res://src/core/i18n.gd")
@@ -136,11 +137,13 @@ func _process(delta: float) -> void:
 		_plan_dirty = false
 		_update_plan()
 	if simulation_running():
-		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0)
-		var budget_end := Time.get_ticks_usec() + 4000
-		if model.empty_night():
-			for step in range(30):
+		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0) * DayRhythm.playback(model.minute, preferences.day_length)
+		var budget_end := Time.get_ticks_usec() + 6000
+		if preferences.night_forward and model.empty_night():
+			var night_day: int=model.day
+			for step in range(180):
 				if Time.get_ticks_usec()>=budget_end or not model.advance_empty_minute(): break
+			if model.day!=night_day: call_deferred("save_game")
 		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
 			_accumulator -= 1.0
 			var previous_day: int = model.day
@@ -149,7 +152,7 @@ func _process(delta: float) -> void:
 	simulation_fraction = fmod(_accumulator,1.0)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
-	view.motion_rate = float(speed)*(4.0 if model.time_divisor>1 else 1.0)
+	view.motion_rate = float(speed)*(4.0 if model.time_divisor>1 else 1.0)*DayRhythm.playback(model.minute, preferences.day_length)
 	if has_game and model.day_finished() and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
@@ -161,7 +164,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.experience.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
 	if not Maps.FANTASY_MAPS.has(area):
@@ -760,7 +763,11 @@ func _input(event: InputEvent) -> void:
 		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.experience.visible:
+			if hud.building_browser.visible:
+				hud.building_browser.hide()
+			elif hud.piste_workshop.visible:
+				hud.piste_workshop.close()
+			elif hud.experience.visible:
 				hud.experience.close()
 			elif hud.update_dialog.visible:
 				hud.update_dialog.hide()
@@ -790,7 +797,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
+		elif not hud.building_browser.visible and not hud.piste_workshop.visible and not hud.experience.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -873,6 +880,12 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.building_browser.visible:
+			hud.building_browser.hide()
+			return
+		if hud.piste_workshop.visible:
+			hud.piste_workshop.close()
+			return
 		if hud.experience.visible:
 			hud.experience.close()
 			return
@@ -925,7 +938,7 @@ func _suspend_application() -> void:
 func _queue_background_time(seconds: float, rate: int) -> void:
 	# Operating days still await the player's next-morning confirmation.
 	var remaining := maxf(0,Resort.CLOSING+1800-model.minute)
-	_accumulator += minf(maxf(0,seconds)*rate*Resort.MINUTES_PER_SECOND*(4.0 if model.time_divisor>1 else 1.0),remaining*model.time_divisor)
+	_accumulator += minf(maxf(0,seconds)*rate*Resort.MINUTES_PER_SECOND*(4.0 if model.time_divisor>1 else 1.0)*DayRhythm.playback(model.minute,preferences.day_length),remaining*model.time_divisor)
 
 func _resume_application() -> void:
 	if not is_node_ready(): return
@@ -1230,5 +1243,6 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 
 func _catalog_index(kind: String, lift: bool) -> int:
 	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+
 
 

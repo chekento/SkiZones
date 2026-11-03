@@ -2,6 +2,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 ## Validate the entire proposed change before charging or touching live assets.
 const Terrain = preload("res://src/core/terrain.gd")
+const Features = preload("res://src/core/piste_features.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 
@@ -105,6 +106,11 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 	var road_cost: int=int(check.get("foot_connection",{}).get("cost",0)) if item.has("bottom") else 0
 	var construction_cost: float=check.get("cost",item.cost)-road_cost
 	check.cost = roundi(maxf(500, item.cost * (0.08 if item.has("bottom") else 0.04) + distance * 8 + maxf(0, construction_cost - item.cost) * 0.7)+road_cost) if changed else 0
+	if item.has("difficulty") and item.has("features"):
+		var proposed: Dictionary=item.duplicate(true)
+		proposed.length=check.length
+		proposed.width=width
+		if not Features.valid(proposed): return {"ok":false,"message":L.text("Die Pistenmodule brauchen nach diesem Umbau mehr Platz. Bitte zuerst versetzen oder entfernen."),"cost":0}
 	check.changed = changed
 	check.message = L.text("Änderung prüfen · %.0f € · erst Übernehmen bestätigt den Umbau.") % L.args(check.cost)
 	return check

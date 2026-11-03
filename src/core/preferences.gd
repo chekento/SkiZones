@@ -8,6 +8,10 @@ var camera_smoothing := true
 var language := "system"
 var career_slot := 1
 var free_play := false
+var day_length := "balanced"
+var contour_lines := true
+var wildlife := true
+var night_forward := true
 
 func load_from() -> void:
 	var config := ConfigFile.new()
@@ -24,6 +28,11 @@ func load_from() -> void:
 	camera_smoothing = value if value is bool else true
 	value=config.get_value("display","language","system")
 	language=value if value is String and value in ["system","de","en"] else "system"
+	value=config.get_value("play","day_length","balanced")
+	day_length=value if value is String and value in ["balanced","compact","cozy"] else "balanced"
+	for key in ["contour_lines","wildlife","night_forward"]:
+		value=config.get_value("display",key,true)
+		set(key,value if value is bool else true)
 	value=config.get_value("play","career_slot",1)
 	career_slot=int(value) if value is int and value>=1 and value<=4 else 1
 	value=config.get_value("play","free_play",false)
@@ -31,14 +40,17 @@ func load_from() -> void:
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
-	for key in ["quality", "visual_style", "target_fps", "snowfall", "camera_smoothing", "language"]:
+	for key in ["quality", "visual_style", "target_fps", "snowfall", "camera_smoothing", "language", "contour_lines", "wildlife", "night_forward"]:
 		config.set_value("display", key, get(key))
+	config.set_value("play","day_length",day_length)
 	config.set_value("play","career_slot",career_slot)
 	config.set_value("play","free_play",free_play)
 	return config.save(path)
 
 func apply(view: Node3D) -> void:
 	Engine.max_fps = target_fps
+	view.set_contours(contour_lines)
+	view.wildlife_enabled=wildlife
 	view.set_quality(quality)
 	view.set_visual_style(visual_style)
 	view.frame_target = 1.0 / target_fps
@@ -46,3 +58,4 @@ func apply(view: Node3D) -> void:
 	view.effects_enabled = snowfall
 	view.camera_smoothing = camera_smoothing
 	view._atmosphere_tick = ""
+

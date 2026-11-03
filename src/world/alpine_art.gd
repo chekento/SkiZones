@@ -20,9 +20,17 @@ func add(mesh: Mesh, position_value: Vector3, color: Color, rotation: Vector3 = 
 	var count := indices.size() if not indices.is_empty() else vertices.size()
 	for i in range(count):
 		var index := indices[i] if not indices.is_empty() else i
-		surface.set_color(color * colors[index] if preserve_colors and not colors.is_empty() else color)
-		surface.set_normal((normal_basis * normals[index]).normalized())
+		var normal := (normal_basis * normals[index]).normalized()
+		var tint: Color = color * colors[index] if preserve_colors and not colors.is_empty() else color
+		surface.set_color(tint if preserve_colors else _face_tint(tint, normal))
+		surface.set_normal(normal)
 		surface.add_vertex(transform_value * vertices[index])
+
+func _face_tint(color: Color, normal: Vector3) -> Color:
+	# Preserve the alpha clothing mask while carving out warm tops and cool sides.
+	var light := clampf(0.78 + normal.dot(Vector3(-0.42,0.80,0.35).normalized()) * 0.22, 0.60, 1.0)
+	var result := Color(color.r * light, color.g * light, color.b * light, color.a)
+	return result
 
 func box(position_value: Vector3, size_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO) -> void:
 	var mesh := BoxMesh.new()
@@ -36,7 +44,7 @@ func _facet(points: Array, normal: Vector3, color: Color) -> void:
 		if (triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]).dot(normal) > 0:
 			triangle.reverse()
 		for point in triangle:
-			surface.set_color(color);surface.set_normal(normal);surface.add_vertex(point)
+			surface.set_color(_face_tint(color, normal));surface.set_normal(normal);surface.add_vertex(point)
 
 func soft_box(at: Vector3, size_value: Vector3, color: Color, rotation: Vector3 = Vector3.ZERO, radius: float = 0.24) -> void:
 	var half := size_value * 0.5
@@ -99,6 +107,131 @@ func link(from: Vector3, to: Vector3, radius: float, color: Color) -> void:
 func finish() -> ArrayMesh:
 	surface.index()
 	return surface.commit()
+
+func tree_variant(style_id: String, species: int, simplified: bool = false) -> ArrayMesh:
+	if species == 0: return pine_painted(style_id, simplified)
+	var bark := Color("79614d")
+	var snow := Color("e7eef3")
+	var tint := Color("69866a") if species == 1 else Color("7d8474")
+	if style_id == "pastel": tint = tint.lerp(Color("c5bfc0"),0.38)
+	if style_id == "comic": tint = tint.lightened(0.12)
+	if style_id == "cinematic": tint = tint.darkened(0.18)
+	cone(Vector3(0,7,0),0.55,14,bark,0.16)
+	var spread: float={"alpine":1.0,"comic":1.12,"pastel":0.92,"cinematic":1.04,"crisp":0.98}.get(style_id,1.0)
+	var layers := 3 if simplified else 6
+	for i in range(layers):
+		var y := 4.0 + i * 9.0 / layers
+		var radius := 4.3 * spread * (1.0 - float(i) / (layers + 1))
+		if species == 1:
+			cone(Vector3(0,y+1,0),radius,3.4,tint.lightened(i*0.02),0.12)
+			cone(Vector3(0,y+1.65,0),radius*0.88,2.4,snow,0.10)
+		else:
+			for side in [-1,1]:
+				var end := Vector3(side*radius,y+1.2,side*radius*0.4)
+				link(Vector3(0,y,0),end,0.12 if simplified else 0.18,bark)
+				if not simplified:
+					link(end*Vector3(0.7,1,0.7),end+Vector3(-side*0.6,1.4,1.0),0.09,bark)
+				soft_box(end+Vector3(0,0.2,0),Vector3(radius*0.9,0.32,0.65),snow,Vector3(0,-side*0.3,side*0.17),0.12)
+	return finish()
+
+func landscape_detail(kind: int) -> ArrayMesh:
+	var snow := Color("eaf1f5")
+	var stone := Color("8a969b")
+	match kind:
+		0: # Pebble cluster.
+			for i in range(4):
+				var at := Vector3(sin(i*2.4)*1.8,0.25,cos(i*2.4)*1.4)
+				sphere(at,0.7+i*0.12,stone,Vector3(1.2,0.6,0.85))
+				sphere(at+Vector3(0,0.33,0),0.60+i*0.1,snow,Vector3(1.2,0.18,0.85))
+		1: # Alpine shrubs poking through powder.
+			for i in range(5):
+				var tip := Vector3(sin(i*2.4)*1.5,1.5+i*0.17,cos(i*2.4))
+				link(Vector3.ZERO,tip,0.09,Color("826c55"))
+				link(tip*0.62,tip+Vector3(0.5,0.3,0.4),0.06,Color("826c55"))
+		2: # Fallen log with snow resting on top.
+			link(Vector3(-3,0.6,0),Vector3(3,0.8,0.5),0.65,Color("79604c"))
+			soft_box(Vector3(0,1.12,0.2),Vector3(5.5,0.5,1.05),snow,Vector3(0,-0.08,0),0.2)
+			link(Vector3(0.8,0.9,0.2),Vector3(1.3,1.7,-1),0.18,Color("79604c"))
+		3: # Rounded, wind-built snow bank.
+			sphere(Vector3(0,0.35,0),2.2,Color("d2dfe8"),Vector3(2.6,0.40,1.0))
+			sphere(Vector3(-0.6,0.7,0),1.9,snow,Vector3(2.4,0.30,0.8))
+		4: # Cut stump and a dusting of snow.
+			cone(Vector3(0,0.7,0),0.9,1.4,Color("80624d"),0.7)
+			cone(Vector3(0,1.42,0),0.72,0.16,snow,0.68)
+			for side in [-1,1]: link(Vector3.ZERO,Vector3(side*1.5,0.1,0.6),0.25,Color("80624d"))
+		_:
+			sphere(Vector3(0,1.2,0),2.3,stone,Vector3(1.3,0.8,1.0))
+			sphere(Vector3(-0.3,2.25,0),2.0,snow,Vector3(1.2,0.20,0.9))
+			box(Vector3(0,1.2,1.65),Vector3(2.9,0.15,0.12),stone.darkened(0.25),Vector3(0,0,0.1))
+	return finish()
+
+func wildlife(kind: int) -> ArrayMesh:
+	var hare := kind == 2
+	var fox := kind == 1
+	var coat := Color("e4e7df") if hare else Color("b76535") if fox else Color("987451")
+	var scale_value := 0.55 if hare else 0.85 if fox else 1.25
+	sphere(Vector3(0,1.15,0)*scale_value,0.8,coat,Vector3(0.62,0.65,1.4)*scale_value)
+	sphere(Vector3(0,1.62,0.92)*scale_value,0.47,coat,Vector3(0.8,1,1.15))
+	for side in [-1,1]:
+		for z in [-0.55,0.55]:
+			link(Vector3(side*0.32,0.95,z)*scale_value,Vector3(side*0.32,0.10,z+0.12)*scale_value,0.09*scale_value,coat.darkened(0.25))
+		cone(Vector3(side*0.25,2.0 if not hare else 2.25,0.85)*scale_value,0.14*scale_value,(0.45 if not hare else 0.85)*scale_value,coat)
+		sphere(Vector3(side*0.29,1.72,1.20)*scale_value,0.065,Color("29353a"))
+	if fox:
+		link(Vector3(0,1.15,-0.8),Vector3(0.1,0.75,-1.8),0.25,coat)
+		sphere(Vector3(0.1,0.75,-1.85),0.26,Color("eee7d7"))
+	elif not hare:
+		for side in [-1,1]:
+			link(Vector3(side*0.22,2.0,0.9),Vector3(side*0.45,2.8,0.65),0.07,Color("67594a"))
+			link(Vector3(side*0.36,2.5,0.75),Vector3(side*0.70,2.7,0.80),0.055,Color("67594a"))
+	return finish()
+
+func piste_feature(kind: String) -> ArrayMesh:
+	if kind == "rail":
+		for z in [-2.3,2.3]:
+			for side in [-1,1]: link(Vector3(side*0.65,0,z),Vector3(side*0.45,0.85,z),0.09,Color("3f6771"))
+		soft_box(Vector3(0,0.94,0),Vector3(1.1,0.30,6.4),Color("518e9b"),Vector3.ZERO,0.10)
+		box(Vector3(0,1.105,0),Vector3(0.85,0.025,6.0),Color("dcecf1"))
+	else:
+		var length_value := 12.0 if kind == "roller" else 10.0
+		var width := 4.8
+		for i in range(10):
+			var z0 := -length_value*0.5+i*length_value/10
+			var z1 := z0+length_value/10
+			var y0 := sin(float(i)/10*PI)*0.85 if kind == "roller" else _ramp_profile(float(i)/10)
+			var y1 := sin(float(i+1)/10*PI)*0.85 if kind == "roller" else _ramp_profile(float(i+1)/10)
+			_facet([Vector3(-width/2,y0,z0),Vector3(width/2,y0,z0),Vector3(width/2,y1,z1),Vector3(-width/2,y1,z1)],Vector3(0,1,(y0-y1)/(z1-z0)).normalized(),Color("edf5f8"))
+			for side in [-1,1]:
+				_facet([Vector3(side*width/2,0,z0),Vector3(side*width/2,y0,z0),Vector3(side*width/2,y1,z1),Vector3(side*width/2,0,z1)],Vector3(side,0,0),Color("b3cbd9"))
+		for side in [-1,1]:
+			link(Vector3(side*3,0,-4.4),Vector3(side*3,1.9,-4.4),0.06,Color("d99160"))
+			box(Vector3(side*3,1.6,-4.4),Vector3(0.7,0.45,0.08),Color("e9ae70"))
+	return finish()
+
+func _ramp_profile(t: float) -> float:
+	return smoothstep(0,0.70,t)*1.35 if t < 0.70 else (1.0-smoothstep(0.70,1.0,t))*1.35
+
+func _facade_details(kind: String, width: float, depth: float, height_value: float, accent: Color) -> void:
+	var timber := Color("725541")
+	for side in [-1,1]:
+		box(Vector3(side*(width*0.5-0.6),height_value/2,depth/2+0.3),Vector3(0.65,height_value,0.8),timber)
+		soft_box(Vector3(side*(width*0.5-2),1.8,depth/2+2),Vector3(2.3,2.4,2),accent.darkened(0.2),Vector3.ZERO,0.2)
+		cone(Vector3(side*(width*0.5-2),3.3,depth/2+2),1.25,1.3,Color("6b896a"))
+	if Catalog.LODGING.has(kind):
+		box(Vector3(0,height_value-0.8,depth/2+0.5),Vector3(width+1,0.45,0.5),timber)
+		for side in [-1,1]:
+			box(Vector3(side*3.4,3,depth/2+3),Vector3(0.4,6,0.4),timber)
+		soft_box(Vector3(0,6.1,depth/2+2.7),Vector3(8.2,0.6,5.4),accent,Vector3.ZERO,0.2)
+		soft_box(Vector3(0,6.55,depth/2+2.7),Vector3(8.5,0.45,5.7),Color("eff4f6"),Vector3.ZERO,0.2)
+		if kind in ["hotel","grand_hotel"]:
+			for x in range(-2,3): sphere(Vector3(x*1.4,9.4,depth/2+1.45),0.32,Color("ecc674"),Vector3(1,1,0.35))
+	elif kind in ["restaurant","pizzeria","bar","disco"]:
+		for side in [-1,1]:
+			box(Vector3(side*(width/2-2),5,depth/2+1),Vector3(0.18,3,0.18),timber)
+			sphere(Vector3(side*(width/2-2),5,depth/2+1.3),0.48,Color("f4cf88"),Vector3(0.65,1.2,0.65))
+	elif kind in ["maintenance","repair_office"]:
+		soft_box(Vector3(width/2-5,4,depth/2+0.5),Vector3(7,6,0.5),Color("59747c"))
+		for y in range(2,7): box(Vector3(width/2-5,y,depth/2+0.8),Vector3(6.5,0.10,0.15),Color("8da4aa"))
 
 func piste_sign(number: int, color: Color) -> ArrayMesh:
 	# Round Alpine route marker: white rim, difficulty color, number on both faces.
@@ -340,6 +473,7 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		for i in range(8):
 			var x := -width * 0.48 + (i + 0.5) * width * 0.12
 			box(Vector3(x, 9.5, depth * 0.5 + 2), Vector3(width * 0.12, 0.4, 3.5), accent if i % 2 else Color("f7e9cf"), Vector3(-0.12, 0, 0))
+	_facade_details(kind,width,depth,height_value,accent)
 	_winter_decoration(width,depth,height_value,accent)
 	# Gable timber and a round attic window are visible from both valley directions.
 	var ridge := height_value+1+(width+2)*0.5*tan(0.42)
@@ -571,8 +705,9 @@ func _guest_head(y: float) -> void:
 	soft_box(Vector3(-0.28,y-0.70,-0.44),Vector3(0.25,0.45,0.14),_fixed("edc58f"),Vector3(0.15,0,-0.12),0.06)
 
 func skier(on_skis: bool = true, uphill: bool = false) -> ArrayMesh:
-	box(Vector3(-0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
-	box(Vector3(0.3, 0.7, 0), Vector3(0.35, 1.25, 0.45), Color("344b59"))
+	for side in [-1,1]:
+		link(Vector3(side*0.30,0.32,0.10),Vector3(side*0.33,0.82,0.29),0.19,Color("344b59"))
+		link(Vector3(side*0.33,0.82,0.29),Vector3(side*0.29,1.27,-0.02),0.22,Color("344b59"))
 	sphere(Vector3(0, 1.55, 0), 0.63, Color("f8f9f6"), Vector3(0.9, 1.15, 0.65))
 	_guest_head(2.48)
 	soft_box(Vector3(0,1.65,-0.46),Vector3(0.76,0.86,0.32),_fixed("76939a"))
@@ -645,4 +780,5 @@ func groomer() -> ArrayMesh:
 	box(Vector3(0, 1.2, -4), Vector3(8, 0.7, 1.6), Color("486773"))
 	sphere(Vector3(0, 5.1, 1), 0.4, Color("f3bb60"))
 	return finish()
+
 

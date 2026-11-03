@@ -3,6 +3,7 @@ const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const RouteProfile = preload("res://src/ui/route_profile.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
+const BuildingIcon = preload("res://src/ui/building_icon.gd")
 const LiftIcon = preload("res://src/ui/lift_icon.gd")
 var hud: CanvasLayer
 var game: Node
@@ -16,6 +17,7 @@ var route_profile := RouteProfile.new()
 var suggest_button: Button
 var reverse_button: Button
 var site_button: Button
+var browser_button: Button
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -49,6 +51,7 @@ func setup(interface: CanvasLayer) -> void:
 	add_child(scroll)
 	content = hud._vbox(scroll, 9)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	browser_button=hud._button(content,L.text("Gebäudekatalog mit Vorschau öffnen"),func(): hud.building_browser.open(),true)
 	_make_cards()
 	content.add_child(route_profile)
 	suggest_button=hud._button(content,L.text("Sanften Verlauf vorschlagen"),game.suggest_route,true)
@@ -74,6 +77,13 @@ func _card(key: String, title: String, description: String, cost: int, upkeep: i
 	body.offset_top = 9
 	body.offset_bottom = -7
 	button.add_child(body)
+	if type == "building":
+		body.offset_left=80
+		var icon := BuildingIcon.new()
+		icon.kind=key
+		icon.position=Vector2(6,12)
+		icon.size=Vector2(68,80)
+		button.add_child(icon)
 	if type == "lift":
 		body.offset_left = 61
 		var icon := LiftIcon.new()
@@ -129,6 +139,7 @@ func select_category(value: String, from_tool: bool = false) -> void:
 		return
 	category = value
 	refresh(true)
+	if value=="village" and not from_tool: hud.building_browser.open()
 
 func refresh(force: bool = false) -> void:
 	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
@@ -146,6 +157,7 @@ func refresh(force: bool = false) -> void:
 			"village": L.text("1 · Gebäude wählen  2 · Standort suchen  3 · Bauen"),
 			"paths": L.text("1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen")
 		}.get(category, "")
+	browser_button.visible=category=="village"
 	route_profile.visible = category == "pistes"
 	suggest_button.visible=(category == "pistes" and game.tool == "piste") or (category == "paths" and game.tool == "walkway")
 	suggest_button.text=L.text("Begehbaren Weg vorschlagen") if game.tool == "walkway" else L.text("Sanften Verlauf vorschlagen")
@@ -172,3 +184,4 @@ func refresh(force: bool = false) -> void:
 			var choice: OptionButton = hud.lift_choice if card.type == "lift" else hud.building_choice
 			var index: int = (Catalog.LIFTS.keys() if card.type == "lift" else Catalog.BUILDINGS.keys()).find(card.key)
 			choice.set_item_disabled(index, card.button.disabled)
+

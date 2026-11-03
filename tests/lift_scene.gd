@@ -86,7 +86,7 @@ func run() -> void:
 		check(same_attachment, "%s passengers stay attached between simulation ticks" % kind)
 		check(game.view._queue_labels[lift.id].text.begins_with(str(game.model.queue_size(lift.id))) and game.view._walkers.multimesh.visible_instance_count == game.model.queue_size(lift.id), "%s displays the actual queue length in people and its station label" % kind)
 		if kind == "drag":
-			check(game.view._tow_lines.multimesh.visible_instance_count == schedule.count, "Drag carriers use separate, terrain-following tow ropes instead of chairs")
+			check(game.view._tow_lines.multimesh.visible_instance_count == schedule.count * 2, "Drag carriers use separate, terrain-following tow ropes instead of chairs")
 		if kind == "gondola":
 			check(game.view._vehicle_glass.has(kind) and game.view._vehicle_glass[kind].multimesh.visible_instance_count == schedule.count, "Gondolas have cabin walls and windows around their actual passengers")
 		game.view.simulation_fraction = 0

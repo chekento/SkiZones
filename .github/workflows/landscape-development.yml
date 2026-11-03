@@ -26,16 +26,6 @@ jobs:
       - name: Install pinned engine
         if: steps.godot-cache.outputs.cache-hit != 'true'
         run: bash tools/install_godot.sh
-      - name: Prepare portable test workspace
-        run: |
-          mkdir -p /tmp/landscape-test
-          cp "$GODOT_BIN" /tmp/landscape-test/godot
-          tar --exclude=.git --exclude=.godot -czf /tmp/landscape-test/source.tar.gz .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: landscape-test-runtime
-          path: /tmp/landscape-test/*
-          retention-days: 5
       - name: Import and check source
         run: |
           python3 - <<'PY'
@@ -54,6 +44,10 @@ jobs:
       - name: Render landscape and building windows
         run: |
           if [ -f tests/landscape_workbench_scene.gd ]; then xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/landscape_workbench_scene.gd; fi
+      - name: Render lift attachments and all forest styles
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/lift_scene.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -61,3 +55,4 @@ jobs:
           path: build/qa/*
           if-no-files-found: ignore
           retention-days: 30
+
