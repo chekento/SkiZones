@@ -4834,3 +4834,72 @@ msgstr "Advent calendar & New Year's celebration"
 msgid "Winterfest Ambient Art"
 msgstr "Winter festival ambient art"
 
+msgid "Musik aus"
+msgstr "Music off"
+
+msgid "Alpenfolk & Hüttenklang"
+msgstr "Alpine folk & mountain lodge"
+
+msgid "Snowpark Hip-Hop"
+msgstr "Snowpark hip-hop"
+
+msgid "Meditative Bergluft"
+msgstr "Meditative mountain air"
+
+msgid "SkiZones "
+msgstr "SkiZones "
+
+msgid "Master"
+msgstr "Master"
+
+msgid "Alpine Radio · deine Jukebox"
+msgstr "Alpine Radio · your jukebox"
+
+msgid "Deine Musik für den Berg"
+msgstr "Your mountain soundtrack"
+
+msgid "Kostenlose Offline-Basis: kleine eigens erzeugte Klangschleifen, keine Songs fremder Künstler. Suno-Generierung und lizenzierte Sender sind spätere optionale Erweiterungen."
+msgstr "Free offline baseline: small original synthesized sound loops, not third-party artists' songs. Suno generation and licensed stations may come later as optional additions."
+
+msgid "Musiklautstärke"
+msgstr "Music volume"
+
+msgid "Umgebung: Wind, Stimmen, Liftmotoren"
+msgstr "Environment: wind, voices, lift motors"
+
+msgid "Jukebox-Einstellungen speichern"
+msgstr "Save jukebox settings"
+
+msgid "Audio gespeichert."
+msgstr "Audio saved."
+
+msgid "Audio angewendet; Speichern fehlgeschlagen."
+msgstr "Audio applied; saving failed."
+
+msgid "Aktueller Hörbereich: "
+msgstr "Current listening area: "
+
+msgid "Mitarbeiterunterkunft & lebendige Crew"
+msgstr "Staff accommodation & living crew"
+
+msgid "SKI! WOW!"
+msgstr "SKI! WOW!"
+
+msgid "SKIZONES  |  PISTENATLAS"
+msgstr "SKIZONES  |  PISTE MAP"
+
+msgid "Pistenatlas · Reliefkarte"
+msgstr "Piste atlas · relief map"
+
+msgid "Eine nostalgische Pistenkarte: reliefierte Berge, Druckfarben, Höhenlinien und klare Pistenfarben."
+msgstr "A nostalgic ski map: relief mountains, print colors, contour lines and clear piste markings."
+
+msgid "Radio"
+msgstr "Radio"
+
+msgid "Alpine Radio · Musik und Soundkulisse"
+msgstr "Alpine Radio · music and soundscape"
+
+msgid "Bildstil · sechs Looks"
+msgstr "Visual style · six looks"
+
