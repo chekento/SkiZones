@@ -23,6 +23,7 @@ const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
+const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
 const Art = preload("res://src/world/alpine_art.gd")
@@ -36,6 +37,7 @@ var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var festival_scene := FestivalScenery.new()
+var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
 var _relief := Relief.material()
@@ -608,6 +610,53 @@ func _clear_ground(point: Vector2, margin: float) -> bool:
 			return false
 	return true
 
+func _build_hotel_connectors() -> void:
+	# Short glazed links only. Their meshes are decoration, never invisible
+	# teleportation, additional rooms or new collision/foot-network edges.
+	for node in _hotel_connector_nodes:
+		if is_instance_valid(node):
+			if node.get_parent()!=null: node.get_parent().remove_child(node)
+			node.queue_free()
+	_hotel_connector_nodes.clear()
+	var color: Color=Color(str(VisualStyles.detail_tints(visual_style).metal))
+	var trim: Color=Color(str(VisualStyles.ui_palette(visual_style).accent))
+	for hotel in model.buildings:
+		if not Catalog.LODGING.has(str(hotel.kind)): continue
+		var previous: Dictionary=hotel
+		for module in HotelComplex.ordered(model.buildings,int(hotel.id)):
+			var from: Vector2=Terrain.unpack(previous.point)
+			var to: Vector2=Terrain.unpack(module.point)
+			var dir: Vector2=(to-from).normalized()
+			if dir.length_squared()<0.8:
+				previous=module
+				continue
+			var first: Vector2=Foot.building_size(previous)
+			var last: Vector2=Foot.building_size(module)
+			var a: Vector2=from+dir*minf(first.x,first.y)*0.5
+			var b: Vector2=to-dir*minf(last.x,last.y)*0.5
+			var distance: float=a.distance_to(b)
+			if distance<3 or distance>HotelComplex.MAX_EDGE_GAP+25:
+				previous=module
+				continue
+			var builder:=Art.new()
+			builder.soft_box(Vector3(0,0.1,0),Vector3(7.2,0.28,distance+1.2),color,Vector3.ZERO,0.25)
+			builder.soft_box(Vector3(0,4.2,0),Vector3(7.2,0.55,distance+1.2),Color("f0f7ff"),Vector3.ZERO,0.22)
+			for z in [-distance*0.43,0,distance*0.43]:
+				for side in [-1,1]:
+					builder.box(Vector3(side*3.2,2.1,z),Vector3(0.3,4.0,0.35),trim)
+			for side in [-1,1]:
+				builder.box(Vector3(side*3.25,2.2,0),Vector3(0.16,3.0,distance),color.lightened(0.22))
+			var mesh: ArrayMesh=builder.finish()
+			mesh.surface_set_material(0,_solid)
+			var bridge:=MeshInstance3D.new()
+			bridge.mesh=mesh
+			bridge.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			bridge.position=terrain.world((a+b)*0.5,0.3)
+			bridge.rotation.y=atan2(dir.x,dir.y)
+			asset_root.add_child(bridge)
+			_hotel_connector_nodes.append(bridge)
+			previous=module
+
 func _build_trees() -> void:
 	forest.build(self)
 	landscape_details.build(self)
@@ -764,6 +813,7 @@ func rebuild(progress: RefCounted = null) -> void:
 	if progress != null:
 		progress.report(98.0, L.text("Wald und Landschaft gestalten …"))
 		await get_tree().process_frame
+	_build_hotel_connectors()
 	_build_trees()
 	festival_scene.build(self)
 	_guest_tick = ""
@@ -1751,6 +1801,7 @@ func set_visual_style(id: String) -> void:
 	# Rebuild presentation-only decorative meshes on a style change; their
 	# placement remains deterministic and cleared of all player structures.
 	landscape_details.build(self)
+	_build_hotel_connectors()
 	festival_scene.build(self)
 	_update_atmosphere()
 
