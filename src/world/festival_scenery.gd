@@ -6,6 +6,10 @@ const FestivalArt = preload("res://src/world/festival_art.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 var store := Calendar.new()
+var qa_date_override: Dictionary = {} # Only used by explicit visual QA tests.
+
+func date_now() -> Dictionary:
+	return qa_date_override if not qa_date_override.is_empty() else Calendar.device_now()
 var root: Node3D
 var clock_label: Label3D
 var _world_key := ""
@@ -29,7 +33,7 @@ func build(view: Node3D) -> void:
 	view.asset_root.add_child(root)
 	clock_label=null
 	firework_nodes.clear()
-	var now:=Calendar.device_now()
+	var now:=date_now()
 	var stage:=Calendar.season(now)
 	_world_key="%d:%s" % [int(now.get("year",0)),stage]
 	if stage=="": return
@@ -98,13 +102,13 @@ func update(view: Node3D, delta: float) -> void:
 	_poll+=maxf(0.0,delta)
 	if _seconds>=1.0:
 		_seconds=0.0
-		_update_clock(Calendar.device_now())
+		_update_clock(date_now())
 		for i in range(firework_nodes.size()):
 			if is_instance_valid(firework_nodes[i]):
 				firework_nodes[i].rotation.z+=0.06
 				firework_nodes[i].scale=Vector3.ONE*(1.45+0.2*sin(Time.get_ticks_msec()*0.003+i))
 	if _poll>=12.0:
 		_poll=0.0
-		var date:=Calendar.device_now()
+		var date:=date_now()
 		var key:="%d:%s" % [int(date.get("year",0)),Calendar.season(date)]
 		if key!=_world_key: build(view)
