@@ -64,6 +64,17 @@ func run() -> void:
 	check(Hospitality.configure(model, int(hotel.id), {"price":165, "chain":"KoSch Alpine"}).ok and Hospitality.configure(model, int(apartment.id), {"chain":"KoSch Alpine"}).ok, "Separate accommodation types join a named hotel chain")
 	check(Hospitality.chain_members(model, hotel).size() == 2 and Hospitality.room_price(model, hotel) == 165, "Chain members retain individual nightly prices")
 	check(not Hospitality.configure(model, int(hotel.id), {"family_share":80, "premium_share":80}).ok, "Room mix cannot allocate more than the available inventory")
+	var story := Activities.start(model,int(hotel.id))
+	var first_chapter := Activities.challenge(model,story)
+	check(first_chapter.mode == "hotel_story" and first_chapter.scene == "arrival" and first_chapter.choices.size() == 3, "Hotel offers independent guest-driven chapters instead of generic question list")
+	var rooms_before := Hospitality.dashboard(model,hotel).occupied
+	var hotel_reward := perfect(model,int(hotel.id))
+	check(hotel_reward.score == 100 and hotel_reward.reward == 250 and int(hotel.activity.hotel_story_xp) == 100, "Five thoughtful hotel decisions grant bounded rewards and persistent story experience")
+	check(Hospitality.dashboard(model,hotel).occupied == rooms_before, "Illustrated hotel activity cannot invent or double-book overnight guests")
+	var story_saved := model.snapshot()
+	var story_copy := Resort.new()
+	check(story_copy.restore(story_saved).ok and int(story_copy.asset(int(hotel.id)).activity.hotel_story_xp) == 100, "Hotel story progression survives exact save/load")
+
 	var cost_before := model.operating_costs()
 	check(Hospitality.configure(model, int(hotel.id), {"marketing":3}).ok and model.operating_costs() > cost_before, "Marketing and hotel services have real running costs")
 	model.minute = 480
