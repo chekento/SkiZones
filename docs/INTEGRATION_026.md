@@ -30,7 +30,7 @@ Die jüngsten Testkorrekturen aus 0.24 und 0.25 wurden mit dem Radio-Zweig vergl
 
 ## Prüfung
 
-`tests/integration_quality_026.gd` prüft die tatsächliche gemeinsame Oberfläche und Audioinstanzen, Vorschau/Abbruch, Stummschaltung, Migration, freie Unterkunftsflächen, stetige Umfahrungen und Kamera-Rückkehr. Gerenderte Bilder dokumentieren Jukebox, Tour und Medaillen. Die Kernprüfungen für Hotelmodule, Jahresarchiv, Offline-Audio und Szenarien sowie die sechs Bildstile sind Bestandteil der gemeinsamen QA. Die vollständige Android-Pipeline enthält diese Prüfungen zusätzlich zu Migration, Signaturkontinuität und Android 30/36.
+`tests/integration_quality_026.gd` prüft die tatsächliche gemeinsame Oberfläche und Audioinstanzen, Vorschau/Abbruch, Stummschaltung, Migration, freie Unterkunftsflächen, stetige Umfahrungen und Kamera-Rückkehr. Gerenderte Bilder dokumentieren Jukebox, Tour und Medaillen. Die Kernprüfungen für Hotelmodule, Jahresarchiv, Offline-Audio und Szenarien sowie die sechs Bildstile sind Bestandteil der gemeinsamen QA. Die vollständige Android-Pipeline enthält diese Prüfungen zusätzlich zu Migration, Signaturkontinuität und Android 30/36. Der Emulator verwendet weiterhin GLES mit echten sichtbaren Frames; Vulkan wird gemäß der [offiziellen Android-Fehlerhilfe](https://developer.android.com/studio/run/emulator-troubleshooting) explizit deaktiviert, um den nicht unterstützten Vulkan-/Browserpfad auf den CI-Rechnern zu vermeiden. Browserübergabe, Appwechsel, Signatur- und Updateprüfungen bleiben vollständig aktiv.
 
 ## Grenzen dieser Fassung
 

@@ -56,10 +56,24 @@ func run() -> void:
 	await capture("integration-026-jukebox")
 	box.close()
 	check(game.audio.current_genre=="off" and game.audio.preview_settings.is_empty() and game.preferences.master_volume==1.0,"Cancel restores the saved audio state")
-	game.audio.set_active(false)
+	box.open()
+	index=box.Design.GENRES.find("classical")
+	box.genre_choice.select(index)
+	box.genre_choice.item_selected.emit(index)
+	box.master_slider.value=0.6
+	box.music_slider.value=0.5
+	var save_button: Button=find_button(box,"Jukebox-Einstellungen speichern")
+	check(save_button!=null,"The real jukebox exposes its save action")
+	if save_button!=null:save_button.pressed.emit()
+	var persisted:=Preferences.new()
+	persisted.path=game.preferences.path
+	persisted.load_from()
+	check(not box.visible and persisted.music_genre=="classical" and is_equal_approx(persisted.master_volume,0.6) and is_equal_approx(persisted.music_volume,0.5),"Saving the live mixer persists the chosen genre and independent volumes")
+	game._suspend_application()
 	game.audio._process(1.0)
 	check(game.audio.players.values().all(func(player):return not player.playing or player.stream_paused),"Inactive application audio remains suspended across processing")
-	game.audio.set_active(true)
+	game._resume_application()
+	game._process(0.0)
 	game.audio._process(1.0)
 	check(not game.audio.players.wind.stream_paused,"Returning to the resort resumes the ambient mix")
 	var prefs:=Preferences.new()
@@ -107,10 +121,21 @@ func run() -> void:
 	game.hud.medal_cabinet.open()
 	check(game.hud.medal_cabinet.visible and game.hud.blocks_map(Vector2(10,10)),"The medal archive blocks construction and camera gestures")
 	await capture("integration-026-medal-archive")
-	game.hud.medal_cabinet.close()
+	var back := InputEventKey.new()
+	back.keycode=KEY_ESCAPE
+	back.pressed=true
+	game._input(back)
+	check(not game.hud.medal_cabinet.visible and not game.hud.menu.visible,"Escape closes the medal archive without opening an unrelated menu")
 	check(game.paused,"Closing the medal archive preserves an already paused resort")
 	game.queue_free()
 	await process_frame
 	await process_frame
 	print("RESULT: %d passed; %d failed"%[passed,failed])
 	quit(1 if failed else 0)
+
+func find_button(node: Node, caption: String) -> Button:
+	if node is Button and node.text==caption:return node
+	for child in node.get_children():
+		var found: Button=find_button(child,caption)
+		if found!=null:return found
+	return null
