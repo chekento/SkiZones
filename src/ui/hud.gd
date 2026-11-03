@@ -36,6 +36,7 @@ const UpdateDialog=preload("res://src/ui/update_dialog.gd")
 const CareerSlots = preload("res://src/ui/career_slots.gd")
 const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
+const BRAND_MARK = preload("res://assets/branding/icon_512.png")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
 const COMMUNITY_BUG := "https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml"
 const COMMUNITY_FEATURE := "https://github.com/chekento/SkiZones/issues/new?template=feature_request.yml"
@@ -418,6 +419,18 @@ func _panel(parent: Node, left: float, top: float, right: float, bottom: float, 
 	map_panels.append(panel)
 	return panel
 
+func _brand_logo(parent: Node, side: int) -> TextureRect:
+	var mark := TextureRect.new()
+	mark.name = "SkiZonesLogo"
+	mark.texture = BRAND_MARK
+	mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	mark.custom_minimum_size = Vector2(side, side)
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.tooltip_text = "SkiZones"
+	parent.add_child(mark)
+	return mark
+
 func _label(parent: Node, text_value: String, font_size: int = 18, color: Color = INK, wrap: bool = false) -> Label:
 	var label := Label.new()
 	label.text = L.text(text_value)
@@ -469,7 +482,7 @@ func _build_header() -> void:
 	var box := HBoxContainer.new()
 	box.add_theme_constant_override("separation", 28)
 	panel.add_child(box)
-	_label(box, "SKI / ZONES", 25, ACCENT)
+	_brand_logo(box, 36)
 	for item in [["money", L.text("BUDGET")], ["guests", L.text("GÄSTE")], ["rep", L.text("RUF")], ["rides", L.text("ABFAHRTEN")], ["clock", L.text("BETRIEBSTAG")]]:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -800,7 +813,7 @@ func _build_menu() -> void:
 	var box := _vbox(scroll, 13)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label(box, L.text("DEIN BERG. DEINE REGELN."), 15, TEAL)
-	_label(box, "SKI / ZONES", 46, INK)
+	_brand_logo(box, 136)
 	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
 	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
 	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")

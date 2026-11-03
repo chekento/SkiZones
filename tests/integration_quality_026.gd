@@ -29,6 +29,12 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	game.apply_language("de")
+	var brand_nodes := game.hud.root.find_children("SkiZonesLogo", "TextureRect", true, false)
+	var brand_ready := brand_nodes.size()==2
+	for node in brand_nodes:
+		var mark := node as TextureRect
+		brand_ready = brand_ready and mark != null and mark.texture != null and mark.texture.get_width()==512
+	check(brand_ready,"The main menu and in-game HUD display the actual SkiZones app logo instead of decorative text")
 	game.preferences.path="user://integration026-display.cfg"
 	game.preferences.music_genre="off"
 	game.preferences.sound_enabled=true
