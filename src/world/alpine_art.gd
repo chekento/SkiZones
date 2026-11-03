@@ -2,6 +2,7 @@ extends RefCounted
 ## Small original 3D models, baked into one colored mesh per asset.
 const Catalog = preload("res://src/core/catalog.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 
 var surface := SurfaceTool.new()
 
@@ -137,12 +138,7 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
 	# The original six Alpine models and their colors remain unchanged.
 	# Alternate styles intentionally change silhouettes and props, not just tint.
-	var colors: Dictionary = {
-		"comic":{"snow":"ecfaff","stone":"4d719d","wood":"aa7255","flora":"39bd9a","metal":"f9c849"},
-		"pastel":{"snow":"ffeffa","stone":"b6a2c9","wood":"ccacb1","flora":"9ac7b6","metal":"f5c8d6"},
-		"cinematic":{"snow":"cad9e1","stone":"526272","wood":"64584e","flora":"6a7d6b","metal":"9cb0bc"},
-		"crisp":{"snow":"ffffff","stone":"436e9b","wood":"6686a5","flora":"43a4bf","metal":"71e3ff"}
-	}.get(style_id,{})
+	var colors: Dictionary = VisualStyles.detail_tints(style_id)
 	var snow := Color(str(colors.get("snow","eaf1f5")))
 	var stone := Color(str(colors.get("stone","8a969b")))
 	var wood := Color(str(colors.get("wood","79604c")))
