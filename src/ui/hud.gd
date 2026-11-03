@@ -101,6 +101,10 @@ var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
+var radio_panel := PanelContainer.new()
+var radio_select := OptionButton.new()
+var radio_mute := CheckButton.new()
+var radio_slider := HSlider.new()
 var cinema_title := Label.new()
 var cinema_mode := false
 var camera_panel: PanelContainer
@@ -189,6 +193,7 @@ func setup(controller: Node) -> void:
 	_build_plan_bar()
 	_build_missions()
 	_build_camera_bar()
+	_build_radio_menu()
 	_build_slope_legend()
 	_build_menu()
 	_build_dialogs()
@@ -596,6 +601,7 @@ func _build_camera_bar() -> void:
 	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
 	inspector_toggle_button.custom_minimum_size.y = 40
 	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
+	_button(box,L.text("♫ Radio"),show_radio).custom_minimum_size.y=40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
 	compact_camera_buttons.append(slopes_button)
@@ -614,6 +620,62 @@ func _build_camera_bar() -> void:
 	for child in box.get_children():
 		if child is Button:
 			child.add_theme_font_size_override("font_size", 16)
+
+func _save_radio() -> void:
+	var preferences: RefCounted=game.preferences
+	preferences.radio_station=["piano","panorama","village","nature"][radio_select.selected]
+	preferences.sound_enabled=radio_mute.button_pressed
+	preferences.sound_volume=roundi(radio_slider.value)
+	game.soundscape.configure(preferences)
+	var error:=preferences.save_to()
+	if error!=OK: toast(L.text("Audioeinstellungen konnten nicht gespeichert werden."))
+
+func _build_radio_menu() -> void:
+	root.add_child(radio_panel)
+	radio_panel.anchor_left=1.0
+	radio_panel.anchor_right=1.0
+	radio_panel.anchor_top=0
+	radio_panel.anchor_bottom=0
+	radio_panel.offset_left=-335
+	radio_panel.offset_right=-18
+	radio_panel.offset_top=154
+	radio_panel.offset_bottom=434
+	radio_panel.add_theme_stylebox_override("panel",_style(Color("f5f1e7"),14,14))
+	var box:=_vbox(radio_panel,7)
+	var header:=HBoxContainer.new()
+	box.add_child(header)
+	_label(header,L.text("RESORT RADIO"),18,TEAL)
+	_spacer(header,false)
+	_button(header,"×",func(): radio_panel.hide()).custom_minimum_size=Vector2(42,42)
+	for name in [L.text("Alpenpiano"),L.text("Gipfelambient"),L.text("Dorfwelle"),L.text("Nur Natur")]:
+		radio_select.add_item(name)
+	radio_select.custom_minimum_size.y=48
+	box.add_child(radio_select)
+	radio_select.item_selected.connect(func(_index: int): _save_radio())
+	radio_mute.text=L.text("Ton einschalten")
+	radio_mute.custom_minimum_size.y=45
+	radio_mute.toggled.connect(func(_on: bool): _save_radio())
+	box.add_child(radio_mute)
+	_label(box,L.text("Lautstärke"),15,MUTED)
+	radio_slider.min_value=0
+	radio_slider.max_value=100
+	radio_slider.step=1
+	box.add_child(radio_slider)
+	radio_slider.value_changed.connect(func(value: float):
+		game.preferences.sound_volume=roundi(value)
+		game.soundscape.configure(game.preferences)
+	)
+	radio_slider.drag_ended.connect(func(_changed: bool): _save_radio())
+	radio_panel.hide()
+
+func show_radio() -> void:
+	if radio_panel.visible:
+		radio_panel.hide()
+		return
+	radio_select.select(maxi(0,["piano","panorama","village","nature"].find(game.preferences.radio_station)))
+	radio_mute.set_pressed_no_signal(game.preferences.sound_enabled)
+	radio_slider.set_value_no_signal(game.preferences.sound_volume)
+	radio_panel.show()
 
 func _build_camera_dialog() -> void:
 	root.add_child(camera_dialog)
@@ -679,6 +741,7 @@ func _build_cinema_overlay() -> void:
 
 func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
+	if on: radio_panel.hide()
 	cinema_overlay.visible=on
 	_apply_panel_visibility()
 
@@ -857,6 +920,7 @@ func show_menu() -> void:
 	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
+	radio_panel.hide()
 	credits.hide()
 	community.hide()
 	menu.show()
