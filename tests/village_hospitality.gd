@@ -46,9 +46,11 @@ func run() -> void:
 	Ops.enable(model)
 	Ops.refresh_duty(model)
 	check(model.Lodging.room_count(cabin) == 2 and model.Lodging.room_count(apartment) == 4 and model.Lodging.room_count(hotel) == 24, "Different property types supply different actual overnight capacities")
+	check(is_equal_approx(Hospitality.service_multiplier(model, pizza), 1.0), "An uncustomised pizzeria earns its base tariff without an automatic menu bonus")
 	var recipes := Hospitality.menu(pizza)
 	recipes[0] = {"name":"KoSch Spezial", "toppings":["cheese", "tomato", "mushroom", "pepper", "olive"]}
 	check(Hospitality.set_menu(model, int(pizza.id), recipes).ok and Hospitality.menu(pizza)[0].name == "KoSch Spezial", "Three custom named pizzas retain the player's toppings")
+	check(Hospitality.service_multiplier(model, pizza) > 1.0, "Only a saved custom pizza menu earns the variety bonus")
 	check(not Hospitality.set_menu(model, int(pizza.id), recipes.slice(0, 2)).ok, "A two-pizza menu cannot replace the required three recipes")
 	var malicious := recipes.duplicate(true); malicious[0].toppings.append("unknown")
 	check(not Hospitality.set_menu(model, int(pizza.id), malicious).ok, "Unknown ingredients are rejected")

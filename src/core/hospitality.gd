@@ -171,7 +171,7 @@ static func service_multiplier(model: RefCounted, building: Dictionary) -> float
 	var activity: Dictionary = building.get("activity", {})
 	var bonus: float = float(activity.get("bonus", 0)) / 100.0 if int(activity.get("day", 0)) == int(model.day) else 0.0
 	var menu_bonus := 0.0
-	if building.kind == "pizzeria":
+	if building.kind == "pizzeria" and building.has("pizza_menu"):
 		var unique := {}
 		for pizza in menu(building):
 			for topping in pizza.toppings: unique[topping] = true
