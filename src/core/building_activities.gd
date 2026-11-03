@@ -3,6 +3,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const ACTIVITIES := {
 	"pizzeria":{"title":"Pizza-Werkstatt", "mode":"orders", "hint":"Belege die bestellte Pizza mit genau den Zutaten deiner eigenen Karte.", "choices":["Tomate", "Käse", "Pilze", "Paprika"]},
 	"school":{"title":"Slalom-Skischule", "mode":"slalom", "hint":"Fahre durch das markierte Tor. Fünf Schwünge ergeben eine Unterrichtsrunde.", "choices":["Links", "Mitte", "Rechts"]},
@@ -41,6 +42,8 @@ static func challenge(model: RefCounted, session: Dictionary) -> Dictionary:
 	var definition := spec(str(building.kind))
 	var seed_value: int = int(building.id) * 31 + int(session.day) * 17 + int(session.step) * 13
 	var choices: Array = definition.choices.duplicate()
+	if Hospitality.lodging(str(building.kind)):
+		return HotelWorld.challenge(model,building,session)
 	if building.kind == "pizzeria":
 		var pizza: Dictionary = Hospitality.menu(building)[posmod(seed_value, 3)]
 		return {"mode":"pizza", "prompt":pizza.name, "toppings":pizza.toppings, "target":0.0, "choices":Hospitality.TOPPINGS.keys()}
@@ -52,7 +55,9 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 	var task := challenge(model, session)
 	if task.is_empty(): return {"ok":false}
 	var score := 0
-	if task.mode == "timing":
+	if task.mode == "hotel_story":
+		score = HotelWorld.score(task,input)
+	elif task.mode == "timing":
 		if input is float or input is int:
 			if is_finite(float(input)): score = roundi(clampf(1.0 - absf(float(input) - float(task.target)) / 0.22, 0, 1) * 100)
 	elif task.mode == "pizza":
@@ -87,5 +92,11 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 		model.report.rewards += reward
 		model.campaign.xp += average * 0.5
 	state.rounds = int(state.rounds) + 1
+	if Hospitality.lodging(str(building.kind)):
+		# Long-term narrative progression is earned even by unpaid practice;
+		# cash and service bonuses still obey the existing three-round cap.
+		state["hotel_story_xp"] = mini(6000,int(previous.get("hotel_story_xp",0)) + average)
+		state["hotel_story_visits"] = mini(1000000,int(previous.get("hotel_story_visits",0)) + 1)
+		state["hotel_story_best"] = maxi(int(previous.get("hotel_story_best",0)),average)
 	building.activity = state
 	return {"ok":true, "finished":true, "score":average, "reward":reward, "bonus":state.bonus, "message":L.text("Schicht beendet · %d Punkte · %d € Prämie · +%d %% Service heute") % [average, reward, int(state.bonus)]}
