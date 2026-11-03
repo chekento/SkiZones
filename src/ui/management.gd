@@ -152,8 +152,8 @@ func _career(page: VBoxContainer) -> void:
 		summary.add_child(bar)
 	var mastery: int = int(state.get("mastery_rank",AchievementBook.mastery_for_xp(float(state.xp))))
 	var needed: int = AchievementBook.xp_for_rank(mini(500,mastery+1))
-	var mastery_card := _card(page,"MEISTERSCHAFT · RANG %d / 500" % mastery,
-		"Resort-Level unabhängig von den fünf Sternen. Erfahrung: %.0f XP · nächster Rang bei %d XP." % [state.xp,needed])
+	var mastery_card := _card(page,L.text("MEISTERSCHAFT · RANG %d / 500") % L.args(mastery),
+		L.text("Resort-Level unabhängig von den fünf Sternen. Erfahrung: %.0f XP · nächster Rang bei %d XP.") % L.args([state.xp,needed]))
 	var mastery_progress := ProgressBar.new()
 	mastery_progress.min_value = AchievementBook.xp_for_rank(mastery)
 	mastery_progress.max_value = maxi(mastery_progress.min_value+1,needed)
@@ -183,8 +183,8 @@ func _achievements(page: VBoxContainer) -> void:
 	var expanded := 0
 	for id in model.achievements:
 		if int(id) >= AchievementBook.START_ID: expanded += 1
-	_card(page, "1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET" % expanded,
-		"20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten.")
+	_card(page, L.text("1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET") % L.args(expanded),
+		L.text("20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."))
 	var picker := OptionButton.new()
 	picker.custom_minimum_size.y = 52
 	for track in AchievementBook.TRACKS:
@@ -201,7 +201,7 @@ func _achievements(page: VBoxContainer) -> void:
 		var id: int = AchievementBook.START_ID+selected*AchievementBook.TIERS+tier-1
 		if earned.has(id): current += 1
 	var progress_card := _card(page,L.text("%s · %d / 50") % L.args([L.text(AchievementBook.TRACKS[selected].name),current]),
-		"Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen.")
+		L.text("Wähle oben einen Bereich, um alle 50 Meilensteine zu sehen."))
 	var bar := ProgressBar.new()
 	bar.max_value = AchievementBook.TIERS
 	bar.value = current
