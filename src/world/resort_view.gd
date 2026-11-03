@@ -23,6 +23,7 @@ const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
+const CinematicTour = preload("res://src/world/cinematic_tour.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
@@ -37,6 +38,7 @@ var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var festival_scene := FestivalScenery.new()
+var tour := CinematicTour.new()
 var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
@@ -1138,6 +1140,7 @@ func _process(delta: float) -> void:
 		return
 	if model.revision != _seen_revision:
 		rebuild()
+	tour.step(self,delta)
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
