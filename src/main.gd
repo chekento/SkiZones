@@ -14,11 +14,14 @@ const LoadProgress = preload("res://src/core/load_progress.gd")
 const AppSession = preload("res://src/core/app_session.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
 const Preferences = preload("res://src/core/preferences.gd")
+const Soundscape = preload("res://src/audio/adaptive_soundscape.gd")
 const AppUpdater = preload("res://src/core/app_updater.gd")
 const ResortHUD = preload("res://src/ui/hud.gd")
 
 var updater := AppUpdater.new()
 var preferences := Preferences.new()
+var soundscape := Soundscape.new()
+var _audio_follow_clock := 0.0
 var editing_id := -1
 var edit_title := ""
 var edit_color := ""
@@ -77,11 +80,14 @@ func _ready() -> void:
 	model.new_game(true, 20261027, "sonnenhang")
 	add_child(view)
 	view.setup(model)
+	add_child(soundscape)
+	soundscape.configure(preferences)
 	add_child(updater)
 	updater.setup(self)
 	add_child(hud)
 	hud.setup(self)
 	preferences.apply(view)
+	soundscape.configure(preferences)
 	hud.show_menu()
 	_update_plan()
 	if OS.get_name() == "Android":
@@ -126,6 +132,10 @@ func apply_language(value: String) -> void:
 	hud.toast(L.text("Sprache angewendet."))
 
 func _process(delta: float) -> void:
+	_audio_follow_clock+=maxf(0.0,delta)
+	if _audio_follow_clock>=0.5:
+		_audio_follow_clock=0.0
+		soundscape.follow_view(view)
 	if _load_progress != null and hud.loading.visible:
 		hud.apply_loading_state(_load_progress.snapshot())
 		view.motion_running = false
