@@ -1135,7 +1135,7 @@ func refresh() -> void:
 		mission_title.text = L.text("SZENARIO · %s · %d / %d Missionen") % [L.text(Maps.spec(model.map_id).name), goals.count(true), goals.size()]
 		var next := goals.find(false)
 		mission_next.text = L.text("Alle Missionen erfüllt · der Betrieb geht weiter.") if next < 0 else L.text("Nächste Mission: ") + L.text(Ops.GOALS[scenario][next])
-	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and scenario != ""
+	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and not cinema_mode and scenario != ""
 	palette.refresh()
 	if current_tool == "inspect":
 		plan_text.text = L.text("Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht.") if model.is_closing() and Ops.continuous(model) else L.text("Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind.") if model.is_closing() else L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.")
