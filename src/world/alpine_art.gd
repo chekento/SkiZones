@@ -563,6 +563,32 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		else:
 			for x in [-2,0,2]: soft_box(Vector3(x,11.8,depth/2+2),Vector3(1.6,1.5,0.9),Color("d4a64c"),Vector3(0,0,x*0.12))
 			for x in [-1,1]: sphere(Vector3(x,12.8,depth/2+2.5),0.35,Color("fffaf2"))
+	# Alpine craftsmanship is readable from the playable resort camera.
+	if kind == "watchmaker":
+		sphere(Vector3(0,12,depth/2+1.5),3.8,Color("b78c53"),Vector3(1,1,0.15))
+		sphere(Vector3(0,12,depth/2+1.9),3.2,Color("fff3cf"),Vector3(1,1,0.15))
+		for i in range(12):
+			var angle := float(i)*TAU/12
+			var at := Vector3(cos(angle)*2.55,12+sin(angle)*2.55,depth/2+2.1)
+			sphere(at,0.18,Color("6e5d4c"))
+		link(Vector3(0,12,depth/2+2.3),Vector3(0,14,depth/2+2.3),0.13,Color("374e5a"))
+		link(Vector3(0,12,depth/2+2.3),Vector3(1.5,11.2,depth/2+2.3),0.11,Color("374e5a"))
+	elif kind in ["souvenir","craftshop"]:
+		for x in [-6.5,0.0,6.5]:
+			box(Vector3(x,3,depth/2+2),Vector3(4.5,4.4,2.3),Color("907057"))
+			for y in [3.0,4.6]:
+				box(Vector3(x,y,depth/2+3.3),Vector3(3.8,0.2,0.7),Color("d7b78b"))
+			sphere(Vector3(x,5.7,depth/2+3.4),0.8,accent)
+		if kind == "craftshop":
+			for x in [-2.5,2.5]:
+				cone(Vector3(x,8.6,depth/2+2),0.95,2.6,Color("977358"),0.2)
+	elif kind == "fitness":
+		for x in [-6,6]:
+			link(Vector3(x,2,depth/2+4),Vector3(x,9,depth/2+4),0.25,Color("6d7b84"))
+		for y in [3.5,6.0,8.5]:
+			link(Vector3(-7,y,depth/2+4),Vector3(7,y,depth/2+4),0.14,accent)
+		for x in [-3.5,3.5]:
+			sphere(Vector3(x,3.3,depth/2+4),1.4,Color("688f9b"))
 	if kind == "first_aid":
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.4), Vector3(6, 1.5, 0.6), Color("e9f2ec"))
 		box(Vector3(0, height_value * 0.65, depth / 2 + 1.5), Vector3(1.5, 6, 0.6), Color("e9f2ec"))
