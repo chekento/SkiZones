@@ -1744,6 +1744,9 @@ func set_visual_style(id: String) -> void:
 	# Never reset guest animations, snow tracks, piste meshes, lift fleets or
 	# cached collision geometry just to change the mountain's appearance.
 	forest.apply_style(self)
+	# Rebuild presentation-only decorative meshes on a style change; their
+	# placement remains deterministic and cleared of all player structures.
+	landscape_details.build(self)
 	_update_atmosphere()
 
 func set_quality(mode: String) -> void:

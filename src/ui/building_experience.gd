@@ -6,6 +6,8 @@ const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
+const HotelWorld = preload("res://src/core/hotel_microworld.gd")
+const HotelStoryArt = preload("res://src/ui/hotel_story_art.gd")
 var hud: CanvasLayer
 var asset_id := -1
 var tabs := TabContainer.new()
@@ -238,9 +240,13 @@ func _activity(building: Dictionary) -> void:
 	var page := _page(L.text("Selber spielen"))
 	var definition := Activities.spec(str(building.kind))
 	if definition.is_empty(): return
-	game_box = _card(page, L.text(definition.title), L.text(definition.hint))
+	game_box = _card(page, L.text("Deine Hotelgeschichte") if Hospitality.lodging(str(building.kind)) else L.text(definition.title), L.text("Fünf bebilderte Kapitel mit unterschiedlichen Gästewünschen und Entscheidungen.") if Hospitality.lodging(str(building.kind)) else L.text(definition.hint))
+	if Hospitality.lodging(str(building.kind)):
+		var progress: Dictionary = HotelWorld.chapter_progress(building)
+		hud._label(game_box,L.text("Hotel-Level %d / 20 · %d Geschichten · beste Schicht %d Punkte") % [int(progress.level),int(progress.visits),int(progress.best)],18,hud.TEAL,true)
+		hud._label(game_box,L.text("Dein Haus, seine Zimmerbelegung und das gewählte Frühstück beeinflussen die Geschichten. Die echten Zimmer werden hier nicht doppelt gebucht."),16,hud.MUTED,true)
 	hud._label(game_box, L.text("Die Resortzeit pausiert während deines Gebäudebesuchs."), 16, hud.MUTED, true)
-	hud._button(game_box, L.text("Schicht starten · fünf Aufgaben"), _start_shift, true)
+	hud._button(game_box, L.text("Hotelgeschichte starten · fünf Kapitel") if Hospitality.lodging(str(building.kind)) else L.text("Schicht starten · fünf Aufgaben"), _start_shift, true)
 
 func _start_shift() -> void:
 	session = Activities.start(hud.game.model, asset_id)
@@ -257,7 +263,21 @@ func _next_task() -> void:
 	picked.clear()
 	elapsed = 0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
-	hud._label(game_box, task.prompt, 32, hud.INK, true)
+	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode == "hotel_story" else 32, hud.INK, true)
+	if task.mode == "hotel_story":
+		hud._label(game_box,L.text(str(task.title)),22,hud.TEAL,true)
+		var story_art := HotelStoryArt.new()
+		story_art.scene_id = str(task.scene)
+		story_art.style_id = hud.game.preferences.visual_style
+		story_art.custom_minimum_size = Vector2(0,240)
+		game_box.add_child(story_art)
+		hud._label(game_box, L.text(str(task.guest)) + " · " + L.text(str(task.intro)), 18, hud.TEAL, true)
+		hud._label(game_box, L.text(str(task.wish)), 16, hud.MUTED, true)
+		for choice_index in range(task.choices.size()):
+			var chosen: int = choice_index
+			hud._button(game_box,L.text(str(task.choices[choice_index])),func(): _submit(chosen),true)
+		status = hud._label(game_box,L.text("Punkte bisher: %d") % int(session.score),18,hud.MUTED)
+		return
 	artwork = ActivityArt.new()
 	artwork.kind = str(hud.game.model.asset(asset_id).kind)
 	artwork.mode = str(task.mode)
@@ -303,6 +323,9 @@ func _submit(value: Variant) -> void:
 			child.queue_free()
 		hud._label(game_box, L.text("Deine Schicht ist geschafft!"), 30, hud.TEAL)
 		hud._label(game_box, result.message, 22, hud.INK, true)
+		if Hospitality.lodging(str(hud.game.model.asset(asset_id).get("kind",""))):
+			var progress: Dictionary = HotelWorld.chapter_progress(hud.game.model.asset(asset_id))
+			hud._label(game_box,L.text("Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte") % [int(progress.level),int(progress.xp),int(progress.best)],20,hud.TEAL,true)
 		hud._button(game_box, L.text("Noch eine Runde"), _start_shift, true)
 	else:
 		_next_task()

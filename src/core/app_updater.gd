@@ -12,7 +12,7 @@ var candidate: Dictionary={}
 var build: Dictionary={}
 var request: HTTPRequest
 var stage:=""
-var installed_code:=23
+var installed_code:=31
 var installed_version: String=str(ProjectSettings.get_setting("application/config/version"))
 var link_opener: Callable
 var last_opened_url:=""
@@ -29,7 +29,7 @@ func setup(controller: Node) -> void:
 		if bridge!=null:
 			var info: Variant=JSON.parse_string(bridge.installedInfo(activity))
 			if info is Dictionary:
-				installed_code=int(info.get("code",23));installed_version=str(info.get("version",installed_version))
+				installed_code=int(info.get("code",installed_code));installed_version=str(info.get("version",installed_version))
 			bridge.clearLegacyUpdateCache(activity)
 	if OS.get_name()=="Android" and not OS.has_feature("android_lifecycle_test"):
 		var config:=ConfigFile.new();config.load("user://updates.cfg")

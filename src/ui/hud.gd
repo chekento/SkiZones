@@ -1060,6 +1060,8 @@ func money_text(amount: float) -> String:
 
 func refresh() -> void:
 	var model: RefCounted = game.model
+	# Styling is synced before displaying queued achievements.
+	achievement_overlay.set_visual_style(game.preferences.visual_style)
 	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())

@@ -47,6 +47,12 @@ func run() -> void:
 	experience.open(int(placed.hotel))
 	await process_frame
 	check(experience.tabs.get_tab_count() == 5, "Hotel exposes management, rooms, chains, game and staffing")
+	experience._start_shift()
+	check(experience.task.mode == "hotel_story" and experience.task.scene == "arrival", "Hotel uses a bespoke illustrated scene in the real building window")
+	check(experience.game_box.get_children().any(func(child): return child.get_script() != null and child.get_script().resource_path == "res://src/ui/hotel_story_art.gd"), "Hotel chapter creates its own animated PMDD-style visual tableau")
+	for index in range(5): experience._submit(int(experience.task.answer))
+	check(experience.session.finished and int(game.model.asset(int(placed.hotel)).activity.hotel_story_xp) == 100, "Full five-chapter hotel story completes through actual touch UI handlers")
+
 	DirAccess.make_dir_recursive_absolute("res://build/qa")
 	if DisplayServer.get_name() != "headless":
 		await process_frame
