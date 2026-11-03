@@ -67,6 +67,7 @@ func run() -> void:
 	check(Styles.valid("not-a-style") == "alpine", "Unknown saved style falls back to classic alpine")
 	var distinct: Dictionary = {}
 	var distinct_foliage: Dictionary = {}
+	var distinct_tree_shapes: Dictionary = {}
 	for id in Styles.IDS:
 		preferences.visual_style = id
 		preferences.apply(game.view)
@@ -74,10 +75,13 @@ func run() -> void:
 		distinct[str(sample)] = true
 		if not game.view.forest.groups.is_empty():
 			distinct_foliage[str(game.view.forest.groups[0].node.multimesh.get_instance_color(0))] = true
+			var tree_mesh: Mesh = game.view.forest.groups[0].node.multimesh.mesh
+			distinct_tree_shapes[str(tree_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])] = true
 		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] == original_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
 		await capture_style(id)
 	check(distinct.size() == Styles.IDS.size(), "All five styles produce different snow and rock colors")
 	check(distinct_foliage.size() == Styles.IDS.size(), "All five art directions visibly recolor existing trees without regenerating the forest")
+	check(distinct_tree_shapes.size() == Styles.IDS.size(), "All five art directions use different modeled tree silhouettes rather than the same recolored pine")
 	check(game.view.asset_root.get_children() == original_assets and game.view.forest.root.get_children() == original_forest_nodes and game.view.surface_picker == original_surface_picker, "Visual style changes preserve rendered assets, forest node identities and terrain picking without resort rebuild")
 	preferences.visual_style = "alpine"
 	preferences.apply(game.view)
