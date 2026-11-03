@@ -13,6 +13,7 @@ var root := Node3D.new()
 var candidates: Dictionary = {}
 var detailed: ArrayMesh
 var distant: ArrayMesh
+var _style_mesh_cache: Dictionary = {}
 
 func _disk(blocked: Dictionary, point: Vector2, radius: float) -> void:
 	for x in range(floori((point.x - radius) / CELL), ceili((point.x + radius) / CELL) + 1):
@@ -25,6 +26,17 @@ func _line(blocked: Dictionary, a: Vector2, b: Vector2, width: float) -> void:
 	for i in range(count + 1):
 		_disk(blocked, a.lerp(b, float(i) / count), width)
 
+func _select_style_meshes(view: Node3D) -> void:
+	var id: String = VisualStyles.valid(view.visual_style)
+	if not _style_mesh_cache.has(id):
+		var detailed_mesh: ArrayMesh = Art.new().pine_styled(id)
+		var distant_mesh: ArrayMesh = Art.new().pine_distant_styled(id)
+		detailed_mesh.surface_set_material(0,view._solid)
+		distant_mesh.surface_set_material(0,view._solid)
+		_style_mesh_cache[id] = {"detailed":detailed_mesh,"distant":distant_mesh}
+	detailed = _style_mesh_cache[id].detailed
+	distant = _style_mesh_cache[id].distant
+
 func build(view: Node3D) -> void:
 	if not root.is_inside_tree():
 		view.add_child(root)
@@ -32,11 +44,7 @@ func build(view: Node3D) -> void:
 		root.remove_child(child)
 		child.queue_free()
 	groups.clear()
-	if detailed == null:
-		detailed = Art.new().pine()
-		distant = Art.new().pine_distant()
-		detailed.surface_set_material(0, view._solid)
-		distant.surface_set_material(0, view._solid)
+	_select_style_meshes(view)
 	var mountain: RefCounted = view.terrain
 	var map_id: String = view.model.map_id
 	var id := "%s/%d" % [map_id, mountain.generation]
@@ -111,6 +119,11 @@ func build(view: Node3D) -> void:
 	update(view.focus, view.zoom, 1)
 
 func apply_style(view: Node3D) -> void:
+	# Switch both silhouettes and palette using existing MultiMesh chunks.
+	# Building placement, tree identities, and physics are untouched.
+	_select_style_meshes(view)
+	for group in groups:
+		group.node.multimesh.mesh = detailed if group.detail else distant
 	# Recolor existing instances instead of regenerating 11,000 forest
 	# candidates, blocking footprints or mountain meshes on each style switch.
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
