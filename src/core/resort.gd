@@ -22,6 +22,8 @@ const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const PisteFeatures = preload("res://src/core/piste_features.gd")
+const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Lodging = preload("res://src/core/guest_lodging.gd")
 const PisteLinks = preload("res://src/core/piste_links.gd")
 var _piste_links: RefCounted
@@ -223,7 +225,7 @@ func rider_pose(guest: Dictionary, fraction_tick: float = 0.0) -> Dictionary:
 	var pose := carrier_pose(lift, int(guest.get("ride_car", 0)), fraction_tick)
 	var transform_value: Transform3D = pose.transform
 	if Fleet.family(lift) in ["drag", "carpet"]:
-		transform_value.origin = terrain.world(Vector2(transform_value.origin.x, transform_value.origin.z), 0.15 if Fleet.family(lift) == "drag" else 0.65)
+		transform_value.origin = Fleet.tow_point(terrain,pose) if Fleet.family(lift)=="drag" else terrain.world(Vector2(transform_value.origin.x,transform_value.origin.z),0.65)
 	else:
 		var seat: int = guest.get("ride_seat", 0)
 		transform_value.origin += transform_value.basis * Fleet.seat_offset(lift, seat)
@@ -1656,7 +1658,7 @@ func movement_clock() -> float:
 	return (absolute+clock_fraction)*time_divisor
 
 func empty_night() -> bool:
-	return time_divisor>1 and Ops.continuous(self) and guests.is_empty() and (minute<OPENING or minute>=CLOSING)
+	return DayRhythm.quiet_night(self)
 
 func advance_empty_minute() -> bool:
 	if not empty_night(): return false
@@ -1678,7 +1680,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	motion_tick+=time_divisor if empty_calendar_step else 1
 	_queue_cache.clear()
 	if clock_tick: Ops.tick(self)
-	var movement: float=time_divisor if empty_calendar_step and guests.is_empty() else 1.0
+	var movement: float=time_divisor if empty_calendar_step else 1.0
 	for lift in lifts:
 		if lift_running(lift): lift.clock=lift.get("clock",0.0)+movement
 	if clock_tick:
@@ -1712,7 +1714,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 				if intent != "": admit_guest(int(Agenda.TYPES[intent].comfort), intent)
 		if arrivals and Ops.continuous(self) and (minute >= 1020 or minute < 120) and minute % 5 == 0:
 			Ops.admit_evening(self)
-	if empty_calendar_step and not guests.is_empty(): movement=1.0
+	if empty_calendar_step and not DayRhythm.indoors_only(self): movement=1.0
 	var departures: Array = []
 	var traffic := Traffic.steps(self) if terrain_generation >= 2 else {}
 	for guest in guests.duplicate():
@@ -2033,7 +2035,7 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		var center: Vector2 = terrain.point_on_path(piste.points,fraction)
 		if hiking: point = center
 		var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - center).normalized().orthogonal()
-		return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(side)) - 0.05)
+		return terrain.world(point, Snow.mesh_height(piste, fraction, (point - center).dot(side)) - 0.05 + PisteFeatures.height_offset(piste,fraction,(point-center).dot(side),0 if hiking else int(guest.ability)))
 	if leg.kind == "walk" and terrain_generation >= 2:
 		var length := terrain.polyline_length(leg.points)
 		var frame := terrain.path_frame(leg.points, fraction, length)
@@ -2086,8 +2088,9 @@ func family_pose(guest: Dictionary, member_index: int, fraction_tick: float = 0.
 		direction = (terrain.point_on_path(piste.points, minf(1, ski_at + 0.002)) - terrain.point_on_path(piste.points, maxf(0, ski_at - 0.002))).normalized()
 		var side := direction.orthogonal()
 		var lateral := minf(2.4, Snow.piste_width(piste) * 0.32) * (1.0 if index % 2 == 0 else -1.0)
+		lateral=PisteFeatures.safe_lateral(piste,ski_at,lateral,int(guest.ability))
 		point = center + side * lateral
-		position_value = terrain.world(point, Snow.mesh_height(piste, ski_at, lateral) - 0.05)
+		position_value = terrain.world(point, Snow.mesh_height(piste, ski_at, lateral) - 0.05 + PisteFeatures.height_offset(piste,ski_at,lateral,int(guest.ability)))
 	elif Foot.free_of_buildings(point, buildings, 1.1): position_value = terrain.world(point, 0.3)
 	result.position = position_value
 	result.yaw = atan2(direction.x, direction.y)
@@ -2353,6 +2356,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				if not Snow.validate(item):
 					return invalid
 				item.grade = analysis.grade
+				if not PisteFeatures.valid(item): return invalid
 			elif key == "lifts":
 				if not item.get("kind") is String or (not Geo.exact_import(item, map_id, false) and not preview_lift(item.kind, Terrain.unpack(item.get("bottom")), Terrain.unpack(item.get("top")), false).ok):
 					return invalid
@@ -2636,5 +2640,6 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+
 
 

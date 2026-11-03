@@ -1,0 +1,58 @@
+name: Landscape development checks
+on:
+  push:
+    branches: ['feature/023-*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: landscape-dev-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  landscape:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and check source
+        run: |
+          python3 - <<'PY'
+          import os, subprocess, sys
+          result = subprocess.run([os.environ['GODOT_BIN'], '--headless', '--editor', '--import', '--quit'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=180)
+          print(result.stdout)
+          sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Simulation and landscape checks
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/pacing_and_nights.gd
+          if [ -f tests/landscape_rhythm.gd ]; then python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd; fi
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Render landscape and building windows
+        run: |
+          if [ -f tests/landscape_workbench_scene.gd ]; then xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/landscape_workbench_scene.gd; fi
+      - name: Render lift attachments and all forest styles
+        run: |
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/lift_scene.gd
+          xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: landscape-visual-QA
+          path: build/qa/*
+          if-no-files-found: ignore
+          retention-days: 30
+

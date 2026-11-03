@@ -14,6 +14,9 @@ var candidates: Dictionary = {}
 var detailed: ArrayMesh
 var distant: ArrayMesh
 var style_meshes: Dictionary = {}
+var variants: Array = []
+var available: Array = []
+var clearing: Dictionary = {}
 
 func _disk(blocked: Dictionary, point: Vector2, radius: float) -> void:
 	for x in range(floori((point.x - radius) / CELL), ceili((point.x + radius) / CELL) + 1):
@@ -29,13 +32,17 @@ func _line(blocked: Dictionary, a: Vector2, b: Vector2, width: float) -> void:
 func _choose_meshes(view: Node3D) -> void:
 	var id: String = VisualStyles.valid(view.visual_style)
 	if not style_meshes.has(id):
-		var near_mesh: ArrayMesh = Art.new().pine_painted(id, false)
-		var far_mesh: ArrayMesh = Art.new().pine_painted(id, true)
-		near_mesh.surface_set_material(0, view._solid)
-		far_mesh.surface_set_material(0, view._solid)
-		style_meshes[id] = {"near":near_mesh, "far":far_mesh}
-	detailed = style_meshes[id].near
-	distant = style_meshes[id].far
+		var meshes: Array = []
+		for species in range(3):
+			var near_mesh: ArrayMesh = Art.new().tree_variant(id,species,false)
+			var far_mesh: ArrayMesh = Art.new().tree_variant(id,species,true)
+			near_mesh.surface_set_material(0,view._solid)
+			far_mesh.surface_set_material(0,view._solid)
+			meshes.append({"near":near_mesh,"far":far_mesh})
+		style_meshes[id] = meshes
+	variants = style_meshes[id]
+	detailed = variants[0].near
+	distant = variants[0].far
 
 func build(view: Node3D) -> void:
 	if not root.is_inside_tree():
@@ -52,9 +59,9 @@ func build(view: Node3D) -> void:
 		var entries: Array = []
 		var random := RandomNumberGenerator.new()
 		random.seed = 73628
-		for i in range(11000):
+		for i in range(15000):
 			var point := Vector2(random.randf_range(mountain.bounds.position.x + 10, mountain.bounds.end.x - 10), random.randf_range(mountain.bounds.position.y + 10, mountain.bounds.end.y - 10))
-			if i < 2400:
+			if i < 3600:
 				point = Vector2(random.randf_range(-500, 500), random.randf_range(-600, 450))
 			var grade: float = mountain.slope_percent(point)
 			var height: float = mountain.height(point)
@@ -66,19 +73,21 @@ func build(view: Node3D) -> void:
 			entries.append({"point": point, "grade": grade, "height": height, "transform": transform_value, "color": Color(tint, tint, tint)})
 		candidates[id] = entries
 	var blocked: Dictionary = {}
+	available.clear()
 	_line(blocked, Vector2(185, 490), Terrain.BASE, 12)
 	for area in view._pedestrian_snapshot.areas:
 		_disk(blocked, area.center, area.radius + 3)
 	for path in view._pedestrian_snapshot.links:
 		for i in range(1, path.points.size()):
-			_line(blocked, Terrain.unpack(path.points[i - 1]), Terrain.unpack(path.points[i]), 7)
+			_line(blocked, Terrain.unpack(path.points[i - 1]), Terrain.unpack(path.points[i]), float(path.get("width",7))*0.5+4)
 	for piste in view.model.pistes:
 		for i in range(1, piste.points.size()):
 			_line(blocked, Terrain.unpack(piste.points[i - 1]), Terrain.unpack(piste.points[i]), Snow.piste_width(piste) * 0.5 + 8)
 	for lift in view.model.lifts:
 		_line(blocked, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top), maxf(16, Fleet.rope_offset(lift) + 15))
 	for building in view.model.buildings:
-		_disk(blocked, Terrain.unpack(building.point), 29 if building.kind == "hotel" else 23)
+		_disk(blocked, Terrain.unpack(building.point), 36 if building.kind == "grand_hotel" else 29 if building.kind == "hotel" else 23)
+	clearing = blocked
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
 	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
 	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
@@ -88,12 +97,15 @@ func build(view: Node3D) -> void:
 	for entry in candidates[id]:
 		if blocked.has(Vector2i((entry.point / CELL).floor())):
 			continue
-		if entry.grade > 47 and rocks.size() < 90:
+		available.append(entry)
+		if entry.grade > 47 and rocks.size() < 150:
 			rocks.append(entry)
 			continue
-		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(3200 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.18:
+		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(4800 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.12:
 			continue
-		var key := Vector2i((entry.point / CHUNK).floor())
+		var cell := Vector2i((entry.point / CHUNK).floor())
+		var species := 1 if absf(sin(entry.point.x*0.17+entry.point.y*0.07)) > 0.90 else 2 if absf(cos(entry.point.y*0.19)) > 0.97 else 0
+		var key := Vector3i(cell.x,cell.y,species)
 		if not chunks.has(key):
 			chunks[key] = []
 		chunks[key].append(entry)
@@ -101,12 +113,12 @@ func build(view: Node3D) -> void:
 	for key in chunks:
 		var entries: Array = chunks[key]
 		var node := MultiMeshInstance3D.new()
-		node.multimesh = view._multimesh(distant, entries.size())
+		node.multimesh = view._multimesh(variants[key.z].far, entries.size())
 		for i in range(entries.size()):
 			node.multimesh.set_instance_transform(i, entries[i].transform)
 			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72) * foliage_tint)
 		root.add_child(node)
-		groups.append({"node": node, "center": (Vector2(key) + Vector2.ONE * 0.5) * CHUNK, "detail": false, "base_tints": entries.map(func(entry): return entry.color)})
+		groups.append({"node": node, "center": (Vector2(key.x,key.y) + Vector2.ONE * 0.5) * CHUNK, "detail": false, "species": key.z, "base_tints": entries.map(func(entry): return entry.color)})
 	if not groups.is_empty():
 		view.trees = groups[0].node
 	var mesh := Art.new().rock()
@@ -127,7 +139,7 @@ func apply_style(view: Node3D) -> void:
 	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.72)
 	for group in groups:
 		var mesh: MultiMesh = group.node.multimesh
-		mesh.mesh = detailed if group.detail else distant
+		mesh.mesh = variants[group.species].near if group.detail else variants[group.species].far
 		var tints: Array = group.base_tints
 		for i in range(tints.size()):
 			mesh.set_instance_color(i, Color(tints[i]) * tree_base * foliage)
@@ -143,5 +155,7 @@ func update(focus: Vector2, zoom: float, tier: int) -> void:
 		var detail: bool = tier > 0 and zoom < 700 and distance < (360 if tier == 2 else 210)
 		if detail != group.detail:
 			group.detail = detail
-			group.node.multimesh.mesh = detailed if detail else distant
+			group.node.multimesh.mesh = variants[group.species].near if detail else variants[group.species].far
+		group.node.multimesh.visible_instance_count = int(group.node.multimesh.instance_count * (0.65 if tier == 0 else 1.0))
 		group.node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if detail and tier == 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+

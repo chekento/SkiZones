@@ -96,3 +96,10 @@ static func _on_cable(profile: Dictionary, fraction: float) -> Vector3:
 		if distance <= profile.lengths[index]:
 			return profile.points[index - 1].lerp(profile.points[index], (distance - profile.lengths[index - 1]) / maxf(profile.lengths[index] - profile.lengths[index - 1], 0.001))
 	return profile.points[-1]
+
+
+static func tow_point(mountain: RefCounted, pose: Dictionary) -> Vector3:
+	var transform_value: Transform3D=pose.transform
+	var taper := smoothstep(0,0.02,float(pose.fraction))*(1-smoothstep(0.98,1.0,float(pose.fraction)))
+	var at: Vector3=transform_value.origin-transform_value.basis.z*(1.4*taper)
+	return mountain.world(Vector2(at.x,at.z),0.15)

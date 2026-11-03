@@ -4277,3 +4277,145 @@ msgstr "Another round"
 
 msgid "Gebäude betreten · Spielen & Verwalten"
 msgstr "Enter building · Play & manage"
+
+
+msgid "Kleine Sprungrampe"
+msgstr "Small jump ramp"
+
+msgid "Breite Anfänger-Rail"
+msgstr "Wide beginner rail"
+
+msgid "Sanfte Schneewelle"
+msgstr "Gentle snow roller"
+
+msgid "Ungültiges Pistenmodul."
+msgstr "Invalid piste feature."
+
+msgid "Mindestens 18 m Abstand zu Anfang und Ende einhalten."
+msgstr "Keep at least 18 m from the start and finish."
+
+msgid "Das Modul braucht Platz innerhalb der Piste und eine freie Durchfahrt daneben."
+msgstr "The feature needs space inside the piste with a clear route beside it."
+
+msgid "Module brauchen mindestens 16 m Abstand in Fahrtrichtung."
+msgstr "Features need at least 16 m of spacing along the piste."
+
+msgid "Bitte eine Piste auswählen."
+msgstr "Please select a piste."
+
+msgid "Dieses Modul gibt es nicht mehr."
+msgstr "This feature no longer exists."
+
+msgid "Höchstens 24 Module pro Piste."
+msgstr "At most 24 features per piste."
+
+msgid "Für Module einen gleichmäßig abfallenden Abschnitt bis 55 % wählen."
+msgstr "Choose a steady downhill section with a gradient up to 55 %."
+
+msgid "Module mit Abstand zu engen Kurven platzieren."
+msgstr "Place features away from tight bends."
+
+msgid "Das Budget reicht für dieses Modul noch nicht."
+msgstr "There is not enough money for this feature yet."
+
+msgid "Freie Durchfahrt bleibt erhalten. Geübte Gäste nutzen das Modul auf ihrer Linie."
+msgstr "A clear route remains available. Skilled guests use features on their line."
+
+msgid "Pistenmodul eingebaut."
+msgstr "Piste feature installed."
+
+msgid "Pistenmodul entfernt."
+msgstr "Piste feature removed."
+
+msgid "Die Pistenmodule brauchen nach diesem Umbau mehr Platz. Bitte zuerst versetzen oder entfernen."
+msgstr "The piste features need more space after this change. Move or remove them first."
+
+msgid "Tageslänge & ruhiger Feierabend"
+msgstr "Day length & relaxed evenings"
+
+msgid "Ausgewogen · kürzere Skitage"
+msgstr "Balanced · shorter ski days"
+
+msgid "Kompakt · zügiger Aufbau"
+msgstr "Compact · faster progress"
+
+msgid "Gemütlich · mehr Zeit am Berg"
+msgstr "Cozy · more time on the mountain"
+
+msgid "Alle Gäste, Fahrten und Betriebskosten folgen derselben Spielzeit. Von 17 bis 22 Uhr bleibt der Abend gemütlich."
+msgstr "Guests, journeys and operating costs all follow the same game clock. Evenings stay relaxed from 17:00 to 22:00."
+
+msgid "Dezente Höhenlinien auf dem Gelände"
+msgstr "Subtle terrain contour lines"
+
+msgid "Rehe, Füchse und Schneehasen darstellen"
+msgstr "Show deer, foxes and mountain hares"
+
+msgid "Ruhige Nächte automatisch bis zum Morgen vorspulen"
+msgstr "Automatically fast-forward quiet nights to morning"
+
+msgid "Pistenwerkstatt · Rampen & Rails"
+msgstr "Piste workshop · ramps & rails"
+
+msgid "Gestalte einzelne Abschnitte deiner Piste. Anfänger fahren auf einer freien Linie vorbei; geübte Gäste nutzen passende Module auf ihrer Fahrspur."
+msgstr "Customize individual piste sections. Beginners take a clear line around features; skilled guests use suitable features on their lane."
+
+msgid "Modul einbauen"
+msgstr "Install feature"
+
+msgid "Neues Modul"
+msgstr "New feature"
+
+msgid "Eingebaute Module · antippen zum Verschieben"
+msgstr "Installed features · tap to move"
+
+msgid "18 m Abstand zu den Enden, 16 m zwischen Modulen. Versetzen kostet 120 €; Entfernen ist kostenlos und erstattet keine Baukosten."
+msgstr "Keep 18 m from the ends and 16 m between features. Moving costs €120; removal is free and does not refund construction costs."
+
+msgid "Abschnitt: %.1f %% · %.0f m ab Pistenanfang"
+msgstr "Section: %.1f %% · %.0f m from piste start"
+
+msgid "Seitlicher Abstand zur Mitte: %+.2f m"
+msgstr "Lateral distance from center: %+.2f m"
+
+msgid "Modul versetzen"
+msgstr "Move feature"
+
+msgid "Diese Piste hat noch keine Module."
+msgstr "This piste has no features yet."
+
+msgid " · %.1f %% · %+.1f m"
+msgstr " · %.1f %% · %+.1f m"
+
+msgid "Entfernen"
+msgstr "Remove"
+
+msgid "Verkleinern"
+msgstr "Make smaller"
+
+msgid "Vollbild"
+msgstr "Fullscreen"
+
+msgid "Gebäudekatalog mit Vorschau öffnen"
+msgstr "Open building catalog with previews"
+
+msgid "Alle Gebäude"
+msgstr "All buildings"
+
+msgid "Dein Dorf · Gebäudekatalog"
+msgstr "Your village · building catalog"
+
+msgid "Gebäude entdecken, vergleichen und direkt am Berg platzieren. Fenster am Titel ziehen; unten rechts die Größe ändern."
+msgstr "Discover buildings, compare them and place them on the mountain. Drag the title to move the window; resize at the bottom right."
+
+msgid "Gebäude suchen …"
+msgstr "Search buildings …"
+
+msgid "Dein Betrieb"
+msgstr "Your business"
+
+msgid "Pistenmodule · Rampen & Rails"
+msgstr "Piste features · ramps & rails"
+
+msgid "Modul am Hang ansehen"
+msgstr "View feature on the slope"

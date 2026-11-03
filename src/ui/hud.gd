@@ -5,6 +5,8 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const GuestProfile = preload("res://src/core/guest_profile.gd")
 const GuestFace = preload("res://src/ui/guest_face.gd")
+const BuildingBrowser = preload("res://src/ui/building_browser.gd")
+const PisteWorkshop = preload("res://src/ui/piste_workshop.gd")
 const BuildingExperience = preload("res://src/ui/building_experience.gd")
 const AssetEditor = preload("res://src/ui/asset_editor.gd")
 const DisplayOptions = preload("res://src/ui/display_options.gd")
@@ -114,6 +116,8 @@ var atlas := Atlas.new()
 var palette := Palette.new()
 var selected_guest := -1
 var guest_face := GuestFace.new()
+var building_browser := BuildingBrowser.new()
+var piste_workshop := PisteWorkshop.new()
 var experience := BuildingExperience.new()
 var asset_editor := AssetEditor.new()
 var display_options := DisplayOptions.new()
@@ -191,6 +195,10 @@ func setup(controller: Node) -> void:
 	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
+	root.add_child(building_browser)
+	building_browser.setup(self)
+	root.add_child(piste_workshop)
+	piste_workshop.setup(self)
 	root.add_child(experience)
 	experience.setup(self)
 	root.add_child(asset_editor)
@@ -783,6 +791,9 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	building_browser.hide()
+	piste_workshop.close()
+	experience.close()
 	camera_dialog.hide()
 	management.hide()
 	lift_staff.hide()
@@ -805,6 +816,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
+	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
 	if experience.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
@@ -867,6 +879,7 @@ func show_context(tool: String, id: int = -1) -> void:
 		var item: Dictionary = game.model.asset(id)
 		inspector_title.text = L.asset_name(item)
 		if item.has("difficulty"):
+			_button(inspector_actions,L.text("Pistenmodule · Rampen & Rails"),func(): piste_workshop.open(id),true)
 			_button(inspector_actions, L.text("Pistenpunkte bearbeiten"), func(): game.begin_edit(id, item.name, item.get("color", ""), 0, item.get("width", 20)), true)
 		if Catalog.BUILDINGS.has(item.get("kind", "")):
 			_button(inspector_actions, L.text("Gebäude betreten · Spielen & Verwalten"), func(): experience.open(id), true)
@@ -1193,5 +1206,6 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 
 

@@ -11,12 +11,17 @@ const Maps = preload("res://src/core/maps.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
+const TowRope = preload("res://src/world/tow_rope.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const PisteFeatures = preload("res://src/core/piste_features.gd")
 const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
+const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
+const Relief = preload("res://src/world/terrain_relief.gd")
+const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
 const Art = preload("res://src/world/alpine_art.gd")
@@ -28,6 +33,11 @@ var ground_surface := GroundSurface.new()
 var _terrain_grading := -1
 var piste_furniture: Array = []
 var forest := ForestLOD.new()
+var landscape_details := LandscapeDetails.new()
+var wildlife_enabled := true
+var contours_enabled := true
+var _relief := Relief.material()
+var _height_labels: Node3D
 var _art_cache: Dictionary = {}
 var _vehicle_sets: Dictionary = {}
 var _label_tick := -1
@@ -176,7 +186,7 @@ void fragment() {
 	tow.top_radius = 0.055
 	tow.bottom_radius = 0.055
 	tow.radial_segments = 5
-	_tow_lines.multimesh = _multimesh(tow, 24 * Fleet.MAX_CARRIERS)
+	_tow_lines.multimesh = _multimesh(tow, 24 * Fleet.MAX_CARRIERS * 2)
 	_tow_lines.material_override = _material(Color("495c60"))
 	_tow_lines.multimesh.visible_instance_count = 0
 	_swimmers.multimesh = _multimesh(Art.new().swimmer(), model.MAX_GUESTS * 5)
@@ -218,8 +228,8 @@ func _build_environment() -> void:
 	_sun.light_color = Color("fff0da")
 	_sun.light_energy = 0.76
 	_sun.light_angular_distance = 1.5
-	_sun.shadow_blur = 1.6
-	_sun.shadow_opacity = 0.55
+	_sun.shadow_blur = 1.2
+	_sun.shadow_opacity = 0.68
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_max_distance = 1500
 	add_child(_sun)
@@ -355,8 +365,9 @@ func _build_terrain() -> void:
 	terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
 	_terrain_grading = terrain.grading.signature
 	ground_surface.configure(terrain_instance.mesh)
-	terrain_instance.material_override = _solid
+	terrain_instance.material_override = _relief
 	landscape.add_child(terrain_instance)
+	_build_height_labels()
 	var lake := CylinderMesh.new()
 	lake.top_radius = 53
 	lake.bottom_radius = 53
@@ -371,7 +382,7 @@ func _build_terrain() -> void:
 func _build_surroundings() -> void:
 	scenery_instance = MeshInstance3D.new()
 	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
-	scenery_instance.material_override = _solid
+	scenery_instance.material_override = _relief
 	scenery_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	landscape.add_child(scenery_instance)
 	# Read-only real street and POI overlay for the four OSM scenarios.
@@ -380,6 +391,26 @@ func _build_surroundings() -> void:
 	if model.map_id in Geo.IDS:
 		var town_result: Dictionary = TownScenery.build(landscape, terrain, model.map_id, model)
 		_town_shuttle = town_result.get("shuttle")
+
+func set_contours(enabled: bool) -> void:
+	contours_enabled=enabled
+	_relief.set_shader_parameter("contours",enabled)
+	if is_instance_valid(_height_labels): _height_labels.visible=enabled
+
+func _build_height_labels() -> void:
+	if is_instance_valid(_height_labels):
+		if _height_labels.get_parent()!=null: _height_labels.get_parent().remove_child(_height_labels)
+		_height_labels.queue_free()
+	_height_labels=Node3D.new()
+	landscape.add_child(_height_labels)
+	for entry in Relief.label_points(terrain_instance.mesh):
+		var label: Label3D=_label(_height_labels,"%d m"%entry.height,entry.point+Vector3.UP*2.0,Color("536f7c"))
+		label.font_size=34
+		label.pixel_size=0.24
+		label.outline_size=6
+		label.visibility_range_end=2600
+	_height_labels.visible=contours_enabled
+	_relief.set_shader_parameter("contours",contours_enabled)
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
@@ -557,26 +588,27 @@ func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 
 func _clear_ground(point: Vector2, margin: float) -> bool:
 	for area in _pedestrian_snapshot.get("areas", []):
-		if point.distance_to(area.center) < area.radius + 3:
+		if point.distance_to(area.center) < area.radius + margin:
 			return false
 	for path in _pedestrian_snapshot.get("links", []):
 		for j in range(1, path.points.size()):
-			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(path.points[j - 1]), Terrain.unpack(path.points[j])).distance_to(point) < 7:
+			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(path.points[j - 1]), Terrain.unpack(path.points[j])).distance_to(point) < float(path.get("width",7))*0.5+margin:
 				return false
 	for piste in model.pistes:
 		for j in range(1, piste.points.size()):
-			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[j - 1]), Terrain.unpack(piste.points[j])).distance_to(point) < margin:
+			if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(piste.points[j - 1]), Terrain.unpack(piste.points[j])).distance_to(point) < Snow.piste_width(piste)*0.5+margin:
 				return false
 	for lift in model.lifts:
 		if Geometry2D.get_closest_point_to_segment(point, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top)).distance_to(point) < maxf(12, Fleet.rope_offset(lift) + (3.8 if Fleet.family(lift) == "gondola" else Fleet.seats(lift) * Fleet.SEAT_SPACING * 0.5) + 10):
 			return false
 	for building in model.buildings:
-		if Terrain.unpack(building.point).distance_to(point) < (29 if building.kind == "hotel" else 23):
+		if Terrain.unpack(building.point).distance_to(point) < (36 if building.kind == "grand_hotel" else 29 if building.kind == "hotel" else 23):
 			return false
 	return true
 
 func _build_trees() -> void:
 	forest.build(self)
+	landscape_details.build(self)
 
 func rebuild(progress: RefCounted = null) -> void:
 	loading_in_progress = true
@@ -607,6 +639,7 @@ func rebuild(progress: RefCounted = null) -> void:
 	if _terrain_grading != terrain.grading.signature:
 		_terrain_grading = terrain.grading.signature
 		terrain_instance.mesh = _land_mesh(terrain.bounds, maxi(20, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 160)))
+		_build_height_labels()
 		if is_instance_valid(slope_overlay):
 			slope_overlay.queue_free()
 			slope_overlay = null
@@ -671,6 +704,7 @@ func rebuild(progress: RefCounted = null) -> void:
 		asset_root.add_child(snow_mesh)
 		_piste_meshes[piste.id] = snow_mesh
 		_draw_snow(piste)
+		_build_piste_features(piste)
 		var sign_mesh := Art.new().piste_sign(piste.number, color)
 		sign_mesh.surface_set_material(0, _solid)
 		var sign_fractions: Array = []
@@ -733,43 +767,10 @@ func rebuild(progress: RefCounted = null) -> void:
 	loading_in_progress = false
 
 func _build_foot_areas() -> void:
-	# One shared grid avoids z-fighting where plazas grow into one another.
-	var cells: Dictionary = {}
-	var corners: Dictionary = {}
-	const STEP := 4
-	for area in _pedestrian_snapshot.areas:
-		var center: Vector2 = area.center
-		var radius: float = area.radius
-		for x in range(floori((center.x - radius) / STEP), ceili((center.x + radius) / STEP)):
-			for z in range(floori((center.y - radius) / STEP), ceili((center.y + radius) / STEP)):
-				var cell := Vector2i(x, z)
-				if (Vector2(cell) * STEP + Vector2.ONE * STEP * 0.5).distance_to(center) > radius:
-					continue
-				cells[cell] = true
-				for offset in [Vector2i.ZERO, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.ONE]:
-					var key: Vector2i = cell + offset
-					var edge := clampf((radius - (Vector2(key) * STEP).distance_to(center)) / 6, 0, 1)
-					corners[key] = maxf(corners.get(key, 0), edge)
-	var surface := SurfaceTool.new()
-	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var vertices: Dictionary = {}
-	for key in corners:
-		var at := Vector2(key) * STEP
-		var point := terrain.world(at, 0.32)
-		vertices[key] = {"point": point, "color": _ground_color(at, point.y).lerp(Color("d2dce8"),corners[key]*0.75)}
-	for cell in cells:
-		for offset in [Vector2i.ZERO, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.RIGHT, Vector2i.ONE, Vector2i.DOWN]:
-			var vertex: Dictionary = vertices[cell + offset]
-			surface.set_color(vertex.color)
-			surface.add_vertex(vertex.point)
-	surface.index()
-	surface.generate_normals()
-	foot_mesh = _baked(asset_root, surface.commit(), Vector3.ZERO)
-	surface_picker.add_mesh("plazas", foot_mesh.mesh)
-	foot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	for link in _pedestrian_snapshot.links:
-		_ribbon(asset_root,link.points,link.get("width",7),Color("d8c8b2") if (link.get("promenade", false) or link.get("public_entry",false)) else Color("d4dfe8"),0.39)
-		_ribbon(asset_root,link.points,link.get("width",7)*0.66,Color("c9bba6") if (link.get("promenade", false) or link.get("public_entry",false)) else Color("cbd8e1"),0.42)
+	var mesh: ArrayMesh=WalkSurfaces.new().build(self)
+	foot_mesh=_baked(asset_root,mesh,Vector3.ZERO)
+	if mesh.get_surface_count()>0: surface_picker.add_mesh("plazas",mesh)
+	foot_mesh.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_build_village_details()
 	var furniture_mesh := Art.new().plaza_details()
 	for area in _pedestrian_snapshot.areas:
@@ -823,6 +824,34 @@ func piste_clear(point: Vector2, radius: float = 0) -> bool:
 		var at := Geometry2D.get_closest_point_to_segment(point, segment.a, segment.b)
 		if point.distance_to(at) < Snow.piste_width(model.asset(int(segment.id))) * 0.5 + radius: return false
 	return true
+
+func _feature_transform(piste: Dictionary, feature: Dictionary) -> Transform3D:
+	var fraction: float=feature.fraction
+	var center: Vector2=terrain.point_on_path(piste.points,fraction)
+	var direction: Vector2=(terrain.point_on_path(piste.points,minf(1,fraction+0.005))-terrain.point_on_path(piste.points,maxf(0,fraction-0.005))).normalized()
+	var point := center+direction.orthogonal()*float(feature.lateral)
+	var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
+	var x := Vector3.UP.cross(z).normalized()
+	return Transform3D(Basis(x,z.cross(x).normalized(),z),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
+
+func _feature_mesh(kind: String) -> ArrayMesh:
+	var key := "module/"+kind
+	if not _art_cache.has(key): _art_cache[key]=Art.new().piste_feature(kind)
+	return _art_cache[key]
+
+func _build_piste_features(piste: Dictionary) -> void:
+	for feature in piste.get("features",[]):
+		var node: MeshInstance3D=_baked(asset_root,_feature_mesh(feature.kind),Vector3.ZERO)
+		node.transform=_feature_transform(piste,feature)
+		node.set_meta("piste_module",piste.id)
+
+func preview_piste_feature(piste: Dictionary, feature: Dictionary) -> void:
+	preview([],Color.WHITE)
+	var node: MeshInstance3D=_baked(preview_root,_feature_mesh(feature.kind),Vector3.ZERO)
+	node.transform=_feature_transform(piste,feature)
+	var material := _material(Color(1.0,0.80,0.50,0.80),true)
+	material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	node.material_override=material
 
 func _build_lift(lift: Dictionary) -> void:
 	var bottom := Terrain.unpack(lift.bottom)
@@ -1035,7 +1064,7 @@ func _update_atmosphere() -> void:
 	_atmosphere_tick = key
 	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
 	var style: Dictionary = VisualStyles.palette(visual_style)
-	_sun.light_energy = ((0.10 + daylight * 0.66) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0) * float(style.sun_gain)
+	_sun.light_energy = ((0.10 + daylight * 0.80) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0) * float(style.sun_gain)
 	_sun.light_color = Color("f5d7cc").lerp(Color(style.sun), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	var palette := Color(Maps.spec(model.map_id).sky)
@@ -1045,7 +1074,7 @@ func _update_atmosphere() -> void:
 	sky_material.ground_horizon_color = Color(style.horizon)
 	sky_material.ground_bottom_color = Color(style.ground)
 	_environment.ambient_light_color = Color(style.ambient)
-	_environment.ambient_light_energy = (0.22 + daylight * 0.15) * float(style.ambient_gain)
+	_environment.ambient_light_energy = (0.23 + daylight * 0.10) * float(style.ambient_gain)
 	_environment.fog_light_color = Color(style.fog).lerp(palette, 0.08)
 	_environment.fog_density = (0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)) * float(style.fog_gain)
 	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
@@ -1063,6 +1092,18 @@ func _process(delta: float) -> void:
 		TownScenery.position_shuttle(_town_shuttle, terrain, _visual_minute)
 	_car_positions.clear()
 	var tows := 0
+	var occupied: Dictionary={}
+	for guest in model.guests:
+		if guest.phase not in ["queue","moving"] or int(guest.leg)>=guest.route.legs.size(): continue
+		var leg: Dictionary=guest.route.legs[int(guest.leg)]
+		if leg.kind!="lift": continue
+		var lift: Dictionary=model.asset(int(leg.id))
+		if Fleet.family(lift)!="drag": continue
+		var passengers: Array=guest.get("ride_manifest",[guest] if guest.phase=="moving" else [])
+		var ride: float=model.fleet_layout(lift).ride
+		for passenger in passengers:
+			if float(lift.clock)+simulation_fraction-float(passenger.get("ride_departure",0))<ride:
+				occupied[Vector2i(int(lift.id),int(passenger.get("ride_car",0)))]=true
 	for lift in model.lifts:
 		if not _vehicle_sets.has(lift.id):
 			continue
@@ -1083,13 +1124,16 @@ func _process(delta: float) -> void:
 				if data.glass != null:
 					data.glass.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
 			if Fleet.family(lift) == "drag":
-				var pose: Dictionary = data.poses[carrier]
-				var from: Vector3 = pose.transform.origin + Vector3.UP * 0.55
-				var to: Vector3 = pose.grip
-				var line_basis := Basis(Quaternion(Vector3.UP, (to - from).normalized())).scaled(Vector3(1, from.distance_to(to), 1))
-				_tow_lines.multimesh.set_instance_transform(tows, Transform3D(line_basis, (from + to) * 0.5))
-				_tow_lines.multimesh.set_instance_color(tows, Color.WHITE)
-				tows += 1
+				var rope: Dictionary=TowRope.frame(terrain,data.poses[carrier],occupied.has(Vector2i(int(lift.id),carrier)),clock)
+				data.node.multimesh.set_instance_transform(carrier,rope.transform)
+				for segment in range(2):
+					var from: Vector3=rope.points[segment]
+					var to: Vector3=rope.points[segment+1]
+					var line_basis := Basis(Quaternion(Vector3.UP,(to-from).normalized())).scaled(Vector3(1,from.distance_to(to),1))
+					if tows>=_tow_lines.multimesh.instance_count: break
+					_tow_lines.multimesh.set_instance_transform(tows,Transform3D(line_basis,(from+to)*0.5))
+					_tow_lines.multimesh.set_instance_color(tows,Color.WHITE)
+					tows+=1
 		data.clock = clock
 	_tow_lines.multimesh.visible_instance_count = tows
 	if _label_tick != model.motion_tick or delta == 0:
@@ -1100,6 +1144,7 @@ func _process(delta: float) -> void:
 				_queue_labels[lift.id].text = L.text("%d warten · %.0f %% belegt") % L.args([load.queue, load.fill * 100])
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
+	landscape_details.update(self)
 	_adapt_quality(delta)
 	var next_positions: Dictionary = {}
 	_family_positions.clear()
@@ -1112,7 +1157,7 @@ func _process(delta: float) -> void:
 	var equipment_counts: Dictionary = {}
 	for key in _equipment: equipment_counts[key] = 0
 	for guest in model.guests:
-		if guest.phase == "leaving":
+		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
 			continue
 		var position_value := Vector3.ZERO
 		var angle := 0.0
@@ -1624,7 +1669,10 @@ func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elap
 	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
 	var before: Vector3 = ground_position(frame.before)
 	var ahead: Vector3 = ground_position(frame.ahead)
-	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
+	var lateral: float=(frame.point-center).dot(side)
+	before.y+=PisteFeatures.height_offset(piste,maxf(0,fraction-0.003),lateral,int(guest.ability))
+	ahead.y+=PisteFeatures.height_offset(piste,minf(1,fraction+0.003),lateral,int(guest.ability))
+	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05 + PisteFeatures.height_offset(piste,fraction,(frame.point-center).dot(side),int(guest.ability))), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)*guest.get("party_step",1.0)
@@ -1653,7 +1701,7 @@ func _rider_pose(guest: Dictionary) -> Dictionary:
 	var pose: Dictionary = data.poses[int(guest.get("ride_car", 0))]
 	var transform_value: Transform3D = pose.transform
 	if Fleet.family(lift) in ["drag", "carpet"]:
-		transform_value.origin = terrain.world(Vector2(transform_value.origin.x, transform_value.origin.z), 0.15 if Fleet.family(lift) == "drag" else 0.65)
+		transform_value.origin = Fleet.tow_point(terrain,pose) if Fleet.family(lift)=="drag" else terrain.world(Vector2(transform_value.origin.x,transform_value.origin.z),0.65)
 	else:
 		var seat: int = guest.get("ride_seat", 0)
 		transform_value.origin += transform_value.basis * Fleet.seat_offset(lift, seat)
@@ -1714,6 +1762,7 @@ func _apply_quality() -> void:
 	var flakes: int = [50, 90, 140][quality_tier]
 	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
+	landscape_details.update(self)
 
 func _adapt_quality(delta: float) -> void:
 	if quality != "auto" or delta <= 0:
@@ -1735,4 +1784,5 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 		if _art_cache.size() > 128: _art_cache.clear()
 		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
 	return _art_cache[key]
+
 

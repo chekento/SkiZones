@@ -1,5 +1,7 @@
 extends Control
 ## Touch-friendly building interiors, pizza workshop and hotel management.
+const FloatingFrame = preload("res://src/ui/floating_window.gd")
+var window := FloatingFrame.new()
 const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
@@ -27,23 +29,14 @@ func setup(owner_hud: CanvasLayer) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var veil := ColorRect.new()
-	veil.color = Color(0.02, 0.08, 0.12, 0.82)
+	veil.color = Color(0.02, 0.08, 0.12, 0.35)
 	add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var panel := PanelContainer.new()
-	add_child(panel)
-	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.set_anchor_and_offset(SIDE_LEFT, 0.08, 0)
-	panel.set_anchor_and_offset(SIDE_RIGHT, 0.92, 0)
-	panel.set_anchor_and_offset(SIDE_TOP, 0.06, 0)
-	panel.set_anchor_and_offset(SIDE_BOTTOM, 0.94, 0)
-	panel.add_theme_stylebox_override("panel", hud._style(Color("f6f2e8"), 22, 20))
-	var body: VBoxContainer = hud._vbox(panel, 12)
-	var row := HBoxContainer.new()
-	body.add_child(row)
-	heading = hud._label(row, "", 28, hud.INK)
-	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hud._button(row, L.text("Zurück ins Dorf"), close)
+	add_child(window)
+	window.setup(hud,L.text("Dein Betrieb"))
+	window.close_requested.connect(close)
+	var body: VBoxContainer=window.body
+	heading=window.title
 	hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
 	tabs.add_theme_stylebox_override("panel", hud._style(Color("f6f2e8"), 10, 10))
 	tabs.add_theme_stylebox_override("tab_selected", hud._style(Color("bddccd"), 10, 12))
@@ -67,6 +60,7 @@ func open(id: int) -> void:
 	session.clear()
 	_rebuild()
 	show()
+	window._fit()
 
 func close() -> void:
 	if visible: hud.game.paused = was_paused
@@ -320,3 +314,4 @@ func _process(delta: float) -> void:
 	artwork.cursor = cursor
 	meter.value = cursor * 100.0
 	meter.modulate = Color("66b395") if absf(cursor - float(task.target)) <= 0.1 else Color("d6aa70")
+

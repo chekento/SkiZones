@@ -9,6 +9,10 @@ var style_hint := Label.new()
 var style_swatches: Array = []
 var snow := CheckButton.new()
 var smoothing := CheckButton.new()
+var day_choice := OptionButton.new()
+var contours := CheckButton.new()
+var wildlife := CheckButton.new()
+var night_forward := CheckButton.new()
 var language_choice := OptionButton.new()
 const MODES := ["auto", "economy", "balanced", "high"]
 const LANGUAGES := ["system","de","en"]
@@ -67,9 +71,17 @@ func setup(owner_hud: CanvasLayer) -> void:
 	fps_choice.add_item(L.text("30 Bilder/s · weniger Energiebedarf"))
 	fps_choice.custom_minimum_size.y = 46
 	box.add_child(fps_choice)
+	hud._label(box,L.text("Tageslänge & ruhiger Feierabend"),16,hud.MUTED)
+	for caption in [L.text("Ausgewogen · kürzere Skitage"),L.text("Kompakt · zügiger Aufbau"),L.text("Gemütlich · mehr Zeit am Berg")]: day_choice.add_item(caption)
+	day_choice.custom_minimum_size.y=46
+	box.add_child(day_choice)
+	hud._label(box,L.text("Alle Gäste, Fahrten und Betriebskosten folgen derselben Spielzeit. Von 17 bis 22 Uhr bleibt der Abend gemütlich."),15,hud.MUTED,true)
+	contours.text=L.text("Dezente Höhenlinien auf dem Gelände")
+	wildlife.text=L.text("Rehe, Füchse und Schneehasen darstellen")
+	night_forward.text=L.text("Ruhige Nächte automatisch bis zum Morgen vorspulen")
 	snow.text = L.text("Fallenden Schnee darstellen")
 	smoothing.text = L.text("Verfolgungskamera sanft bewegen")
-	for control in [snow, smoothing]:
+	for control in [contours,wildlife,night_forward,snow,smoothing]:
 		control.custom_minimum_size.y = 46
 		box.add_child(control)
 	hud._label(box, L.text("Automatisch passt Auflösung und entfernte Details an die verfügbare Leistung an. Gäste, Betrieb und Spieltempo laufen vollständig weiter."), 16, hud.MUTED, true)
@@ -79,6 +91,10 @@ func setup(owner_hud: CanvasLayer) -> void:
 		preferences.quality = MODES[quality_choice.selected]
 		preferences.visual_style = VisualStyles.IDS[style_choice.selected]
 		preferences.target_fps = 60 if fps_choice.selected == 0 else 30
+		preferences.day_length=["balanced","compact","cozy"][day_choice.selected]
+		preferences.contour_lines=contours.button_pressed
+		preferences.wildlife=wildlife.button_pressed
+		preferences.night_forward=night_forward.button_pressed
 		preferences.snowfall = snow.button_pressed
 		preferences.camera_smoothing = smoothing.button_pressed
 		var language: String=LANGUAGES[language_choice.selected]
@@ -100,6 +116,10 @@ func open() -> void:
 	style_choice.select(maxi(0, VisualStyles.IDS.find(preferences.visual_style)))
 	_describe_style(style_choice.selected)
 	fps_choice.select(0 if preferences.target_fps == 60 else 1)
+	day_choice.select(["balanced","compact","cozy"].find(preferences.day_length))
+	contours.button_pressed=preferences.contour_lines
+	wildlife.button_pressed=preferences.wildlife
+	night_forward.button_pressed=preferences.night_forward
 	snow.button_pressed = preferences.snowfall
 	smoothing.button_pressed = preferences.camera_smoothing
 	language_choice.select(LANGUAGES.find(preferences.language))
@@ -114,3 +134,4 @@ func _describe_style(index: int) -> void:
 	var colors: Dictionary = VisualStyles.palette(VisualStyles.IDS[clampi(index, 0, VisualStyles.IDS.size() - 1)])
 	for i in range(style_swatches.size()):
 		style_swatches[i].color = Color(colors[["top", "horizon", "snow", "rock", "ambient"][i]])
+

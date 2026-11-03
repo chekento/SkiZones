@@ -1,6 +1,7 @@
 extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 ## Stable personal styles. Drawing, tracks and local snow interaction use one path.
+const Features = preload("res://src/core/piste_features.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const FIRST := ["Mila", "Jonas", "Lea", "Emil", "Nora", "Finn", "Lina", "Theo", "Ella", "Luis", "Amira", "Ben", "Sofia", "Paul", "Maja", "Noah"]
 const COLORS := ["eeac91", "87bacb", "c8a4cb", "e8ca88", "93c5b1", "aaaed3", "e598a0", "9fcbd0"]
@@ -52,7 +53,8 @@ static func position(mountain: RefCounted, piste: Dictionary, id: int, ability: 
 		# Leave a little individual carving in each lane, without allowing
 		# its free-form sine wave to cross the neighbor's safe overtaking line.
 		lateral = (traffic_lateral + (wave + secondary) * minf(1.15, width * 0.055)) * taper
-	return center + near.normalized().orthogonal() * clampf(lateral, -width * 0.43, width * 0.43)
+	lateral=Features.safe_lateral(piste,fraction,clampf(lateral,-width*0.43,width*0.43),ability)
+	return center + near.normalized().orthogonal() * lateral
 
 static func frame(mountain: RefCounted, piste: Dictionary, id: int, ability: int, fraction: float, run: int = 0, range_start: float = 0.0, range_end: float = 1.0, walks: Array = [], sport: String = "ski", traffic_lateral: float = INF) -> Dictionary:
 	var point := position(mountain, piste, id, ability, fraction, run, range_start, range_end, walks, sport, traffic_lateral)
@@ -123,3 +125,4 @@ static func valid_profile(value: Variant) -> bool:
 		if sample.size() == 4 and (not Terrain.number(sample[2]) or (sample[2] != 0 and sample[2] != 1) or not Terrain.number(sample[3]) or sample[3] < 0 or sample[3] > 30): return false
 		previous = Vector2(sample[0],sample[1])
 	return value[0][0] == 0 and value[0][1] == 0 and value[-1][0] == 1 and value[-1][1] == 1
+
