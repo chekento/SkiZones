@@ -25,6 +25,7 @@ const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const WinterFestival = preload("res://src/ui/winter_festival.gd")
+const MedalCabinet = preload("res://src/ui/medal_cabinet.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
@@ -47,6 +48,7 @@ var game: Node
 var root := Control.new()
 var achievement_overlay := AchievementToast.new()
 var winter_festival := WinterFestival.new()
+var medal_cabinet := MedalCabinet.new()
 var winter_group: VBoxContainer
 var winter_toolbar_button: Button
 var loading := PanelContainer.new()
@@ -216,6 +218,8 @@ func setup(controller: Node) -> void:
 	display_options.setup(self)
 	root.add_child(winter_festival)
 	winter_festival.setup(self)
+	root.add_child(medal_cabinet)
+	medal_cabinet.setup(self)
 	if Maps.SCENARIOS_ENABLED:
 		root.add_child(scenarios)
 		scenarios.setup(self)
@@ -811,6 +815,7 @@ func _build_menu() -> void:
 	)
 	_button(options, L.text("Spielhilfe & Steuerung"), show_help)
 	var service := _menu_group(box, "04  ·  SERVICE & COMMUNITY", "Updates, Feedback und Informationen")
+	_button(service,L.text("Medaillen & Erfolgsarchiv"),func(): medal_cabinet.open(),true)
 	if Maps.SCENARIOS_ENABLED:
 		var scenarios_group := _menu_group(box, "05  ·  SZENARIEN", "Optionale Herausforderungen an realen Orten")
 		_button(scenarios_group,L.text("Szenarien · vier echte Skigebiete"),func(): scenarios.open())
@@ -848,6 +853,7 @@ func show_menu() -> void:
 	lift_staff.hide()
 	audience.hide()
 	update_dialog.hide()
+	medal_cabinet.hide()
 	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
@@ -866,7 +872,7 @@ func hide_menu() -> void:
 
 func blocks_map(point: Vector2) -> bool:
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if experience.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
