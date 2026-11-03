@@ -1,4 +1,5 @@
 extends SceneTree
+const Styles = preload("res://src/core/visual_styles.gd")
 var passed := 0
 var failed := 0
 func _init() -> void: call_deferred("run")
@@ -22,7 +23,7 @@ func run() -> void:
 	for style_id in ["alpine","comic","pastel","cinematic","crisp"]:
 		display.set_visual_style(style_id)
 		check(display.style_id == style_id,"Achievement display follows the chosen theme: " + style_id)
-	check(float(display.VisualStyles.ui_palette("comic").letter_arc) < 0.2,"Reward lettering uses a subtle baseline instead of the original half-circle")
+	check(float(Styles.ui_palette("comic").letter_arc) < 0.2,"Reward lettering uses a subtle baseline instead of the original half-circle")
 	display.announce({"kind":"achievement","title":"SCHWUNG FÜR SCHWUNG · 08","detail":"250 Abfahrten","reward":1350})
 	check(display.visible and display.is_processing() and display.active.title.begins_with("SCHWUNG"),
 		"A large, readable achievement popup starts immediately")
