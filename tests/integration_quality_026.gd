@@ -29,7 +29,7 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	game.apply_language("de")
-	var brand_nodes := game.hud.root.find_children("SkiZonesLogo", "TextureRect", true, false)
+	var brand_nodes := game.hud.root.find_children("skizones_brand_mark", "TextureRect", true, false)
 	var brand_ready := brand_nodes.size()==2
 	for node in brand_nodes:
 		var mark := node as TextureRect

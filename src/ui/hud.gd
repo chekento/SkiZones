@@ -421,7 +421,7 @@ func _panel(parent: Node, left: float, top: float, right: float, bottom: float, 
 
 func _brand_logo(parent: Node, side: int) -> TextureRect:
 	var mark := TextureRect.new()
-	mark.name = "SkiZonesLogo"
+	mark.name = "skizones_brand_mark"
 	mark.texture = BRAND_MARK
 	mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
