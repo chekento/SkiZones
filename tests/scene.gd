@@ -54,6 +54,10 @@ func run() -> void:
 	game.paused = true
 	await process_frame
 	check(not game.hud.menu.visible and game.has_game, "Starting a scenario opens the map and HUD")
+	game.hud.show_context("inspect",int(game.model.pistes[0].id))
+	check(game.hud.inspector_text.text.contains("Zugeordnete Skifahrer") and game.hud.inspector_text.text.contains("Fahrspuren:"),
+		"The real piste inspector shows upcoming traffic density and usable passing lanes")
+	game.hud.show_context("inspect")
 	var map_position := Vector2(740, 390)
 	check(not game.hud.blocks_map(map_position), "Map has a usable input region between the panels")
 	var hit: Vector2 = game.view.map_point(map_position)
