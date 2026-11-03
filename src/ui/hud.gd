@@ -973,7 +973,7 @@ func _refresh_context_text() -> void:
 			var assigned: int = int(Traffic.load_by_piste(model).get(int(item.id), 0))
 			var lanes: int = Traffic.lane_count(item)
 			var reference_capacity: int = maxi(1,roundi(float(lanes)*maxf(30.0,float(item.length))/12.0))
-			var traffic_label: String = L.text("Entspannt") if assigned < reference_capacity*0.5 else (L.text("Belebt") if assigned < reference_capacity*0.85 else L.text("Engpass")
+			var traffic_label: String = L.text("Entspannt") if assigned < reference_capacity*0.5 else (L.text("Belebt") if assigned < reference_capacity*0.85 else L.text("Engpass"))
 			text_value += L.text("\nZugeordnete Skifahrer: %d · Richtwert %d\nFahrspuren: %d · Verkehr: %s") % L.args([assigned, reference_capacity,lanes,traffic_label])
 			if assigned >= reference_capacity*0.85:
 				text_value += "\n" + L.text("Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser.")
