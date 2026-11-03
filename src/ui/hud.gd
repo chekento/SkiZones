@@ -11,6 +11,7 @@ const BuildingExperience = preload("res://src/ui/building_experience.gd")
 const AssetEditor = preload("res://src/ui/asset_editor.gd")
 const DisplayOptions = preload("res://src/ui/display_options.gd")
 const Jukebox = preload("res://src/ui/jukebox.gd")
+const StyleFraming = preload("res://src/ui/style_framing.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Palette = preload("res://src/ui/build_palette.gd")
@@ -128,6 +129,7 @@ var experience := BuildingExperience.new()
 var asset_editor := AssetEditor.new()
 var display_options := DisplayOptions.new()
 var jukebox := Jukebox.new()
+var style_framing:=StyleFraming.new()
 var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
@@ -214,6 +216,9 @@ func setup(controller: Node) -> void:
 	display_options.setup(self)
 	root.add_child(jukebox)
 	jukebox.setup(self)
+	root.add_child(style_framing)
+	style_framing.setup(self)
+	style_framing.z_index=35
 	root.add_child(winter_festival)
 	winter_festival.setup(self)
 	if Maps.SCENARIOS_ENABLED:
