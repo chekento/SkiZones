@@ -4419,3 +4419,172 @@ msgstr "Piste features · ramps & rails"
 
 msgid "Modul am Hang ansehen"
 msgstr "View feature on the slope"
+
+msgid "Familie Fuchs"
+msgstr "Fox Family"
+
+msgid "Zwei Erwachsene und ihre Kinder kommen mit roten Wangen vom Skibus."
+msgstr "Two adults and their children arrive from the ski shuttle with rosy cheeks."
+
+msgid "Sie möchten zusammenbleiben, warm ankommen und morgens früh auf die Piste."
+msgstr "They want to stay together, settle in warmly and reach the slopes early."
+
+msgid "Mila & Freunde"
+msgstr "Mila and Friends"
+
+msgid "Eine kleine Gruppe bringt Snowboards und viel Vorfreude in die Lobby."
+msgstr "A small group brings snowboards and plenty of excitement into the lobby."
+
+msgid "Sie lieben unkomplizierten Service und einen frühen Start in den Snowpark."
+msgstr "They love easygoing service and an early start in the snow park."
+
+msgid "Herr Bergmann"
+msgstr "Mr. Bergmann"
+
+msgid "Ein müder Winterwanderer schüttelt den Schnee von seiner Jacke."
+msgstr "A tired winter hiker shakes the snow off his jacket."
+
+msgid "Er wünscht sich ein ruhiges Zimmer und Hilfe mit seinem Gepäck."
+msgstr "He wishes for a quiet room and some help with his luggage."
+
+msgid "Die Schneekinder"
+msgstr "The Snow Kids"
+
+msgid "Eine fröhliche Familie kommt mit Schlitten und einem riesigen Teddy."
+msgstr "A cheerful family arrives with a sled and an enormous teddy bear."
+
+msgid "Die Kinder freuen sich auf Kakao, die Eltern auf einen entspannten Urlaub."
+msgstr "The children are excited about cocoa, while their parents hope for a relaxing stay."
+
+msgid "Ankunft im Schnee"
+msgstr "Arrival in the Snow"
+
+msgid "Ein Zuhause auf Zeit"
+msgstr "A Home for the Holidays"
+
+msgid "Frühstück im Berglicht"
+msgstr "Breakfast in the Mountain Light"
+
+msgid "Eine kleine Überraschung"
+msgstr "A Little Surprise"
+
+msgid "Bis zum nächsten Winter"
+msgstr "Until Next Winter"
+
+msgid "Dein Haus ist ausgebucht. Wie empfängst du die Gäste?"
+msgstr "Your hotel is full. How will you welcome the guests?"
+
+msgid "Trotzdem ein belegtes Zimmer zuweisen"
+msgstr "Assign an occupied room anyway"
+
+msgid "Belegung erklären und ein freies Haus der Hotelkette prüfen"
+msgstr "Explain the occupancy and check for vacancies at a sister hotel"
+
+msgid "Gäste ohne Erklärung wegschicken"
+msgstr "Send the guests away without an explanation"
+
+msgid "Die Gäste betreten deine Lobby. Was ist der beste Empfang?"
+msgstr "The guests enter your lobby. What is the best welcome?"
+
+msgid "Freies passendes Zimmer prüfen, persönlich begrüßen"
+msgstr "Check for a suitable vacant room and greet them personally"
+
+msgid "Ohne Zimmerprüfung einen Schlüssel aushändigen"
+msgstr "Hand out a key without checking room availability"
+
+msgid "Bis morgen vertrösten"
+msgstr "Tell them to come back tomorrow"
+
+msgid "Das gewünschte Zimmer ist noch nicht richtig sauber."
+msgstr "The requested room is not clean enough yet."
+
+msgid "Trotzdem sofort belegen"
+msgstr "Assign it immediately anyway"
+
+msgid "Reinigung durchführen und das Zimmer erst danach freigeben"
+msgstr "Clean the room and inspect it before making it available"
+
+msgid "Den Gästen ein schlechtes Zimmer ohne Hinweis berechnen"
+msgstr "Charge them for a poor room without warning"
+
+msgid "Das Zimmer ist vorbereitet. Was verbessert den Einzug?"
+msgstr "The room is ready. What makes check-in better?"
+
+msgid "Heizung und Ausstattung prüfen, Gepäckservice anbieten"
+msgstr "Check the heating and amenities, and offer luggage assistance"
+
+msgid "Die Zimmertür verschlossen lassen"
+msgstr "Keep the room door locked"
+
+msgid "Ohne Begrüßung die Gäste allein suchen lassen"
+msgstr "Leave guests to find their own way without a greeting"
+
+msgid "Ein neuer Skitag beginnt. Die Gäste wollen frühstücken."
+msgstr "A new ski day begins. The guests want breakfast."
+
+msgid "Rechtzeitig Buffet, warme Getränke und Plätze vorbereiten"
+msgstr "Prepare the buffet, hot drinks and seating in time"
+
+msgid "Das Frühstück erst nach Liftschluss anbieten"
+msgstr "Offer breakfast only after the lifts close"
+
+msgid "Ohne Vorbereitung die Rechnung erhöhen"
+msgstr "Increase the bill without preparing anything"
+
+msgid "Dein Haus bietet aktuell kein eigenes Frühstück an."
+msgstr "Your hotel does not currently offer breakfast."
+
+msgid "Ein nicht vorhandenes Buffet versprechen"
+msgstr "Promise a buffet that does not exist"
+
+msgid "Die Gäste ungefragt zur Skipiste schicken"
+msgstr "Send guests out to the ski slopes without asking"
+
+msgid "Ehrlich informieren und geeignete erreichbare Alternativen nennen"
+msgstr "Explain honestly and recommend suitable reachable alternatives"
+
+msgid "Im Zimmer wird es kalt. Die Gäste melden ein Problem."
+msgstr "The room is cold. The guests report a problem."
+
+msgid "Beschwerde ignorieren"
+msgstr "Ignore the complaint"
+
+msgid "Problem prüfen, Reparatur organisieren und Zwischenlösung anbieten"
+msgstr "Inspect the problem, organize repairs and offer a temporary solution"
+
+msgid "Nur den Zimmerpreis erhöhen"
+msgstr "Just raise the nightly room price"
+
+msgid "Der Urlaub geht zu Ende. Wie sorgst du für Wiederkehr?"
+msgstr "The holiday is ending. How will you encourage a return visit?"
+
+msgid "Freundlich verabschieden, Rückmeldung einholen und Wünsche notieren"
+msgstr "Say goodbye warmly, ask for feedback and note their preferences"
+
+msgid "Ohne Abrechnung die Tür schließen"
+msgstr "Close the door without settling the bill"
+
+msgid "Die Gäste zu einer positiven Bewertung zwingen"
+msgstr "Force guests to leave a positive review"
+
+msgid "Ein warmes Lächeln – deine Gäste fühlen sich willkommen."
+msgstr "A warm smile – your guests feel welcome."
+
+msgid "Deine Hotelgeschichte"
+msgstr "Your Hotel Story"
+
+msgid "Fünf bebilderte Kapitel mit unterschiedlichen Gästewünschen und Entscheidungen."
+msgstr "Five illustrated chapters with different guest wishes and decisions."
+
+msgid "Hotel-Level %d / 20 · %d Geschichten · beste Schicht %d Punkte"
+msgstr "Hotel level %d / 20 · %d stories · best shift %d points"
+
+msgid "Dein Haus, seine Zimmerbelegung und das gewählte Frühstück beeinflussen die Geschichten. Die echten Zimmer werden hier nicht doppelt gebucht."
+msgstr "Your rooms, occupancy and breakfast options shape the stories. Actual rooms are never double-booked here."
+
+msgid "Hotelgeschichte starten · fünf Kapitel"
+msgstr "Start hotel story · five chapters"
+
+msgid "Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte"
+msgstr "Hotel story level %d · %d experience · best round %d points"
+
