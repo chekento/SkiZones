@@ -26,7 +26,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var scroll:=DragScroll.new()
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	window.body.add_child(scroll)
-	var page:=hud._vbox(scroll,14)
+	var page: VBoxContainer=hud._vbox(scroll,14)
 	page.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	hud._label(page,L.text("Deine Musik für den Berg"),25,hud.TEAL)
 	hud._label(page,L.text("Kostenlose Offline-Basis: kleine eigens erzeugte Klangschleifen, keine Songs fremder Künstler. Suno-Generierung und lizenzierte Sender sind spätere optionale Erweiterungen."),16,hud.MUTED,true)
