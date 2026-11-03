@@ -4903,3 +4903,5 @@ msgstr "Alpine Radio · music and soundscape"
 msgid "Bildstil · sechs Looks"
 msgstr "Visual style · six looks"
 
+msgid "Pisten-Punk"
+msgstr "Piste punk"
