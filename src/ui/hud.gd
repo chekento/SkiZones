@@ -98,6 +98,9 @@ const DayReport = preload("res://src/ui/day_report.gd")
 var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
+var cinema_overlay := PanelContainer.new()
+var cinema_title := Label.new()
+var cinema_mode := false
 var camera_panel: PanelContainer
 var camera_choice := OptionButton.new()
 var pitch_slider := HSlider.new()
@@ -188,6 +191,7 @@ func setup(controller: Node) -> void:
 	_build_menu()
 	_build_dialogs()
 	_build_camera_dialog()
+	_build_cinema_overlay()
 	root.add_child(management)
 	management.setup(game, self)
 	root.add_child(lift_staff)
@@ -641,11 +645,38 @@ func _build_camera_dialog() -> void:
 	box.add_child(orbit)
 	for entry in [[L.text("↶ Drehen"), func(): game.view.rotate_view(-0.3)], [L.text("Drehen ↷"), func(): game.view.rotate_view(0.3)], [L.text("Talansicht"), func(): game.view.home()]]:
 		_button(orbit, entry[0], entry[1]).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_button(box,L.text("Filmische Kamerafahrt · Resort-Tour"),func():
+		camera_dialog.hide()
+		game.start_cinematic_tour()
+	,true)
 	_label(box, L.text("Draufsicht: präzise planen. Panorama: Gelände und Gäste beobachten. Q / E dreht, C wechselt die Perspektive."), 14, MUTED, true)
 	_spacer(box)
 	_button(box, L.text("Zurück zum Berg"), camera_dialog.hide, true)
 	camera_dialog.hide()
 	_sync_camera_controls()
+
+func _build_cinema_overlay() -> void:
+	root.add_child(cinema_overlay)
+	cinema_overlay.anchor_top=1.0
+	cinema_overlay.anchor_bottom=1.0
+	cinema_overlay.offset_left=20
+	cinema_overlay.offset_top=-98
+	cinema_overlay.offset_right=510
+	cinema_overlay.offset_bottom=-20
+	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.78),12,10))
+	var bar:=HBoxContainer.new()
+	bar.add_theme_constant_override("separation",12)
+	cinema_overlay.add_child(bar)
+	cinema_title=_label(bar,L.text("Cinematic Resort Tour"),17,Color("f5f7fc"),true)
+	cinema_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var exit_button:=_button(bar,L.text("Zurück"),func(): game.stop_cinematic_tour())
+	exit_button.custom_minimum_size=Vector2(95,52)
+	cinema_overlay.hide()
+
+func set_cinema_mode(on: bool) -> void:
+	cinema_mode=on
+	cinema_overlay.visible=on
+	_apply_panel_visibility()
 
 func _sync_camera_controls() -> void:
 	camera_choice.select(game.view.camera_mode)
@@ -682,7 +713,7 @@ func set_map_focus(enabled: bool) -> void:
 
 func _apply_panel_visibility() -> void:
 	data_credit.visible = game.model.map_id in Geo.IDS and not menu.visible
-	var show_game := not menu.visible
+	var show_game := not menu.visible and not cinema_mode
 	for panel in map_panels:
 		if panel.get_parent() == root:
 			panel.visible = show_game
@@ -1081,6 +1112,7 @@ func refresh() -> void:
 	if winter_group != null: winter_group.visible=seasonal
 	if winter_toolbar_button != null: winter_toolbar_button.visible=seasonal
 	var model: RefCounted = game.model
+	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	# Styling is synced before displaying queued achievements.
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
 	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
