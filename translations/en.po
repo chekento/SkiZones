@@ -5180,3 +5180,21 @@ msgstr "Christmas Eve gold star"
 
 msgid "Dekoration dauerhaft freigeschaltet: %s"
 msgstr "Decoration permanently unlocked: %s"
+
+msgid "AlpenWelle FM · Hüttenmorgen"
+msgstr "Alpine Wave FM · Mountain Hut Morning"
+
+msgid "SnowBeat Radio · Gipfelpuls"
+msgstr "SnowBeat Radio · Summit Pulse"
+
+msgid "Powder Flow · Park Lines"
+msgstr "Powder Flow · Park Lines"
+
+msgid "PistenPunk · Kantenwind"
+msgstr "Piste Punk · Edgewind"
+
+msgid "Alpine Classic · Schneelicht"
+msgstr "Alpine Classic · Snowlight"
+
+msgid "Mountain Chill · Wolkenmeer"
+msgstr "Mountain Chill · Sea of Clouds"
