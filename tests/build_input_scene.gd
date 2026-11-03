@@ -78,8 +78,10 @@ func run() -> void:
 	check(game.tool == "plaza" and game.plaza_kind == "plaza", "Independent walking areas have a usable build card")
 	game.points = [[340,300]]; game._update_plan()
 	var money: float = game.model.money
+	var reward_before: float = game.model.report.rewards
 	game.confirm_plan(); game.confirm_plan()
-	check(game.model.walk_areas.size() == 1 and game.model.money == money - 7200, "Repeated confirmation cannot build or charge a plaza twice")
+	var construction_spend: float = money - game.model.money + (game.model.report.rewards - reward_before)
+	check(game.model.walk_areas.size() == 1 and is_equal_approx(construction_spend, 7200.0), "Repeated confirmation charges exactly one plaza, independent of earned achievement rewards")
 	game.clear_plan(); game.hud.palette.select_category("lifts")
 	await process_frame; await process_frame
 	var scroll: ScrollContainer
