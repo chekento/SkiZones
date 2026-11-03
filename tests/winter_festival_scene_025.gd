@@ -44,7 +44,7 @@ func run() -> void:
 	var festive=game.view.festival_scene
 	festive.store.path="user://winter25_render_test.cfg"
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(festive.store.path))
-	check(festive.store.claim(6,{"year":2026,"month":12,"day":6}).ok,"Visual fixture earns winter coins for a purchasable countdown sign")
+	check(festive.store.claim(24,{"year":2026,"month":12,"day":24}).ok,"Visual fixture earns winter coins for a purchasable countdown sign")
 	check(festive.store.buy_decoration("clock").ok,"Visual fixture actually buys a countdown board before displaying it")
 	festive.qa_date_override={"year":2026,"month":12,"day":24,"hour":16,"minute":0,"second":0}
 	for style_id in VisualStyles.IDS:
