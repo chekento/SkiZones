@@ -18,11 +18,11 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 </details>
 
 <!-- APK-DOWNLOAD:START -->
-[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk)
+[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk)
 
-**Aktueller Download: v0.24.0 · Android ARM64 · Preview**
+**Aktueller Download: v0.25.0 · Android ARM64 · Preview**
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.24.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.25.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
 
 ![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
 
@@ -122,23 +122,24 @@ GitHub Discussions ist zusätzlich vorbereitet und kann nach Aktivierung unter *
 ## Versionshistorie und APK-Archiv
 
 <!-- VERSION-ARCHIVE:START -->
-Für **28 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
+Für **29 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
 
 **[Vollständiges, detailliertes Changelog](CHANGELOG.md)** · [GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.25.0](https://github.com/chekento/SkiZones/releases/tag/v0.25.0)** | 03.11.2026 | Lineare Hotelmodule und wiederkehrende Winterfeste | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk) | [Details](docs/releases/0.25.0.md) |
 | **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
 | **[v0.23.0](https://github.com/chekento/SkiZones/releases/tag/v0.23.0)** | 03.11.2026 | Landschaft, Pistenwerkstatt und freiere Dorfplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk) | [Details](docs/releases/0.23.0.md) |
 | **[v0.22.0](https://github.com/chekento/SkiZones/releases/tag/v0.22.0)** | 03.11.2026 | Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.22.0/SkiZones-0.22.0-android-arm64.apk) | [Details](docs/releases/0.22.0.md) |
 | **[v0.21.0](https://github.com/chekento/SkiZones/releases/tag/v0.21.0)** | 02.11.2026 | Bergwelt, Spielgefühl und fünf Bildstile | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.21.0/SkiZones-0.21.0-android-arm64.apk) | [Details](docs/releases/0.21.0.md) |
-| **[v0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2)** | 02.11.2026 | Hauptspiel vor Szenarien | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk) | [Details](docs/releases/0.20.2.md) |
 
 <details>
-<summary>Ältere APK-Versionen anzeigen (23)</summary>
+<summary>Ältere APK-Versionen anzeigen (24)</summary>
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.20.2](https://github.com/chekento/SkiZones/releases/tag/v0.20.2)** | 02.11.2026 | Hauptspiel vor Szenarien | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.2/SkiZones-0.20.2-android-arm64.apk) | [Details](docs/releases/0.20.2.md) |
 | **[v0.20.0](https://github.com/chekento/SkiZones/releases/tag/v0.20.0)** | 01.11.2026 | kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.20.0/SkiZones-0.20.0-android-arm64.apk) | [Details](docs/releases/0.20.0.md) |
 | **[v0.19.0](https://github.com/chekento/SkiZones/releases/tag/v0.19.0)** | 01.11.2026 | PMDD-Winterbranding und vollflächiger Ladebildschirm | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.19.0/SkiZones-0.19.0-android-arm64.apk) | [Details](docs/releases/0.19.0.md) |
 | **[v0.18.0](https://github.com/chekento/SkiZones/releases/tag/v0.18.0)** | 31.10.2026 | Anlagen direkt verwalten und leichter anschließen | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.18.0/SkiZones-0.18.0-android-arm64.apk) | [Details](docs/releases/0.18.0.md) |
