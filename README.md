@@ -37,7 +37,18 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## 0.21.0 · Fünf Grafikstile, neuer Baukatalog und mehr Platz für den Berg
+## 0.22.0 · Gebäude-Minispiele, eigene Pizzakarte und Hotelketten
+
+**Gebäude antippen → Gebäude betreten · Spielen & Verwalten.** Alle 26 Gebäudetypen besitzen eine freiwillige Aktivität. Die Pizzeria bietet genau drei selbst benannte Pizzen mit eigenen Belägen; Skischule, Restaurant, Bar, Snackstände und Kaiserschmarrn haben passende kurze Spiele. Drei belohnte Schichten pro Gebäude und Tag bringen Prämien und begrenzte Serviceboni.
+
+- **Sechs Unterkunftsarten:** Ferienhütte, Ferienapartments, Alpenchalet, Alpenpension, Berghotel und Grandhotel. Mehrtägige Feriengäste nutzen echte Zimmerkapazität und erreichbare Wege auch im Normalmodus.
+- **Hotelverwaltung:** eigene Nachtpreise, Personal, Familien-/Premiumanteile, Frühstück, Reinigung, Komfortstufen, Bewertungen, Belegung und frei benannte Hotelketten innerhalb des Resorts.
+- **Wochenkarten und bessere Einnahmen:** optionale Wochenrabatte mit Kostenuntergrenze, einmalige Vorauszahlung und korrekte tägliche Ticketabrechnung für übrige Urlaubsgäste. Sieben Gastronomie-/Servicegebäude erhalten höhere Grundumsätze.
+- **Fortschritt und Gestaltung:** 1.000 Achievements, 500 Meisterschaftsränge, Sponsoring und fünf Grafikstile. Karriere, freier Aufbau und die acht Fantasiekarten bleiben die Hauptmodi; Szenarien bleiben deaktiviert.
+
+**Freigegeben nach automatisierten Spiel-, Grafik-, Spielstand-, Signatur- und Android-30/36-Prüfungen.** [Vollständige Änderungen 0.22.0](docs/releases/0.22.0.md) · [APK und Release](https://github.com/chekento/SkiZones/releases/tag/v0.22.0).
+
+## Rückblick: 0.21.0 · Fünf Grafikstile, neuer Baukatalog und mehr Platz für den Berg
 
 Die neue 0.21-Preview führt **Alpin, Comic, Pastell, Filmisch und Winterklar** als fünf unabhängig von der Qualitätsstufe speicherbare Grafikstile ein. Schnee, Felsen, Wald, Himmel und Licht besitzen separate Paletten, ohne Pisten, Geländephysik oder gespeicherte Anlagen zu verändern. Das Hauptmenü ist nach Hauptspiel, Resort, Darstellung und Community neu gegliedert; reale Szenarien bleiben deaktiviert.
 
