@@ -22,6 +22,7 @@ const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
+const FestivalScenery = preload("res://src/world/festival_scenery.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
 const Art = preload("res://src/world/alpine_art.gd")
@@ -34,6 +35,7 @@ var _terrain_grading := -1
 var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
+var festival_scene := FestivalScenery.new()
 var wildlife_enabled := true
 var contours_enabled := true
 var _relief := Relief.material()
@@ -763,6 +765,7 @@ func rebuild(progress: RefCounted = null) -> void:
 		progress.report(98.0, L.text("Wald und Landschaft gestalten …"))
 		await get_tree().process_frame
 	_build_trees()
+	festival_scene.build(self)
 	_guest_tick = ""
 	loading_in_progress = false
 
@@ -1145,6 +1148,7 @@ func _process(delta: float) -> void:
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	festival_scene.update(self,delta)
 	_adapt_quality(delta)
 	var next_positions: Dictionary = {}
 	_family_positions.clear()
@@ -1747,6 +1751,7 @@ func set_visual_style(id: String) -> void:
 	# Rebuild presentation-only decorative meshes on a style change; their
 	# placement remains deterministic and cleared of all player structures.
 	landscape_details.build(self)
+	festival_scene.build(self)
 	_update_atmosphere()
 
 func set_quality(mode: String) -> void:
