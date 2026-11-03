@@ -71,7 +71,7 @@ func _raised_text(font: Font, value: String, center: Vector2, limit: float, base
 		var origin := Vector2(-width_value*0.5,0)
 		for z in range(depth,0,-1):
 			draw_string(font,origin+Vector2(0,z),letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,shadow)
-		draw_string_outline(font,origin,font_size,3,outline)
+		draw_string_outline(font,origin,letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,3,outline)
 		draw_string(font,origin,letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,color)
 		x += width_value
 	draw_set_transform(Vector2.ZERO,0.0,Vector2.ONE)
@@ -108,7 +108,7 @@ func _draw() -> void:
 	if int(active.get("reward",0)) > 0:
 		detail += "   +%d €" % int(active.reward)
 	var detail_size := clampi(roundi(size.x/41.0),17,24)
-	draw_string_outline(font,Vector2(center.x,box_rect.end.y-30),detail_size,2,Color(border,fade),HORIZONTAL_ALIGNMENT_CENTER,roundi(width_value-40))
+	draw_string_outline(font,Vector2(center.x,box_rect.end.y-30),detail,HORIZONTAL_ALIGNMENT_CENTER,roundi(width_value-40),detail_size,2,Color(border,fade))
 	draw_string(font,Vector2(center.x,box_rect.end.y-30),detail,HORIZONTAL_ALIGNMENT_CENTER,roundi(width_value-40),detail_size,Color(ink,fade))
 	# Restrained cinematic particles; the angular themes receive crisp facets.
 	var sparkle_count := int(ui.sparkle)
