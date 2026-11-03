@@ -125,6 +125,9 @@ func _init() -> void:
 		guest.service_history = {}
 		guest.erase("heading_home")
 		guest.erase("replan")
+		# This passenger is transplanted to a different, hotel-free resort.
+		# A reservation from the original resort must not follow the fixture.
+		for key in ["lodging_id", "hotel_night", "hotel_sleep_until", "lodging_billed_night"]: guest.erase(key)
 		guest.route = {"target": 0, "origin": graph.nodes[top_key], "legs": [down[0]] + cable._shortest(graph, bottom_key, "base").legs}
 		guest.leg = 0
 		cable.guests.append(guest)
