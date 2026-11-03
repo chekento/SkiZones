@@ -260,7 +260,7 @@ static func building_roles(kind: String) -> Array:
 		"disco", "bar": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
 		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school": return ["hotel"]
+		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop": return ["hotel"]
 	return []
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
