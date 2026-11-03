@@ -68,7 +68,7 @@ func _rebuild() -> void:
 			var number: int=door
 			var owned: bool=state.claimed.has(number)
 			var can_open: bool=AnnualFestival.unlocked(now,number) and not owned
-			var button: Button=hud._button(grid,("★ " if number in [6,24] else "❄ ") + str(number) + (" ✓" if owned else ""))
+			var button: Button=hud._button(grid,("★ " if number in [6,24] else "❄ ") + str(number) + (" ✓" if owned else ""),func(): pass)
 			button.custom_minimum_size=Vector2(90,68)
 			button.disabled=not can_open
 			button.pressed.connect(func():
