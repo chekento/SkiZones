@@ -150,6 +150,80 @@ func pine() -> ArrayMesh:
 	sphere(Vector3(0,14.7,0),0.46,Color("f5f7fc"),Vector3(0.8,1.4,0.8))
 	return finish()
 
+func pine_styled(style_id: String) -> ArrayMesh:
+	# Each art direction has its own *silhouette*, not merely another tint.
+	# One mesh is instanced for thousands of trees through the forest LOD.
+	match style_id:
+		"comic":
+			cone(Vector3(0, 2.8, 0), 0.72, 5.6, Color("a27457"), 0.36)
+			sphere(Vector3(0, 1.0, 0), 2.4, Color("f8fbff"), Vector3(1.15,0.23,1.15))
+			for tier in range(4):
+				var height := 4.4 + 3.4 * tier
+				var radius := 4.8 - tier * 0.83
+				sphere(Vector3(0, height, 0), radius, Color("53ab89").lightened(tier*0.065), Vector3(1.05,0.57,1.05))
+				sphere(Vector3(0, height+radius*0.38,0), radius*0.9, Color("f9f6fa"), Vector3(1,0.28,1))
+			sphere(Vector3(0, 16.9, 0), 1.7, Color("fffdf5"), Vector3(0.65,0.9,0.65))
+			return finish()
+		"pastel":
+			cone(Vector3(0, 3.1, 0), 0.72, 6.2, Color("bda0a8"),0.45)
+			for tier in range(4):
+				var height := 4.1+tier*3.05
+				var radius := 4.55-tier*0.78
+				sphere(Vector3(0,height,0),radius,Color("c8b9dc"),Vector3(1.05,0.8,1.05))
+				sphere(Vector3(0,height+radius*0.48,0),radius*0.92,Color("fff0fa"),Vector3(1,0.4,1))
+			sphere(Vector3(0, 16.6, 0),1.5,Color("fff4f8"))
+			return finish()
+		"cinematic":
+			cone(Vector3(0, 8.1, 0),0.55,16.2,Color("625d58"),0.2)
+			for tier in range(7):
+				var height := 2.8+tier*2.25
+				var radius := 4.5-tier*0.54
+				cone(Vector3(0,height,0),radius,3.65,Color("395d59").lightened(tier*0.02),0.04)
+				cone(Vector3(0,height+0.55,0),radius*0.64,2.2,Color("c7d3d8"),0.02)
+			return finish()
+		"crisp":
+			cone(Vector3(0, 7.7, 0),0.52,15.4,Color("60747b"),0.2)
+			for tier in range(6):
+				var height := 3+tier*2.4
+				var radius := 4.9-tier*0.65
+				cone(Vector3(0,height,0),radius,3.5,Color("4c9098"),0.0)
+				cone(Vector3(0,height+0.63,0),radius*0.92,2.5,Color("fbffff"),0.0)
+			sphere(Vector3(0,16.7,0),0.55,Color("ffffff"))
+			return finish()
+		_:
+			return pine()
+
+func pine_distant_styled(style_id: String) -> ArrayMesh:
+	# Low-poly silhouettes remain distinct on distant Alpine ridges.
+	match style_id:
+		"comic":
+			cone(Vector3(0, 3, 0),0.55,6,Color("a27457"),0.4)
+			for tier in range(3):
+				var r := 5.0-tier*1.25
+				sphere(Vector3(0,4.7+tier*4.0,0),r,Color("58ad8b"),Vector3(1,0.7,1))
+				sphere(Vector3(0,6.1+tier*4.0,0),r*0.85,Color("f9f6fb"),Vector3(1,0.24,1))
+		"pastel":
+			cone(Vector3(0, 3, 0),0.55,6,Color("baa2a8"),0.4)
+			for tier in range(3):
+				var r := 5.0-tier*1.12
+				sphere(Vector3(0,4.7+tier*4.2,0),r,Color("c5b6dd"),Vector3(1,0.72,1))
+				sphere(Vector3(0,6.5+tier*4.2,0),r*0.82,Color("fff1fa"),Vector3(1,0.25,1))
+		"cinematic":
+			cone(Vector3(0,8,0),0.5,16,Color("645e58"),0.0)
+			for tier in range(5):
+				var r := 5.0-tier*0.85
+				cone(Vector3(0,3+tier*3.0,0),r,4.5,Color("375c58"),0.0)
+				cone(Vector3(0,3.55+tier*3.0,0),r*0.75,2.4,Color("d0d9e0"),0.0)
+		"crisp":
+			cone(Vector3(0,8,0),0.5,16,Color("60747b"),0.0)
+			for tier in range(5):
+				var r := 5.1-tier*0.9
+				cone(Vector3(0,3+tier*3.0,0),r,4.2,Color("528e94"),0.0)
+				cone(Vector3(0,3.8+tier*3.0,0),r*0.95,2.7,Color("fcffff"),0.0)
+		_:
+			return pine_distant()
+	return finish()
+
 func pine_distant() -> ArrayMesh:
 	cone(Vector3(0, 3, 0), 0.5, 6, Color("71583e"))
 	for index in range(3):
