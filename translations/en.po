@@ -3733,3 +3733,15 @@ msgstr "%s €/day for %d days · requires %d %% reputation and %d lift(s)"
 
 msgid "Sponsorvertrag abschließen"
 msgstr "Sign sponsorship contract"
+
+msgid "Belebt"
+msgstr "Busy"
+
+msgid "Engpass"
+msgstr "Congested"
+
+msgid "Zugeordnete Skifahrer: %d · Richtwert %d\nFahrspuren: %d · Verkehr: %s"
+msgstr "Assigned skiers: %d · guideline %d\nSki lanes: %d · traffic: %s"
+
+msgid "Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser."
+msgstr "Tip: Wider or alternative runs distribute visitors more evenly."
