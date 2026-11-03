@@ -37,7 +37,19 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## 0.22.0 · Gebäude-Minispiele, eigene Pizzakarte und Hotelketten
+## 0.23.0 · Mehr Landschaft, eigene Pistenmodule und freiere Dorfplanung
+
+**Den Berg leichter lesen und liebevoller ausbauen:** dauerhaft einblendbare Höhenlinien, klarere Geländeschattierung, drei Baumarten und mehr Wald. Kleine Felsen, Steine, Sträucher, Stämme, Schneeverwehungen und erste Rehe, Füchse und Schneehasen beleben freie Flächen. Wege und Plätze erhalten gemeinsame, abgerundete Ränder mit kleinen Schneeböschungen.
+
+- **Pistenwerkstatt:** eine gebaute Piste antippen → **Pistenmodule · Rampen & Rails**. Rampen, Rails und Schneewellen können abschnittsweise platziert, seitlich versetzt und einzeln geändert werden. Anfänger fahren vorbei, geübte Gäste nutzen Module auf ihrer tatsächlichen Linie.
+- **Übersichtlicher Dorfkatalog:** Vollbild mit Gebäudevorschauen, Kategorien, Suche, Preisen und Betriebskosten. Titelzeile ziehen, unten rechts die Größe ändern oder als kleines Fenster beim Bauen offen lassen. Auch Minispiele und Hotelverwaltung bekommen bewegliche Fenster.
+- **Realistischere Details:** eingezogene, locker hängende Schleppliftgehänge; bei echten Fahrgästen ausgezogene und geneigte Seile. Zusätzlich klarere Lichtflächen und mehr Fassaden- und Körperdetails.
+- **Kürzere Tage, gemütlicher Abend:** drei Tageslängen; standardmäßig rund 44 Prozent kürzere Skitage. Von 17 bis 22 Uhr bleibt mehr Ruhe zum Planen. Ruhige Nächte laufen viel schneller zum Morgen vor, auch wenn Gäste im Hotel schlafen.
+- **Weiterhin enthalten:** eigene Drei-Pizza-Karte, Aktivitäten in allen 26 Gebäudetypen, sechs Unterkunftsarten, Hotelketten, Wochenkarten mit Kostenuntergrenze, verbesserte Serviceerlöse, 1.000 Achievements und fünf Grafikstile.
+
+[Bedienung und vollständige Änderungen 0.23.0](docs/releases/0.23.0.md). Der Download oben wird nach den vollständigen Spielstand-, Grafik-, Signatur- und Android-Prüfungen auf die veröffentlichte APK umgestellt.
+
+## Rückblick: 0.22.0 · Gebäude-Minispiele, eigene Pizzakarte und Hotelketten
 
 **Gebäude antippen → Gebäude betreten · Spielen & Verwalten.** Alle 26 Gebäudetypen besitzen eine freiwillige Aktivität. Die Pizzeria bietet genau drei selbst benannte Pizzen mit eigenen Belägen; Skischule, Restaurant, Bar, Snackstände und Kaiserschmarrn haben passende kurze Spiele. Drei belohnte Schichten pro Gebäude und Tag bringen Prämien und begrenzte Serviceboni.
 

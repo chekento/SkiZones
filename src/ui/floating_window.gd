@@ -28,6 +28,8 @@ func setup(hud: CanvasLayer, caption: String) -> void:
 	header.gui_input.connect(_header_input)
 	body.add_child(header)
 	title.text=caption
+	title.clip_text=true
+	title.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	title.add_theme_font_size_override("font_size",24)
 	title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	title.mouse_filter=Control.MOUSE_FILTER_IGNORE

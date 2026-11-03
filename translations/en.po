@@ -4416,3 +4416,6 @@ msgstr "Your business"
 
 msgid "Pistenmodule · Rampen & Rails"
 msgstr "Piste features · ramps & rails"
+
+msgid "Modul am Hang ansehen"
+msgstr "View feature on the slope"

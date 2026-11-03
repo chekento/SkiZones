@@ -38,6 +38,7 @@ func run() -> void:
 	check(not Features.install(model,id,"ramp",0.35,0).ok and not Features.install(model,id,"rail",0.01,0).ok and not Features.install(model,id,"rail",0.5,100).ok and model.money==money,"Overlapping, terminal and out-of-width placements are rejected before charging")
 	check(Features.install(model,id,"ramp",0.37,0,0).ok and model.money==money-120 and piste.features.size()==3,"Moving a selected module charges only the relocation fee")
 	check(Features.height_offset(piste,0.37,0,2)>0.5 and Features.height_offset(piste,0.37,0,0)==0,"Only eligible skiers follow a feature's raised profile")
+	check(Features.height_offset(piste,0.37+7.0/piste.length,0,2)>0.2 and Features.height_offset(piste,0.37+11.0/piste.length,0,2)==0,"Small ramps lift a skilled skier into a short flight and return them to the snow")
 	check(absf(Features.safe_lateral(piste,0.37,0,0))>=3.5,"Novices get a clear bypass instead of skiing through the ramp")
 	var snapshot := model.snapshot()
 	var restored := Resort.new()

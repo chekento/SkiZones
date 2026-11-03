@@ -405,8 +405,8 @@ func _build_height_labels() -> void:
 	landscape.add_child(_height_labels)
 	for entry in Relief.label_points(terrain_instance.mesh):
 		var label: Label3D=_label(_height_labels,"%d m"%entry.height,entry.point+Vector3.UP*2.0,Color("536f7c"))
-		label.font_size=26
-		label.pixel_size=0.13
+		label.font_size=34
+		label.pixel_size=0.24
 		label.outline_size=6
 		label.visibility_range_end=2600
 	_height_labels.visible=contours_enabled
@@ -825,18 +825,33 @@ func piste_clear(point: Vector2, radius: float = 0) -> bool:
 		if point.distance_to(at) < Snow.piste_width(model.asset(int(segment.id))) * 0.5 + radius: return false
 	return true
 
+func _feature_transform(piste: Dictionary, feature: Dictionary) -> Transform3D:
+	var fraction: float=feature.fraction
+	var center: Vector2=terrain.point_on_path(piste.points,fraction)
+	var direction: Vector2=(terrain.point_on_path(piste.points,minf(1,fraction+0.005))-terrain.point_on_path(piste.points,maxf(0,fraction-0.005))).normalized()
+	var point := center+direction.orthogonal()*float(feature.lateral)
+	var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
+	var x := Vector3.UP.cross(z).normalized()
+	return Transform3D(Basis(x,z.cross(x).normalized(),z),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
+
+func _feature_mesh(kind: String) -> ArrayMesh:
+	var key := "module/"+kind
+	if not _art_cache.has(key): _art_cache[key]=Art.new().piste_feature(kind)
+	return _art_cache[key]
+
 func _build_piste_features(piste: Dictionary) -> void:
 	for feature in piste.get("features",[]):
-		var fraction: float=feature.fraction
-		var center: Vector2=terrain.point_on_path(piste.points,fraction)
-		var direction: Vector2=(terrain.point_on_path(piste.points,minf(1,fraction+0.005))-terrain.point_on_path(piste.points,maxf(0,fraction-0.005))).normalized()
-		var point := center+direction.orthogonal()*float(feature.lateral)
-		var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
-		var x := Vector3.UP.cross(z).normalized()
-		var basis := Basis(x,z.cross(x).normalized(),z)
-		var node: MeshInstance3D=_baked(asset_root,Art.new().piste_feature(feature.kind),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
-		node.basis=basis
+		var node: MeshInstance3D=_baked(asset_root,_feature_mesh(feature.kind),Vector3.ZERO)
+		node.transform=_feature_transform(piste,feature)
 		node.set_meta("piste_module",piste.id)
+
+func preview_piste_feature(piste: Dictionary, feature: Dictionary) -> void:
+	preview([],Color.WHITE)
+	var node: MeshInstance3D=_baked(preview_root,_feature_mesh(feature.kind),Vector3.ZERO)
+	node.transform=_feature_transform(piste,feature)
+	var material := _material(Color(1.0,0.80,0.50,0.80),true)
+	material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	node.material_override=material
 
 func _build_lift(lift: Dictionary) -> void:
 	var bottom := Terrain.unpack(lift.bottom)

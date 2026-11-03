@@ -77,6 +77,12 @@ func run() -> void:
 	await process_frame
 	check(not browser.window.fullscreen and browser.window.size.x<game.hud.root.size.x and not browser.blocks_map(game.hud.root.size-Vector2(10,10)),"A resized floating catalog leaves the map outside its own rectangle usable")
 	await capture("landscape-023-floating-catalog")
+	var previous: Vector2=browser.window.position
+	await mouse_drag(browser.window.get_global_rect().position+Vector2(80,25),Vector2(40,24))
+	check(browser.window.position.distance_to(previous+Vector2(40,24))<1,"Dragging the actual title bar moves the floating catalog")
+	var old_size: Vector2=browser.window.size
+	await mouse_drag(browser.window.get_global_rect().end-Vector2(12,12),Vector2(80,-40))
+	check(browser.window.size.distance_to(old_size+Vector2(80,-40))<1,"Dragging the actual lower corner resizes the catalog")
 	browser.selected_kind="cabin"
 	browser._refresh(true)
 	browser.choose.pressed.emit()
@@ -92,6 +98,10 @@ func run() -> void:
 	workshop.lateral_slider.value=3
 	workshop._refresh()
 	await capture("landscape-023-piste-workshop")
+	workshop._show_on_slope()
+	await process_frame
+	check(not workshop.window.fullscreen and game.view.preview_root.get_child_count()>0 and not game.hud.blocks_map(game.hud.root.size-Vector2(10,10)),"Inspecting a module shows its actual 3D preview and leaves room for camera gestures")
+	await capture("landscape-023-feature-preview")
 	workshop.close()
 	var options: Control=game.hud.display_options
 	options.open()
@@ -102,3 +112,21 @@ func run() -> void:
 	await process_frame
 	print("RESULT: %d passed; %d failed"%[passed,failed])
 	quit(1 if failed else 0)
+
+func mouse_drag(at: Vector2, delta: Vector2) -> void:
+	var press := InputEventMouseButton.new()
+	press.button_index=MOUSE_BUTTON_LEFT
+	press.pressed=true
+	press.position=at
+	root.push_input(press,true)
+	await process_frame
+	var move := InputEventMouseMotion.new()
+	move.button_mask=MOUSE_BUTTON_MASK_LEFT
+	move.position=at+delta
+	move.relative=delta
+	root.push_input(move,true)
+	await process_frame
+	press.pressed=false
+	press.position=at+delta
+	root.push_input(press,true)
+	await process_frame

@@ -51,10 +51,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 	lateral_slider.custom_minimum_size.y=48
 	content.add_child(lateral_slider)
 	status=hud._label(content,"",16,hud.MUTED,true)
-	var row := HBoxContainer.new()
+	var row := HFlowContainer.new()
 	content.add_child(row)
 	install_button=hud._button(row,L.text("Modul einbauen"),_install,true)
 	hud._button(row,L.text("Neues Modul"),func(): selected_index=-1; _refresh())
+	hud._button(row,L.text("Modul am Hang ansehen"),_show_on_slope)
 	hud._label(content,L.text("Eingebaute Module · antippen zum Verschieben"),19,hud.TEAL)
 	list=hud._vbox(content,8)
 	for slider in [position_slider,lateral_slider]: slider.value_changed.connect(func(_value: float): _refresh())
@@ -75,8 +76,9 @@ func open(id: int) -> void:
 	_rebuild_list()
 
 func close() -> void:
+	var was_visible := visible
 	hide()
-	hud.game.view.preview([],Color.WHITE)
+	if was_visible: hud.game.view.preview([],Color.WHITE)
 	hud.refresh()
 
 func _refresh() -> void:
@@ -93,10 +95,20 @@ func _refresh() -> void:
 	install_button.disabled=not result.ok
 	install_button.text=(L.text("Modul versetzen") if selected_index>=0 else L.text("Modul einbauen"))+" · "+str(result.get("cost",0))+" €"
 	diagram.queue_redraw()
-	var at: Vector2=hud.game.model.terrain.point_on_path(piste.points,position_slider.value/100)
-	var direction: Vector2=(hud.game.model.terrain.point_on_path(piste.points,minf(1,position_slider.value/100+0.01))-hud.game.model.terrain.point_on_path(piste.points,maxf(0,position_slider.value/100-0.01))).normalized()
-	var point := at+direction.orthogonal()*lateral_slider.value
-	hud.game.view.preview([[point.x,point.y]],Color("d3a16c"))
+	hud.game.view.preview_piste_feature(piste,{"kind":Features.KINDS[kind.selected],"fraction":position_slider.value/100,"lateral":lateral_slider.value})
+
+func _show_on_slope() -> void:
+	if window.fullscreen: window.toggle_fullscreen()
+	window.position=Vector2(12,175)
+	window.size=Vector2(620,510)
+	window._fit()
+	var piste: Dictionary=hud.game.model.asset(asset_id)
+	hud.game.view.focus=hud.game.model.terrain.point_on_path(piste.points,position_slider.value/100)
+	hud.game.view.zoom=100
+	hud.game.view._update_camera()
+
+func blocks_map(point: Vector2) -> bool:
+	return visible and window.get_global_rect().has_point(point)
 
 func _install() -> void:
 	var result: Dictionary=Features.install(hud.game.model,asset_id,Features.KINDS[kind.selected],position_slider.value/100,lateral_slider.value,selected_index)
@@ -124,6 +136,8 @@ func _rebuild_list() -> void:
 			_refresh()
 		)
 		select.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		select.clip_text=true
+		select.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 		hud._button(row,L.text("Entfernen"),func():
 			var result: Dictionary=Features.remove(hud.game.model,asset_id,index)
 			hud.toast(result.message)
@@ -141,7 +155,16 @@ func _draw_plan() -> void:
 	for side in [-1,1]: diagram.draw_line(Vector2(rect.position.x,rect.get_center().y+side*28),Vector2(rect.end.x,rect.get_center().y+side*28),Color("f5f9fa"),3,true)
 	for feature in piste.get("features",[]):
 		var at := Vector2(lerpf(rect.position.x+12,rect.end.x-12,feature.fraction),rect.get_center().y+feature.lateral/maxf(1,Snow.piste_width(piste))*60)
-		diagram.draw_circle(at,7,Color("5c8b91"))
+		_draw_symbol(feature.kind,at,Color("5c8b91"))
 	var selected := Vector2(lerpf(rect.position.x+12,rect.end.x-12,position_slider.value/100),rect.get_center().y+lateral_slider.value/maxf(1,Snow.piste_width(piste))*60)
-	diagram.draw_circle(selected,10,Color("d29962"))
+	diagram.draw_circle(selected,13,Color("f1d5ae"))
+	_draw_symbol(Features.KINDS[kind.selected],selected,Color("ae764c"))
 	diagram.draw_line(Vector2(rect.end.x-28,rect.get_center().y),Vector2(rect.end.x-10,rect.get_center().y),Color("577981"),3,true)
+
+func _draw_symbol(feature_kind: String, at: Vector2, color: Color) -> void:
+	if feature_kind=="ramp":
+		diagram.draw_colored_polygon(PackedVector2Array([at+Vector2(-8,6),at+Vector2(8,6),at+Vector2(6,-7)]),color)
+	elif feature_kind=="rail":
+		diagram.draw_line(at+Vector2(-10,-3),at+Vector2(10,-3),color,4,true)
+		for side in [-1,1]: diagram.draw_line(at+Vector2(side*7,-3),at+Vector2(side*7,6),color,2,true)
+	else: diagram.draw_arc(at+Vector2(0,5),9,PI,TAU,16,color,4,true)

@@ -29,7 +29,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var veil := ColorRect.new()
-	veil.color = Color(0.02, 0.08, 0.12, 0.82)
+	veil.color = Color(0.02, 0.08, 0.12, 0.35)
 	add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(window)

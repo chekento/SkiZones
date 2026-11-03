@@ -386,8 +386,10 @@ func village_corner() -> ArrayMesh:
 	return finish()
 
 func rock() -> ArrayMesh:
-	sphere(Vector3(0, 2, 0),4,Color("9ba5b8"),Vector3(1.2,0.7,0.85))
-	sphere(Vector3(-0.5,3.8,0),3.7,Color("edf2fc"),Vector3(1.1,0.35,0.8))
+	soft_box(Vector3(0,1.8,0),Vector3(7.8,4.3,5.6),Color("89979e"),Vector3(0.12,0.25,0.12),0.9)
+	soft_box(Vector3(-2.4,0.9,1.3),Vector3(4.4,2.6,4.2),Color("9aa7ad"),Vector3(-0.12,-0.3,-0.12),0.7)
+	soft_box(Vector3(-0.2,3.65,0),Vector3(7.3,1.2,5.5),Color("edf4f7"),Vector3(0.12,0.25,0.12),0.6)
+	for y in [1.1,1.9]: box(Vector3(0,y,2.85),Vector3(4.3,0.10,0.15),Color("6c7c85"),Vector3(0,0,0.1))
 	return finish()
 
 func roof(width: float, depth: float, wall_height: float) -> void:

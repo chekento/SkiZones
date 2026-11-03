@@ -7,7 +7,7 @@ var cells: Dictionary = {}
 var buckets: Dictionary = {}
 var corners: Dictionary = {}
 const BUCKET := 32.0
-const EDGE := 1.8
+const EDGE := 3.2
 const MAX_CELLS := 90000
 
 func _primitive(shape: Dictionary, low: Vector2, high: Vector2) -> void:
@@ -40,7 +40,7 @@ func build(view: Node3D) -> ArrayMesh:
 	buckets.clear()
 	corners.clear()
 	var layout: Dictionary=view._pedestrian_snapshot
-	step=8.0 if layout.links.size()>800 else 6.0 if layout.links.size()>350 else 4.0
+	step=8.0 if layout.links.size()>800 else 6.0 if layout.links.size()>350 else 2.5
 	for area in layout.areas:
 		var radius: float=area.radius
 		var center: Vector2=area.center
@@ -75,7 +75,7 @@ func build(view: Node3D) -> ArrayMesh:
 			for index in range(1,clipped.size()-1):
 				for vertex in [clipped[0],clipped[index],clipped[index+1]]:
 					var bank := clampf(float(vertex.d)/EDGE,0,1)
-					var at: Vector3=view.ground_position(vertex.point,0.38+sin(bank*PI)*0.85)
+					var at: Vector3=view.ground_position(vertex.point,0.38+sin(bank*PI)*0.55)
 					var color := Color("cbdbe2").lerp(Color("cbbfa9"),vertex.tone)
 					color=color.lerp(Color("eaf2f6"),smoothstep(-0.8,EDGE,float(vertex.d)))
 					surface.set_color(color)
