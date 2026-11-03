@@ -10,6 +10,7 @@ const PisteWorkshop = preload("res://src/ui/piste_workshop.gd")
 const BuildingExperience = preload("res://src/ui/building_experience.gd")
 const AssetEditor = preload("res://src/ui/asset_editor.gd")
 const DisplayOptions = preload("res://src/ui/display_options.gd")
+const Jukebox = preload("res://src/ui/jukebox.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Palette = preload("res://src/ui/build_palette.gd")
@@ -126,6 +127,7 @@ var piste_workshop := PisteWorkshop.new()
 var experience := BuildingExperience.new()
 var asset_editor := AssetEditor.new()
 var display_options := DisplayOptions.new()
+var jukebox := Jukebox.new()
 var design_button: Button
 var grooming_button: Button
 var grooming_label: Label
@@ -210,6 +212,8 @@ func setup(controller: Node) -> void:
 	asset_editor.setup(self)
 	root.add_child(display_options)
 	display_options.setup(self)
+	root.add_child(jukebox)
+	jukebox.setup(self)
 	root.add_child(winter_festival)
 	winter_festival.setup(self)
 	if Maps.SCENARIOS_ENABLED:
@@ -582,6 +586,7 @@ func _build_camera_bar() -> void:
 	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
+	_button(box,L.text("Radio"),func(): jukebox.open()).custom_minimum_size.y=40
 	winter_toolbar_button=_button(box,L.text("Advent & Feste"),func(): winter_festival.open())
 	winter_toolbar_button.custom_minimum_size.y=40
 	winter_toolbar_button.visible=AnnualFestival.visible(AnnualFestival.device_now())
@@ -774,6 +779,7 @@ func _build_menu() -> void:
 	winter_group.visible=AnnualFestival.visible(AnnualFestival.device_now())
 	var options := _menu_group(box, "03  ·  DARSTELLUNG & STEUERUNG", "Bildstile, Kamera und Komfort")
 	_button(options, L.text("Einstellungen · Sprache & Grafik"), func(): display_options.open(), true)
+	_button(options,L.text("Alpine Radio · Musik und Soundkulisse"),func(): jukebox.open())
 	_button(options, L.text("Kamera & Perspektive"), func():
 		hide_menu()
 		show_camera()
