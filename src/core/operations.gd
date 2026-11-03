@@ -272,7 +272,7 @@ static func building_roles(kind: String) -> Array:
 		"disco", "bar": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
 		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop": return ["hotel"]
+		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand": return ["hotel"]
 	return []
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
@@ -311,6 +311,7 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 	return true
 
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
+	if building.kind == "newsstand" and model.building_count("printing_press") == 0: return false
 	if not building.enabled or not building_staffed(model, building): return false
 	if not continuous(model): return true
 	if building.kind in ["disco", "bar"]: return model.minute >= 1080 or model.minute < (360 if model.time_divisor>1 else 120)
