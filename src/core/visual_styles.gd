@@ -50,3 +50,27 @@ static func ground_color(base: Color, slope: float, id: String) -> Color:
 		var bands := 9.0
 		return Color(roundf(result.r * bands) / bands, roundf(result.g * bands) / bands, roundf(result.b * bands) / bands, 1.0)
 	return result
+
+## Distinct presentation contract for interior cards, achievement toasts and
+## future MicroWorld scenes. The Alpine world palette remains unchanged.
+static func ui_palette(id: String) -> Dictionary:
+	match valid(id):
+		"comic":
+			return {"panel":"223b65","ink":"ffffff","accent":"ffe05e","outline":"0c1537","highlight":"70d8ff","shadow":"172247","corner":3,"depth":8,"sparkle":13,"letter_arc":0.12,"fx":1.45}
+		"pastel":
+			return {"panel":"78648c","ink":"fffaff","accent":"ffe3a3","outline":"493754","highlight":"ffd0ec","shadow":"59435b","corner":18,"depth":4,"sparkle":11,"letter_arc":0.08,"fx":0.85}
+		"cinematic":
+			return {"panel":"192837","ink":"f4f5f1","accent":"ecc899","outline":"090d16","highlight":"8fb6c8","shadow":"08121c","corner":2,"depth":9,"sparkle":6,"letter_arc":0.06,"fx":1.3}
+		"crisp":
+			return {"panel":"193e61","ink":"ffffff","accent":"c4f6ff","outline":"071e39","highlight":"6eeeff","shadow":"0c243b","corner":1,"depth":7,"sparkle":9,"letter_arc":0.04,"fx":1.25}
+		_:
+			return {"panel":"334e64","ink":"fffdf5","accent":"ffe0a8","outline":"203445","highlight":"bdeaf0","shadow":"192f42","corner":12,"depth":5,"sparkle":8,"letter_arc":0.10,"fx":1.0}
+
+## Landscape accents are independent of geometry and all physics.
+static func detail_tints(id: String) -> Dictionary:
+	match valid(id):
+		"comic": return {"snow":"e9fbff","stone":"4a6a98","wood":"98614b","flora":"46b188","metal":"ffe07c"}
+		"pastel": return {"snow":"fff1fb","stone":"b49dbf","wood":"c59da0","flora":"a1b7aa","metal":"efc1d8"}
+		"cinematic": return {"snow":"d5e3e9","stone":"596574","wood":"6c5b51","flora":"667668","metal":"a3b5b7"}
+		"crisp": return {"snow":"ffffff","stone":"4e789c","wood":"5a7189","flora":"4e9ab3","metal":"8be6f5"}
+		_: return {"snow":"eaf1f5","stone":"8a969b","wood":"79604c","flora":"768c7e","metal":"b7cbd0"}
