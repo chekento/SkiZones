@@ -37,7 +37,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	for caption in [L.text("Systemsprache"),L.text("Deutsch"),L.text("English")]: language_choice.add_item(caption)
 	language_choice.custom_minimum_size.y=46
 	box.add_child(language_choice)
-	hud._label(box, L.text("Bildstil · fünf Looks"), 16, hud.MUTED)
+	hud._label(box, L.text("Bildstil · sechs Looks"), 16, hud.MUTED)
 	for title in VisualStyles.NAMES:
 		style_choice.add_item(L.text(title))
 	style_choice.custom_minimum_size.y = 54

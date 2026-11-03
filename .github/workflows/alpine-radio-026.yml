@@ -1,0 +1,51 @@
+name: 0.26 Alpine Radio, Crew & Piste Atlas QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: alpine26-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  alpine-26:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Validate GDScript import and DE/EN catalogs
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=220)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in (p.stdout+p.stderr) else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Original offline audio, rights, crew shifts and atlas test
+        run: python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_crew_026.gd
+      - name: Virtual display for six rendered styles
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Capture six visual themes including relief piste atlas
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+      - name: Capture resort service / hotel screens
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/village_hospitality_scene.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ski-zones-026-visual-evidence
+          path: build/qa/*
+          if-no-files-found: ignore
+          retention-days: 30

@@ -27,6 +27,12 @@ func _draw() -> void:
 	draw_rect(Rect2(12,75,80,4),Color("d6e3e8"))
 	var at := Vector2(96,66)
 	draw_circle(at,15,Color("fff7e8"))
+	if kind in ["printing_press","newsstand"]:
+		draw_rect(Rect2(at-Vector2(10,12),Vector2(20,24)),Color("fff2d8"))
+		for y in [-7,-3,1,5]:
+			draw_line(at+Vector2(-6,y),at+Vector2(6,y),Color("59727c"),2,true)
+		draw_rect(Rect2(at-Vector2(7,10),Vector2(14,2)),color)
+		return
 	if kind=="fitness":
 		for side in [-1,1]: draw_circle(at+Vector2(side*8,0),6,Color("446b7a"))
 		draw_line(at+Vector2(-9,0),at+Vector2(9,0),Color("446b7a"),3,true)
@@ -136,3 +142,4 @@ func _colored(color: Color, radius: int) -> StyleBoxFlat:
 	result.bg_color=color
 	result.set_corner_radius_all(radius)
 	return result
+

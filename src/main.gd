@@ -4,6 +4,7 @@ const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Resort = preload("res://src/core/resort.gd")
+const ResortAudio=preload("res://src/world/resort_audio.gd")
 const Progression = preload("res://src/core/progression.gd")
 const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
@@ -66,6 +67,7 @@ var _background_speed := 1
 var _resume_scheduled := false
 var resume_count := 0
 var _load_progress: RefCounted = null
+var audio := ResortAudio.new()
 
 func _ready() -> void:
 	preferences.load_from()
@@ -82,6 +84,9 @@ func _ready() -> void:
 	add_child(hud)
 	hud.setup(self)
 	preferences.apply(view)
+	audio.set_active(false)
+	add_child(audio)
+	audio.setup(view,preferences)
 	hud.show_menu()
 	_update_plan()
 	if OS.get_name() == "Android":
@@ -126,6 +131,7 @@ func apply_language(value: String) -> void:
 	hud.toast(L.text("Sprache angewendet."))
 
 func _process(delta: float) -> void:
+	audio.set_active(not _app_background and not hud.loading.visible and ((has_game and not hud.menu.visible) or hud.jukebox.visible))
 	if _load_progress != null and hud.loading.visible:
 		hud.apply_loading_state(_load_progress.snapshot())
 		view.motion_running = false
@@ -164,11 +170,21 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+
+func start_cinematic_tour() -> void:
+	if not has_game or hud.menu.visible or not points.is_empty() or hud.loading.visible: return
+	if view.tour.begin(view):
+		hud.set_cinema_mode(true)
+
+func stop_cinematic_tour() -> void:
+	if view.tour.active: view.tour.stop(view)
+	hud.set_cinema_mode(false)
 
 func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
-	if not Maps.FANTASY_MAPS.has(area):
-		hud.toast(L.text("Szenarien sind in dieser Version nicht verfügbar. Deine Spielstände bleiben erhalten."))
+	stop_cinematic_tour()
+	if not Maps.MAPS.has(area):
+		hud.toast(L.text("Dieses Gebiet steht nicht zur Verfügung."))
 		return
 	if prepared != null:
 		model = prepared
@@ -177,6 +193,8 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	else:
 		model.new_game(starter, 20261027, area)
 	if not Ops.active(model): Ops.enable(model)
+	if model.map_id in Geo.IDS and model.operations.get("completed",false):
+		preload("res://src/core/scenario_medals.gd").new().record(model.map_id,str(model.operations.get("scenario_difficulty","normal")))
 	model.enable_runtime_rules()
 	hud.scenarios.hide()
 	passport.record(model)
@@ -252,7 +270,7 @@ func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
 func _restore_android_session() -> void:
 	var state := app_session.read_state()
 	# Preserve dormant scenario saves without opening them on normal-mode startup.
-	if state.is_empty() or not Maps.FANTASY_MAPS.has(state.map): return
+	if state.is_empty() or not Maps.MAPS.has(state.map): return
 	var slot:=SaveStore.slot_from_state(state)
 	if state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map,slot)): return
 	var prepared := await _prepare_area(state.map, true,slot)
@@ -270,15 +288,16 @@ func _restore_android_session() -> void:
 	hud.loading.hide()
 	if prepared.result.get("recovered", false): hud.toast(prepared.result.message)
 
-func enter_area(area: String) -> void:
+func enter_area(area: String, difficulty: String = "") -> void:
 	if hud.loading.visible: return
-	if not Maps.FANTASY_MAPS.has(area):
-		hud.toast(L.text("Szenarien sind in dieser Version nicht verfügbar. Deine Spielstände bleiben erhalten."))
+	if not Maps.MAPS.has(area):
+		hud.toast(L.text("Dieses Gebiet steht nicht zur Verfügung."))
 		return
 	if not passport.unlocked(area):
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
+		if area in Geo.IDS and difficulty in ["relaxed","normal","expert"]: Ops.set_scenario_difficulty(model,difficulty)
 		hud.atlas.hide()
 		hud.scenarios.hide()
 		hud.hide_menu()
@@ -292,6 +311,8 @@ func enter_area(area: String) -> void:
 		hud.toast(prepared.result.message)
 		return
 	start_game(true, area, prepared.model)
+	if area in Geo.IDS and difficulty in ["relaxed","normal","expert"]:
+		Ops.set_scenario_difficulty(model,difficulty)
 	await view.rebuild(_load_progress)
 	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
@@ -366,6 +387,7 @@ func continue_main_game() -> void:
 	else: await enter_area(area)
 
 func show_menu() -> void:
+	stop_cinematic_tour()
 	hud.experience.close()
 	_clear_input()
 	hud.show_menu()
@@ -716,6 +738,10 @@ func _clear_input() -> void:
 	_touch_dragged = false
 
 func _input(event: InputEvent) -> void:
+	if view.tour.active:
+		if event is InputEventKey and event.pressed and event.keycode in [KEY_ESCAPE,KEY_SPACE,KEY_V] or event is InputEventScreenTouch and event.pressed or event is InputEventMouseButton and event.pressed:
+			stop_cinematic_tour()
+		return
 	if event is InputEventScreenTouch:
 		_touch_event(event)
 		return
@@ -771,6 +797,10 @@ func _input(event: InputEvent) -> void:
 				hud.experience.close()
 			elif hud.winter_festival.visible:
 				hud.winter_festival.close()
+			elif hud.jukebox.visible:
+				hud.jukebox.close()
+			elif hud.medal_cabinet.visible:
+				hud.medal_cabinet.close()
 			elif hud.update_dialog.visible:
 				hud.update_dialog.hide()
 			elif hud.career_slots.visible:
@@ -799,7 +829,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.building_browser.visible and not hud.piste_workshop.visible and not hud.experience.visible and not hud.winter_festival.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
+		elif not hud.building_browser.visible and not hud.piste_workshop.visible and not hud.experience.visible and not hud.winter_festival.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -894,6 +924,12 @@ func _notification(what: int) -> void:
 		if hud.winter_festival.visible:
 			hud.winter_festival.close()
 			return
+		if hud.jukebox.visible:
+			hud.jukebox.close()
+			return
+		if hud.medal_cabinet.visible:
+			hud.medal_cabinet.close()
+			return
 		if hud.update_dialog.visible:
 			hud.update_dialog.hide()
 			return
@@ -937,6 +973,7 @@ func _suspend_application() -> void:
 	_background_speed = speed
 	_background_started = Time.get_ticks_msec()
 	_app_background = true
+	audio.set_active(false)
 	_clear_input()
 	if has_game: save_game()
 
@@ -1248,6 +1285,7 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 
 func _catalog_index(kind: String, lift: bool) -> int:
 	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+
 
 
 

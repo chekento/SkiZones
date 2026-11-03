@@ -33,19 +33,17 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der automatisch gepflegte Downloadblock oben verweist ausschließlich auf die neueste **tatsächlich veröffentlichte GitHub-Release-APK** (maßgeblich ist immer die oben genannte tatsächlich veröffentlichte Version).
 
-**APK, an der wir aktuell arbeiten: SkiZones v0.27.0 (Android ARM64, VersionCode 34)** – [Entwicklungs-Pull-Request #27](https://github.com/chekento/SkiZones/pull/27). **Noch keine freigegebene APK und kein Downloadlink**: Grafik-, Karriere-, Signatur- und Android-30/36-Prüfungen müssen erfolgreich abgeschlossen sein.
+**Nächster geplanter Release: SkiZones v0.26.0 (Android ARM64, VersionCode 33)** – [gemeinsamer Integrationszweig · PR #26](https://github.com/chekento/SkiZones/pull/26), nach vollständiger Freigabe. **Parallel in Entwicklung: v0.27.0 (Android ARM64, VersionCode 34)** – [Audio-Iteration · PR #27](https://github.com/chekento/SkiZones/pull/27). Für 0.26 und 0.27 gibt es noch **keine veröffentlichte APK**.
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
 | [**0.23.0**](https://github.com/chekento/SkiZones/releases/tag/v0.23.0) | Landschaft, Pistenmodule, Dorfkatalog, Android-Lifecycle-Korrektur | **Veröffentlicht** |
-| [**0.24.0**](https://github.com/chekento/SkiZones/pull/19) | Hotel-Mikrowelten, plastische Erfolge und Theme-Grafik | Hauptzweig · Android-Freigabeprüfung |
-| [**0.25.0**](https://github.com/chekento/SkiZones/pull/22) | Lineare Hotelmodule, traditionelle Gewerbe, jährlicher Weihnachts-/Silvestermodus | Entwicklungszweig |
-| [**0.26.0**](https://github.com/chekento/SkiZones/pull/24) | Alpine Radio, Mitarbeiterunterkunft, Rettungsfiguren, Pistenatlas und zusätzliche Assets | Entwicklungszweig |
-| [**0.27.0**](https://github.com/chekento/SkiZones/pull/27) | Nahtlose Audioübergänge und direktes Jukebox-Vorhören | **Aktuelle Arbeitsversion** |
+| [**0.24.0**](https://github.com/chekento/SkiZones/releases/tag/v0.24.0) | Hotel-Mikrowelten, plastische Erfolge und Theme-Grafik | **Veröffentlicht** |
+| [**0.25.0**](https://github.com/chekento/SkiZones/pull/22) | Lineare Hotelmodule, traditionelle Gewerbe, jährlicher Weihnachts-/Silvestermodus | In 0.26 integriert; noch keine eigene APK |
+| [**0.26.0**](https://github.com/chekento/SkiZones/tree/work/026-integrated-resort-quality) | Gemeinsames Radio, Crew, Pistenatlas, Kameratour, Szenarien, Medaillen und Dorfzeitung | **Nächster Releasekandidat; Freigabeprüfung** |
+| [**0.27.0**](https://github.com/chekento/SkiZones/pull/27) | Nahtlose Audioübergänge und direktes Jukebox-Vorhören | **Parallele Entwicklung; keine APK** |
 
 **Versionsprinzip:** Nur erfolgreich geprüfte und in [GitHub Releases](https://github.com/chekento/SkiZones/releases) tatsächlich hochgeladene APKs erscheinen als öffentlicher Download. Entwicklungszweige tragen jeweils ihre zukünftigen Spiel- und Android-Versionsnummern, sind aber keine installierbaren Veröffentlichungen. Die [vollständigen geplanten Änderungstexte](docs/releases/) sind ebenfalls keine Behauptung über veröffentlichte APKs.
-
-
 
 
 <!-- PLAY-PROTECT:START -->
@@ -56,7 +54,18 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## 0.23.0 · Mehr Landschaft, eigene Pistenmodule und freiere Dorfplanung
+## 0.26.0 · Ein gemeinsamer lebendiger Resort-Stand
+
+Der aktuelle Entwicklungsstand führt Hotel-Mikrowelten und lineare Hotelkomplexe, Winterfeste, Radio/Crew/Kartenstil sowie Szenarien/Kameratour/Medaillen/Alpen-ExtraBlatt zusammen. Die acht normalen Berge und vier Karriereplätze bleiben der wichtigste Einstieg; die vier realen Szenarien sind ein Zusatzmodus.
+
+- **Eine Jukebox:** sechs eigene Offline-Klangstile, getrennte Musik- und Umgebungsregler, Gesamtlautstärke und Stummschaltung. Vorschauen bleiben aktiv und lassen sich verwerfen. Im Hintergrund stoppt der Ton; leere Orte bekommen keine erfundenen Menschenmengen.
+- **Mehr Orientierung und Leben:** sechs Grafikstile einschließlich Pistenatlas, weitere Landschaftsobjekte, freigehaltene Mitarbeiterunterkunft und eine optionale Kameratour durch vorhandene Anlagen.
+- **Mehr Betriebs- und Urlaubsspiel:** Hotelgeschichten, benachbarte Hotelmodule, vier neue Gewerbe, jährliche Weihnachts-/Silvesterereignisse, dauerhafte Medaillen und eine Zeitung über tatsächlich erreichte Erfolge.
+- **Solide Übergänge:** sanfte Anfängerlinien um Rampen, zusammenhängende Menüs und Abbruch/Zurück-Regeln, korrekte Kamera-Rückkehr und migrationsfähige Audioeinstellungen.
+
+Suno ist noch nicht angebunden. Die Musik besteht aus kurzen originalen synthetischen Loops. Die Mitarbeiterunterkunft ist ein sichtbarer Landschaftsanker; eigene Betten- und Wohnkostenverwaltung folgt später. [Ausführliche Änderungen](docs/releases/0.26.0.md) · [Integrationsnachweis und Grenzen](docs/INTEGRATION_026.md).
+
+## Rückblick: 0.23.0 · Mehr Landschaft, eigene Pistenmodule und freiere Dorfplanung
 
 **Den Berg leichter lesen und liebevoller ausbauen:** dauerhaft einblendbare Höhenlinien, klarere Geländeschattierung, drei Baumarten und mehr Wald. Kleine Felsen, Steine, Sträucher, Stämme, Schneeverwehungen und erste Rehe, Füchse und Schneehasen beleben freie Flächen. Wege und Plätze erhalten gemeinsame, abgerundete Ränder mit kleinen Schneeböschungen.
 
@@ -712,3 +721,4 @@ godot --headless -- --smoke-test
 ## Rechte
 
 Eine eigenständige Spielwelt von **KoSch**. Fremde Spielgrafiken, Marken oder Sounds werden nicht mitgeliefert. [Godot und seine Bestandteile](https://godotengine.org/license/) sowie die Android-Werkzeuge bleiben unter den Lizenzen ihrer Anbieter. Für dieses Repository ist bislang keine zusätzliche Open-Source-Lizenz erteilt.
+
