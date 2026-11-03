@@ -77,6 +77,14 @@ func run() -> void:
 		var first := Hospitality.night_charge(model, property, guest)
 		check(first > 0 and Hospitality.night_charge(model, property, guest) == 0, "A hotel night is billed once even if arrival handling repeats")
 		guest.erase("hotel_night")
+	hotel.hotel.cleanliness = 60.0
+	var old_minute: int = model.minute
+	model.minute = 1440
+	Ops.refresh_duty(model)
+	Hospitality.daily(model)
+	check(float(hotel.hotel.cleanliness) > 60.0, "Automatic cleaning uses the real planned team even at the 24:00 closing boundary")
+	model.minute = old_minute
+	Ops.refresh_duty(model)
 	var offer := Hospitality.weekly_offer(model)
 	model.operations.weekly_enabled = true
 	model.report.guests = 800

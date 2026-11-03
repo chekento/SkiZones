@@ -144,7 +144,10 @@ static func daily(model: RefCounted) -> void:
 		if int(settings.last_review_day) >= int(model.day): continue
 		var used: int = model.Lodging.rooms_used(model, int(building.id))
 		var ratio: float = float(used) / maxi(1, model.Lodging.room_count(building))
-		settings.cleanliness = clampf(float(settings.cleanliness) - ratio * 16.0 + (22.0 if settings.auto_clean and model.Ops.building_staffed(model, building) else 0.0), 0, 100)
+		# The closing clock is 1440 until Ops.midnight normalises it.
+		# Use the planned daily team here; on-duty queries at 24:00 are empty.
+		var cleaning_team: bool = not model.Ops.active(model) or model.Ops.building_team(model, building).all(func(row): return int(row.missing) == 0)
+		settings.cleanliness = clampf(float(settings.cleanliness) - ratio * 16.0 + (22.0 if settings.auto_clean and cleaning_team else 0.0), 0, 100)
 		if used > 0:
 			var value: float = clampf(2.2 + int(settings.comfort) * 0.32 + float(settings.cleanliness) * 0.015 + (0.2 if settings.breakfast else 0.0) - maxf(0, room_price(model, building) / float(Catalog.LODGING[building.kind].price) - 1.25) * 0.8, 1, 5)
 			settings.rating = snappedf(lerpf(float(settings.rating), value, 0.2), 0.01)
