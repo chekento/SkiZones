@@ -21,6 +21,7 @@ const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const Hospitality = preload("res://src/core/hospitality.gd")
 const Lodging = preload("res://src/core/guest_lodging.gd")
 const PisteLinks = preload("res://src/core/piste_links.gd")
 var _piste_links: RefCounted
@@ -1281,7 +1282,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
 		var utility := Needs.utility(guest,building.kind)
-		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","pool","spa"]
+		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
 		if building.kind == "hotel" and guest.agenda.kind == "collector" and Ops.continuous(self) and (minute >= 1020 or minute < 420) and guest.stay - guest.age > 600: utility += 100
@@ -1294,7 +1295,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
-		var visit_minutes: float = maxf(480.0, 1920.0 - minute)*time_divisor if Ops.continuous(self) and building.kind == "hotel" else Needs.SERVICES[building.kind].minutes
+		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
 			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
@@ -1397,7 +1398,7 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	guest.ticket_paid=ticket_price*count;guest.spending=float(guest.ticket_paid)
 	# Only admitted guests with an actual vacant, reachable resort hotel
 	# become multi-night visitors; day visitors still leave as before.
-	if map_id in Geo.IDS: Lodging.assign(self, guest)
+	if Ops.continuous(self): Lodging.assign(self, guest)
 	var route := choose_route(guest)
 	if route.is_empty():
 		return false
@@ -1405,13 +1406,14 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	guest_id += 1
 	guests.append(guest)
 	_start_leg(guest)
-	money += ticket_price * count
-	report.tickets += ticket_price * count
+	var ticket_revenue: float = Hospitality.ticket_sale(self, guest)
+	money += ticket_revenue
+	report.tickets += ticket_revenue
 	report.guests += count
 	total_guests += count
 	audience.segments[guest.agenda.kind].visitors += count
-	audience.segments[guest.agenda.kind].tickets += ticket_price * count
-	Progression.on_admission(self, skill, ticket_price * count)
+	audience.segments[guest.agenda.kind].tickets += ticket_revenue
+	Progression.on_admission(self, skill, ticket_revenue)
 	if party_mode and guest.has("family"):Parties.expand(self,guest)
 	for person in guests:
 		if int(person.id)==int(guest.id) or int(person.get("party_id",0))==int(guest.id):Access.arrive(self,person)
@@ -1474,8 +1476,8 @@ func _finish_leg(guest: Dictionary) -> void:
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
-			var base_revenue: float = float(operations.room_price) if Ops.active(self) and building.kind == "hotel" else Catalog.BUILDINGS[building.kind].income
-			var revenue: float = base_revenue * (Lodging.billable_rooms(self, guest) if Ops.active(self) and building.kind == "hotel" else int(guest.get("group_size", 1))) * (1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0)
+			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
+			var revenue: float = base_revenue * (1.0 if Hospitality.lodging(str(building.kind)) else 1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
@@ -1928,6 +1930,7 @@ func operating_costs(include_staff: bool = true) -> float:
 		amount += Catalog.LIFTS[lift.kind].upkeep * (1.0 if lift.enabled else 0.25) * (1.0 + 0.18 * (lift.get("level", 1) - 1))
 	for building in buildings:
 		amount += Catalog.BUILDINGS[building.kind].upkeep * (1.0 if building.enabled else 0.2) * (1.0 + 0.2 * (building.get("level", 1) - 1))
+		amount += Hospitality.extra_upkeep(building)
 	for piste in pistes:
 		amount += piste.length * (0.4 if piste.enabled else 0.08) * float(piste.get("width", 20)) / 20
 	var staff_cost := 0.0
@@ -2379,6 +2382,7 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				for field in ["daily_revenue", "last_day_revenue", "last_day_cost"]:
 					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
 				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
+				if not Hospitality.valid_building(item): return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
 				# These are optional ledger fields. Preserve their absence when
@@ -2456,7 +2460,8 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 		if visitor.has("traffic_lateral") and (not Terrain.number(visitor.traffic_lateral) or absf(visitor.traffic_lateral) > 24.0): return invalid
 		if visitor.has("lodging_id"):
 			if not Terrain.number(visitor.lodging_id) or visitor.lodging_id != floorf(visitor.lodging_id) or int(visitor.lodging_id) <= 0: return invalid
-			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and b.kind == "hotel"): return invalid
+			if not data.buildings.any(func(b): return int(b.id) == int(visitor.lodging_id) and Hospitality.lodging(str(b.kind))): return invalid
+		if not Hospitality.valid_ticket(visitor): return invalid
 		if visitor.has("hotel_night") and not visitor.hotel_night is bool: return invalid
 		if visitor.has("hotel_sleep_until") and (not Terrain.number(visitor.hotel_sleep_until) or visitor.hotel_sleep_until < 0 or visitor.hotel_sleep_until > 150000000): return invalid
 		if visitor.get("waiting_reason", "") == "hotel" and (visitor.phase != "waiting" or not visitor.has("lodging_id") or not visitor.has("hotel_sleep_until")): return invalid
@@ -2631,4 +2636,5 @@ func snap_lift_station(point: Vector2, kind: String, radius: float = 24, ignore_
 		var distance: float = point.distance_to(anchor.point)
 		if distance < radius: radius = distance; result = anchor
 	return result
+
 

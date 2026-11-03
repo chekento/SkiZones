@@ -14,6 +14,12 @@ const SERVICES := {
 	"viewpoint": {"hunger":0,"warmth":0,"energy":35,"joy":55,"minutes":10,"places":12},
 	"spa": {"hunger":0,"warmth":75,"energy":70,"joy":45,"minutes":25,"places":14},
 	"hotel": {"hunger":35,"warmth":65,"energy":60,"joy":30,"minutes":24,"places":24},
+	"cabin":{"hunger":0,"warmth":65,"energy":70,"joy":25,"minutes":16,"places":4},
+	"apartment":{"hunger":15,"warmth":65,"energy":70,"joy":30,"minutes":18,"places":8},
+	"chalet":{"hunger":25,"warmth":70,"energy":75,"joy":40,"minutes":20,"places":12},
+	"guesthouse":{"hunger":35,"warmth":65,"energy":65,"joy":30,"minutes":22,"places":20},
+	"grand_hotel":{"hunger":45,"warmth":75,"energy":80,"joy":45,"minutes":24,"places":48},
+	"bar":{"hunger":10,"warmth":45,"energy":8,"joy":70,"minutes":30,"places":20},
 	"rental": {"hunger":0,"warmth":0,"energy":0,"joy":5,"minutes":9,"places":10},
 	"school": {"hunger":0,"warmth":0,"energy":0,"joy":30,"minutes":22,"places":10},
 	"first_aid": {"hunger":0,"warmth":35,"energy":55,"joy":10,"minutes":12,"places":6},
@@ -120,3 +126,4 @@ static func complete(guest: Dictionary, kind: String) -> void:
 	aggregate_family(guest)
 	guest.service_history[kind]=guest.age
 	guest.spent=true
+

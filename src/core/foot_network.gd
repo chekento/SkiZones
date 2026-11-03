@@ -40,6 +40,8 @@ static func building_size(building: Dictionary) -> Vector2:
 
 static func base_building_size(building: Dictionary) -> Vector2:
 	if building.kind == "pool": return Vector2(32, 42)
+	if building.kind == "cabin": return Vector2(16, 14)
+	if building.kind == "grand_hotel": return Vector2(44, 32)
 	return Vector2(35, 28) if building.kind == "hotel" else (Vector2(29, 24) if building.kind in ["maintenance", "repair_office"] else Vector2(22, 18))
 
 static func door(building: Dictionary) -> Vector2:
@@ -550,4 +552,5 @@ static func clear_piste(points: Array, lifts: Array, half_width: float = 10) -> 
 				if Vector2(longitudinal, lateral).length() < machine_radius(lift):
 					return false
 	return true
+
 

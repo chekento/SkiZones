@@ -19,26 +19,41 @@ const LIFTS := {
 }
 
 const BUILDINGS := {
-	"cocoa": {"name":"Kakaoladen","cost":11500,"upkeep":90,"income":4.0,"appeal":5,"color":"a3775e","description":"Heiße Schokolade wärmt kalte Gäste. Ein günstiger Einstieg mit kurzen Pausen und Gastronomiepersonal."},
-	"schmarrn": {"name":"Kaiserschmarrn-Laden","cost":17500,"upkeep":155,"income":6.0,"appeal":7,"color":"d9ab62","description":"Warmer Kaiserschmarrn stillt den Hunger und bietet Familien Platz für eine gemeinsame Pause."},
-	"pizzeria": {"name":"Pizzeria","cost":26500,"upkeep":240,"income":8.0,"appeal":8,"color":"b9694e","description":"Sättigende Pizza und längere Mittagspausen. Benötigt Gastronomiepersonal und einen erreichbaren Eingang."},
+	"cocoa": {"name":"Kakaoladen","cost":11500,"upkeep":90,"income":6.0,"appeal":5,"color":"a3775e","description":"Heiße Schokolade wärmt kalte Gäste. Ein günstiger Einstieg mit kurzen Pausen und Gastronomiepersonal."},
+	"schmarrn": {"name":"Kaiserschmarrn-Laden","cost":17500,"upkeep":155,"income":9.0,"appeal":7,"color":"d9ab62","description":"Warmer Kaiserschmarrn stillt den Hunger und bietet Familien Platz für eine gemeinsame Pause."},
+	"pizzeria": {"name":"Pizzeria","cost":26500,"upkeep":240,"income":15.0,"appeal":8,"color":"b9694e","description":"Sättigende Pizza und längere Mittagspausen. Benötigt Gastronomiepersonal und einen erreichbaren Eingang."},
 	"repair_office": {"name": "Technik- und Reparaturzentrale", "cost": 38000, "upkeep": 180, "income": 0.0, "appeal": 0, "color": "6f99a5", "description": "Techniker und Elektriker einstellen, Ersatzteile bestellen und defekte Lifte reparieren."},
 	"disco": {"name": "Après-Ski & Disco", "cost": 68000, "upkeep": 460, "income": 22.0, "appeal": 14, "color": "b785ba", "description": "Abendbetrieb von 18 bis 06 Uhr. Benötigt Gastronomiepersonal und Sicherheit."},
 	"pool": {"name": "Beheizter Außenpool", "cost": 85000, "upkeep": 650, "income": 18.0, "appeal": 18, "color": "70bfc7", "description": "Erholung von 10 bis 23 Uhr mit Energiebedarf und Personal für Service und Sicherheit."},
-	"kiosk": {"name": "Punschstand", "cost": 9500, "upkeep": 85, "income": 3.0, "appeal": 4, "color": "b96c4e", "description": "Eine kleine warme Pause: günstiger Einstieg in die Verpflegung mit zusätzlichen Serviceerlösen."},
+	"kiosk": {"name": "Punschstand", "cost": 9500, "upkeep": 85, "income": 5.0, "appeal": 4, "color": "b96c4e", "description": "Eine kleine warme Pause: günstiger Einstieg in die Verpflegung mit zusätzlichen Serviceerlösen."},
 	"viewpoint": {"name": "Panoramaterrasse", "cost": 14000, "upkeep": 90, "income": 0.0, "appeal": 10, "color": "739a9d", "description": "Sitzplätze und Fernrohr für den Gipfelblick. Erhöht den Komfort nahe einer Station."},
 	"shelter": {"name": "Wärmeunterstand", "cost": 12500, "upkeep": 70, "income": 0.0, "appeal": 6, "color": "a6a17b", "description": "Eine geschützte Pause im Holzunterstand verbessert den Komfort ohne große Betriebskosten."},
 	"snowpark": {"name": "Snowpark", "cost": 45000, "upkeep": 370, "income": 2.0, "appeal": 14, "color": "c98a59", "description": "Ein Freizeitangebot mit Rails und kleinen Schneekickern. Verbessert Komfort und Serviceerlöse; benötigt Schneemanagement."},
 	"spa": {"name": "Alpen-Spa", "cost": 65000, "upkeep": 600, "income": 8.0, "appeal": 12, "color": "7babb3", "description": "Wellness mit Außenbecken ergänzt das Hotelangebot. Erhöht Komfort und Serviceerlöse; benötigt Alpine Hotellerie."},
 	"bus": {"name": "Skibus-Terminal", "cost": 30000, "upkeep": 220, "income": 0.0, "appeal": 8, "color": "649dad", "description": "Mehr Nachfrage durch bessere Anbindung. Nur im Tal bauen; ein Terminal genügt für den Nachfragebonus."},
 	"lodge": {"name": "Berghütte", "cost": 18500, "upkeep": 180, "income": 0.0, "appeal": 7, "color": "cf8e63", "description": "Ruhe und Wärme erhöhen die Zufriedenheit. Im Tal oder nahe einer Station bauen."},
-	"restaurant": {"name": "Restaurant", "cost": 32000, "upkeep": 300, "income": 7.0, "appeal": 6, "color": "c36a56", "description": "Verpflegt Gäste nach einer Skirunde; zusätzliche Einnahmen."},
-	"rental": {"name": "Skiverleih", "cost": 22000, "upkeep": 150, "income": 5.0, "appeal": 4, "color": "dfb66c", "description": "Zusätzliche Einnahmen und ein attraktiver Einstieg für Tagesgäste."},
-	"school": {"name": "Skischule", "cost": 28000, "upkeep": 220, "income": 4.0, "appeal": 9, "color": "58aeb0", "description": "Mehr Komfort und zusätzliche Serviceerlöse. Gut erreichbare blaue Pisten bleiben notwendig."},
+	"restaurant": {"name": "Restaurant", "cost": 32000, "upkeep": 300, "income": 13.0, "appeal": 6, "color": "c36a56", "description": "Verpflegt Gäste nach einer Skirunde; zusätzliche Einnahmen."},
+	"rental": {"name": "Skiverleih", "cost": 22000, "upkeep": 150, "income": 8.0, "appeal": 4, "color": "dfb66c", "description": "Zusätzliche Einnahmen und ein attraktiver Einstieg für Tagesgäste."},
+	"school": {"name": "Skischule", "cost": 28000, "upkeep": 220, "income": 8.0, "appeal": 9, "color": "58aeb0", "description": "Mehr Komfort und zusätzliche Serviceerlöse. Gut erreichbare blaue Pisten bleiben notwendig."},
 	"snowmaker": {"name": "Beschneiung", "cost": 26000, "upkeep": 340, "income": 0.0, "appeal": 1, "color": "8baac4", "description": "Verbessert die Schneelage bei Temperaturen bis −1 °C. Die Pistenmitte muss innerhalb von 150 m liegen."},
 	"maintenance": {"name": "Pistenraupengarage", "cost": 48000, "upkeep": 440, "income": 0.0, "appeal": 2, "color": "e6a650", "description": "Verbessert die nächtliche Präparierung des gesamten Resorts."},
 	"hotel": {"name": "Berghotel", "cost": 95000, "upkeep": 750, "income": 11.0, "appeal": 16, "color": "b2bcc2", "description": "Mehr Nachfrage und eine ausgiebige Pause mit Verpflegung, Wärme und Erholung. Erlöse entstehen nach dem Besuch."},
+	"cabin":{"name":"Ferienhütte", "cost":12500, "upkeep":45, "income":0.0, "appeal":5, "color":"b98c64", "description":"Zwei gemütliche Ferienzimmer mit Selbst-Check-in. Ein günstiger Einstieg in mehrtägigen Skiurlaub."},
+	"apartment":{"name":"Ferienapartments", "cost":28000, "upkeep":95, "income":0.0, "appeal":8, "color":"96adbb", "description":"Vier Ferienwohnungen mit Selbst-Check-in für einen längeren Aufenthalt im Dorf."},
+	"chalet":{"name":"Alpenchalet", "cost":52000, "upkeep":210, "income":0.0, "appeal":12, "color":"bd9c79", "description":"Sechs hochwertige Ferienzimmer mit Selbst-Check-in, Komfortausbau und eigenem Preis."},
+	"guesthouse":{"name":"Alpenpension", "cost":46000, "upkeep":180, "income":6.0, "appeal":11, "color":"d3b681", "description":"Zehn Gästezimmer mit Rezeption und Frühstück. Benötigt Hotelpersonal in allen Schichten."},
+	"grand_hotel":{"name":"Grandhotel", "cost":195000, "upkeep":1250, "income":18.0, "appeal":25, "color":"a3b8cd", "description":"48 Zimmer mit umfassender Verwaltung, Familienangebot, Premiumzimmern und Hotelketten."},
+	"bar":{"name":"Alpenbar", "cost":23500, "upkeep":160, "income":12.0, "appeal":9, "color":"a67a98", "description":"Abendliche Getränke, ein eigenes Ausschankspiel und zusätzliche Umsätze nach dem Skitag."},
 	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."}
+}
+
+const LODGING := {
+	"cabin":{"rooms":2, "price":72},
+	"apartment":{"rooms":4, "price":95},
+	"chalet":{"rooms":6, "price":145},
+	"guesthouse":{"rooms":10, "price":110},
+	"hotel":{"rooms":24, "price":140},
+	"grand_hotel":{"rooms":48, "price":210}
 }
 
 const WEATHER := [
@@ -51,6 +66,7 @@ const WEATHER := [
 
 const FOOD_KINDS = ["kiosk", "cocoa", "schmarrn", "pizzeria", "restaurant", "lodge", "hotel"]
 static func building_group(kind: String) -> String:
+	if LODGING.has(kind): return "Unterkünfte & Hotels"
 	if kind in FOOD_KINDS or kind == "shelter": return "Verpflegung & Wärme"
 	if kind in ["repair_office", "maintenance", "snowmaker", "first_aid"]: return "Betrieb & Sicherheit"
 	if kind in ["rental", "school", "bus"]: return "Service & Anreise"
@@ -59,3 +75,4 @@ static func building_order() -> Array:
 	var result := BUILDINGS.keys()
 	result.sort_custom(func(a, b): return BUILDINGS[a].cost < BUILDINGS[b].cost if BUILDINGS[a].cost != BUILDINGS[b].cost else a < b)
 	return result
+

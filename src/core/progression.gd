@@ -84,7 +84,7 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:
-		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality"}.get(kind, "")
+		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality"}.get(kind, "")
 	return L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name) if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
@@ -426,3 +426,4 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 				return false
 	model.campaign = state
 	return true
+

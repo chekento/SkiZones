@@ -299,11 +299,11 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		return snow_cannon(level)
 	if kind in ["viewpoint", "shelter", "snowpark", "bus", "kiosk"]:
 		return amenity(kind, accent)
-	var big := kind == "hotel"
+	var big := kind in ["hotel", "grand_hotel", "guesthouse"]
 	var wide := kind in ["maintenance", "repair_office"]
-	var width := 35.0 if big else (29.0 if wide else 22.0)
-	var depth := 28.0 if big else (24.0 if wide else 18.0)
-	var floors := 2 + int(level >= 2) if big else 1 + int(level == 3)
+	var width := 44.0 if kind == "grand_hotel" else 16.0 if kind == "cabin" else 35.0 if kind == "hotel" else 29.0 if wide else 22.0
+	var depth := 32.0 if kind == "grand_hotel" else 14.0 if kind == "cabin" else 28.0 if kind == "hotel" else 24.0 if wide else 18.0
+	var floors := 3 + int(level >= 2) if kind == "grand_hotel" else 2 + int(level >= 2) if big else 1 + int(level == 3)
 	var height_value := floors * 8.0 + 3.0
 	soft_box(Vector3(0, 1, 0), Vector3(width + 3, 2, depth + 3), Color("c9c5c1"),Vector3.ZERO,0.6)
 	soft_box(Vector3(0, height_value / 2 + 1, 0),Vector3(width,height_value,depth),Color("e5cdb0") if big else Color("c79e7e"),Vector3.ZERO,0.65)
@@ -645,3 +645,4 @@ func groomer() -> ArrayMesh:
 	box(Vector3(0, 1.2, -4), Vector3(8, 0.7, 1.6), Color("486773"))
 	sphere(Vector3(0, 5.1, 1), 0.4, Color("f3bb60"))
 	return finish()
+

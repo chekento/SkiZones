@@ -79,6 +79,18 @@ static func admit_evening(model: RefCounted) -> bool:
 		guest.stay=maxi(60,posmod(360-model.minute,1440))
 		guest.needs.energy=65.0
 	var route: Dictionary = model.service_route(guest)
+	# A guest requesting a hotel at night reserves real capacity and sleeps
+	# on a connected route, rather than consuming an unreserved long visit.
+	if route.get("legs", []).any(func(leg): return leg.kind == "visit" and model.Hospitality.lodging(str(model.asset(int(leg.id)).get("kind", "")))):
+		guest.evening = false
+		var assigned: bool = model.Lodging.assign(model, guest)
+		guest.evening = true
+		if assigned:
+			route = model.Lodging.night_route(model, guest, "base")
+			guest.hotel_night = true
+			guest.heading_home = true
+		else:
+			return false
 	if route.is_empty(): return false
 	guest.route = route
 	model.guests.append(guest)
@@ -243,16 +255,17 @@ static func building_roles(kind: String) -> Array:
 		"first_aid": return ["rescue", "rescue"]
 		"maintenance": return ["driver"]
 		"snowmaker": return ["snow"]
-		"hotel": return ["hotel", "hotel", "security"]
-		"disco": return ["catering", "security"]
+		"hotel", "grand_hotel": return ["hotel", "hotel", "security"]
+		"guesthouse": return ["hotel"]
+		"disco", "bar": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
 		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
 		"rental", "school": return ["hotel"]
 	return []
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
-	var shifts: Array = ["day", "evening", "night"] if kind == "hotel" else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "maintenance"] else ["day"])
-	if model.time_divisor > 1 and kind in ["disco", "pool", "spa"] and not shifts.has("night"): shifts.append("night")
+	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
+	if model.time_divisor > 1 and kind in ["disco", "bar", "pool", "spa"] and not shifts.has("night"): shifts.append("night")
 	return shifts
 
 static func building_team(model: RefCounted, building: Dictionary) -> Array:
@@ -288,7 +301,7 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
 	if not building.enabled or not building_staffed(model, building): return false
 	if not continuous(model): return true
-	if building.kind == "disco": return model.minute >= 1080 or model.minute < (360 if model.time_divisor>1 else 120)
+	if building.kind in ["disco", "bar"]: return model.minute >= 1080 or model.minute < (360 if model.time_divisor>1 else 120)
 	if building.kind in ["pool", "spa"]:
 		return (model.minute>=600 or model.minute<480) if model.time_divisor>1 else model.minute>=600 and model.minute<1380
 	return true
@@ -442,7 +455,7 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 	var upkeep: float = float(structure.get("upkeep", 0.0)) * (1.0 if building.enabled else 0.2)
 	upkeep *= 1.0 + 0.2 * (int(building.get("level", 1)) - 1)
 	# All owned buildings also contribute a 35 €/day basic site expense.
-	upkeep += 35.0
+	upkeep += 35.0 + model.Hospitality.extra_upkeep(building)
 	var efficiency: float = 0.85 if Progression.has(model, "efficient_snow") else 1.0
 	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
 	var costs := wages + overhead
@@ -608,6 +621,7 @@ static func tick(model: RefCounted) -> void:
 	if continuous(model) and model.minute >= 1440: midnight(model)
 
 static func midnight(model: RefCounted) -> void:
+	model.Hospitality.daily(model)
 	Progression.finish_day(model)
 	model.report.closed_at = 1440
 	model.last_report = model.report.duplicate(true)
@@ -686,6 +700,8 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		if defaults[key] is int or defaults[key] is float:
 			if not Terrain.number(state[key]) or absf(state[key]) > 1000000000 or state[key] < (-1 if key == "delivery_at" else 0): return false
 			if defaults[key] is int and state[key] != floorf(state[key]): return false
+	if state.has("weekly_enabled") and not state.weekly_enabled is bool: return false
+	if state.has("weekly_discount") and (not Terrain.number(state.weekly_discount) or state.weekly_discount < 5 or state.weekly_discount > 20 or state.weekly_discount != floorf(state.weekly_discount)): return false
 	if state.parts > 10000 or state.room_price < 40 or state.room_price > 250: return false
 	if state.scenario != "" and state.scenario not in Geo.IDS: return false
 	if state.staff.size() > 1200 or state.vehicles.size() > 24 or state.repairs.size() > 160 or state.incidents.size() > 100 or state.history.size() > 28: return false
@@ -768,3 +784,4 @@ static func fill_line(model: RefCounted, id: int) -> Dictionary:
 	if model.operations.staff.size()+missing > 1200 or model.money < missing*180: return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
 	for row in rows: fill_line_station(model,id,row.key)
 	return model._result(true,L.text("Alle Stationen dieses Liftverbunds sind eingeplant."))
+

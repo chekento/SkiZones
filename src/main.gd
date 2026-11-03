@@ -161,7 +161,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.experience.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted = null) -> void:
 	if not Maps.FANTASY_MAPS.has(area):
@@ -363,6 +363,7 @@ func continue_main_game() -> void:
 	else: await enter_area(area)
 
 func show_menu() -> void:
+	hud.experience.close()
 	_clear_input()
 	hud.show_menu()
 
@@ -759,7 +760,9 @@ func _input(event: InputEvent) -> void:
 		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.update_dialog.visible:
+			if hud.experience.visible:
+				hud.experience.close()
+			elif hud.update_dialog.visible:
 				hud.update_dialog.hide()
 			elif hud.career_slots.visible:
 				hud.career_slots.hide()
@@ -870,6 +873,9 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.experience.visible:
+			hud.experience.close()
+			return
 		if hud.update_dialog.visible:
 			hud.update_dialog.hide()
 			return
@@ -1224,4 +1230,5 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 
 func _catalog_index(kind: String, lift: bool) -> int:
 	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+
 

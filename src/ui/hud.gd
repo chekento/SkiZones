@@ -5,6 +5,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const GuestProfile = preload("res://src/core/guest_profile.gd")
 const GuestFace = preload("res://src/ui/guest_face.gd")
+const BuildingExperience = preload("res://src/ui/building_experience.gd")
 const AssetEditor = preload("res://src/ui/asset_editor.gd")
 const DisplayOptions = preload("res://src/ui/display_options.gd")
 const Terrain = preload("res://src/core/terrain.gd")
@@ -113,6 +114,7 @@ var atlas := Atlas.new()
 var palette := Palette.new()
 var selected_guest := -1
 var guest_face := GuestFace.new()
+var experience := BuildingExperience.new()
 var asset_editor := AssetEditor.new()
 var display_options := DisplayOptions.new()
 var design_button: Button
@@ -189,6 +191,8 @@ func setup(controller: Node) -> void:
 	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
+	root.add_child(experience)
+	experience.setup(self)
 	root.add_child(asset_editor)
 	asset_editor.setup(self)
 	root.add_child(display_options)
@@ -801,7 +805,7 @@ func hide_menu() -> void:
 	_apply_panel_visibility()
 
 func blocks_map(point: Vector2) -> bool:
-	if update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if experience.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -864,6 +868,8 @@ func show_context(tool: String, id: int = -1) -> void:
 		inspector_title.text = L.asset_name(item)
 		if item.has("difficulty"):
 			_button(inspector_actions, L.text("Pistenpunkte bearbeiten"), func(): game.begin_edit(id, item.name, item.get("color", ""), 0, item.get("width", 20)), true)
+		if Catalog.BUILDINGS.has(item.get("kind", "")):
+			_button(inspector_actions, L.text("Gebäude betreten · Spielen & Verwalten"), func(): experience.open(id), true)
 		_button(inspector_actions, L.text("Gestalten & umplanen"), func(): asset_editor.open(id), true)
 		_button(inspector_actions, L.text("Schließen") if item.get("enabled", false) else L.text("Öffnen"), func(): game.toggle_asset(id))
 		_button(inspector_actions, L.text("Abbauen · 25 % Erstattung"), func(): game.demolish_asset(id))
@@ -1187,4 +1193,5 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 
