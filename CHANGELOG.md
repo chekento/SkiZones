@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **29 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **30 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.26.0](https://github.com/chekento/SkiZones/releases/tag/v0.26.0)** | 03.11.2026 | Alpine Radio, Crewleben und illustrierter Pistenatlas | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk) | [Details](docs/releases/0.26.0.md) |
 | **[v0.25.0](https://github.com/chekento/SkiZones/releases/tag/v0.25.0)** | 03.11.2026 | Lineare Hotelmodule und wiederkehrende Winterfeste | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk) | [Details](docs/releases/0.25.0.md) |
 | **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
 | **[v0.23.0](https://github.com/chekento/SkiZones/releases/tag/v0.23.0)** | 03.11.2026 | Landschaft, Pistenwerkstatt und freiere Dorfplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk) | [Details](docs/releases/0.23.0.md) |
@@ -39,6 +40,43 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.26.0 · Alpine Radio, Crewleben und illustrierter Pistenatlas (03.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.26.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk)** (44.6 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.26.0/manifest.json) · [Originalnotizen](docs/releases/0.26.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.26.0)
+
+**Versionierte Android-Preview – Veröffentlichung erst nach GitHub-Freigabetests.**
+
+### Änderungen gegenüber der veröffentlichten 0.24.0
+
+Die bisher unveröffentlichten Erweiterungen aus 0.25 und 0.26 werden gemeinsam ausgeliefert.
+- **Alpine Radio**: eigene, offline in Godot erzeugte kurze musikalische Klangschleifen in Alpenfolk, Techno, Hip-Hop, Punk, Klassik und Meditativ sowie Ausschalten; gespeicherte Musik- und Ambient-Lautstärken und eine Jukebox-Oberfläche.
+- **Ortsabhängige Geräuschkulisse**: Kamerafokus passt die Gewichtung von Wind, NPC-artigem Gemurmel und Technikgeräuschen je nach Piste, Lift, Dorf, Hotel, Restaurant, Disco, Spa, Werkstatt und Rettungsbereich an.
+- **Crewleben**: stilabhängige Mitarbeiterunterkunft als visueller Kartenbestandteil, sichtbare Mitarbeiterfiguren auf vorhandenen Arbeitswegen, Schichtwechsel aus dem echten Personalplan und erste sichtbare Rettungseinsätze.
+- **Pistenatlas**: sechster wählbarer Grafikstil mit reliefartiger Skikartenperspektive, Druckfarben, Höhenlinien und eigener kartografischer Baumgeometrie. Im Comic-Modus sind gelegentliche Split-Bildrahmen, im Film-Modus leichte Letterbox-Effekte vorgesehen.
+- **Asset-Vertiefung**: zwölf weitere prozedurale Modelle für Schneezäune, Schilder, Bänke, Steinmännchen, Holzstapel, Flora und andere kleine Landschaftsdetails.
+- **Suno-Schnittstelle**: Prüf- und Anfragevorbereitung. Die APK nutzt noch **keine Suno-API**, kein SoundCloud-Radio und keine ungeklärte Fremdmusik.
+
+### Zusammenführung und Bedienung
+
+- Die Erweiterungen aus 0.23, 0.24 und 0.25 sind enthalten: Pistenmodule, Dorfkatalog, Hotelgeschichten und Hotelkomplexe, alpine Gewerbe und jährliche Winterfeste.
+- Die optionalen realen Szenarien stehen wieder unterhalb des Hauptspiels zur Auswahl. Drei Betriebsintensitäten und die importierte Pistenabdeckung werden angezeigt; die Szenarien behalten eigene Spielstandpfade.
+- Die filmische Kameratour besucht tatsächliche Anlagen. Die Bewegung bleibt beim Wechsel der Stationen stetig; Zurück stellt die vorherige Kamera wieder her.
+- Jahresmedaillen und Szenariomedaillen werden in einem separaten Archiv gesammelt. Druckerei und Zeitungsstand veröffentlichen die letzten fünf tatsächlich verdienten Achievements und verbuchen echte Gästeverkäufe.
+- Es gibt einen gemeinsamen Audiomixer mit Gesamtlautstärke und Stummschaltung. Eine ungespeicherte Jukebox-Vorschau hält bis zum Speichern oder Abbrechen. Im Hintergrund stoppt der Ton, beim Zurückkehren wird er sanft eingeblendet. Leere Orte erzeugen kein künstliches Besuchergewimmel.
+- Mitarbeiterunterkunft, Bäume und zusätzliche Landschaftsobjekte teilen automatisch freigehaltene Flächen. Rettungsdarstellungen folgen der tatsächlichen Reaktionsdauer. Anfänger fahren stetig um Pistenmodule herum.
+- Sämtliche gemeinsamen Menüs sind auf gegenseitige Eingabesperren, Pause/Zurück, deutsche und englische Texte und Speicherkompatibilität geprüft. Die zusätzlichen Integrationsprüfungen sind in der vollständigen Android-Freigabepipeline enthalten.
+- Zusammengesetzte Namen wie die Radio-Stile, Winterdekorationen und Medaillen sind vollständig übersetzt. Die automatische Übersetzungsprüfung erkennt jetzt auch Wörter mit Bindestrichen. Der Gebäudekatalog prüft alle neuen Betriebe und behält die aufsteigende Preissortierung bei.
+- Ein geöffnet gebliebener Adventskalender schaltet neue Tage um Mitternacht frei. Der Silvesterknopf verwendet dieselbe Zeitregel wie die Belohnung (23:55 bis 01:00 Uhr) und sperrt abgelaufene oder bereits abgeholte Feiern. Türchen-, Deko- und Hotelmodul-Bestätigungen folgen der gewählten Sprache.
+
+[Integrationsnachweis und technische Grenzen](docs/INTEGRATION_026.md)
+
+### Grenzen und weitere Entwicklung
+Dies ist die erste funktionale Ausbaustufe: Die kurzen Eigen-Synthesizer-Loops ersetzen noch keine hochwertigen vollständigen Lieder. Mitarbeiterbetten, Schlaf- und Wohnkosten sowie komplett navigierende Rettungsfahrzeuge sind noch nicht fertig. Die PC-/Android-Grafikprüfung soll sechs Stile und alle alten Speicherstände erhalten.
+
+**APK-Dateiname nach erfolgreicher Freigabe:** `SkiZones-0.26.0-android-arm64.apk`. Nicht vor einer erfolgreichen Veröffentlichung von `v0.26.0` als Download anbieten.
+
+---
 
 ## v0.25.0 · Lineare Hotelmodule und wiederkehrende Winterfeste (03.11.2026)
 
