@@ -4,6 +4,7 @@ extends SceneTree
 const Terrain = preload("res://src/core/terrain.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
+const Calendar = preload("res://src/core/annual_festival.gd")
 var passed := 0
 var failed := 0
 
@@ -41,6 +42,10 @@ func run() -> void:
 	game.view.zoom=265
 	game.view._update_camera()
 	var festive=game.view.festival_scene
+	festive.store.path="user://winter25_render_test.cfg"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(festive.store.path))
+	check(festive.store.claim(6,{"year":2026,"month":12,"day":6}).ok,"Visual fixture earns winter coins for a purchasable countdown sign")
+	check(festive.store.buy_decoration("clock").ok,"Visual fixture actually buys a countdown board before displaying it")
 	festive.qa_date_override={"year":2026,"month":12,"day":24,"hour":16,"minute":0,"second":0}
 	for style_id in VisualStyles.IDS:
 		game.view.set_visual_style(style_id)
@@ -56,6 +61,7 @@ func run() -> void:
 	festive.qa_date_override={"year":2027,"month":1,"day":2,"hour":13,"minute":0,"second":0}
 	festive.build(game.view)
 	check(festive.root.get_child_count()==0,"All event-only decor automatically retires after January 1")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(festive.store.path))
 	game.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
