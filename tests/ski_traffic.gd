@@ -26,16 +26,22 @@ func skier(id: int, elapsed: float, phase: String = "moving") -> Dictionary:
 
 func run() -> void:
 	var model := FakeResort.new()
-	check(Traffic.lane_count(model.piste) == 3, "Wide piste provides three distinct passing lanes")
+	check(Traffic.lane_count(model.piste) == 4, "A normal piste supports four physical ski lanes instead of a three-lane traffic jam")
+	model.piste.width = 30.0
+	check(Traffic.lane_count(model.piste) == 6, "Wide upgraded ski runs offer six safe independent ski lanes")
+	model.piste.width = 21.0
 	var leader := skier(0, 21.0)
-	var following := skier(3, 20.0)
+	var following := skier(4, 20.0)
 	model.guests = [leader, following]
 	var p: Dictionary = Traffic.steps(model)
-	check(p.has(0) and p.has(3), "Both skiers receive deterministic progress")
-	check(p[3] > 0.9, "Behind a slower skier, following skier overtakes rather than waiting")
+	check(p.has(0) and p.has(4), "Both skiers receive deterministic progress")
+	check(p[4] > 0.9, "Behind a slower skier, following skier overtakes rather than waiting")
 	check(int(leader.traffic_lane) != int(following.traffic_lane), "Passing skiers use separate rendered channels")
 	check(absf(float(following.traffic_lateral) - float(leader.traffic_lateral)) >= 3.0, "Lane separation is several real metres, not just another ID")
 	check(absf(float(following.traffic_lateral)) <= model.piste.width * 0.43, "Passing stays safely inside piste boundaries")
+	var pressure: Dictionary = Traffic.load_by_piste(model)
+	check(int(pressure.get(7,0)) == 2, "Route congestion counts active skiers without counting each leg twice")
+	check(Traffic.route_pressure(model, model.piste, pressure) < 1.0 and Traffic.route_pressure(model, model.piste, {7:100}) < Traffic.route_pressure(model, model.piste, pressure), "Overcrowding reduces destination preference without zeroing usable routes")
 	var first := JSON.stringify({"progress": p, "lanes": [leader.traffic_lane, following.traffic_lane]})
 	var next := Traffic.steps(model)
 	check(first == JSON.stringify({"progress": next, "lanes": [leader.traffic_lane, following.traffic_lane]}), "Same inputs yield stable traffic and lane assignments")
