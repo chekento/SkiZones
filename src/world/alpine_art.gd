@@ -215,6 +215,72 @@ func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
 				var x := -1.35+i*1.4
 				cone(Vector3(x,1.4+i*0.18,0),0.95,2.7+i*0.5,stone.lightened(0.16),0.02)
 				cone(Vector3(x,2.65+i*0.18,0),0.50,1.15,snow,0.01)
+		12: # Snow fence with hand-carved posts.
+			for x in [-3,0,3]:
+				link(Vector3(x,0,0),Vector3(x,2.7,0),0.16,wood)
+				cone(Vector3(x,2.9,0),0.35,0.55,snow)
+			for y in [0.8,1.9]:link(Vector3(-3,y,0),Vector3(3,y,0),0.12,wood)
+		13: # Small alpine cairn.
+			for i in range(4):
+				var y:=0.45+i*0.59
+				soft_box(Vector3(0,y,0),Vector3(2.6-i*0.48,0.72,1.8-i*0.23),stone,Vector3(0,i*0.34,0.08),0.15)
+			soft_box(Vector3(0,2.91,0),Vector3(0.7,0.22,0.64),snow)
+		14: # Snowy rest bench.
+			for x in [-1.8,1.8]:
+				box(Vector3(x,0.65,0),Vector3(0.25,1.3,0.35),wood)
+				box(Vector3(x,1.7,-0.8),Vector3(0.24,2.0,0.3),wood)
+			box(Vector3(0,1.45,0),Vector3(4.6,0.28,1.8),wood)
+			box(Vector3(0,2.2,-0.87),Vector3(4.6,1.1,0.20),wood)
+			box(Vector3(0,1.67,0),Vector3(4.3,0.18,1.5),snow)
+		15: # Alpine wild-berry and alpine flower clump.
+			for i in range(8):
+				var angle:=i*TAU/8.0
+				var tip:=Vector3(cos(angle)*1.6,1.4+sin(i)*0.4,sin(angle)*1.4)
+				link(Vector3.ZERO,tip,0.12,flora)
+				sphere(tip,0.26,Color("cb8d99") if i%2==0 else flora.lightened(0.32))
+		16: # Bent snow branch.
+			for i in range(4):
+				var angle:=float(i)*0.82
+				var tip:=Vector3(cos(angle)*2.7,0.5+float(i)*0.24,sin(angle)*1.8)
+				link(Vector3(-1,0.2,0),tip,0.16,wood)
+				sphere(tip,0.3,snow)
+		17: # Small wedge of natural compacted snow.
+			for i in range(4):
+				var x:float=-2.0+i*1.30
+				cone(Vector3(x,0.45+i*0.08,0),1.12,1.25,stone.lightened(0.3),0.04)
+				cone(Vector3(x,1.05+i*0.08,0),0.68,0.42,snow,0.02)
+		18: # Hiking direction stake.
+			link(Vector3(0,0,0),Vector3(0,4.4,0),0.17,wood)
+			box(Vector3(1.0,3.6,0),Vector3(2.8,0.7,0.24),metal)
+			box(Vector3(-0.6,2.7,0),Vector3(1.9,0.53,0.23),snow)
+		19: # Timber and rope barriers for snowdrifts.
+			for x in [-2.0,2.0]:
+				link(Vector3(x,0,0),Vector3(x,2.8,0),0.14,wood)
+			for i in range(8):
+				var x:float=-1.75+i*0.50
+				var y:float=2.0-0.45*sin(float(i)*PI/7)
+				link(Vector3(x,y,0),Vector3(x+0.5,2.0-0.45*sin(float(i+1)*PI/7),0),0.08,metal)
+		20: # Stack of firewood / lumber.
+			for row in range(3):
+				for i in range(4-row):
+					var x:float=(i-(3-row)*0.5)*1.0
+					link(Vector3(x,0.42+row*0.75,-1.5),Vector3(x,0.42+row*0.75,1.5),0.43,wood)
+			box(Vector3(0,2.85,0),Vector3(4.4,0.33,3.5),snow)
+		21: # Small wooden mailbox / tourist sign.
+			link(Vector3(0,0,0),Vector3(0,3.3,0),0.22,wood)
+			soft_box(Vector3(0,3.5,0.2),Vector3(2.7,1.55,1.25),metal,Vector3.ZERO,0.17)
+			box(Vector3(0,3.8,0.87),Vector3(1.65,0.2,0.13),wood)
+		22: # Snow lantern / mountain light.
+			link(Vector3(0,0,0),Vector3(0,3.4,0),0.12,wood)
+			box(Vector3(0,3.8,0),Vector3(1.8,1.9,1.8),metal)
+			box(Vector3(0,3.8,0.96),Vector3(1.4,1.4,0.1),Color("fff1bc"))
+			cone(Vector3(0,4.9,0),1.4,0.7,snow)
+		23: # Snow-dusted stone arch / scenic marker.
+			for x in [-2,2]:
+				box(Vector3(x,1.5,0),Vector3(1.0,3.0,1.4),stone)
+				box(Vector3(x,3.2,0),Vector3(1.1,0.35,1.5),snow)
+			box(Vector3(0,3.7,0),Vector3(5.6,1.0,1.55),stone)
+			box(Vector3(0,4.25,0),Vector3(6.0,0.28,1.7),snow)
 	return finish()
 
 func wildlife(kind: int) -> ArrayMesh:
