@@ -55,5 +55,22 @@ func run() -> void:
 	model.guests = [waiting, skier(30, 19.0)]
 	var moving := Traffic.steps(model)
 	check(not moving.has(999) and moving[30] > 0.0, "One stopped group cannot freeze the entire piste")
+	# Reproduce a busy resort that formerly formed immobile human chains:
+	# release all riders using only their permitted lane movements.
+	model.guests.clear()
+	for i in range(180):
+		model.guests.append(skier(i, 8.0 + float(i % 30)))
+	var last_count: int = model.guests.size()
+	var gone := 0
+	for tick in range(320):
+		var advances: Dictionary = Traffic.steps(model)
+		for guest in model.guests.duplicate():
+			guest.elapsed += float(advances.get(int(guest.id),0.0))
+			if guest.elapsed >= guest.duration - 0.001:
+				model.guests.erase(guest)
+				gone += 1
+		last_count = mini(last_count,model.guests.size())
+		if model.guests.is_empty(): break
+	check(gone == 180 and model.guests.is_empty(), "Dense crowd clears the piste rather than forming a permanent frozen line")
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
