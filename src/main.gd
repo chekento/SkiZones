@@ -187,6 +187,8 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	else:
 		model.new_game(starter, 20261027, area)
 	if not Ops.active(model): Ops.enable(model)
+	if model.map_id in Geo.IDS and model.operations.get("completed",false):
+		preload("res://src/core/scenario_medals.gd").new().record(model.map_id,str(model.operations.get("scenario_difficulty","normal")))
 	model.enable_runtime_rules()
 	hud.scenarios.hide()
 	passport.record(model)
@@ -289,6 +291,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
+		if area in Geo.IDS and difficulty in ["relaxed","normal","expert"]: Ops.set_scenario_difficulty(model,difficulty)
 		hud.atlas.hide()
 		hud.scenarios.hide()
 		hud.hide_menu()
@@ -303,7 +306,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 		return
 	start_game(true, area, prepared.model)
 	if area in Geo.IDS and difficulty in ["relaxed","normal","expert"]:
-		model.operations["scenario_difficulty"]=difficulty
+		Ops.set_scenario_difficulty(model,difficulty)
 	await view.rebuild(_load_progress)
 	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
