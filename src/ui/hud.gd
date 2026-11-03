@@ -781,7 +781,9 @@ func _build_menu() -> void:
 	_button(options, L.text("Spielhilfe & Steuerung"), show_help)
 	var service := _menu_group(box, "04  ·  SERVICE & COMMUNITY", "Updates, Feedback und Informationen")
 	if Maps.SCENARIOS_ENABLED:
-		_button(service, L.text("Szenarien · echte Skigebiete"), func(): scenarios.open())
+		var scenarios_group := _menu_group(box, "05  ·  SZENARIEN", "Optionale Herausforderungen an realen Orten")
+		_button(scenarios_group,L.text("Szenarien · vier echte Skigebiete"),func(): scenarios.open())
+		_label(scenarios_group,L.text("Zusatzmodus – dein Hauptspiel und deine vier Karriereplätze bleiben unverändert."),14,MUTED,true)
 	updates_button = _button(service, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
 	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
