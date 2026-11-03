@@ -20,7 +20,7 @@ static func build_hotspots(model: RefCounted) -> Array:
 	for piste in model.pistes:
 		if result.size()>=MAX_HOTSPOTS-3: break
 		if not piste.enabled or piste.points.size()<2: continue
-		result.append({"point":Terrain.unpack(piste.points[piste.points.size()/2]),"label":"Piste · "+str(piste.name),"zoom":250.0,"pitch":34.0})
+		result.append({"point":Terrain.unpack(piste.points[int(piste.points.size()/2)]),"label":"Piste · "+str(piste.name),"zoom":250.0,"pitch":34.0})
 	for building in model.buildings:
 		if result.size()>=MAX_HOTSPOTS: break
 		if not building.enabled: continue
@@ -71,7 +71,9 @@ func step(view: Node3D, delta: float) -> void:
 	var easing:=fraction*fraction*(3.0-2.0*fraction)
 	view.follow_guest=-1
 	view.camera_mode=1
-	view.focus=(at.point as Vector2).lerp(target.point,easing).clamp(view.terrain.bounds.position+Vector2(10,10),view.terrain.bounds.end-Vector2(10,10))
+	var from: Vector2=at.point
+	var to: Vector2=target.point
+	view.focus=from.lerp(to,easing).clamp(view.terrain.bounds.position+Vector2(10,10),view.terrain.bounds.end-Vector2(10,10))
 	view.yaw=0.38+sin(elapsed*0.12)*0.17+float(index%3)*0.2
 	view.pitch_degrees=lerpf(float(at.pitch),float(target.pitch),easing)
 	view.zoom=lerpf(float(at.zoom),float(target.zoom),easing)
