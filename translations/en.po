@@ -4588,3 +4588,249 @@ msgstr "Start hotel story · five chapters"
 msgid "Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte"
 msgstr "Hotel story level %d · %d experience · best round %d points"
 
+msgid "Ein bestehendes, geöffnetes Hotel auswählen."
+msgstr "Choose an existing, open hotel."
+
+msgid "Ein freies, geeignetes Dorfgebäude auswählen."
+msgstr "Choose a free, eligible village business."
+
+msgid "Dieser Hotelkomplex hat bereits acht Module."
+msgstr "This hotel complex already has eight modules."
+
+msgid "Das nächste Modul muss neben dem Ende der Hotelkette stehen (maximal 24 m Fassadenabstand)."
+msgstr "The next module must be next to the end of the hotel chain (maximum 24 m facade gap)."
+
+msgid "Gebäude ist bereits verbunden."
+msgstr "Building is already connected."
+
+msgid "Modul verbindet sich mit dem Hotelkomplex."
+msgstr "Module can connect to the hotel complex."
+
+msgid "Für den Verbindungsgang fehlen 4.500 €."
+msgstr "You need another €4,500 for the connecting corridor."
+
+msgid "Eigenständiger Betrieb ist jetzt Modul %d des Hotelkomplexes."
+msgstr "Independent business is now module %d of the hotel complex."
+
+msgid "Nur das letzte Modul kann entfernt werden, damit die lineare Verbindung erhalten bleibt."
+msgstr "Only the last module can be detached to preserve the linear connection."
+
+msgid "Modul getrennt. Das Geschäft bleibt eigenständig bestehen."
+msgstr "Module detached. The business remains open independently."
+
+msgid "Fitnessstudio"
+msgstr "Fitness studio"
+
+msgid "Trainingsraum mit Hantelstation, Fahrradergometer und Bergpanorama. Auch als Hotelmodul möglich."
+msgstr "Training room with weights, exercise bikes and mountain views. Also available as a hotel module."
+
+msgid "Alpiner Souvenirshop"
+msgstr "Alpine souvenir shop"
+
+msgid "Handgeschnitzte Andenken, kleine Kuhglocken und liebevolle Urlaubsmitbringsel."
+msgstr "Hand-carved souvenirs, small cowbells and lovely holiday mementos."
+
+msgid "Uhrmacher & Werkstatt"
+msgstr "Watchmaker & workshop"
+
+msgid "Traditioneller Uhrmacher mit Miniatur-Zifferblättern, Reparaturen und Reiseandenken."
+msgstr "Traditional watchmaker with miniature clock faces, repairs and travel keepsakes."
+
+msgid "Alpine Handwerksstube"
+msgstr "Alpine craft workshop"
+
+msgid "Handgefertigte Schnitzereien, Holzwerkzeuge, lokale Souvenirs und Bergtradition."
+msgstr "Handmade carvings, wooden tools, local souvenirs and mountain traditions."
+
+msgid "Alpines Fitnessstudio"
+msgstr "Alpine fitness studio"
+
+msgid "Trainiere im gesunden Pulsbereich und betreue die Gäste."
+msgstr "Train within a healthy heart-rate range and help the guests."
+
+msgid "Souveniratelier"
+msgstr "Souvenir workshop"
+
+msgid "Finde das passende Urlaubsandenken für deinen Gast."
+msgstr "Find the perfect holiday keepsake for your guest."
+
+msgid "Holzfigur"
+msgstr "Wooden figurine"
+
+msgid "Kuhglocke"
+msgstr "Cowbell"
+
+msgid "Postkarte"
+msgstr "Postcard"
+
+msgid "Schneekugel"
+msgstr "Snow globe"
+
+msgid "Uhrmacherwerkstatt"
+msgstr "Watchmaker's workshop"
+
+msgid "Prüfe eine feine Uhr und wähle das passende Ersatzteil."
+msgstr "Inspect a fine watch and choose the correct spare part."
+
+msgid "Zeiger"
+msgstr "Hand"
+
+msgid "Feder"
+msgstr "Spring"
+
+msgid "Krone"
+msgstr "Crown"
+
+msgid "Uhrglas"
+msgstr "Watch glass"
+
+msgid "Handwerksstube"
+msgstr "Craft workshop"
+
+msgid "Stelle das bestellte traditionelle Andenken her."
+msgstr "Make the traditional souvenir your guest ordered."
+
+msgid "Holzlöffel"
+msgstr "Wooden spoon"
+
+msgid "Schnitzfigur"
+msgstr "Carved figurine"
+
+msgid "Alpenglocke"
+msgstr "Alpine bell"
+
+msgid "Bergmotiv"
+msgstr "Mountain motif"
+
+msgid "Zuerst die Hotelmodule vom Ende der Kette trennen."
+msgstr "Detach the hotel modules from the end of the chain first."
+
+msgid "Holzsterne"
+msgstr "Wooden stars"
+
+msgid "Geschenkestapel"
+msgstr "Gift stacks"
+
+msgid "Festlicher Dorfbaum"
+msgstr "Festive village tree"
+
+msgid "Tannengirlanden"
+msgstr "Fir garlands"
+
+msgid "Dieses Adventstürchen wird erst am entsprechenden Dezembertag geöffnet."
+msgstr "This Advent door opens on its corresponding December day."
+
+msgid "Dieses Türchen wurde in diesem Jahr bereits geöffnet."
+msgstr "This door has already been opened this year."
+
+msgid "Maximaler Wintertaler-Vorrat erreicht."
+msgstr "Maximum Winter Coins balance reached."
+
+msgid "Kalender konnte nicht sicher gespeichert werden."
+msgstr "The calendar could not be saved safely."
+
+msgid "Türchen %d geöffnet · +%d Wintertaler!"
+msgstr "Door %d opened · +%d Winter Coins!"
+
+msgid "Unbekannte Winterdekoration."
+msgstr "Unknown winter decoration."
+
+msgid "Dekoration bereits freigeschaltet."
+msgstr "Decoration already unlocked."
+
+msgid "Für diese Dekoration fehlen Wintertaler."
+msgstr "Not enough Winter Coins for this decoration."
+
+msgid "Dekoration konnte nicht sicher gespeichert werden."
+msgstr "Could not save the decoration safely."
+
+msgid "Dekoration dauerhaft freigeschaltet: "
+msgstr "Decoration permanently unlocked: "
+
+msgid "Ungültiges Systemdatum."
+msgstr "Invalid system date."
+
+msgid "Jahreswechsel ab 23:55 Uhr bis 01:00 Uhr verfügbar."
+msgstr "New Year's celebration is available from 11:55 pm to 1:00 am."
+
+msgid "Die Silvesterfeier wurde in diesem Jahr bereits gestartet."
+msgstr "This year's New Year's party has already started."
+
+msgid "Feier konnte nicht sicher gespeichert werden."
+msgstr "Could not save the celebration safely."
+
+msgid "Ein frohes neues Jahr! +18 Wintertaler für dein Bergdorf."
+msgstr "Happy New Year! +18 Winter Coins for your mountain village."
+
+msgid "Hotelkomplex & Module"
+msgstr "Hotel complex & modules"
+
+msgid "Deine Hotelzeile"
+msgstr "Your linear hotel complex"
+
+msgid "Erweitere dein Hotel von links nach rechts. Bestehende, benachbarte Dorfgebäude können als eigenständig wirtschaftende Module an das Kettenende andocken."
+msgstr "Extend your hotel from left to right. Existing nearby village businesses can be attached to the end of the chain as independently operating modules."
+
+msgid "Verbunden: %d / %d Module"
+msgstr "Connected: %d / %d modules"
+
+msgid "Jeder Betrieb behält Personal, Umsatz und eigene Serviceaktivitäten. Die Verbindung kostet 4.500 €; die Gebäude werden nicht teleportiert."
+msgstr "Each business retains its staff, income and own service activities. The connection costs €4,500; buildings are not teleported."
+
+msgid "Letztes Modul lösen · %s"
+msgstr "Detach last module · %s"
+
+msgid "%s als nächstes Modul andocken · 4.500 €"
+msgstr "Attach %s as next module · €4,500"
+
+msgid "Noch kein freier Nachbarbau am Kettenende. Baue im Dorfkatalog einen Pool, Spa, Fitnessraum, Restaurant oder ein Handwerksgeschäft in direkter Nähe."
+msgstr "No free neighboring building at the end of the chain. Build a pool, spa, fitness studio, restaurant or craft shop nearby using the village catalog."
+
+msgid "Weihnachtszauber im SkiZones-Dorf"
+msgstr "Christmas magic in the SkiZones village"
+
+msgid "24 Türchen · jedes Jahr ein neuer Winter"
+msgstr "24 Advent doors · a new winter every year"
+
+msgid "01.–24. Dezember. Vergangene Türchen bleiben bis Silvester einlösbar. Tür 6 und 24 enthalten besondere Geschenke."
+msgstr "December 1–24. Previous doors remain redeemable until New Year's Eve. Doors 6 and 24 contain special gifts."
+
+msgid "Wintertaler: %d · Jahr %d"
+msgstr "Winter Coins: %d · Year %d"
+
+msgid "Silvester – gemeinsam in das neue Jahr!"
+msgstr "New Year's Eve – welcome the new year together!"
+
+msgid "Frohes neues Jahr!"
+msgstr "Happy New Year!"
+
+msgid "Jahreswechsel feiern · einmal im Jahr"
+msgstr "Celebrate New Year · once per year"
+
+msgid "Dekorationswerkstatt · freigeschaltete Gegenstände erscheinen während der Feiertage automatisch an geeigneten Plätzen."
+msgstr "Decoration workshop · unlocked items automatically appear in suitable places during the holidays."
+
+msgid " · %d Wintertaler"
+msgstr " · %d Winter Coins"
+
+msgid "Diese Feiern folgen der lokalen Gerätezeit. Standortberechtigung wird nicht angefordert oder benötigt. Reisende sollten ihre Zeitzone im Gerät prüfen."
+msgstr "These festivities follow your device's local time. Location permission is neither requested nor needed. Travelers should check their device's time zone."
+
+msgid "Neujahr in %02d:%02d:%02d"
+msgstr "New Year in %02d:%02d:%02d"
+
+msgid "Advent & Feste"
+msgstr "Advent & festivities"
+
+msgid "❄  ·  WINTERFESTE"
+msgstr "❄  ·  WINTER FESTIVITIES"
+
+msgid "Adventskalender und Silvester, jedes Jahr"
+msgstr "Advent calendar and New Year's Eve, every year"
+
+msgid "Adventskalender & Neujahrsfeier"
+msgstr "Advent calendar & New Year's celebration"
+
+msgid "Winterfest Ambient Art"
+msgstr "Winter festival ambient art"
+
