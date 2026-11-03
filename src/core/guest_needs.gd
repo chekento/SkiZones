@@ -20,6 +20,7 @@ const SERVICES := {
 	"guesthouse":{"hunger":35,"warmth":65,"energy":65,"joy":30,"minutes":22,"places":20},
 	"grand_hotel":{"hunger":45,"warmth":75,"energy":80,"joy":45,"minutes":24,"places":48},
 	"bar":{"hunger":10,"warmth":45,"energy":8,"joy":70,"minutes":30,"places":20},
+	"newsstand": {"hunger":0,"warmth":8,"energy":0,"joy":18,"minutes":6,"places":8},
 	"fitness": {"hunger":0,"warmth":36,"energy":12,"joy":38,"minutes":30,"places":18},
 	"souvenir": {"hunger":0,"warmth":20,"energy":2,"joy":36,"minutes":12,"places":12},
 	"watchmaker": {"hunger":0,"warmth":20,"energy":1,"joy":30,"minutes":16,"places":8},
@@ -130,4 +131,5 @@ static func complete(guest: Dictionary, kind: String) -> void:
 	aggregate_family(guest)
 	guest.service_history[kind]=guest.age
 	guest.spent=true
+
 

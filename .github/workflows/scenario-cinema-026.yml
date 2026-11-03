@@ -1,0 +1,43 @@
+name: 0.26 scenarios and cinematic resort QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: scenarios-026-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scenario-cinema:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot 4.5.2
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile all GDScript and verify i18n
+        run: |
+          python3 - <<'PY'
+          import subprocess, os
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],text=True,capture_output=True,timeout=180)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Scenario restoring, award longevity, lift tours and newspaper arithmetic
+        run: python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/scenario_cinema_026.gd
+      - name: All four real-world scenarios, operations and restored saves
+        run: python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/real_operations.gd
+      - name: Actual building and scene UI
+        run: python3 tools/run_godot_test.py --timeout 250 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality_scene.gd
+

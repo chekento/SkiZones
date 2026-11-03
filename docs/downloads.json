@@ -1,9 +1,9 @@
 {
-  "tag": "v0.24.0",
+  "tag": "v0.25.0",
   "prerelease": true,
-  "url": "https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk",
-  "release": "https://github.com/chekento/SkiZones/releases/tag/v0.24.0",
-  "total": 98,
-  "latest_downloads": 3,
-  "asset": "SkiZones-0.24.0-android-arm64.apk"
+  "url": "https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk",
+  "release": "https://github.com/chekento/SkiZones/releases/tag/v0.25.0",
+  "total": 100,
+  "latest_downloads": 0,
+  "asset": "SkiZones-0.25.0-android-arm64.apk"
 }

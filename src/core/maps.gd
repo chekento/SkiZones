@@ -3,8 +3,8 @@ extends RefCounted
 static var _noise: Dictionary = {}
 
 const Geo = preload("res://src/core/real_resorts.gd")
-# Main-mode release: scenario data and old save paths are retained, but entry is disabled.
-const SCENARIOS_ENABLED := false
+# Optional real-world scenarios return beneath the main game. Former saves keep their paths.
+const SCENARIOS_ENABLED := true
 const FANTASY_MAPS := {
 	"sonnenhang": {"bounds": Rect2(-1440, -2200, 2880, 2700), "name": "Velvet Peaks", "subtitle": "Sonnige Almterrassen & ein gemütliches Skidorf", "color": "74b4bb", "rank": 1, "guests": 0, "contracts": 0, "forest": 1.0, "snow": 1.0, "description": "Weiche Almkuppen, ein geschütztes Dorf und weite Carvinghänge. Dein Einstieg in ein alpines Boutique-Resort.", "start_lift": "drag", "start_bottom": [200, 205], "start_top": [245, -130], "budget": 400000, "start": "Almdorf mit Tellerlift", "sky": "efb88f", "ground": "e9eef5", "trees": "718a80", "peaks": [[-650, -1050, 230, 430], [550, -1700, 330, 470], [-900, -1850, 160, 310]], "valleys": []},
 	"fichtenkamm": {"bounds": Rect2(-1800, -2900, 3600, 3400), "name": "Whisperpine Lodge", "subtitle": "Verschlungene Waldtäler & stille Höhenrücken", "color": "77a58a", "rank": 2, "guests": 800, "contracts": 2, "forest": 1.6, "snow": 1.15, "description": "Ein Waldresort mit einem nostalgischen Zweiersessel. Erschließe geschützte Mulden und lange Verbindungen zwischen den Kämmen.", "start_lift": "chair2", "start_bottom": [95, 195], "start_top": [120, -220], "budget": 520000, "start": "Waldlodge mit Zweiersessel", "sky": "b9cda7", "ground": "e3eeec", "trees": "527d70", "peaks": [[-740, -1100, 350, 440], [540, -1850, 390, 380], [-620, -2600, 430, 570], [1250, -2300, 250, 400]], "valleys": [[0, -1500, -140, 600]]},

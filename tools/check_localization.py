@@ -37,7 +37,7 @@ def main():
             except ValueError: continue
             if value in TECHNICAL or value.startswith(("res://", "user://", "http")) or "shader_type" in value: continue
             if not re.search(r"[a-zA-ZäöüÄÖÜß]", value): continue
-            candidate = re.search(r"[äöüÄÖÜß]", value) or " " in value or re.fullmatch(r"[A-Z][a-zA-Z]+", value)
+            candidate = re.search(r"[äöüÄÖÜß]", value) or " " in value or re.fullmatch(r"[A-Z][a-zA-Z]+(?:-[a-zA-Z]+)*", value)
             if candidate and value not in messages:
                 errors.append(f"Uncatalogued message in {path.relative_to(ROOT)}: {value}")
     if errors:

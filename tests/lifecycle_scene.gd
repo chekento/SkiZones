@@ -133,3 +133,4 @@ func run() -> void:
 	check(not restored.app_session.restore(restored) and restored.has_game,"A damaged UI checkpoint cannot destroy the independently valid playable resort")
 	game.queue_free();restored.queue_free();await process_frame
 	print("LIFECYCLE SCENE: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)
+

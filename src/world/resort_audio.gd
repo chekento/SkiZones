@@ -12,11 +12,14 @@ var _cache: Dictionary={}
 var _poll := 0.0
 var active_zone := "wilderness"
 var current_genre := "off"
-var preview_genre := false
-var _level_targets := {"wind":0.0,"crowd":0.0,"machinery":0.0,"music":0.0}
-var _level_current := {"wind":0.0,"crowd":0.0,"machinery":0.0,"music":0.0}
+var active := true
+var preview_settings: Dictionary = {}
+var _targets: Dictionary = {}
+var _levels: Dictionary = {}
+var _crowd_gain := 0.0
+var _machinery_gain := 1.0
 var _retiring_music: AudioStreamPlayer
-var _track_crossfade := 1.0
+var _crossfade := 1.0
 const CROSSFADE_SECONDS := 1.3
 
 func setup(resort_view: Node3D, prefs: RefCounted) -> void:
@@ -30,7 +33,7 @@ func setup(resort_view: Node3D, prefs: RefCounted) -> void:
 		add_child(player)
 		players[layer]=player
 	var alternate:=AudioStreamPlayer.new()
-	alternate.name="music_alt"
+	alternate.name="SkiZones music alternate"
 	alternate.bus="Master"
 	alternate.volume_db=-60.0
 	add_child(alternate)
@@ -100,68 +103,126 @@ func _create(mode: String) -> AudioStreamWAV:
 	_cache[mode]=wav
 	return wav
 
-func set_genre(id: String, preview: bool = false) -> void:
+func set_genre(id: String) -> void:
 	var wanted:String=Design.genre_valid(id)
-	preview_genre=preview
-	if current_genre==wanted and players.has("music") and (wanted=="off" or players.music.playing):
-		return
+	if current_genre==wanted and (wanted=="off" or (players.has("music") and players.music.playing)):return
 	var primary:AudioStreamPlayer=players.get("music")
-	var standby:AudioStreamPlayer=players.get("music_alt")
 	if primary==null:return
 	current_genre=wanted
-	_track_crossfade=0.0
 	if wanted=="off":
-		# Off is immediate, not a long fade: audio opt-out should feel certain.
+		# Explicit opt-out must silence both streams without a fade.
 		primary.stop()
+		var standby:AudioStreamPlayer=players.get("music_alt")
 		if standby!=null:standby.stop()
 		_retiring_music=null
-		sync()
+		_crossfade=1.0
+		_levels["music"]=0.0
 		return
-	if standby!=null:
-		standby.stop()
-		if primary.playing:
-			_retiring_music=primary
-			players["music"]=standby
-			players["music_alt"]=primary
-		else:
-			_retiring_music=null
-	var incoming:AudioStreamPlayer=players.get("music")
-	incoming.stream=_create(wanted)
-	incoming.volume_db=-60.0
-	incoming.play()
+	var alternate:AudioStreamPlayer=players.get("music_alt")
+	if alternate!=null and primary.playing:
+		alternate.stop()
+		_retiring_music=primary
+		players["music"]=alternate
+		players["music_alt"]=primary
+		primary=alternate
+	else:
+		if alternate!=null:alternate.stop()
+		_retiring_music=null
+	_crossfade=0.0
+	primary.stream=_create(wanted)
+	primary.volume_db=-60.0
+	primary.play()
+	primary.stream_paused=not active
+
+func settings() -> Dictionary:
+	var result := {"genre":"off","music":0.35,"ambient":0.45,"master":1.0,"enabled":true}
+	if preferences!=null:
+		result={"genre":preferences.music_genre,"music":preferences.music_volume,"ambient":preferences.ambient_volume,"master":preferences.master_volume,"enabled":preferences.sound_enabled}
+	result.merge(preview_settings,true)
+	return result
+
+func set_preview(changes: Dictionary) -> void:
+	preview_settings=changes.duplicate()
 	sync()
+
+func clear_preview() -> void:
+	preview_settings.clear()
+	sync()
+
+func set_active(value: bool) -> void:
+	if active==value: return
+	active=value
+	if not active:
+		for layer in players:
+			players[layer].stream_paused=true
+			_levels[layer]=0.0
+	else: sync()
 
 func sync() -> void:
 	if preferences==null:return
-	var saved_station:String=Design.genre_valid(str(preferences.music_genre))
-	if not preview_genre and saved_station!=current_genre:
-		set_genre(saved_station)
-	var volume_music:float=clampf(float(preferences.music_volume),0.0,1.0)
-	var volume_ambient:float=clampf(float(preferences.ambient_volume),0.0,1.0)
-	_level_targets=Design.zone_levels(active_zone,volume_music,volume_ambient,current_genre!="off")
+	var chosen := settings()
+	var station: String=Design.genre_valid(str(chosen.genre))
+	if station!=current_genre:set_genre(station)
+	var master: float=clampf(float(chosen.master),0,1) if bool(chosen.enabled) and active else 0.0
+	var ambient: float=clampf(float(chosen.ambient),0,1)*master
+	var music: float=clampf(float(chosen.music),0,1)*master
+	var profile: Dictionary=Design.SOUND_MIX.get(active_zone,Design.SOUND_MIX.wilderness)
+	for layer in LAYERS:
+		var target: float=ambient*float(profile.get(layer,0.0))
+		if layer=="crowd":target*=_crowd_gain
+		if layer=="machinery":target*=_machinery_gain
+		_targets[layer]=target
+	_targets.music=music*(0.22+float(profile.get("music",0))*0.72) if station!="off" else 0.0
+	_mix(0.0)
 
-func _process(delta: float) -> void:
-	if scene==null or preferences==null or scene.model==null:return
-	var elapsed:float=clampf(delta,0.0,0.25)
-	_poll+=maxf(0.0,delta)
-	if _poll>=0.35:
-		_poll=0.0
-		var area:Dictionary=Design.nearby(scene.model,scene.focus)
-		active_zone=str(area.kind)
-		sync()
-	_track_crossfade=clampf(_track_crossfade+elapsed/CROSSFADE_SECONDS,0,1)
+func _mix(delta: float) -> void:
+	_crossfade=clampf(_crossfade+maxf(0.0,delta)/CROSSFADE_SECONDS,0.0,1.0)
 	for layer in LAYERS+["music"]:
-		var current:float=float(_level_current.get(layer,0))
-		var target:float=float(_level_targets.get(layer,0))
-		var next:float=Design.mix_step(current,target,elapsed,1.35)
-		_level_current[layer]=next
+		var target:float=float(_targets.get(layer,0.0)) if active else 0.0
+		var level:float=Design.mix_step(float(_levels.get(layer,0.0)),target,delta)
+		_levels[layer]=level
 		var player:AudioStreamPlayer=players.get(layer)
 		if player==null:continue
-		var audible:float=next*(_track_crossfade if layer=="music" else 1.0)
-		player.volume_db=linear_to_db(maxf(0.001,audible))
+		# Muting immediately pauses the stream, even if the gain was fading.
+		player.stream_paused=target<=0.00001
+		var audible:float=level*(_crossfade if layer=="music" else 1.0)
+		player.volume_db=linear_to_db(maxf(0.0001,audible))
 	if is_instance_valid(_retiring_music):
-		if _track_crossfade>=1.0:
+		var target_music:float=float(_targets.get("music",0.0)) if active else 0.0
+		if _crossfade>=1.0 or target_music<=0.00001:
 			_retiring_music.stop()
 			_retiring_music=null
 		else:
-			_retiring_music.volume_db=linear_to_db(maxf(0.001,float(_level_current.music)*(1.0-_track_crossfade)))
+			_retiring_music.stream_paused=false
+			_retiring_music.volume_db=linear_to_db(maxf(0.0001,float(_levels.get("music",0.0))*(1.0-_crossfade)))
+
+func population(focus: Vector2) -> int:
+	if scene==null or scene.model==null:return 0
+	var count := 0
+	for guest in scene.model.guests:
+		if guest.phase=="leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):continue
+		var at: Vector3=scene._guest_positions.get(guest.id,Vector3.INF)
+		if int(guest.leg)<guest.route.legs.size() and guest.route.legs[int(guest.leg)].kind=="visit":
+			var building: Dictionary=scene.model.asset(int(guest.route.legs[int(guest.leg)].id))
+			if building.has("point"):
+				var point := preload("res://src/core/terrain.gd").unpack(building.point)
+				at=Vector3(point.x,0,point.y)
+		if at.is_finite() and Vector2(at.x,at.z).distance_to(focus)<90:
+			count+=int(guest.get("group_size",1))
+	return count
+
+func _process(delta: float) -> void:
+	if scene==null or preferences==null or scene.model==null:return
+	_mix(delta)
+	if not active:return
+	_poll+=maxf(0.0,delta)
+	if _poll<0.35:return
+	_poll=0.0
+	var area: Dictionary=Design.nearby(scene.model,scene.focus)
+	active_zone=str(area.kind)
+	_crowd_gain=clampf(log(1.0+population(scene.focus))/log(16.0),0,1)
+	_machinery_gain=1.0
+	if active_zone=="lift":
+		var lift: Dictionary=scene.model.asset(int(area.target_id))
+		_machinery_gain=1.0 if not lift.is_empty() and scene.model.lift_running(lift) else 0.0
+	sync()

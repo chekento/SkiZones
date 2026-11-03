@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **28 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **29 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.25.0](https://github.com/chekento/SkiZones/releases/tag/v0.25.0)** | 03.11.2026 | Lineare Hotelmodule und wiederkehrende Winterfeste | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk) | [Details](docs/releases/0.25.0.md) |
 | **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
 | **[v0.23.0](https://github.com/chekento/SkiZones/releases/tag/v0.23.0)** | 03.11.2026 | Landschaft, Pistenwerkstatt und freiere Dorfplanung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.23.0/SkiZones-0.23.0-android-arm64.apk) | [Details](docs/releases/0.23.0.md) |
 | **[v0.22.0](https://github.com/chekento/SkiZones/releases/tag/v0.22.0)** | 03.11.2026 | Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.22.0/SkiZones-0.22.0-android-arm64.apk) | [Details](docs/releases/0.22.0.md) |
@@ -38,6 +39,28 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **2
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.25.0 · Lineare Hotelmodule und wiederkehrende Winterfeste (03.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.25.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk)** (44.5 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.25.0/manifest.json) · [Originalnotizen](docs/releases/0.25.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.25.0)
+
+**Versionierte Android-Preview – Veröffentlichung erst nach GitHub-Freigabetests.**
+
+### Änderungen gegenüber 0.24.0
+- **Lineare Hotelkomplexe**: vorhandene Dorfgebäude können als Module an benachbarte Hotelteile angeschlossen werden, maximal acht Verbindungsmodule mit nachvollziehbaren Anbaukosten. Der eigenständige Betrieb, seine Einnahmen und sein Personal bleiben erhalten.
+- **Sichtbare Verbindungsgänge**: erste thematische verglaste 3D-Verbindungen zwischen angeschlossenen Nachbargebäuden (Dekoration; noch keine begehbare Innenraum-Navigation).
+- **Neue Alpendorfgeschäfte**: Fitnessstudio, Souvenirshop, Uhrmacher und Handwerksstube samt Betriebswerten, NPC-Besuchen, kleinen Aktivitäten und unverwechselbaren Gebäudeakzenten.
+- **24 Adventstürchen**: Freischaltung vom 1. bis 24. Dezember mit besonderen Belohnungen am 6. und 24.; jedes reale Kalenderjahr unabhängig von Karriere-Spielständen erneut spielbar.
+- **Weihnachtsdekorationen**: erste originale Bäume, Geschenke, Laternen, Schneemänner, Girlanden und Marktstände als 3D-Assets; zusätzliche Modelle können gegen Wintertaler freigeschaltet werden.
+- **Silvester/Neujahr**: lokalzeitbasierter Countdown und jährliche Neujahrsbelohnung, automatische saisonale Rückkehr zum normalen Resort.
+- **Datenschutz**: für die lokale Gerätekalenderzeit ist **keine Standortberechtigung** erforderlich oder implementiert. Optionale Standort-Zeitzonensynchronisierung muss später separat als ausdrückliches Opt-in entwickelt werden.
+
+### Ausbaustufen
+Die ersten Winterassets und Ereignisse sind keine vollständige Weihnachtswelt mit animierten Geschenke-Übergaben, Familienfesten oder durchweg geführten NPC-Partys. Diese bleiben auf der langfristigen Roadmap. Saisonale Deko darf bestehende Pisten und Gebäude nicht blockieren.
+
+**APK-Dateiname nach erfolgreicher Freigabe:** `SkiZones-0.25.0-android-arm64.apk`. Noch kein öffentliches Release, solange `v0.25.0` auf GitHub nicht veröffentlicht ist.
+
+---
 
 ## v0.24.0 · Hotel-Mikrowelten und sechs neue Landschaftsdetails (03.11.2026)
 

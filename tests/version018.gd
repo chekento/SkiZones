@@ -48,7 +48,10 @@ func _init() -> void:
 		connected=connected or not path.is_empty() and path.length<180 and Foot.clear_walk(path.points,model.buildings,model.lifts+[proposed])
 	check(connected,"An upper extension has a real short pedestrian connection from the existing summit")
 	var order:=Catalog.building_order()
-	check(order[0]=="kiosk" and order.find("cocoa")<order.find("hotel") and order.find("pizzeria")<order.find("repair_office"),"The village catalog starts with affordable useful services")
+	check(order.has("kiosk") and order.find("kiosk")<order.find("cocoa") and order.find("cocoa")<order.find("hotel") and order.find("pizzeria")<order.find("repair_office"),"Affordable food services precede larger hospitality and repair investments")
+	var complete:=order.size()==Catalog.BUILDINGS.size()
+	for kind in Catalog.BUILDINGS:complete=complete and order.count(kind)==1
+	check(complete,"The price-sorted village catalog contains every service exactly once, including new businesses")
 	var sorted:=true
 	for i in range(1,order.size()):sorted=sorted and Catalog.BUILDINGS[order[i-1]].cost<=Catalog.BUILDINGS[order[i]].cost
 	check(sorted,"Village prices are consistently ascending")

@@ -24,6 +24,7 @@ const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
 const CrewLife=preload("res://src/world/crew_life.gd")
+const CinematicTour = preload("res://src/world/cinematic_tour.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
@@ -39,6 +40,8 @@ var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var festival_scene := FestivalScenery.new()
 var crew_life:=CrewLife.new()
+var _extra_clearings: Array = []
+var tour := CinematicTour.new()
 var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
@@ -598,6 +601,8 @@ func _multimesh(mesh: Mesh, count: int, personal: bool = false) -> MultiMesh:
 	return instances
 
 func _clear_ground(point: Vector2, margin: float) -> bool:
+	for clearing in _extra_clearings:
+		if point.distance_to(clearing.point)<float(clearing.radius)+margin:return false
 	for area in _pedestrian_snapshot.get("areas", []):
 		if point.distance_to(area.center) < area.radius + margin:
 			return false
@@ -665,6 +670,9 @@ func _build_hotel_connectors() -> void:
 			previous=module
 
 func _build_trees() -> void:
+	_extra_clearings.clear()
+	var home: Vector2=CrewLife.staff_home(self)
+	if home.is_finite():_extra_clearings.append({"point":home,"radius":30.0})
 	forest.build(self)
 	landscape_details.build(self)
 
@@ -1146,6 +1154,7 @@ func _process(delta: float) -> void:
 		return
 	if model.revision != _seen_revision:
 		rebuild()
+	tour.step(self,delta)
 	_update_atmosphere()
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
@@ -1871,5 +1880,6 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 		if _art_cache.size() > 128: _art_cache.clear()
 		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
 	return _art_cache[key]
+
 
 

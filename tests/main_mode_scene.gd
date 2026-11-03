@@ -1,5 +1,5 @@
 extends SceneTree
-## Main-mode release gate: career/free build only; old scenarios remain archived.
+## Main-mode release gate: career stays primary; optional scenarios remain separate.
 const Maps = preload("res://src/core/maps.gd")
 const Saves = preload("res://src/core/save_store.gd")
 var passed := 0
@@ -31,13 +31,13 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	var labels: Array = collect_buttons(game.hud.menu).map(func(button): return button.text)
-	check(not Maps.SCENARIOS_ENABLED, "Real scenarios are disabled for this release")
-	check(not game.hud.scenarios.visible and game.hud.scenarios.get_parent() == null, "Scenario selection is neither built nor shown")
-	check(not labels.has("Szenarien · echte Skigebiete") and labels.has("Karriere · vier Spielstände") and labels.has("Freier Aufbau · alle Anlagen"), "Normal career and free build remain the only play modes")
+	check(Maps.SCENARIOS_ENABLED, "Real scenarios are restored as an optional mode")
+	check(not game.hud.scenarios.visible and game.hud.scenarios.get_parent() != null, "Scenario selection is available without covering the main menu")
+	check(labels.has("Szenarien · vier echte Skigebiete") and labels.find("Karriere · vier Spielstände") < labels.find("Szenarien · vier echte Skigebiete") and labels.has("Freier Aufbau · alle Anlagen"), "Career and free build stay above optional real scenarios")
 	var original_map: String = game.model.map_id
 	var old_path: String = Saves.path_for_map("braunlage")
-	await game.enter_area("braunlage")
-	check(game.model.map_id == original_map and not game.has_game, "Disabled scenario selection cannot replace a main game")
+	await game.enter_area("not-a-resort")
+	check(game.model.map_id == original_map and not game.has_game, "An invalid area cannot replace the main game")
 	check(Saves.path_for_map("braunlage") == old_path, "Historical scenario save path is preserved")
 	game.start_game(true)
 	game.paused = true

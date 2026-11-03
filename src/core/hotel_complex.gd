@@ -4,6 +4,7 @@ extends RefCounted
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const L = preload("res://src/core/i18n.gd")
 const MODULES := ["pool","spa","fitness","restaurant","pizzeria","cocoa","bar","souvenir","watchmaker","craftshop"]
 const MAX_MODULES := 8
 const MAX_EDGE_GAP := 24.0
@@ -67,7 +68,7 @@ static func attach(model: RefCounted, hotel_id: int, module_id: int) -> Dictiona
 	model.money -= LINK_COST
 	model.report.investments = float(model.report.get("investments",0.0)) + LINK_COST
 	model._invalidate()
-	return {"ok":true,"message":"Eigenständiger Betrieb ist jetzt Modul %d des Hotelkomplexes." % int(test.slot)}
+	return {"ok":true,"message":L.format_message("Eigenständiger Betrieb ist jetzt Modul %d des Hotelkomplexes.",int(test.slot))}
 
 static func detach(model: RefCounted, hotel_id: int, module_id: int) -> Dictionary:
 	var chain := ordered(model.buildings,hotel_id)

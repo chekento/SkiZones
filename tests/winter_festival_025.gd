@@ -6,6 +6,7 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const L = preload("res://src/core/i18n.gd")
 var passed := 0
 var failed := 0
 
@@ -34,6 +35,8 @@ func run() -> void:
 	check(saved.claim(6,{"year":2027,"month":12,"day":6,"hour":12,"minute":0,"second":0}).ok,"A new calendar year opens the same Advent door again")
 	check(Calendar.countdown(dec31)==3 and Calendar.season(dec31)=="new_year_eve","New Year's countdown uses real local seconds, not game minutes")
 	check(not saved.celebrate_new_year({"year":2026,"month":12,"day":31,"hour":22,"minute":0,"second":0}).ok,"Early New Year's celebration is refused")
+	check(Calendar.can_celebrate({"year":2026,"month":12,"day":31,"hour":23,"minute":55,"second":0}) and not Calendar.can_celebrate({"year":2027,"month":1,"day":1,"hour":1,"minute":0,"second":0}),"The same celebration window opens at 23:55 and closes at 01:00")
+	check(not Calendar.can_celebrate({"year":2026,"month":12,"day":31,"hour":23,"minute":99,"second":0}),"Invalid clock fields cannot claim a yearly celebration")
 	var first_party=saved.celebrate_new_year({"year":2027,"month":1,"day":1,"hour":0,"minute":0,"second":1})
 	check(first_party.ok and not saved.celebrate_new_year({"year":2027,"month":1,"day":1,"hour":0,"minute":12,"second":0}).ok,"New Year party happens once for a yearly event")
 	check(saved.celebrate_new_year({"year":2028,"month":1,"day":1,"hour":0,"minute":15,"second":0}).ok,"A separate year may hold the annual party again")
@@ -53,8 +56,11 @@ func run() -> void:
 		{"id":1004,"kind":"souvenir","point":Terrain.pack(Vector2(245,240)),"rotation":0,"enabled":true,"level":1}]
 	model._invalidate()
 	check(Complex.valid_all(model.buildings),"Legacy standalone hotel buildings are valid without new fields")
+	L.configure("en")
 	var first=Complex.attach(model,1001,1002)
 	check(first.ok and int(model.asset(1002).hotel_attachment.slot)==1 and int(model.money)==45500,"Adjacent fitness club docks as linear hotel module for one connector payment")
+	check(first.message=="Independent business is now module 1 of the hotel complex.","A numbered hotel-module confirmation uses the selected language")
+	L.configure("de")
 	check(not Complex.attach(model,1001,1004).ok,"A nonadjacent service cannot skip the end of the linear hotel")
 	check(Complex.attach(model,1001,1003).ok and Complex.ordered(model.buildings,1001).size()==2,"A spa can extend the modular hotel line")
 	check(Complex.valid_all(model.buildings),"A fully connected two-module hotel passes persistent schema checks")

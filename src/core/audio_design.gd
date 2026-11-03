@@ -12,6 +12,11 @@ const GENRE_NAMES := {
 	"meditative":"Meditative Bergluft"
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
+const ZONE_NAMES := {
+	"wilderness":"Freier Berg", "piste":"Piste", "lift":"Lift", "village":"Dorf",
+	"hotel":"Hotel", "restaurant":"Gastronomie", "disco":"Après-Ski",
+	"spa":"Wellness", "workshop":"Werkstatt", "rescue":"Bergrettung"
+}
 const SOUND_MIX := {
 	"wilderness":{"wind":0.9,"crowd":0.0,"machinery":0.0,"music":0.0},
 	"piste":{"wind":1.0,"crowd":0.12,"machinery":0.0,"music":0.0},
@@ -70,21 +75,13 @@ static func nearby(model: RefCounted, focus: Vector2) -> Dictionary:
 				result={"kind":"piste","distance":distance,"target_id":int(piste.id),"weights":SOUND_MIX.piste}
 	return result
 
-## Smoothly move an audio channel toward its target without oscillating.
-## Deterministic, independent of screen FPS, and never amplifies past 100%.
-static func mix_step(current: float, target: float, dt: float, duration: float = 1.6) -> float:
+## Frame-rate independent exponential smoothing with bounded amplitudes.
+static func mix_step(current: float, target: float, dt: float, duration: float = 1.35) -> float:
 	var weight:float=1.0-exp(-maxf(0.0,dt)/maxf(0.05,duration))
-	return clampf(lerpf(clampf(current,0,1),clampf(target,0,1),weight),0,1)
-
-static func zone_levels(kind: String, music_level: float, ambient_level: float, music_on: bool) -> Dictionary:
-	var profile:Dictionary=SOUND_MIX.get(kind,SOUND_MIX.wilderness)
-	var result:Dictionary={}
-	for layer in ["wind","crowd","machinery"]:
-		result[layer]=clampf(ambient_level*float(profile.get(layer,0)),0,1)
-	result["music"]=clampf(music_level*(0.22+float(profile.get("music",0))*0.72),0,1) if music_on else 0.0
-	return result
+	return clampf(lerpf(clampf(current,0.0,1.0),clampf(target,0.0,1.0),weight),0.0,1.0)
 
 static func license_policy(provider: String, permission: bool = false) -> bool:
 	# Only the built-in synthesis can be played without a documented rights record.
 	# External providers are intentionally rejected until explicit permission.
 	return provider=="internal" or (provider=="cc0" and permission)
+
