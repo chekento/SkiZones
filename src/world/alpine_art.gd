@@ -134,35 +134,91 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 				soft_box(end+Vector3(0,0.2,0),Vector3(radius*0.9,0.32,0.65),snow,Vector3(0,-side*0.3,side*0.17),0.12)
 	return finish()
 
-func landscape_detail(kind: int) -> ArrayMesh:
-	var snow := Color("eaf1f5")
-	var stone := Color("8a969b")
+func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
+	# The original six Alpine models and their colors remain unchanged.
+	# Alternate styles intentionally change silhouettes and props, not just tint.
+	var colors: Dictionary = {
+		"comic":{"snow":"ecfaff","stone":"4d719d","wood":"aa7255","flora":"39bd9a","metal":"f9c849"},
+		"pastel":{"snow":"ffeffa","stone":"b6a2c9","wood":"ccacb1","flora":"9ac7b6","metal":"f5c8d6"},
+		"cinematic":{"snow":"cad9e1","stone":"526272","wood":"64584e","flora":"6a7d6b","metal":"9cb0bc"},
+		"crisp":{"snow":"ffffff","stone":"436e9b","wood":"6686a5","flora":"43a4bf","metal":"71e3ff"}
+	}.get(style_id,{})
+	var snow := Color(str(colors.get("snow","eaf1f5")))
+	var stone := Color(str(colors.get("stone","8a969b")))
+	var wood := Color(str(colors.get("wood","79604c")))
+	var flora := Color(str(colors.get("flora","768c7e")))
+	var metal := Color(str(colors.get("metal","b7cbd0")))
+	var sharp: bool = style_id in ["comic","cinematic","crisp"]
 	match kind:
-		0: # Pebble cluster.
+		0: # Small rock cluster: faceted chunks for graphic themes.
 			for i in range(4):
 				var at := Vector3(sin(i*2.4)*1.8,0.25,cos(i*2.4)*1.4)
-				sphere(at,0.7+i*0.12,stone,Vector3(1.2,0.6,0.85))
-				sphere(at+Vector3(0,0.33,0),0.60+i*0.1,snow,Vector3(1.2,0.18,0.85))
-		1: # Alpine shrubs poking through powder.
+				if sharp:
+					box(at,Vector3(1.0+i*0.18,0.55+i*0.15,0.85+i*0.1),stone,Vector3(0,i*0.5,0.1*i))
+					box(at+Vector3(0,0.40,0),Vector3(1.15+i*0.1,0.14,1.0),snow)
+				else:
+					sphere(at,0.7+i*0.12,stone,Vector3(1.2,0.6,0.85))
+					sphere(at+Vector3(0,0.33,0),0.60+i*0.1,snow,Vector3(1.2,0.18,0.85))
+		1: # Alpine shrubs, colorful geometric twigs for contrasting themes.
 			for i in range(5):
 				var tip := Vector3(sin(i*2.4)*1.5,1.5+i*0.17,cos(i*2.4))
-				link(Vector3.ZERO,tip,0.09,Color("826c55"))
-				link(tip*0.62,tip+Vector3(0.5,0.3,0.4),0.06,Color("826c55"))
-		2: # Fallen log with snow resting on top.
-			link(Vector3(-3,0.6,0),Vector3(3,0.8,0.5),0.65,Color("79604c"))
-			soft_box(Vector3(0,1.12,0.2),Vector3(5.5,0.5,1.05),snow,Vector3(0,-0.08,0),0.2)
-			link(Vector3(0.8,0.9,0.2),Vector3(1.3,1.7,-1),0.18,Color("79604c"))
-		3: # Rounded, wind-built snow bank.
-			sphere(Vector3(0,0.35,0),2.2,Color("d2dfe8"),Vector3(2.6,0.40,1.0))
-			sphere(Vector3(-0.6,0.7,0),1.9,snow,Vector3(2.4,0.30,0.8))
-		4: # Cut stump and a dusting of snow.
-			cone(Vector3(0,0.7,0),0.9,1.4,Color("80624d"),0.7)
+				link(Vector3.ZERO,tip,0.09,wood if style_id != "alpine" else Color("826c55"))
+				link(tip*0.62,tip+Vector3(0.5,0.3,0.4),0.06,flora if style_id != "alpine" else Color("826c55"))
+				if style_id in ["comic","pastel"]: sphere(tip,0.33,flora)
+		2: # Fallen log and freshly drifted snow.
+			link(Vector3(-3,0.6,0),Vector3(3,0.8,0.5),0.65,wood)
+			if sharp: box(Vector3(0,1.12,0.2),Vector3(5.5,0.4,1.05),snow,Vector3(0,-0.08,0))
+			else: soft_box(Vector3(0,1.12,0.2),Vector3(5.5,0.5,1.05),snow,Vector3(0,-0.08,0),0.2)
+			link(Vector3(0.8,0.9,0.2),Vector3(1.3,1.7,-1),0.18,wood)
+		3: # Different dramatic snow bank profiles.
+			if sharp:
+				for i in range(3):
+					cone(Vector3(-1.4+i*1.3,0.6+i*0.15,0),1.2+i*0.12,1.4+i*0.25,snow)
+			else:
+				sphere(Vector3(0,0.35,0),2.2,Color("d2dfe8") if style_id == "alpine" else stone.lightened(0.45),Vector3(2.6,0.40,1.0))
+				sphere(Vector3(-0.6,0.7,0),1.9,snow,Vector3(2.4,0.30,0.8))
+		4: # Cut stump.
+			cone(Vector3(0,0.7,0),0.9,1.4,wood if style_id != "alpine" else Color("80624d"),0.7)
 			cone(Vector3(0,1.42,0),0.72,0.16,snow,0.68)
-			for side in [-1,1]: link(Vector3.ZERO,Vector3(side*1.5,0.1,0.6),0.25,Color("80624d"))
-		_:
-			sphere(Vector3(0,1.2,0),2.3,stone,Vector3(1.3,0.8,1.0))
-			sphere(Vector3(-0.3,2.25,0),2.0,snow,Vector3(1.2,0.20,0.9))
+			for side in [-1,1]: link(Vector3.ZERO,Vector3(side*1.5,0.1,0.6),0.25,wood if style_id != "alpine" else Color("80624d"))
+		5: # Rock outcrop with a striking edge.
+			if sharp:
+				box(Vector3(0,1.2,0),Vector3(2.9,2.2,2.6),stone,Vector3(0,0.33,0.16))
+				box(Vector3(-0.25,2.35,0),Vector3(3.1,0.22,2.4),snow,Vector3(0,0.33,0))
+			else:
+				sphere(Vector3(0,1.2,0),2.3,stone,Vector3(1.3,0.8,1.0))
+				sphere(Vector3(-0.3,2.25,0),2.0,snow,Vector3(1.2,0.20,0.9))
 			box(Vector3(0,1.2,1.65),Vector3(2.9,0.15,0.12),stone.darkened(0.25),Vector3(0,0,0.1))
+		6: # Frost crystals / glittering low-poly shards.
+			for i in range(5):
+				var at := Vector3(sin(i*2.4)*1.4,0.72,cos(i*2.4)*1.4)
+				cone(at,0.52,1.5+i*0.2,metal,0.02)
+		7: # Shallow frozen pond with snow rim.
+			sphere(Vector3.ZERO,2.7,stone.lightened(0.20),Vector3(1.4,0.10,0.85))
+			sphere(Vector3(0,0.12,0),2.4,metal,Vector3(1.3,0.05,0.77))
+			for i in range(3):
+				box(Vector3(-1.8+i*1.6,0.16,0.4),Vector3(0.9,0.03,0.08),snow,Vector3(0,0.2*i,0))
+		8: # Small trail sign, clear of paths because clearing is shared.
+			link(Vector3.ZERO,Vector3(0,3.7,0),0.16,wood)
+			box(Vector3(0.8,3.15,0),Vector3(2.3,0.65,0.20),metal)
+			box(Vector3(-0.6,2.25,0),Vector3(1.8,0.42,0.20),wood)
+			cone(Vector3(0,3.80,0),0.5,0.3,snow)
+		9: # Snow-covered alpine flower and shrub patch.
+			for i in range(6):
+				var angle := i*TAU/6.0
+				var tip := Vector3(cos(angle)*1.6,1.1, sin(angle)*1.6)
+				link(Vector3.ZERO,tip,0.10,flora)
+				sphere(tip,0.32,flora.lightened(0.28))
+				sphere(tip+Vector3(0,0.17,0),0.22,snow)
+		10: # Tiny snowbound boulder / cliff fragment.
+			box(Vector3(0,0.85,0),Vector3(3.8,1.5,2.8),stone,Vector3(0,0.36,0.16))
+			box(Vector3(0,1.75,0),Vector3(3.6,0.23,2.5),snow,Vector3(0,0.36,0))
+			box(Vector3(1.0,0.6,1.2),Vector3(0.18,1.1,0.08),metal)
+		11: # Lightly stylized ridge of crystalline ice.
+			for i in range(3):
+				var x := -1.35+i*1.4
+				cone(Vector3(x,1.4+i*0.18,0),0.95,2.7+i*0.5,stone.lightened(0.16),0.02)
+				cone(Vector3(x,2.65+i*0.18,0),0.50,1.15,snow,0.01)
 	return finish()
 
 func wildlife(kind: int) -> ArrayMesh:
