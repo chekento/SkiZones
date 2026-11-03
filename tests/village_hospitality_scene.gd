@@ -66,5 +66,6 @@ func run() -> void:
 	check(game.paused, "An already paused resort stays paused after a cabin visit")
 	game.queue_free()
 	await process_frame
+	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)

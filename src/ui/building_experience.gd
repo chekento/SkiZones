@@ -7,7 +7,7 @@ const Activities = preload("res://src/core/building_activities.gd")
 var hud: CanvasLayer
 var asset_id := -1
 var tabs := TabContainer.new()
-var heading := Label.new()
+var heading: Label
 var session: Dictionary = {}
 var game_box: VBoxContainer
 var task: Dictionary = {}

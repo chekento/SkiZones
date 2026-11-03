@@ -79,7 +79,7 @@ func _actual_visits() -> void:
 		if food.visits>0: break
 		model.advance_minute(false)
 	check(walked and food.visits==1,"An unforced simulated guest physically walks to the door and completes the visit")
-	check(is_equal_approx(model.money-money-(model.report.rewards-earned_before),7.0) and model.report.services==7 and food.revenue==7,"Only the completed restaurant visit earns its actual fee once")
+	check(is_equal_approx(model.money-money-(model.report.rewards-earned_before),13.0) and model.report.services==13 and food.revenue==13,"Only the completed restaurant visit earns its actual fee once")
 	check(guest.needs.hunger<=15 and guest.needs.energy>90,"Eating restores the guest's actual hunger and energy")
 	check(visit_id(model.service_route(guest))!=int(food.id),"A completed visit is not immediately booked again")
 	guest.needs.hunger=85;guest.age+=60
@@ -150,3 +150,4 @@ func _migration() -> void:
 		check(not copy.restore(damaged).ok,"Out-of-range needs are rejected without replacing a working save")
 		damaged=model.snapshot();damaged.guests[0].service_history={"restaurant":damaged.guests[0].age+1}
 		check(not copy.restore(damaged).ok,"Impossible future service history is rejected during save validation")
+

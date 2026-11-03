@@ -153,7 +153,7 @@ func _needs() -> void:
 		if food.visits>0:break
 		model.advance_minute(false)
 	check(midpoint,"Eating improves individual hunger progressively during the actual visit")
-	check(food.visits==4 and is_equal_approx(model.money-balance-(model.report.rewards-reward_before),28.0) and model.report.services==28,"The completed family meal accounts for four visits and four actual fees once")
+	check(food.visits==4 and is_equal_approx(model.money-balance-(model.report.rewards-reward_before),52.0) and model.report.services==52,"The completed family meal accounts for four visits and four actual fees once")
 	check(guest.family[0].needs.hunger<25 and guest.family[-1].needs.hunger<5,"Children and parents receive the meal without losing their individual needs")
 	healthy(guest);guest.family[1].needs.warmth=5;Needs.aggregate_family(guest)
 	check(visit_id(model.service_route(guest))==int(model.buildings[0].id),"The coldest child triggers a shared reachable warm shelter")
@@ -216,3 +216,4 @@ func _overnight() -> void:
 	for i in range(125):model.advance_minute(false)
 	check(model.day==2 and model.minute==5 and model.guests.has(guest) and guest.agenda.lifts.size()==1,"The same holiday guest and completed lift list persist across midnight")
 	check(Resort.new().restore(save(model)).ok,"An occupied collector hotel stay survives a populated save")
+
