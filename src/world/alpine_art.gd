@@ -563,6 +563,12 @@ func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
 		else:
 			for x in [-2,0,2]: soft_box(Vector3(x,11.8,depth/2+2),Vector3(1.6,1.5,0.9),Color("d4a64c"),Vector3(0,0,x*0.12))
 			for x in [-1,1]: sphere(Vector3(x,12.8,depth/2+2.5),0.35,Color("fffaf2"))
+	if kind in ["printing_press","newsstand"]:
+		box(Vector3(0,12,depth/2+2),Vector3(13,5,0.8),Color("f5e7cf"))
+		box(Vector3(0,13.2,depth/2+2.5),Vector3(10,0.35,0.3),accent)
+		for row in range(3):
+			for column in range(4):
+				box(Vector3(-4.2+column*2.8,11.8-row*0.82,depth/2+2.55),Vector3(2,0.16,0.12),Color("43545b"))
 	# Alpine craftsmanship is readable from the playable resort camera.
 	if kind == "watchmaker":
 		sphere(Vector3(0,12,depth/2+1.5),3.8,Color("b78c53"),Vector3(1,1,0.15))
