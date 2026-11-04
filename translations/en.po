@@ -7083,3 +7083,22 @@ msgstr "Attention %d %% · Scenery ↔ Operations"
 
 msgid "Interaktiver Pistenplan"
 msgstr "Interactive piste map"
+
+
+msgid "Monochrom · Strichlinien"
+msgstr "Monochrome · Line art"
+
+msgid "Schwarze Strichlinien auf hellem Papier: reduzierte Häuser, Bäume, Liftstationen und Symbole ohne Farbtöne."
+msgstr "Black lines on light paper: simplified houses, trees, lift stations and symbols without color hues."
+
+msgid "Lebkuchen-Festhütte"
+msgstr "Gingerbread festive lodge"
+
+msgid "Geschenkewerkstatt"
+msgstr "Gift workshop"
+
+msgid "Silvester-Festbühne"
+msgstr "New Year’s Eve stage"
+
+msgid "Weihnachtsmarkt-Bude"
+msgstr "Christmas market stall"

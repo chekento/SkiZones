@@ -25,7 +25,7 @@ func load_from() -> void:
 	var value: Variant = config.get_value("display", "quality", "auto")
 	quality = value if value is String and value in ["auto", "economy", "balanced", "high"] else "auto"
 	value = config.get_value("display", "visual_style", "alpine")
-	visual_style = value if value is String and value in ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus"] else "alpine"
+	visual_style = value if value is String and value in ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus", "monochrome"] else "alpine"
 	value = config.get_value("display", "target_fps", 60)
 	target_fps = value if value is int and value in [30, 60] else 60
 	value = config.get_value("display", "snowfall", true)
@@ -86,6 +86,7 @@ func apply(view: Node3D) -> void:
 	view.effects_enabled = snowfall
 	view.camera_smoothing = camera_smoothing
 	view._atmosphere_tick = ""
+
 
 
 
