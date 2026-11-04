@@ -56,10 +56,10 @@ func run() -> void:
 		themed.style_id = theme_id
 		root.add_child(themed)
 		await process_frame
-		var surface := themed.get_node_or_null("ArcadeSurface") as PanelContainer
-		var title := themed.find_child("ArcadeTitle", true, false) as Label
-		var instructions := themed.find_child("ArcadeInstructions", true, false) as Label
-		var score := themed.find_child("ArcadeScore", true, false) as Label
+		var surface := themed.get_node_or_null("arcade_surface") as PanelContainer
+		var title := themed.find_child("arcade_title", true, false) as Label
+		var instructions := themed.find_child("arcade_instructions", true, false) as Label
+		var score := themed.find_child("arcade_score", true, false) as Label
 		check(surface != null and title != null and instructions != null and score != null,
 			"%s: real themed surface contains the entire game text" % theme_id)
 		if surface != null and title != null and instructions != null and score != null:
