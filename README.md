@@ -39,7 +39,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | --- | --- | --- |
 | [0.23.0–0.27.0](https://github.com/chekento/SkiZones/releases) | Pistenmodule, Hotelwelten, Winterfeste, Szenarien, Kamera und Offline-Radio | Veröffentlicht |
 | [0.30.0](docs/releases/0.30.0.md) | Alte Karrieren, erweiterte Radiosender, Hotellobby, Künstlerkanäle und mobile Bedienung | APK kompiliert; Android-Freigabeprüfung läuft |
-| [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | Zusammenführung in Freigabeprüfung |
+| [0.31.0](https://github.com/chekento/SkiZones/blob/feature/031-editorial-townhall-avantgarde/docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | Zusammenführung in Freigabeprüfung |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
@@ -63,7 +63,7 @@ Der Releasekandidat verbindet die Spielstand-Reparaturen und die erweiterte Klan
 - **Winterdorf:** Rathaus mit Chronik für neue Orte und zusätzliche Dekoration an vorhandenen Wegen. Anklickbare Plakate erscheinen vom 1. bis 30. November; am 1. Dezember beginnt der Adventskalender. Für das bisher nicht als Spielasset verifizierte Originalplakat ist eine prozedurale Ersatzgrafik enthalten.
 - **Bedienung:** größere mobile Sicherheitsabstände, freie Kamera bei geschlossenen Fenstern und klare Pause-/Zurück-Regeln für Plakate und Innenräume.
 
-[Gesamte Änderungen 0.31.0](docs/releases/0.31.0.md) · [0.30-Hotfix](docs/releases/0.30.0.md). Physische Handy-Hörtests, authentische Genre-Nachkuratierung und eine vollständige Fahrtprüfung aller importierten Szenarioabschnitte bleiben zusätzliche Arbeit.
+[Gesamte Änderungen 0.31.0](https://github.com/chekento/SkiZones/blob/feature/031-editorial-townhall-avantgarde/docs/releases/0.31.0.md) · [0.30-Hotfix](docs/releases/0.30.0.md). Physische Handy-Hörtests, authentische Genre-Nachkuratierung und eine vollständige Fahrtprüfung aller importierten Szenarioabschnitte bleiben zusätzliche Arbeit.
 
 ## Rückblick: 0.23.0 · Mehr Landschaft, eigene Pistenmodule und freiere Dorfplanung
 
