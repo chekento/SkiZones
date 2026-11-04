@@ -7102,3 +7102,25 @@ msgstr "New Year’s Eve stage"
 
 msgid "Weihnachtsmarkt-Bude"
 msgstr "Christmas market stall"
+
+
+msgid "TAG & ZEIT"
+msgstr "DAY & TIME"
+
+msgid "Heute: %s €"
+msgstr "Today: €%s"
+
+msgid "%d warten"
+msgstr "%d waiting"
+
+msgid "%d Resort-Sterne"
+msgstr "%d resort stars"
+
+msgid "%d Pisten · %d Lifte"
+msgstr "%d pistes · %d lifts"
+
+msgid "Abendbetrieb"
+msgstr "Evening operations"
+
+msgid "Betrieb läuft"
+msgstr "Operating"

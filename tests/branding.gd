@@ -6,6 +6,7 @@ func _init() -> void:
 
 func _run() -> void:
     var source_paths: Array[String] = [
+        "res://assets/branding/skizones_wordmark.png",
         "res://assets/branding/source_icon.png",
         "res://assets/branding/source_splash.png",
         "res://assets/branding/icon_192.png",
@@ -50,3 +51,4 @@ func _run() -> void:
     print("PASS: SkiZones app icon, PNG boot splash and responsive startup scene")
     print("RESULT: 1 passed; 0 failed")
     quit(0)
+
