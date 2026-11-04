@@ -20,6 +20,8 @@ static func add(office: Control) -> void:
 	var summary: VBoxContainer = office._card(page, L.text("24-Stunden-Resort"), L.text("Lifte 08–17 Uhr. Hotels und Abendangebote haben eigene Schichten. Um Mitternacht wird automatisch abgerechnet; die Simulation läuft weiter."))
 	hud._label(summary, L.text("Heute: %s € Personalkosten · Ersatzteile: %d · Pistenraupen: %d") % [hud.money_text(model.operations.payroll), int(model.operations.parts), model.operations.vehicles.size()], 18, hud.TEAL, true)
 	hud._label(summary, L.text("Gäste pro sichtbarer Reisegruppe: %d. Tickets, Kapazitäten und Erlöse berücksichtigen die Gruppengröße.") % Ops.group_size(model), 16, hud.MUTED, true)
+	var morning: Label = hud._label(summary, L.text("Morgeninteresse: %d · Ankünfte 08–10 Uhr nach freien Plätzen. Noch keine Gäste oder Einnahmen.") % int(model.operations.get("pending_arrivals", 0)), 16, hud.MUTED, true)
+	morning.name = "morning_interest"
 	if model.operations.event != "": hud._label(summary, L.text("Betriebsereignis: ") + L.text(model.operations.event), 17, hud.ACCENT, true)
 	if model.operations.delivery_at >= 0: hud._label(summary, L.text("Ersatzteillieferung in %d Minuten") % maxi(0, int(model.operations.delivery_at) - Ops.clock(model)), 16)
 	office._action(summary, L.text("6 Ersatzteilpakete bestellen · 1.800 €"), func(): return Ops.order_parts(model))

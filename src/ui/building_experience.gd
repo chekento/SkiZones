@@ -257,7 +257,7 @@ func _town_hall(_building: Dictionary) -> void:
 	archive.add_child(museum)
 	var mu: VBoxContainer=hud._vbox(museum,6)
 	hud._label(mu,L.text("BEGLAUBIGTES ARCHIV"),14,accent,true)
-	hud._label(mu,L.text("31 historisch veröffentlichte Versionen · älteste zuerst · aus unserem Gemeindeprotokoll."),14,ink,true)
+	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
 	hud._label(mu,L.text(TownHall.DEVELOPMENT_NOTICE),13,ink,true)
 	for event in TownHall.history(false):
 		var row:=PanelContainer.new()
@@ -268,8 +268,8 @@ func _town_hall(_building: Dictionary) -> void:
 		hud._label(inner,L.text(str(event.topic)),18,ink,true)
 		hud._label(inner,L.text(str(event.story)),15,ink,true)
 	var plans: VBoxContainer=_page(L.text("Rathaus · Bauplan bis Januar"))
-	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · 04.11.–04.01."),22,accent,true)
-	hud._label(plans,L.text("Das sind geplante Verbesserungen und keine bereits veröffentlichten Funktionen. Jede Bauphase enthält konkrete Freigabekriterien."),15,ink,true)
+	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · NOVEMBER BIS JANUAR"),22,accent,true)
+	hud._label(plans,L.text("Planungsstand 04.11.2026 · Ziele sind keine Zusagen oder veröffentlichten Funktionen. Jede Phase erhält eigene Freigabetests."),15,ink,true)
 	for phase in TownHall.roadmap():
 		var chapter:=PanelContainer.new()
 		chapter.add_theme_stylebox_override("panel",hud._style(paper,4,15,accent))
@@ -277,15 +277,17 @@ func _town_hall(_building: Dictionary) -> void:
 		var details: VBoxContainer=hud._vbox(chapter,8)
 		hud._label(details,str(phase.phase),22,accent,true)
 		hud._label(details,L.text("%s bis %s") % [str(phase["from"]),str(phase["to"])],14,ink,true)
+		hud._label(details,L.text("Release-Ziel: %s · %s") % [L.text(str(phase.target)),L.text(str(phase.status))],14,ink,true)
 		for entry in phase.deliverables:
 			hud._label(details,"• "+L.text(str(entry)),15,ink,true)
 		hud._label(details,L.text("Abnahmekriterium: ")+L.text(str(phase.acceptance)),13,accent,true)
+	hud._button(plans,L.text("Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/docs/ROADMAP_2026_11_2027_01.md"))
 	var bulletin: VBoxContainer=_page(L.text("Rathaus · Bürgerinformation"))
 	hud._label(bulletin,L.text("STADTANZEIGER UND BÜRGERSERVICE"),22,accent,true)
 	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
 	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
 	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/releases"))
-	hud._label(bulletin,L.text("Bauprojekte der nächsten Versionen: neue Zeitungsdruckbilder, Weihnachtsplakate, KI-freie automatische Gebäudeübergänge, authentische lizenzierte Musik und bessere Qualität auf kleinen Telefonbildschirmen."),15,ink,true)
+	hud._label(bulletin,L.text("Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-Resort-Design."),15,ink,true)
 
 func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))

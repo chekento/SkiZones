@@ -58,9 +58,13 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 		control.add_theme_color_override("font_selected_color", hud.ACCENT)
 		control.add_theme_color_override("font_unselected_color", hud.MUTED)
 	layout.add_child(tabs)
-	get_viewport().size_changed.connect(func(): _apply_responsive_layout(get_viewport().get_visible_rect().size.x))
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	_apply_responsive_layout(get_viewport().get_visible_rect().size.x)
 	hide()
+
+func _on_viewport_size_changed() -> void:
+	if not is_inside_tree(): return
+	_apply_responsive_layout(get_viewport().get_visible_rect().size.x)
 
 func _apply_responsive_layout(available_width: float) -> void:
 	# A compact office must remain usable with one hand and limited Android

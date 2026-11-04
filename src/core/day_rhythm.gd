@@ -10,6 +10,25 @@ static func playback(minute: int, preset: String = "balanced") -> float:
 	# Keep an unhurried 17–22h evening after the shorter skiing day.
 	return 1.0 if minute >= 1020 and minute < QUIET_FROM else float(DAY_SPEED.get(preset, 1.8))
 
+## Only foot traffic to a real exit/overnight/after-ski destination can be
+## safely accelerated. Every remaining leg must be a walk or indoor visit:
+## never fast-forward a skier, lift rider, queue, rescue or lost NPC.
+static func _safe_foot_destination(model: RefCounted, guest: Dictionary) -> bool:
+	if not guest.has("route") or not guest.route is Dictionary: return false
+	var legs: Array = guest.route.get("legs", [])
+	var index: int = int(guest.get("leg", -1))
+	if index < 0 or index >= legs.size(): return false
+	var last: Dictionary = legs.back()
+	var going_home: bool = str(last.get("to", "")) == "base"
+	var going_to_service: bool = bool(guest.get("evening", false)) or bool(guest.get("hotel_night", false)) or bool(guest.get("night_out", false))
+	if not (going_home or going_to_service or bool(guest.get("heading_home", false))): return false
+	for i in range(index, legs.size()):
+		var leg: Dictionary = legs[i]
+		if leg.get("kind", "") == "walk": continue
+		if leg.get("kind", "") != "visit": return false
+		if str(model.asset(int(leg.get("id", 0))).get("kind", "")) not in INDOOR: return false
+	return true
+
 static func indoors_only(model: RefCounted) -> bool:
 	var now: int = model.Ops.clock(model)
 	for guest in model.guests:
@@ -18,7 +37,9 @@ static func indoors_only(model: RefCounted) -> bool:
 		if guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel" and int(guest.get("hotel_sleep_until", 0)) > now: continue
 		if guest.phase != "moving" or int(guest.leg) >= guest.route.legs.size(): return false
 		var leg: Dictionary = guest.route.legs[int(guest.leg)]
-		if leg.kind != "visit" or str(model.asset(int(leg.id)).get("kind", "")) not in INDOOR: return false
+		if leg.kind == "visit" and str(model.asset(int(leg.id)).get("kind", "")) in INDOOR: continue
+		if leg.kind == "walk" and _safe_foot_destination(model, guest): continue
+		return false
 	return true
 
 static func quiet_night(model: RefCounted) -> bool:

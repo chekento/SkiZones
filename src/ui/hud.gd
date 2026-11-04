@@ -365,6 +365,9 @@ static func safe_content_rect(display_size: Vector2, viewport_size: Vector2, saf
 	return Rect2(clipped.position * scale_value, clipped.size * scale_value)
 
 func _update_safe_area() -> void:
+	# Language changes detach the previous HUD before its deferred deletion.
+	# A rotation in that frame must only resize the new, attached interface.
+	if not is_inside_tree(): return
 	var size_value := get_viewport().get_visible_rect().size
 	var content := Rect2(Vector2.ZERO, size_value)
 	if OS.has_feature("android") or OS.has_feature("ios"):
