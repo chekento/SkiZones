@@ -6950,3 +6950,63 @@ msgstr "Insufficient recruitment budget."
 
 msgid " eingestellt · "
 msgstr " hired · "
+
+msgid "Liftteam öffnen und Stationen in der Tagschicht besetzen."
+msgstr "Open the lift team and staff all stations on day shift."
+
+msgid "Reparaturzentrale öffnen: Techniker und Elektriker einstellen."
+msgstr "Open the repair office and hire mechanics and electricians."
+
+msgid "Defekten Lift wählen, Ersatzteile bereitstellen und Reparatur starten."
+msgstr "Select the broken lift, secure spare parts and order repair."
+
+msgid "Pistenraupengarage öffnen: Fahrzeug und Fahrer einsetzen, Piste vorher leeren."
+msgstr "Open the groomer garage: assign machine and driver; clear the piste first."
+
+msgid "Gäste über funktionierende Routen bedienen; Ruf und Besucherzahl steigern."
+msgstr "Serve guests on functioning routes; increase reputation and visitors."
+
+msgid "Alle geöffneten Tal-, Mittel- und Bergstationen prüfen."
+msgstr "Check all open valley, mid and summit stations."
+
+msgid "Bergwacht mit mindestens zwei Rettungskräften besetzen."
+msgstr "Staff mountain rescue with at least two rescuers."
+
+msgid "Drei Pisten im Garagen-Menü nacheinander oder parallel präparieren."
+msgstr "Groom three pistes, consecutively or in parallel from the garage menu."
+
+msgid "Wartezeit durch mehr Liftkapazität, Personal und erreichbare Pisten senken."
+msgstr "Reduce waits with lift capacity, staff and reachable pistes."
+
+msgid "Zwei profitable Betriebstage mit ausreichendem Service und Lifteinsatz erreichen."
+msgstr "Complete two profitable days with enough services and operating lifts."
+
+msgid "Reparaturzentrale besetzen und defekten Verbindungslift reparieren."
+msgstr "Staff the repair office and fix the broken connecting lift."
+
+msgid "Jede offene Station einschließlich der gemeinsamen Mittelstation besetzen."
+msgstr "Staff every open station including shared mid-stations."
+
+msgid "Ersatzteilbestellung aufgeben und zwei Pakete im Lager behalten."
+msgstr "Order parts and keep two spare packages in storage."
+
+msgid "200 Gäste anziehen und Warteschlangen durch zusätzliche Kapazität verkürzen."
+msgstr "Attract 200 guests; add lift capacity to shorten queues."
+
+msgid "300 Gäste und einen profitablen Betriebstag erreichen."
+msgstr "Reach 300 guests and one profitable operating day."
+
+msgid "Bergwacht und Reparaturzentrale mit allen benötigten Rollen besetzen."
+msgstr "Staff rescue and repair offices with every required role."
+
+msgid "Mindestens drei Pistenraupen kaufen, Fahrer zuweisen und drei Pisten präparieren."
+msgstr "Buy at least three groomers, assign drivers and groom three pistes."
+
+msgid "Hotel und Après-Ski mit passenden Schichten für den Abendbetrieb besetzen."
+msgstr "Staff the hotel and après-ski venue for evening hours."
+
+msgid "Alle geöffneten Berg- und Talstationen mit genügend Liftpersonal ausstatten."
+msgstr "Assign enough operators to all open summit and valley stations."
+
+msgid "Drei profitable Betriebstage mit beherrschbaren Kosten erreichen."
+msgstr "Achieve three profitable operating days with sustainable expenses."
