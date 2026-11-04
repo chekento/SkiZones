@@ -113,6 +113,29 @@ func finish() -> ArrayMesh:
 func tree_variant(style_id: String, species: int, simplified: bool = false) -> ArrayMesh:
 	if style_id=="monochrome": return Lines.new().tree(species)
 	if species == 0: return pine_painted(style_id, simplified)
+	if species >= 3:
+		# Dwarf mountain pine and slender snow larch provide new forest silhouettes.
+		var tints: Dictionary = VisualStyles.detail_tints(style_id)
+		var bark := Color(str(tints.wood))
+		var needles := Color(str(tints.flora)).darkened(0.10 if species == 3 else 0.25)
+		var snow := Color(str(tints.snow))
+		var layers := 4 if simplified else 7
+		var height_value := 12.0 if species == 3 else 8.0
+		cone(Vector3(0,height_value*0.5,0),0.48,height_value,bark,0.08)
+		for index in range(layers):
+			var fraction := float(index)/float(layers)
+			var y := 2.5 + fraction*(height_value-2.2)
+			var spread := (3.2 if species == 3 else 6.4)*(1.0-fraction*0.68)
+			for arm in range(4):
+				var angle := float(arm)*TAU/4.0+fraction*0.8
+				var tip := Vector3(cos(angle)*spread,y+0.45,sin(angle)*spread)
+				link(Vector3(0,y,0),tip,0.16,bark)
+				if species == 3:
+					cone(tip+Vector3(0,0.70,0),0.70 if simplified else 1.05,1.5,needles.lightened(fraction*0.14),0.06)
+				else:
+					soft_box(tip+Vector3(0,0.30,0),Vector3(2.2,0.62,1.3),needles,Vector3(0,angle,0),0.18)
+				if not simplified: sphere(tip+Vector3(0,0.7,0),0.65,snow,Vector3(1.5,0.28,1.0))
+		return finish()
 	var bark := Color("79614d")
 	var snow := Color("e7eef3")
 	var tint := Color("69866a") if species == 1 else Color("7d8474")
@@ -283,6 +306,43 @@ func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
 				box(Vector3(x,3.2,0),Vector3(1.1,0.35,1.5),snow)
 			box(Vector3(0,3.7,0),Vector3(5.6,1.0,1.55),stone)
 			box(Vector3(0,4.25,0),Vector3(6.0,0.28,1.7),snow)
+		24: # Juniper bush with several snow pillows.
+			for i in range(7):
+				var angle := i * TAU / 7.0
+				var tip := Vector3(cos(angle)*2.2, 1.25 + (i%3)*0.35, sin(angle)*2.2)
+				cone(tip, 0.90, 2.5, flora.darkened(0.12), 0.20)
+				sphere(tip+Vector3(0,1.2,0),0.93,snow,Vector3(1.05,0.28,0.95))
+		25: # Large slate stones with crevices.
+			for i in range(4):
+				var angle := i*TAU/4.0
+				var at := Vector3(cos(angle)*2.5, 0.8+i*0.22, sin(angle)*1.6)
+				box(at, Vector3(3.0,1.55,2.1),stone,Vector3(0,angle,0.12))
+				box(at+Vector3(0,0.78,0),Vector3(2.8,0.2,2.0),snow,Vector3(0,angle,0))
+		26: # Shelter-hugging dwarf rhododendron and branches.
+			for i in range(9):
+				var angle := i*TAU/9.0
+				var tip := Vector3(cos(angle)*2.8,1.0+(i%3)*0.25,sin(angle)*2.0)
+				link(Vector3.ZERO,tip,0.16,wood)
+				sphere(tip,0.70,flora,Vector3(1.8,0.7,1.2))
+				sphere(tip+Vector3(0,0.45,0),0.62,snow,Vector3(1.4,0.20,1.0))
+		27: # Wild berries peeking above a snow blanket.
+			for i in range(8):
+				var tip := Vector3(sin(i*2.2)*2.2,1.1+(i%4)*0.36,cos(i*2.2)*1.9)
+				link(Vector3.ZERO,tip,0.13,wood)
+				sphere(tip,0.42,flora.lightened(0.15))
+				sphere(tip+Vector3(0,0.23,0),0.19,Color("b57882") if style_id != "monochrome" else stone)
+		28: # Isolated sapling with a high, wind-bent crown.
+			cone(Vector3(0,3.4,0),0.26,6.8,wood,0.08)
+			for i in range(4):
+				var tip := Vector3(-2.0+i*0.8,5.5+i*0.37,(-1 if i%2==0 else 1)*1.1)
+				link(Vector3(0,5.0,0),tip,0.12,wood)
+				sphere(tip,0.84,flora,Vector3(1.3,0.6,1))
+				sphere(tip+Vector3(0,0.45,0),0.66,snow,Vector3(1.3,0.19,1))
+		29: # Boulders partly buried in a swept snow drift.
+			for i in range(3):
+				var at := Vector3(-2.0+i*2.0,0.75,0.55*sin(i*2.1))
+				soft_box(at,Vector3(2.8,1.55,2.4),stone,Vector3(0,i*0.5,0.22),0.24)
+				sphere(at+Vector3(0,0.85,0),1.0,snow,Vector3(1.45,0.18,1.1))
 	return finish()
 
 func wildlife(kind: int) -> ArrayMesh:
