@@ -7,6 +7,8 @@ var hud: CanvasLayer
 var cards: GridContainer
 var confirmation:=ConfirmationDialog.new()
 var pending_slot:=1
+var pending_wealth:=2
+const WEALTH := ["Existenzkampf · 35 %","Knapp bei Kasse · 60 %","Ausgewogen · 100 %","Gut ausgestattet · 150 %","Luxus-Investor · 250 %"]
 func setup(interface: CanvasLayer) -> void:
 	hud=interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -24,8 +26,22 @@ func setup(interface: CanvasLayer) -> void:
 	confirmation.dialog_text=L.text("Diese Karriere wird vor dem Neustart als Sicherung aufbewahrt. Die anderen drei Karrieren bleiben erhalten.")
 	confirmation.ok_button_text=L.text("Sichern und neu beginnen")
 	confirmation.cancel_button_text=L.text("Abbrechen")
-	confirmation.confirmed.connect(func():hud.game.select_career_slot(pending_slot,true))
+	confirmation.confirmed.connect(func():hud.game.select_career_slot(pending_slot,true,pending_wealth))
+	get_viewport().size_changed.connect(_fit)
+	_fit()
 	hide()
+func _fit() -> void:
+	var narrow: bool=get_viewport_rect().size.x<1000
+	offset_left=10 if narrow else 48;offset_right=-10 if narrow else -48
+	offset_top=80 if narrow else 110;offset_bottom=-10 if narrow else -28
+	if cards!=null:cards.columns=1 if narrow else 2
+func _wealth_picker(parent: Node) -> OptionButton:
+	var picker:=OptionButton.new();picker.custom_minimum_size.y=52
+	picker.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	picker.fit_to_longest_item=false
+	for title in WEALTH:picker.add_item(L.text(title))
+	picker.select(2);parent.add_child(picker)
+	return picker
 func open() -> void:
 	hud.game._clear_input();refresh();show()
 func refresh() -> void:
@@ -49,7 +65,11 @@ func refresh() -> void:
 					var area: String = str(entry.map)
 					var subtitle: String = L.text("Spielstand prüfen") if entry.damaged else L.text("Resort fortsetzen")
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + subtitle,func():hud.game.select_career_area(slot,area))
-			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;confirmation.popup_centered(Vector2i(620,230)))
+			var wealth: OptionButton=_wealth_picker(body)
+			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():
+				pending_slot=slot;pending_wealth=wealth.selected
+				confirmation.popup_centered(Vector2i(620,230)))
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
-			hud._button(body,L.text("Neue Karriere starten"),func():hud.game.select_career_slot(slot,true),true)
+			var wealth: OptionButton=_wealth_picker(body)
+			hud._button(body,L.text("Neue Karriere starten"),func():hud.game.select_career_slot(slot,true,wealth.selected),true)
