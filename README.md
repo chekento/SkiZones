@@ -31,19 +31,17 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 ### 🧪 Entwicklungsstand und APK-Status
 
-**Öffentlich installierbare APK:** Der automatisch gepflegte Downloadblock oben verweist ausschließlich auf die neueste **tatsächlich veröffentlichte GitHub-Release-APK** (maßgeblich ist immer die oben genannte tatsächlich veröffentlichte Version).
+**Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**Nächster geplanter Release: SkiZones v0.26.0 (Android ARM64, VersionCode 33)** – [gemeinsamer Integrationszweig · PR #26](https://github.com/chekento/SkiZones/pull/26), nach vollständiger Freigabe. **Parallel in Entwicklung: v0.27.0 (Android ARM64, VersionCode 34)** – [Audio-Iteration · PR #27](https://github.com/chekento/SkiZones/pull/27). Für 0.26 und 0.27 gibt es noch **keine veröffentlichte APK**.
+**Gesamthotfix 0.31.0 · Android-VersionCode 36:** [Zusammenführung und Freigabeprüfung · PR #36](https://github.com/chekento/SkiZones/pull/36). Enthält die Änderungen aus 0.28–0.30 sowie Zeitung, Radiowerbung, neun Kunststile, Rathaus und November-Plakate. Veröffentlichung nach vollständigen Spielstand-, Godot-, Signatur- und Android-30/36-Prüfungen.
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
-| [**0.23.0**](https://github.com/chekento/SkiZones/releases/tag/v0.23.0) | Landschaft, Pistenmodule, Dorfkatalog, Android-Lifecycle-Korrektur | **Veröffentlicht** |
-| [**0.24.0**](https://github.com/chekento/SkiZones/releases/tag/v0.24.0) | Hotel-Mikrowelten, plastische Erfolge und Theme-Grafik | **Veröffentlicht** |
-| [**0.25.0**](https://github.com/chekento/SkiZones/pull/22) | Lineare Hotelmodule, traditionelle Gewerbe, jährlicher Weihnachts-/Silvestermodus | In 0.26 integriert; noch keine eigene APK |
-| [**0.26.0**](https://github.com/chekento/SkiZones/tree/work/026-integrated-resort-quality) | Gemeinsames Radio, Crew, Pistenatlas, Kameratour, Szenarien, Medaillen und Dorfzeitung | **Nächster Releasekandidat; Freigabeprüfung** |
-| [**0.27.0**](https://github.com/chekento/SkiZones/pull/27) | Nahtlose Audioübergänge und direktes Jukebox-Vorhören | **Parallele Entwicklung; keine APK** |
+| [0.23.0–0.27.0](https://github.com/chekento/SkiZones/releases) | Pistenmodule, Hotelwelten, Winterfeste, Szenarien, Kamera und Offline-Radio | Veröffentlicht |
+| [0.30.0](docs/releases/0.30.0.md) | Alte Karrieren, erweiterte Radiosender, Hotellobby, Künstlerkanäle und mobile Bedienung | APK kompiliert; Android-Freigabeprüfung läuft |
+| [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | Zusammenführung in Freigabeprüfung |
 
-**Versionsprinzip:** Nur erfolgreich geprüfte und in [GitHub Releases](https://github.com/chekento/SkiZones/releases) tatsächlich hochgeladene APKs erscheinen als öffentlicher Download. Entwicklungszweige tragen jeweils ihre zukünftigen Spiel- und Android-Versionsnummern, sind aber keine installierbaren Veröffentlichungen. Die [vollständigen geplanten Änderungstexte](docs/releases/) sind ebenfalls keine Behauptung über veröffentlichte APKs.
+Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
 
 <!-- PLAY-PROTECT:START -->
@@ -54,16 +52,18 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 </div>
 
-## 0.26.0 · Ein gemeinsamer lebendiger Resort-Stand
+## 0.31.0 · Gesamthotfix in Freigabeprüfung
 
-Der aktuelle Entwicklungsstand führt Hotel-Mikrowelten und lineare Hotelkomplexe, Winterfeste, Radio/Crew/Kartenstil sowie Szenarien/Kameratour/Medaillen/Alpen-ExtraBlatt zusammen. Die acht normalen Berge und vier Karriereplätze bleiben der wichtigste Einstieg; die vier realen Szenarien sind ein Zusatzmodus.
+Der Releasekandidat verbindet die Spielstand-Reparaturen und die erweiterte Klangwelt mit den neuesten Winter- und Zeitungserweiterungen. Acht normale Berge, vier Karriereplätze und vier optionale reale Szenarien bleiben erhalten.
 
-- **Eine Jukebox:** sechs eigene Offline-Klangstile, getrennte Musik- und Umgebungsregler, Gesamtlautstärke und Stummschaltung. Vorschauen bleiben aktiv und lassen sich verwerfen. Im Hintergrund stoppt der Ton; leere Orte bekommen keine erfundenen Menschenmengen.
-- **Mehr Orientierung und Leben:** sechs Grafikstile einschließlich Pistenatlas, weitere Landschaftsobjekte, freigehaltene Mitarbeiterunterkunft und eine optionale Kameratour durch vorhandene Anlagen.
-- **Mehr Betriebs- und Urlaubsspiel:** Hotelgeschichten, benachbarte Hotelmodule, vier neue Gewerbe, jährliche Weihnachts-/Silvesterereignisse, dauerhafte Medaillen und eine Zeitung über tatsächlich erreichte Erfolge.
-- **Solide Übergänge:** sanfte Anfängerlinien um Rampen, zusammenhängende Menüs und Abbruch/Zurück-Regeln, korrekte Kamera-Rückkehr und migrationsfähige Audioeinstellungen.
+- **Alte Karrieren:** Wiederherstellung über gültige Slotdateien, Backups und erhaltene Originaldateien; echte 0.19- und 0.27-Saves gehören zur verpflichtenden Freigabe.
+- **Radio:** erweiterte Offline-Programme mit Titel-/Künstler-Credits, Crossfades und gespeicherten Lautstärken. Hotel Lobby FM begleitet ausschließlich die Hotelverwaltung. Das schrille synthetische FX-Fiepen bleibt abgeschaltet.
+- **Eigene Künstlerkanäle:** ERG0SPHERE Journey und KoSch Milton – Ska'radise Lost öffnen SoundCloud ausschließlich nach Klick. Die Album-Masters sind nicht offline in der APK eingebettet. Suno ist weiterhin nicht angebunden.
+- **Zeitung und Kunst:** individuelles Alpen-ExtraBlatt mit echten Resortzahlen, Erfolgen und täglich wechselnder Werbung für sämtliche registrierten Radiosender. Neon Noir, Aurora Ink und Bauhaus ergänzen die bisherigen sechs speicherbaren Stile.
+- **Winterdorf:** Rathaus mit Chronik für neue Orte und zusätzliche Dekoration an vorhandenen Wegen. Anklickbare Plakate erscheinen vom 1. bis 30. November; am 1. Dezember beginnt der Adventskalender. Für das bisher nicht als Spielasset verifizierte Originalplakat ist eine prozedurale Ersatzgrafik enthalten.
+- **Bedienung:** größere mobile Sicherheitsabstände, freie Kamera bei geschlossenen Fenstern und klare Pause-/Zurück-Regeln für Plakate und Innenräume.
 
-Suno ist noch nicht angebunden. Die Musik besteht aus kurzen originalen synthetischen Loops. Die Mitarbeiterunterkunft ist ein sichtbarer Landschaftsanker; eigene Betten- und Wohnkostenverwaltung folgt später. [Ausführliche Änderungen](docs/releases/0.26.0.md) · [Integrationsnachweis und Grenzen](docs/INTEGRATION_026.md).
+[Gesamte Änderungen 0.31.0](docs/releases/0.31.0.md) · [0.30-Hotfix](docs/releases/0.30.0.md). Physische Handy-Hörtests, authentische Genre-Nachkuratierung und eine vollständige Fahrtprüfung aller importierten Szenarioabschnitte bleiben zusätzliche Arbeit.
 
 ## Rückblick: 0.23.0 · Mehr Landschaft, eigene Pistenmodule und freiere Dorfplanung
 
