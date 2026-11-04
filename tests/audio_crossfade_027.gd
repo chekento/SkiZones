@@ -61,6 +61,26 @@ func run() -> void:
 	check(radio.current_genre=="meditative" and float(radio._targets.music)>0.0,"Persisted genre restores correctly")
 	radio.set_active(false)
 	check((not radio.players["music"].playing or radio.players["music"].stream_paused) and (not radio.players["wind"].playing or radio.players["wind"].stream_paused),"Backgrounding silences every stream")
+	# Regression: an Android launch, procedural FX must never start,
+	# even with ambience and master at 100%, but radio must remain audible.
+	check(not Radio.AMBIENT_FX_ENABLED,"Emergency synthetic FX kill-switch stays enabled")
+	var hotfix := Radio.new()
+	root.add_child(hotfix)
+	var startup_prefs := Preferences.new()
+	startup_prefs.music_genre = "alpine"
+	startup_prefs.music_volume = 0.8
+	startup_prefs.ambient_volume = 1.0
+	startup_prefs.master_volume = 1.0
+	hotfix.setup(null, startup_prefs)
+	check(hotfix.players["music"].playing and hotfix.players["music"].stream != null and float(hotfix._targets.music)>0.0,"CC0 radio still plays with FX disabled")
+	for fx_name in Radio.LAYERS:
+		var fx_player: AudioStreamPlayer = hotfix.players[fx_name]
+		check(fx_player.stream == null and not fx_player.playing and is_zero_approx(float(hotfix._targets[fx_name])),"No synthetic FX stream: "+fx_name)
+	hotfix.set_preview({"ambient":1.0,"master":1.0})
+	for fx_name in Radio.LAYERS:
+		check(is_zero_approx(float(hotfix._targets[fx_name])) and not hotfix.players[fx_name].playing,"FX remains silent at max volume: "+fx_name)
+	check(hotfix._music_stream("freeride") == hotfix._music_stream("alpine"),"Freeride fallback uses real music, never synthesized beeps")
+	hotfix.queue_free()
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
