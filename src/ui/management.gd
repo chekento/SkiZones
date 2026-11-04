@@ -132,11 +132,28 @@ func refresh() -> void:
 	_upgrades(_page(L.text("Ausbau")))
 	_finances(_page(L.text("Finanzen")))
 	_sponsoring(_page(L.text("Sponsoring")))
+	_staff_market(_page(L.text("Personalmarkt")))
 	OperatingPages.add(self)
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
 		if page is ScrollContainer:
 			page.set_deferred("scroll_vertical", scroll_positions.get(page.name, 0))
+
+func _staff_market(page: VBoxContainer) -> void:
+	var model: RefCounted=game.model
+	_card(page,L.text("Personalmarkt"),L.text("Reservepersonal kostet einmalig 180 €; Stundenlohn und Schichten werden im Gebäudemenü verwaltet."))
+	for role in model.Ops.ROLES:
+		var spec: Dictionary=model.Ops.ROLES[role]
+		var required: String={"driver":"maintenance","technician":"repair_office","electrician":"repair_office","rescue":"first_aid","snow":"snowmaker","hotel":"hotel","catering":"restaurant"}.get(role,"")
+		var available: bool=required=="" or model.buildings.any(func(b):return b.kind==required or (role=="hotel" and b.kind in ["grand_hotel","guesthouse"]) or (role=="catering" and b.kind in ["bar","pizzeria","lodge","kiosk"]))
+		var count: int=model.operations.staff.filter(func(p):return p.role==role).size()
+		var note: String=L.text("Einstellung möglich") if available else L.text("Freischaltung: Gebäude ") + required
+		var card: VBoxContainer=_card(page,L.text(spec.name),L.text("%d Beschäftigte · %.0f €/h · %s") % [count,float(spec.wage),note])
+		_action(card,L.text("Für Reserve einstellen · 180 €"),func():return model.Ops.hire(model,role,"reserve"),available and model.money>=180 and model.operations.staff.size()<1200)
+	var roster: VBoxContainer=_card(page,L.text("Teamübersicht"),L.text("Steckbriefe der eingestellten Mitarbeiter."))
+	for person in model.operations.staff:
+		hud._label(roster,str(person.name)+" · "+L.text(model.Ops.ROLES[person.role].name)+" · "+L.text(model.Ops.SHIFT_NAMES[person.shift]),16,hud.TEAL,true)
+		hud._label(roster,L.text("Qualifikation %d · Motivation %.0f %% · Erschöpfung %.0f %% · %.0f €/h") % [int(person.get("qualification",1)),float(person.get("motivation",85)),float(person.get("fatigue",0)),float(person.get("wage",0))],14,hud.MUTED,true)
 
 func _career(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
