@@ -13,7 +13,10 @@ static func add(office: Control) -> void:
 		var scenario: String = model.operations.scenario
 		var goals := Ops.evaluate(model)
 		var card: VBoxContainer = office._card(page, L.text("Szenarioziele") + (" ✓" if model.operations.completed else ""), L.text("Alle Ziele erfüllen: 75.000 € und 30 Forschungspunkte. Der Betrieb geht anschließend weiter."))
-		for i in range(goals.size()): hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
+		for i in range(goals.size()):
+			hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
+			if not goals[i]:
+				hud._label(card,"   ↳ "+L.text(Ops.GOAL_TIPS[scenario][i]),15,hud.MUTED,true)
 	var summary: VBoxContainer = office._card(page, L.text("24-Stunden-Resort"), L.text("Lifte 08–17 Uhr. Hotels und Abendangebote haben eigene Schichten. Um Mitternacht wird automatisch abgerechnet; die Simulation läuft weiter."))
 	hud._label(summary, L.text("Heute: %s € Personalkosten · Ersatzteile: %d · Pistenraupen: %d") % [hud.money_text(model.operations.payroll), int(model.operations.parts), model.operations.vehicles.size()], 18, hud.TEAL, true)
 	hud._label(summary, L.text("Gäste pro sichtbarer Reisegruppe: %d. Tickets, Kapazitäten und Erlöse berücksichtigen die Gruppengröße.") % Ops.group_size(model), 16, hud.MUTED, true)
