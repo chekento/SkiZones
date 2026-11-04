@@ -2,8 +2,8 @@ extends RefCounted
 ## Presentation-only reactions to *actual* guests at venues. Never changes saved buildings.
 const Catalog = preload("res://src/core/catalog.gd")
 const Styles = preload("res://src/core/visual_styles.gd")
-const WARM := ["lodge", "hotel", "grand_hotel", "guesthouse", "restaurant", "cocoa", "schmarrn", "pizzeria", "spa", "pool", "bar"]
-const SERVICE := ["rental", "school", "bus", "maintenance", "repair_office", "first_aid", "souvenir", "watchmaker", "craftshop", "town_hall", "printing_press", "newsstand"]
+const WARM := ["cabin", "apartment", "chalet", "lodge", "hotel", "grand_hotel", "guesthouse", "restaurant", "cocoa", "schmarrn", "pizzeria", "spa", "pool", "bar"]
+const SERVICE := ["rental", "school", "bus", "maintenance", "repair_office", "first_aid", "souvenir", "watchmaker", "craftshop", "town_hall", "printing_press", "newsstand", "kiosk", "viewpoint", "shelter", "snowpark", "fitness", "snowmaker"]
 
 var entries: Array = []
 var _time := 0.0
