@@ -22,6 +22,7 @@ var _feedback := ""
 var staff_role := ""
 var staff_target := ""
 var staff_page := 0
+var candidate_page := 0
 var selected_achievement_track := 0
 
 func setup(controller: Node, interface: CanvasLayer) -> void:
