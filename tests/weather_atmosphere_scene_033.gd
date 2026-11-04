@@ -25,7 +25,7 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	game.paused=true
-	var view: Node3D=game.view
+	var view: Variant=game.view
 	var base: Array=[]
 	var sky: Array=[]
 	var weather_names: Array=["clear","snow","fog","storm","thaw"]
