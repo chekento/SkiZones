@@ -5198,3 +5198,18 @@ msgstr "Alpine Classic · Snowlight"
 
 msgid "Mountain Chill · Wolkenmeer"
 msgstr "Mountain Chill · Sea of Clouds"
+
+msgid "Offline-Radiosender mit frei verwendbarer CC0-Musik, mehreren Titeln und Übergängen. Ohne Streaming, Abo oder Internetverbindung."
+msgstr "Offline radio with freely reusable CC0 music, multiple tracks and transitions. No streaming, subscription or Internet connection."
+
+msgid "Nächster Titel"
+msgstr "Next track"
+
+msgid "CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert."
+msgstr "CC0 music sources include artist and license records."
+
+msgid "Jetzt läuft: "
+msgstr "Now playing: "
+
+msgid "Musik-Credits anzeigen"
+msgstr "Show music credits"
