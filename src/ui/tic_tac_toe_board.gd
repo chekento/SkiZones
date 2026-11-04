@@ -38,7 +38,7 @@ func _ready() -> void:
 	# theme expects light type on a dark surface. Keep board and labels together
 	# on their real themed background, with safe interior padding.
 	var surface := PanelContainer.new()
-	surface.name = "ArcadeSurface"
+	surface.name = "arcade_surface"
 	surface.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var surface_style := StyleBoxFlat.new()
 	surface_style.bg_color = base
@@ -52,20 +52,20 @@ func _ready() -> void:
 	surface.add_theme_stylebox_override("panel", surface_style)
 	add_child(surface)
 	var content := VBoxContainer.new()
-	content.name = "ArcadeContent"
+	content.name = "arcade_content"
 	content.add_theme_constant_override("separation", 11)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	surface.add_child(content)
 
 	var caption := Label.new()
-	caption.name = "ArcadeTitle"
+	caption.name = "arcade_title"
 	caption.text = L.text("TIC-TAC-TOE · DU GEGEN DEN COMPUTER")
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caption.add_theme_color_override("font_color", title_color)
 	caption.add_theme_font_size_override("font_size", 19)
 	content.add_child(caption)
 	_message = Label.new()
-	_message.name = "ArcadeInstructions"
+	_message.name = "arcade_instructions"
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.add_theme_color_override("font_color", ink)
 	_message.add_theme_font_size_override("font_size", 18)
@@ -105,13 +105,13 @@ func _ready() -> void:
 		_cells.append(square)
 
 	_results = Label.new()
-	_results.name = "ArcadeScore"
+	_results.name = "arcade_score"
 	_results.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_results.add_theme_color_override("font_color", ink)
 	_results.add_theme_font_size_override("font_size", 16)
 	content.add_child(_results)
 	var retry := Button.new()
-	retry.name = "ArcadeReplay"
+	retry.name = "arcade_replay"
 	retry.text = L.text("Neue Runde")
 	retry.custom_minimum_size.y = 52
 	retry.pressed.connect(restart)
