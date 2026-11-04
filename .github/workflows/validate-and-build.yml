@@ -68,7 +68,7 @@ jobs:
         working-directory: current
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/load_recovery.gd
       - name: Install virtual display
-        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+        run: bash current/tools/ci_install_display.sh
       - name: Render live detailed loading and restored original career
         working-directory: current
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/loading_scene.gd
@@ -221,9 +221,7 @@ jobs:
       - name: Install virtual display for rendered tests
         timeout-minutes: 10
         run: |
-          # Bound transient apt/network stalls instead of consuming the entire Android job.
-          sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
-          sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
+          bash tools/ci_install_display.sh
       - name: Direct asset operations, lift docking and warm village services
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version018
@@ -383,8 +381,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - name: Prepare Mesa host graphics for actual Android surfaces
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y xvfb libgl1-mesa-dri
+          bash tools/ci_install_display.sh
           Xvfb :99 -screen 0 2048x2048x24 -ac -nolisten tcp > "$RUNNER_TEMP/android-display.log" 2>&1 &
       - uses: reactivecircus/android-emulator-runner@v2
         with:
