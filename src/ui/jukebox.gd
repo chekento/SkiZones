@@ -18,6 +18,7 @@ var _now_playing_timer := 0.0
 var face:=RadioFace.new()
 var station_info:=Label.new()
 var space_link: Button
+var ska_link: Button
 var enabled := CheckButton.new()
 var master_slider := HSlider.new()
 
@@ -51,7 +52,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	station_info.add_theme_color_override("font_color",hud.INK)
 	station_info.add_theme_font_size_override("font_size",17)
 	tuner.add_child(station_info)
-	hud._label(page,L.text("Offline-Musik mit dokumentierten CC0-Quellen. Der separate ERG0SPHERE-Albumkanal öffnet SoundCloud ausschließlich auf ausdrücklichen Klick."),15,hud.MUTED,true)
+	hud._label(page,L.text("Offline-Musik mit dokumentierten CC0-Quellen. Eigene Alben auf SoundCloud werden ausschließlich nach ausdrücklichem Klick geöffnet."),15,hud.MUTED,true)
 	enabled.text=L.text("Audio einschalten")
 	enabled.custom_minimum_size.y=46
 	page.add_child(enabled)
@@ -98,6 +99,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 		if error != OK: hud.toast(L.text("SoundCloud konnte nicht geöffnet werden."))
 	)
 	space_link.visible=false
+	ska_link = hud._button(page,L.text("KoSch Milton · Ska'radise Lost auf SoundCloud öffnen"),func():
+		var error: Error = OS.shell_open(Design.SKA_COLLECTION_URL)
+		if error != OK: hud.toast(L.text("Ska-Album konnte nicht geöffnet werden."))
+	)
+	ska_link.visible=false
 	hud._label(page,L.text("CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert. Sender können lizenzierte Aufnahmen gemeinsam nutzen."),14,hud.MUTED,true)
 	hud._button(page,L.text("Musik-Credits anzeigen"),func(): _toggle_credits())
 	credits_label.visible=false
@@ -171,6 +177,8 @@ func _update_now_playing() -> void:
 	var moment: String = str(info.get("moment", ""))
 	if not moment.is_empty():
 		playing_label.text += "\n" + L.text("Bergmoment: ") + moment
+	if str(info.get("context","")) == "hotel_lobby":
+		playing_label.text += "\n" + L.text("Hotelverwaltung · Lobby-Radio ist nur vorübergehend aktiv.")
 
 func _toggle_credits() -> void:
 	credits_label.visible = not credits_label.visible
@@ -199,6 +207,13 @@ func _refresh_tuner() -> void:
 		station_info.text += "\n" + L.text("Nur auf Knopfdruck: Browser/SoundCloud. Keine automatische Wiedergabe im Spiel.")
 	if key in ["folk_alpine","folk_swedish"]:
 		station_info.text += "\n" + L.text("7 Übergangstitel · regionale Originalaufnahmen werden noch kuratiert.")
+	if key=="ska_album":
+		station_info.text = L.text("KoSch Milton · Ska'radise Lost · Eigenes Album")
+		station_info.text += "\n" + L.text("SoundCloud wird nur nach deinem Klick im Browser geladen.")
+	if key=="atmospherics":
+		station_info.text += "\n" + L.text("Deep atmospheric · 15 CC0-Titel auf Länge und Stimmung zu prüfen (Ziel 3–7 Min.).")
 	if key=="punk":
 		station_info.text += "\n" + L.text("Skater-Punk-Kuration: richtige Gitarren-Songs werden noch ergänzt.")
+	station_info.text += "\n" + L.text("Hotel Lobby FM wird automatisch nur in der Hotelverwaltung verwendet.")
 	if is_instance_valid(space_link): space_link.visible=(key=="erg0sphere")
+	if is_instance_valid(ska_link): ska_link.visible=(key=="ska_album")
