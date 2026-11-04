@@ -1329,7 +1329,7 @@ func _build_credits() -> void:
 	content.custom_minimum_size = Vector2(780, 440)
 	content.bbcode_enabled = true
 	content.add_theme_font_size_override("normal_font_size", 18)
-	content.text = "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n" + L.text("Eigenständige Managementsimulation. Szenarioprobleme sind erfunden; es besteht keine Verbindung zu den genannten Skigebietsbetreibern.") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/Geodata.txt") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/SoundCloud.txt")
+	content.text = "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n" + L.text("Eigenständige Managementsimulation. Szenarioprobleme sind erfunden; es besteht keine Verbindung zu den genannten Skigebietsbetreibern.") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/Geodata.txt") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/SoundCloud_en.txt" if L.language=="en" else "res://assets/licenses/SoundCloud.txt")
 	content.meta_clicked.connect(func(url): OS.shell_open(str(url)))
 	credits.add_child(content)
 
