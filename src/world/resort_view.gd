@@ -1179,6 +1179,9 @@ func _update_atmosphere() -> void:
 	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
 	var top_base: Color = Color("12243f").lerp(Color(style.top).lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color(style.top).lerp(palette, 0.18)
 	var horizon_base: Color = Color("344563").lerp(Color(style.horizon).lerp(palette, 0.12), daylight) if Ops.continuous(model) else Color(style.horizon).lerp(palette, 0.12)
+	if monochrome:
+		top_base = Color(style.top)
+		horizon_base = Color(style.horizon)
 	sky_material.sky_top_color = top_base.lerp(weather_sky,mood * daylight)
 	sky_material.sky_horizon_color = horizon_base.lerp(weather_horizon,mood * daylight)
 	sky_material.ground_horizon_color = Color(style.horizon)
