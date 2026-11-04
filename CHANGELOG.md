@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **32 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **33 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.31.0](https://github.com/chekento/SkiZones/releases/tag/v0.31.0)** | 04.11.2026 | Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk) | [Details](docs/releases/0.31.0.md) |
 | **[v0.30.0](https://github.com/chekento/SkiZones/releases/tag/v0.30.0)** | 04.11.2026 | Hotfix: alte Karrieren, Radio und mobile Bedienung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk) | [Details](docs/releases/0.30.0.md) |
 | **[v0.27.0](https://github.com/chekento/SkiZones/releases/tag/v0.27.0)** | 04.11.2026 | Nahtlose Alpine-Radio-Klangwelt (erste Iteration) | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk) | [Details](docs/releases/0.27.0.md) |
 | **[v0.26.0](https://github.com/chekento/SkiZones/releases/tag/v0.26.0)** | 03.11.2026 | Alpine Radio, Crewleben und illustrierter Pistenatlas | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk) | [Details](docs/releases/0.26.0.md) |
@@ -42,6 +43,45 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.31.0 · Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter (04.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.31.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk)** (143.8 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.31.0/manifest.json) · [Originalnotizen](docs/releases/0.31.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.31.0)
+
+Android ARM64 Preview · VersionCode 36 · 04.11.2026
+
+Enthält den vollständigen 0.30-Hotfix und die zusammengeführten Zeitungs-, Rathaus- und Theme-Erweiterungen. Eine veröffentlichte APK setzt bestandene Godot-, Spielstand-, Signatur- und Android-30/36-Prüfungen voraus.
+
+### Spielstände und Stabilität
+- Originale 0.19- und 0.27-Karrieren werden in der verpflichtenden Release-Pipeline erzeugt und wieder geladen; beschädigte Slotdateien nutzen valide Backups oder erhaltene Legacy-Dateien.
+- Bestehende Spielstände werden beim Laden nicht durch einen fehlgeschlagenen Import überschrieben. Vier Karrieren, Szenariopfade und atomare Sicherungen bleiben erhalten.
+- Der neue Rathausstandort hält zentrale Bauplätze frei und durchläuft die wirkliche Gebäude- und Zugangsprüfung.
+
+### Musik und Radio
+- Alle erweiterten Sender, Titel-/Künstler-Credits, automatische Titelwechsel, weiche Crossfades und gespeicherte Lautstärken sind enthalten.
+- Hotel Lobby FM begleitet die geöffnete Hotelverwaltung; anschließend kehrt der gespeicherte Sender zurück. Mute und Lautstärke bleiben maßgeblich.
+- Die Künstlerkanäle ERG0SPHERE Journey und KoSch Milton – Ska'radise Lost öffnen SoundCloud nur nach einem bewussten Klick; ohne Original-Masters sind sie keine eingebetteten Offline-Alben.
+- Die schrillen synthetischen Umgebungs-FX bleiben deaktiviert. Offline-Musik spielt weiter.
+- Regional authentische Folk-/Punk-Aufnahmen und durchweg 15 einzigartige lange Atmospherics-Masters sind weiterhin keine zugesicherten Inhalte.
+
+### Zeitung, Kunststile und Dorf
+- Individuelles Alpen-ExtraBlatt mit Live-Zahlen und erreichten Erfolgen aus dem jeweiligen Resort, redaktioneller Spaltenoptik und sechs täglich rotierenden Radiowerbungen mit Senderzugang.
+- Drei zusätzliche speicherbare Kunststile: Neon Noir, Aurora Ink und Bauhaus. Zusammen neun Grafikstile mit eigenen Paletten und Baumgeometrien; gespeicherte Berge und Pisten werden beim Stilwechsel nicht verändert.
+- Rathaus mit Uhrenturm für neue Orte, Versionschronik bis zur tatsächlich veröffentlichten 0.30.0 und Entwicklungsplan. Neue Orte erhalten es kostenlos; vorhandene Saves erhalten keine ungefragten Gebäude. Manueller Bau oder Ersatz kostet 18.000 €, höchstens ein Rathaus pro Ort. Das verhindert kostenlose Neubauten zum Wiederholen von Minispiel-Prämien.
+- Bis zu 34 zusätzliche dekorative Dorfobjekte entlang vorhandener Wege; diese ändern weder gespeicherte Wege noch die Gästenavigation.
+- Anklickbare November-Plakate vom 1. bis 30. November; am 1. Dezember beginnt stattdessen der Adventskalender. Das ursprüngliche zuvor erzeugte Plakat liegt nicht als verifiziertes Spielasset vor: enthalten ist eine eigene prozedurale Ersatzgrafik, mit Anschluss für das Original.
+
+### Weiterhin enthalten
+- Acht normale Berge, vier Karriereplätze und vier optionale reale Szenarien.
+- Hotelmodule, Gebäudeaktivitäten, Winterfeste, Crewleben, Kameratouren, 1.000 Erfolge, 500 Meisterschaftsränge und sechs bisherige Grafikstile.
+- Verbesserte mobile Flächen, ausblendbarer Resortkompass, vollständige deutsche und englische Bedienung.
+
+### Prüfung
+Die Veröffentlichung wartet auf den vollständigen Hauptzweig-Build einschließlich echter 0.19-/0.27-Saves, Musikbibliothek, Audioübergängen, Hotelkontext, Zeitung, neun gerenderten Stilen, Signaturkontinuität und Android-Appwechsel-/Updateprüfungen auf API 30 und 36. Ein physischer Handy-Hörtest und eine vollständige Fahrtprüfung jedes importierten Szenarioabschnitts sind damit nicht ersetzt.
+
+APK: SkiZones-0.31.0-android-arm64.apk
+
+---
 
 ## v0.30.0 · Hotfix: alte Karrieren, Radio und mobile Bedienung (04.11.2026)
 
