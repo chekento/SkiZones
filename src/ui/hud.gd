@@ -394,7 +394,9 @@ func _update_responsive_layout(available_width: float) -> void:
 	if is_instance_valid(header_logo):
 		header_logo.custom_minimum_size=Vector2(68,30) if _header_micro else Vector2(120,40) if header_compact else Vector2(156,52)
 	if is_instance_valid(menu_logo):
-		menu_logo.custom_minimum_size.y=clampf((minf(560,available_width-24)-44)/3.0,64,148)
+		# Keep extra horizontal room on portrait phones: the proportional
+		# PNG and the scroll panel's inner padding both consume width.
+		menu_logo.custom_minimum_size.y=clampf((minf(560,available_width)-96.0)/3.0,64,148)
 	for key in header_details:header_details[key].visible=physical_width>=1080
 	for key in header_captions:
 		header_captions[key].add_theme_font_size_override("font_size",10 if _header_micro else 11)
