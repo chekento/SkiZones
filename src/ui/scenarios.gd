@@ -59,6 +59,7 @@ func setup(interface: CanvasLayer) -> void:
 			var pistes: Array=seed.get("pistes",[])
 			var enabled: int=pistes.filter(func(p): return p.get("enabled",false)).size()
 			hud._label(card,L.text("Geodatenprüfung: %d / %d importierte Pistenabschnitte als befahrbar markiert.") % [enabled,pistes.size()],14,hud.MUTED,true)
+		if id=="seiseralm":hud._label(card,L.text("Missionshilfe: Mehrere Pistenraupen lassen sich in derselben Garage kaufen. Pro aktiver Raupe wird ein Fahrer benötigt."),14,hud.TEAL,true)
 		var difficulty := OptionButton.new()
 		for label in [L.text("Entspannt · weniger Ansturm"),L.text("Normal · klassischer Betrieb"),L.text("Experte · höhere Nachfrage")]:
 			difficulty.add_item(label)
