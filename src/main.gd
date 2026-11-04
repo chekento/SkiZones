@@ -297,7 +297,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	# old passport was lost, not migrated, or out of sync with the resort.
 	# Only brand-new mountain creation needs the unlock gate.
 	var own_save_path: String = SaveStore.path_for_map(area)
-	var has_saved_resort: bool = SaveStore._read(own_save_path).ok or SaveStore._read(own_save_path + ".bak").ok
+	var has_saved_resort: bool = SaveStore.has_readable_save(area)
 	if not passport.unlocked(area) and not has_saved_resort:
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
@@ -312,7 +312,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	# The old installation may still own a legacy file without a new-slot copy.
 	# Its migrations are retried idempotently and never overwrite player data.
 	if not has_saved_resort: SaveStore.migrate_legacy()
-	var prepared := await _prepare_area(area, FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"))
+	var prepared := await _prepare_area(area, has_saved_resort or SaveStore.has_readable_save(area))
 	if not prepared.result.ok:
 		view.loading_in_progress = false
 		hud.loading.hide()
