@@ -5219,3 +5219,784 @@ msgstr "Summit Rush FM · Ski & Snowboard"
 
 msgid "Bergmoment: "
 msgstr "Mountain moment: "
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Hotelgäste, Skischüler und eine Liftstation verlangen gleichzeitig einen Shuttle. Was priorisierst du?"
+msgstr "Hotelgäste, Skischüler und eine Liftstation verlangen gleichzeitig einen Shuttle. Was priorisierst du?"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nach Ankunftszeit und Anschluss sortieren"
+msgstr "Nach Ankunftszeit und Anschluss sortieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle Busse zur gleichen Haltestelle schicken"
+msgstr "Alle Busse zur gleichen Haltestelle schicken"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Den Fahrplan unverändert lassen"
+msgstr "Den Fahrplan unverändert lassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Anschlussqualität"
+msgstr "Anschlussqualität"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine winterliche Straße ist gesperrt. Die Talstation droht zu überfüllen."
+msgstr "Eine winterliche Straße ist gesperrt. Die Talstation droht zu überfüllen."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Fahrten abbrechen und niemanden informieren"
+msgstr "Fahrten abbrechen und niemanden informieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sichere Ausweichroute und Gästeinformation organisieren"
+msgstr "Sichere Ausweichroute und Gästeinformation organisieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Shuttles ohne Freigabe über die gesperrte Straße schicken"
+msgstr "Shuttles ohne Freigabe über die gesperrte Straße schicken"
+
+# Added for SkiZones 0.28; translated
+msgid "Betriebssicherheit"
+msgstr "Operational safety"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine Gruppe hat viel Gepäck und benötigt barrierearmen Einstieg."
+msgstr "Eine Gruppe hat viel Gepäck und benötigt barrierearmen Einstieg."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nur die schnellste Verbindung wählen"
+msgstr "Nur die schnellste Verbindung wählen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Gruppe auf mehrere beliebige Busse verteilen"
+msgstr "Die Gruppe auf mehrere beliebige Busse verteilen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Passendes Fahrzeug reservieren und Umstieg abstimmen"
+msgstr "Passendes Fahrzeug reservieren und Umstieg abstimmen"
+
+# Added for SkiZones 0.28; translated
+msgid "Gästeservice"
+msgstr "Guest service"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine Seilbahn meldet unregelmäßige Laufgeräusche unter Last."
+msgstr "Eine Seilbahn meldet unregelmäßige Laufgeräusche unter Last."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Betrieb sichern und Lager sowie Rollen prüfen"
+msgstr "Betrieb sichern und Lager sowie Rollen prüfen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Weiterfahren und erst morgen dokumentieren"
+msgstr "Weiterfahren und erst morgen dokumentieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nur die Lautstärke der Warnmeldung absenken"
+msgstr "Nur die Lautstärke der Warnmeldung absenken"
+
+# Added for SkiZones 0.28; translated
+msgid "Anlagensicherheit"
+msgstr "Equipment safety"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Pistenraupenfahrer bemerkt Neuschnee auf einem stark befahrenen Hang."
+msgstr "Ein Pistenraupenfahrer bemerkt Neuschnee auf einem stark befahrenen Hang."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sofort ungeprüft mitten unter Gästen präparieren"
+msgstr "Sofort ungeprüft mitten unter Gästen präparieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Piste absperren, Lage prüfen und Präparierung planen"
+msgstr "Piste absperren, Lage prüfen und Präparierung planen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Bis zur nächsten Saison ignorieren"
+msgstr "Bis zur nächsten Saison ignorieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Pistenzustand"
+msgstr "Slope condition"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Ersatzteilreserve schrumpft vor dem Wochenende."
+msgstr "Die Ersatzteilreserve schrumpft vor dem Wochenende."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Keinerlei Dokumentation führen"
+msgstr "Keinerlei Dokumentation führen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Jedes Teil unabhängig vom Bedarf bestellen"
+msgstr "Jedes Teil unabhängig vom Bedarf bestellen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Kritische Verschleißteile nach Risikoklasse disponieren"
+msgstr "Kritische Verschleißteile nach Risikoklasse disponieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Betriebseffizienz"
+msgstr "Operational efficiency"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Schneekanonen könnten bei grenzwertigen Temperaturen anlaufen."
+msgstr "Die Schneekanonen könnten bei grenzwertigen Temperaturen anlaufen."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Feuchtkugeltemperatur und Energiebedarf prüfen"
+msgstr "Feuchtkugeltemperatur und Energiebedarf prüfen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Immer volle Leistung unabhängig von Bedingungen"
+msgstr "Immer volle Leistung unabhängig von Bedingungen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Wasser- und Energiekosten nicht beachten"
+msgstr "Wasser- und Energiekosten nicht beachten"
+
+# Added for SkiZones 0.28; translated
+msgid "Schneequalität"
+msgstr "Snow quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Schneefeld zeigt Eisstellen und eine unerwartete Verdichtung."
+msgstr "Ein Schneefeld zeigt Eisstellen und eine unerwartete Verdichtung."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Kunstschnee unkontrolliert darauf verteilen"
+msgstr "Kunstschnee unkontrolliert darauf verteilen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Oberfläche kontrollieren, präparieren und bei Bedarf sperren"
+msgstr "Oberfläche kontrollieren, präparieren und bei Bedarf sperren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Wartezeiten der Gäste erhöhen, bis es schmilzt"
+msgstr "Wartezeiten der Gäste erhöhen, bis es schmilzt"
+
+# Added for SkiZones 0.28; translated
+msgid "Pistensicherheit"
+msgstr "Slope safety"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Energiepreise steigen während einer langen Kälteperiode."
+msgstr "Die Energiepreise steigen während einer langen Kälteperiode."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle Kanonen dauerhaft laufen lassen"
+msgstr "Alle Kanonen dauerhaft laufen lassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Speicher und Pumpen ignorieren"
+msgstr "Speicher und Pumpen ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Beschneiungsfenster nach Temperatur, Bedarf und Kosten planen"
+msgstr "Beschneiungsfenster nach Temperatur, Bedarf und Kosten planen"
+
+# Added for SkiZones 0.28; translated
+msgid "Ressourceneffizienz"
+msgstr "Resource efficiency"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine verletzte Person liegt an einer abgelegenen roten Piste."
+msgstr "Eine verletzte Person liegt an einer abgelegenen roten Piste."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Unfallstelle sichern, Ersteinschätzung und Rettungskette starten"
+msgstr "Unfallstelle sichern, Ersteinschätzung und Rettungskette starten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nur eine Durchsage machen und abwarten"
+msgstr "Nur eine Durchsage machen und abwarten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Strecke ohne Absicherung offen lassen"
+msgstr "Die Strecke ohne Absicherung offen lassen"
+
+# Added for SkiZones 0.28; translated
+msgid "Rettungsqualität"
+msgstr "Rescue quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Mehrere Meldungen gehen zugleich ein. Ein Gast ist bewusstseinsgetrübt."
+msgstr "Mehrere Meldungen gehen zugleich ein. Ein Gast ist bewusstseinsgetrübt."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nach Reihenfolge des Eingangs abarbeiten"
+msgstr "Nach Reihenfolge des Eingangs abarbeiten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Medizinisch priorisieren und zusätzliche Kräfte anfordern"
+msgstr "Medizinisch priorisieren und zusätzliche Kräfte anfordern"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Zufällig einen Einsatz wählen"
+msgstr "Zufällig einen Einsatz wählen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Triage"
+msgstr "Triage"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Starker Wind erschwert die Bergung mit dem Lift."
+msgstr "Starker Wind erschwert die Bergung mit dem Lift."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Windwarnung ignorieren"
+msgstr "Windwarnung ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Das Wetter als irrelevant abtun"
+msgstr "Das Wetter als irrelevant abtun"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sicheren alternativen Rettungsweg abstimmen"
+msgstr "Sicheren alternativen Rettungsweg abstimmen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sicherheit"
+msgstr "Sicherheit"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Anfänger verlangt ein schnelles Raceboard, hat aber kaum Erfahrung."
+msgstr "Ein Anfänger verlangt ein schnelles Raceboard, hat aber kaum Erfahrung."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sicherheitsorientiert beraten und passendes Material anbieten"
+msgstr "Sicherheitsorientiert beraten und passendes Material anbieten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ohne Nachfrage das teuerste Material verleihen"
+msgstr "Ohne Nachfrage das teuerste Material verleihen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Bindungseinstellung nicht kontrollieren"
+msgstr "Die Bindungseinstellung nicht kontrollieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Ausrüstungsqualität"
+msgstr "Equipment quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Ski ist mit beschädigter Kante zurückgekommen."
+msgstr "Ein Ski ist mit beschädigter Kante zurückgekommen."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sofort erneut ausgeben"
+msgstr "Sofort erneut ausgeben"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sperren, Werkstattauftrag und Ersatz anbieten"
+msgstr "Sperren, Werkstattauftrag und Ersatz anbieten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Schaden nicht dokumentieren"
+msgstr "Schaden nicht dokumentieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Materialprüfung"
+msgstr "Equipment inspection"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine Familie kommt gleichzeitig mit einer Schulklasse zur Ausleihe."
+msgstr "Eine Familie kommt gleichzeitig mit einer Schulklasse zur Ausleihe."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle ungeordnet warten lassen"
+msgstr "Alle ungeordnet warten lassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Helmgrößen zufällig vergeben"
+msgstr "Helmgrößen zufällig vergeben"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ausgabe nach Reservierung, Größe und Können organisieren"
+msgstr "Ausgabe nach Reservierung, Größe und Können organisieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Wartezeit"
+msgstr "Wait time"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Gast möchte vom Übungshang sofort auf eine schwarze Piste."
+msgstr "Ein Gast möchte vom Übungshang sofort auf eine schwarze Piste."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Können einschätzen und passende Lernroute planen"
+msgstr "Können einschätzen und passende Lernroute planen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Den Wunsch ohne Rücksicht auf Können erfüllen"
+msgstr "Den Wunsch ohne Rücksicht auf Können erfüllen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Gruppe ohne Aufsicht fahren lassen"
+msgstr "Die Gruppe ohne Aufsicht fahren lassen"
+
+# Added for SkiZones 0.28; translated
+msgid "Lernerfolg"
+msgstr "Learning outcome"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Sicht wird schlechter und einige Kinder sind erschöpft."
+msgstr "Die Sicht wird schlechter und einige Kinder sind erschöpft."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Unterricht unverändert verlängern"
+msgstr "Unterricht unverändert verlängern"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Tempo reduzieren, Sammelpunkt wählen und Pause einlegen"
+msgstr "Tempo reduzieren, Sammelpunkt wählen und Pause einlegen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle getrennt weiterschicken"
+msgstr "Alle getrennt weiterschicken"
+
+# Added for SkiZones 0.28; translated
+msgid "Gruppensicherheit"
+msgstr "Group safety"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine Snowboardgruppe will Kurventechnik und Parkregeln üben."
+msgstr "Eine Snowboardgruppe will Kurventechnik und Parkregeln üben."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Zuerst nur hohe Sprünge trainieren"
+msgstr "Zuerst nur hohe Sprünge trainieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sicherheitsregeln weglassen"
+msgstr "Sicherheitsregeln weglassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Progression aus Kantenkontrolle, Blickführung und Parketikette anbieten"
+msgstr "Progression aus Kantenkontrolle, Blickführung und Parketikette anbieten"
+
+# Added for SkiZones 0.28; translated
+msgid "Trainingsqualität"
+msgstr "Training quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Vor Öffnung des Snowparks steht eine Rail locker."
+msgstr "Vor Öffnung des Snowparks steht eine Rail locker."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Feature sperren und vor Freigabe kontrollieren"
+msgstr "Feature sperren und vor Freigabe kontrollieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nur einen Warnhinweis ohne Sperre anbringen"
+msgstr "Nur einen Warnhinweis ohne Sperre anbringen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nichts ändern"
+msgstr "Nichts ändern"
+
+# Added for SkiZones 0.28; translated
+msgid "Park-Sicherheit"
+msgstr "Park safety"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Anfänger und Profis drängen auf dieselbe Sprunglinie."
+msgstr "Anfänger und Profis drängen auf dieselbe Sprunglinie."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Keine Streckenkennzeichnung benutzen"
+msgstr "Keine Streckenkennzeichnung benutzen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Schwierigkeitslinien und Wartezonen trennen"
+msgstr "Schwierigkeitslinien und Wartezonen trennen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Mehr Geschwindigkeit auf der Anfängerlinie fördern"
+msgstr "Mehr Geschwindigkeit auf der Anfängerlinie fördern"
+
+# Added for SkiZones 0.28; translated
+msgid "Parkfluss"
+msgstr "Park traffic flow"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nach Schneefall sind die Landungen uneben."
+msgstr "Nach Schneefall sind die Landungen uneben."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ohne Kontrolle weiterfahren lassen"
+msgstr "Ohne Kontrolle weiterfahren lassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle zu schwierigeren Sprüngen schicken"
+msgstr "Alle zu schwierigeren Sprüngen schicken"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Landungen präparieren und Absprungzonen prüfen"
+msgstr "Landungen präparieren und Absprungzonen prüfen"
+
+# Added for SkiZones 0.28; translated
+msgid "Parkqualität"
+msgstr "Park quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Frühstücksservice und Restaurant haben eine unerwartet lange Warteschlange."
+msgstr "Frühstücksservice und Restaurant haben eine unerwartet lange Warteschlange."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nachfrage prognostizieren und zusätzliches Servicepersonal einsetzen"
+msgstr "Nachfrage prognostizieren und zusätzliches Servicepersonal einsetzen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Nur die Preise erhöhen"
+msgstr "Nur die Preise erhöhen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Gäste ohne Auskunft warten lassen"
+msgstr "Gäste ohne Auskunft warten lassen"
+
+# Added for SkiZones 0.28; translated
+msgid "Servicefluss"
+msgstr "Service throughput"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Gast meldet eine ernste Lebensmittelunverträglichkeit."
+msgstr "Ein Gast meldet eine ernste Lebensmittelunverträglichkeit."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Zutaten ignorieren"
+msgstr "Zutaten ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Rezeptur prüfen, Kreuzkontakt vermeiden und Alternative anbieten"
+msgstr "Rezeptur prüfen, Kreuzkontakt vermeiden und Alternative anbieten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Speisekarte nicht kontrollieren"
+msgstr "Die Speisekarte nicht kontrollieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Gästevertrauen"
+msgstr "Guest trust"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Schneesturm verzögert die Warenlieferung."
+msgstr "Ein Schneesturm verzögert die Warenlieferung."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Bestellungen unverändert versprechen"
+msgstr "Bestellungen unverändert versprechen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ohne Rücksicht auf Vorräte weiterverkaufen"
+msgstr "Ohne Rücksicht auf Vorräte weiterverkaufen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Menü mit vorhandenen Zutaten planen und Gäste informieren"
+msgstr "Menü mit vorhandenen Zutaten planen und Gäste informieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Betriebsplanung"
+msgstr "Operations planning"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Après-Ski-Bar erreicht die zulässige Kapazität."
+msgstr "Die Après-Ski-Bar erreicht die zulässige Kapazität."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Einlass steuern und sichere Wege freihalten"
+msgstr "Einlass steuern und sichere Wege freihalten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Noch mehr Gäste ohne Prüfung hereinlassen"
+msgstr "Noch mehr Gäste ohne Prüfung hereinlassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Die Fluchtwege zustellen"
+msgstr "Die Fluchtwege zustellen"
+
+# Added for SkiZones 0.28; translated
+msgid "Sicherer Betrieb"
+msgstr "Safe operations"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine Gruppe möchte nach Liftbetrieb noch lange feiern."
+msgstr "Eine Gruppe möchte nach Liftbetrieb noch lange feiern."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Personal und Nachtruhe ignorieren"
+msgstr "Personal und Nachtruhe ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Spätbetrieb, Personal und sicheren Rücktransport abstimmen"
+msgstr "Spätbetrieb, Personal und sicheren Rücktransport abstimmen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Den gesamten Busverkehr abschalten"
+msgstr "Den gesamten Busverkehr abschalten"
+
+# Added for SkiZones 0.28; translated
+msgid "Nachtlogistik"
+msgstr "Night transport logistics"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "An einem Gast werden deutliche Beeinträchtigungen bemerkt."
+msgstr "An einem Gast werden deutliche Beeinträchtigungen bemerkt."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Weiter Alkohol anbieten"
+msgstr "Weiter Alkohol anbieten"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Eine riskante Abfahrt empfehlen"
+msgstr "Eine riskante Abfahrt empfehlen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Verantwortungsvoll reagieren und sichere Heimfahrt unterstützen"
+msgstr "Verantwortungsvoll reagieren und sichere Heimfahrt unterstützen"
+
+# Added for SkiZones 0.28; translated
+msgid "Gästewohl"
+msgstr "Guest well-being"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Pool und Spa benötigen Pflege, während Gäste eintreffen."
+msgstr "Pool und Spa benötigen Pflege, während Gäste eintreffen."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Wasserqualität prüfen und Belegung passend steuern"
+msgstr "Wasserqualität prüfen und Belegung passend steuern"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Kontrollen aussetzen"
+msgstr "Kontrollen aussetzen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Einen zu kalten Bereich ohne Hinweis öffnen"
+msgstr "Einen zu kalten Bereich ohne Hinweis öffnen"
+
+# Added for SkiZones 0.28; translated
+msgid "Hygiene"
+msgstr "Hygiene"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Zu viele Gäste haben denselben Ruhebereich reserviert."
+msgstr "Zu viele Gäste haben denselben Ruhebereich reserviert."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle ohne Begrenzung hineinlassen"
+msgstr "Alle ohne Begrenzung hineinlassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Kapazität und Zeitfenster behutsam neu planen"
+msgstr "Kapazität und Zeitfenster behutsam neu planen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Reservierungen unangekündigt löschen"
+msgstr "Reservierungen unangekündigt löschen"
+
+# Added for SkiZones 0.28; translated
+msgid "Komfort"
+msgstr "Comfort"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Im Fitnessraum braucht ein Anfänger Unterstützung."
+msgstr "Im Fitnessraum braucht ein Anfänger Unterstützung."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Maximale Belastung vorgeben"
+msgstr "Maximale Belastung vorgeben"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Sicherheitsanweisung überspringen"
+msgstr "Sicherheitsanweisung überspringen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Bewegungsprofil und sichere Belastung abstimmen"
+msgstr "Bewegungsprofil und sichere Belastung abstimmen"
+
+# Added for SkiZones 0.28; translated
+msgid "Gesundheit"
+msgstr "Health"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein neuer Auftrag trifft kurz vor Ladenschluss ein."
+msgstr "Ein neuer Auftrag trifft kurz vor Ladenschluss ein."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Material, Personal und Lieferzeit realistisch abgleichen"
+msgstr "Material, Personal und Lieferzeit realistisch abgleichen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ungeprüfte Lieferung garantieren"
+msgstr "Ungeprüfte Lieferung garantieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Alle Aufträge ohne System mischen"
+msgstr "Alle Aufträge ohne System mischen"
+
+# Added for SkiZones 0.28; translated
+msgid "Auftragsqualität"
+msgstr "Order quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein Kunde reklamiert einen fehlerhaften Artikel."
+msgstr "Ein Kunde reklamiert einen fehlerhaften Artikel."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Reklamation ignorieren"
+msgstr "Reklamation ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Qualitätskontrolle und passende Nachbesserung veranlassen"
+msgstr "Qualitätskontrolle und passende Nachbesserung veranlassen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Den Fehler nicht dokumentieren"
+msgstr "Den Fehler nicht dokumentieren"
+
+# Added for SkiZones 0.28; translated
+msgid "Produktqualität"
+msgstr "Product quality"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Ein gefragtes Produkt droht auszuverkaufen."
+msgstr "Ein gefragtes Produkt droht auszuverkaufen."
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Bedarf ignorieren"
+msgstr "Bedarf ignorieren"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Unbegrenzt auf Kredit nachkaufen"
+msgstr "Unbegrenzt auf Kredit nachkaufen"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Bestand prüfen und Nachfrage sinnvoll nachbestellen"
+msgstr "Bestand prüfen und Nachfrage sinnvoll nachbestellen"
+
+# Added for SkiZones 0.28; translated
+msgid "Bestandsplanung"
+msgstr "Inventory planning"
+
+# Added for SkiZones 0.28; translated
+msgid "Hohe Nachfrage"
+msgstr "High demand"
+
+# Added for SkiZones 0.28; translated
+msgid "Regelbetrieb"
+msgstr "Normal operations"
+
+# Added for SkiZones 0.28; translated
+msgid "%s · %d Gäste im Gebiet · %d Gäste warten"
+msgstr "%s · %d guests in the resort · %d guests waiting"
+
+# Added for SkiZones 0.28; translated
+msgid "ALPINE RADIO CONTROL CENTER"
+msgstr "ALPINE RADIO CONTROL CENTER"
+
+# Added for SkiZones 0.28; translated
+msgid "SENDERWAHL · BERGFREQUENZEN"
+msgstr "TUNING · MOUNTAIN FREQUENCIES"
+
+# Added for SkiZones 0.28; translated
+msgid "Offline-Musik mit dokumentierten CC0-Quellen. Der separate ERG0SPHERE-Albumkanal öffnet SoundCloud ausschließlich auf ausdrücklichen Klick."
+msgstr "Offline music with documented CC0 sources. The separate ERG0SPHERE album channel opens SoundCloud only after an explicit tap."
+
+# Added for SkiZones 0.28; translated
+msgid "▶ Nächster Titel"
+msgstr "▶ Next Track"
+
+# Added for SkiZones 0.28; translated
+msgid "ERG0SPHERE Journey · SoundCloud-Player öffnen"
+msgstr "ERG0SPHERE Journey · Open SoundCloud Player"
+
+# Added for SkiZones 0.28; translated
+msgid "SoundCloud konnte nicht geöffnet werden."
+msgstr "Could not open SoundCloud."
+
+# Added for SkiZones 0.28; translated
+msgid "CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert. Sender können lizenzierte Aufnahmen gemeinsam nutzen."
+msgstr "CC0 music sources include artist and licensing credits. Stations may reuse licensed recordings."
+
+# Added for SkiZones 0.28; translated
+msgid "FREQUENZ %02d · %s · %d Titel im Offline-Archiv"
+msgstr "FREQUENCY %02d · %s · %d offline tracks"
+
+# Added for SkiZones 0.28; translated
+msgid "Deep Space Trance · atmosphärische Offline-Auswahl"
+msgstr "Deep Space Trance · atmospheric offline selection"
+
+# Added for SkiZones 0.28; translated
+msgid "Laufzeiten >4 Minuten sind für die Offline-Titel noch nicht verifiziert."
+msgstr "Durations over 4 minutes have not been verified for all offline tracks."
+
+# Added for SkiZones 0.28; translated
+msgid "KoSch ORIGINALALBUM · ERG0SPHERE Journey"
+msgstr "KoSch ORIGINAL ALBUM · ERG0SPHERE Journey"
+
+# Added for SkiZones 0.28; translated
+msgid "Nur auf Knopfdruck: Browser/SoundCloud. Keine automatische Wiedergabe im Spiel."
+msgstr "Only on explicit tap: Browser/SoundCloud. No automatic playback in the game."
+
+# Added for SkiZones 0.28; translated
+msgid "7 Übergangstitel · regionale Originalaufnahmen werden noch kuratiert."
+msgstr "7 temporary tracks · authentic regional recordings are being curated."
+
+# Added for SkiZones 0.28; translated
+msgid "Skater-Punk-Kuration: richtige Gitarren-Songs werden noch ergänzt."
+msgstr "Skater punk curation: proper guitar tracks still need to be added."
+
+# Added for SkiZones 0.28; translated
+msgid "Cosmic Drift · Deep Space Trance"
+msgstr "Cosmic Drift · Deep Space Trance"
+
+# Added for SkiZones 0.28; translated
+msgid "Alpenglühen FM · Après-Ski"
+msgstr "Alpenglow FM · Après-Ski"
+
+# Added for SkiZones 0.28; translated
+msgid "Glacier Dreams · Polar Ambient"
+msgstr "Glacier Dreams · Polar Ambient"
+
+# Added for SkiZones 0.28; translated
+msgid "KoSch · ERG0SPHERE Journey (SoundCloud)"
+msgstr "KoSch · ERG0SPHERE Journey (SoundCloud)"
+
+# Added for SkiZones 0.28; translated
+msgid "AlpenFolk · Blasmusik & Tradition"
+msgstr "Alpine Folk · Brass & Tradition"
+
+# Added for SkiZones 0.28; translated
+msgid "Nordic Folk · Schwedische Folklore"
+msgstr "Nordic Folk · Swedish Folklore"
+
+# Added for SkiZones 0.28; translated
+msgid "BETRIEBSSIMULATION · "
+msgstr "OPERATIONS SIMULATION · "
+
+# Added for SkiZones 0.28; translated
+msgid "Entscheidungsqualität"
+msgstr "Decision quality"
+
+# Added for SkiZones 0.28; translated
+msgid "Betriebsentscheidung · %d / 100 · %s"
+msgstr "Operations decision · %d / 100 · %s"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "Service"
+msgstr "Service"
+
+# Added for SkiZones 0.28; translated
+msgid "ERG0SPHERE Journey · externen Player öffnen"
+msgstr "ERG0SPHERE Journey · Open external player"
+
+# Added for SkiZones 0.28; English translation review pending
+msgid "KoSch"
+msgstr "KoSch"
+
+# Added for SkiZones 0.28; translated
+msgid "Originalalbum auf SoundCloud"
+msgstr "Original album on SoundCloud"
+
