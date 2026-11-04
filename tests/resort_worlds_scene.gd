@@ -31,6 +31,7 @@ func run() -> void:
 		game.view.set_camera_pitch(42)
 		await capture("resort-" + id + "-0130")
 	game.start_game(false)
+	var initial_buildings: int=game.model.buildings.size()
 	game.model.money = 1000000
 	game.hud.building_choice.select(game.model.Catalog.BUILDINGS.keys().find("restaurant"))
 	game.set_tool("building")
@@ -40,12 +41,12 @@ func run() -> void:
 	check(game.hud.rotate_building_button.visible and game.last_plan_check.rotation == game.edit_rotation and game.last_plan_check.ok, "The new building preview exposes a valid street-facing entrance")
 	var old: int = game.edit_rotation
 	game.hud.rotate_building_button.pressed.emit()
-	check(game.edit_rotation == (old + 1) % 4 and game.last_plan_check.rotation == game.edit_rotation and game.model.buildings.is_empty(), "The real entrance button rotates the preview without spending or building")
+	check(game.edit_rotation == (old + 1) % 4 and game.last_plan_check.rotation == game.edit_rotation and game.model.buildings.size() == initial_buildings, "The real entrance button rotates the preview without spending or building")
 	game.hud.rotate_building_button.pressed.emit()
 	game.hud.rotate_building_button.pressed.emit()
 	game.hud.rotate_building_button.pressed.emit()
 	game.confirm_plan()
-	check(game.model.buildings.size() == 1 and game.model.buildings[0].rotation == old, "Confirmation retains the chosen entrance orientation in the live chalet")
+	check(game.model.buildings.size() == initial_buildings + 1 and game.model.buildings[-1].kind == "restaurant" and game.model.buildings[-1].rotation == old, "Confirmation retains the chosen entrance orientation in the live chalet")
 	game.start_game(true)
 	game._showcase()
 	game.paused = true

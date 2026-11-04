@@ -48,7 +48,7 @@ func run() -> void:
 	for phase in TownHall.ROADMAP:
 		check(phase.deliverables.size()>=3 and not str(phase.acceptance).is_empty(),"Civic phase has concrete work and review gate")
 	var model:=Resort.new()
-	model.new_game(true)
+	model.new_game(true,20261027,"sonnenhang",true)
 	check(model.building_count("town_hall")==1,"New starter resort contains exactly one complimentary Rathaus")
 	var original: Dictionary=model.snapshot()
 	check(TownHall.ensure_new_town(model) and model.snapshot()==original,"Reopening City Hall never creates duplicate buildings or modifies careers")

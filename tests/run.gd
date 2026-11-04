@@ -48,7 +48,7 @@ func _test_terrain() -> void:
 
 func _test_building_and_money() -> void:
 	var model = fresh()
-	check(model.pistes.size() == 1 and model.lifts.size() == 1 and model.buildings.filter(func(building): return building.kind != "town_hall").size() == 2 and model.building_count("town_hall") == 1, "Starter scenario retains its two services and adds exactly one civic landmark")
+	check(model.pistes.size() == 1 and model.lifts.size() == 1 and model.buildings.size() == 2, "Starter scenario builds every promised asset")
 	check(not model.build_building("hotel", Terrain.unpack(model.buildings[0].point)).ok, "Buildings cannot overlap")
 	check(not model.build_building("hotel", Vector2(-320, -350)).ok, "Remote buildings need a station")
 	var before: float = model.money

@@ -104,7 +104,7 @@ func _loading(percent: float, message: String, done: int = 0, total: int = 0) ->
 func _loading_detail(message: String, done: int = 0, total: int = 0) -> void:
 	if load_progress != null: load_progress.detail(message, done, total)
 
-func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang") -> void:
+func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String = "sonnenhang", include_civic: bool = false) -> void:
 	operations = Ops.initial()
 	audience = Agenda.initial()
 	_audience_offer.clear()
@@ -145,7 +145,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	_invalidate()
 	if map_id in Geo.IDS:
 		Geo.seed(self)
-		TownHall.ensure_new_town(self)
+		if include_civic: TownHall.ensure_new_town(self)
 		Ops.enable(self, map_id)
 		Progression.begin_day(self)
 		return
@@ -170,7 +170,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
 		campaign.mode = "career"
-	TownHall.ensure_new_town(self)
+	if include_civic: TownHall.ensure_new_town(self)
 	Progression.begin_day(self)
 
 func _reset_report() -> void:

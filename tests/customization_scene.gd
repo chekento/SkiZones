@@ -16,7 +16,7 @@ func run() -> void:
 	game.model.money=3000000
 	game.model.build_plaza("plaza",Vector2(340,300));game.model.build_building("lodge",Vector2(400,290))
 	game.view.rebuild()
-	var item: Dictionary = game.model.buildings[0]
+	var item: Dictionary = game.model.buildings.filter(func(building): return building.kind == "lodge")[0]
 	game.hud.show_context("inspect",item.id);game.hud.asset_editor.open(item.id)
 	await process_frame
 	check(game.hud.asset_editor.visible and game.hud.blocks_map(Vector2(750,400)) and not game.simulation_running(), "The actual design dialog blocks world input and pauses the resort")

@@ -191,7 +191,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 		view.model = model
 		view._seen_revision = -1
 	else:
-		model.new_game(starter, 20261027, area)
+		model.new_game(starter, 20261027, area, true)
 	if not Ops.active(model): Ops.enable(model)
 	if model.map_id in Geo.IDS and model.operations.get("completed",false):
 		preload("res://src/core/scenario_medals.gd").new().record(model.map_id,str(model.operations.get("scenario_difficulty","normal")))
@@ -238,7 +238,7 @@ func _prepare_area(area: String, saved: bool, slot: int = -1) -> Dictionary:
 			result = SaveStore.load_game(candidate, SaveStore.path_for_map(area,selected_slot), status)
 		else:
 			status.report(10.0, L.text("Resort und Startgebäude vorbereiten …"))
-			candidate.new_game(selected_slot != 0 or area in Geo.IDS, 20261027, area)
+			candidate.new_game(selected_slot != 0 or area in Geo.IDS, 20261027, area, true)
 		if result.ok:
 			status.report(63.0, L.text("Personal und Betriebsabläufe vorbereiten …"))
 			if not Ops.active(candidate): Ops.enable(candidate)
