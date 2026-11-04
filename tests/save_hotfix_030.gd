@@ -28,7 +28,7 @@ func put(path: String, body: String) -> void:
 		file.close()
 
 func signature(model: RefCounted) -> Array:
-	var data:=model.snapshot()
+	var data: Dictionary=model.snapshot()
 	return [data.get("map_id"),data.get("money"),data.get("day"),data.get("minute"),
 		data.get("pistes",[]).size(),data.get("lifts",[]).size(),data.get("buildings",[]).size(),data.get("campaign",{}).get("rank",0),
 		data.get("guests",[]).size()]
