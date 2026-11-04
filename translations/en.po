@@ -6857,3 +6857,96 @@ msgstr "AlpenFolk · Acoustic & Mountain Lodge"
 
 msgid "Nordic Folk · Nordische Klangfarben"
 msgstr "Nordic Folk · Northern Soundscapes"
+
+msgid "Lena Vogt"
+msgstr "Lena Vogt"
+
+msgid "Mika Holm"
+msgstr "Mika Holm"
+
+msgid "Noah Berg"
+msgstr "Noah Berg"
+
+msgid "Finja Winter"
+msgstr "Finja Winter"
+
+msgid "Amir Kaya"
+msgstr "Amir Kaya"
+
+msgid "Elin Lind"
+msgstr "Elin Lind"
+
+msgid "Robin Seidel"
+msgstr "Robin Seidel"
+
+msgid "Juna Wolf"
+msgstr "Juna Wolf"
+
+msgid "Sam Falk"
+msgstr "Sam Falk"
+
+msgid "Mara Busch"
+msgstr "Mara Busch"
+
+msgid "Toni Adler"
+msgstr "Toni Adler"
+
+msgid "Kim Nielsen"
+msgstr "Kim Nielsen"
+
+msgid "Lea Hansen"
+msgstr "Lea Hansen"
+
+msgid "Jules Frank"
+msgstr "Jules Frank"
+
+msgid "Nico Roth"
+msgstr "Nico Roth"
+
+msgid "Lotte Brandt"
+msgstr "Lotte Brandt"
+
+msgid "Alex Fischer"
+msgstr "Alex Fischer"
+
+msgid "Nika Sturm"
+msgstr "Nika Sturm"
+
+msgid "Gästebetreuung"
+msgstr "Guest relations"
+
+msgid "Sicherheitsroutinen"
+msgstr "Safety procedures"
+
+msgid "Nachtdienst"
+msgstr "Night shift"
+
+msgid "Teamkoordination"
+msgstr "Team coordination"
+
+msgid "Technikdiagnose"
+msgstr "Technical diagnostics"
+
+msgid "Bereits eingestellt"
+msgstr "Already hired"
+
+msgid "Unbekanntes Berufsbild"
+msgstr "Unknown job role"
+
+msgid "Erfordert mindestens einen Lift"
+msgstr "Requires at least one lift"
+
+msgid "Erfordert passende Einrichtung: "
+msgstr "Requires facility: "
+
+msgid "Ab Resort-Stern 2: geprüfte Zusatzqualifikation"
+msgstr "Requires resort star 2: certified advanced training"
+
+msgid "Bewerbung nicht gefunden."
+msgstr "Applicant not found."
+
+msgid "Budget für die Einstellung reicht nicht."
+msgstr "Insufficient recruitment budget."
+
+msgid " eingestellt · "
+msgstr " hired · "
