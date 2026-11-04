@@ -1,0 +1,36 @@
+name: Import CC0 long-form radio tracks with measured durations (0.29)
+on:
+  push:
+    branches:
+      - feature/029-hotel-ska-atmospherics-responsive
+    paths:
+      - tools/import_longform_029.py
+      - assets/music/cc0/longform_candidates_029.json
+      - .github/workflows/import-longform-029.yml
+permissions:
+  contents: write
+concurrency:
+  group: longform29-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  import-and-pin-audio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Ensure media probe and Ogg codec are available
+        run: |
+          command -v ffprobe || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
+      - name: Download reviewed CC0 masters, verify length and encode Ogg
+        run: python3 tools/import_longform_029.py
+      - name: Commit only audio files and their versioned provenance index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/music/cc0/*.ogg assets/music/cc0/library.json
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(audio): import verified CC0 tracks over 3 minutes with recorded hashes"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
