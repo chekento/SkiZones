@@ -2,6 +2,7 @@ extends Control
 ## Full-screen, accessible poster preview. Original artwork is preferred when
 ## it becomes available; the fallback is visibly an original replacement.
 const Styles=preload("res://src/core/visual_styles.gd")
+const L=preload("res://src/core/i18n.gd")
 const Fallback=preload("res://src/ui/seasonal_poster_art.gd")
 const ORIGINAL_PATH="res://assets/seasonal/christmas_poster_original.webp"
 var fallback:=Fallback.new()
@@ -26,7 +27,7 @@ func _ready() -> void:
 	var stack:=VBoxContainer.new()
 	stack.add_theme_constant_override("separation",7)
 	panel.add_child(stack)
-	head.text="SKIZONES · DER WINTER KOMMT"
+	head.text=L.text("SKIZONES · DER WINTER KOMMT")
 	head.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	head.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	head.add_theme_font_size_override("font_size",22)
@@ -41,7 +42,7 @@ func _ready() -> void:
 	holder.add_child(picture)
 	fallback.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(fallback)
-	dismiss.text="Schließen · zurück zur Piste"
+	dismiss.text=L.text("Schließen · zurück zur Piste")
 	dismiss.custom_minimum_size.y=55
 	dismiss.pressed.connect(hide)
 	stack.add_child(dismiss)
