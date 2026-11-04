@@ -7010,3 +7010,18 @@ msgstr "Assign enough operators to all open summit and valley stations."
 
 msgid "Drei profitable Betriebstage mit beherrschbaren Kosten erreichen."
 msgstr "Achieve three profitable operating days with sustainable expenses."
+
+msgid "Grundbetrieb & Teamroutine"
+msgstr "Core operations & teamwork"
+
+msgid "Einsatzort: "
+msgstr "Workplace: "
+
+msgid "Schicht: "
+msgstr "Shift: "
+
+msgid "Profil: "
+msgstr "Profile: "
+
+msgid "Personal-ID %d"
+msgstr "Staff ID %d"
