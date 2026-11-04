@@ -142,6 +142,7 @@ var menu_panel: PanelContainer
 var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
 var inspector_collapsed := false
+var _portrait_inspector_initialized := false
 var inspector_toggle_button: Button
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
@@ -388,6 +389,12 @@ func _update_responsive_layout(available_width: float) -> void:
 	compact_layout = available_width < 1160.0
 	var very_narrow: bool = available_width < 830.0
 	var micro: bool = available_width < 600.0
+	# On the first narrow portrait layout, open the construction palette
+	# instead of drawing an empty resort inspector over its touch targets.
+	# Subsequent asset selection or an explicit Info tap opens the inspector.
+	if not _portrait_inspector_initialized and available_width < 620.0 and root.size.y > root.size.x:
+		_portrait_inspector_initialized = true
+		if current_tool == "inspect" and selected_id == -1: inspector_collapsed = true
 	# Header density follows the real screen width, including stretched canvases.
 	var physical_width: float=available_width*float(get_window().size.x)/maxf(1,get_viewport().get_visible_rect().size.x)
 	_header_micro=physical_width<600
@@ -944,8 +951,13 @@ func _apply_panel_visibility() -> void:
 	for panel in map_panels:
 		if panel.get_parent() == root:
 			panel.visible = show_game
-	tools_panel.visible = show_game and not map_focus
-	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	var narrow_portrait: bool = root.size.x < 620.0 and root.size.y > root.size.x
+	var wants_inspector: bool = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	# Only one wide touch drawer may occupy the narrow map at a time.
+	# Selecting a finished building intentionally opens its inspector; pressing
+	# "Info ausblenden" restores the palette without changing construction data.
+	inspector_panel.visible = wants_inspector
+	tools_panel.visible = show_game and not map_focus and not (narrow_portrait and wants_inspector)
 	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
 	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
