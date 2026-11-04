@@ -12,7 +12,7 @@ var candidate: Dictionary={}
 var build: Dictionary={}
 var request: HTTPRequest
 var stage:=""
-var installed_code:=33
+var installed_code:=34
 var installed_version: String=str(ProjectSettings.get_setting("application/config/version"))
 var link_opener: Callable
 var last_opened_url:=""

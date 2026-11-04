@@ -1,0 +1,31 @@
+name: Import verified CC0 Alpine Radio music
+on:
+  push:
+    branches:
+      - feature/027-cc0-radio-library
+      - feature/027-cc0-radio-72
+    paths:
+      - assets/music/cc0/library.json
+      - tools/import_cc0_radio.py
+      - .github/workflows/import-cc0-radio.yml
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download and hash-verify original CC0 audio
+        run: python3 tools/import_cc0_radio.py
+      - name: Commit vendored music and source index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/music/cc0/*.ogg
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(audio): vendor provenance-verified offline CC0 OGG tracks"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

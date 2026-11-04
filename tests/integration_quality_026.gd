@@ -45,7 +45,7 @@ func run() -> void:
 	for button in game.hud.camera_bar.get_child(0).get_children():
 		if button is Button and "Radio" in button.text:radio_count+=1
 	check(radio_count==1,"The shared camera bar exposes exactly one radio shortcut")
-	check(game.audio.players.size()==4,"One shared audio engine owns music, wind, crowd and machinery")
+	check(game.audio.players.size()==5 and game.audio.players.has("music_alt"),"One shared audio engine owns ambient layers and two crossfading music players")
 	check(game.audio.population(game.view.focus)==0,"An empty resort does not invent a crowd")
 	game.audio._process(0.5)
 	check(game.audio.players.crowd.stream_paused,"Empty places have no fake background conversations")

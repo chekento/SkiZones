@@ -5180,3 +5180,42 @@ msgstr "Christmas Eve gold star"
 
 msgid "Dekoration dauerhaft freigeschaltet: %s"
 msgstr "Decoration permanently unlocked: %s"
+
+msgid "AlpenWelle FM · Hüttenmorgen"
+msgstr "Alpine Wave FM · Mountain Hut Morning"
+
+msgid "SnowBeat Radio · Gipfelpuls"
+msgstr "SnowBeat Radio · Summit Pulse"
+
+msgid "Powder Flow · Park Lines"
+msgstr "Powder Flow · Park Lines"
+
+msgid "PistenPunk · Kantenwind"
+msgstr "Piste Punk · Edgewind"
+
+msgid "Alpine Classic · Schneelicht"
+msgstr "Alpine Classic · Snowlight"
+
+msgid "Mountain Chill · Wolkenmeer"
+msgstr "Mountain Chill · Sea of Clouds"
+
+msgid "Offline-Radiosender mit frei verwendbarer CC0-Musik, mehreren Titeln und Übergängen. Ohne Streaming, Abo oder Internetverbindung."
+msgstr "Offline radio with freely reusable CC0 music, multiple tracks and transitions. No streaming, subscription or Internet connection."
+
+msgid "Nächster Titel"
+msgstr "Next track"
+
+msgid "CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert."
+msgstr "CC0 music sources include artist and license records."
+
+msgid "Jetzt läuft: "
+msgstr "Now playing: "
+
+msgid "Musik-Credits anzeigen"
+msgstr "Show music credits"
+
+msgid "Gipfelrausch FM · Ski & Snowboard"
+msgstr "Summit Rush FM · Ski & Snowboard"
+
+msgid "Bergmoment: "
+msgstr "Mountain moment: "

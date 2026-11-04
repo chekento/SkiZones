@@ -1,15 +1,16 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative"]
+const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
-	"alpine":"Alpenfolk & Hüttenklang",
-	"techno":"Berg-Techno",
-	"hiphop":"Snowpark Hip-Hop",
-	"punk":"Pisten-Punk",
-	"classical":"Winter-Klassik",
-	"meditative":"Meditative Bergluft"
+	"alpine":"AlpenWelle FM · Hüttenmorgen",
+	"techno":"SnowBeat Radio · Gipfelpuls",
+	"hiphop":"Powder Flow · Park Lines",
+	"punk":"PistenPunk · Kantenwind",
+	"classical":"Alpine Classic · Schneelicht",
+	"meditative":"Mountain Chill · Wolkenmeer",
+	"freeride":"Gipfelrausch FM · Ski & Snowboard"
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {
@@ -74,6 +75,11 @@ static func nearby(model: RefCounted, focus: Vector2) -> Dictionary:
 				best=distance+8
 				result={"kind":"piste","distance":distance,"target_id":int(piste.id),"weights":SOUND_MIX.piste}
 	return result
+
+## Frame-rate independent exponential smoothing with bounded amplitudes.
+static func mix_step(current: float, target: float, dt: float, duration: float = 1.35) -> float:
+	var weight:float=1.0-exp(-maxf(0.0,dt)/maxf(0.05,duration))
+	return clampf(lerpf(clampf(current,0.0,1.0),clampf(target,0.0,1.0),weight),0.0,1.0)
 
 static func license_policy(provider: String, permission: bool = false) -> bool:
 	# Only the built-in synthesis can be played without a documented rights record.

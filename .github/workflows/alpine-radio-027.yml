@@ -1,0 +1,44 @@
+name: 0.27 seamless Alpine Radio QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: radio27-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  radio-crossfade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Verify import and bilingual messages
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=200)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Validate live audio crossfades and opt-out
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_crossfade_027.gd
+      - name: Preserve original 0.26 soundscape and staff tests
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_crew_026.gd
+      - name: Check six original radio tracks and loop metadata
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_loop_pack_027.gd
+      - name: Check offline CC0 playlists, artist credits and transitions
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_cc0_library_027.gd
