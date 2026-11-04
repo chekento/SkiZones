@@ -206,7 +206,7 @@ func _refresh_tuner() -> void:
 		station_info.text = L.text("KoSch ORIGINALALBUM · ERG0SPHERE Journey")
 		station_info.text += "\n" + L.text("Nur auf Knopfdruck: Browser/SoundCloud. Keine automatische Wiedergabe im Spiel.")
 	if key in ["folk_alpine","folk_swedish"]:
-		station_info.text += "\n" + L.text("7 Übergangstitel · regionale Originalaufnahmen werden noch kuratiert.")
+		station_info.text += "\n" + L.text("10 CC0-Titel · akustische Winterstimmung, regionale Originalaufnahmen noch in Prüfung.")
 	if key=="ska_album":
 		station_info.text = L.text("KoSch Milton · Ska'radise Lost · Eigenes Album")
 		station_info.text += "\n" + L.text("SoundCloud wird nur nach deinem Klick im Browser geladen.")
