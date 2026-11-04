@@ -46,7 +46,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var tuner_panel:=PanelContainer.new()
 	tuner_panel.add_theme_stylebox_override("panel",hud._style(Color("d8e8df"),15,15))
 	page.add_child(tuner_panel)
-	var tuner:=hud._vbox(tuner_panel,8)
+	var tuner: VBoxContainer = hud._vbox(tuner_panel,8)
 	hud._label(tuner,L.text("SENDERWAHL · BERGFREQUENZEN"),15,hud.TEAL)
 	station_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	station_info.add_theme_color_override("font_color",hud.INK)
