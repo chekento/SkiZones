@@ -4,6 +4,7 @@ const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
+const SectorCases = preload("res://src/core/sector_decisions.gd")
 const ACTIVITIES := {
 	"printing_press":{"title":"Druckerei-Schicht","mode":"orders","hint":"Bereite eine saubere Ausgabe für den Druck vor.","choices":["Papier","Druckplatte","Druckfarbe","Setzkasten"]},
 	"newsstand":{"title":"Zeitungsstand","mode":"orders","hint":"Stelle die gewünschte Zeitung für den Gast bereit.","choices":["ExtraBlatt","Bergwetter","Pistenjournal","Dorfleben"]},
@@ -53,6 +54,9 @@ static func challenge(model: RefCounted, session: Dictionary) -> Dictionary:
 	if building.kind == "pizzeria":
 		var pizza: Dictionary = Hospitality.menu(building)[posmod(seed_value, 3)]
 		return {"mode":"pizza", "prompt":pizza.name, "toppings":pizza.toppings, "target":0.0, "choices":Hospitality.TOPPINGS.keys()}
+	var operational_case: Dictionary = SectorCases.challenge(model,building,session)
+	if not operational_case.is_empty():
+		return operational_case
 	var target: float = 0.30 + posmod(seed_value, 40) / 100.0
 	return {"mode":definition.mode, "prompt":L.text(choices[posmod(seed_value, choices.size())]) if not choices.is_empty() else L.text("Im grünen Bereich stoppen"), "target":target, "answer":posmod(seed_value, maxi(1, choices.size())), "choices":choices}
 
@@ -63,6 +67,9 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 	var score := 0
 	if task.mode == "hotel_story":
 		score = HotelWorld.score(task,input)
+	elif task.mode == "decision":
+		if input is int and input >= 0 and input < task.choices.size():
+			score = 100 if input == int(task.answer) else 20
 	elif task.mode == "timing":
 		if input is float or input is int:
 			if is_finite(float(input)): score = roundi(clampf(1.0 - absf(float(input) - float(task.target)) / 0.22, 0, 1) * 100)
@@ -98,6 +105,13 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 		model.report.rewards += reward
 		model.campaign.xp += average * 0.5
 	state.rounds = int(state.rounds) + 1
+	# Five practical scenarios build lasting sector expertise. Service businesses
+	# use this proficiency in Hospitality.service_multiplier for real guest income.
+	if not SectorCases.group(str(building.kind)).is_empty():
+		state["sector"] = SectorCases.group(str(building.kind))
+		state["training_xp"] = mini(10000, int(previous.get("training_xp", 0)) + maxi(0, roundi(average / 4.0)))
+		state["training_level"] = mini(20, int(int(state["training_xp"]) / 100))
+		state["last_shift_quality"] = average
 	if Hospitality.lodging(str(building.kind)):
 		# Long-term narrative progression is earned even by unpaid practice;
 		# cash and service bonuses still obey the existing three-round cap.
