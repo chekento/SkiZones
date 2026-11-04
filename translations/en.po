@@ -7435,3 +7435,6 @@ msgstr "Guitars, rock and board beats. Pure punk-band recordings are not yet ful
 
 msgid "Tiefe, sphärische Klänge; tatsächliche Laufzeiten variieren."
 msgstr "Deep atmospheric sounds; actual track lengths vary."
+
+msgid "Space-Ambient und Synthwave – sanfte Weiten mit einzelnen treibenden Tracks."
+msgstr "Space ambient and synthwave – wide calm soundscapes with occasional driving tracks."
