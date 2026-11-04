@@ -30,6 +30,14 @@ func run()->void:
 			check(stream!=null and not shuffled.has(radio._last_record_id),station+" shuffle bag gives an unseen recording")
 			shuffled[radio._last_record_id]=true
 		check(shuffled.size()==credits.size(),station+" complete shuffle cycle plays each title exactly once")
+	# Objective station identity: no more than half of each programme can
+	# duplicate the most similar generic counterpart.
+	for pair in [["apres","techno",5],["glacier","meditative",6],["hiphop","lodge_lofi",6]]:
+		var left: Array=radio.track_credits(pair[0])
+		var right_ids: Dictionary={}
+		for item in radio.track_credits(pair[1]):right_ids[str(item.id)]=true
+		var overlap: int=left.filter(func(item):return right_ids.has(str(item.id))).size()
+		check(overlap<=int(pair[2]),str(pair[0])+" has a recognizably distinct programme from "+str(pair[1]))
 	check(all_ids.size()>=72,"Existing 72 uniquely documented CC0 assets are preserved")
 	check(radio.station_track_count("folk_alpine")>=10 and radio.station_track_count("folk_swedish")>=10,"Alpine and Nordic acoustic tracks reach 10 each")
 	check(radio.station_track_count("erg0sphere")==0 and radio.station_track_count("ska_album")==0,"External albums cannot silently stream or appear bundled")
