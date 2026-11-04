@@ -64,3 +64,18 @@ per station. It does not play inactive stations, contact a streaming service or
 change the resort clock/save. Manual Next adjusts only the selected receiver's
 station offset; other stations keep their phase. APK/device validation remains
 subject to the combined CI at the final candidate SHA.
+
+## Full-run regression correction
+
+The combined CI at `a8ef755` found one obsolete assertion in
+`landscape_rhythm.gd`: it required every outdoor walker to block night
+fast-forward, including the new explicitly permitted physical route into a
+cabin. The revised suite passes **35 assertions** locally. It positively checks
+that real cabin-bound walking may advance, and separately retains negative
+checks for the visitor's actual daytime itinerary with a lift/piste ahead,
+an actual ski leg, a queue and an unresolved incident. Runtime code is unchanged.
+The complete release pipeline still gates APK publication on Android and saves.
+All 30 subsequent headless regression suites were also run locally and passed,
+including multi-winter progression, 2,499 achievement assertions, actual skiing,
+routes/services, overnight operations, four careers and update validation. The
+career-slot suite uses its required isolated `skizones-test` data directory.
