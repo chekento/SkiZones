@@ -69,7 +69,7 @@ func build(view: Node3D) -> void:
 		var a: Vector2=Terrain.unpack(points[0])
 		var b: Vector2=Terrain.unpack(points[-1])
 		if a.distance_to(b)<20.0 or a.distance_to(b)>180.0:continue
-		var mid: Vector2=Terrain.unpack(points[points.size()/2])
+		var mid: Vector2=Terrain.unpack(points[int(points.size()/2)])
 		var side: Vector2=(b-a).normalized().orthogonal()
 		var at: Vector2=mid+side*(float(link.get("width",7.0))*0.5+7.0)
 		var cell: Vector2i=Vector2i(roundi(at.x/25.0),roundi(at.y/25.0))
