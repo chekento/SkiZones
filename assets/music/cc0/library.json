@@ -761,30 +761,6 @@
         "vetting": "source-license-checked; duration and full-genre QA pending"
       },
       {
-        "id": "lofi-fractured",
-        "title": "Fractured",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/lofi-fractured.ogg",
-        "style": "lofi",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/fractured-1/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/lofi/Fractured.ogg",
-          "git_blob_sha1": "1f7636cf5aaa7729b2c938aebecad8b4188666fe",
-          "bytes": 1432501
-        },
-        "duration_seconds": 145.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Flow",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "lodge_lofi",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
         "id": "lofi-ghost-town",
         "title": "Ghost Town",
         "artist": "HoliznaCC0",
@@ -801,30 +777,6 @@
           "bytes": 1645863
         },
         "duration_seconds": 170.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Flow",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "lodge_lofi",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "lofi-one-good-day",
-        "title": "One Good Day",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/lofi-one-good-day.ogg",
-        "style": "lofi",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/one-good-day-1/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/lofi/One_Good_Day.ogg",
-          "git_blob_sha1": "7aa39f3d98c38bb35a5dcb4c73e0d2ccd4fa1db2",
-          "bytes": 1452767
-        },
-        "duration_seconds": 129.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Snowpark · Flow",
         "sport_fit": "both",
@@ -2775,28 +2727,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "house-bouncer",
-        "title": "Bouncer",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/house-bouncer.ogg",
-        "style": "house",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/bouncer-0",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/house/Bouncer.ogg",
-          "git_blob_sha1": "a256f049c3336058ecfda725c186b1b830965279",
-          "bytes": 1093043
-        },
-        "duration_seconds": 93.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "house-omw-to-beat-the-big-bad",
         "title": "OMW to beat the big bad",
         "artist": "OpenGameArt – Urheber siehe Originalquelle",
@@ -2813,28 +2743,6 @@
           "bytes": 991794
         },
         "duration_seconds": 87,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "synthwave-aerobics-synth-wave",
-        "title": "Aerobics Synth Wave",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/synthwave-aerobics-synth-wave.ogg",
-        "style": "synthwave",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/aerobics-synth-wave",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/synthwave/Aerobics_Synth_Wave.ogg",
-          "git_blob_sha1": "e44d859ef130a86513ffe8dfca82c9f82577a2c9",
-          "bytes": 1528343
-        },
-        "duration_seconds": 134.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttengaudi · Alpenglühen",
         "sport_fit": "both",
@@ -3053,32 +2961,6 @@
         "mountain_moment": "Kristallruhe · Gletscher",
         "sport_fit": "both",
         "playlist_reuse": true,
-        "curation_tag": "hotel_lobby",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "focus-game-travel-1-piano",
-        "title": "Game Travel 1 (Piano)",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/focus-game-travel-1-piano.ogg",
-        "style": "focus",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/background-music/game-travel-1-piano/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/focus/Game_Travel_1_Piano.ogg",
-          "git_blob_sha1": "c4a4c9bf9ee80f7f0046e4e46d2012494f0d92e5",
-          "bytes": 1115421
-        },
-        "duration_seconds": 116.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Kristallruhe · Gletscher",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "temporary_programming": true,
-        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
         "curation_tag": "hotel_lobby",
         "vetting": "source-license-checked; duration and full-genre QA pending"
       },
@@ -5400,7 +5282,7 @@
   },
   "station_count": 16,
   "unique_audio_files": 87,
-  "playlist_entries": 234,
+  "playlist_entries": 229,
   "mountain_curation": {
     "description": "All 72 original recordings retain their actual composer and title. Ski/Snowboard mountain-moment labels are editorial recommendations, not claims that the composers wrote music specifically for ski resorts. Gipfelrausch FM reuses existing CC0 audio and adds no extra bytes.",
     "station_moods": {
