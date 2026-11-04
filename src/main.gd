@@ -357,7 +357,7 @@ func _select_save_context(slot: int) -> void:
 	passport.load_from(SaveStore.passport_path())
 	has_game=false
 
-func select_career_slot(slot: int, fresh: bool = false) -> void:
+func select_career_slot(slot: int, fresh: bool = false, wealth: int = 2) -> void:
 	if slot<1 or slot>4: return
 	if has_game and not save_game(): return
 	if fresh and (SaveStore.summary(slot).occupied or FileAccess.file_exists(SaveStore.passport_path(slot))) and not SaveStore.archive_slot(slot):
@@ -367,6 +367,9 @@ func select_career_slot(slot: int, fresh: bool = false) -> void:
 	hud.career_slots.hide()
 	if fresh:
 		start_game(true)
+		# Only new careers receive a financial difficulty adjustment.
+		# Resume and migration always preserve the original balance.
+		model.money=roundf(model.money*[0.35,0.60,1.0,1.5,2.5][clampi(wealth,0,4)])
 		save_game()
 	else:
 		var saved:=SaveStore.summary(slot)
