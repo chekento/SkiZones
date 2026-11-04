@@ -29,6 +29,40 @@ const GOALS := {
 	"seiseralm": ["Rettung und Technik koordinieren", "Drei Pistenraupen besitzen und drei Präparierungen abschließen", "Hotel und Abendangebot betreiben", "Alle geöffneten Stationen besetzen", "Drei wirtschaftliche Betriebstage"]
 }
 
+
+## The goal flags above are unchanged for save compatibility; this is a
+## contextual, step-by-step mission guide for the player.
+const GOAL_TIPS := {
+	"braunlage":[
+		"Liftteam öffnen und Stationen in der Tagschicht besetzen.",
+		"Reparaturzentrale öffnen: Techniker und Elektriker einstellen.",
+		"Defekten Lift wählen, Ersatzteile bereitstellen und Reparatur starten.",
+		"Pistenraupengarage öffnen: Fahrzeug und Fahrer einsetzen, Piste vorher leeren.",
+		"Gäste über funktionierende Routen bedienen; Ruf und Besucherzahl steigern."
+	],
+	"filzmoos":[
+		"Alle geöffneten Tal-, Mittel- und Bergstationen prüfen.",
+		"Bergwacht mit mindestens zwei Rettungskräften besetzen.",
+		"Drei Pisten im Garagen-Menü nacheinander oder parallel präparieren.",
+		"Wartezeit durch mehr Liftkapazität, Personal und erreichbare Pisten senken.",
+		"Zwei profitable Betriebstage mit ausreichendem Service und Lifteinsatz erreichen."
+	],
+	"kitzbuehel":[
+		"Reparaturzentrale besetzen und defekten Verbindungslift reparieren.",
+		"Jede offene Station einschließlich der gemeinsamen Mittelstation besetzen.",
+		"Ersatzteilbestellung aufgeben und zwei Pakete im Lager behalten.",
+		"200 Gäste anziehen und Warteschlangen durch zusätzliche Kapazität verkürzen.",
+		"300 Gäste und einen profitablen Betriebstag erreichen."
+	],
+	"seiseralm":[
+		"Bergwacht und Reparaturzentrale mit allen benötigten Rollen besetzen.",
+		"Mindestens drei Pistenraupen kaufen, Fahrer zuweisen und drei Pisten präparieren.",
+		"Hotel und Après-Ski mit passenden Schichten für den Abendbetrieb besetzen.",
+		"Alle geöffneten Berg- und Talstationen mit genügend Liftpersonal ausstatten.",
+		"Drei profitable Betriebstage mit beherrschbaren Kosten erreichen."
+	]
+}
+
 static func initial() -> Dictionary:
 	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
 
