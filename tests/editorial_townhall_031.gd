@@ -45,8 +45,15 @@ func run() -> void:
 	check(not Calendar.preview_poster(dec1) and Calendar.unlocked(dec1,1) and not Calendar.unlocked(dec1,2),"December 1 removes posters and opens only Advent door one")
 	check(TownHall.HISTORY.size()>=32 and str(TownHall.HISTORY[0].version)=="0.1.1" and str(TownHall.HISTORY[-1].version)=="0.30.0","Published 0.30 hotfix is in the archive while 0.31 remains the current candidate")
 	check(TownHall.ROADMAP.size()==4 and str(TownHall.ROADMAP[0]["from"])=="04.11.2026" and str(TownHall.ROADMAP[-1]["to"])=="04.01.2027","Two-month roadmap has four delivery/acceptance phases")
+	var roadmap_content := ""
 	for phase in TownHall.ROADMAP:
-		check(phase.deliverables.size()>=3 and not str(phase.acceptance).is_empty(),"Civic phase has concrete work and review gate")
+		check(phase.deliverables.size()>=5 and not str(phase.acceptance).is_empty() and not str(phase.get("target","")).is_empty() and not str(phase.get("status","")).is_empty(),"Civic phase has specific deliverables, release target, honest status and review gate")
+		for entry in phase.deliverables: roadmap_content += str(entry) + " "
+	check(roadmap_content.contains("Stürme") and roadmap_content.contains("Zeitraffer") and roadmap_content.contains("Nacht-Nachfrage"),"Next-version roadmap records infrequent storms, calm nights and morning arrivals")
+	check(roadmap_content.contains("Tic-Tac-Toe") and roadmap_content.contains("Kochspiele") and roadmap_content.contains("Bettenbeziehen"),"Town Hall features genuinely playable minigames, cooking and lodging tasks")
+	check(roadmap_content.contains("Braunlage") and roadmap_content.contains("Kitzbühel") and roadmap_content.contains("Szenariomissionen"),"Real resort circuit and mission QA remains on the calendar")
+	check(roadmap_content.contains("Monochrom") and roadmap_content.contains("Radio") and roadmap_content.contains("1000 Erfolge"),"Distinct art styles, original music and long-form progression have concrete planning slots")
+
 	var model:=Resort.new()
 	model.new_game(true,20261027,"sonnenhang",true)
 	check(model.building_count("town_hall")==1,"New starter resort contains exactly one complimentary Rathaus")
