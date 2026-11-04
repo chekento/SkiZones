@@ -7438,3 +7438,51 @@ msgstr "Deep atmospheric sounds; actual track lengths vary."
 
 msgid "Space-Ambient und Synthwave – sanfte Weiten mit einzelnen treibenden Tracks."
 msgstr "Space ambient and synthwave – wide calm soundscapes with occasional driving tracks."
+
+msgid "Akustische Gitarren und warme Hüttenklänge für jeden Skitag."
+msgstr "Acoustic guitars and warm lodge tunes for every ski day."
+
+msgid "HüttenFolk: ehrliche Akustik statt verkleideter Volksmusik."
+msgstr "Lodge Folk: honest acoustic music, not mislabeled traditional folk."
+
+msgid "Nordic Frost: kühle Akustik für weite Winterlandschaften."
+msgstr "Nordic Frost: cool acoustics for wide winter landscapes."
+
+msgid "Summit Sunrise: der erste Sonnenstrahl über dem Berg."
+msgstr "Summit Sunrise: first sunlight above the mountain."
+
+msgid "Freeride Pulse: treibende Synthbeats für Ski und Board."
+msgstr "Freeride Pulse: driving synth beats for skis and boards."
+
+msgid "PistenRock: Gitarren, Rock und Energie für den Snowpark."
+msgstr "Piste Rock: guitars, rock and snowpark energy."
+
+msgid "Powder Flow: Hip-Hop und Lo-Fi für die nächste Park Line."
+msgstr "Powder Flow: hip-hop and lo-fi for the next park line."
+
+msgid "SnowBeat Radio: Techno und House direkt vom Gipfel."
+msgstr "SnowBeat Radio: techno and house straight from the summit."
+
+msgid "Alpenglühen FM: House und Funk für die Après-Ski-Nacht."
+msgstr "Alpenglow FM: house and funk for the après-ski night."
+
+msgid "Alpine Classic: Piano und Orchester über dem Tal."
+msgstr "Alpine Classic: piano and orchestra above the valley."
+
+msgid "Mountain Chill: ruhige Klangflächen ohne Hektik."
+msgstr "Mountain Chill: peaceful soundscapes without the rush."
+
+msgid "Lodge Lo-Fi: entspannte Beats am warmen Kamin."
+msgstr "Lodge Lo-Fi: relaxed beats by the warm fireplace."
+
+msgid "Glacier Dreams: eisige Klangflächen und weite Stille."
+msgstr "Glacier Dreams: icy soundscapes and wide open silence."
+
+msgid "Cosmic Drift: Synthwave und Space-Ambient am Sternenhimmel."
+msgstr "Cosmic Drift: synthwave and space ambient beneath the stars."
+
+msgid "Deep Atmospherics: Drones und sphärische Bergnächte."
+msgstr "Deep Atmospherics: drones and atmospheric mountain nights."
+
+msgid "Hotel Lobby FM: Piano und Jazz nur in der Hotellounge."
+msgstr "Hotel Lobby FM: piano and jazz in the hotel lounge only."
