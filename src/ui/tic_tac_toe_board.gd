@@ -57,11 +57,11 @@ func _ready() -> void:
 		rest.set_border_width_all(2)
 		rest.set_corner_radius_all(corner)
 		square.add_theme_stylebox_override("normal", rest)
-		var hover: StyleBoxFlat = rest.duplicate()
+		var hover: StyleBoxFlat = rest.duplicate() as StyleBoxFlat
 		hover.bg_color = highlight
 		square.add_theme_stylebox_override("hover", hover)
 		square.add_theme_stylebox_override("pressed", hover)
-		var blocked: StyleBoxFlat = rest.duplicate()
+		var blocked: StyleBoxFlat = rest.duplicate() as StyleBoxFlat
 		blocked.bg_color = base
 		square.add_theme_stylebox_override("disabled", blocked)
 		square.add_theme_color_override("font_disabled_color",accent)
