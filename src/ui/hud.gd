@@ -108,6 +108,12 @@ var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
 var cinema_title := Label.new()
 var cinema_mode := false
+var attention_sliders: Array=[]
+var attention_labels: Array=[]
+var _attention_dragging := false
+var piste_map_window := Control.new()
+var piste_map_full := Minimap.new()
+var piste_map_mini := Minimap.new()
 var camera_bar: PanelContainer
 var camera_panel: PanelContainer
 var camera_choice := OptionButton.new()
@@ -208,6 +214,7 @@ func setup(controller: Node) -> void:
 	_build_dialogs()
 	_build_camera_dialog()
 	_build_cinema_overlay()
+	_build_piste_map_window()
 	root.add_child(management)
 	management.setup(game, self)
 	root.add_child(lift_staff)
@@ -388,6 +395,8 @@ func _update_responsive_layout(available_width: float) -> void:
 		menu_panel.offset_right = minf(610.0,available_width-12.0)
 	if is_instance_valid(tools_panel):
 		tools_panel.offset_right = minf(316.0,maxf(184.0,available_width*0.37))
+	if is_instance_valid(piste_map_mini):
+		piste_map_mini.custom_minimum_size.y = 112 if root.size.y < 650 else 150
 	if is_instance_valid(plan_panel):
 		plan_panel.offset_left = minf(340.0,maxf(198.0,available_width*0.40))
 	if is_instance_valid(camera_panel):
@@ -561,10 +570,11 @@ func _build_tools() -> void:
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	palette.setup(self)
-	var overview := Minimap.new()
+	var overview = piste_map_mini
 	overview.game = game
 	box.add_child(overview)
-	_label(box, L.text("Gebietskarte: tippen zum Navigieren"), 12, MUTED)
+	overview.expand_requested.connect(show_piste_map)
+	_label(box, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED)
 	var navigation := HBoxContainer.new()
 	box.add_child(navigation)
 	_button(navigation, L.text("Übersicht"), func(): game.view.overview()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -710,7 +720,11 @@ func _build_camera_dialog() -> void:
 	camera_dialog.add_child(shade)
 	camera_panel = _panel(camera_dialog, -300, -245, 300, 245, 0.5, 0.5)
 	camera_panel.add_theme_stylebox_override("panel", _style(Color("e8f0ed"), 18, 24, Color("b9d9ce")))
-	var box := _vbox(camera_panel, 16)
+	var scroll := DragScroll.new()
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	camera_panel.add_child(scroll)
+	var box := _vbox(scroll, 12)
+	box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	_label(box, L.text("Dein Blick auf den Berg"), 24, TEAL)
 	_label(box, L.text("Die Ansicht wechselt, deine Bauplanung bleibt erhalten."), 15, MUTED, true)
 	box.add_child(camera_choice)
@@ -735,6 +749,7 @@ func _build_camera_dialog() -> void:
 	box.add_child(orbit)
 	for entry in [[L.text("↶ Drehen"), func(): game.view.rotate_view(-0.3)], [L.text("Drehen ↷"), func(): game.view.rotate_view(0.3)], [L.text("Talansicht"), func(): game.view.home()]]:
 		_button(orbit, entry[0], entry[1]).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_build_attention_control(box)
 	_button(box,L.text("Filmische Kamerafahrt · Resort-Tour"),func():
 		camera_dialog.hide()
 		game.start_cinematic_tour()
@@ -749,19 +764,97 @@ func _build_cinema_overlay() -> void:
 	root.add_child(cinema_overlay)
 	cinema_overlay.anchor_top=1.0
 	cinema_overlay.anchor_bottom=1.0
-	cinema_overlay.offset_left=20
-	cinema_overlay.offset_top=-98
+	cinema_overlay.offset_left=12
+	cinema_overlay.offset_top=-164
 	cinema_overlay.offset_right=510
-	cinema_overlay.offset_bottom=-20
-	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.78),12,10))
+	cinema_overlay.offset_bottom=-12
+	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.86),12,10))
+	var stack:=_vbox(cinema_overlay,5)
 	var bar:=HBoxContainer.new()
-	bar.add_theme_constant_override("separation",12)
-	cinema_overlay.add_child(bar)
+	stack.add_child(bar)
+	bar.add_theme_constant_override("separation",10)
 	cinema_title=_label(bar,L.text("Filmische Kamerafahrt · Resort-Tour"),17,Color("f5f7fc"),true)
 	cinema_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var exit_button:=_button(bar,L.text("Zurück"),func(): game.stop_cinematic_tour())
-	exit_button.custom_minimum_size=Vector2(95,52)
+	exit_button.custom_minimum_size=Vector2(86,44)
+	_build_attention_control(stack,true)
 	cinema_overlay.hide()
+
+func _build_attention_control(parent: Node, compact: bool = false) -> void:
+	var label_control: Label=_label(parent,"",14,Color("eef6f3") if compact else INK,true)
+	attention_labels.append(label_control)
+	var slider:=HSlider.new()
+	slider.min_value=0
+	slider.max_value=100
+	slider.step=5
+	slider.custom_minimum_size.y=32 if compact else 44
+	slider.tooltip_text=L.text("Panorama bis Betriebsprobleme zuerst")
+	slider.set_value_no_signal(roundi(game.preferences.cinematic_attention*100))
+	parent.add_child(slider)
+	attention_sliders.append(slider)
+	slider.drag_started.connect(func(): _attention_dragging=true)
+	slider.value_changed.connect(func(value: float):
+		game.preferences.cinematic_attention=value/100.0
+		_sync_attention()
+		if not _attention_dragging: _apply_attention()
+	)
+	slider.drag_ended.connect(func(_changed: bool):
+		_attention_dragging=false
+		_apply_attention()
+	)
+	_sync_attention()
+
+func _sync_attention() -> void:
+	var value: float=game.preferences.cinematic_attention*100.0
+	for slider in attention_sliders: slider.set_value_no_signal(value)
+	for label_control in attention_labels:
+		label_control.text=L.text("Aufmerksamkeit %d %% · Panorama ↔ Betrieb") % roundi(value)
+
+func _apply_attention() -> void:
+	game.view.tour.set_attention(game.preferences.cinematic_attention,game.view)
+	game.preferences.save_to()
+
+func _build_piste_map_window() -> void:
+	root.add_child(piste_map_window)
+	piste_map_window.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	piste_map_window.mouse_filter=Control.MOUSE_FILTER_STOP
+	piste_map_window.z_index=75
+	var panel:=PanelContainer.new()
+	piste_map_window.add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.offset_left=10
+	panel.offset_top=10
+	panel.offset_right=-10
+	panel.offset_bottom=-10
+	panel.add_theme_stylebox_override("panel",_style(Color("e9e2cf"),12,10))
+	var stack:=_vbox(panel,8)
+	var bar:=HBoxContainer.new()
+	stack.add_child(bar)
+	var title: Label=_label(bar,L.text("Interaktiver Pistenplan"),19,INK,true)
+	title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	_button(bar,"−",func(): piste_map_full.zoom_by(1.0/1.3))
+	_button(bar,"+",func(): piste_map_full.zoom_by(1.3))
+	_button(bar,L.text("Zurück"),func(): piste_map_window.hide())
+	piste_map_full.game=game
+	piste_map_full.expanded=true
+	piste_map_full.custom_minimum_size=Vector2(0,100)
+	piste_map_full.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	stack.add_child(piste_map_full)
+	piste_map_full.asset_selected.connect(func(id: int):
+		piste_map_window.hide()
+		show_context("inspect",id)
+	)
+	piste_map_window.hide()
+
+func show_piste_map() -> void:
+	if not game.points.is_empty():
+		toast(L.text("Zuerst die laufende Planung abschließen oder abbrechen."))
+		return
+	game.stop_cinematic_tour()
+	game._clear_input()
+	piste_map_full.reset_plan()
+	piste_map_window.show()
+	piste_map_full.queue_redraw()
 
 func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
@@ -938,6 +1031,7 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	piste_map_window.hide()
 	seasonal_poster.hide()
 	building_browser.hide()
 	piste_workshop.close()
@@ -969,7 +1063,7 @@ func blocks_map(point: Vector2) -> bool:
 	if jukebox.visible:return true
 	if medal_cabinet.visible: return true
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if piste_map_window.visible or seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -1367,6 +1461,7 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 
 
 

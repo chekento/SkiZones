@@ -1624,7 +1624,7 @@ func set_camera_pitch(value: float) -> void:
 
 func _update_camera() -> void:
 	camera.size = zoom
-	var cartographic:bool=visual_style=="piste_map"
+	var cartographic:bool=visual_style=="piste_map" and not tour.active
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if cartographic or camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
 	camera.size=zoom*(1.12 if cartographic else 1.0)
 	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
@@ -1884,6 +1884,7 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 		if _art_cache.size() > 128: _art_cache.clear()
 		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
 	return _art_cache[key]
+
 
 
 

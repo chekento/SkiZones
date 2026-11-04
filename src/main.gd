@@ -171,10 +171,11 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_cinematic_tour() -> void:
 	if not has_game or hud.menu.visible or not points.is_empty() or hud.loading.visible: return
+	view.tour.set_attention(preferences.cinematic_attention)
 	if view.tour.begin(view):
 		hud.set_cinema_mode(true)
 
@@ -761,6 +762,8 @@ func _clear_input() -> void:
 
 func _input(event: InputEvent) -> void:
 	if view.tour.active:
+		if (event is InputEventScreenTouch or event is InputEventMouseButton) and hud.cinema_overlay.get_global_rect().has_point(event.position):
+			return
 		if event is InputEventKey and event.pressed and event.keycode in [KEY_ESCAPE,KEY_SPACE,KEY_V] or event is InputEventScreenTouch and event.pressed or event is InputEventMouseButton and event.pressed:
 			stop_cinematic_tour()
 		return
@@ -811,7 +814,9 @@ func _input(event: InputEvent) -> void:
 		view.pan(event.delta * 24)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
-			if hud.seasonal_poster.visible:
+			if hud.piste_map_window.visible:
+				hud.piste_map_window.hide()
+			elif hud.seasonal_poster.visible:
 				hud.seasonal_poster.hide()
 			elif hud.building_browser.visible:
 				hud.building_browser.hide()
@@ -853,7 +858,7 @@ func _input(event: InputEvent) -> void:
 				set_tool("inspect")
 			else:
 				show_menu()
-		elif not hud.building_browser.visible and not hud.piste_workshop.visible and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
+		elif not hud.building_browser.visible and not hud.piste_workshop.visible and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible:
 			match event.keycode:
 				KEY_SPACE: toggle_pause()
 				KEY_Q: view.rotate_view(-0.2)
@@ -936,6 +941,9 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		_resume_application()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if hud.piste_map_window.visible:
+			hud.piste_map_window.hide()
+			return
 		if hud.seasonal_poster.visible:
 			hud.seasonal_poster.hide()
 			return
@@ -1312,6 +1320,7 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 
 func _catalog_index(kind: String, lift: bool) -> int:
 	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+
 
 
 

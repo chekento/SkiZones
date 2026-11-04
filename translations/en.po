@@ -7025,3 +7025,61 @@ msgstr "Profile: "
 
 msgid "Personal-ID %d"
 msgstr "Staff ID %d"
+
+
+msgid "Bergrettung · Einsatz"
+msgstr "Mountain rescue · response"
+
+msgid "Störung · "
+msgstr "Fault · "
+
+msgid "Personal fehlt · "
+msgstr "Staff needed · "
+
+msgid "Warteschlange · "
+msgstr "Queue · "
+
+msgid "Piste braucht Pflege · "
+msgstr "Piste needs grooming · "
+
+msgid "Besucherleben · %d Gäste"
+msgstr "Visitor life · %d guests"
+
+msgid "Resort-Panorama"
+msgstr "Resort panorama"
+
+msgid "Gipfel · %.0f m"
+msgstr "Summit · %.0f m"
+
+msgid "Hügel und Hangrelief"
+msgstr "Hills and slope relief"
+
+msgid "Pistenplan vergrößern"
+msgstr "Expand piste map"
+
+msgid "PISTENPLAN"
+msgstr "PISTE MAP"
+
+msgid "Blau"
+msgstr "Blue"
+
+msgid "Rot"
+msgstr "Red"
+
+msgid "Schwarz"
+msgstr "Black"
+
+msgid "Gestrichelt: geschlossen · !: Aufmerksamkeit"
+msgstr "Dashed: closed · !: needs attention"
+
+msgid "Pistenplan: tippen oder vergrößern"
+msgstr "Piste map: tap or expand"
+
+msgid "Panorama bis Betriebsprobleme zuerst"
+msgstr "Scenery through to operational issues first"
+
+msgid "Aufmerksamkeit %d %% · Panorama ↔ Betrieb"
+msgstr "Attention %d %% · Scenery ↔ Operations"
+
+msgid "Interaktiver Pistenplan"
+msgstr "Interactive piste map"
