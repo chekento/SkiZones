@@ -1,5 +1,6 @@
 extends SceneTree
 const Saves=preload("res://src/core/save_store.gd")
+const Resort=preload("res://src/core/resort.gd")
 var game: Node
 var passed:=0
 var failed:=0
@@ -51,5 +52,30 @@ func run() -> void:
 	game.hud.career_slots.open();root.size=Vector2i(960,540)
 	for frame in range(4):await process_frame
 	check(root.get_visible_rect().encloses(game.hud.career_slots.get_global_rect()),"All career controls remain within a small landscape screen")
+	# Regression for a real player having two separately saved mountains in
+	# the SAME career. The additional mountain must be selectable, not hidden
+	# behind the old single last-map index.
+	Saves.active_slot=1
+	var second_resort:=Resort.new()
+	second_resort.new_game(true,20261027,"fichtenkamm")
+	second_resort.money=654321
+	check(Saves.save_game(second_resort,Saves.path_for_map("fichtenkamm",1)).ok,"A second mountain is saved in the same career slot")
+	# The featured card may be either resort depending on filesystem mtime;
+	# the OTHER resort must always be a separately clickable save.
+	var featured: String=str(Saves.summary(1).map)
+	var target: String="sonnenhang" if featured=="fichtenkamm" else "fichtenkamm"
+	var target_name: String="Velvet Peaks" if target=="sonnenhang" else "Whisperpine Lodge"
+	var expected_money: float=123451 if target=="sonnenhang" else 654321
+	game.hud.career_slots.open();await process_frame
+	var second_button: Button=null
+	for action in buttons(game.hud.career_slots.cards.get_child(0)):
+		if action.text.contains(target_name):second_button=action
+	check(second_button!=null,"Career card offers the other saved mountain as its own load action")
+	if second_button!=null:
+		second_button.pressed.emit()
+		for frame in range(240):
+			await process_frame
+			if not game.hud.loading.visible and game.model.map_id==target:break
+		check(game.has_game and game.model.map_id==target and game.model.money==expected_money,"Additional mountain loads from actual career UI without replacing the first")
 	game.queue_free();await process_frame;await process_frame
 	print("CAREER SLOT SCENE: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)

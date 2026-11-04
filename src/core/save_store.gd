@@ -22,13 +22,78 @@ static func has_readable_save(id: String, slot: int = -1) -> bool:
 	var selected: int = active_slot if slot < 0 else slot
 	for source in [path_for_map(id, selected),path_for_map(id, selected)+".bak"]:
 		var read: Dictionary = _read(source)
-		if read.ok and str(read.data.get("map_id","sonnenhang")) == id:
+		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and (id not in Maps.FANTASY_MAPS or _free_data(read.data) == (selected == 0)):
 			return true
 	if selected not in [0,1] or not Maps.FANTASY_MAPS.has(id): return false
 	for source in [legacy_path(id),legacy_path(id)+".bak"]:
 		var read: Dictionary = _read(source)
 		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and _free_data(read.data) == (selected==0):
 			return true
+	return false
+
+# Existence is not the same as readability. A corrupt or newer-format save
+# must NEVER silently become an empty new resort.
+static func has_any_save(id: String, slot: int = -1) -> bool:
+	var selected: int = active_slot if slot < 0 else slot
+	var path: String = path_for_map(id, selected)
+	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"): return true
+	if selected not in [0, 1] or id not in Maps.FANTASY_MAPS: return false
+	for old_path in [legacy_path(id), legacy_path(id) + ".bak"]:
+		if not FileAccess.file_exists(old_path): continue
+		var read: Dictionary = _read(old_path)
+		# Unknown content is protected until explicitly inspected, not overwritten.
+		if not read.ok: return true
+		if str(read.data.get("map_id", "sonnenhang")) == id and (not read.data.get("campaign") is Dictionary or _free_data(read.data) == (selected == 0)):
+			return true
+	return false
+
+# All distinct resorts in one career, including verified backups and pre-slot
+# saves. The old single-map index is advisory only, never authoritative.
+static func saved_resorts(slot: int = -1) -> Array:
+	var selected: int = active_slot if slot < 0 else slot
+	var result: Array = []
+	for id in Maps.FANTASY_MAPS:
+		var path: String = path_for_map(id, selected)
+		var sources: Array = [path, path + ".bak"]
+		if selected in [0, 1]:
+			sources.append(legacy_path(id))
+			sources.append(legacy_path(id) + ".bak")
+		var entry: Dictionary = {}
+		for source in sources:
+			if not FileAccess.file_exists(source): continue
+			var read: Dictionary = _read(source)
+			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id or not read.data.get("campaign") is Dictionary: continue
+			if _free_data(read.data) != (selected == 0): continue
+			var progress: Dictionary = read.data.campaign
+			var modified: int = FileAccess.get_modified_time(source)
+			entry = {"occupied": true, "map": id, "day": read.data.get("day", 1), "money": read.data.get("money", 0), "rank": progress.get("rank", 1), "saved_at": modified, "source": source, "damaged": false}
+			# The loader uses primary, backup, then pre-slot originals in this order.
+			break
+		if not entry.is_empty():
+			result.append(entry)
+		elif has_any_save(id, selected):
+			result.append({"occupied": true, "map": id, "day": 0, "money": 0, "rank": 0, "saved_at": FileAccess.get_modified_time(path) if FileAccess.file_exists(path) else 0, "damaged": true})
+	# A damaged file is visible but never outranks a healthy career.
+	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if a.damaged != b.damaged: return not a.damaged
+		return int(a.saved_at) > int(b.saved_at)
+	)
+	return result
+
+# Only a checksum-verified existing source can resume the exact old UI state.
+# A valid primary must take precedence over any stale backup checkpoint.
+static func session_source_matches(id: String, slot: int, checksum: String) -> bool:
+	var path: String = path_for_map(id, slot)
+	var sources: Array = [path, path + ".bak"]
+	if slot in [0, 1] and id in Maps.FANTASY_MAPS:
+		sources.append(legacy_path(id))
+		sources.append(legacy_path(id) + ".bak")
+	for source in sources:
+		var read: Dictionary = _read(source)
+		if not read.ok: continue
+		if str(read.data.get("map_id", "sonnenhang")) != id: continue
+		if id in Maps.FANTASY_MAPS and _free_data(read.data) != (slot == 0): continue
+		return FileAccess.get_sha256(source) == checksum
 	return false
 
 static func passport_path(slot: int = -1) -> String:
@@ -55,42 +120,9 @@ static func _write_index(model: RefCounted, slot: int) -> void:
 	DirAccess.rename_absolute(ProjectSettings.globalize_path(path+".tmp"),ProjectSettings.globalize_path(path))
 
 static func summary(slot: int) -> Dictionary:
-	if slot < 0 or slot > 4: return {"occupied":false}
-	var file := FileAccess.open(index_path(slot),FileAccess.READ)
-	if file != null and file.get_length() < 4096:
-		var data: Variant=JSON.parse_string(file.get_as_text())
-		if data is Dictionary and data.get("version")==1 and data.get("map") in Maps.FANTASY_MAPS:
-			var valid:=true
-			for field in ["day","money","rank","saved_at"]:
-				if not (data.get(field) is float or data.get(field) is int) or not is_finite(float(data.get(field,0))):valid=false
-			if valid and data.day>=1 and data.day<=100000 and data.day==floorf(data.day) and data.rank>=1 and data.rank<=5 and data.rank==floorf(data.rank) and absf(data.money)<=1000000000:
-				if _read(path_for_map(data.map,slot)).ok or _read(path_for_map(data.map,slot)+".bak").ok:
-					data.occupied=true
-					return data
-	var latest := -1
-	var result := {"occupied":false}
-	for id in Maps.FANTASY_MAPS:
-		for path in [path_for_map(id,slot),path_for_map(id,slot)+".bak"]:
-			if not FileAccess.file_exists(path): continue
-			var modified := FileAccess.get_modified_time(path)
-			if modified <= latest: continue
-			var read := _read(path)
-			if read.ok:
-				latest=modified
-				result={"occupied":true,"map":id,"day":read.data.get("day",1),"money":read.data.get("money",0),"rank":read.data.get("campaign",{}).get("rank",1),"saved_at":modified}
-	# Original pre-slot careers remain visible even if the first migration
-	# happened before the old files were restored or copied back to Android.
-	if not result.occupied and slot in [0,1]:
-		for id in Maps.FANTASY_MAPS:
-			for old_path in [legacy_path(id), legacy_path(id)+".bak"]:
-				var previous: Dictionary = _read(old_path)
-				if not previous.ok or not previous.data.get("campaign") is Dictionary: continue
-				if _free_data(previous.data) != (slot == 0): continue
-				var modified: int = FileAccess.get_modified_time(old_path)
-				if modified <= latest: continue
-				latest=modified
-				result={"occupied":true,"map":id,"day":previous.data.get("day",1),"money":previous.data.get("money",0),"rank":previous.data.campaign.get("rank",1),"saved_at":modified,"legacy":true}
-	return result
+	if slot < 0 or slot > 4: return {"occupied": false}
+	var entries: Array = saved_resorts(slot)
+	return entries[0] if not entries.is_empty() else {"occupied": false}
 
 static func migrate_legacy() -> bool:
 	# Copy, never move, the previous files. A failed or repeated migration must
@@ -144,11 +176,20 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	file.flush()
 	file.close()
 	var absolute := ProjectSettings.globalize_path(path)
-	# Preserve an existing backup when the main file is already damaged.
-	if FileAccess.file_exists(path) and _read(path).ok:
-		var backup_error := DirAccess.copy_absolute(absolute, absolute + ".bak")
-		if backup_error != OK:
-			return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+	# Never destroy a malformed/unsupported primary during a later save.
+	# Preserve its original bytes, independently of the ordinary .bak.
+	if FileAccess.file_exists(path):
+		if _read(path).ok:
+			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
+			if backup_error != OK:
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+		else:
+			var rescue_dir := "user://save-recovery"
+			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
 	if model.map_id in Maps.FANTASY_MAPS and path==path_for_map(model.map_id): _write_index(model,active_slot)

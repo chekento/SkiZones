@@ -208,8 +208,10 @@ func run() -> void:
 	game.hud.palette.refresh(true)
 	var unaffordable := true
 	for card in game.hud.palette.cards:
-		unaffordable = unaffordable and card.button.disabled
-	check(unaffordable, "The build catalogue disables unaffordable assets")
+		# The complimentary Town Hall is deliberately zero-cost in 0.31;
+		# only assets requiring payment must be disabled with no funds.
+		if card.cost > 0: unaffordable = unaffordable and card.button.disabled
+	check(unaffordable, "The build catalogue disables unaffordable assets while retaining the free Town Hall")
 	game.hud.show_atlas()
 	await process_frame
 	check(game.hud.atlas.visible and game.hud.atlas._cards.size() == 8 and game.hud.blocks_map(map_position), "The mountain passport presents eight regions and blocks building underneath")

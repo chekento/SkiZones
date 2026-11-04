@@ -6746,3 +6746,12 @@ msgstr "Old careers, radio and mobile controls"
 
 msgid "Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."
 msgstr "The town secured its old records: earlier careers and backups became readable again. More radio stations, hotel lobby music and improved mobile controls joined the hotfix published on November 4."
+
+msgid "Spielstand vorhanden – Wiederherstellung prüfen"
+msgstr "Existing save found – inspect recovery options"
+
+msgid "Spielstand prüfen"
+msgstr "Inspect saved game"
+
+msgid "Weitere gespeicherte Gebiete"
+msgstr "Other saved resorts"

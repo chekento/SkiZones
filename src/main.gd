@@ -272,7 +272,7 @@ func _restore_android_session() -> void:
 	# Preserve dormant scenario saves without opening them on normal-mode startup.
 	if state.is_empty() or not Maps.MAPS.has(state.map): return
 	var slot:=SaveStore.slot_from_state(state)
-	if state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map,slot)): return
+	if not SaveStore.session_source_matches(state.map, slot, state.checksum): return
 	var prepared := await _prepare_area(state.map, true,slot)
 	if not prepared.result.ok:
 		view.loading_in_progress = false
@@ -282,7 +282,12 @@ func _restore_android_session() -> void:
 	view.model = model
 	view._seen_revision = -1
 	await view.rebuild(_load_progress)
-	app_session.restore(self, true, false)
+	if not app_session.restore(self, true, false):
+		SaveStore.active_slot = slot
+		preferences.free_play = slot == 0
+		if slot > 0: preferences.career_slot = slot
+		passport.load_from(SaveStore.passport_path(slot))
+		start_game(true, state.map, model)
 	_load_progress.report(100.0, L.text("Bergwelt bereit"))
 	await get_tree().process_frame
 	hud.loading.hide()
@@ -297,7 +302,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	# old passport was lost, not migrated, or out of sync with the resort.
 	# Only brand-new mountain creation needs the unlock gate.
 	var own_save_path: String = SaveStore.path_for_map(area)
-	var has_saved_resort: bool = SaveStore.has_readable_save(area)
+	var has_saved_resort: bool = SaveStore.has_any_save(area)
 	if not passport.unlocked(area) and not has_saved_resort:
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
@@ -312,7 +317,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	# The old installation may still own a legacy file without a new-slot copy.
 	# Its migrations are retried idempotently and never overwrite player data.
 	if not has_saved_resort: SaveStore.migrate_legacy()
-	var prepared := await _prepare_area(area, has_saved_resort or SaveStore.has_readable_save(area))
+	var prepared := await _prepare_area(area, has_saved_resort or SaveStore.has_any_save(area))
 	if not prepared.result.ok:
 		view.loading_in_progress = false
 		hud.loading.hide()
@@ -367,6 +372,14 @@ func select_career_slot(slot: int, fresh: bool = false) -> void:
 		var saved:=SaveStore.summary(slot)
 		await enter_area(saved.get("map","sonnenhang"))
 
+func select_career_area(slot: int, area: String) -> void:
+	if slot < 1 or slot > 4 or area not in Maps.FANTASY_MAPS: return
+	if not SaveStore.has_any_save(area, slot): return
+	if has_game and not save_game(): return
+	_select_save_context(slot)
+	hud.career_slots.hide()
+	await enter_area(area)
+
 func start_free_play() -> void:
 	if has_game and not save_game(): return
 	_select_save_context(0)
@@ -376,18 +389,11 @@ func start_free_play() -> void:
 
 func main_game_area() -> String:
 	if has_game and model.map_id in Maps.FANTASY_MAPS: return model.map_id
-	if passport.data.last_map in Maps.FANTASY_MAPS: return passport.data.last_map
-	var latest := 0
-	var area := "sonnenhang"
-	for id in Maps.FANTASY_MAPS:
-		var path := SaveStore.path_for_map(id)
-		var modified := 0
-		for candidate in [path, path + ".bak"]:
-			if FileAccess.file_exists(candidate): modified = maxi(modified, FileAccess.get_modified_time(candidate))
-		if modified > latest:
-			latest = modified
-			area = id
-	return area
+	if passport.data.last_map in Maps.FANTASY_MAPS and SaveStore.has_readable_save(passport.data.last_map):
+		return passport.data.last_map
+	var saved: Array = SaveStore.saved_resorts(SaveStore.active_slot)
+	if not saved.is_empty(): return str(saved[0].map)
+	return "sonnenhang"
 
 func continue_main_game() -> void:
 	var area := main_game_area()
