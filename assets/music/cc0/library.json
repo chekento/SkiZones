@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "offline": true,
   "policy": "Only tracks documented as CC0 by the individual upstream listing or mirrored source manifest. Every bundled file is checksum-verified. Curatorial listening and third-party clearance remain separate from the CC0 assertion. Version 4 reuses individually documented CC0 files across station playlists; positions are not unique new recordings. Deep Space 4-minute target requires duration QA before it is claimed as complete. User-provided SoundCloud playlist is a credited external link, not a bundled file.",
   "stations": {
@@ -3212,7 +3212,340 @@
         "sport_fit": "both",
         "playlist_reuse": true
       }
-    ]
+    ],
+    "folk_alpine": [
+      {
+        "id": "old-tower-inn",
+        "title": "The Old Tower Inn",
+        "artist": "RandomMind",
+        "file": "res://assets/music/cc0/old-tower-inn.ogg",
+        "style": "folk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/medieval-the-old-tower-inn",
+        "mirror": {
+          "repository": "GabrielGLevine/wandering-inn-rpg",
+          "commit": "7dacb3b3ceb856d33d6a39a6f20b7169c6a97419",
+          "path": "wandering_inn_game/assets/audio/music/randommind_old_tower_inn.ogg",
+          "git_blob_sha1": "6e1fb384bddae15d6e8b2758243a53f5d4c7b098",
+          "bytes": 832498
+        },
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "fireplace-guitar",
+        "title": "Calm Fireplace Guitar Song",
+        "artist": "ShggothSlave",
+        "file": "res://assets/music/cc0/fireplace-guitar.ogg",
+        "style": "guitar",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/calm-fireplace-guitar-song",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/relax/Calm_fireplace_guitar_song.ogg",
+          "git_blob_sha1": "8ea9ff6fb15f80632cc0cd7bf29266823fdae809",
+          "bytes": 967203
+        },
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "small-fire",
+        "title": "A Small Fire Will Do",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/small-fire.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/a-small-fire-will-do-calming-loop",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/A_Small_Fire_Will_Do_Calming_Loop.ogg",
+          "git_blob_sha1": "87ec28b52ecd35a3e94643616837b8d5ae7a1f07",
+          "bytes": 604685
+        },
+        "mountain_moment": "Ankommen · Hüttenzauber",
+        "sport_fit": "ski",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-down-the-river",
+        "title": "Down The River",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-down-the-river.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/down-the-river",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Down_The_River.ogg",
+          "git_blob_sha1": "3d87a6c9ed8bd53cfb4542c7523704505b2746d0",
+          "bytes": 1296632
+        },
+        "duration_seconds": 114.5,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-serenade-guitar",
+        "title": "Serenade Guitar",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-serenade-guitar.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/serenade-guitar",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Serenade_Guitar.ogg",
+          "git_blob_sha1": "73f4c6b850b38ac14a0c2978028fac04fce18e73",
+          "bytes": 1494416
+        },
+        "duration_seconds": 129.3,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-fouler-l-horizon",
+        "title": "Fouler l'horizon",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-fouler-l-horizon.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/fouler-lhorizon",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Fouler_l_horizon.ogg",
+          "git_blob_sha1": "23fb3d1466097138e39455abd946dab36fc737ea",
+          "bytes": 1073157
+        },
+        "duration_seconds": 107.7,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-acoustic-guitar-rpg-tune-with-strings-and-pi",
+        "title": "Acoustic Guitar Rpg Tune With Strings And Piccolo",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-acoustic-guitar-rpg-tune-with-strings-and-pi.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/acoustic-guitar-rpg-tune-with-strings-and-piccolo",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Acoustic_Guitar_Rpg_Tune_With_Strings_And_Pi.ogg",
+          "git_blob_sha1": "ce6bad2d974c3c4e09be8075b6145f4a8201b68e",
+          "bytes": 1296683
+        },
+        "duration_seconds": 216.4,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      }
+    ],
+    "folk_swedish": [
+      {
+        "id": "ice-shine-bells",
+        "title": "Ice Shine Bells",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/ice-shine-bells.ogg",
+        "style": "winter",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/ice-shine-bells",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Ice_Shine_Bells.ogg",
+          "git_blob_sha1": "a64ff835ff6c9a3247eab00c91b3f25f87d21c0a",
+          "bytes": 1619836
+        },
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "classical-faraway",
+        "title": "Faraway",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/classical-faraway.ogg",
+        "style": "classical",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/faraway",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/classical/Faraway.ogg",
+          "git_blob_sha1": "98893ca86db963668799df4b1d9b98702b6c9370",
+          "bytes": 1529482
+        },
+        "duration_seconds": 115.8,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "focus-game-travel-1-piano",
+        "title": "Game Travel 1 (Piano)",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/focus-game-travel-1-piano.ogg",
+        "style": "focus",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/background-music/game-travel-1-piano/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/focus/Game_Travel_1_Piano.ogg",
+          "git_blob_sha1": "c4a4c9bf9ee80f7f0046e4e46d2012494f0d92e5",
+          "bytes": 1115421
+        },
+        "duration_seconds": 116.7,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "ambient-ambient-soundscape",
+        "title": "Ambient Soundscape",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/ambient-ambient-soundscape.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/ambient-soundscape",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/ambient/Ambient_Soundscape.ogg",
+          "git_blob_sha1": "f3ff094d836ede5ff6ba1fe7e563b5071bdeda93",
+          "bytes": 1610429
+        },
+        "duration_seconds": 151.1,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "sleep-sleepy-clouds",
+        "title": "Sleepy Clouds",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/sleep-sleepy-clouds.ogg",
+        "style": "sleep",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/sleepy-clouds",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Sleepy_Clouds.ogg",
+          "git_blob_sha1": "b82a541c37ada32b1ca9505c44d9b489617adcc5",
+          "bytes": 1497867
+        },
+        "duration_seconds": 76.3,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-just-you-and-me-guitar",
+        "title": "Just you and me Guitar",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-just-you-and-me-guitar.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/just-you-and-me-guitar",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Just_you_and_me_Guitar.ogg",
+          "git_blob_sha1": "f71c0fc85955e5404a8b084a7a9dbd48c105a62b",
+          "bytes": 1168011
+        },
+        "duration_seconds": 99,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "relax-in-the-middle-of-nowhere",
+        "title": "In the middle of nowhere",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/relax-in-the-middle-of-nowhere.ogg",
+        "style": "relax",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/in-the-middle-of-nowhere",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/relax/In_the_middle_of_nowhere.ogg",
+          "git_blob_sha1": "53e92dd9bea3c3b675c661d1ddef0c395dbcfd6e",
+          "bytes": 927289
+        },
+        "duration_seconds": 96.1,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "temporary_programming": true,
+        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      }
+    ],
+    "erg0sphere": []
   },
   "catalog_origin": {
     "repo": "euuuuuuan/todak-public",
@@ -3246,5 +3579,6 @@
       "bundled": false,
       "rights_note": "Creator states they own reuse rights; downloadable master audio needed for offline APK inclusion."
     }
-  ]
+  ],
+  "regional_folk_status": "Two 7-track transitional, openly marked CC0 playlists, not confirmed Swedish folk or Alpine brass. Replace with genuine, duration-verified recordings; archive sources staged separately."
 }
