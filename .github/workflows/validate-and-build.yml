@@ -77,6 +77,8 @@ jobs:
         working-directory: current
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/loading_scene.gd
       - name: Generate real 0.27 careers and verify all hotfix recovery paths
+        env:
+          XDG_DATA_HOME: /home/runner/skizones-test-027-recovery
         run: |
           cd legacy027
           "$GODOT_BIN" --headless --editor --import --quit
