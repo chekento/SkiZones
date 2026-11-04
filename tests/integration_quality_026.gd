@@ -56,7 +56,7 @@ func run() -> void:
 	box.genre_choice.select(index)
 	box.genre_choice.item_selected.emit(index)
 	game.audio._process(1.0)
-	check(game.audio.current_genre=="techno" and game.preferences.music_genre=="off","Live genre preview survives polling without changing saved preferences")
+	check(game.audio.current_genre=="techno" and game.preferences.music_genre=="techno","Live station selection survives polling and persists immediately")
 	box.master_slider.value=0.0
 	check(game.audio.players.values().all(func(player):return not player.playing or player.stream_paused),"A zero master slider gives exact silence on every channel")
 	box.master_slider.value=0.8
@@ -65,7 +65,7 @@ func run() -> void:
 	box.enabled.button_pressed=true
 	await capture("integration-026-jukebox")
 	box.close()
-	check(game.audio.current_genre=="off" and game.audio.preview_settings.is_empty() and game.preferences.master_volume==1.0,"Cancel restores the saved audio state")
+	check(game.audio.current_genre=="techno" and game.audio.preview_settings.is_empty() and is_equal_approx(game.preferences.master_volume,0.8),"Closing retains the chosen station and volume")
 	box.open()
 	index=box.Design.GENRES.find("classical")
 	box.genre_choice.select(index)
@@ -73,12 +73,12 @@ func run() -> void:
 	box.master_slider.value=0.6
 	box.music_slider.value=0.5
 	var save_button: Button=find_button(box,"Jukebox-Einstellungen speichern")
-	check(save_button!=null,"The real jukebox exposes its save action")
-	if save_button!=null:save_button.pressed.emit()
+	check(save_button==null,"The live jukebox needs no separate save action")
+	box.close()
 	var persisted:=Preferences.new()
 	persisted.path=game.preferences.path
 	persisted.load_from()
-	check(not box.visible and persisted.music_genre=="classical" and is_equal_approx(persisted.master_volume,0.6) and is_equal_approx(persisted.music_volume,0.5),"Saving the live mixer persists the chosen genre and independent volumes")
+	check(not box.visible and persisted.music_genre=="classical" and is_equal_approx(persisted.master_volume,0.6) and is_equal_approx(persisted.music_volume,0.5),"The mixer auto-saves the chosen genre and independent volumes before closing")
 	game._suspend_application()
 	game.audio._process(1.0)
 	check(game.audio.players.values().all(func(player):return not player.playing or player.stream_paused),"Inactive application audio remains suspended across processing")

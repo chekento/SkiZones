@@ -90,6 +90,7 @@ func _night(model: RefCounted) -> void:
 	check(not cabin.is_empty() and model.admit_guest(0,"blue"),"A real connected overnight property and tourist are available")
 	if cabin.is_empty() or model.guests.is_empty(): return
 	var guest: Dictionary=model.guests[0]
+	var daytime_route: Dictionary=guest.route.duplicate(true)
 	guest.lodging_id=cabin.id
 	guest.stay=8000
 	model.minute=1300
@@ -113,7 +114,23 @@ func _night(model: RefCounted) -> void:
 	guest.phase="moving"
 	guest.leg=0
 	guest.erase("hotel_sleep_until")
-	check(not model.empty_night() and not model.advance_empty_minute(),"The first real outdoor walker immediately stops night forward")
+	model._start_leg(guest)
+	check(model.empty_night() and model.advance_empty_minute() and model.guests.has(guest),"A real safe cabin-bound pedestrian can keep walking during night forward")
+	# A foot leg alone is insufficient: every remaining leg must be safe.
+	# Reuse the visitor's actual daytime ski itinerary to retain the original
+	# safety check for an outdoor walker with a lift/descent still ahead.
+	guest.route=daytime_route
+	guest.leg=0
+	model._start_leg(guest)
+	check(not model.empty_night() and not model.advance_empty_minute(),"A real outdoor itinerary with a lift or piste ahead stops night forward")
+	for index in range(daytime_route.legs.size()):
+		if daytime_route.legs[index].kind=="ski":
+			guest.leg=index
+			model._start_leg(guest)
+			break
+	check(not model.empty_night(),"An actual descent never receives pedestrian night acceleration")
+	guest.phase="queue"
+	check(not model.empty_night(),"A real lift queue still prevents automatic night skipping")
 	guest.phase="waiting"
 	guest.waiting_reason="hotel"
 	guest.hotel_sleep_until=model.Ops.clock(model)+60

@@ -173,6 +173,24 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
       - name: 0.32 direct compile of career, recruitment and panel dependency graph
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
+      - name: 0.33 live offline radio clock, real seek, mute and background rejoining
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_live_033.gd
+      - name: 0.33 immediate radio persistence and completed-building/piste inspector
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-radio-build-033
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/radio_build_hotfix_scene_033.gd
+      - name: 0.33 real touch-driven Tic-Tac-Toe mechanics and board
+        run: xvfb-run -a -s '-screen 0 1280x900x24' python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 720x900 --script tests/tic_tac_toe_033.gd
+      - name: 0.33 real phone touches, building pause and Back in German and English
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-arcade-033
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/arcade_mobile_scene_033.gd
+      - name: 0.33 rare weather, no consecutive storms and stable lift wind safety
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/weather_distribution_033.gd
+      - name: 0.33 five animated weather looks, no overlay and mobile particle budget
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/weather_atmosphere_scene_033.gd
+      - name: 0.33 quiet-night pedestrian fast-forward and bounded dawn interest
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates

@@ -64,7 +64,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	tuner.add_child(genre_choice)
 	genre_choice.custom_minimum_size.y=55
 	genre_choice.item_selected.connect(func(index:int):
-		_preview()
+		_apply_settings()
 	)
 	hud._label(page,L.text("Musiklautstärke"),17,hud.MUTED)
 	music_slider.min_value=0;music_slider.max_value=1;music_slider.step=0.05
@@ -74,8 +74,8 @@ func setup(owner_hud: CanvasLayer) -> void:
 	page.add_child(ambience_slider)
 	for slider in [master_slider,music_slider,ambience_slider]:
 		slider.custom_minimum_size.y=46
-		slider.value_changed.connect(func(_value: float): _preview())
-	enabled.toggled.connect(func(_on: bool): _preview())
+		slider.value_changed.connect(func(_value: float): _apply_settings())
+	enabled.toggled.connect(func(_on: bool): _apply_settings())
 	area_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	area_label.add_theme_font_size_override("font_size",17)
 	area_label.add_theme_color_override("font_color",hud.TEAL)
@@ -111,18 +111,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	credits_label.add_theme_font_size_override("font_size",14)
 	credits_label.add_theme_color_override("font_color",hud.MUTED)
 	page.add_child(credits_label)
-	hud._button(page,L.text("Jukebox-Einstellungen speichern"),func():
-		var prefs:RefCounted=hud.game.preferences
-		prefs.sound_enabled=enabled.button_pressed
-		prefs.master_volume=float(master_slider.value)
-		prefs.music_genre=str(Design.GENRES[genre_choice.selected])
-		prefs.music_volume=float(music_slider.value)
-		prefs.ambient_volume=float(ambience_slider.value)
-		var error:Error=prefs.save_to()
-		hud.game.audio.clear_preview()
-		hud.toast(L.text("Audio gespeichert.") if error==OK else L.text("Audio angewendet; Speichern fehlgeschlagen."))
-		close(false)
-	,true)
+	hud._label(page,L.text("Änderungen gelten sofort und werden automatisch gespeichert. Offline-Sender laufen nach Uhrzeit weiter; du steigst ins laufende Programm ein."),15,hud.MUTED,true)
 	hud._button(page,L.text("Zurück"),close)
 	hide()
 
@@ -137,18 +126,25 @@ func open() -> void:
 	area_label.text=L.text("Aktueller Hörbereich: ")+L.text(str(Design.ZONE_NAMES.get(hud.game.audio.active_zone,Design.ZONE_NAMES.wilderness)))
 	show()
 	window._fit()
-	_preview()
+	hud.game.audio.clear_preview()
 	_update_now_playing()
 
-func close(restore: bool = true) -> void:
-	if restore and hud!=null and hud.game!=null:
+func close(_restore: bool = true) -> void:
+	if hud!=null and hud.game!=null:
 		hud.game.audio.clear_preview()
 	hide()
 
 
-func _preview() -> void:
+func _apply_settings() -> void:
 	if not visible or hud==null or hud.game==null:return
-	hud.game.audio.set_preview({"genre":str(Design.GENRES[genre_choice.selected]),"enabled":enabled.button_pressed,"master":master_slider.value,"music":music_slider.value,"ambient":ambience_slider.value})
+	var prefs: RefCounted = hud.game.preferences
+	prefs.music_genre = str(Design.GENRES[genre_choice.selected])
+	prefs.sound_enabled = enabled.button_pressed
+	prefs.master_volume = float(master_slider.value)
+	prefs.music_volume = float(music_slider.value)
+	prefs.ambient_volume = float(ambience_slider.value)
+	hud.game.audio.clear_preview()
+	if prefs.save_to() != OK: hud.toast(L.text("Audio angewendet; Speichern fehlgeschlagen."))
 	_refresh_tuner()
 	_update_now_playing()
 	_update_credits()

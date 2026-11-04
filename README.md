@@ -33,13 +33,15 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**Gesamthotfix 0.31.0 · Android-VersionCode 36:** [Zusammengeführte Änderungen · PR #36](https://github.com/chekento/SkiZones/pull/36). Enthält die Änderungen aus 0.28–0.30 sowie Zeitung, Radiowerbung, neun Kunststile, Rathaus und November-Plakate. **Veröffentlicht nach bestandenen Spielstand-, Godot-, Signatur- und Android-30/36-Prüfungen.** [Release und APK](https://github.com/chekento/SkiZones/releases/tag/v0.31.0).
+**0.33.0 · Android-VersionCode 39:** [Gemeinsamer Releasekandidat · PR #52](https://github.com/chekento/SkiZones/pull/52). Radio-Hotfix mit sofort gespeicherten Einstellungen und fortlaufenden Offline-Sendern, direkter Anlagenansicht nach Bauabschluss, seltenere Stürme, sicherer Nacht-Zeitraffer, Morgenankünfte, spielbares Tic-Tac-Toe und aktualisierter Rathausplan. **Welche APK bereits freigegeben ist, zeigt ausschließlich der Downloadblock oben.** [Detaillierte Änderungen](docs/releases/0.33.0.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
 | [0.23.0–0.27.0](https://github.com/chekento/SkiZones/releases) | Pistenmodule, Hotelwelten, Winterfeste, Szenarien, Kamera und Offline-Radio | Veröffentlicht |
 | [0.30.0](docs/releases/0.30.0.md) | Alte Karrieren, erweiterte Radiosender, Hotellobby, Künstlerkanäle und mobile Bedienung | Veröffentlicht · Android 11/16 bestanden |
 | [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | **Veröffentlicht · Android 11/16 bestanden** |
+| [0.32.0](docs/releases/0.32.0.md) | Fünf Startbudgets, Bewerbermarkt, Missionshilfen, Original-Wortmarke, zehn Grafikstile und interaktiver Pistenplan | Veröffentlicht · Android 11/16 bestanden |
+| [0.33.0](docs/releases/0.33.0.md) | Sofort gespeichertes Radio, laufende Sender, Bauabschluss-Inspektor, Wetter, Nächte, Spielecke und Rathausplan | Releasekandidat · Freigabe siehe Downloadblock |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
@@ -51,6 +53,17 @@ Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffen
 [![Build und Tests](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml/badge.svg)](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml)
 
 </div>
+
+## 0.33.0 · Laufendes Radio und ein lebendigerer Resortbetrieb
+
+- **Radio sofort einstellen:** Sender, Ein/Aus und Lautstärken gelten direkt und bleiben gespeichert. Die Offline-Sender laufen rechnerisch nach Uhrzeit weiter; beim Wechsel beginnt die Wiedergabe an der aktuellen Stelle des laufenden Songs.
+- **Nach dem Bauen direkt verwalten:** Fertige Gebäude, Pisten, Lifte und Wege öffnen ihren Anlageninspektor. Die untere Bauleiste verschwindet; eine neue Planung zeigt die Werkzeuge wieder.
+- **Abend und Morgen:** Sicherer Zeitraffer für echte Fußwege zum Hotel, Abendangebot oder Ausgang, begrenzte vorgemerkte Nachfrage und tatsächliche Ankünfte nach freier Kapazität zwischen 08 und 10 Uhr.
+- **Wetter mit mehr Abwechslung:** Seltenere Stürme ohne direkt aufeinanderfolgende Sturmtage, fünf deutlichere Wetteratmosphären und unveränderte Lift-Windgrenzen.
+- **Freiwillige Spielecke:** Echtes Touch-Tic-Tac-Toe mit Computergegner in passenden Gebäuden. Weitere Koch-, Bar-, Hotel- und Billardspiele bleiben im Ausbauplan.
+- **Rathaus und Orientierung:** Aktualisierte veröffentlichte Chronik und Zwei-Monats-Fahrplan bis Januar, auf Deutsch und Englisch. Die fünf Startbudgets, zehn Grafikstile und gesicherten Altkarrieren aus 0.32 bleiben erhalten.
+
+[Alle Änderungen und Prüfgrenzen 0.33.0](docs/releases/0.33.0.md) · [Detaillierter Zwei-Monats-Plan](docs/ROADMAP_2026_11_2027_01.md).
 
 ## 0.31.0 · Gesamthotfix mit Radio, Zeitung und neun Kunststilen
 

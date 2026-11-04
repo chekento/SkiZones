@@ -6,6 +6,7 @@ const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
+const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
@@ -145,6 +146,7 @@ func _rebuild() -> void:
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
 	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
+	_mini_games(building)
 	_activity(building)
 	var operation := _page(L.text("Betrieb & Team"))
 	var balance: Dictionary = model.Ops.business_balance(model, building)
@@ -255,7 +257,7 @@ func _town_hall(_building: Dictionary) -> void:
 	archive.add_child(museum)
 	var mu: VBoxContainer=hud._vbox(museum,6)
 	hud._label(mu,L.text("BEGLAUBIGTES ARCHIV"),14,accent,true)
-	hud._label(mu,L.text("31 historisch veröffentlichte Versionen · älteste zuerst · aus unserem Gemeindeprotokoll."),14,ink,true)
+	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
 	hud._label(mu,L.text(TownHall.DEVELOPMENT_NOTICE),13,ink,true)
 	for event in TownHall.history(false):
 		var row:=PanelContainer.new()
@@ -266,8 +268,8 @@ func _town_hall(_building: Dictionary) -> void:
 		hud._label(inner,L.text(str(event.topic)),18,ink,true)
 		hud._label(inner,L.text(str(event.story)),15,ink,true)
 	var plans: VBoxContainer=_page(L.text("Rathaus · Bauplan bis Januar"))
-	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · 04.11.–04.01."),22,accent,true)
-	hud._label(plans,L.text("Das sind geplante Verbesserungen und keine bereits veröffentlichten Funktionen. Jede Bauphase enthält konkrete Freigabekriterien."),15,ink,true)
+	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · NOVEMBER BIS JANUAR"),22,accent,true)
+	hud._label(plans,L.text("Planungsstand 04.11.2026 · Ziele sind keine Zusagen oder veröffentlichten Funktionen. Jede Phase erhält eigene Freigabetests."),15,ink,true)
 	for phase in TownHall.roadmap():
 		var chapter:=PanelContainer.new()
 		chapter.add_theme_stylebox_override("panel",hud._style(paper,4,15,accent))
@@ -275,15 +277,17 @@ func _town_hall(_building: Dictionary) -> void:
 		var details: VBoxContainer=hud._vbox(chapter,8)
 		hud._label(details,str(phase.phase),22,accent,true)
 		hud._label(details,L.text("%s bis %s") % [str(phase["from"]),str(phase["to"])],14,ink,true)
+		hud._label(details,L.text("Release-Ziel: %s · %s") % [L.text(str(phase.target)),L.text(str(phase.status))],14,ink,true)
 		for entry in phase.deliverables:
 			hud._label(details,"• "+L.text(str(entry)),15,ink,true)
 		hud._label(details,L.text("Abnahmekriterium: ")+L.text(str(phase.acceptance)),13,accent,true)
+	hud._button(plans,L.text("Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/docs/ROADMAP_2026_11_2027_01.md"))
 	var bulletin: VBoxContainer=_page(L.text("Rathaus · Bürgerinformation"))
 	hud._label(bulletin,L.text("STADTANZEIGER UND BÜRGERSERVICE"),22,accent,true)
 	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
 	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
 	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/releases"))
-	hud._label(bulletin,L.text("Bauprojekte der nächsten Versionen: neue Zeitungsdruckbilder, Weihnachtsplakate, KI-freie automatische Gebäudeübergänge, authentische lizenzierte Musik und bessere Qualität auf kleinen Telefonbildschirmen."),15,ink,true)
+	hud._label(bulletin,L.text("Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-Resort-Design."),15,ink,true)
 
 func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))
@@ -414,8 +418,24 @@ func _weekly(page: Node) -> void:
 		_rebuild()
 	, true)
 
+func _mini_games(building: Dictionary) -> void:
+	# Unlike the sector training shifts, the arcade contains genuine playable
+	# local games. It does not pay cash and cannot alter operating balances.
+	var kind: String = str(building.kind)
+	if kind not in ["lodge","bar","disco"] and not Hospitality.lodging(kind): return
+	var page: VBoxContainer = _page(L.text("Spielecke"))
+	var requirement: int = 2 if kind=="disco" or Hospitality.lodging(kind) else 1
+	var rank: int = int(hud.game.model.campaign.get("rank",1))
+	if rank < requirement:
+		_card(page,L.text("Noch gesperrt"),L.text("Wird ab Betreiber-Rang %d freigeschaltet.") % requirement)
+		return
+	var board := TicTacToeBoard.new()
+	board.style_id = str(hud.game.preferences.visual_style)
+	page.add_child(board)
+	hud._label(page,L.text("Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."),15,hud.MUTED,true)
+
 func _activity(building: Dictionary) -> void:
-	var page := _page(L.text("Selber spielen"))
+	var page := _page(L.text("Betriebstraining"))
 	var definition := Activities.spec(str(building.kind))
 	if definition.is_empty(): return
 	game_box = _card(page, L.text("Deine Hotelgeschichte") if Hospitality.lodging(str(building.kind)) else L.text(definition.title), L.text("Fünf bebilderte Kapitel mit unterschiedlichen Gästewünschen und Entscheidungen.") if Hospitality.lodging(str(building.kind)) else L.text(definition.hint))

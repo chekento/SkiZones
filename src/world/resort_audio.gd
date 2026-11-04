@@ -2,6 +2,7 @@ extends Node
 ## Offline Alpine Radio: vetted third-party CC0 OGG songs, plus original fallback WAVs.
 ## Music is bundled in APK, never streamed or generated over a network.
 const Design=preload("res://src/core/audio_design.gd")
+const Programme=preload("res://src/core/radio_program.gd")
 const MUSIC_TRACKS := {
 	"alpine": preload("res://assets/music/alpine.wav"),
 	"techno": preload("res://assets/music/techno.wav"),
@@ -34,6 +35,10 @@ var _song_positions: Dictionary = {}
 var _song_orders: Dictionary = {}
 var _station_cycles: Dictionary = {}
 var _last_record_id := ""
+var _programme := Programme.new()
+var clock_source: Callable
+var _live_record_id := ""
+var _tune_offset := 0.0
 var active := true
 var preview_settings: Dictionary = {}
 var _targets: Dictionary = {}
@@ -172,6 +177,36 @@ func _load_cc0_library() -> void:
 				present.append(item)
 		if not present.is_empty():
 			_cc0_stations[genre] = present
+	var timing: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/music/cc0/durations.json"))
+	if timing is Dictionary and timing.get("seconds") is Dictionary:
+		for station in _cc0_stations:
+			_programme.register(station, _cc0_stations[station], timing.seconds, CROSSFADE_SECONDS)
+
+func _broadcast_clock() -> float:
+	return float(clock_source.call()) if clock_source.is_valid() else Time.get_unix_time_from_system()
+
+func programme_position(id: String) -> Dictionary:
+	_load_cc0_library()
+	return _programme.position(id, _broadcast_clock())
+
+func _broadcast_stream(id: String, skip: bool) -> AudioStream:
+	_load_cc0_library()
+	var now: float = _broadcast_clock()
+	if skip: _programme.skip(id, now)
+	var position: Dictionary = _programme.position(id, now)
+	_tune_offset = 0.0
+	_live_record_id = ""
+	if position.is_empty(): return _radio_stream(id, skip)
+	var record: Dictionary = _cc0_stations[id][int(position.index)]
+	var stream: AudioStream = load(str(record.file)) as AudioStream
+	if stream == null: return _radio_stream(id, skip)
+	if stream is AudioStreamOggVorbis: (stream as AudioStreamOggVorbis).loop = false
+	_tune_offset = float(position.offset)
+	_live_record_id = str(record.file)
+	current_track_title = str(record.get("title", id))
+	current_track_artist = str(record.get("artist", ""))
+	current_mountain_moment = str(record.get("mountain_moment", ""))
+	return stream
 
 func station_track_count(id: String) -> int:
 	_load_cc0_library()
@@ -248,7 +283,7 @@ func next_track() -> void:
 
 func _on_music_finished(finished_player: AudioStreamPlayer) -> void:
 	if active and current_genre != "off" and players.get("music") == finished_player:
-		set_genre(current_genre, true)
+		set_genre(current_genre, false, true)
 
 func _maybe_advance_song() -> void:
 	if not active or current_genre == "off" or _crossfade < 1.0:
@@ -256,16 +291,20 @@ func _maybe_advance_song() -> void:
 	var music_player: AudioStreamPlayer = players.get("music")
 	if music_player == null or not music_player.playing or music_player.stream_paused:
 		return
+	var position: Dictionary = programme_position(current_genre)
+	if not position.is_empty():
+		var record: Dictionary = _cc0_stations[current_genre][int(position.index)]
+		if str(record.file) != _live_record_id: set_genre(current_genre, false, true)
+		return
 	if not (music_player.stream is AudioStreamOggVorbis):
 		return
 	var remaining: float = music_player.stream.get_length() - music_player.get_playback_position()
 	if remaining > 0.0 and remaining <= CROSSFADE_SECONDS + 0.25:
 		set_genre(current_genre, true)
 
-func set_genre(id: String, next_song: bool = false) -> void:
+func set_genre(id: String, next_song: bool = false, retune: bool = false) -> void:
 	var wanted:String=Design.genre_valid(id)
-	if current_genre==wanted and not next_song and (wanted=="off" or (players.has("music") and players.music.playing)):return
-	var station_changed: bool = wanted!=current_genre
+	if current_genre==wanted and not next_song and not retune and (wanted=="off" or (players.has("music") and players.music.playing)):return
 	var primary:AudioStreamPlayer=players.get("music")
 	if primary==null:return
 	current_genre=wanted
@@ -296,6 +335,8 @@ func set_genre(id: String, next_song: bool = false) -> void:
 		_levels["music"]=0.0
 		return
 	var alternate:AudioStreamPlayer=players.get("music_alt")
+	# Rejoining after mute/background should not fade through stale audio.
+	if primary.stream_paused: primary.stop()
 	if alternate!=null and primary.playing:
 		alternate.stop()
 		_retiring_music=primary
@@ -306,9 +347,9 @@ func set_genre(id: String, next_song: bool = false) -> void:
 		if alternate!=null:alternate.stop()
 		_retiring_music=null
 	_crossfade=0.0
-	primary.stream=_radio_stream(wanted, next_song or station_changed)
+	primary.stream=_broadcast_stream(wanted, next_song)
 	primary.volume_db=-60.0
-	primary.play()
+	primary.play(_tune_offset)
 	primary.stream_paused=not active
 
 ## Temporary room-based channel: hotel administration overrides the general
@@ -350,9 +391,10 @@ func sync() -> void:
 	var station: String=Design.genre_valid(str(chosen.genre))
 	# Hotel management has its own lounge music without modifying saved radio.
 	# Respect sound_enabled and volume=0 as explicit opt-outs.
-	if not context_station.is_empty() and bool(chosen.enabled) and float(chosen.music)>0.0:
+	if station != "off" and not context_station.is_empty() and bool(chosen.enabled) and float(chosen.music)>0.0:
 		station = context_station
-	if station!=current_genre:set_genre(station)
+	var rejoining: bool = station != "off" and station not in Design.EXTERNAL_STATIONS and active and bool(chosen.enabled) and float(chosen.music) * float(chosen.master) > 0.0 and players.has("music") and players.music.stream_paused
+	if station!=current_genre or rejoining: set_genre(station, false, rejoining)
 	var master: float=clampf(float(chosen.master),0,1) if bool(chosen.enabled) and active else 0.0
 	var ambient: float=clampf(float(chosen.ambient),0,1)*master
 	var music: float=clampf(float(chosen.music),0,1)*master

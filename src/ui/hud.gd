@@ -365,6 +365,9 @@ static func safe_content_rect(display_size: Vector2, viewport_size: Vector2, saf
 	return Rect2(clipped.position * scale_value, clipped.size * scale_value)
 
 func _update_safe_area() -> void:
+	# Language changes detach the previous HUD before its deferred deletion.
+	# A rotation in that frame must only resize the new, attached interface.
+	if not is_inside_tree(): return
 	var size_value := get_viewport().get_visible_rect().size
 	var content := Rect2(Vector2.ZERO, size_value)
 	if OS.has_feature("android") or OS.has_feature("ios"):
@@ -526,6 +529,8 @@ func _button(parent: Node, text_value: String, callback: Callable, primary: bool
 	var button := Button.new()
 	button.text = L.text(text_value)
 	button.custom_minimum_size.y = 50
+	if parent == inspector_actions:
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.pressed.connect(func():
 		if DragScroll.click_allowed():
 			callback.call()
@@ -948,7 +953,7 @@ func _apply_panel_visibility() -> void:
 	mission_panel.offset_left = 24 if map_focus or center_narrow else 340
 	mission_panel.offset_right = -24 if map_focus or center_narrow else -328
 	# Keep a pending plan and its confirmation available in the wider map view.
-	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
+	plan_panel.visible = show_game and (current_tool != "inspect" or (selected_id == -1 and (not map_focus or game.model.minute >= game.model.CLOSING)))
 	slope_legend.visible = show_game and game.view.slopes_visible
 	slope_legend.offset_left = 24 if map_focus or center_narrow else 340
 	slope_legend.offset_right = -24 if map_focus or center_narrow else -328

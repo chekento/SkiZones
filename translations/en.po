@@ -7124,3 +7124,209 @@ msgstr "Evening operations"
 
 msgid "Betrieb läuft"
 msgstr "Operating"
+
+msgid "TIC-TAC-TOE · DU GEGEN DEN COMPUTER"
+msgstr "TIC-TAC-TOE · YOU VS COMPUTER"
+
+msgid "Neue Runde"
+msgstr "New round"
+
+msgid "Gewonnen! Du hast drei Zeichen in einer Reihe."
+msgstr "You win! Three marks in a row."
+
+msgid "Der Computer gewinnt. Noch eine Runde?"
+msgstr "The computer wins. Play again?"
+
+msgid "Unentschieden! Das Spielfeld ist voll."
+msgstr "Draw! The board is full."
+
+msgid "Setze dein X. Drei in einer Reihe gewinnen."
+msgstr "Place your X. Three in a row wins."
+
+msgid "Siege %d · Remis %d · Niederlagen %d"
+msgstr "Wins %d · Draws %d · Losses %d"
+
+msgid "Spielecke"
+msgstr "Game corner"
+
+msgid "Noch gesperrt"
+msgstr "Not yet unlocked"
+
+msgid "Wird ab Betreiber-Rang %d freigeschaltet."
+msgstr "Unlocks at manager rank %d."
+
+msgid "Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."
+msgstr "A real board game against the computer. No stakes, cash rewards or time pressure."
+
+msgid "Betriebstraining"
+msgstr "Operations training"
+
+msgid "Änderungen gelten sofort und werden automatisch gespeichert. Offline-Sender laufen nach Uhrzeit weiter; du steigst ins laufende Programm ein."
+msgstr "Changes apply immediately and are saved automatically. Offline stations keep running by the clock; you join the programme in progress."
+
+msgid "Morgeninteresse: %d · Ankünfte 08–10 Uhr nach freien Plätzen. Noch keine Gäste oder Einnahmen."
+msgstr "Morning interest: %d · Arrivals 08–10 subject to capacity. No guests or revenue yet."
+msgid "Die Chronik dokumentiert ausgewählte veröffentlichte Etappen. Der Bauplan ist eine Vorschau, kein Release-Nachweis; die neueste APK steht bei GitHub-Releases."
+msgstr "The chronicle documents selected published milestones. The development plan is a preview, not proof of a release; the latest APK is on GitHub Releases."
+
+msgid "I · Release, Nacht und Wetter"
+msgstr "I · Release, nights and weather"
+
+msgid "0.32-Freigabe / 0.33-Grundlagen"
+msgstr "0.32 release / 0.33 foundations"
+
+msgid "Geplant · nach Freigabetests"
+msgstr "Planned · subject to release tests"
+
+msgid "0.32-APK nach echten Android-30/36-, Spielstand- und Signaturtests veröffentlichen; GitHub-Hauptseite, Downloadbanner und In-App-Update prüfen"
+msgstr "Publish the 0.32 APK after real Android 30/36, save and signature tests; verify the GitHub homepage, download banner and in-app update"
+
+msgid "Seltenere, angekündigte Stürme statt gleichverteilter Wettertage; Windgrenzen und Liftsicherheit bleiben unverändert"
+msgstr "Replace equally likely storm days with rarer, forecast storms; preserve wind limits and lift safety"
+
+msgid "Sonne, Schneefall, Nebel und Sturm grafisch klarer unterscheiden, mit schonender Effektstärke für Android"
+msgstr "Make sun, snowfall, fog and storms visually distinct while keeping Android effects lightweight"
+
+msgid "Abendruhe im Dorf: Gäste gehen zum Hotel, zur Bar oder nach Hause; kein ewiger Nachtverkehr, der den Zeitraffer blockiert"
+msgstr "Create a quiet village at night: visitors go to hotels, bars or home, with no endless traffic blocking fast-forward"
+
+msgid "Aufgestaute Nacht-Nachfrage am nächsten Morgen kontrolliert verteilen, ohne Besucher- oder Umsatzverdopplung"
+msgstr "Spread overnight visitor demand across the next morning without double-counting guests or revenue"
+
+msgid "Mobile Bedienfelder, HUD und breites SkiZones-Schriftlogo auf kleinen Displays auf Kollisionen prüfen"
+msgstr "Check mobile panels, HUD and wide SkiZones wordmark for overlap on small screens"
+
+msgid "Öffentliche APK und Updatepfad nachgewiesen; 10 sichere Nächte, Wetter-/Sturmstatistik, Save-Migration und Android-30/36-Prüfungen"
+msgstr "Verify public APK and update path; ten safe nights, weather/storm statistics, save migration and Android 30/36 tests"
+
+msgid "II · Spielerisches Winterdorf und Advent"
+msgstr "II · Playful winter village and Advent"
+
+msgid "0.33 / 0.34 – erste spielbare Ausbauten"
+msgstr "0.33 / 0.34 – first playable additions"
+
+msgid "Geplant · stufenweise"
+msgstr "Planned · incremental"
+
+msgid "Echte Touch-Minispiele statt Textquiz: Tic-Tac-Toe und ein kurzes Reaktions- oder Slalomspiel zuerst freischalten"
+msgstr "Unlock genuine touch minigames instead of text quizzes: Tic-Tac-Toe and a short reaction or slalom game first"
+
+msgid "Bar und Restaurants erhalten kleine grafische Barkeeper- und Kochspiele; Donut Ring Toss am Süßwarenstand als Prototyp"
+msgstr "Add small graphical bartending and cooking games to bars and restaurants; prototype Donut Ring Toss at the dessert stand"
+
+msgid "Hotel, Gästehaus und Chalet erhalten unterschiedliche kurze Spiele rund ums Bettenbeziehen und Zimmeraufräumen"
+msgstr "Hotels, guesthouses and chalets get distinct short games for making beds and tidying rooms"
+
+msgid "Premium-Alpine- und Après-Ski-Design statt kindlicher Optik; Stil-Assets einschließlich Monochrom-Strichlinien konsequent unterscheiden"
+msgstr "Use a premium alpine and après-ski design rather than childish visuals; make all style assets, including monochrome line art, distinct"
+
+msgid "Adventskalender ab 1. Dezember prüfen; November-Werbekästen und winterliche Ortsdekoration ohne Pistenkollision"
+msgstr "Test the Advent calendar from December 1; keep November ad boards and winter village decorations clear of pistes"
+
+msgid "Neue Gäste-, Bau- und Gebäudeinteraktionen über klare Touch-Menüs erreichbar halten"
+msgstr "Make new guest, construction and building interactions accessible through clear touch menus"
+
+msgid "Mindestens ein vollständig spielbares Touch-Minispiel mit KI/Regeln und Touch-Test; Advent-Datumswechsel, barrierearme Mobile-Ansicht und keine Save-Regression"
+msgstr "At least one fully playable touch minigame with AI/rules and touch tests; verify Advent dates, mobile accessibility and save compatibility"
+
+msgid "III · Resortleben, Betriebe und Szenarien"
+msgstr "III · Resort life, businesses and scenarios"
+
+msgid "0.34+ – Betriebs- und KI-Tiefe"
+msgstr "0.34+ – deeper operations and NPC AI"
+
+msgid "Geplant · Qualität vor Umfang"
+msgstr "Planned · quality over quantity"
+
+msgid "Hotellerie, Gastronomie, Nightlife und Personal stärker vernetzen: reale Kapazitäten, Öffnungszeiten und Gästewege"
+msgstr "Connect hospitality, dining, nightlife and staffing more closely: real capacities, opening hours and guest routes"
+
+msgid "Familien und Wintersportler bewegen sich ohne Pistenstau; Anreise, Bus-Shuttles, Liftstationen und Dorfwege besser abstimmen"
+msgstr "Keep families and winter sports guests moving without piste jams; coordinate arrivals, shuttles, lift stations and village paths"
+
+msgid "Szenariomissionen in Braunlage, Filzmoos, Kitzbühel und Seiser Alm auf erreichbare Ziele und komplette Fahrwege prüfen"
+msgstr "Check scenario missions in Braunlage, Filzmoos, Kitzbühel and Seiser Alm for achievable objectives and complete ski routes"
+
+msgid "Fünf Karriere-Startstufen, Kosten, Gehälter, Wartung und Besucherzufriedenheit über mehrere Winter neu balancieren"
+msgstr "Rebalance five career starting tiers, costs, salaries, maintenance and visitor satisfaction across multiple winters"
+
+msgid "Billard-Prototyp für die Bar und spielerische Hotelaufgaben ausbauen; Schach und Blackjack ohne Echtgeld bleiben spätere Module"
+msgstr "Expand a bar billiards prototype and playful hotel tasks; chess and blackjack without real money remain later modules"
+
+msgid "Radio-Sender mit lizenzierter Offline-Musik, besserer Genre-Unterscheidung und einer lebendigeren, thematisch gestalteten Zeitung"
+msgstr "Improve radio stations with licensed offline music, more distinct genres and a livelier, themed newspaper"
+
+msgid "Reproduzierbare Szenario-Missions- und Routenchecks, 10 stabile Betriebstage, realistische Umsätze sowie geprüfte Musiklizenzen"
+msgstr "Reproducible mission and route checks, ten stable operating days, realistic revenue and verified music licensing"
+
+msgid "IV · Festtagsresort und Qualitätswinter"
+msgstr "IV · Holiday resort and winter quality"
+
+msgid "0.35+ – festliche Tests und Feinschliff"
+msgstr "0.35+ – holiday QA and polish"
+
+msgid "Geplant · abhängig von Tests"
+msgstr "Planned · dependent on tests"
+
+msgid "Weihnachts- und Silvesterbetrieb mit Festgebäuden, Besucherschüben, Familien und stimmungsvollen Abendangeboten ausarbeiten"
+msgstr "Expand Christmas and New Year's Eve operations with festive buildings, visitor peaks, families and atmospheric evening offers"
+
+msgid "Wetter- und Grafikeffekte sowie unterschiedliche Modelle für jeden Kunststil auf Mittelklasse-Android-Geräten optimieren"
+msgstr "Optimize weather and graphics effects plus distinct models for every art style on mid-range Android devices"
+
+msgid "Seilbahnen, Gondel-Zwischenstationen, Schneephysik, NPC-Routen und flüssige Kamera- sowie Pistenbau-Gesten final nachprüfen"
+msgstr "Recheck cable lifts, gondola mid-stations, snow physics, NPC routing and smooth camera and piste-building gestures"
+
+msgid "Resort-Kennzahlen, 1000 Erfolge und 500 Ränge auf faire Ziele, sichtbares Feedback und spielerische Motivation prüfen"
+msgstr "Audit resort metrics, 1,000 achievements and 500 ranks for fair goals, visible feedback and fun progression"
+
+msgid "Rathaus-Chronik und Zeitung nur aus echten erreichten Meilensteinen und veröffentlichten APKs fortschreiben"
+msgstr "Update the town hall chronicle and newspaper only from real milestones and published APKs"
+
+msgid "Alte Karrieren, Szenariospielstände, Bildschirmwechsel und In-App-Downloads über mehrere Android-Versionen erneut testen"
+msgstr "Retest old careers, scenario saves, app switching and in-app downloads across Android versions"
+
+msgid "Nachweisbarer veröffentlichter Android-Build, sichere Altspielstände und Updates, stabile FPS und keine kritischen Bau-, Audio- oder NPC-Fehler"
+msgstr "Verifiable published Android build, safe legacy saves and updates, stable FPS and no critical building, audio or NPC failures"
+
+msgid "Ausgewählte veröffentlichte Etappen bis 0.30.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
+msgstr "Selected published milestones through 0.30.0 · oldest first; find the latest APK on GitHub."
+
+msgid "ZWEI MONATE ZUKUNFT · NOVEMBER BIS JANUAR"
+msgstr "TWO MONTHS AHEAD · NOVEMBER TO JANUARY"
+
+msgid "Planungsstand 04.11.2026 · Ziele sind keine Zusagen oder veröffentlichten Funktionen. Jede Phase erhält eigene Freigabetests."
+msgstr "Plan as of November 4, 2026 · targets are not guarantees or published features. Every phase has its own release tests."
+
+msgid "Release-Ziel: %s · %s"
+msgstr "Release target: %s · %s"
+
+msgid "Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-Resort-Design."
+msgstr "Next: stable Android APK and safe saves, fewer recurring storms, quiet nighttime fast-forward, real touch minigames, reliable scenarios and a mature alpine resort design."
+
+msgid "Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"
+msgstr "Open the full two-month plan on GitHub"
+
+msgid "Winterkunst, Zeitung und Radiowerbung"
+msgstr "Winter art, newspaper and radio advertising"
+
+msgid "Die veröffentlichte APK führte neue künstlerische Winterstile, eine lebendigere Resortzeitung und Hinweise auf die Radiosender ein."
+msgstr "The published APK introduced new artistic winter styles, a livelier resort newspaper and radio-station promotions."
+
+msgid "Winterbetrieb und sichere Karrieren"
+msgstr "Winter operations and protected careers"
+
+msgid "Der veröffentlichte Android-Build brachte fünf Karriere-Startstufen, Bewerbermarkt, Missionsverbesserungen und das originale breite SkiZones-Schriftlogo. Alte Spielstände und Android-Updates bestanden die Freigabetests."
+msgstr "The published Android build added five career starting budgets, applicant recruitment, mission improvements and the original wide SkiZones wordmark. Legacy saves and Android updates passed release tests."
+
+msgid "0.32 veröffentlicht / 0.33-Grundlagen"
+msgstr "0.32 published / 0.33 foundations"
+
+msgid "0.32 veröffentlicht · Rest in Arbeit"
+msgstr "0.32 published · remaining work underway"
+
+msgid "0.32-APK am 04.11. veröffentlicht und GitHub-Downloadbanner aktualisiert; In-App-Update weiterhin mit echten Installationen prüfen"
+msgstr "0.32 APK published November 4 and GitHub download banner updated; continue verifying the in-app updater on real installations"
+
+msgid "Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
+msgstr "Selected published milestones through 0.32.0 · oldest first; find the latest APK on GitHub."
