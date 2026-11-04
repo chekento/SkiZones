@@ -94,7 +94,7 @@ func run()->void:
 	var from_legacy:=Resort.new()
 	var older:=Saves.load_game(from_legacy,third_path)
 	check(older.ok and older.get("legacy",false) and from_legacy.map_id=="gletscherwelt","Restore old original when new career file cannot be parsed")
-	check(FileAccess.get_sha256(third_legacy)==third_sha and FileAccess.get_as_text(FileAccess.open(third_path,FileAccess.READ)).begins_with("corrupt"),"Fallback never overwrites original or corrupted data")
+	check(FileAccess.get_sha256(third_legacy)==third_sha and FileAccess.get_file_as_string(third_path).begins_with("corrupt"),"Fallback never overwrites original or corrupted data")
 	var fourth:=Saves.path_for_map("dreigipfel",1)
 	var new_model:=Resort.new()
 	new_model.new_game(true,20261027,"dreigipfel")
