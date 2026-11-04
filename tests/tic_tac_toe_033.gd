@@ -3,6 +3,7 @@ extends SceneTree
 ## full playable matches, and a GUI board that responds to real Button presses.
 const Rules = preload("res://src/core/tic_tac_toe.gd")
 const Board = preload("res://src/ui/tic_tac_toe_board.gd")
+const Styles = preload("res://src/core/visual_styles.gd")
 var passed := 0
 var failed := 0
 func _init() -> void: call_deferred("run")
@@ -50,5 +51,30 @@ func run() -> void:
 	check(buttons.all(func(button):return button.text.is_empty() and not button.disabled),"New round clears all squares without reload")
 	board.queue_free()
 	await process_frame
+	for theme_id in Styles.IDS:
+		var themed := Board.new()
+		themed.style_id = theme_id
+		root.add_child(themed)
+		await process_frame
+		var surface := themed.get_node_or_null("ArcadeSurface") as PanelContainer
+		var title := themed.find_child("ArcadeTitle", true, false) as Label
+		var instructions := themed.find_child("ArcadeInstructions", true, false) as Label
+		var score := themed.find_child("ArcadeScore", true, false) as Label
+		check(surface != null and title != null and instructions != null and score != null,
+			"%s: real themed surface contains the entire game text" % theme_id)
+		if surface != null and title != null and instructions != null and score != null:
+			var panel_style := surface.get_theme_stylebox("panel") as StyleBoxFlat
+			var palette: Dictionary = Styles.ui_palette(theme_id)
+			check(panel_style != null and panel_style.bg_color == Color(str(palette.panel)),
+				"%s: panel renders the chosen graphic style's actual background" % theme_id)
+			if panel_style != null:
+				check(surface.is_ancestor_of(title) and surface.is_ancestor_of(instructions) and surface.is_ancestor_of(score),
+					"%s: text is physically inside its painted panel, not on the host window" % theme_id)
+				for label in [title,instructions,score]:
+					var color: Color = label.get_theme_color("font_color")
+					check(Board.contrast_ratio(color, panel_style.bg_color) >= 4.5,
+						"%s: %s has at least 4.5:1 text contrast" % [theme_id,label.name])
+		themed.queue_free()
+		await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
