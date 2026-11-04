@@ -12,6 +12,9 @@ var day_length := "balanced"
 var contour_lines := true
 var wildlife := true
 var night_forward := true
+var sound_enabled := true
+var sound_volume := 55
+var radio_station := "piano"
 
 func load_from() -> void:
 	var config := ConfigFile.new()
@@ -37,6 +40,12 @@ func load_from() -> void:
 	career_slot=int(value) if value is int and value>=1 and value<=4 else 1
 	value=config.get_value("play","free_play",false)
 	free_play=value if value is bool else false
+	value=config.get_value("audio","sound_enabled",true)
+	sound_enabled=value if value is bool else true
+	value=config.get_value("audio","sound_volume",55)
+	sound_volume=clampi(int(value),0,100) if value is int else 55
+	value=config.get_value("audio","radio_station","piano")
+	radio_station=value if value is String and value in ["piano","panorama","village","nature"] else "piano"
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
@@ -45,6 +54,9 @@ func save_to() -> Error:
 	config.set_value("play","day_length",day_length)
 	config.set_value("play","career_slot",career_slot)
 	config.set_value("play","free_play",free_play)
+	config.set_value("audio","sound_enabled",sound_enabled)
+	config.set_value("audio","sound_volume",sound_volume)
+	config.set_value("audio","radio_station",radio_station)
 	return config.save(path)
 
 func apply(view: Node3D) -> void:

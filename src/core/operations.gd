@@ -8,6 +8,7 @@ const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
 const ROLES := {
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
@@ -32,7 +33,18 @@ static func initial() -> Dictionary:
 	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
 
 static func group_size(model: RefCounted) -> int:
-	return [1, 2, 8, 5][Geo.IDS.find(model.map_id)] if model.map_id in Geo.IDS else 1
+	if model.map_id not in Geo.IDS: return 1
+	var size: int=[1,2,8,5][Geo.IDS.find(model.map_id)]
+	match str(model.operations.get("scenario_difficulty","normal")):
+		"relaxed": return maxi(1,ceili(size*0.6))
+		"expert": return mini(12,ceili(size*1.35))
+	return size
+
+static func set_scenario_difficulty(model: RefCounted, difficulty: String) -> bool:
+	if model.map_id not in Geo.IDS or difficulty not in ["relaxed","normal","expert"]: return false
+	model.operations["scenario_difficulty"]=difficulty
+	model._operational_change()
+	return true
 
 static func clock(model: RefCounted) -> int:
 	return (model.day - 1) * 1440 + model.minute
@@ -260,7 +272,7 @@ static func building_roles(kind: String) -> Array:
 		"disco", "bar": return ["catering", "security"]
 		"pool", "spa": return ["hotel", "security"]
 		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop": return ["hotel"]
+		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand": return ["hotel"]
 	return []
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
@@ -299,6 +311,7 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 	return true
 
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
+	if building.kind == "newsstand" and model.building_count("printing_press") == 0: return false
 	if not building.enabled or not building_staffed(model, building): return false
 	if not continuous(model): return true
 	if building.kind in ["disco", "bar"]: return model.minute >= 1080 or model.minute < (360 if model.time_divisor>1 else 120)
@@ -690,6 +703,9 @@ static func evaluate(model: RefCounted) -> Array:
 		model.money += 75000
 		model.report.rewards += 75000
 		model.campaign.points += 30
+		var rank: String=str(model.operations.get("scenario_difficulty","normal"))
+		ScenarioMedals.new().record(scenario,rank)
+		model.recent_unlocks.append({"kind":"medal","title":"Szenariomedaille · "+str(Geo.map_spec(scenario).name),"detail":rank,"reward":0})
 	return values
 
 static func valid(state: Variant, model: RefCounted) -> bool:
@@ -704,6 +720,7 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	if state.has("weekly_discount") and (not Terrain.number(state.weekly_discount) or state.weekly_discount < 5 or state.weekly_discount > 20 or state.weekly_discount != floorf(state.weekly_discount)): return false
 	if state.parts > 10000 or state.room_price < 40 or state.room_price > 250: return false
 	if state.scenario != "" and state.scenario not in Geo.IDS: return false
+	if state.has("scenario_difficulty") and state.scenario_difficulty not in ["relaxed","normal","expert"]: return false
 	if state.staff.size() > 1200 or state.vehicles.size() > 24 or state.repairs.size() > 160 or state.incidents.size() > 100 or state.history.size() > 28: return false
 	var ids: Dictionary = {}
 	for person in state.staff:

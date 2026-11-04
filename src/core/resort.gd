@@ -804,6 +804,7 @@ func lift_speed(lift: Dictionary) -> float:
 	return Fleet.speed(lift)
 
 func build_access_message(kind: String, is_lift: bool) -> String:
+	if not is_lift and kind == "newsstand" and building_count("printing_press") == 0: return L.text("Zuerst eine Druckerei & Zeitungsredaktion eröffnen.")
 	if not is_lift and kind in ["repair_office", "first_aid", "maintenance", "disco", "pool"] and Ops.active(self): return ""
 	return Progression.access_message(self, kind, is_lift)
 

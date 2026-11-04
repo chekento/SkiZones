@@ -90,12 +90,25 @@ func _save(state: Dictionary) -> Error:
 	if error!=OK: DirAccess.remove_absolute(temp)
 	return error
 
+static func annual_medals(state: Dictionary) -> Array:
+	# Derived from the durable historical event ledger, not from an
+	# individual career save. Every participating year has its own medal.
+	var medals: Array=[]
+	for year_key in state.get("claims",{}):
+		var doors: Array=state.claims[year_key]
+		if not doors.is_empty():
+			medals.append({"event":"christmas","year":int(year_key),"title":"Weihnachtsmedaille %s" % str(year_key),"special":doors.has(24)})
+	for year in state.get("new_years",[]):
+		medals.append({"event":"new_year","year":int(year),"title":"Silvestermedaille %d/%d" % [int(year),int(year)+1],"special":true})
+	medals.sort_custom(func(a,b): return a.year>b.year if a.year!=b.year else a.event<b.event)
+	return medals
+
 func overview(date: Dictionary = {}) -> Dictionary:
 	var now: Dictionary = device_now() if date.is_empty() else date
 	var state := _state()
 	var year := festive_year(now)
 	var claimed: Array=state.claims.get(str(year),[])
-	return {"season":season(now),"year":year,"claimed":claimed.duplicate(),"coins":int(state.coins),"owned":state.owned.duplicate(),"new_year_done":state.new_years.has(year)}
+	return {"season":season(now),"year":year,"claimed":claimed.duplicate(),"coins":int(state.coins),"owned":state.owned.duplicate(),"new_year_done":state.new_years.has(year),"medals":annual_medals(state)}
 
 func claim(door: int, date: Dictionary = {}) -> Dictionary:
 	var now: Dictionary=device_now() if date.is_empty() else date

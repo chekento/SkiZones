@@ -5,6 +5,8 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const ACTIVITIES := {
+	"printing_press":{"title":"Druckerei-Schicht","mode":"orders","hint":"Bereite eine saubere Ausgabe für den Druck vor.","choices":["Papier","Druckplatte","Druckfarbe","Setzkasten"]},
+	"newsstand":{"title":"Zeitungsstand","mode":"orders","hint":"Stelle die gewünschte Zeitung für den Gast bereit.","choices":["ExtraBlatt","Bergwetter","Pistenjournal","Dorfleben"]},
 	"fitness":{"title":"Alpines Fitnessstudio","mode":"timing","hint":"Trainiere im gesunden Pulsbereich und betreue die Gäste.","choices":[]},
 	"souvenir":{"title":"Souveniratelier","mode":"orders","hint":"Finde das passende Urlaubsandenken für deinen Gast.","choices":["Holzfigur","Kuhglocke","Postkarte","Schneekugel"]},
 	"watchmaker":{"title":"Uhrmacherwerkstatt","mode":"orders","hint":"Prüfe eine feine Uhr und wähle das passende Ersatzteil.","choices":["Zeiger","Feder","Krone","Uhrglas"]},

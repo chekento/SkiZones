@@ -48,6 +48,8 @@ const BUILDINGS := {
 	"souvenir": {"name":"Alpiner Souvenirshop","cost":18500,"upkeep":155,"income":9.0,"appeal":9,"color":"be8c65","description":"Handgeschnitzte Andenken, kleine Kuhglocken und liebevolle Urlaubsmitbringsel."},
 	"watchmaker": {"name":"Uhrmacher & Werkstatt","cost":27500,"upkeep":195,"income":10.0,"appeal":10,"color":"8c7f99","description":"Traditioneller Uhrmacher mit Miniatur-Zifferblättern, Reparaturen und Reiseandenken."},
 	"craftshop": {"name":"Alpine Handwerksstube","cost":21500,"upkeep":170,"income":9.0,"appeal":11,"color":"aa885e","description":"Handgefertigte Schnitzereien, Holzwerkzeuge, lokale Souvenirs und Bergtradition."},
+	"printing_press": {"name":"Druckerei & Zeitungsredaktion","cost":33500,"upkeep":230,"income":0.0,"appeal":8,"color":"877a8e","description":"Druckt ein ExtraBlatt mit den fünf neuesten Achievements. Erst danach können Kioske Zeitungen verkaufen."},
+	"newsstand": {"name":"Alpiner Zeitungsstand","cost":8500,"upkeep":75,"income":5.0,"appeal":6,"color":"b89a7b","description":"Verkauft Zeitungen an Besucher, sofern eine geöffnete Dorfredaktion betrieben wird."},
 	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."}
 }
 
@@ -73,7 +75,7 @@ static func building_group(kind: String) -> String:
 	if LODGING.has(kind): return "Unterkünfte & Hotels"
 	if kind in FOOD_KINDS or kind == "shelter": return "Verpflegung & Wärme"
 	if kind in ["repair_office", "maintenance", "snowmaker", "first_aid"]: return "Betrieb & Sicherheit"
-	if kind in ["rental", "school", "bus", "souvenir", "watchmaker", "craftshop"]: return "Service & Anreise"
+	if kind in ["rental", "school", "bus", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand"]: return "Service & Anreise"
 	return "Freizeit & Erholung"
 static func building_order() -> Array:
 	var result := BUILDINGS.keys()
