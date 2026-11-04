@@ -20,8 +20,9 @@ func _draw() -> void:
 	var speaker_width: float = w * (0.27 if not compact else 0.22)
 	var grill := Rect2(Vector2(22,26),Vector2(speaker_width-28,h-52))
 	draw_rect(grill,Color("1e3d46"),true)
-	for i in range(4, maxi(5,roundi(grill.size.x / 11.0))):
-		var gx: float = grill.position.x + 10.0 + i * (grill.size.x-20.0) / maxf(1.0, float(maxi(5,roundi(grill.size.x / 11.0))-1))
+	var grill_count: int = clampi(roundi(grill.size.x / 11.0),5,40)
+	for i in range(grill_count):
+		var gx: float = grill.position.x + 10.0 + i * (grill.size.x-20.0) / maxf(1.0,float(grill_count-1))
 		draw_line(Vector2(gx,grill.position.y+12),Vector2(gx,grill.end.y-12),Color("63818a"),2.0,true)
 	var left: float = speaker_width + 20.0
 	var width_left: float = maxf(50.0,w-left-22.0)
