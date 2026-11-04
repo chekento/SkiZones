@@ -101,7 +101,9 @@ static func station(kind: String,level: int,livery: String,style: String) -> Arr
 	var a:=Art.new();a.add(source,Vector3.ZERO,Color.WHITE,Vector3.ZERO,Vector3.ONE,true)
 	var color:=Color(str(Styles.ui_palette(style).accent))
 	var index: int=Styles.IDS.find(style)
-	if style=="pastel" or style=="aurora_ink":a.sphere(Vector3(0,10,0),8,color,Vector3(1,.2,1.2))
+	if style=="pastel":a.sphere(Vector3(0,10,0),8,color,Vector3(1,.2,1.2))
+	elif style=="aurora_ink":
+		for side in [-1,1]:a.sphere(Vector3(side*3,10+side*.6,0),6,color,Vector3(1.1,.23,1.5))
 	elif style=="bauhaus":a.box(Vector3(3,10,0),Vector3(8,3,14),color);a.cone(Vector3(-4,12,0),2,7,color,2)
 	else:
 		a.box(Vector3(0,8+index*.15,0),Vector3(14+index*.15,.7+index*.07,17),color)
