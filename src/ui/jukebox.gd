@@ -143,5 +143,5 @@ func _toggle_credits() -> void:
 		if station == "off":
 			continue
 		for song in hud.game.audio.track_credits(station):
-			records.append("%s · %s\n%s" % [str(song.get("title","")),str(song.get("artist","")),str(song.get("source_url",""))])
+			records.append(str(song.get("title","")) + " · " + str(song.get("artist","")) + "\n" + str(song.get("source_url","")))
 	credits_label.text = "\n\n".join(records)
