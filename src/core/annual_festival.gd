@@ -33,6 +33,10 @@ static func season(date: Dictionary) -> String:
 	if int(date.month)==1 and int(date.day)==1: return "new_year"
 	return ""
 
+## November campaign precedes all 24 doors. November always has 30 days.
+static func preview_poster(date: Dictionary) -> bool:
+	return valid_date(date) and int(date.month)==11 and int(date.day)>=1 and int(date.day)<=30
+
 static func visible(date: Dictionary) -> bool:
 	return season(date)!=""
 
