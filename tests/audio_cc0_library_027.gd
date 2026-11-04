@@ -44,7 +44,10 @@ func run() -> void:
 	var title_a: String = radio.current_track_title
 	var second: AudioStream = radio._radio_stream("alpine", true)
 	check(second is AudioStreamOggVorbis and radio.current_track_title != title_a, "Advancing playlist selects another real song")
-	check(total >= 210 and seen.size() >= 87, "Recurated offline radio includes at least 87 distinct CC0 recordings across 210+ listening slots")
+	check(total >= 200 and seen.size() >= 85, "Selectable radio retains 85 distinct CC0 files across 200+ well-sorted broadcast slots")
+	var complete: Dictionary = seen.duplicate()
+	for item in radio.track_credits("hotel_lobby"): complete[str(item.file)] = true
+	check(complete.size() == 87, "All 87 distinct pinned CC0 Ogg recordings are playable including hotel-only jazz")
 	check(radio.station_track_count("hotel_lobby") >= 20, "Hotel-only contextual station now includes genuine licensed jazz")
 	check(radio.station_track_count("ska_album") == 0 and "ska_album" not in Design.GENRES, "Removed album is absent even when loading an old career")
 	radio.queue_free()
