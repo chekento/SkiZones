@@ -6794,3 +6794,66 @@ msgstr "Room to invest in staff, new slopes and snow groomers."
 
 msgid "Üppiges Startkapital und ein guter Ruf. Konzentriere dich auf große Ausbaupläne."
 msgstr "Large starting funds and a strong reputation. Focus on big expansion plans."
+
+msgid "Bewerbermarkt"
+msgstr "Applicant Market"
+
+msgid "Bewerber, Steckbriefe & Freischaltungen"
+msgstr "Candidates, Profiles & Unlocks"
+
+msgid "Jede Person ist einmalig verfügbar. Fachkräfte werden durch passende Gebäude und zusätzliche Qualifikationen freigeschaltet. Bereits bestehendes Personal bleibt unberührt."
+msgstr "Each person can be hired once. Specialists require matching buildings and additional qualifications; existing staff remain unchanged."
+
+msgid "Seite %d / %d"
+msgstr "Page %d / %d"
+
+msgid "%d Jahre Erfahrung"
+msgstr "%d years of experience"
+
+msgid "Qualifikation %d"
+msgstr "Qualification %d"
+
+msgid "Motivation %.0f %%"
+msgstr "Motivation %.0f %%"
+
+msgid "Stärke: "
+msgstr "Strength: "
+
+msgid "Einstellungskosten"
+msgstr "Recruitment fee"
+
+msgid "Einstellen"
+msgstr "Hire"
+
+msgid "Noch gesperrt: "
+msgstr "Locked: "
+
+msgid "Drei Pistenraupen kaufen · 195.000 €"
+msgstr "Buy three snow groomers · €195,000"
+
+msgid "Zusätzlichen Pistenraupenfahrer einstellen · 180 €"
+msgstr "Hire extra snow groomer driver · €180"
+
+msgid "Weiteren Pistenraupenfahrer einstellen · 180 €"
+msgstr "Hire another snow groomer driver · €180"
+
+msgid "Fahrer zugewiesen: %d · für parallele Präparierungen einen Fahrer je Maschine einteilen"
+msgstr "Assigned drivers: %d · allocate one driver per machine for concurrent grooming"
+
+msgid "Maximal 24 Pistenraupen im Fuhrpark."
+msgstr "No more than 24 snow groomers per fleet."
+
+msgid "Das Budget reicht für diesen Fuhrpark nicht."
+msgstr "Insufficient funds to purchase this fleet."
+
+msgid "%d Pistenraupen gekauft. Für parallele Einsätze entsprechend viele Fahrer einstellen."
+msgstr "Purchased %d snow groomers. Hire enough drivers for concurrent jobs."
+
+msgid "10 CC0-Titel · akustische Winterstimmung, regionale Originalaufnahmen noch in Prüfung."
+msgstr "10 CC0 tracks · acoustic winter atmosphere; original regional recordings are still being verified."
+
+msgid "AlpenFolk · Akustik & Berghütte"
+msgstr "AlpenFolk · Acoustic & Mountain Lodge"
+
+msgid "Nordic Folk · Nordische Klangfarben"
+msgstr "Nordic Folk · Northern Soundscapes"
