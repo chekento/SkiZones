@@ -102,6 +102,16 @@ static func add(office: Control) -> void:
 	).disabled = office.staff_page == pages - 1
 	for person in filtered.slice(office.staff_page * 12, (office.staff_page + 1) * 12):
 		var body: VBoxContainer = office._card(people, "%s · %s" % [person.name, L.text(Ops.ROLES[person.role].name)], L.text("%.0f €/h · Qualifikation %d · Motivation %.0f %% · Belastung %.0f %% · %d Arbeitsminuten") % [float(person.wage), int(person.qualification), float(person.motivation), float(person.fatigue), int(person.worked)])
+		# The full employee dossier survives reload; old pre-roster employees
+		# receive neutral default descriptors without changing their save.
+		var workplace: String=L.text("Reserve / Pausenvertretung")
+		for location in targets:
+			if location.key==person.assignment:workplace=str(location.name);break
+		var specialty: String=str(person.get("specialty",L.text("Grundbetrieb & Teamroutine")))
+		var experience: int=int(person.get("experience",maxi(1,int(person.worked)/600)))
+		var staff_details: String=L.text("Einsatzort: ")+workplace+" · "+L.text("Schicht: ")+L.text(str(Ops.SHIFT_NAMES[person.shift]))
+		hud._label(body,staff_details,15,hud.MUTED,true)
+		hud._label(body,L.text("Profil: ")+L.text(specialty)+" · "+L.text("%d Jahre Erfahrung") % experience+" · "+L.text("Personal-ID %d") % int(person.id),15,hud.TEAL,true)
 		hud._label(body, L.text("Im Dienst") if Ops.on_duty(model, person) else L.text("Außer Dienst / Pause / Abwesenheit"), 16, hud.TEAL)
 		var target := _targets(body, targets)
 		for i in range(targets.size()):
