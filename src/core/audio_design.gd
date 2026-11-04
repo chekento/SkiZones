@@ -1,7 +1,7 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier"]
+const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier","erg0sphere","folk_alpine","folk_swedish"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
 	"alpine":"AlpenWelle FM · Hüttenmorgen",
@@ -11,12 +11,17 @@ const GENRE_NAMES := {
 	"classical":"Alpine Classic · Schneelicht",
 	"meditative":"Mountain Chill · Wolkenmeer",
 	"freeride":"Gipfelrausch FM · Ski & Snowboard",
-	"space":"ERG0SPHERE · Deep Space Trance",
+	"space":"Cosmic Drift · Deep Space Trance",
 	"apres":"Alpenglühen FM · Après-Ski",
-	"glacier":"Glacier Dreams · Polar Ambient"
+	"glacier":"Glacier Dreams · Polar Ambient",
+	"erg0sphere":"KoSch · ERG0SPHERE Journey (SoundCloud)",
+	"folk_alpine":"AlpenFolk · Blasmusik & Tradition",
+	"folk_swedish":"Nordic Folk · Schwedische Folklore"
 }
 ## Personal soundtrack is linked, not streamed silently or bundled without masters.
 const SPACE_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/erg0sphere-journey"
+const ERG0SPHERE_EMBED_URL := "https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fkoljawschumann%2Fsets%2Ferg0sphere-journey&color=%23ff5500&auto_play=false&show_comments=false&show_user=true"
+const EXTERNAL_STATIONS := ["erg0sphere"]
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {
 	"wilderness":"Freier Berg", "piste":"Piste", "lift":"Lift", "village":"Dorf",
