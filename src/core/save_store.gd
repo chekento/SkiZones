@@ -23,7 +23,7 @@ static func legacy_fallbacks(path: String) -> Array[String]:
 	for id in Maps.MAPS:
 		if path != path_for_map(id, 0) and path != path_for_map(id, 1): continue
 		for suffix in ["", ".bak"]:
-			var legacy := legacy_path(id) + suffix
+			var legacy: String = legacy_path(id) + suffix
 			if legacy == path or legacy == path + ".bak": continue
 			var read := _read(legacy)
 			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id: continue
