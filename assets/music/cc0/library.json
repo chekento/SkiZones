@@ -1,7 +1,7 @@
 {
-  "version": 9,
+  "version": 5,
   "offline": true,
-  "policy": "Only tracks documented as CC0 by the individual upstream listing or mirrored source manifest. Every bundled file is checksum-verified. Curatorial listening and third-party clearance remain separate from the CC0 assertion. Version 4 reuses individually documented CC0 files across station playlists; positions are not unique new recordings. Deep Space 4-minute target requires duration QA before it is claimed as complete. User-provided SoundCloud playlist is a credited external link, not a bundled file.",
+  "policy": "Offline-only, explicitly source-licensed CC0 recordings pinned by immutable Git SHA-1, bytes and source. SoundCloud playlists removed. New binaries must pass hash/OGG, exact Godot durations, playback and genre listening QA before an APK is released.",
   "stations": {
     "alpine": [
       {
@@ -251,28 +251,6 @@
         "sport_fit": "both"
       },
       {
-        "id": "classical-faraway",
-        "title": "Faraway",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/classical-faraway.ogg",
-        "style": "classical",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/faraway",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/classical/Faraway.ogg",
-          "git_blob_sha1": "98893ca86db963668799df4b1d9b98702b6c9370",
-          "bytes": 1529482
-        },
-        "duration_seconds": 115.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "focus-drifting-piano",
         "title": "Drifting Piano",
         "artist": "HoliznaCC0",
@@ -295,48 +273,54 @@
         "playlist_reuse": true
       },
       {
-        "id": "sleep-sleepy-clouds",
-        "title": "Sleepy Clouds",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/sleep-sleepy-clouds.ogg",
-        "style": "sleep",
+        "id": "r34-etirwer",
+        "title": "Etirwer",
+        "artist": "Kistol",
+        "file": "res://assets/music/cc0/r34-etirwer.ogg",
+        "style": "acoustic",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/sleepy-clouds",
+        "source_url": "https://opengameart.org/content/etirwer",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/sleep/Sleepy_Clouds.ogg",
-          "git_blob_sha1": "b82a541c37ada32b1ca9505c44d9b489617adcc5",
-          "bytes": 1497867
+          "path": "assets/music/acoustic/Etirwer.ogg",
+          "bytes": 1963336,
+          "git_blob_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
         },
-        "duration_seconds": 76.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
+        }
       },
       {
-        "id": "classical-natures-beauty",
-        "title": "Natures Beauty",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/classical-natures-beauty.ogg",
-        "style": "classical",
+        "id": "r34-apple-cider",
+        "title": "Apple Cider",
+        "artist": "Zane Little Music",
+        "file": "res://assets/music/cc0/r34-apple-cider.ogg",
+        "style": "acoustic",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/natures-beauty",
+        "source_url": "https://opengameart.org/content/apple-cider",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/classical/Natures_Beauty.ogg",
-          "git_blob_sha1": "53c7fc4e8a94bed51625ed86d4a7ce2dba5af5a6",
-          "bytes": 1165808
+          "path": "assets/music/acoustic/Apple_Cider.ogg",
+          "bytes": 2466972,
+          "git_blob_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
         },
-        "duration_seconds": 98.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
+        }
       }
     ],
     "techno": [
@@ -655,28 +639,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "chiptune-hardcore-chiptune-theme",
-        "title": "hardcore chiptune theme",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/chiptune-hardcore-chiptune-theme.ogg",
-        "style": "chiptune",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/hardcore-chiptune-theme",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/chiptune/hardcore_chiptune_theme.ogg",
-          "git_blob_sha1": "c40ba5c5e9a54314a7b93887791f4622d819bd79",
-          "bytes": 1135158
-        },
-        "duration_seconds": 106.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Kicker · Action",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "long-joyfully",
         "title": "Joyfully (Full Mix)",
         "artist": "MintoDog",
@@ -701,6 +663,56 @@
           "git_blob_sha1": "09ab589e918e7cce76e6bbe9aff32a1173a239d2",
           "bytes": 4359208
         }
+      },
+      {
+        "id": "r34-liquid-flame",
+        "title": "Liquid Flame",
+        "artist": "Of Far Different Nature",
+        "file": "res://assets/music/cc0/r34-liquid-flame.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/liquid-flame",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Liquid_Flame.ogg",
+          "bytes": 2651586,
+          "git_blob_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        }
+      },
+      {
+        "id": "r34-dj-synth-funk",
+        "title": "DJ Synth Wave / Funk",
+        "artist": "Alex McCulloch / Pro Sensory",
+        "file": "res://assets/music/cc0/r34-dj-synth-funk.ogg",
+        "style": "funk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/dj-synth-wave-funk",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/funk/DJ_Synth_Wave_Funk.ogg",
+          "bytes": 3515677,
+          "git_blob_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        }
       }
     ],
     "hiphop": [
@@ -720,7 +732,7 @@
           "git_blob_sha1": "3fd69651673a23220c88e304d9300e3eff4c3dd1",
           "bytes": 1430666
         },
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Snowpark · Flow",
         "sport_fit": "snowboard",
         "playlist_reuse": true
       },
@@ -742,7 +754,7 @@
         },
         "duration_seconds": 128,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Powder · Freeride",
         "sport_fit": "snowboard",
         "playlist_reuse": true,
         "curation_tag": "lodge_lofi",
@@ -766,7 +778,7 @@
         },
         "duration_seconds": 145.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Snowpark · Flow",
         "sport_fit": "both",
         "playlist_reuse": true,
         "curation_tag": "lodge_lofi",
@@ -790,7 +802,7 @@
         },
         "duration_seconds": 170.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Snowpark · Flow",
         "sport_fit": "both",
         "playlist_reuse": true,
         "curation_tag": "lodge_lofi",
@@ -814,7 +826,31 @@
         },
         "duration_seconds": 129.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "lodge_lofi",
+        "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "lofi-calm-currents-lofi-relax-calm",
+        "title": "Calm Currents ( Lofi , Relax , Calm )",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/lofi-calm-currents-lofi-relax-calm.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/calm-currents-lofi-relax-calm/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/Calm_Currents_Lofi_Relax_Calm.ogg",
+          "git_blob_sha1": "0e2d2affc1a5faf2f0888c2c162ee0a1a47b2e99",
+          "bytes": 1466017
+        },
+        "duration_seconds": 147.6,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
         "sport_fit": "both",
         "playlist_reuse": true,
         "curation_tag": "lodge_lofi",
@@ -838,7 +874,7 @@
         },
         "duration_seconds": 120,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Hüttengaudi · Alpenglühen",
         "sport_fit": "both",
         "playlist_reuse": true
       },
@@ -860,7 +896,7 @@
         },
         "duration_seconds": 106.6,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Kicker · Action",
         "sport_fit": "both",
         "playlist_reuse": true
       },
@@ -882,183 +918,84 @@
         },
         "duration_seconds": 93.8,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
+        "mountain_moment": "Hüttengaudi · Alpenglühen",
         "sport_fit": "both",
         "playlist_reuse": true
       },
       {
-        "id": "house-funky-house",
-        "title": "Funky House",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/house-funky-house.ogg",
-        "style": "house",
+        "id": "r34-moon-unit",
+        "title": "Moon Unit ( Lofi , Reflection , Dreamy )",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-moon-unit.ogg",
+        "style": "lofi",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/funky-house",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/moon-unit-lofi-reflection-dreamy/",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/house/Funky_House.ogg",
-          "git_blob_sha1": "abff87259ed0a839bbc6a5d5fb167fbb287bdf48",
-          "bytes": 819427
+          "path": "assets/music/lofi/Moon_Unit_Lofi_Reflection_Dreamy.ogg",
+          "bytes": 1780705,
+          "git_blob_sha1": "c59908364ca178a05335bcad9ca40a384765f00c"
         },
-        "duration_seconds": 68.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c59908364ca178a05335bcad9ca40a384765f00c"
+        }
       },
       {
-        "id": "house-omw-to-beat-the-big-bad",
-        "title": "OMW to beat the big bad",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/house-omw-to-beat-the-big-bad.ogg",
-        "style": "house",
+        "id": "r34-going-home",
+        "title": "Going _Home_",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-going-home.ogg",
+        "style": "lofi",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/omw-to-beat-the-big-bad",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/going-home-3/",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/house/OMW_to_beat_the_big_bad.ogg",
-          "git_blob_sha1": "5917b5bdf0f2020fb039826576102e1041e7ec75",
-          "bytes": 991794
+          "path": "assets/music/lofi/Going_Home.ogg",
+          "bytes": 1566524,
+          "git_blob_sha1": "25ab5fab4b972b30f23f58e81529672dd14d332f"
         },
-        "duration_seconds": 87,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "25ab5fab4b972b30f23f58e81529672dd14d332f"
+        }
       },
       {
-        "id": "vaporwave-die-hard-battle",
-        "title": "Die Hard Battle",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/vaporwave-die-hard-battle.ogg",
-        "style": "vaporwave",
+        "id": "r34-one-night-france",
+        "title": "One Night In France ( Lofi, Nostalgic, Chill )",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-one-night-france.ogg",
+        "style": "lofi",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/die-hard-battle",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/one-night-in-france-lofi-nostalgic-chill/",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/vaporwave/Die_Hard_Battle.ogg",
-          "git_blob_sha1": "e56aaf1ddc5f2a45fa2ad71f56eca8a2ee55dd2a",
-          "bytes": 889556
+          "path": "assets/music/lofi/One_Night_In_France_Lofi_Nostalgic_Chill.ogg",
+          "bytes": 1955224,
+          "git_blob_sha1": "e06a1f6c0cb2f5c50c8c6e247a42030d7e3e2d88"
         },
-        "duration_seconds": 66.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "synthwave-cyber-runner",
-        "title": "cyber_runner",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/synthwave-cyber-runner.ogg",
-        "style": "synthwave",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/cyber-runner-music",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/synthwave/cyber_runner.ogg",
-          "git_blob_sha1": "2182e69cfcdfad9fe9081badacaada538cad4d6f",
-          "bytes": 1109688
-        },
-        "duration_seconds": 98,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "tech-rave",
-        "title": "Tech Rave",
-        "artist": "OpenGameArt contributor",
-        "file": "res://assets/music/cc0/tech-rave.ogg",
-        "style": "electronic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/tech-rave",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/synthwave/Tech_rave.ogg",
-          "git_blob_sha1": "7740902b6f88aa91a6303b5887e039467a8284a1",
-          "bytes": 1440956
-        },
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "house-looping-beats",
-        "title": "Looping Beats",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/house-looping-beats.ogg",
-        "style": "house",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/looping-beats",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/house/Looping_Beats.ogg",
-          "git_blob_sha1": "1de3760fc0ca53b1bfdd40f5d43045fa3911be6e",
-          "bytes": 1128097
-        },
-        "duration_seconds": 120,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "vaporwave-dawn-of-hope-techno",
-        "title": "Dawn of Hope(Techno)",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/vaporwave-dawn-of-hope-techno.ogg",
-        "style": "vaporwave",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/dawn-of-hopetechno",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/vaporwave/Dawn_of_Hope_Techno.ogg",
-          "git_blob_sha1": "41c860b925e76201e48c80e6547fb84ad979bf74",
-          "bytes": 1562513
-        },
-        "duration_seconds": 96,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "chiptune-hardcore-chiptune-theme",
-        "title": "hardcore chiptune theme",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/chiptune-hardcore-chiptune-theme.ogg",
-        "style": "chiptune",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/hardcore-chiptune-theme",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/chiptune/hardcore_chiptune_theme.ogg",
-          "git_blob_sha1": "c40ba5c5e9a54314a7b93887791f4622d819bd79",
-          "bytes": 1135158
-        },
-        "duration_seconds": 106.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Beats und Board",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "e06a1f6c0cb2f5c50c8c6e247a42030d7e3e2d88"
+        }
       }
     ],
     "punk": [
@@ -1362,48 +1299,29 @@
         "playlist_reuse": true
       },
       {
-        "id": "house-the-bass-of-the-future",
-        "title": "The Bass of the Future",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/house-the-bass-of-the-future.ogg",
-        "style": "house",
+        "id": "r34-funked-up",
+        "title": "Funked Up",
+        "artist": "Joth",
+        "file": "res://assets/music/cc0/r34-funked-up.ogg",
+        "style": "funk",
         "license": "CC0-1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/the-bass-of-the-future",
+        "source_url": "https://opengameart.org/content/funked-up",
         "mirror": {
           "repository": "euuuuuuan/todak-public",
           "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/house/The_Bass_of_the_Future.ogg",
-          "git_blob_sha1": "47b1b58244a8f6031a612f7e0d2ca48bc95c28f1",
-          "bytes": 1432513
+          "path": "assets/music/funk/Funked_Up.ogg",
+          "bytes": 792207,
+          "git_blob_sha1": "cb577e4362f408f47d01da9c8f0978c5d41e636a"
         },
-        "duration_seconds": 137.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "acoustic-fouler-l-horizon",
-        "title": "Fouler l'horizon",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-fouler-l-horizon.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/fouler-lhorizon",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Fouler_l_horizon.ogg",
-          "git_blob_sha1": "23fb3d1466097138e39455abd946dab36fc737ea",
-          "bytes": 1073157
-        },
-        "duration_seconds": 107.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both",
-        "playlist_reuse": true
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "cb577e4362f408f47d01da9c8f0978c5d41e636a"
+        }
       }
     ],
     "classical": [
@@ -2092,48 +2010,6 @@
     ],
     "freeride": [
       {
-        "id": "small-fire",
-        "title": "A Small Fire Will Do",
-        "artist": "OpenGameArt contributor",
-        "file": "res://assets/music/cc0/small-fire.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/a-small-fire-will-do-calming-loop",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/A_Small_Fire_Will_Do_Calming_Loop.ogg",
-          "git_blob_sha1": "87ec28b52ecd35a3e94643616837b8d5ae7a1f07",
-          "bytes": 604685
-        },
-        "mountain_moment": "Ankommen · Hüttenzauber",
-        "sport_fit": "ski",
-        "playlist_reuse": true
-      },
-      {
-        "id": "acoustic-cozy-puzzle-in-game-3",
-        "title": "Cozy Puzzle In-Game 3",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-cozy-puzzle-in-game-3.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/cozy-puzzle-in-game-3",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Cozy_Puzzle_In_Game_3.ogg",
-          "git_blob_sha1": "a020e9b5511bd45b661c96f98cba6cd9fae74d53",
-          "bytes": 1491173
-        },
-        "duration_seconds": 124.4,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gondelauffahrt · Vorfreude",
-        "sport_fit": "ski",
-        "playlist_reuse": true
-      },
-      {
         "id": "synthwave-aerobics-synth-wave",
         "title": "Aerobics Synth Wave",
         "artist": "OpenGameArt – Urheber siehe Originalquelle",
@@ -2240,28 +2116,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "acoustic-gypselectric-guitar",
-        "title": "Gypselectric (Guitar)",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-gypselectric-guitar.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/gypselectric-guitar",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Gypselectric_Guitar.ogg",
-          "git_blob_sha1": "24c804720eff77fc29e6d6109189c8f9b29d258e",
-          "bytes": 1276118
-        },
-        "duration_seconds": 106.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Kicker · Gitarrenenergie",
-        "sport_fit": "snowboard",
-        "playlist_reuse": true
-      },
-      {
         "id": "synthwave-boss-fight-2",
         "title": "Boss Fight 2",
         "artist": "OpenGameArt – Urheber siehe Originalquelle",
@@ -2281,68 +2135,6 @@
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Sportliche Abfahrt · Adrenalin",
         "sport_fit": "ski",
-        "playlist_reuse": true
-      },
-      {
-        "id": "classical-faraway",
-        "title": "Faraway",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/classical-faraway.ogg",
-        "style": "classical",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/faraway",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/classical/Faraway.ogg",
-          "git_blob_sha1": "98893ca86db963668799df4b1d9b98702b6c9370",
-          "bytes": 1529482
-        },
-        "duration_seconds": 115.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama · Freiheit",
-        "sport_fit": "ski",
-        "playlist_reuse": true
-      },
-      {
-        "id": "ice-shine-bells",
-        "title": "Ice Shine Bells",
-        "artist": "OpenGameArt contributor",
-        "file": "res://assets/music/cc0/ice-shine-bells.ogg",
-        "style": "winter",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/ice-shine-bells",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/sleep/Ice_Shine_Bells.ogg",
-          "git_blob_sha1": "a64ff835ff6c9a3247eab00c91b3f25f87d21c0a",
-          "bytes": 1619836
-        },
-        "mountain_moment": "Schneefall · Durchatmen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "heavenly-loop",
-        "title": "Heavenly Loop",
-        "artist": "isaiah658",
-        "file": "res://assets/music/cc0/heavenly-loop.ogg",
-        "style": "ambient",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/heavenly-loop",
-        "mirror": {
-          "repository": "euuuuuuan/neko-shift-public",
-          "commit": "e0294851d15053eb2e2d7f828929f5de76dbfd0f",
-          "path": "assets-src/audio-src/opengameart_heavenly-loop_isaiah658.ogg",
-          "git_blob_sha1": "9a39a4842eeac274124c50caad179a0052aa1d3f",
-          "bytes": 1224922
-        },
-        "mountain_moment": "Alpenglühen · Sonnenuntergang",
-        "sport_fit": "both",
         "playlist_reuse": true
       },
       {
@@ -2412,28 +2204,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "ambient-ambient-soundscape",
-        "title": "Ambient Soundscape",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/ambient-ambient-soundscape.ogg",
-        "style": "ambient",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/ambient-soundscape",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/ambient/Ambient_Soundscape.ogg",
-          "git_blob_sha1": "f3ff094d836ede5ff6ba1fe7e563b5071bdeda93",
-          "bytes": 1610429
-        },
-        "duration_seconds": 151.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "long-joyfully",
         "title": "Joyfully (Full Mix)",
         "artist": "MintoDog",
@@ -2458,6 +2228,103 @@
           "git_blob_sha1": "09ab589e918e7cce76e6bbe9aff32a1173a239d2",
           "bytes": 4359208
         }
+      },
+      {
+        "id": "r34-lost-snow-wave",
+        "title": "Lost in the Snow Wave",
+        "artist": "hatmix",
+        "file": "res://assets/music/cc0/r34-lost-snow-wave.ogg",
+        "style": "synthwave",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/lost-in-the-snow-wave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Lost_in_the_Snow_Wave.ogg",
+          "bytes": 3478125,
+          "git_blob_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        },
+        "mountain_moment": "Sportliche Fahrt durch den Schnee",
+        "sport_fit": "freeride",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        }
+      },
+      {
+        "id": "r34-dj-synth-funk",
+        "title": "DJ Synth Wave / Funk",
+        "artist": "Alex McCulloch / Pro Sensory",
+        "file": "res://assets/music/cc0/r34-dj-synth-funk.ogg",
+        "style": "funk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/dj-synth-wave-funk",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/funk/DJ_Synth_Wave_Funk.ogg",
+          "bytes": 3515677,
+          "git_blob_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        }
+      },
+      {
+        "id": "r34-liquid-flame",
+        "title": "Liquid Flame",
+        "artist": "Of Far Different Nature",
+        "file": "res://assets/music/cc0/r34-liquid-flame.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/liquid-flame",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Liquid_Flame.ogg",
+          "bytes": 2651586,
+          "git_blob_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        }
+      },
+      {
+        "id": "house-funky-house",
+        "title": "Funky House",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/house-funky-house.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/funky-house",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Funky_House.ogg",
+          "git_blob_sha1": "abff87259ed0a839bbc6a5d5fb167fbb287bdf48",
+          "bytes": 819427
+        },
+        "duration_seconds": 68.7,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttengaudi · Alpenglühen",
+        "sport_fit": "both",
+        "playlist_reuse": true
       }
     ],
     "space": [
@@ -2682,28 +2549,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "focus-drifting-piano",
-        "title": "Drifting Piano",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/focus-drifting-piano.ogg",
-        "style": "focus",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/background-music/drifting-piano/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/focus/Drifting_Piano.ogg",
-          "git_blob_sha1": "2c61a9e5b0d566fd6aea74784fdecf988b34b7f7",
-          "bytes": 985731
-        },
-        "duration_seconds": 110.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "synthwave-synthwave-type",
         "title": "synthwave_type",
         "artist": "OpenGameArt – Urheber siehe Originalquelle",
@@ -2722,28 +2567,6 @@
         "duration_seconds": 113.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "relax-calm-music",
-        "title": "calm music",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/relax-calm-music.ogg",
-        "style": "relax",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/calm-music",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/relax/calm_music.ogg",
-          "git_blob_sha1": "1e483ba6a2fee44044856d8a071e80d4721daf42",
-          "bytes": 664855
-        },
-        "duration_seconds": 70,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Winterruhe · Bergstille",
         "sport_fit": "both",
         "playlist_reuse": true
       },
@@ -2814,6 +2637,56 @@
           "git_blob_sha1": "5d372bbc415fc562ebd0aab892226667b563307d",
           "bytes": 3712551
         }
+      },
+      {
+        "id": "r34-lost-snow-wave",
+        "title": "Lost in the Snow Wave",
+        "artist": "hatmix",
+        "file": "res://assets/music/cc0/r34-lost-snow-wave.ogg",
+        "style": "synthwave",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/lost-in-the-snow-wave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Lost_in_the_Snow_Wave.ogg",
+          "bytes": 3478125,
+          "git_blob_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        },
+        "mountain_moment": "Sportliche Fahrt durch den Schnee",
+        "sport_fit": "freeride",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        }
+      },
+      {
+        "id": "r34-liquid-flame",
+        "title": "Liquid Flame",
+        "artist": "Of Far Different Nature",
+        "file": "res://assets/music/cc0/r34-liquid-flame.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/liquid-flame",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Liquid_Flame.ogg",
+          "bytes": 2651586,
+          "git_blob_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        }
       }
     ],
     "apres": [
@@ -2853,28 +2726,6 @@
           "git_blob_sha1": "83e0d7163c7b42047b2da72e860a563f62178027",
           "bytes": 1464921
         },
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "acoustic-gypselectric-guitar",
-        "title": "Gypselectric (Guitar)",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-gypselectric-guitar.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/gypselectric-guitar",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Gypselectric_Guitar.ogg",
-          "git_blob_sha1": "24c804720eff77fc29e6d6109189c8f9b29d258e",
-          "bytes": 1276118
-        },
-        "duration_seconds": 106.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttengaudi · Alpenglühen",
         "sport_fit": "both",
         "playlist_reuse": true
@@ -2968,98 +2819,6 @@
         "playlist_reuse": true
       },
       {
-        "id": "lofi-one-good-day",
-        "title": "One Good Day",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/lofi-one-good-day.ogg",
-        "style": "lofi",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/one-good-day-1/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/lofi/One_Good_Day.ogg",
-          "git_blob_sha1": "7aa39f3d98c38bb35a5dcb4c73e0d2ccd4fa1db2",
-          "bytes": 1452767
-        },
-        "duration_seconds": 129.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "lodge_lofi",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "acoustic-action-style-10",
-        "title": "Action Style 10",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-action-style-10.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/action-style-10",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Action_Style_10.ogg",
-          "git_blob_sha1": "ad7538b4f839f7f7031e09ca0f9f6da57d8742aa",
-          "bytes": 980592
-        },
-        "duration_seconds": 151.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "chiptune-hardcore-chiptune-theme",
-        "title": "hardcore chiptune theme",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/chiptune-hardcore-chiptune-theme.ogg",
-        "style": "chiptune",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/hardcore-chiptune-theme",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/chiptune/hardcore_chiptune_theme.ogg",
-          "git_blob_sha1": "c40ba5c5e9a54314a7b93887791f4622d819bd79",
-          "bytes": 1135158
-        },
-        "duration_seconds": 106.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
-        "id": "old-tower-inn",
-        "title": "The Old Tower Inn",
-        "artist": "RandomMind",
-        "file": "res://assets/music/cc0/old-tower-inn.ogg",
-        "style": "folk",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/medieval-the-old-tower-inn",
-        "mirror": {
-          "repository": "GabrielGLevine/wandering-inn-rpg",
-          "commit": "7dacb3b3ceb856d33d6a39a6f20b7169c6a97419",
-          "path": "wandering_inn_game/assets/audio/music/randommind_old_tower_inn.ogg",
-          "git_blob_sha1": "6e1fb384bddae15d6e8b2758243a53f5d4c7b098",
-          "bytes": 832498
-        },
-        "mountain_moment": "Hüttengaudi · Alpenglühen",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "temporary_programming": true,
-        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
-        "curation_tag": "mountain_sunrise",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
         "id": "synthwave-aerobics-synth-wave",
         "title": "Aerobics Synth Wave",
         "artist": "OpenGameArt – Urheber siehe Originalquelle",
@@ -3080,6 +2839,124 @@
         "mountain_moment": "Hüttengaudi · Alpenglühen",
         "sport_fit": "both",
         "playlist_reuse": true
+      },
+      {
+        "id": "r34-funked-up",
+        "title": "Funked Up",
+        "artist": "Joth",
+        "file": "res://assets/music/cc0/r34-funked-up.ogg",
+        "style": "funk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/funked-up",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/funk/Funked_Up.ogg",
+          "bytes": 792207,
+          "git_blob_sha1": "cb577e4362f408f47d01da9c8f0978c5d41e636a"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "cb577e4362f408f47d01da9c8f0978c5d41e636a"
+        }
+      },
+      {
+        "id": "r34-dj-synth-funk",
+        "title": "DJ Synth Wave / Funk",
+        "artist": "Alex McCulloch / Pro Sensory",
+        "file": "res://assets/music/cc0/r34-dj-synth-funk.ogg",
+        "style": "funk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/dj-synth-wave-funk",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/funk/DJ_Synth_Wave_Funk.ogg",
+          "bytes": 3515677,
+          "git_blob_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "007778c88530149fa16d4a14758a122bed68ba62"
+        }
+      },
+      {
+        "id": "r34-liquid-flame",
+        "title": "Liquid Flame",
+        "artist": "Of Far Different Nature",
+        "file": "res://assets/music/cc0/r34-liquid-flame.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/liquid-flame",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Liquid_Flame.ogg",
+          "bytes": 2651586,
+          "git_blob_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        },
+        "mountain_moment": "Après-Ski und Bergparty",
+        "sport_fit": "apres",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c6b0987ecf35e7f8efb02bb0054d6ebf6310069f"
+        }
+      },
+      {
+        "id": "house-looping-beats",
+        "title": "Looping Beats",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/house-looping-beats.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/looping-beats",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Looping_Beats.ogg",
+          "git_blob_sha1": "1de3760fc0ca53b1bfdd40f5d43045fa3911be6e",
+          "bytes": 1128097
+        },
+        "duration_seconds": 120,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Flow · Schwünge",
+        "sport_fit": "snowboard",
+        "playlist_reuse": true
+      },
+      {
+        "id": "house-synthwave-house-loop",
+        "title": "Synthwave House Loop",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/house-synthwave-house-loop.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/synthwave-house-loop",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Synthwave_House_Loop.ogg",
+          "git_blob_sha1": "3070a4662efb1b2e7b1d9f1b7bfd06cb899241cf",
+          "bytes": 1230899
+        },
+        "duration_seconds": 50.5,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       }
     ],
     "glacier": [
@@ -3180,28 +3057,6 @@
         "vetting": "source-license-checked; duration and full-genre QA pending"
       },
       {
-        "id": "classical-town-6",
-        "title": "Town 6",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/classical-town-6.ogg",
-        "style": "classical",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/town-6",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/classical/Town_6.ogg",
-          "git_blob_sha1": "b0fac8b0d8f4a0109accc0cd13de2e0683e44eb6",
-          "bytes": 917304
-        },
-        "duration_seconds": 83.4,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Kristallruhe · Gletscher",
-        "sport_fit": "both",
-        "playlist_reuse": true
-      },
-      {
         "id": "focus-game-travel-1-piano",
         "title": "Game Travel 1 (Piano)",
         "artist": "HoliznaCC0",
@@ -3244,30 +3099,6 @@
           "bytes": 1605879
         },
         "duration_seconds": 165,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Kristallruhe · Gletscher",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "hotel_lobby",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "acoustic-piano-melody-with-acoustic-bass",
-        "title": "Piano Melody With Acoustic Bass",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/acoustic-piano-melody-with-acoustic-bass.ogg",
-        "style": "acoustic",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/piano-melody-with-acoustic-bass",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/acoustic/Piano_Melody_With_Acoustic_Bass.ogg",
-          "git_blob_sha1": "55e5b32329538e80a58f73a248895f3737a8dab5",
-          "bytes": 772348
-        },
-        "duration_seconds": 131.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kristallruhe · Gletscher",
         "sport_fit": "both",
@@ -3371,6 +3202,79 @@
         "temporary_programming": true,
         "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
         "curation_tag": "mountain_sunrise",
+        "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "r34-lost-snow-wave",
+        "title": "Lost in the Snow Wave",
+        "artist": "hatmix",
+        "file": "res://assets/music/cc0/r34-lost-snow-wave.ogg",
+        "style": "synthwave",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/lost-in-the-snow-wave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Lost_in_the_Snow_Wave.ogg",
+          "bytes": 3478125,
+          "git_blob_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        },
+        "mountain_moment": "Sportliche Fahrt durch den Schnee",
+        "sport_fit": "freeride",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9c277dad9913bd8c01eb40590844db8306f6fda1"
+        }
+      },
+      {
+        "id": "sleep-sparkling-cosmic-dust",
+        "title": "Sparkling Cosmic Dust",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/sleep-sparkling-cosmic-dust.ogg",
+        "style": "sleep",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/sparkling-cosmic-dust",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Sparkling_Cosmic_Dust.ogg",
+          "git_blob_sha1": "697ce6b46e8762068ff3545e03f3c855b7a1a06b",
+          "bytes": 964422
+        },
+        "duration_seconds": 84,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "atmospherics",
+        "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "sleep-infinite-world",
+        "title": "Infinite World",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/sleep-infinite-world.ogg",
+        "style": "sleep",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/infinite-world",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Infinite_World.ogg",
+          "git_blob_sha1": "d72ebb60aeccec663db66de5b351f5149afa9cda",
+          "bytes": 855866
+        },
+        "duration_seconds": 100.3,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "atmospherics",
         "vetting": "source-license-checked; duration and full-genre QA pending"
       }
     ],
@@ -3602,6 +3506,56 @@
         "mountain_moment": "Akustik · Berghütte",
         "sport_fit": "both",
         "playlist_reuse": true
+      },
+      {
+        "id": "r34-etirwer",
+        "title": "Etirwer",
+        "artist": "Kistol",
+        "file": "res://assets/music/cc0/r34-etirwer.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/etirwer",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Etirwer.ogg",
+          "bytes": 1963336,
+          "git_blob_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
+        },
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
+        }
+      },
+      {
+        "id": "r34-apple-cider",
+        "title": "Apple Cider",
+        "artist": "Zane Little Music",
+        "file": "res://assets/music/cc0/r34-apple-cider.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/apple-cider",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Apple_Cider.ogg",
+          "bytes": 2466972,
+          "git_blob_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
+        },
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
+        }
       }
     ],
     "folk_swedish": [
@@ -3838,7 +3792,6 @@
         "playlist_reuse": true
       }
     ],
-    "erg0sphere": [],
     "atmospherics": [
       {
         "id": "sleep-sparkling-cosmic-dust",
@@ -4105,104 +4058,6 @@
         "playlist_reuse": true,
         "temporary_programming": true,
         "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
-        "curation_tag": "atmospherics",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "lofi-peaceful-drift-lofi-nostalgic-calm",
-        "title": "Peaceful Drift ( Lofi , Nostalgic , Calm )",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/lofi-peaceful-drift-lofi-nostalgic-calm.ogg",
-        "style": "lofi",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/peaceful-drift-lofi-nostalgic-calm/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/lofi/Peaceful_Drift_Lofi_Nostalgic_Calm.ogg",
-          "git_blob_sha1": "342d94fc0c5ac3411f9ddf6a8b8f82cdbef1be69",
-          "bytes": 1236423
-        },
-        "duration_seconds": 128.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Snowpark · Flow",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "atmospherics",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "classical-faraway",
-        "title": "Faraway",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/classical-faraway.ogg",
-        "style": "classical",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/faraway",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/classical/Faraway.ogg",
-          "git_blob_sha1": "98893ca86db963668799df4b1d9b98702b6c9370",
-          "bytes": 1529482
-        },
-        "duration_seconds": 115.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "temporary_programming": true,
-        "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
-        "curation_tag": "atmospherics",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "focus-drifting-piano",
-        "title": "Drifting Piano",
-        "artist": "HoliznaCC0",
-        "file": "res://assets/music/cc0/focus-drifting-piano.ogg",
-        "style": "focus",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://freemusicarchive.org/music/holiznacc0/background-music/drifting-piano/",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/focus/Drifting_Piano.ogg",
-          "git_blob_sha1": "2c61a9e5b0d566fd6aea74784fdecf988b34b7f7",
-          "bytes": 985731
-        },
-        "duration_seconds": 110.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both",
-        "playlist_reuse": true,
-        "curation_tag": "atmospherics",
-        "vetting": "source-license-checked; duration and full-genre QA pending"
-      },
-      {
-        "id": "synthwave-space-city",
-        "title": "Space City",
-        "artist": "OpenGameArt – Urheber siehe Originalquelle",
-        "file": "res://assets/music/cc0/synthwave-space-city.ogg",
-        "style": "synthwave",
-        "license": "CC0-1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "source_url": "https://opengameart.org/content/space-city",
-        "mirror": {
-          "repository": "euuuuuuan/todak-public",
-          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
-          "path": "assets/music/synthwave/Space_City.ogg",
-          "git_blob_sha1": "e5cbe47ff88056116314f5d4dcefb66c9295854f",
-          "bytes": 1370771
-        },
-        "duration_seconds": 116.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending",
-        "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both",
-        "playlist_reuse": true,
         "curation_tag": "atmospherics",
         "vetting": "source-license-checked; duration and full-genre QA pending"
       },
@@ -4747,6 +4602,56 @@
           "git_blob_sha1": "55c162117b756c317ec6b2eefb5e41323db831fc",
           "bytes": 3563443
         }
+      },
+      {
+        "id": "r34-coffee-house-bump",
+        "title": "Coffee House Bump",
+        "artist": "OatCog",
+        "file": "res://assets/music/cc0/r34-coffee-house-bump.ogg",
+        "style": "jazz",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/coffee-house-bump",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Coffee_House_Bump.ogg",
+          "bytes": 1559452,
+          "git_blob_sha1": "70924049e9976224ded5bda3af2bf06bb851a6a4"
+        },
+        "mountain_moment": "Lounge im Winterdorf",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "70924049e9976224ded5bda3af2bf06bb851a6a4"
+        }
+      },
+      {
+        "id": "r34-jazz-spring",
+        "title": "Jazz",
+        "artist": "Spring Spring / Julie Damsgaard",
+        "file": "res://assets/music/cc0/r34-jazz-spring.ogg",
+        "style": "jazz",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/jazz-1",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/jazz/Jazz.ogg",
+          "bytes": 1369162,
+          "git_blob_sha1": "df35b8377c7381bb73a281045b23180bf2964894"
+        },
+        "mountain_moment": "Lounge im Winterdorf",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "df35b8377c7381bb73a281045b23180bf2964894"
+        }
       }
     ],
     "mountain_sunrise": [
@@ -5069,6 +4974,56 @@
           "git_blob_sha1": "55c162117b756c317ec6b2eefb5e41323db831fc",
           "bytes": 3563443
         }
+      },
+      {
+        "id": "r34-etirwer",
+        "title": "Etirwer",
+        "artist": "Kistol",
+        "file": "res://assets/music/cc0/r34-etirwer.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/etirwer",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Etirwer.ogg",
+          "bytes": 1963336,
+          "git_blob_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
+        },
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "9d695ff3f849420d7e77e3217a9b64809de2ae8e"
+        }
+      },
+      {
+        "id": "r34-apple-cider",
+        "title": "Apple Cider",
+        "artist": "Zane Little Music",
+        "file": "res://assets/music/cc0/r34-apple-cider.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/apple-cider",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Apple_Cider.ogg",
+          "bytes": 2466972,
+          "git_blob_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
+        },
+        "mountain_moment": "Akustischer Bergurlaub",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "4f7eb08e143cbbabaec6e5ec94740df4426ca384"
+        }
       }
     ],
     "lodge_lofi": [
@@ -5359,9 +5314,83 @@
         "playlist_reuse": true,
         "curation_tag": "lodge_lofi",
         "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "r34-moon-unit",
+        "title": "Moon Unit ( Lofi , Reflection , Dreamy )",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-moon-unit.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/moon-unit-lofi-reflection-dreamy/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/Moon_Unit_Lofi_Reflection_Dreamy.ogg",
+          "bytes": 1780705,
+          "git_blob_sha1": "c59908364ca178a05335bcad9ca40a384765f00c"
+        },
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "c59908364ca178a05335bcad9ca40a384765f00c"
+        }
+      },
+      {
+        "id": "r34-going-home",
+        "title": "Going _Home_",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-going-home.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/going-home-3/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/Going_Home.ogg",
+          "bytes": 1566524,
+          "git_blob_sha1": "25ab5fab4b972b30f23f58e81529672dd14d332f"
+        },
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "25ab5fab4b972b30f23f58e81529672dd14d332f"
+        }
+      },
+      {
+        "id": "r34-one-night-france",
+        "title": "One Night In France ( Lofi, Nostalgic, Chill )",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/r34-one-night-france.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/one-night-in-france-lofi-nostalgic-chill/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/One_Night_In_France_Lofi_Nostalgic_Chill.ogg",
+          "bytes": 1955224,
+          "git_blob_sha1": "e06a1f6c0cb2f5c50c8c6e247a42030d7e3e2d88"
+        },
+        "mountain_moment": "Lo-Fi-Pause im Schnee",
+        "sport_fit": "relax",
+        "playlist_reuse": true,
+        "curation_tag": "0.34 new offline CC0; editorial listening QA pending",
+        "vetting": {
+          "license_page_checked": "2026-11-04",
+          "mirror_git_sha1": "e06a1f6c0cb2f5c50c8c6e247a42030d7e3e2d88"
+        }
       }
-    ],
-    "ska_album": []
+    ]
   },
   "catalog_origin": {
     "repo": "euuuuuuan/todak-public",
@@ -5369,9 +5398,9 @@
     "ledger_path": "assets/music/LICENCES.json",
     "vocal_exclusions": "assets/music/VOCAL_EXCLUSIONS.json"
   },
-  "station_count": 7,
-  "unique_audio_files": 72,
-  "playlist_entries": 236,
+  "station_count": 16,
+  "unique_audio_files": 87,
+  "playlist_entries": 234,
   "mountain_curation": {
     "description": "All 72 original recordings retain their actual composer and title. Ski/Snowboard mountain-moment labels are editorial recommendations, not claims that the composers wrote music specifically for ski resorts. Gipfelrausch FM reuses existing CC0 audio and adds no extra bytes.",
     "station_moods": {
@@ -5385,29 +5414,7 @@
     },
     "distinct_programme_032": "0.32 consciously separated the Après-Ski celebration from SnowBeat techno, Glacier Dreams from Mountain Chill and Powder Flow's energetic park beats from Lodge Lo-Fi. All records refer to previously verified bundled CC0 files."
   },
-  "external_collections": [
-    {
-      "station": "space",
-      "title": "ERG0SPHERE Journey",
-      "artist": "Kolja W. Schumann",
-      "url": "https://soundcloud.com/koljawschumann/sets/erg0sphere-journey",
-      "source": "creator-provided",
-      "use": "Open only upon explicit user tap",
-      "bundled": false,
-      "rights_note": "Creator states they own reuse rights; downloadable master audio needed for offline APK inclusion."
-    },
-    {
-      "station": "ska_album",
-      "title": "KoSch Milton - Ska'radise Lost",
-      "artist": "KoSch / Kolja W. Schumann",
-      "url": "https://soundcloud.com/koljawschumann/sets/kosch-milton-skaradise-lost",
-      "playlist_id": "1796940615",
-      "source": "creator-provided",
-      "bundled": false,
-      "use": "Explicit browser click only; no auto-play or third-party tracking before consent",
-      "rights_note": "Creator declares album rights; offline distribution requires original mastered audio."
-    }
-  ],
+  "external_collections": [],
   "regional_folk_status": "Two 10-track curated CC0 acoustic collections sourced from the existing 72 verified offline audio assets. The Alpine and Nordic labels describe atmosphere, not verified authentic Alpine brass bands or Swedish folk performances. Seek distinct regionally representative recordings before changing those claims.",
   "station_guidance": {
     "atmospherics": {
@@ -5424,12 +5431,14 @@
       "mode": "context_only",
       "trigger": "Hotel management screen, with master audio enabled",
       "auto_restore": true
-    },
-    "ska_album": {
-      "playback": "external_opt_in",
-      "offline_tracks": 0,
-      "creator_owned": true
     }
   },
-  "longform_import_note": "Only tracks whose original sources were actually downloaded and measured >=180 seconds were added. Per-asset source and output hashes are recorded."
+  "longform_import_note": "Only tracks whose original sources were actually downloaded and measured >=180 seconds were added. Per-asset source and output hashes are recorded.",
+  "curation_034": {
+    "new_unique_recordings": 11,
+    "source_repository": "euuuuuuan/todak-public",
+    "source_commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+    "license_checks": "Individual OpenGameArt/FMA CC0 listings checked 2026-11-04; final listening QC still required",
+    "titles_not_streamed": true
+  }
 }
