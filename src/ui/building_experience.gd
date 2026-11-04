@@ -269,8 +269,8 @@ func _town_hall(_building: Dictionary) -> void:
 	var bulletin: VBoxContainer=_page(L.text("Rathaus · Bürgerinformation"))
 	hud._label(bulletin,L.text("STADTANZEIGER UND BÜRGERSERVICE"),22,accent,true)
 	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
-	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): hud.open_external("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
-	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): hud.open_external("https://github.com/chekento/SkiZones/releases"))
+	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
+	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/releases"))
 	hud._label(bulletin,L.text("Bauprojekte der nächsten Versionen: neue Zeitungsdruckbilder, Weihnachtsplakate, KI-freie automatische Gebäudeübergänge, authentische lizenzierte Musik und bessere Qualität auf kleinen Telefonbildschirmen."),15,ink,true)
 
 func _pizza(building: Dictionary) -> void:
