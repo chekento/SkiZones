@@ -185,8 +185,7 @@ func _refresh_tuner() -> void:
 	station_info.text = L.text("FREQUENZ %02d · %s · %d Titel im Offline-Archiv") % [genre_choice.selected,L.text(str(Design.GENRE_NAMES[key])),song_count]
 	if Design.GENRE_MOODS.has(key): station_info.text += "\n" + L.text(str(Design.GENRE_MOODS[key]))
 	if key=="space":
-		station_info.text += "\n" + L.text("Deep Space Trance · atmosphärische Offline-Auswahl")
-		station_info.text += "\n" + L.text("Laufzeiten >4 Minuten sind für die Offline-Titel noch nicht verifiziert.")
+		station_info.text += "\n" + L.text("Space-Ambient und Synthwave – sanfte Weiten mit einzelnen treibenden Tracks.")
 	if key in ["folk_alpine","folk_swedish"]:
 		station_info.text += "\n" + L.text("Akustische Winterstimmung; traditionelle Regionalaufnahmen noch nicht bestätigt.")
 	if key=="atmospherics":
