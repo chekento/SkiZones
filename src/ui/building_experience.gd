@@ -160,6 +160,8 @@ func _newspaper(building: Dictionary) -> void:
 	var palette: Dictionary=VisualStyles.ui_palette(style_name)
 	var accent: Color=Color(str(palette.accent))
 	var night: bool=style_name in ["neon_noir","aurora_ink"]
+	# The world accent can be pale gold; print ink needs contrast on cream paper.
+	if not night: accent=accent.darkened(0.48)
 	var ink: Color=Color("e9f7f4") if night else Color("303540")
 	var muted: Color=Color("b9d7df") if night else Color("695f56")
 	var paper: Color=Color("1d283e") if night else Color("faf2dd")
