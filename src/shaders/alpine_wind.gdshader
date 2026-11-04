@@ -3,9 +3,10 @@ shader_type spatial;
 render_mode cull_back, diffuse_burley, specular_schlick_ggx;
 uniform float sway_metres : hint_range(0.0, 1.0) = 0.32;
 uniform float tempo : hint_range(0.1, 3.0) = 0.75;
+uniform float canopy_height : hint_range(1.0, 20.0) = 16.0;
 
 void vertex() {
-    float top_weight = pow(clamp(VERTEX.y / 16.0, 0.0, 1.0), 1.8);
+    float top_weight = pow(clamp(VERTEX.y / canopy_height, 0.0, 1.0), 1.8);
     float individual = dot(MODEL_MATRIX[3].xz, vec2(0.021, 0.037));
     float gust = sin(TIME * tempo + individual) * 0.72
         + sin(TIME * tempo * 0.47 + individual * 1.31) * 0.28;
