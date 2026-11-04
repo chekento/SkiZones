@@ -20,7 +20,7 @@ const GENRE_NAMES := {
 	"atmospherics":"Deep Atmospherics · Wolken & Sterne",
 	"mountain_sunrise":"Mountain Sunrise · Goldene Gipfel",
 	"lodge_lofi":"Lodge Lo-Fi · Kamin & Schnee",
-	"ska_album":"KoSch Milton · Ska\'radise Lost (SoundCloud)",
+	"ska_album":"KoSch Milton · Ska'radise Lost (SoundCloud)",
 	"hotel_lobby":"Hotel Lobby FM · Alpen-Lounge"
 }
 ## Personal soundtrack is linked, not streamed silently or bundled without masters.
