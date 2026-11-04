@@ -554,7 +554,41 @@ func _winter_decoration(width: float, depth: float, height_value: float, accent:
 	for side in [-1,1]:sphere(at+Vector3(side*0.32,3.43,0.86),0.10,Color("38525a"))
 	sphere(at+Vector3(0,3.14,1.02),0.19,Color("e5a069"),Vector3(0.7,0.7,1.9))
 
+## Landmark mesh: two historical wings, public arcade, clock tower and
+## roof. Kept within a 32x26 m municipal lot with a front entrance at +Z.
+func town_hall(accent: Color) -> ArrayMesh:
+	var stone := Color("d9c5a4")
+	var roof_color := accent.darkened(0.35)
+	soft_box(Vector3(0,1.1,0),Vector3(34,2.2,26),Color("b4ae9e"),Vector3.ZERO,0.5)
+	soft_box(Vector3(0,10,0),Vector3(31,18,23),stone,Vector3.ZERO,0.5)
+	for x in [-12,-6,6,12]:
+		for y in [6,14]:
+			box(Vector3(x,y,11.8),Vector3(3.8,4.8,0.5),Color("6c7276"))
+			box(Vector3(x,y,12.1),Vector3(2.8,3.9,0.3),Color("c5dfe9"))
+			box(Vector3(x,y+2.4,12.3),Vector3(4.1,0.3,0.5),accent)
+	for x in [-14,14]:
+		soft_box(Vector3(x,10,12.3),Vector3(2.5,18,2.0),stone.lightened(0.07),Vector3.ZERO,0.4)
+	box(Vector3(0,4.0,12.2),Vector3(5.2,7.2,0.6),Color("4b4144"))
+	box(Vector3(0,20.2,0),Vector3(33,2.1,27),roof_color)
+	for side in [-1,1]:
+		box(Vector3(side*10,23.4,-2.0),Vector3(4,6,5),Color("b9aa97"))
+		cone(Vector3(side*10,27.5,-2.0),3.6,2.5,roof_color,0.3)
+	soft_box(Vector3(0,24.5,0),Vector3(10.5,9.0,9.0),stone,Vector3.ZERO,0.35)
+	soft_box(Vector3(0,31,0),Vector3(9.5,4.5,9.2),roof_color,Vector3.ZERO,0.20)
+	cone(Vector3(0,35.0,0),5.2,4.8,roof_color,0.15)
+	box(Vector3(0,30.0,5.0),Vector3(6,6,0.45),Color("c9af8d"))
+	# The clock face and hands form one original geometry-only ornament.
+	sphere(Vector3(0,30,5.4),2.5,Color("f1ead5"),Vector3(1,1,0.09))
+	link(Vector3(0,30,5.65),Vector3(0,31.7,5.65),0.13,Color("385266"))
+	link(Vector3(0,30,5.68),Vector3(1.2,29.25,5.68),0.11,Color("385266"))
+	box(Vector3(0,11.1,12.9),Vector3(10.0,1.8,1.1),accent)
+	# Friendly civic forecourt steps, never on the actual foot navigation graph.
+	for i in range(3):
+		box(Vector3(0,0.32+i*0.25,13.8+i*.65),Vector3(12.5-i*1.0,0.5,1.1),Color("d8d7cf"))
+	return finish()
+
 func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
+	if kind == "town_hall": return town_hall(accent)
 	if kind == "pool": return outdoor_pool(accent)
 	if kind == "snowmaker":
 		return snow_cannon(level)
