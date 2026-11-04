@@ -19,9 +19,9 @@ func _init() -> void:
 func run() -> void:
 	var radio := Radio.new()
 	root.add_child(radio)
-	check(Design.GENRES.size() == 7, "Six music stations and off")
+	check(Design.GENRES.size() == 8, "Seven music stations and off")
 	for station in Design.GENRES:
-		if station == "off":
+		if station in ["off", "freeride"]:
 			continue
 		var track: AudioStream = radio._music_stream(station)
 		check(track is AudioStreamWAV, station + " has a WAV track")
@@ -32,6 +32,7 @@ func run() -> void:
 			check(wav.get_length() > 10.0, station + " has an extended musical arrangement")
 			check(wav.data.size() > 10000, station + " has imported audio payload")
 			check(wav.loop_end > 200000, station + " has valid loop bounds")
+	check(radio._music_stream("freeride") is AudioStreamWAV, "Mixed station has original offline synthesizer fallback")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed, failed])
