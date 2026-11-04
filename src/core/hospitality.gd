@@ -180,7 +180,11 @@ static func service_multiplier(model: RefCounted, building: Dictionary) -> float
 		for pizza in menu(building):
 			for topping in pizza.toppings: unique[topping] = true
 		menu_bonus = minf(0.12, unique.size() * 0.012)
-	return 1.0 + bonus + menu_bonus
+	# Consistent practice in sector mini-simulations improves real service
+	# efficiency by up to eight percent. This persists across operating days.
+	var training_level: int = clampi(int(activity.get("training_level",0)),0,20)
+	var training_bonus: float = float(training_level) * 0.004
+	return 1.0 + bonus + menu_bonus + training_bonus
 
 static func weekly_offer(model: RefCounted) -> Dictionary:
 	var discount: int = int(model.operations.get("weekly_discount", 12))

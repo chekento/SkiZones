@@ -24,6 +24,7 @@ var _cache: Dictionary={}
 var _poll := 0.0
 var active_zone := "wilderness"
 var current_genre := "off"
+var context_station := ""
 var current_track_title := ""
 var current_track_artist := ""
 var current_mountain_moment := ""
@@ -153,7 +154,7 @@ func _load_cc0_library() -> void:
 	if not (parsed is Dictionary):
 		return
 	var all_stations: Dictionary = parsed.get("stations", {})
-	for genre in Design.GENRES:
+	for genre in Design.GENRES + Design.CONTEXT_STATIONS:
 		if genre == "off":
 			continue
 		var entries: Array = all_stations.get(genre, [])
@@ -178,7 +179,7 @@ func track_credits(id: String) -> Array:
 	return (_cc0_stations.get(id, []) as Array).duplicate(true)
 
 func now_playing() -> Dictionary:
-	return {"genre": current_genre, "title": current_track_title, "artist": current_track_artist, "moment":current_mountain_moment}
+	return {"genre": current_genre, "context":context_station,"title": current_track_title, "artist": current_track_artist, "moment":current_mountain_moment}
 
 func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 	_load_cc0_library()
@@ -231,6 +232,20 @@ func set_genre(id: String, next_song: bool = false) -> void:
 	var primary:AudioStreamPlayer=players.get("music")
 	if primary==null:return
 	current_genre=wanted
+	# External album: no silent SoundCloud request, no unrelated local fallback.
+	# The player opens only from an explicit radio-button tap.
+	if wanted in Design.EXTERNAL_STATIONS:
+		primary.stop()
+		var external_standby: AudioStreamPlayer = players.get("music_alt")
+		if external_standby != null: external_standby.stop()
+		_retiring_music=null
+		_crossfade=1.0
+		_levels["music"]=0.0
+		var collection: Dictionary = Design.EXTERNAL_COLLECTIONS.get(wanted,{})
+		current_track_title=str(collection.get("title",wanted))
+		current_track_artist="KoSch"
+		current_mountain_moment="Originalalbum · SoundCloud nur nach Klick"
+		return
 	if wanted=="off":
 		current_track_title = ""
 		current_track_artist = ""
@@ -258,6 +273,15 @@ func set_genre(id: String, next_song: bool = false) -> void:
 	primary.volume_db=-60.0
 	primary.play()
 	primary.stream_paused=not active
+
+## Temporary room-based channel: hotel administration overrides the general
+## radio only while a hotel screen is actually open. Never change saved genre.
+func set_context_station(id: String) -> void:
+	var wanted: String = id if id in Design.CONTEXT_STATIONS else ""
+	if context_station == wanted:
+		return
+	context_station = wanted
+	sync()
 
 func settings() -> Dictionary:
 	var result := {"genre":"off","music":0.35,"ambient":0.45,"master":1.0,"enabled":true}
@@ -287,6 +311,10 @@ func sync() -> void:
 	if preferences==null:return
 	var chosen := settings()
 	var station: String=Design.genre_valid(str(chosen.genre))
+	# Hotel management has its own lounge music without modifying saved radio.
+	# Respect sound_enabled and volume=0 as explicit opt-outs.
+	if not context_station.is_empty() and bool(chosen.enabled) and float(chosen.music)>0.0:
+		station = context_station
 	if station!=current_genre:set_genre(station)
 	var master: float=clampf(float(chosen.master),0,1) if bool(chosen.enabled) and active else 0.0
 	var ambient: float=clampf(float(chosen.ambient),0,1)*master
@@ -298,7 +326,7 @@ func sync() -> void:
 		if layer=="machinery":target*=_machinery_gain
 		_targets[layer]=target
 	# User-selected radio is continuous background music; location only affects ambient SFX.
-	_targets.music=music if station!="off" else 0.0
+	_targets.music=music if station!="off" and not station in Design.EXTERNAL_STATIONS else 0.0
 	_mix(0.0)
 
 func _mix(delta: float) -> void:

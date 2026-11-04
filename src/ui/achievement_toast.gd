@@ -1,17 +1,49 @@
 extends Control
-## Compact, theme-reactive raised lettering instead of a steep semicircle.
-## Presentation only: never captures input or changes rewards.
+## Small transparent digital achievement banner. Layout is bound to the usable
+## HUD safe rectangle, with native word-wrapping and no title truncation.
+## All children ignore mouse and touch input: gameplay remains interactive.
 const VisualStyles = preload("res://src/core/visual_styles.gd")
-const DISPLAY_SECONDS := 4.2
+const DISPLAY_SECONDS := 5.4
 const MAX_QUEUE := 12
 var waiting: Array = []
 var active: Dictionary = {}
 var elapsed := 0.0
 var style_id := "alpine"
+var card := PanelContainer.new()
+var content := VBoxContainer.new()
+var kicker := Label.new()
+var accent_bar := ColorRect.new()
+var headline := Label.new()
+var detail := Label.new()
+var _card_top := 0.0
+var _card_width := 0.0
+var _headline_full := ""
+var _detail_full := ""
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	clip_contents = false
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.clip_contents = false
+	add_child(card)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_theme_constant_override("separation",5)
+	card.add_child(content)
+	for line in [kicker,headline,detail]:
+		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		line.autowrap_mode = TextServer.AUTOWRAP_OFF
+		line.clip_text = false
+		line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	kicker.add_theme_font_size_override("font_size",11)
+	content.add_child(kicker)
+	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	accent_bar.custom_minimum_size.y = 2
+	content.add_child(accent_bar)
+	content.add_child(headline)
+	content.add_child(detail)
+	resized.connect(_reflow)
+	_apply_style()
 	set_process(false)
 	hide()
 
@@ -19,7 +51,8 @@ func set_visual_style(id: String) -> void:
 	var chosen := VisualStyles.valid(id)
 	if chosen != style_id:
 		style_id = chosen
-		queue_redraw()
+		_apply_style()
+		_reflow()
 
 func announce(event: Dictionary) -> void:
 	if not event.has("title") or not event.has("kind"): return
@@ -35,89 +68,94 @@ func _next() -> void:
 		return
 	active = waiting.pop_front()
 	elapsed = 0.0
+	kicker.text = "✦  MASTERY LEVEL" if str(active.get("kind","")) == "rank" else "✦  ACHIEVEMENT UNLOCKED"
+	_headline_full = str(active.get("title",""))
+	var extra := str(active.get("detail",""))
+	if int(active.get("reward",0)) > 0:
+		extra += ("   " if not extra.is_empty() else "") + "+%d €" % int(active.reward)
+	_detail_full = extra
+	detail.visible = not extra.is_empty()
+	_reflow()
 	show()
 	set_process(true)
-	queue_redraw()
+	_refresh_motion()
 
-func _process(delta: float) -> void:
-	elapsed += delta
-	if elapsed >= DISPLAY_SECONDS: _next()
-	else: queue_redraw()
-
-func _faceted_rect(rect: Rect2, cut: float) -> PackedVector2Array:
-	var l := rect.position.x
-	var t := rect.position.y
-	var r := rect.end.x
-	var b := rect.end.y
-	var c := clampf(cut, 1.0, minf(rect.size.x, rect.size.y)*0.20)
-	return PackedVector2Array([Vector2(l+c,t),Vector2(r-c,t),Vector2(r,t+c),Vector2(r,b-c),Vector2(r-c,b),Vector2(l+c,b),Vector2(l,b-c),Vector2(l,t+c)])
-
-func _raised_text(font: Font, value: String, center: Vector2, limit: float, base_size: int, color: Color, outline: Color, shadow: Color, depth: int, curve: float) -> void:
-	if value.is_empty(): return
-	var font_size := base_size
-	while font_size > 18 and font.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit:
-		font_size -= 1
-	var total := font.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x
-	var x := -total*0.5
-	for i in range(value.length()):
-		var letter := value.substr(i,1)
-		var width_value := font.get_string_size(letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x
-		var u := (x + width_value*0.5) / maxf(total,1.0)
-		# Subtle smile: ~2px instead of a large circular text baseline.
-		var y := curve * 17.0 * pow(absf(u)*2.0,2.0)
-		var angle := curve * u * 0.21
-		var at := center + Vector2(x + width_value*0.5,y)
-		draw_set_transform(at,angle,Vector2.ONE)
-		var origin := Vector2(-width_value*0.5,0)
-		for z in range(depth,0,-1):
-			draw_string(font,origin+Vector2(0,z),letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,shadow)
-		draw_string_outline(font,origin,letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,3,outline)
-		draw_string(font,origin,letter,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,color)
-		x += width_value
-	draw_set_transform(Vector2.ZERO,0.0,Vector2.ONE)
-
-func _draw() -> void:
-	if active.is_empty(): return
-	var progress := clampf(elapsed / DISPLAY_SECONDS,0.0,1.0)
-	var fade := minf(clampf(progress*7.0,0.0,1.0),clampf((1.0-progress)*6.0,0.0,1.0))
+func _apply_style() -> void:
 	var ui: Dictionary = VisualStyles.ui_palette(style_id)
 	var primary := Color(str(ui.accent))
-	var ink := Color(str(ui.ink))
-	var border := Color(str(ui.outline))
-	var panel := Color(str(ui.panel))
-	var highlight := Color(str(ui.highlight))
-	var depth := int(ui.depth)
-	var width_value := minf(size.x*0.88,900.0)
-	var height_value := minf(194.0,size.y*0.32)
-	var box_rect := Rect2(Vector2((size.x-width_value)*0.5,size.y*0.24-height_value*0.15+12.0*(1-fade)),Vector2(width_value,height_value))
-	var cut := float(ui.corner)
-	var backing := box_rect.grow(5)
-	backing.position.y += depth + 8
-	draw_colored_polygon(_faceted_rect(backing,cut),Color(0.01,0.02,0.03,0.25*fade))
-	draw_colored_polygon(_faceted_rect(box_rect.grow(4),cut),Color(border,fade*0.98))
-	draw_colored_polygon(_faceted_rect(box_rect,cut),Color(panel,fade*0.95))
-	var accent_rect := Rect2(box_rect.position + Vector2(14,14),Vector2(box_rect.size.x-28,5))
-	draw_rect(accent_rect,Color(highlight,fade*0.9))
-	var center := Vector2(box_rect.get_center().x,box_rect.position.y+box_rect.size.y*0.47)
-	var headline := str(active.title).to_upper()
-	if headline.length() > 44: headline = headline.substr(0,43)+"…"
+	var border := primary.lightened(0.20)
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = Color(0.045,0.105,0.15,0.76)
+	panel.border_color = Color(border,0.68)
+	panel.set_border_width_all(1)
+	panel.set_corner_radius_all(15)
+	panel.set_content_margin_all(14)
+	panel.shadow_color = Color(0.01,0.02,0.03,0.20)
+	panel.shadow_size = 4
+	panel.shadow_offset = Vector2(0,3)
+	card.add_theme_stylebox_override("panel",panel)
+	kicker.add_theme_color_override("font_color",Color(primary.lightened(0.27),0.95))
+	headline.add_theme_color_override("font_color",Color("f0faf9"))
+	detail.add_theme_color_override("font_color",Color("c8e6e2"))
+	accent_bar.color = Color(primary,0.72)
+
+## Pre-wrap using a measured pixel width. Godot can otherwise calculate
+## container minimum height with an unallocated (zero-width) label and force
+## thousands of pixels of height before the first frame.
+func _wrap_to_width(value: String, limit: float, font_size: int) -> String:
+	if value.is_empty(): return ""
 	var font: Font = get_theme_default_font()
-	var base_font := clampi(roundi(size.x/20.0),25,44)
-	_raised_text(font,headline,center,width_value-44,base_font,Color(primary,fade),Color(border,fade),Color(ui.shadow,fade),depth,float(ui.letter_arc))
-	var detail := str(active.get("detail",""))
-	if int(active.get("reward",0)) > 0:
-		detail += "   +%d €" % int(active.reward)
-	var detail_size := clampi(roundi(size.x/41.0),17,24)
-	draw_string_outline(font,Vector2(center.x,box_rect.end.y-30),detail,HORIZONTAL_ALIGNMENT_CENTER,roundi(width_value-40),detail_size,2,Color(border,fade))
-	draw_string(font,Vector2(center.x,box_rect.end.y-30),detail,HORIZONTAL_ALIGNMENT_CENTER,roundi(width_value-40),detail_size,Color(ink,fade))
-	# Restrained cinematic particles; the angular themes receive crisp facets.
-	var sparkle_count := int(ui.sparkle)
-	for index in range(sparkle_count):
-		var phase := float(index)*2.39996
-		var spread := Vector2(cos(phase),sin(phase))
-		var p := box_rect.get_center() + spread*Vector2(width_value*0.56,height_value*0.71)
-		var radius := 1.4 + 2.4 * fade * (0.5 + 0.5*sin(progress*12.0+index))
-		if style_id in ["comic","cinematic","crisp"]:
-			draw_colored_polygon(PackedVector2Array([p+Vector2(0,-radius*1.7),p+Vector2(radius,0),p+Vector2(0,radius*1.7),p+Vector2(-radius,0)]),Color(highlight,fade*0.85))
-		else:
-			draw_circle(p,radius,Color(highlight,fade*0.7))
+	if font == null: return value
+	var lines := PackedStringArray()
+	var running := ""
+	var words := value.replace("\n"," ").split(" ",false)
+	for part in words:
+		var word: String = str(part)
+		var proposed: String = word if running.is_empty() else running + " " + word
+		if font.get_string_size(proposed,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x <= limit:
+			running = proposed
+			continue
+		if not running.is_empty():
+			lines.append(running)
+			running = ""
+		var fragment := ""
+		for index in range(word.length()):
+			var glyph: String = word.substr(index,1)
+			if not fragment.is_empty() and font.get_string_size(fragment+glyph,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit:
+				lines.append(fragment)
+				fragment = ""
+			fragment += glyph
+		running = fragment
+	if not running.is_empty(): lines.append(running)
+	return "\n".join(lines)
+
+func _reflow() -> void:
+	if not is_inside_tree() or size.x <= 0.0 or size.y <= 0.0:return
+	var narrow: bool = size.x < 640.0 or size.y < 480.0
+	var tiny: bool = size.x < 355.0 or size.y < 320.0
+	var headline_size := 16 if tiny else 19 if narrow else 23
+	var detail_size := 12 if tiny else 14 if narrow else 16
+	headline.add_theme_font_size_override("font_size",headline_size)
+	detail.add_theme_font_size_override("font_size",detail_size)
+	kicker.add_theme_font_size_override("font_size",10 if tiny else 11)
+	_card_width = minf(620.0,maxf(100.0,size.x - (16.0 if tiny else 28.0)))
+	headline.text = _wrap_to_width(_headline_full,maxf(65.0,_card_width-34.0),headline_size)
+	detail.text = _wrap_to_width(_detail_full,maxf(65.0,_card_width-34.0),detail_size)
+	card.size = Vector2(_card_width,0.0)
+	var min_height: float = card.get_combined_minimum_size().y
+	var usable_height: float = maxf(45.0,size.y - 12.0)
+	card.size = Vector2(_card_width,minf(usable_height,maxf(72.0,min_height)))
+	_card_top = clampf(size.y * (0.16 if narrow else 0.19),6.0,maxf(6.0,size.y-card.size.y-6.0))
+	_refresh_motion()
+
+func _refresh_motion() -> void:
+	if active.is_empty(): return
+	var progress := clampf(elapsed/DISPLAY_SECONDS,0.0,1.0)
+	var fade := minf(clampf(progress*8.0,0.0,1.0),clampf((1.0-progress)*7.0,0.0,1.0))
+	card.position = Vector2((size.x-card.size.x)*0.5,_card_top + 9.0*(1.0-fade))
+	card.modulate.a = fade
+
+func _process(delta: float) -> void:
+	elapsed += maxf(0.0,delta)
+	if elapsed >= DISPLAY_SECONDS: _next()
+	else: _refresh_motion()

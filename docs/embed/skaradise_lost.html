@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkiZones · KoSch Milton – Ska'radise Lost</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 75% 0%,#2b5360,#071821 70%);color:#edf7f3;font:16px/1.6 system-ui,-apple-system,sans-serif;padding:clamp(15px,4vw,48px)}
+main{max-width:930px;margin:auto}h1{font-size:clamp(28px,5vw,48px);line-height:1.2}p{color:#c4d6d2}section{border:1px solid #648d82;border-radius:20px;background:#112c36;padding:clamp(16px,3vw,28px)}
+button{font:700 1rem system-ui;cursor:pointer;background:#a9e9c6;color:#052923;padding:16px 23px;border:0;border-radius:12px}button:focus-visible{outline:3px solid #ffe3ac}a{color:#a4eac9}
+iframe{width:100%;height:450px;border:0;border-radius:12px}small{color:#bccdcc}
+</style></head><body><main><p>SKIZONES · EIGENER KÜNSTLERKANAL</p>
+<h1>KoSch Milton · Ska'radise Lost</h1>
+<p>Dieser optionale SoundCloud-Player bleibt zunächst gesperrt. Mit „Player laden“ erlaubst du eine Verbindung zu SoundCloud; dabei können deine IP-Adresse, Informationen zum Browser und Cookies verarbeitet werden. Es findet keine automatische Wiedergabe statt.</p>
+<section id="player"><p>Externer Player ist noch nicht geladen.</p>
+<button type="button" id="consent">SoundCloud-Player bewusst laden</button>
+<p><a href="https://soundcloud.com/pages/privacy" rel="noopener noreferrer" target="_blank">Datenschutz</a> ·
+<a href="https://soundcloud.com/pages/cookies" rel="noopener noreferrer" target="_blank">Cookies</a> ·
+<a href="https://soundcloud.com/koljawschumann/sets/kosch-milton-skaradise-lost" rel="noopener noreferrer" target="_blank">Album extern öffnen</a></p>
+</section><small>Die Entscheidung wird nicht gespeichert. Nach einem Neuladen bleibt der Player wieder deaktiviert. © KoSch · eigenes Album.</small></main>
+<script>
+const src='https://w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Fplaylists%2F1796940615&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false';
+document.getElementById('consent').addEventListener('click',()=>{
+const player=document.createElement('iframe');player.title="KoSch Milton – Ska'radise Lost";player.loading='lazy';player.allow='encrypted-media';player.referrerPolicy='strict-origin-when-cross-origin';player.src=src;
+const target=document.getElementById('player');target.querySelector('button').remove();target.prepend(player);
+});
+</script></body></html>

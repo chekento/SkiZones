@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "policy": "Download only sources independently listed as CC0. Validate true audio duration with ffprobe (180–480 s), transcode to optimized OGG, record source and output hashes. No automatic inclusion of short or failed downloads. Never infer a long song from its filename.",
+  "tracks": [
+    {
+      "id": "long-calm-track",
+      "title": "Calm Track",
+      "artist": "pmiller",
+      "style": "ambient",
+      "source_url": "https://opengameart.org/content/calm-track",
+      "file_url": "https://opengameart.org/sites/default/files/calm_track.ogg",
+      "stations": [
+        "atmospherics",
+        "hotel_lobby"
+      ],
+      "moment": "Tiefenentspannung · verschneites Panorama"
+    },
+    {
+      "id": "long-slowly-running",
+      "title": "Slowly Running",
+      "artist": "Game_assets_66",
+      "style": "ambient",
+      "source_url": "https://opengameart.org/content/slowly-running",
+      "file_url": "https://opengameart.org/sites/default/files/Slowly%20running%20mp3.mp3",
+      "stations": [
+        "atmospherics",
+        "hotel_lobby",
+        "mountain_sunrise"
+      ],
+      "moment": "Fünf Minuten Ruhe · Gipfelmorgen"
+    },
+    {
+      "id": "long-hypnotic-chill",
+      "title": "Hypnotic Chill — Extended Mix",
+      "artist": "cynicmusic",
+      "style": "trance",
+      "source_url": "https://opengameart.org/content/hypnotic-chill-extended-4-minute-mix",
+      "file_url": "https://opengameart.org/sites/default/files/2010_June_HypnoticChill_17.mp3",
+      "stations": [
+        "space",
+        "atmospherics"
+      ],
+      "moment": "Trance-Reise durch das Sternenlicht"
+    },
+    {
+      "id": "long-somnium",
+      "title": "Somnium",
+      "artist": "Adiutorium",
+      "style": "meditative",
+      "source_url": "https://opengameart.org/content/somnium",
+      "file_url": "https://opengameart.org/sites/default/files/somnium.mp3",
+      "stations": [
+        "atmospherics"
+      ],
+      "moment": "Traumlandschaft · Ruhe und Tiefe"
+    },
+    {
+      "id": "long-joyfully",
+      "title": "Joyfully (Full Mix)",
+      "artist": "MintoDog",
+      "style": "electronic",
+      "source_url": "https://opengameart.org/content/joyfully",
+      "file_url": "https://opengameart.org/sites/default/files/joyfully_bpm170_0.ogg",
+      "stations": [
+        "techno",
+        "freeride"
+      ],
+      "moment": "Powder-Speed · belebender Wintersport"
+    }
+  ]
+}

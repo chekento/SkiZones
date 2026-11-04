@@ -19,10 +19,8 @@ func _init() -> void:
 func run() -> void:
 	var radio := Radio.new()
 	root.add_child(radio)
-	check(Design.GENRES.size() == 8, "Seven music stations and off")
-	for station in Design.GENRES:
-		if station in ["off", "freeride"]:
-			continue
+	check(Design.GENRES.size() == 18, "Expanded station matrix and off")
+	for station in ["alpine","techno","hiphop","punk","classical","meditative"]:
 		var track: AudioStream = radio._music_stream(station)
 		check(track is AudioStreamWAV, station + " has a WAV track")
 		if track is AudioStreamWAV:

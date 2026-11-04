@@ -1,0 +1,37 @@
+name: 0.28 resort compass, operations and album privacy QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: resort28-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  resort-radio-operations:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Validate GDScript and import
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          python3 tools/check_localization.py
+      - name: Validate sector-specific cases and SoundCloud opt-in
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/sector_sim_028.gd
+      - name: Validate all radio library assets and station references
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_cc0_library_027.gd
+      - name: Preserve hotel and business mini-simulations
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/village_hospitality.gd

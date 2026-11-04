@@ -1,0 +1,76 @@
+name: 0.30 strict old save compatibility gate (0.19 and 0.27)
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: save30-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-prior-release-careers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+      SKIZONES_LEGACY_FIXTURES: /home/runner/legacy-save-fixtures
+      XDG_DATA_HOME: /home/runner/skizones-save-test-local
+    steps:
+      - name: Checkout candidate 0.29 hotfix
+        uses: actions/checkout@v4
+        with:
+          path: current
+      - name: Checkout actual 0.19 release
+        uses: actions/checkout@v4
+        with:
+          ref: v0.19.0
+          path: legacy019
+      - name: Checkout actual 0.27 release
+        uses: actions/checkout@v4
+        with:
+          ref: v0.27.0
+          path: legacy027
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        working-directory: current
+        run: bash tools/install_godot.sh
+      - name: Import original 0.19 assets
+        working-directory: legacy019
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Generate real 0.19 career saves with guests and lifts
+        working-directory: legacy019
+        run: |
+          mkdir -p "$SKIZONES_LEGACY_FIXTURES/019"
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/019" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script ../current/tests/generate_019_careers.gd
+      - name: Import candidate hotfix
+        working-directory: current
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Validate all original 0.19 careers and recovery contracts
+        working-directory: current
+        run: |
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/019" python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/legacy_career_compat.gd
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/019" python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/load_recovery.gd
+      - name: Import original 0.27 assets
+        working-directory: legacy027
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Generate real 0.27 career saves with active staff and guests
+        working-directory: legacy027
+        run: |
+          mkdir -p "$SKIZONES_LEGACY_FIXTURES/027"
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/027" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script ../current/tests/generate_019_careers.gd
+      - name: Validate all original 0.27 careers and independent old-save fallbacks
+        working-directory: current
+        run: |
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/027" python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/legacy_career_compat.gd
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/027" python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/save_hotfix_030.gd
+      - name: Publish legacy compatibility evidence (no original files disclosed)
+        if: always()
+        run: |
+          echo "0.19 + 0.27 tests from unmodified tagged releases" >> "$GITHUB_STEP_SUMMARY"
+          echo "Original save files must never be overwritten during load or migration" >> "$GITHUB_STEP_SUMMARY"

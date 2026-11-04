@@ -61,6 +61,10 @@ func open(id: int) -> void:
 		was_paused = hud.game.paused
 		hud.game.paused = true
 	asset_id = id
+	# Entering the hotel's management interior activates exclusive lounge radio.
+	# The player's normal station and volume preferences remain unchanged.
+	if is_instance_valid(hud.game.audio):
+		hud.game.audio.set_context_station("hotel_lobby" if Hospitality.lodging(str(building.kind)) else "")
 	session.clear()
 	_rebuild()
 	show()
@@ -68,6 +72,8 @@ func open(id: int) -> void:
 
 func close() -> void:
 	if visible: hud.game.paused = was_paused
+	if hud != null and hud.game != null and is_instance_valid(hud.game.audio):
+		hud.game.audio.set_context_station("")
 	session.clear()
 	hide()
 	hud.refresh()
@@ -208,6 +214,7 @@ func _hotel(building: Dictionary) -> void:
 	var settings := Hospitality.config(building)
 	var dashboard := Hospitality.dashboard(model, building)
 	var page := _page(L.text("Hotelverwaltung"))
+	hud._label(page,L.text("HOTEL LOBBY FM · Lounge-Musik während der Hotelverwaltung"),16,hud.TEAL,true)
 	_card(page, L.text("Deine Gäste bleiben länger"), L.text("%d / %d Zimmer belegt · %.0f %% Auslastung\nBewertung %.1f / 5 · Sauberkeit %.0f %%\nGeplante Kosten %s €/Tag · Kostendeckung ab %d belegten Zimmern") % [int(dashboard.occupied), int(dashboard.capacity), float(dashboard.occupancy) * 100.0, float(settings.rating), float(settings.cleanliness), hud.money_text(dashboard.cost), int(dashboard.break_even)])
 	var forecast := _card(page, L.text("Übernachtung und Ertrag"), L.text("Vorsichtige Zimmerprognose bei aktueller Belegung: %s €/Tag nach geplanten Kosten. Tatsächliche Abrechnung erfolgt je Übernachtung; Tagesbesuche sind keine Zimmerbuchung.") % hud.money_text(dashboard.forecast))
 	var price := _spin(forecast, L.text("Zimmerpreis je Nacht · €"), int(dashboard.price), 45, 350)
@@ -316,7 +323,10 @@ func _next_task() -> void:
 	picked.clear()
 	elapsed = 0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
-	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode == "hotel_story" else 32, hud.INK, true)
+	if task.mode == "decision":
+		hud._label(game_box,L.text("BETRIEBSSIMULATION · ") + L.text(str(task.get("metric","Entscheidungsqualität"))),16,hud.TEAL,true)
+		hud._label(game_box,L.text(str(task.get("context",""))),16,hud.MUTED,true)
+	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode in ["hotel_story","decision"] else 32, hud.INK, true)
 	if task.mode == "hotel_story":
 		hud._label(game_box,L.text(str(task.title)),22,hud.TEAL,true)
 		var story_art := HotelStoryArt.new()
@@ -381,6 +391,8 @@ func _submit(value: Variant) -> void:
 			hud._label(game_box,L.text("Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte") % [int(progress.level),int(progress.xp),int(progress.best)],20,hud.TEAL,true)
 		hud._button(game_box, L.text("Noch eine Runde"), _start_shift, true)
 	else:
+		if task.get("mode","") == "decision":
+			hud.toast(L.text("Betriebsentscheidung · %d / 100 · %s") % [int(result.get("score",0)),L.text(str(task.get("metric","Service")))])
 		_next_task()
 
 func _process(delta: float) -> void:

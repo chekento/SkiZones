@@ -1,7 +1,7 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride"]
+const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier","erg0sphere","folk_alpine","folk_swedish","atmospherics","mountain_sunrise","lodge_lofi","ska_album"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
 	"alpine":"AlpenWelle FM · Hüttenmorgen",
@@ -10,7 +10,29 @@ const GENRE_NAMES := {
 	"punk":"PistenPunk · Kantenwind",
 	"classical":"Alpine Classic · Schneelicht",
 	"meditative":"Mountain Chill · Wolkenmeer",
-	"freeride":"Gipfelrausch FM · Ski & Snowboard"
+	"freeride":"Gipfelrausch FM · Ski & Snowboard",
+	"space":"Cosmic Drift · Deep Space Trance",
+	"apres":"Alpenglühen FM · Après-Ski",
+	"glacier":"Glacier Dreams · Polar Ambient",
+	"erg0sphere":"KoSch · ERG0SPHERE Journey (SoundCloud)",
+	"folk_alpine":"AlpenFolk · Blasmusik & Tradition",
+	"folk_swedish":"Nordic Folk · Schwedische Folklore",
+	"atmospherics":"Deep Atmospherics · Wolken & Sterne",
+	"mountain_sunrise":"Mountain Sunrise · Goldene Gipfel",
+	"lodge_lofi":"Lodge Lo-Fi · Kamin & Schnee",
+	"ska_album":"KoSch Milton · Ska'radise Lost (SoundCloud)",
+	"hotel_lobby":"Hotel Lobby FM · Alpen-Lounge"
+}
+## Personal soundtrack is linked, not streamed silently or bundled without masters.
+const SPACE_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/erg0sphere-journey"
+const ERG0SPHERE_EMBED_URL := "https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fkoljawschumann%2Fsets%2Ferg0sphere-journey&color=%23ff5500&auto_play=false&show_comments=false&show_user=true"
+const SKA_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/kosch-milton-skaradise-lost"
+const SKA_EMBED_URL := "https://w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Fplaylists%2F1796940615&color=%23ff5500&auto_play=false&show_comments=false&show_user=true"
+const EXTERNAL_STATIONS := ["erg0sphere","ska_album"]
+const CONTEXT_STATIONS := ["hotel_lobby"]
+const EXTERNAL_COLLECTIONS := {
+	"erg0sphere":{"url":SPACE_COLLECTION_URL,"title":"ERG0SPHERE Journey"},
+	"ska_album":{"url":SKA_COLLECTION_URL,"title":"KoSch Milton - Ska'radise Lost"}
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {
@@ -36,7 +58,7 @@ const WORKSHOP := ["repair_office","maintenance","watchmaker","craftshop","renta
 const QUIET := ["spa","pool","fitness"]
 
 static func genre_valid(id: String) -> String:
-	return id if id in GENRES else "off"
+	return id if id in GENRES or id in CONTEXT_STATIONS else "off"
 
 static func kind_zone(kind: String) -> String:
 	if kind=="disco": return "disco"
