@@ -19,7 +19,9 @@ func setup(interface: CanvasLayer) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	offset_left=42;offset_right=-42;offset_top=116;offset_bottom=-24
 	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),18,20))
-	get_viewport().size_changed.connect(func():
+	# Anchor layout follows the viewport notification. Use the panel's final
+	# width so a landscape resize cannot retain the previous column count.
+	resized.connect(func():
 		if is_instance_valid(stations):stations.columns=_columns())
 	body=hud._vbox(self,10)
 	var header:=HBoxContainer.new();body.add_child(header)
