@@ -6,6 +6,7 @@ const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
+const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
@@ -145,6 +146,7 @@ func _rebuild() -> void:
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
 	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
+	_mini_games(building)
 	_activity(building)
 	var operation := _page(L.text("Betrieb & Team"))
 	var balance: Dictionary = model.Ops.business_balance(model, building)
@@ -414,8 +416,24 @@ func _weekly(page: Node) -> void:
 		_rebuild()
 	, true)
 
+func _mini_games(building: Dictionary) -> void:
+	# Unlike the sector training shifts, the arcade contains genuine playable
+	# local games. It does not pay cash and cannot alter operating balances.
+	var kind: String = str(building.kind)
+	if kind not in ["lodge","bar","disco"] and not Hospitality.lodging(kind): return
+	var page: VBoxContainer = _page(L.text("Spielecke"))
+	var requirement: int = 2 if kind=="disco" or Hospitality.lodging(kind) else 1
+	var rank: int = int(hud.game.model.campaign.get("rank",1))
+	if rank < requirement:
+		_card(page,L.text("Noch gesperrt"),L.text("Wird ab Betreiber-Rang %d freigeschaltet.") % requirement)
+		return
+	var board := TicTacToeBoard.new()
+	board.style_id = str(hud.game.preferences.visual_style)
+	page.add_child(board)
+	hud._label(page,L.text("Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."),15,hud.MUTED,true)
+
 func _activity(building: Dictionary) -> void:
-	var page := _page(L.text("Selber spielen"))
+	var page := _page(L.text("Betriebstraining"))
 	var definition := Activities.spec(str(building.kind))
 	if definition.is_empty(): return
 	game_box = _card(page, L.text("Deine Hotelgeschichte") if Hospitality.lodging(str(building.kind)) else L.text(definition.title), L.text("Fünf bebilderte Kapitel mit unterschiedlichen Gästewünschen und Entscheidungen.") if Hospitality.lodging(str(building.kind)) else L.text(definition.hint))
