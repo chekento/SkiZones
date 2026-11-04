@@ -15,6 +15,42 @@ static func path_for_map(id: String, slot: int = -1) -> String:
 	var selected := active_slot if slot < 0 else slot
 	return "user://free_%s.json" % id if selected == 0 else "user://career_%d_%s.json" % [clampi(selected,1,4),id]
 
+# Never let a one-time migration marker hide saves created by an older APK.
+# Cross-slot fallback is forbidden: the old campaign belongs only to career 1
+# or free play; optional scenarios retain their original independent paths.
+static func legacy_fallbacks(path: String) -> Array[String]:
+	var candidates: Array[String] = []
+	for id in Maps.MAPS:
+		if path != path_for_map(id, 0) and path != path_for_map(id, 1): continue
+		for suffix in ["", ".bak"]:
+			var legacy := legacy_path(id) + suffix
+			if legacy == path or legacy == path + ".bak": continue
+			var read := _read(legacy)
+			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id: continue
+			if id in Maps.FANTASY_MAPS:
+				var legacy_slot := 0 if _free_data(read.data) else 1
+				if path != path_for_map(id, legacy_slot): continue
+			candidates.append(legacy)
+		break
+	return candidates
+
+static func load_candidates(path: String) -> Array[String]:
+	var candidates: Array[String] = [path, path + ".bak"]
+	candidates.append_array(legacy_fallbacks(path))
+	return candidates
+
+static func has_saved_map(id: String, slot: int = -1) -> bool:
+	var path := path_for_map(id, slot)
+	# Even an unreadable primary must block automatic creation over user data.
+	return FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak") or not legacy_fallbacks(path).is_empty()
+
+static func checkpoint_compatible(path: String, checksum: String) -> bool:
+	# A healthy primary always wins. A stale UI checkpoint must not override it.
+	for candidate in load_candidates(path):
+		if _read(candidate).ok:
+			return FileAccess.get_sha256(candidate) == checksum
+	return false
+
 static func passport_path(slot: int = -1) -> String:
 	var selected := active_slot if slot < 0 else slot
 	return "user://free_passport.json" if selected == 0 else "user://career_%d_passport.json" % clampi(selected,1,4)
@@ -48,13 +84,13 @@ static func summary(slot: int) -> Dictionary:
 			for field in ["day","money","rank","saved_at"]:
 				if not (data.get(field) is float or data.get(field) is int) or not is_finite(float(data.get(field,0))):valid=false
 			if valid and data.day>=1 and data.day<=100000 and data.day==floorf(data.day) and data.rank>=1 and data.rank<=5 and data.rank==floorf(data.rank) and absf(data.money)<=1000000000:
-				if FileAccess.file_exists(path_for_map(data.map,slot)) or FileAccess.file_exists(path_for_map(data.map,slot)+".bak"):
+				if has_saved_map(data.map,slot):
 					data.occupied=true
 					return data
 	var latest := -1
 	var result := {"occupied":false}
 	for id in Maps.FANTASY_MAPS:
-		for path in [path_for_map(id,slot),path_for_map(id,slot)+".bak"]:
+		for path in load_candidates(path_for_map(id,slot)):
 			if not FileAccess.file_exists(path): continue
 			var modified := FileAccess.get_modified_time(path)
 			if modified <= latest: continue
@@ -68,7 +104,6 @@ static func migrate_legacy() -> bool:
 	# Copy, never move, the previous files. A failed or repeated migration must
 	# neither erase the old installation's files nor overwrite newer careers.
 	var marker := "user://slots-migrated-017"
-	if FileAccess.file_exists(marker): return true
 	for id in Maps.MAPS:
 		for suffix in ["", ".bak"]:
 			var old: String = legacy_path(id)+suffix
@@ -84,6 +119,7 @@ static func migrate_legacy() -> bool:
 	var old_passport := "user://skizones_passport.json"
 	if FileAccess.file_exists(old_passport) and not FileAccess.file_exists(passport_path(1)):
 		if DirAccess.copy_absolute(ProjectSettings.globalize_path(old_passport),ProjectSettings.globalize_path(passport_path(1)))!=OK: return false
+	if FileAccess.file_exists(marker): return true
 	var file := FileAccess.open(marker,FileAccess.WRITE)
 	if file == null: return false
 	file.store_string("1");file.close()
@@ -147,14 +183,16 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
-	for candidate in [path, path + ".bak"]:
+	for candidate in load_candidates(path):
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
-				return {"ok": true, "recovered": false, "source": candidate, "message": L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+				var legacy := candidate != path and candidate != path + ".bak"
+				var message := L.text("Älterer Spielstand geladen. Die ursprüngliche Datei bleibt erhalten.") if legacy else (L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen."))
+				return {"ok": true, "recovered": legacy, "legacy": legacy, "source": candidate, "message": message}
 	# An invalid transient visitor must not make an otherwise valid mountain,
 	# construction history, mission progress and finances inaccessible. Both
 	# complete saves are tried first; never bypass an envelope checksum failure.

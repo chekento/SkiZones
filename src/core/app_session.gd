@@ -41,7 +41,7 @@ func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true
 	if state.is_empty(): return false
 	var slot:=SaveStore.slot_from_state(state)
 	var save_path:=SaveStore.path_for_map(state.map,slot)
-	if state.checksum != FileAccess.get_sha256(save_path): return false
+	if not SaveStore.checkpoint_compatible(save_path,state.checksum): return false
 	if already_loaded:
 		if game.model.map_id != state.map: return false
 	elif not SaveStore.load_game(game.model,save_path).ok: return false

@@ -41,4 +41,25 @@ func _init() -> void:
 	check(Saves.archive_slot(3) and not Saves.summary(3).occupied,"An explicitly restarted career is archived before its active files are cleared")
 	check(Saves.summary(1).occupied and Saves.summary(4).occupied and Saves.summary(0).occupied,"Restarting one slot preserves every other career and free build")
 	check(not Saves.archive_slot(0) and not Saves.archive_slot(5),"Invalid career slots cannot erase unrelated save files")
+	Saves.active_slot=1
+	# Regression: a previously migrated device can still receive writes from an
+	# older APK. Its marker must not make those saves invisible forever.
+	var rescue:=Resort.new();rescue.new_game(true,20261027,"gletscherwelt")
+	rescue.money=567890;rescue.day=12
+	var old_path:=Saves.legacy_path("gletscherwelt")
+	var modern_path:=Saves.path_for_map("gletscherwelt",1)
+	for suffix in ["",".bak"]:
+		if FileAccess.file_exists(modern_path+suffix):DirAccess.remove_absolute(ProjectSettings.globalize_path(modern_path+suffix))
+	check(Saves.save_game(rescue,old_path).ok,"Original older-APK save is written in legacy format")
+	var old_hash:=FileAccess.get_sha256(old_path)
+	check(Saves.has_saved_map("gletscherwelt",1) and not Saves.has_saved_map("gletscherwelt",2),"Legacy save is discoverable in career one, never leaked to career two")
+	var from_legacy:=Resort.new()
+	var fallback:=Saves.load_game(from_legacy,modern_path)
+	check(fallback.ok and fallback.get("legacy",false) and from_legacy.money==567890 and from_legacy.day==12,"Continue can restore an old installation even with the migration marker present")
+	check(Saves.migrate_legacy() and FileAccess.file_exists(modern_path),"Repeated migration imports newly discovered legacy files without overwriting the old file")
+	var damaged_modern:=FileAccess.open(modern_path,FileAccess.WRITE)
+	damaged_modern.store_string("damaged new save");damaged_modern.close()
+	var rescued_again:=Resort.new()
+	check(Saves.load_game(rescued_again,modern_path).ok and rescued_again.money==567890,"Corrupted modern save falls back to an intact legacy original")
+	check(FileAccess.get_sha256(old_path)==old_hash and Saves.save_game(rescued_again,modern_path).ok and FileAccess.get_sha256(old_path)==old_hash,"Old original remains byte-for-byte unchanged when saving the recovered mountain")
 	print("CAREER SLOTS: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)

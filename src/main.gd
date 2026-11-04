@@ -272,7 +272,7 @@ func _restore_android_session() -> void:
 	# Preserve dormant scenario saves without opening them on normal-mode startup.
 	if state.is_empty() or not Maps.MAPS.has(state.map): return
 	var slot:=SaveStore.slot_from_state(state)
-	if state.checksum != FileAccess.get_sha256(SaveStore.path_for_map(state.map,slot)): return
+	if not SaveStore.checkpoint_compatible(SaveStore.path_for_map(state.map,slot),state.checksum): return
 	var prepared := await _prepare_area(state.map, true,slot)
 	if not prepared.result.ok:
 		view.loading_in_progress = false
@@ -293,7 +293,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	if not Maps.MAPS.has(area):
 		hud.toast(L.text("Dieses Gebiet steht nicht zur Verfügung."))
 		return
-	if not passport.unlocked(area):
+	if not passport.unlocked(area) and not SaveStore.has_saved_map(area):
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
@@ -304,7 +304,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 		return
 	if has_game and not save_game(): return
 	var path := SaveStore.path_for_map(area)
-	var prepared := await _prepare_area(area, FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"))
+	var prepared := await _prepare_area(area, SaveStore.has_saved_map(area))
 	if not prepared.result.ok:
 		view.loading_in_progress = false
 		hud.loading.hide()
@@ -368,7 +368,9 @@ func start_free_play() -> void:
 
 func main_game_area() -> String:
 	if has_game and model.map_id in Maps.FANTASY_MAPS: return model.map_id
-	if passport.data.last_map in Maps.FANTASY_MAPS: return passport.data.last_map
+	if passport.data.last_map in Maps.FANTASY_MAPS and SaveStore.has_saved_map(passport.data.last_map): return passport.data.last_map
+	var saved := SaveStore.summary(SaveStore.active_slot)
+	if saved.get("occupied",false): return saved.map
 	var latest := 0
 	var area := "sonnenhang"
 	for id in Maps.FANTASY_MAPS:
