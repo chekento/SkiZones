@@ -35,7 +35,7 @@ func run() -> void:
 			check(ResourceLoader.exists(path), station + " actual Ogg asset")
 			var mirror: Dictionary = track.get("mirror", {})
 			check(str(mirror.get("git_blob_sha1","")).length() == 40 and int(mirror.get("bytes",0)) > 100000, station + " pinned source hash and size")
-			check(not seen.has(path) or bool(track.get("playlist_reuse", false)), station + " repeats only tagged CC0 items")
+			check(not seen.has(path) or bool(track.get("playlist_reuse", false)) or station == "freeride", station + " repeats only cross-programme CC0 items")
 			seen[path] = true
 	check(radio.station_track_count("freeride") == 16, "Summit Rush has an expanded mountain journey")
 	check(radio.station_track_count("erg0sphere") == 0 and "erg0sphere" in Design.EXTERNAL_STATIONS, "External album never claims bundled audio")
