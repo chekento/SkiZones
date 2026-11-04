@@ -1046,6 +1046,16 @@ func _build_menu() -> void:
 	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")), 13, MUTED, true)
+	# The menu contains a few long translated button labels. Their intrinsic
+	# text widths must never force the whole portrait panel past the screen.
+	# Ellipsis applies only when the available width is actually insufficient;
+	# the full labels remain available through tooltips.
+	for item in panel.find_children("*", "Button", true, false):
+		var menu_button: Button = item as Button
+		menu_button.clip_text = true
+		menu_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		menu_button.tooltip_text = menu_button.text
+
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
