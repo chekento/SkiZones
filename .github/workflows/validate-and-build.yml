@@ -180,6 +180,10 @@ jobs:
         run: |
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/run.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd
+      - name: 0.32 crew and scenario support feasibility
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-staff-032
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/recruitment_scenarios_032.gd
       - name: 0.32 five wealth tiers compatibility gate
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-economy-032
