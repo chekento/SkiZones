@@ -279,6 +279,7 @@ func _town_hall(_building: Dictionary) -> void:
 		for entry in phase.deliverables:
 			hud._label(details,"• "+L.text(str(entry)),15,ink,true)
 		hud._label(details,L.text("Abnahmekriterium: ")+L.text(str(phase.acceptance)),13,accent,true)
+	hud._button(plans,L.text("Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/docs/ROADMAP_2026_11_2027_01.md"))
 	var bulletin: VBoxContainer=_page(L.text("Rathaus · Bürgerinformation"))
 	hud._label(bulletin,L.text("STADTANZEIGER UND BÜRGERSERVICE"),22,accent,true)
 	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
