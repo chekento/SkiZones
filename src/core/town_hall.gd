@@ -37,12 +37,14 @@ const HISTORY: Array = [
 	{"version":"0.25.0","date":"03.11.2026","topic":"Lineare Hotelmodule und wiederkehrende Winterfeste","story":"Hotels wurden zu Ketten mit Modulen, und der jährliche Advents- und Silvesterkalender fand seinen Platz."},
 	{"version":"0.26.0","date":"03.11.2026","topic":"Alpine Radio, Crewleben und illustrierter Pistenatlas","story":"Das alpine Radio, die Crew und illustrierte Pistenkarten brachten Klang und Orientierung in jeden Ort."},
 	{"version":"0.27.0","date":"04.11.2026","topic":"Nahtlose Alpine-Radio-Klangwelt (erste Iteration)","story":"Die Musik durfte sanfter von Titel zu Titel reisen; gleichzeitig wurde die unerwünschte grelle FX-Klangquelle stillgelegt."},
-	{"version":"0.30.0","date":"04.11.2026","topic":"Alte Karrieren, Radio und mobile Bedienung","story":"Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."}
+	{"version":"0.30.0","date":"04.11.2026","topic":"Alte Karrieren, Radio und mobile Bedienung","story":"Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."},
+	{"version":"0.31.0","date":"04.11.2026","topic":"Winterkunst, Zeitung und Radiowerbung","story":"Die veröffentlichte APK führte neue künstlerische Winterstile, eine lebendigere Resortzeitung und Hinweise auf die Radiosender ein."},
+	{"version":"0.32.0","date":"04.11.2026","topic":"Winterbetrieb und sichere Karrieren","story":"Der veröffentlichte Android-Build brachte fünf Karriere-Startstufen, Bewerbermarkt, Missionsverbesserungen und das originale breite SkiZones-Schriftlogo. Alte Spielstände und Android-Updates bestanden die Freigabetests."}
 ]
 const DEVELOPMENT_NOTICE := "Die Chronik dokumentiert ausgewählte veröffentlichte Etappen. Der Bauplan ist eine Vorschau, kein Release-Nachweis; die neueste APK steht bei GitHub-Releases."
 const ROADMAP: Array = [
-	{"from":"04.11.2026","to":"17.11.2026","phase":"I · Release, Nacht und Wetter","target":"0.32-Freigabe / 0.33-Grundlagen","status":"Geplant · nach Freigabetests","deliverables":[
-		"0.32-APK nach echten Android-30/36-, Spielstand- und Signaturtests veröffentlichen; GitHub-Hauptseite, Downloadbanner und In-App-Update prüfen",
+	{"from":"04.11.2026","to":"17.11.2026","phase":"I · Release, Nacht und Wetter","target":"0.32 veröffentlicht / 0.33-Grundlagen","status":"0.32 veröffentlicht · Rest in Arbeit","deliverables":[
+		"0.32-APK am 04.11. veröffentlicht und GitHub-Downloadbanner aktualisiert; In-App-Update weiterhin mit echten Installationen prüfen",
 		"Seltenere, angekündigte Stürme statt gleichverteilter Wettertage; Windgrenzen und Liftsicherheit bleiben unverändert",
 		"Sonne, Schneefall, Nebel und Sturm grafisch klarer unterscheiden, mit schonender Effektstärke für Android",
 		"Abendruhe im Dorf: Gäste gehen zum Hotel, zur Bar oder nach Hause; kein ewiger Nachtverkehr, der den Zeitraffer blockiert",
