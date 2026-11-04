@@ -1,5 +1,5 @@
-const Design = preload("res://src/core/audio_design.gd")
 extends RefCounted
+const Design = preload("res://src/core/audio_design.gd")
 var path := "user://display.cfg"
 var quality := "auto"
 var visual_style := "alpine"
