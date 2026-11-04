@@ -113,7 +113,8 @@ func _night(model: RefCounted) -> void:
 	guest.phase="moving"
 	guest.leg=0
 	guest.erase("hotel_sleep_until")
-	check(not model.empty_night() and not model.advance_empty_minute(),"The first real outdoor walker immediately stops night forward")
+	check(model.empty_night(),"A verified foot-only hotel route may continue during safe automatic night fast-forward")
+	check(model.advance_empty_minute() and model.minute == 1 and model.guests.has(guest),"The outdoor guest advances on a real route across one accelerated game minute without despawning")
 	guest.phase="waiting"
 	guest.waiting_reason="hotel"
 	guest.hotel_sleep_until=model.Ops.clock(model)+60
