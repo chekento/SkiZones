@@ -39,6 +39,7 @@ static func building_size(building: Dictionary) -> Vector2:
 	return Vector2(size.y, size.x) if int(building.get("rotation", 0)) % 2 == 1 else size
 
 static func base_building_size(building: Dictionary) -> Vector2:
+	if building.kind == "town_hall": return Vector2(34, 26)
 	if building.kind == "pool": return Vector2(32, 42)
 	if building.kind == "cabin": return Vector2(16, 14)
 	if building.kind == "grand_hotel": return Vector2(44, 32)
@@ -60,7 +61,7 @@ static func entrance_bounds(building: Dictionary) -> Rect2:
 	return Rect2(center - size * 0.5, size)
 
 static func building_radius(building: Dictionary) -> float:
-	return 16.0 if building.kind == "kiosk" else (30.0 if building.kind in ["hotel", "spa"] else 26.0)
+	return 31.0 if building.kind == "town_hall" else 16.0 if building.kind == "kiosk" else (30.0 if building.kind in ["hotel", "spa"] else 26.0)
 
 static func _area(key: String, center: Vector2, point: Vector2, radius: float, root: bool, id: int = 0, kind: String = "base") -> Dictionary:
 	return {"key": key, "center": center, "point": point, "radius": radius, "root": root, "id": id, "kind": kind}
