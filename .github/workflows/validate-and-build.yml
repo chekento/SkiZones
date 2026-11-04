@@ -157,6 +157,10 @@ jobs:
           # Bound transient apt/network stalls instead of consuming the entire Android job.
           sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
           sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
+      - name: Complete English and German interface with live language switching
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
       - name: Theme architecture and holiday catalogue models
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/style_asset_festival_032.gd
       - name: Real monochrome, distinct buildings and holiday dressing
@@ -315,10 +319,6 @@ jobs:
         run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
       - name: Cute winter scenery, opaque guest materials and bounded batches
         run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
-      - name: Complete English and German interface with live language switching
-        env:
-          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
       - name: Actual surface picking, construction widths and clear piste geometry
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_surfaces_scene.gd
       - name: Phone insets, individual point dragging and joined piste rendering
