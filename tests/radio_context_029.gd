@@ -62,7 +62,7 @@ func run() -> void:
 		var r: Rect2=toast.card.get_rect()
 		print("UI_BOUNDS|%s|%s|minimum=%s|anchor=%s" % [resolution,r,toast.card.get_combined_minimum_size(),toast.card.anchor_right])
 		check(r.position.x>=0 and r.end.x<=resolution.x+1.0 and r.position.y>=0 and r.end.y<=resolution.y+1.0,"Achievement card remains inside %s" % resolution)
-	check(toast.headline.text==headline and toast.headline.autowrap_mode==TextServer.AUTOWRAP_WORD_SMART,"Achievement title is never truncated")
+	check(toast.headline.text.replace("\n"," ")==headline and toast.headline.autowrap_mode==TextServer.AUTOWRAP_OFF,"Achievement title is reflowed without losing any words")
 	check(toast.mouse_filter==Control.MOUSE_FILTER_IGNORE and toast.card.mouse_filter==Control.MOUSE_FILTER_IGNORE,"Digital milestone does not block gameplay taps")
 	toast.queue_free()
 	radio.queue_free()
