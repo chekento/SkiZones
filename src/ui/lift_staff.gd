@@ -234,6 +234,7 @@ func _people(parent: Node, people: Array, target: String) -> void:
 	for person in people:
 		hud._label(parent,person.name+" · "+L.text(Ops.ROLES[person.role].name),17,hud.TEAL,true)
 		hud._label(parent,L.text("Im Dienst") if Ops.on_duty(model,person) else L.text("Außer Dienst / Pause / Abwesenheit"),16,hud.MUTED,true)
+		hud._label(parent,L.text("Qualifikation %d · Motivation %.0f %% · Erschöpfung %.0f %% · %.0f Arbeitsminuten · %.0f €/h") % [int(person.get("qualification",1)),float(person.get("motivation",85)),float(person.get("fatigue",0)),float(person.get("worked",0)),float(person.get("wage",0))],14,hud.MUTED,true)
 		var labels: Array=[]
 		for key in Ops.SHIFTS:labels.append(L.text(Ops.SHIFT_NAMES[key]))
 		var shift:=_choice(parent,labels);shift.select(Ops.SHIFTS.keys().find(person.shift))
