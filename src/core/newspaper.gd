@@ -2,6 +2,23 @@ extends RefCounted
 ## In-world ExtraBlatt: only shown when a player's printing press exists.
 ## Uses actual chronological achievement IDs from the career save.
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const Maps = preload("res://src/core/maps.gd")
+const Radio = preload("res://src/core/audio_design.gd")
+const RUBRICS := ["BERGSPORT", "DORFLEBEN", "WINTERWIRTSCHAFT", "PANORAMA", "AUS DEM RATHAUS"]
+const RADIO_CLAIMS := {
+	"alpine":"Akustische Berggefühle für den ganzen Skitag.",
+	"meditative":"Ruhe hinter dem letzten Gipfel — ganz ohne Hektik.",
+	"atmospherics":"Wolken, Schnee und tiefe Meditation.",
+	"space":"Tanz zwischen Sternen und Gletscherlicht.",
+	"lodge_lofi":"Warme Lo-Fi-Momente am Kamin.",
+	"mountain_sunrise":"Ein Sonnenaufgang für jeden Bergmenschen.",
+	"hotel_lobby":"Nur in der Hotelverwaltung: Piano und Lounge.",
+	"folk_alpine":"Alpengefühl im traditionellen Radiofenster.",
+	"folk_swedish":"Nordische Momente für weite Winterlandschaften.",
+	"punk":"Gitarrenpower für den Snowpark.",
+	"ska_album":"Das eigene Ska-Album — SoundCloud erst nach Klick.",
+	"erg0sphere":"KoSch-Originalalbum — SoundCloud erst nach Klick."
+}
 const LEGACY_NAMES := [
 	"Der hundertste Schwung",
 	"Buntes Pistennetz",
@@ -30,7 +47,11 @@ static func latest(model: RefCounted, count: int = 5) -> Array:
 		var name: String=LEGACY_NAMES[id] if id>=0 and id<LEGACY_NAMES.size() else str(entry.get("name",""))
 		if name.is_empty(): continue
 		var goal: String="Ein historischer Erfolg des Resorts." if id<LEGACY_NAMES.size() else str(entry.goal)
-		results.append({"id":id,"title":name,"lead":HEADLINES[results.size()%HEADLINES.size()],"detail":goal})
+		var motif: int=posmod(id + int(model.day) + int(model.total_rides),HEADLINES.size())
+		var rubric: String=RUBRICS[posmod(id + int(model.day),RUBRICS.size())]
+		results.append({"id":id,"title":name,"lead":HEADLINES[motif],"detail":goal,
+			"rubric":rubric,"byline":"Die Redaktion · Tag %d" % int(model.day),
+			"summary":"%s · %d Abfahrten · %d Gäste insgesamt" % [str(Maps.spec(model.map_id).name),int(model.total_rides),int(model.total_guests)]})
 	return results
 
 static func sold(model: RefCounted) -> int:
@@ -45,6 +66,21 @@ static func sales(model: RefCounted) -> float:
 		if building.kind=="newsstand": total+=maxf(0.0,float(building.get("revenue",0.0)))
 	return total
 
+## Editorial ads are deterministic and based on actual registered station names.
+## No sponsorship revenue is invented by displaying an advertisement.
+static func radio_spots(model: RefCounted, count: int = 6) -> Array:
+	var keys: Array = Radio.GENRES.filter(func(id): return id != "off") + Radio.CONTEXT_STATIONS
+	var result: Array = []
+	var start: int = posmod(int(model.day)-1,keys.size())
+	for i in range(clampi(count,0,keys.size())):
+		var key: String=keys[(start+i)%keys.size()]
+		result.append({"id":key,"name":str(Radio.GENRE_NAMES.get(key,key)),
+			"copy":str(RADIO_CLAIMS.get(key,"Ein Klang für deinen Bergurlaub.")),
+			"external":key in Radio.EXTERNAL_STATIONS,
+			"exclusive":key in Radio.CONTEXT_STATIONS})
+	return result
+
 static func statistics(model: RefCounted) -> Dictionary:
-	return {"stands":model.building_count("newsstand"),"sold":sold(model),"revenue":sales(model),"edition":latest(model)}
+	return {"stands":model.building_count("newsstand"),"sold":sold(model),"revenue":sales(model),"edition":latest(model),
+		"district":str(Maps.spec(model.map_id).name),"ads":radio_spots(model),"issue":int(model.day)}
 

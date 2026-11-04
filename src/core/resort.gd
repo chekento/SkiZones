@@ -23,6 +23,7 @@ const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
+const TownHall = preload("res://src/core/town_hall.gd")
 const PisteFeatures = preload("res://src/core/piste_features.gd")
 const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Lodging = preload("res://src/core/guest_lodging.gd")
@@ -144,6 +145,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	_invalidate()
 	if map_id in Geo.IDS:
 		Geo.seed(self)
+		TownHall.ensure_new_town(self)
 		Ops.enable(self, map_id)
 		Progression.begin_day(self)
 		return
@@ -168,6 +170,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
 		campaign.mode = "career"
+	TownHall.ensure_new_town(self)
 	Progression.begin_day(self)
 
 func _reset_report() -> void:

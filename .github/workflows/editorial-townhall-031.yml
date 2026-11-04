@@ -1,0 +1,46 @@
+name: 0.31 editorial newspaper, Town Hall and November art QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: editorial31-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  editorial-scene:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import Godot scenes and verify source translations
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          python3 tools/check_localization.py
+      - name: Confirm municipal chronology, new-game town hall, dated posters and newspaper adverts
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/editorial_townhall_031.gd
+      - name: Install real renderer for theme color and screenshot checks
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Render newspaper and verify all radio adverts plus Android poster controls
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editorial-and-winter-poster-031
+          path: build/qa/*
+      - name: Verify nine visual styles retain original terrain geometry
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
+      - name: Verify historical save migration is still safe
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/achievement_progression.gd

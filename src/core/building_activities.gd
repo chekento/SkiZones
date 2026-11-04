@@ -6,6 +6,7 @@ const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const SectorCases = preload("res://src/core/sector_decisions.gd")
 const ACTIVITIES := {
+	"town_hall":{"title":"Rathaus-Sitzung","mode":"orders","hint":"Bearbeite den nächsten Bürgerantrag und sortiere die Unterlagen des Gemeinderats.","choices":["Bauakte","Bürgerantrag","Haushaltsplan","Sitzungsprotokoll"]},
 	"printing_press":{"title":"Druckerei-Schicht","mode":"orders","hint":"Bereite eine saubere Ausgabe für den Druck vor.","choices":["Papier","Druckplatte","Druckfarbe","Setzkasten"]},
 	"newsstand":{"title":"Zeitungsstand","mode":"orders","hint":"Stelle die gewünschte Zeitung für den Gast bereit.","choices":["ExtraBlatt","Bergwetter","Pistenjournal","Dorfleben"]},
 	"fitness":{"title":"Alpines Fitnessstudio","mode":"timing","hint":"Trainiere im gesunden Pulsbereich und betreue die Gäste.","choices":[]},

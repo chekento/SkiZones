@@ -46,7 +46,7 @@ func run() -> void:
 	check(is_equal_approx(Crew.progress(model,person),1.0),"Staff are shown at their real workplace during core working hours")
 	model.minute=1250
 	check(is_equal_approx(Crew.progress(model,person),0.0),"Off-duty employees return to housing presentation")
-	check(Styles.IDS.size()==6 and Styles.valid("piste_map")=="piste_map" and Styles.valid("alpine")=="alpine","New sixth relief-map style preserves five existing themes")
+	check(Styles.IDS.size()>=6 and Styles.valid("piste_map")=="piste_map" and Styles.valid("alpine")=="alpine","Relief-map style and five original themes remain available alongside new styles")
 	for kind in range(12,24):
 		var mesh:Mesh=Art.new().landscape_detail(kind,"piste_map")
 		check(mesh.get_surface_count()>0 and mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size()>6,"Themed new micro-prop %02d" % kind)

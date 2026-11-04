@@ -27,6 +27,7 @@ const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const WinterFestival = preload("res://src/ui/winter_festival.gd")
+const SeasonalPoster = preload("res://src/ui/seasonal_poster.gd")
 const MedalCabinet = preload("res://src/ui/medal_cabinet.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
@@ -51,6 +52,7 @@ var game: Node
 var root := Control.new()
 var achievement_overlay := AchievementToast.new()
 var winter_festival := WinterFestival.new()
+var seasonal_poster := SeasonalPoster.new()
 var medal_cabinet := MedalCabinet.new()
 var winter_group: VBoxContainer
 var winter_toolbar_button: Button
@@ -245,6 +247,8 @@ func setup(controller: Node) -> void:
 		scenarios.hide()
 	_build_credits()
 	_build_community()
+	root.add_child(seasonal_poster)
+	seasonal_poster.z_index=79
 	root.add_child(achievement_overlay)
 	achievement_overlay.z_index = 80
 	achievement_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -934,6 +938,7 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	seasonal_poster.hide()
 	building_browser.hide()
 	piste_workshop.close()
 	experience.close()
@@ -964,7 +969,7 @@ func blocks_map(point: Vector2) -> bool:
 	if jukebox.visible:return true
 	if medal_cabinet.visible: return true
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -1299,6 +1304,9 @@ func show_report() -> void:
 	var text_value := L.text("Winter %d · Tag %d / 28\n%d Tagesgäste · %d Abfahrten · %.0f %% Zufriedenheit\n\nTageskarten: %s €\nServices: %s €\nBetriebskosten: −%s €\nBetriebliches Ergebnis: %s €\n\nInvestitionen und Forschung: −%s €\nPrämien: %s €\nErgebnis nach Investitionen: %s €\nVerfügbares Budget: %s €\n\n%d Resort-Sterne · %d Forschungspunkte\n%s\n\nAufträge und Ausbauten findest du im Resort-Büro.\nAlle Gäste sind im Tal. Über Nacht werden die Pisten präpariert.") % L.args([Progression.season_number(game.model), Progression.season_day(game.model), report.guests, report.rides, satisfaction, money_text(report.tickets), money_text(report.services), money_text(report.costs), money_text(operating), money_text(report.get("investments", 0.0)), money_text(report.rewards), money_text(operating + report.rewards - report.get("investments", 0.0)), money_text(game.model.money), game.model.campaign.rank, game.model.campaign.points, Progression.notice_text(game.model.campaign)])
 	daily_dialog.open(text_value)
 
+
+func show_seasonal_poster() -> void:
+	seasonal_poster.open(game.preferences.visual_style)
 
 func _open_community_url(address: String) -> void:
 	# Only open the external destination following an explicit player action.

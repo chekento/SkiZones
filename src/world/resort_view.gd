@@ -28,6 +28,7 @@ const CinematicTour = preload("res://src/world/cinematic_tour.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
+const VillageDressing = preload("res://src/world/village_dressing.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
@@ -39,6 +40,7 @@ var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var festival_scene := FestivalScenery.new()
+var village_dressing := VillageDressing.new()
 var crew_life:=CrewLife.new()
 var _extra_clearings: Array = []
 var tour := CinematicTour.new()
@@ -829,6 +831,7 @@ func rebuild(progress: RefCounted = null) -> void:
 		progress.report(98.0, L.text("Wald und Landschaft gestalten …"))
 		await get_tree().process_frame
 	_build_hotel_connectors()
+	village_dressing.build(self)
 	_build_trees()
 	crew_life.build(self)
 	festival_scene.build(self)
@@ -1828,6 +1831,7 @@ func set_visual_style(id: String) -> void:
 	# placement remains deterministic and cleared of all player structures.
 	landscape_details.build(self)
 	_build_hotel_connectors()
+	village_dressing.build(self)
 	crew_life.build(self)
 	festival_scene.build(self)
 	# Printed piste atlas overlays: retain player-selected contours in every

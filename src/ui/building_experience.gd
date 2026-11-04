@@ -9,6 +9,11 @@ const Activities = preload("res://src/core/building_activities.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
+const TownHall = preload("res://src/core/town_hall.gd")
+const NewspaperArt = preload("res://src/ui/newspaper_art.gd")
+const AudioDesign = preload("res://src/core/audio_design.gd")
+const RadioAdArt = preload("res://src/ui/radio_ad_art.gd")
+const VisualStyles = preload("res://src/core/visual_styles.gd")
 const HotelStoryArt = preload("res://src/ui/hotel_story_art.gd")
 var hud: CanvasLayer
 var asset_id := -1
@@ -133,6 +138,10 @@ func _rebuild() -> void:
 	var building: Dictionary = model.asset(asset_id)
 	if building.is_empty(): close(); return
 	heading.text = L.asset_name(building)
+	if str(building.kind)=="town_hall":
+		_town_hall(building)
+		_activity(building)
+		return
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
 	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
@@ -145,27 +154,136 @@ func _rebuild() -> void:
 
 func _newspaper(building: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
-	var page:=_page(L.text("Alpen-ExtraBlatt"))
+	var page: VBoxContainer=_page(L.text("Alpen-ExtraBlatt"))
 	var edition: Dictionary=Newspaper.statistics(model)
-	var head:=_card(page,L.text("DAS ALPEN-EXTRABLATT"),L.text("Eine Dorfzeitung über echte Meilensteine deiner Karriere. Die letzten fünf Erfolge erscheinen als neue Ausgabe – ohne erfundene Erwerbsdaten."))
-	hud._label(head,L.text("Ausgabe: Betriebstag %d · %d Zeitungen verkauft · %s € Einnahmen") % [model.day,int(edition.sold),hud.money_text(float(edition.revenue))],17,hud.TEAL,true)
+	var style_name: String=VisualStyles.valid(hud.game.preferences.visual_style)
+	var palette: Dictionary=VisualStyles.ui_palette(style_name)
+	var accent: Color=Color(str(palette.accent))
+	var night: bool=style_name in ["neon_noir","aurora_ink"]
+	# The world accent can be pale gold; print ink needs contrast on cream paper.
+	if not night: accent=accent.darkened(0.48)
+	var ink: Color=Color("e9f7f4") if night else Color("303540")
+	var muted: Color=Color("b9d7df") if night else Color("695f56")
+	var paper: Color=Color("1d283e") if night else Color("faf2dd")
+	var headline_art:=NewspaperArt.new()
+	headline_art.setup(style_name,int(edition.issue),str(edition.district))
+	page.add_child(headline_art)
+	var intro:=PanelContainer.new()
+	intro.add_theme_stylebox_override("panel",hud._style(paper,3,16,accent))
+	page.add_child(intro)
+	var inside: VBoxContainer=hud._vbox(intro,7)
+	hud._label(inside,L.text("SONDERAUSGABE · NACHRICHTEN VOM BERG"),12,accent,true)
+	hud._label(inside,L.text("Betriebstag %d · %d verkaufte Zeitungen · %s € Kioskerlös") % [int(edition.issue),int(edition.sold),hud.money_text(float(edition.revenue))],15,ink,true)
+	hud._label(inside,L.text("Aus den echten Erfolgen und Betriebszahlen deines Skigebiets gesetzt. Die Redaktion erfindet keine Spielstände oder Verkaufsergebnisse."),14,muted,true)
 	if not Newspaper.press_available(model):
-		_card(page,L.text("Eine Dorfredaktion wird benötigt"),L.text("Baue zuerst eine Druckerei. Danach können Zeitungskioske Exemplare verkaufen."))
+		_card(page,L.text("Dorfredaktion noch geschlossen"),L.text("Mit einer eigenen Druckerei wird aus den erreichten Meilensteinen die nächste Ausgabe gedruckt."))
 		return
 	if building.kind=="newsstand":
-		_card(page,L.text("Dein Kiosk"),L.text("%d Zeitungen verkauft · %.0f € Umsatz an diesem Stand") % [int(building.get("visits",0)),float(building.get("revenue",0.0))])
+		_card(page,L.text("Zeitungskiosk · Einzelverkauf"),L.text("%d Zeitungen verkauft · %.0f € tatsächlicher Umsatz") % [int(building.get("visits",0)),float(building.get("revenue",0.0))])
 	var articles: Array=edition.edition
+	var front:=PanelContainer.new()
+	front.add_theme_stylebox_override("panel",hud._style(paper,3,14,accent))
+	page.add_child(front)
+	var columns:=GridContainer.new()
+	columns.columns=2 if get_viewport_rect().size.x >= 990.0 else 1
+	columns.add_theme_constant_override("h_separation",14)
+	columns.add_theme_constant_override("v_separation",10)
+	front.add_child(columns)
 	if articles.is_empty():
-		_card(page,L.text("Noch keine Schlagzeilen"),L.text("Sobald du das nächste Achievement erreichst, veröffentlicht deine Druckerei die erste Ausgabe."))
+		var note: VBoxContainer=hud._vbox(columns,9)
+		hud._label(note,L.text("NOCH KEIN GROSSES TITELTHEMA"),19,accent,true)
+		hud._label(note,L.text("Deine ersten Erfolge, Rennsiege und Meilensteine schreiben die nächste Ausgabe."),15,ink,true)
 	for article in articles:
 		var column:=PanelContainer.new()
-		column.add_theme_stylebox_override("panel",hud._style(Color("f9f1dd"),10,18,Color("d2c2a5")))
-		page.add_child(column)
-		var content: VBoxContainer=hud._vbox(column,8)
-		hud._label(content,L.text(str(article.lead)),13,Color("8a7158"),true)
-		hud._label(content,L.text(str(article.title)),25,Color("3e4345"),true)
-		hud._label(content,L.text("Die Redaktion berichtet: %s. Gäste und Personal verfolgen gemeinsam den Erfolg des Resorts.") % [L.text(str(article.detail))],16,Color("5c615e"),true)
-		hud._label(content,L.text("Alpen-ExtraBlatt · Achievement #%d") % int(article.id),12,Color("8a7158"),true)
+		column.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		column.add_theme_stylebox_override("panel",hud._style(paper,1,13,muted))
+		columns.add_child(column)
+		var content: VBoxContainer=hud._vbox(column,7)
+		hud._label(content,L.text(str(article.rubric))+" · "+L.text(str(article.lead)),12,accent,true)
+		hud._label(content,L.text(str(article.title)),25,ink,true)
+		var divide:=ColorRect.new()
+		divide.color=accent
+		divide.custom_minimum_size.y=2
+		divide.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		content.add_child(divide)
+		hud._label(content,L.text(str(article.detail)),17,ink,true)
+		hud._label(content,L.text("%s · %d Abfahrten · %d Gäste insgesamt") % [L.text(str(edition.district)),int(model.total_rides),int(model.total_guests)],13,muted,true)
+		hud._label(content,L.text("Die Redaktion · Tag %d") % int(model.day)+" · #"+str(article.id),12,muted,true)
+	hud._label(page,L.text("ANZEIGENTEIL · ALPINE RADIO"),19,accent,true)
+	hud._label(page,L.text("Unsere Sender für Piste, Hütte, Hotellobby, Snowpark und lange Winterabende. Jede Ausgabe setzt andere Programmtipps."),14,hud.MUTED,true)
+	var ads:=GridContainer.new()
+	ads.columns=2 if get_viewport_rect().size.x >= 990.0 else 1
+	ads.add_theme_constant_override("h_separation",12)
+	ads.add_theme_constant_override("v_separation",12)
+	page.add_child(ads)
+	for advert in edition.ads:
+		var panel:=PanelContainer.new()
+		panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		panel.add_theme_stylebox_override("panel",hud._style(paper,2,12,accent))
+		ads.add_child(panel)
+		var block: VBoxContainer=hud._vbox(panel,5)
+		var art:=RadioAdArt.new()
+		block.add_child(art)
+		art.set_station(str(advert.id),style_name)
+		hud._label(block,L.text(str(advert.name)).to_upper(),17,ink,true)
+		hud._label(block,L.text(str(advert.copy)),14,muted,true)
+		var condition:=L.text("Externes Künstleralbum · SoundCloud nur auf Klick") if bool(advert.external) else L.text("Exklusiv in der Hotelverwaltung") if bool(advert.exclusive) else L.text("Offline-Radio · CC0-Quellennachweise im Impressum")
+		hud._label(block,condition,12,accent,true)
+		hud._button(block,L.text("Sender im Radio ansehen"),_open_radio_ad.bind(str(advert.id)))
+
+
+func _open_radio_ad(station_id: String) -> void:
+	close()
+	hud.jukebox.open()
+	var index: int = AudioDesign.GENRES.find(station_id)
+	if index >= 0:
+		hud.jukebox.genre_choice.select(index)
+		hud.jukebox.genre_choice.item_selected.emit(index)
+
+func _town_hall(_building: Dictionary) -> void:
+	var style_name: String=VisualStyles.valid(hud.game.preferences.visual_style)
+	var colors: Dictionary=VisualStyles.ui_palette(style_name)
+	var accent: Color=Color(str(colors.accent))
+	var dark: bool=style_name in ["neon_noir","aurora_ink"]
+	var paper: Color=Color("182b3b") if dark else Color("fbf2dc")
+	var ink: Color=Color("e9f4f1") if dark else Color("344453")
+	var archive: VBoxContainer=_page(L.text("Rathaus · Stadtchronik"))
+	hud._label(archive,L.text("DAS BUCH DER WINTER"),28,accent,true)
+	hud._label(archive,L.text("Hier spricht das Rathaus: Unser Dorf führt Buch darüber, wie es von der ersten Android-Bergwelt zum lebendigen Skiresort gewachsen ist."),16,ink,true)
+	var museum:=PanelContainer.new()
+	museum.add_theme_stylebox_override("panel",hud._style(paper,5,13,accent))
+	archive.add_child(museum)
+	var mu: VBoxContainer=hud._vbox(museum,6)
+	hud._label(mu,L.text("BEGLAUBIGTES ARCHIV"),14,accent,true)
+	hud._label(mu,L.text("31 historisch veröffentlichte Versionen · älteste zuerst · aus unserem Gemeindeprotokoll."),14,ink,true)
+	hud._label(mu,L.text(TownHall.DEVELOPMENT_NOTICE),13,ink,true)
+	for event in TownHall.history(false):
+		var row:=PanelContainer.new()
+		row.add_theme_stylebox_override("panel",hud._style(paper,1,11,accent))
+		archive.add_child(row)
+		var inner: VBoxContainer=hud._vbox(row,5)
+		hud._label(inner,L.text("RATHAUSAKTE · VERSION %s · %s") % [str(event.version),str(event.date)],12,accent,true)
+		hud._label(inner,L.text(str(event.topic)),18,ink,true)
+		hud._label(inner,L.text(str(event.story)),15,ink,true)
+	var plans: VBoxContainer=_page(L.text("Rathaus · Bauplan bis Januar"))
+	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · 04.11.–04.01."),22,accent,true)
+	hud._label(plans,L.text("Das sind geplante Verbesserungen und keine bereits veröffentlichten Funktionen. Jede Bauphase enthält konkrete Freigabekriterien."),15,ink,true)
+	for phase in TownHall.roadmap():
+		var chapter:=PanelContainer.new()
+		chapter.add_theme_stylebox_override("panel",hud._style(paper,4,15,accent))
+		plans.add_child(chapter)
+		var details: VBoxContainer=hud._vbox(chapter,8)
+		hud._label(details,str(phase.phase),22,accent,true)
+		hud._label(details,L.text("%s bis %s") % [str(phase["from"]),str(phase["to"])],14,ink,true)
+		for entry in phase.deliverables:
+			hud._label(details,"• "+L.text(str(entry)),15,ink,true)
+		hud._label(details,L.text("Abnahmekriterium: ")+L.text(str(phase.acceptance)),13,accent,true)
+	var bulletin: VBoxContainer=_page(L.text("Rathaus · Bürgerinformation"))
+	hud._label(bulletin,L.text("STADTANZEIGER UND BÜRGERSERVICE"),22,accent,true)
+	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
+	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
+	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/releases"))
+	hud._label(bulletin,L.text("Bauprojekte der nächsten Versionen: neue Zeitungsdruckbilder, Weihnachtsplakate, KI-freie automatische Gebäudeübergänge, authentische lizenzierte Musik und bessere Qualität auf kleinen Telefonbildschirmen."),15,ink,true)
 
 func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))
