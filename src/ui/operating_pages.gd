@@ -106,7 +106,9 @@ static func add(office: Control) -> void:
 		# receive neutral default descriptors without changing their save.
 		var workplace: String=L.text("Reserve / Pausenvertretung")
 		for location in targets:
-			if location.key==person.assignment:workplace=str(location.name);break
+			if location.key==person.assignment:
+				workplace=str(location.name)
+				break
 		var specialty: String=str(person.get("specialty",L.text("Grundbetrieb & Teamroutine")))
 		var experience: int=int(person.get("experience",maxi(1,int(person.worked)/600)))
 		var staff_details: String=L.text("Einsatzort: ")+workplace+" · "+L.text("Schicht: ")+L.text(str(Ops.SHIFT_NAMES[person.shift]))
@@ -132,9 +134,17 @@ static func add(office: Control) -> void:
 	var max_page: int=maxi(1,ceili(market.size()/6.0))
 	office.candidate_page=clampi(office.candidate_page,0,max_page-1)
 	var nav:=HBoxContainer.new();applicants.add_child(nav)
-	hud._button(nav,L.text("Zurück"),func():office.candidate_page=maxi(0,office.candidate_page-1);office.refresh()).disabled=office.candidate_page==0
+	var previous_page: Button=hud._button(nav,L.text("Zurück"),func():
+		office.candidate_page=maxi(0,office.candidate_page-1)
+		office.refresh()
+	)
+	previous_page.disabled=office.candidate_page==0
 	hud._label(nav,L.text("Seite %d / %d") % [office.candidate_page+1,max_page],16,hud.TEAL)
-	hud._button(nav,L.text("Weiter"),func():office.candidate_page=mini(max_page-1,office.candidate_page+1);office.refresh()).disabled=office.candidate_page==max_page-1
+	var next_page: Button=hud._button(nav,L.text("Weiter"),func():
+		office.candidate_page=mini(max_page-1,office.candidate_page+1)
+		office.refresh()
+	)
+	next_page.disabled=office.candidate_page==max_page-1
 	var applicant_target:=_targets(applicants,targets)
 	var applicant_shift:=_shifts(applicants)
 	for applicant in market.slice(office.candidate_page*6,(office.candidate_page+1)*6):
