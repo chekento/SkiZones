@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/027-cc0-radio-library
+      - feature/027-cc0-radio-72
     paths:
       - assets/music/cc0/library.json
       - tools/import_cc0_radio.py
@@ -12,7 +13,7 @@ permissions:
 jobs:
   import:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
