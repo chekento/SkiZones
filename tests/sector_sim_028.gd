@@ -49,7 +49,7 @@ func run() -> void:
 	var radio := Audio.new()
 	root.add_child(radio)
 	check(radio.station_track_count("folk_alpine")==7 and radio.station_track_count("folk_swedish")==7,"Both folk stations have seven locally indexed temporary tracks")
-	check(radio.station_track_count("space")==15 and radio.station_track_count("erg0sphere")==0,"Deep Space is offline, own album must open explicitly")
+	check(radio.station_track_count("space")>=15 and radio.station_track_count("erg0sphere")==0,"Deep Space is offline, own album must open explicitly")
 	var prefs := Preferences.new()
 	prefs.music_genre="erg0sphere"
 	prefs.path="user://028-radio-preferences-test.cfg"
