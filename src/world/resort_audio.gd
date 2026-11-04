@@ -231,6 +231,19 @@ func set_genre(id: String, next_song: bool = false) -> void:
 	var primary:AudioStreamPlayer=players.get("music")
 	if primary==null:return
 	current_genre=wanted
+	# External album: no silent SoundCloud request, no unrelated local fallback.
+	# The player opens only from an explicit radio-button tap.
+	if wanted in Design.EXTERNAL_STATIONS:
+		primary.stop()
+		var external_standby: AudioStreamPlayer = players.get("music_alt")
+		if external_standby != null: external_standby.stop()
+		_retiring_music=null
+		_crossfade=1.0
+		_levels["music"]=0.0
+		current_track_title="ERG0SPHERE Journey · externen Player öffnen"
+		current_track_artist="KoSch"
+		current_mountain_moment="Originalalbum auf SoundCloud"
+		return
 	if wanted=="off":
 		current_track_title = ""
 		current_track_artist = ""
