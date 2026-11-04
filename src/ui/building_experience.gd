@@ -316,7 +316,10 @@ func _next_task() -> void:
 	picked.clear()
 	elapsed = 0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
-	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode == "hotel_story" else 32, hud.INK, true)
+	if task.mode == "decision":
+		hud._label(game_box,L.text("BETRIEBSSIMULATION · ") + L.text(str(task.get("metric","Entscheidungsqualität"))),16,hud.TEAL,true)
+		hud._label(game_box,L.text(str(task.get("context",""))),16,hud.MUTED,true)
+	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode in ["hotel_story","decision"] else 32, hud.INK, true)
 	if task.mode == "hotel_story":
 		hud._label(game_box,L.text(str(task.title)),22,hud.TEAL,true)
 		var story_art := HotelStoryArt.new()
@@ -381,6 +384,8 @@ func _submit(value: Variant) -> void:
 			hud._label(game_box,L.text("Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte") % [int(progress.level),int(progress.xp),int(progress.best)],20,hud.TEAL,true)
 		hud._button(game_box, L.text("Noch eine Runde"), _start_shift, true)
 	else:
+		if task.get("mode","") == "decision":
+			hud.toast(L.text("Betriebsentscheidung · %d / 100 · %s") % [int(result.get("score",0)),L.text(str(task.get("metric","Service")))])
 		_next_task()
 
 func _process(delta: float) -> void:
