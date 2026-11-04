@@ -359,6 +359,16 @@ func _update_responsive_layout(available_width: float) -> void:
 	# The wider desktop HUD has five KPIs and all shortcuts. Phone-sized
 	# viewports retain the critical stats and actions without overflowing.
 	compact_layout = available_width < 1160.0
+	# Keep the right-hand resort compass inside Android cutouts and narrow
+	# viewports. A larger right gutter avoids rounded-edge clipping.
+	if is_instance_valid(inspector_panel):
+		var compass_edge: float = 64.0 if compact_layout else 40.0
+		var compass_width: float = minf(280.0, maxf(160.0, available_width - compass_edge * 2.0))
+		inspector_panel.anchor_left = 1.0
+		inspector_panel.anchor_right = 1.0
+		inspector_panel.offset_left = -compass_edge - compass_width
+		inspector_panel.offset_right = -compass_edge
+		inspector_panel.custom_minimum_size.x = 0.0
 	for column in compact_header_columns:
 		column.visible = not compact_layout
 	for button in compact_camera_buttons:
