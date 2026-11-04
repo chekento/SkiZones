@@ -119,6 +119,12 @@ var _toast_until := 0.0
 var map_focus := false
 var map_focus_button: Button
 var slopes_button: Button
+var header_row: HBoxContainer
+var header_save_button: Button
+var header_menu_button: Button
+var header_guests_column: VBoxContainer
+var ultra_camera_buttons: Array = []
+var menu_panel: PanelContainer
 var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
 var inspector_collapsed := false
@@ -354,16 +360,46 @@ func _update_safe_area() -> void:
 	loading_margins.add_theme_constant_override("margin_right", 30 + roundi(size_value.x - content.end.x))
 	loading_margins.add_theme_constant_override("margin_bottom", 20 + roundi(size_value.y - content.end.y))
 	_update_responsive_layout(content.size.x)
+	if is_instance_valid(mission_panel): _apply_panel_visibility()
 
 func _update_responsive_layout(available_width: float) -> void:
 	# The wider desktop HUD has five KPIs and all shortcuts. Phone-sized
 	# viewports retain the critical stats and actions without overflowing.
 	compact_layout = available_width < 1160.0
+	var very_narrow: bool = available_width < 830.0
+	var micro: bool = available_width < 600.0
+	if is_instance_valid(header_row):
+		header_row.add_theme_constant_override("separation", 6 if micro else 10 if compact_layout else 28)
+	if is_instance_valid(header_guests_column): header_guests_column.visible = not micro
+	for action in [header_save_button,header_menu_button]:
+		if is_instance_valid(action):
+			action.custom_minimum_size.x = 42 if micro else 0
+			action.text = ("▣" if action == header_save_button else "☰") if micro else (L.text("Speichern") if action == header_save_button else L.text("Menü"))
+			action.tooltip_text = L.text("Speichern") if action == header_save_button else L.text("Menü")
+	for shortcut in ultra_camera_buttons:
+		if is_instance_valid(shortcut):
+			shortcut.visible = not very_narrow and (shortcut != winter_toolbar_button or AnnualFestival.visible(AnnualFestival.device_now()))
+	if is_instance_valid(menu_panel):
+		menu_panel.offset_left = 12 if very_narrow else 50
+		menu_panel.offset_right = minf(610.0,available_width-12.0)
+	if is_instance_valid(tools_panel):
+		tools_panel.offset_right = minf(316.0,maxf(184.0,available_width*0.37))
+	if is_instance_valid(plan_panel):
+		plan_panel.offset_left = minf(340.0,maxf(198.0,available_width*0.40))
+	if is_instance_valid(camera_panel):
+		var camera_width: float = minf(600.0,maxf(210.0,available_width - 24.0))
+		var camera_height: float = minf(490.0,maxf(190.0,root.size.y-20.0))
+		camera_panel.offset_left = -camera_width*0.5
+		camera_panel.offset_right = camera_width*0.5
+		camera_panel.offset_top = -camera_height*0.5
+		camera_panel.offset_bottom = camera_height*0.5
+	if is_instance_valid(cinema_overlay):
+		cinema_overlay.offset_right = minf(510.0,available_width-12.0)
 	# Keep the right-hand resort compass inside Android cutouts and narrow
 	# viewports. A larger right gutter avoids rounded-edge clipping.
 	if is_instance_valid(inspector_panel):
-		var compass_edge: float = 64.0 if compact_layout else 40.0
-		var compass_width: float = minf(280.0, maxf(160.0, available_width - compass_edge * 2.0))
+		var compass_edge: float = minf(64.0,maxf(10.0,available_width*0.045)) if compact_layout else 40.0
+		var compass_width: float = minf(280.0,maxf(92.0,available_width-compass_edge*2.0-10.0))
 		inspector_panel.anchor_left = 1.0
 		inspector_panel.anchor_right = 1.0
 		inspector_panel.offset_left = -compass_edge - compass_width
@@ -490,6 +526,7 @@ func _spacer(parent: Node, vertical: bool = true) -> Control:
 func _build_header() -> void:
 	var panel := _panel(root, 24, 20, -24, 96, 1)
 	var box := HBoxContainer.new()
+	header_row = box
 	box.add_theme_constant_override("separation", 28)
 	panel.add_child(box)
 	_brand_logo(box, 36)
@@ -497,10 +534,11 @@ func _build_header() -> void:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if item[0] in ["rep", "rides"]: compact_header_columns.append(column)
+		if item[0] == "guests": header_guests_column = column
 		_label(column, item[1], 12, MUTED)
 		labels[item[0]] = _label(column, "—", 22)
-	_button(box, L.text("Speichern"), game.save_game)
-	_button(box, L.text("Menü"), game.show_menu)
+	header_save_button = _button(box,L.text("Speichern"),game.save_game)
+	header_menu_button = _button(box,L.text("Menü"),game.show_menu)
 
 func _build_tools() -> void:
 	var panel := _panel(root, 24, 170, 316, -24, 0, 1)
@@ -624,12 +662,16 @@ func _build_camera_bar() -> void:
 	compact_camera_buttons.append(regions_button)
 	var development := _button(box, L.text("Resort-Büro"), show_management, true)
 	development.custom_minimum_size.y = 40
+	ultra_camera_buttons.append(development)
 	winter_toolbar_button=_button(box,L.text("Advent & Feste"),func(): winter_festival.open())
 	winter_toolbar_button.custom_minimum_size.y=40
 	winter_toolbar_button.visible=AnnualFestival.visible(AnnualFestival.device_now())
+	ultra_camera_buttons.append(winter_toolbar_button)
 	inspector_toggle_button = _button(box, L.text("Info ausblenden"), toggle_inspector)
 	inspector_toggle_button.custom_minimum_size.y = 40
-	_button(box, L.text("Kamera"), show_camera).custom_minimum_size.y = 40
+	var camera_shortcut := _button(box,L.text("Kamera"),show_camera)
+	camera_shortcut.custom_minimum_size.y=40
+	ultra_camera_buttons.append(camera_shortcut)
 	_button(box,L.text("♫ Radio"),show_radio).custom_minimum_size.y=40
 	slopes_button = _button(box, L.text("Gelände"), toggle_slopes)
 	slopes_button.custom_minimum_size.y = 40
@@ -642,6 +684,7 @@ func _build_camera_bar() -> void:
 		var speed_button := _button(box, "%d×" % speed, func(): game.set_speed(speed))
 		speed_button.tooltip_text = L.text("Kürzerer Skitag · gemütlicher Abend · Tempo im Menü einstellbar") if speed == 1 else L.text("Zeitraffer · vierfaches Tempo für Bau und Entwicklung")
 		speed_buttons.append(speed_button)
+		ultra_camera_buttons.append(speed_button)
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], [L.text("Tal"), func(): game.view.home()]]:
 		var button := _button(box, item[0], item[1])
 		button.custom_minimum_size = Vector2(48, 40)
@@ -768,13 +811,14 @@ func _apply_panel_visibility() -> void:
 	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
 	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
-	mission_panel.offset_left = 24 if map_focus else 340
-	mission_panel.offset_right = -24 if map_focus else -328
+	var center_narrow: bool = root.size.x < 940.0
+	mission_panel.offset_left = 24 if map_focus or center_narrow else 340
+	mission_panel.offset_right = -24 if map_focus or center_narrow else -328
 	# Keep a pending plan and its confirmation available in the wider map view.
 	plan_panel.visible = show_game and (not map_focus or current_tool != "inspect" or game.model.minute >= game.model.CLOSING)
 	slope_legend.visible = show_game and game.view.slopes_visible
-	slope_legend.offset_left = 24 if map_focus else 340
-	slope_legend.offset_right = -24 if map_focus else -328
+	slope_legend.offset_left = 24 if map_focus or center_narrow else 340
+	slope_legend.offset_right = -24 if map_focus or center_narrow else -328
 	slope_legend.offset_top = 256 if mission_panel.visible else 176
 	slope_legend.offset_bottom = 326 if mission_panel.visible else 246
 	style_framing.queue_redraw()
@@ -816,6 +860,7 @@ func _build_menu() -> void:
 	menu.add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel := _panel(menu, 50, 24, 610, -24, 0, 1)
+	menu_panel = panel
 	panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"), 20, 22))
 	var scroll := DragScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
