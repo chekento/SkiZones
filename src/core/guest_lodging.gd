@@ -93,7 +93,10 @@ static func night_route(model: RefCounted, guest: Dictionary, source: String) ->
 
 static func start_sleep(model: RefCounted, guest: Dictionary) -> void:
 	var current := Ops.clock(model)
-	var morning: int = ((int(model.day) - 1) if int(model.minute) < 420 else int(model.day)) * 1440 + 420
+	# Keep paid guests safely indoors until the actual ski-day opening.
+	# A fixed 07:00 wake-up caused hotel walkers to block the 08:00 night jump.
+	var opening: int = int(model.OPENING)
+	var morning: int = ((int(model.day) - 1) if int(model.minute) < opening else int(model.day)) * 1440 + opening
 	guest.hotel_sleep_until = maxi(current + 1, morning)
 	guest.phase = "waiting"
 	guest.waiting_reason = "hotel"
