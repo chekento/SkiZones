@@ -1158,7 +1158,7 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		marker.basis = Basis.looking_at(Vector3(-front.x, 0, -front.y), Vector3.UP)
 
 func _update_atmosphere() -> void:
-	var key := "%s-%d-%d-%d" % [model.map_id, model.day, model.minute, model.weather_index]
+	var key := "%s-%d-%d-%d-%s-%d-%s" % [model.map_id, model.day, model.minute, model.weather_index, visual_style, quality_tier, str(effects_enabled)]
 	if key == _atmosphere_tick:
 		return
 	_atmosphere_tick = key
@@ -1193,7 +1193,8 @@ func _update_atmosphere() -> void:
 	_snow.initial_velocity_min = 10.0 if weather_kind == 3 else 4.0
 	_snow.initial_velocity_max = 17.0 if weather_kind == 3 else 8.0
 	_snow.spread = 20.0 if weather_kind == 3 else 11.0
-	_snow.amount = [50,90,140][quality_tier] * (2 if weather_kind == 3 else 1) if weather_kind in [1,3] else [50,90,140][quality_tier]
+	var flake_budget: int = [50,90,140][quality_tier]
+	_snow.amount = flake_budget * (2 if weather_kind == 3 else 1)
 	_snow.emitting = effects_enabled and weather_kind in [1,3]
 	_snow.position = terrain.world(focus,130)
 
@@ -1906,7 +1907,7 @@ func _apply_quality() -> void:
 	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][quality_tier]
 	trace_budget = [700, 1200, 2000][quality_tier]
 	_sun.shadow_enabled = quality_tier > 0
-	var flakes: int = [50, 90, 140][quality_tier]
+	var flakes: int = [50, 90, 140][quality_tier] * (2 if model != null and int(model.weather_index) == 3 else 1)
 	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
