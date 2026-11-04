@@ -12,6 +12,7 @@ var music_slider:=HSlider.new()
 var ambience_slider:=HSlider.new()
 var area_label:=Label.new()
 var playing_label:=Label.new()
+var credits_label:=Label.new()
 var _now_playing_timer := 0.0
 var enabled := CheckButton.new()
 var master_slider := HSlider.new()
@@ -70,6 +71,12 @@ func setup(owner_hud: CanvasLayer) -> void:
 		_update_now_playing()
 	)
 	hud._label(page,L.text("CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert."),14,hud.MUTED,true)
+	hud._button(page,L.text("Musik-Credits anzeigen"),func(): _toggle_credits())
+	credits_label.visible=false
+	credits_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	credits_label.add_theme_font_size_override("font_size",14)
+	credits_label.add_theme_color_override("font_color",hud.MUTED)
+	page.add_child(credits_label)
 	hud._button(page,L.text("Jukebox-Einstellungen speichern"),func():
 		var prefs:RefCounted=hud.game.preferences
 		prefs.sound_enabled=enabled.button_pressed
@@ -126,3 +133,15 @@ func _update_now_playing() -> void:
 	playing_label.text = L.text("Jetzt läuft: ") + (track if not track.is_empty() else L.text("Musik aus"))
 	if not artist.is_empty():
 		playing_label.text += " · " + artist
+
+func _toggle_credits() -> void:
+	credits_label.visible = not credits_label.visible
+	if not credits_label.visible or hud == null or hud.game == null:
+		return
+	var records := PackedStringArray()
+	for station in Design.GENRES:
+		if station == "off":
+			continue
+		for song in hud.game.audio.track_credits(station):
+			records.append("%s · %s\n%s" % [str(song.get("title","")),str(song.get("artist","")),str(song.get("source_url",""))])
+	credits_label.text = "\n\n".join(records)
