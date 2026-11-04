@@ -43,7 +43,7 @@ func run() -> void:
 	check(Calendar.preview_poster(nov1) and Calendar.preview_poster(nov30),"Christmas campaign is visible from November 1 through November 30 inclusive")
 	check(not Calendar.valid_date(bad31) and not Calendar.preview_poster(bad31),"November 31 is always rejected")
 	check(not Calendar.preview_poster(dec1) and Calendar.unlocked(dec1,1) and not Calendar.unlocked(dec1,2),"December 1 removes posters and opens only Advent door one")
-	check(TownHall.HISTORY.size()>=32 and str(TownHall.HISTORY[0].version)=="0.1.1" and str(TownHall.HISTORY[-1].version)=="0.30.0","Published 0.30 hotfix is in the archive while 0.31 remains the current candidate")
+	check(TownHall.HISTORY.size()>=34 and str(TownHall.HISTORY[0].version)=="0.1.1" and str(TownHall.HISTORY[-1].version)=="0.32.0","Verified 0.31/0.32 releases are now in the read-only civic archive")
 	check(TownHall.ROADMAP.size()==4 and str(TownHall.ROADMAP[0]["from"])=="04.11.2026" and str(TownHall.ROADMAP[-1]["to"])=="04.01.2027","Two-month roadmap has four delivery/acceptance phases")
 	var roadmap_content := ""
 	for phase in TownHall.ROADMAP:
