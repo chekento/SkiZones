@@ -13,6 +13,10 @@ const MUSIC_TRACKS := {
 const SAMPLE_RATE := 12000
 const LOOP_SECONDS := 8
 const LAYERS := ["wind","crowd","machinery"]
+# Emergency audio hotfix: procedural FX can produce piercing high-frequency tones.
+# Never instantiate/play those three loops until proper recorded FX replace them.
+# Offline CC0 radio, real music tracks and their crossfades remain enabled.
+const AMBIENT_FX_ENABLED := false
 var scene: Node3D
 var preferences: RefCounted
 var players: Dictionary={}
@@ -54,9 +58,11 @@ func setup(resort_view: Node3D, prefs: RefCounted) -> void:
 	players["music_alt"]=alternate
 	players["music"].finished.connect(_on_music_finished.bind(players["music"]))
 	players["music_alt"].finished.connect(_on_music_finished.bind(players["music_alt"]))
-	for kind in LAYERS:
-		players[kind].stream=_create(kind)
-		players[kind].play()
+	# Synthetic wind, crowd and machinery are intentionally NOT started.
+	if AMBIENT_FX_ENABLED:
+		for kind in LAYERS:
+			players[kind].stream=_create(kind)
+			players[kind].play()
 	set_genre(str(preferences.music_genre))
 	sync()
 
@@ -125,7 +131,8 @@ func _create(mode: String) -> AudioStreamWAV:
 func _music_stream(id: String) -> AudioStream:
 	var track: AudioStream = MUSIC_TRACKS.get(id)
 	if track == null:
-		return _create(id)
+		# Do not fall back to piercing tone synthesis (e.g. freeride offline fallback).
+		track = MUSIC_TRACKS["alpine"]
 	if track is AudioStreamWAV:
 		var wav: AudioStreamWAV = track
 		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
@@ -286,7 +293,7 @@ func sync() -> void:
 	var music: float=clampf(float(chosen.music),0,1)*master
 	var profile: Dictionary=Design.SOUND_MIX.get(active_zone,Design.SOUND_MIX.wilderness)
 	for layer in LAYERS:
-		var target: float=ambient*float(profile.get(layer,0.0))
+		var target: float=ambient*float(profile.get(layer,0.0)) if AMBIENT_FX_ENABLED else 0.0
 		if layer=="crowd":target*=_crowd_gain
 		if layer=="machinery":target*=_machinery_gain
 		_targets[layer]=target
