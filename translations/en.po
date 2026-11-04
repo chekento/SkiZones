@@ -6713,4 +6713,27 @@ msgstr "Automatic Village Dressing (non-colliding)"
 msgid "Bildstil · neun Looks"
 msgstr "Visual Style · Nine Looks"
 
+# SkiZones 0.31 council activity
+msgid "Rathaus-Sitzung"
+msgstr "Town Hall Council Meeting"
+
+# SkiZones 0.31 council activity
+msgid "Bearbeite den nächsten Bürgerantrag und sortiere die Unterlagen des Gemeinderats."
+msgstr "Review a citizen request and sort the city council's documents."
+
+# SkiZones 0.31 council activity
+msgid "Bauakte"
+msgstr "Construction File"
+
+# SkiZones 0.31 council activity
+msgid "Bürgerantrag"
+msgstr "Citizen Request"
+
+# SkiZones 0.31 council activity
+msgid "Haushaltsplan"
+msgstr "Municipal Budget"
+
+# SkiZones 0.31 council activity
+msgid "Sitzungsprotokoll"
+msgstr "Meeting Minutes"
 
