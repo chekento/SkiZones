@@ -67,6 +67,24 @@ static func _kind(tags: Dictionary) -> String:
 ## Every NEW real-world scenario still needs the operational facilities
 ## required by its missions; never mutate an existing loaded player save.
 static func ensure_operations_facilities(model: RefCounted) -> void:
+	# Source geometry is immutable while the four starter facilities are
+	# placed. Build the broad-phase once, rather than unpacking every imported
+	# slope point again for each candidate lot (especially in Kitzbühel).
+	# The final 30 m segment-distance check is unchanged: no collision rule
+	# is relaxed, and previously saved scenarios are not modified.
+	var lift_stations: Array[Vector2] = []
+	for lift in model.lifts:
+		lift_stations.append(Terrain.unpack(lift.bottom))
+		lift_stations.append(Terrain.unpack(lift.top))
+	var piste_segments: Array[Dictionary] = []
+	for piste in model.pistes:
+		for i in range(1, piste.points.size()):
+			var a: Vector2 = Terrain.unpack(piste.points[i-1])
+			var b: Vector2 = Terrain.unpack(piste.points[i])
+			var left := minf(a.x,b.x)-30.0
+			var top := minf(a.y,b.y)-30.0
+			var bounds := Rect2(Vector2(left,top),Vector2(absf(b.x-a.x)+60.0,absf(b.y-a.y)+60.0))
+			piste_segments.append({"a":a,"b":b,"bounds":bounds})
 	for kind in ["maintenance","repair_office","first_aid","disco"]:
 		if model.buildings.any(func(b):return str(b.kind)==kind):continue
 		var placed := false
@@ -77,17 +95,16 @@ static func ensure_operations_facilities(model: RefCounted) -> void:
 				if not model.terrain.contains(at) or model.terrain.slope_percent(at)>40.0:continue
 				if model.buildings.any(func(b):return Terrain.unpack(b.point).distance_to(at)<50.0):continue
 				var blocked := false
-				for lift in model.lifts:
-					if at.distance_to(Terrain.unpack(lift.bottom))<60.0 or at.distance_to(Terrain.unpack(lift.top))<60.0:
+				for station in lift_stations:
+					if at.distance_to(station)<60.0:
 						blocked=true
 						break
 				if blocked:continue
-				for piste in model.pistes:
-					for i in range(1,piste.points.size()):
-						if Geometry2D.get_closest_point_to_segment(at,Terrain.unpack(piste.points[i-1]),Terrain.unpack(piste.points[i])).distance_to(at)<30.0:
-							blocked=true
-							break
-					if blocked:break
+				for segment in piste_segments:
+					if not segment.bounds.has_point(at):continue
+					if Geometry2D.get_closest_point_to_segment(at,segment.a,segment.b).distance_to(at)<30.0:
+						blocked=true
+						break
 				if blocked:continue
 				model.buildings.append({"id":model.next_id,"kind":kind,"point":Terrain.pack(at),"cost":Catalog.BUILDINGS[kind].cost,"enabled":true,"level":1,"upgrade_total":0.0,"name":Catalog.BUILDINGS[kind].name,"visits":0,"revenue":0.0,"rotation":0})
 				model.next_id+=1

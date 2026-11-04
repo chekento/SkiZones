@@ -1218,13 +1218,18 @@ func _process(delta: float) -> void:
 			continue
 		var clock: float = lift.get("clock", 0.0) + (simulation_fraction if model.lift_running(lift) else 0.0)
 		var changed: bool = not is_equal_approx(data.clock, clock)
+		var profile: Dictionary=model.cable_profile(lift) if changed else {}
+		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
+		var family: String=Fleet.family(lift)
 		for carrier in range(data.poses.size()):
 			if changed:
-				data.poses[carrier] = model.carrier_pose(lift, carrier, simulation_fraction)
+				# Opening state, cable geometry and schedule are constant across
+				# this lift's vehicles during one frame. Evaluate them once.
+				data.poses[carrier] = Fleet.pose(terrain,lift,profile,clock,carrier,schedule)
 				data.node.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
 				if data.glass != null:
 					data.glass.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
-			if Fleet.family(lift) == "drag":
+			if family == "drag":
 				var rope: Dictionary=TowRope.frame(terrain,data.poses[carrier],occupied.has(Vector2i(int(lift.id),carrier)),clock)
 				data.node.multimesh.set_instance_transform(carrier,rope.transform)
 				for segment in range(2):
