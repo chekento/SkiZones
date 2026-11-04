@@ -255,7 +255,7 @@ func _town_hall(_building: Dictionary) -> void:
 	archive.add_child(museum)
 	var mu: VBoxContainer=hud._vbox(museum,6)
 	hud._label(mu,L.text("BEGLAUBIGTES ARCHIV"),14,accent,true)
-	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.30.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
+	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
 	hud._label(mu,L.text(TownHall.DEVELOPMENT_NOTICE),13,ink,true)
 	for event in TownHall.history(false):
 		var row:=PanelContainer.new()
