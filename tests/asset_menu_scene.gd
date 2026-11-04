@@ -102,9 +102,12 @@ func run() -> void:
 		button(menu,"Anlage ausbauen").pressed.emit()
 		check(int(food.level)==level+1,kind+" upgrades itself instead of redirecting to the resort office")
 		if kind=="pizzeria":await capture("village-food-0180")
-	menu.tabs.current_tab=1;root.size=Vector2i(960,540)
-	for frame in range(4):await process_frame
-	check(root.get_visible_rect().encloses(menu.get_global_rect()) and menu.stations.columns==1,"The building dialog remains inside a small landscape screen with one staff column")
+	menu.tabs.current_tab=1
+	for screen in [Vector2i(960,540),Vector2i(560,360),Vector2i(1440,900),Vector2i(960,540)]:
+		root.size=screen
+		for frame in range(4):await process_frame
+		var expected_columns: int=3 if screen.x>=1440 else 1
+		check(root.get_visible_rect().encloses(menu.get_global_rect()) and menu.stations.columns==expected_columns,"The building dialog and staff columns adapt to actual screen "+str(screen))
 	game.apply_language("en");game.hud.lift_staff.open(int(game.model.buildings[-1].id));menu=game.hud.lift_staff
 	check(texts(menu).contains("BUILDING & TEAM") and texts(menu).contains("Operations") and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
 	menu.hide();game.paused=true

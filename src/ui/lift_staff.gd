@@ -19,9 +19,10 @@ func setup(interface: CanvasLayer) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	offset_left=42;offset_right=-42;offset_top=116;offset_bottom=-24
 	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),18,20))
-	# Anchor layout follows the viewport notification. Use the panel's final
-	# width so a landscape resize cannot retain the previous column count.
+	# Reflow both when the window changes and after the anchored panel settles.
 	resized.connect(func():
+		if is_instance_valid(stations):stations.columns=_columns())
+	get_viewport().size_changed.connect(func():
 		if is_instance_valid(stations):stations.columns=_columns())
 	body=hud._vbox(self,10)
 	var header:=HBoxContainer.new();body.add_child(header)
@@ -179,7 +180,14 @@ func _parts(parent: Node) -> void:
 	if model.operations.delivery_at>=0:hud._label(box,L.text("Ersatzteillieferung in %d Minuten") % maxi(0,int(model.operations.delivery_at)-Ops.clock(model)),16)
 	_button(box,L.text("6 Ersatzteilpakete bestellen · 1.800 €"),func():return Ops.order_parts(model),model.operations.delivery_at<0 and model.money>=1800)
 func _columns() -> int:
-	var available: float = size.x if size.x > 0 else get_viewport_rect().size.x
+	# Existing grid minimums can keep the panel wider than its new viewport.
+	# Clamp to the requested anchor width first, breaking that layout cycle.
+	var viewport_width: float = get_viewport_rect().size.x
+	var requested: float = maxf(0.0,viewport_width-offset_left+offset_right)
+	var logical_width: float = minf(size.x,requested) if size.x > 0 else requested
+	# canvas_items keeps a large logical canvas on a small phone. Column
+	# density must follow the actual screen area occupied by this panel.
+	var available: float = logical_width*float(get_window().size.x)/maxf(1.0,viewport_width)
 	return 3 if available >= 1270 else 2 if available >= 970 else 1
 func _team_details(parent: Node, key: String) -> VBoxContainer:
 	var details: VBoxContainer=hud._vbox(parent,8)
@@ -276,4 +284,3 @@ func refresh_status() -> void:
 		summary.text=L.text("%s · %d / %d im Dienst · %d / %d Abschnitte in Betrieb") % [L.asset_name(item),present,needed,parts.filter(func(p):return model.lift_open(p)).size(),parts.size()]
 	elif Catalog.BUILDINGS.has(item.get("kind","")):
 		summary.text=L.asset_name(item)+" · "+(L.text("Betriebsbereit") if Ops.building_open(model,item) else L.text("Geschlossen oder Personal fehlt"))
-
