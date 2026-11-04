@@ -6000,3 +6000,83 @@ msgstr "KoSch"
 msgid "Originalalbum auf SoundCloud"
 msgstr "Original album on SoundCloud"
 
+# SkiZones 0.29
+msgid "Deep Atmospherics · Wolken & Sterne"
+msgstr "Deep Atmospherics · Clouds & Stars"
+
+# SkiZones 0.29
+msgid "Mountain Sunrise · Goldene Gipfel"
+msgstr "Mountain Sunrise · Golden Peaks"
+
+# SkiZones 0.29
+msgid "Lodge Lo-Fi · Kamin & Schnee"
+msgstr "Lodge Lo-Fi · Fireplace & Snow"
+
+# SkiZones 0.29
+msgid "KoSch Milton · Ska'radise Lost (SoundCloud)"
+msgstr "KoSch Milton · Ska'radise Lost (SoundCloud)"
+
+# SkiZones 0.29
+msgid "Hotel Lobby FM · Alpen-Lounge"
+msgstr "Hotel Lobby FM · Alpine Lounge"
+
+# SkiZones 0.29
+msgid "ERG0SPHERE Journey"
+msgstr "ERG0SPHERE Journey"
+
+# SkiZones 0.29
+msgid "KoSch Milton - Ska'radise Lost"
+msgstr "KoSch Milton - Ska'radise Lost"
+
+# SkiZones 0.29
+msgid "Originalalbum · SoundCloud nur nach Klick"
+msgstr "Original album · SoundCloud only on demand"
+
+# SkiZones 0.29
+msgid "HOTEL LOBBY FM · Lounge-Musik während der Hotelverwaltung"
+msgstr "HOTEL LOBBY FM · Lounge music while managing the hotel"
+
+# SkiZones 0.29
+msgid "Offline-Musik mit dokumentierten CC0-Quellen. Eigene Alben auf SoundCloud werden ausschließlich nach ausdrücklichem Klick geöffnet."
+msgstr "Offline music with documented CC0 sources. Personal SoundCloud albums open only when you explicitly choose to play them."
+
+# SkiZones 0.29
+msgid "KoSch Milton · Ska'radise Lost auf SoundCloud öffnen"
+msgstr "KoSch Milton · Open Ska'radise Lost on SoundCloud"
+
+# SkiZones 0.29
+msgid "Ska-Album konnte nicht geöffnet werden."
+msgstr "Could not open the Ska album."
+
+# SkiZones 0.29
+msgid "Hotelverwaltung · Lobby-Radio ist nur vorübergehend aktiv."
+msgstr "Hotel management · Lobby radio is only temporarily active."
+
+# SkiZones 0.29
+msgid "KoSch Milton · Ska'radise Lost · Eigenes Album"
+msgstr "KoSch Milton · Ska'radise Lost · Original Album"
+
+# SkiZones 0.29
+msgid "SoundCloud wird nur nach deinem Klick im Browser geladen."
+msgstr "SoundCloud loads in the browser only after your tap."
+
+# SkiZones 0.29
+msgid "Deep atmospheric · 15 CC0-Titel auf Länge und Stimmung zu prüfen (Ziel 3–7 Min.)."
+msgstr "Deep atmospheric · 15 CC0 entries awaiting duration and mood QA (target 3–7 min)."
+
+# SkiZones 0.29
+msgid "Hotel Lobby FM wird automatisch nur in der Hotelverwaltung verwendet."
+msgstr "Hotel Lobby FM plays automatically only in the hotel management screen."
+
+# SkiZones 0.29
+msgid "✦  MASTERY LEVEL"
+msgstr "✦  MASTERY LEVEL"
+
+# SkiZones 0.29
+msgid "✦  ACHIEVEMENT UNLOCKED"
+msgstr "✦  ACHIEVEMENT UNLOCKED"
+
+# SkiZones 0.29
+msgid "+%d €"
+msgstr "+%d €"
+
