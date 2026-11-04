@@ -31,6 +31,9 @@ var current_mountain_moment := ""
 var _cc0_loaded := false
 var _cc0_stations: Dictionary = {}
 var _song_positions: Dictionary = {}
+var _song_orders: Dictionary = {}
+var _station_cycles: Dictionary = {}
+var _last_record_id := ""
 var active := true
 var preview_settings: Dictionary = {}
 var _targets: Dictionary = {}
@@ -181,6 +184,26 @@ func track_credits(id: String) -> Array:
 func now_playing() -> Dictionary:
 	return {"genre": current_genre, "context":context_station,"title": current_track_title, "artist": current_track_artist, "moment":current_mountain_moment}
 
+## Shuffle-bag selection: a station plays each of its documented recordings
+## before reshuffling, with no immediate identical song on station switches.
+func _shuffle_order(id: String, entries: Array, avoid: String = "") -> Array:
+	var order: Array=[]
+	for i in range(entries.size()):order.append(i)
+	var rng:=RandomNumberGenerator.new()
+	var cycle: int=int(_station_cycles.get(id,0))
+	rng.seed=abs(int(id.hash())+Time.get_ticks_msec()+cycle*7919)
+	for i in range(order.size()-1,0,-1):
+		var at: int=rng.randi_range(0,i)
+		var swap: Variant=order[i]
+		order[i]=order[at]
+		order[at]=swap
+	if order.size()>1 and str(entries[int(order[0])].get("id",""))==avoid:
+		var swap: Variant=order[0]
+		order[0]=order[1]
+		order[1]=swap
+	_station_cycles[id]=cycle+1
+	return order
+
 func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 	_load_cc0_library()
 	var entries: Array = _cc0_stations.get(id, [])
@@ -189,21 +212,34 @@ func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 		current_track_artist = ""
 		current_mountain_moment = ""
 		return _music_stream(id)
-	var index: int = int(_song_positions.get(id, 0))
-	if advance:
-		index = (index + 1) % entries.size()
-	_song_positions[id] = index
-	var record: Dictionary = entries[index]
-	var music: AudioStream = load(str(record.get("file", ""))) as AudioStream
-	if music == null:
-		return _music_stream(id)
-	# The player advances to the next real song; a short two-player crossfade
-	# begins before end of song, rather than hard-looping a single track.
-	if music is AudioStreamOggVorbis:
-		(music as AudioStreamOggVorbis).loop = false
-	current_track_title = str(record.get("title", id))
-	current_track_artist = str(record.get("artist", ""))
-	current_mountain_moment = str(record.get("mountain_moment", ""))
+	var order: Array=_song_orders.get(id,[])
+	var cursor: int=int(_song_positions.get(id,-1))
+	if order.size()!=entries.size():
+		order=_shuffle_order(id,entries,_last_record_id)
+		_song_orders[id]=order
+		cursor=-1
+	if advance or cursor<0:cursor+=1
+	if cursor>=order.size():
+		order=_shuffle_order(id,entries,_last_record_id)
+		_song_orders[id]=order
+		cursor=0
+	var record: Dictionary=entries[int(order[cursor])]
+	if record.get("id","")==_last_record_id and order.size()>1:
+		# Skip only this position; the skipped song is still in the bag and
+		# will play on the next completed cycle.
+		var following: int=(cursor+1)%order.size()
+		var swap: Variant=order[cursor]
+		order[cursor]=order[following]
+		order[following]=swap
+		record=entries[int(order[cursor])]
+	_song_positions[id]=cursor
+	_last_record_id=str(record.get("id",""))
+	var music: AudioStream=load(str(record.get("file",""))) as AudioStream
+	if music==null:return _music_stream(id)
+	if music is AudioStreamOggVorbis:(music as AudioStreamOggVorbis).loop=false
+	current_track_title=str(record.get("title",id))
+	current_track_artist=str(record.get("artist",""))
+	current_mountain_moment=str(record.get("mountain_moment",""))
 	return music
 
 func next_track() -> void:
@@ -229,6 +265,7 @@ func _maybe_advance_song() -> void:
 func set_genre(id: String, next_song: bool = false) -> void:
 	var wanted:String=Design.genre_valid(id)
 	if current_genre==wanted and not next_song and (wanted=="off" or (players.has("music") and players.music.playing)):return
+	var station_changed: bool = wanted!=current_genre
 	var primary:AudioStreamPlayer=players.get("music")
 	if primary==null:return
 	current_genre=wanted
@@ -269,7 +306,7 @@ func set_genre(id: String, next_song: bool = false) -> void:
 		if alternate!=null:alternate.stop()
 		_retiring_music=null
 	_crossfade=0.0
-	primary.stream=_radio_stream(wanted, next_song)
+	primary.stream=_radio_stream(wanted, next_song or station_changed)
 	primary.volume_db=-60.0
 	primary.play()
 	primary.stream_paused=not active

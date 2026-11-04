@@ -1,6 +1,8 @@
 extends RefCounted
 ## Non-persistent presentation for employed resort workers. Actual roster,
 ## shifts, repair incidents and groomer tasks remain sourced from Operations.
+const Assets=preload("res://src/world/style_assets.gd")
+const Lines=preload("res://src/world/line_art.gd")
 const Ops=preload("res://src/core/operations.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
@@ -61,6 +63,13 @@ static func progress(model: RefCounted, staff: Dictionary) -> float:
 	return 1.0
 
 static func human_mesh(style: String) -> ArrayMesh:
+	if style=="monochrome":
+		var lines:=Lines.new();lines.circle(Vector3(0,3.3,0),.6)
+		lines.line(Vector3(0,1.3,0),Vector3(0,2.7,0))
+		for side in [-1,1]:
+			lines.line(Vector3(0,1.3,0),Vector3(side*.6,0,0))
+			lines.line(Vector3(0,2.3,0),Vector3(side*1,1.6,0))
+		return lines.finish()
 	var art:=Art.new()
 	var tint:Dictionary=Styles.detail_tints(style)
 	var coat:=Color(str(tint.metal))
@@ -74,6 +83,10 @@ static func human_mesh(style: String) -> ArrayMesh:
 	return art.finish()
 
 static func rescue_mesh(style: String) -> ArrayMesh:
+	if style=="monochrome":
+		var lines:=Lines.new();lines.box(Vector3(0,1,0),Vector3(4,2,8))
+		for side in [-1,1]:lines.line(Vector3(side*2,.1,-5),Vector3(side*2,.1,5))
+		return lines.finish()
 	var art:=Art.new()
 	var color:=Color("dd6c70") if style!="piste_map" else Color("c0504b")
 	art.box(Vector3(0,1.1,0),Vector3(4.2,1.3,8.0),color)
@@ -86,6 +99,7 @@ static func rescue_mesh(style: String) -> ArrayMesh:
 	return art.finish()
 
 static func lodge_mesh(style: String) -> ArrayMesh:
+	if style!="alpine":return Assets.building("hotel",1,Color(str(Styles.detail_tints(style).wood)),style)
 	var art:=Art.new()
 	var p:Dictionary=Styles.detail_tints(style)
 	var wood:=Color(str(p.wood))
@@ -209,4 +223,5 @@ func update(view: Node3D,delta: float) -> void:
 		emergency_mesh.multimesh.set_instance_color(rescue_count,Color.WHITE)
 		rescue_count+=1
 	emergency_mesh.multimesh.visible_instance_count=rescue_count
+
 

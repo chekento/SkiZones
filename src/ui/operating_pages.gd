@@ -1,6 +1,7 @@
 extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Ops = preload("res://src/core/operations.gd")
+const Recruitment = preload("res://src/core/recruitment.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 
 static func add(office: Control) -> void:
@@ -12,7 +13,10 @@ static func add(office: Control) -> void:
 		var scenario: String = model.operations.scenario
 		var goals := Ops.evaluate(model)
 		var card: VBoxContainer = office._card(page, L.text("Szenarioziele") + (" ✓" if model.operations.completed else ""), L.text("Alle Ziele erfüllen: 75.000 € und 30 Forschungspunkte. Der Betrieb geht anschließend weiter."))
-		for i in range(goals.size()): hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
+		for i in range(goals.size()):
+			hud._label(card, ("✓ " if goals[i] else "○ ") + L.text(Ops.GOALS[scenario][i]), 18, hud.TEAL if goals[i] else hud.INK, true)
+			if not goals[i]:
+				hud._label(card,"   ↳ "+L.text(Ops.GOAL_TIPS[scenario][i]),15,hud.MUTED,true)
 	var summary: VBoxContainer = office._card(page, L.text("24-Stunden-Resort"), L.text("Lifte 08–17 Uhr. Hotels und Abendangebote haben eigene Schichten. Um Mitternacht wird automatisch abgerechnet; die Simulation läuft weiter."))
 	hud._label(summary, L.text("Heute: %s € Personalkosten · Ersatzteile: %d · Pistenraupen: %d") % [hud.money_text(model.operations.payroll), int(model.operations.parts), model.operations.vehicles.size()], 18, hud.TEAL, true)
 	hud._label(summary, L.text("Gäste pro sichtbarer Reisegruppe: %d. Tickets, Kapazitäten und Erlöse berücksichtigen die Gruppengröße.") % Ops.group_size(model), 16, hud.MUTED, true)
@@ -98,6 +102,18 @@ static func add(office: Control) -> void:
 	).disabled = office.staff_page == pages - 1
 	for person in filtered.slice(office.staff_page * 12, (office.staff_page + 1) * 12):
 		var body: VBoxContainer = office._card(people, "%s · %s" % [person.name, L.text(Ops.ROLES[person.role].name)], L.text("%.0f €/h · Qualifikation %d · Motivation %.0f %% · Belastung %.0f %% · %d Arbeitsminuten") % [float(person.wage), int(person.qualification), float(person.motivation), float(person.fatigue), int(person.worked)])
+		# The full employee dossier survives reload; old pre-roster employees
+		# receive neutral default descriptors without changing their save.
+		var workplace: String=L.text("Reserve / Pausenvertretung")
+		for place_option in targets:
+			if place_option.key==person.assignment:
+				workplace=str(place_option.name)
+				break
+		var specialty: String=str(person.get("specialty",L.text("Grundbetrieb & Teamroutine")))
+		var experience: int=int(person.get("experience",maxi(1,int(person.worked)/600)))
+		var staff_details: String=L.text("Einsatzort: ")+workplace+" · "+L.text("Schicht: ")+L.text(str(Ops.SHIFT_NAMES[person.shift]))
+		hud._label(body,staff_details,15,hud.MUTED,true)
+		hud._label(body,L.text("Profil: ")+L.text(specialty)+" · "+L.text("%d Jahre Erfahrung") % experience+" · "+L.text("Personal-ID %d") % int(person.id),15,hud.TEAL,true)
 		hud._label(body, L.text("Im Dienst") if Ops.on_duty(model, person) else L.text("Außer Dienst / Pause / Abwesenheit"), 16, hud.TEAL)
 		var target := _targets(body, targets)
 		for i in range(targets.size()):
@@ -112,6 +128,33 @@ static func add(office: Control) -> void:
 			return model._result(true, L.text("Pause eingetragen. Eine Vertretung kann im Personalplan zugewiesen werden."))
 		)
 		office._action(body, L.text("Mitarbeiter freistellen"), func(): return Ops.dismiss(model, int(person.id)))
+	var applicants: VBoxContainer=office._page(L.text("Bewerbermarkt"))
+	office._card(applicants,L.text("Bewerber, Steckbriefe & Freischaltungen"),L.text("Jede Person ist einmalig verfügbar. Fachkräfte werden durch passende Gebäude und zusätzliche Qualifikationen freigeschaltet. Bereits bestehendes Personal bleibt unberührt."))
+	var market: Array=Recruitment.market(model)
+	var max_page: int=maxi(1,ceili(market.size()/6.0))
+	office.candidate_page=clampi(office.candidate_page,0,max_page-1)
+	var nav:=HBoxContainer.new();applicants.add_child(nav)
+	var previous_page: Button=hud._button(nav,L.text("Zurück"),func():
+		office.candidate_page=maxi(0,office.candidate_page-1)
+		office.refresh()
+	)
+	previous_page.disabled=office.candidate_page==0
+	hud._label(nav,L.text("Seite %d / %d") % [office.candidate_page+1,max_page],16,hud.TEAL)
+	var next_page: Button=hud._button(nav,L.text("Weiter"),func():
+		office.candidate_page=mini(max_page-1,office.candidate_page+1)
+		office.refresh()
+	)
+	next_page.disabled=office.candidate_page==max_page-1
+	var applicant_target:=_targets(applicants,targets)
+	var applicant_shift:=_shifts(applicants)
+	for applicant in market.slice(office.candidate_page*6,(office.candidate_page+1)*6):
+		var detail: String=L.text(Ops.ROLES[applicant.role].name)+" · "+L.text("Qualifikation %d") % int(applicant.qualification)+" · "+L.text("%d Jahre Erfahrung") % int(applicant.experience)+" · "+L.text("Motivation %.0f %%") % float(applicant.motivation)
+		var profile: VBoxContainer=office._card(applicants,str(applicant.name),detail)
+		hud._label(profile,L.text("Stärke: ")+L.text(str(applicant.specialty))+" · "+hud.money_text(applicant.fee)+" € "+L.text("Einstellungskosten"),16,hud.TEAL,true)
+		if applicant.available:
+			office._action(profile,L.text("Einstellen"),func():return Recruitment.hire_candidate(model,str(applicant.id),str(targets[applicant_target.selected].key),str(Ops.SHIFTS.keys()[applicant_shift.selected])))
+		else:
+			hud._label(profile,L.text("Noch gesperrt: ")+L.text(str(applicant.reason)),16,hud.ACCENT,true)
 	var services: VBoxContainer = office._page(L.text("Technik & Rettung"))
 	for building in model.buildings:
 		var body: VBoxContainer = office._card(services, L.asset_name(building), L.text("Betriebsbereit") if Ops.building_open(model, building) else L.text("Geschlossen oder Personal fehlt"))
@@ -124,7 +167,10 @@ static func add(office: Control) -> void:
 			hud.lift_staff.open(int(building.id))
 		, true)
 		office._action(body, L.text("Gebäudeteam einstellen"), func(): return Ops.fill_building(model, int(building.id)))
-		if building.kind == "maintenance": office._action(body, L.text("Pistenraupe kaufen · 65.000 €"), func(): return Ops.buy_groomer(model, int(building.id)))
+		if building.kind == "maintenance":
+			office._action(body, L.text("Pistenraupe kaufen · 65.000 €"), func(): return Ops.buy_groomer(model, int(building.id)),model.money>=65000)
+			office._action(body, L.text("Drei Pistenraupen kaufen · 195.000 €"), func(): return Ops.buy_groomers(model, int(building.id),3),model.money>=195000 and model.operations.vehicles.size()<=21)
+			office._action(body, L.text("Zusätzlichen Pistenraupenfahrer einstellen · 180 €"), func(): return Ops.hire(model,"driver","building:%d" % int(building.id),"evening"),model.money>=180)
 		if building.kind == "first_aid": hud._label(body, L.text("Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter.") % (1800 * int(building.get("level", 1))), 16, hud.TEAL, true)
 	for vehicle in model.operations.vehicles:
 		var body: VBoxContainer = office._card(services, L.text("Pistenraupe %d") % int(vehicle.id), L.text("%.1f Betriebsstunden · %.0f %% Energie · %.0f %% Verschleiß") % [float(vehicle.hours), float(vehicle.fuel), float(vehicle.wear)])

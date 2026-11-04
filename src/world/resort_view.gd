@@ -8,6 +8,8 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
+const StyleAssets = preload("res://src/world/style_assets.gd")
+const LineArt = preload("res://src/world/line_art.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
@@ -135,6 +137,9 @@ var _guest_tick := ""
 var _queue_paths: Dictionary = {}
 var _visual_minute := 480.0
 var _atmosphere_tick := ""
+var _ink_layer := CanvasLayer.new()
+var _ink_filter := ColorRect.new()
+var _ink_material := StandardMaterial3D.new()
 var _solid: StandardMaterial3D
 var _people_material := ShaderMaterial.new()
 var _vehicles: Dictionary = {}
@@ -235,6 +240,17 @@ func _material(color: Color, vertex_color: bool = false) -> StandardMaterial3D:
 	return material
 
 func _build_environment() -> void:
+	_ink_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ink_material.vertex_color_use_as_albedo=true
+	_ink_layer.layer=120
+	add_child(_ink_layer)
+	_ink_layer.add_child(_ink_filter)
+	_ink_filter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_ink_filter.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var ink_shader:=ShaderMaterial.new()
+	ink_shader.shader=preload("res://src/shaders/monochrome.gdshader")
+	_ink_filter.material=ink_shader
+	_ink_layer.visible=visual_style=="monochrome"
 	_sun.rotation_degrees = Vector3(-48, -35, 0)
 	_sun.light_color = Color("fff0da")
 	_sun.light_energy = 0.76
@@ -539,16 +555,24 @@ func _build_topography() -> void:
 func _mesh(parent: Node3D, mesh: Mesh, position_value: Vector3, color: Color) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
+	instance.set_meta("presentation_source",mesh)
+	if visual_style=="monochrome" and mesh.get_surface_count()>0:
+		instance.mesh=mesh if mesh is ArrayMesh and mesh.surface_get_primitive_type(0)==Mesh.PRIMITIVE_LINES else LineArt.bounds_model(mesh)
 	instance.position = position_value
 	instance.material_override = _material(color)
+	instance.set_meta("presentation_material",instance.material_override)
 	parent.add_child(instance)
 	return instance
 
 func _baked(parent: Node3D, mesh: Mesh, position_value: Vector3) -> MeshInstance3D:
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
+	instance.set_meta("presentation_source",mesh)
+	if visual_style=="monochrome" and mesh.get_surface_count()>0:
+		instance.mesh=mesh if mesh is ArrayMesh and mesh.surface_get_primitive_type(0)==Mesh.PRIMITIVE_LINES else LineArt.bounds_model(mesh)
 	instance.position = position_value
-	instance.material_override = _solid
+	instance.material_override = _ink_material if visual_style=="monochrome" else _solid
+	instance.set_meta("presentation_material",_solid)
 	parent.add_child(instance)
 	return instance
 
@@ -944,6 +968,7 @@ func _build_lift(lift: Dictionary) -> void:
 		for point in [bottom, top]:
 			var instance := _baked(asset_root, station_mesh, terrain.world(point))
 			instance.rotation.y = angle
+			instance.set_meta("styled_station",int(lift.id))
 			_occluders.append(instance)
 		var profile: Dictionary = model.cable_profile(lift)
 		var steel := Art.new()
@@ -960,10 +985,12 @@ func _build_lift(lift: Dictionary) -> void:
 				steel.link(profile.points[i - 1] + orientation.x * (r * side), profile.points[i] + orientation.x * (r * side), 0.09, Color("3c5159"))
 		_baked(asset_root, steel.finish(), Vector3.ZERO)
 		var vehicle_mesh := _lift_art(lift, "chair")
-		vehicle_mesh.surface_set_material(0, _solid)
+		if visual_style=="monochrome":vehicle_mesh=LineArt.bounds_model(vehicle_mesh)
+		vehicle_mesh.surface_set_material(0, _ink_material if visual_style=="monochrome" else _solid)
 		var group := MultiMeshInstance3D.new()
 		var count: int = model.fleet_layout(lift).count
 		group.multimesh = _multimesh(vehicle_mesh, count)
+		group.set_meta("styled_vehicle",int(lift.id))
 		group.multimesh.visible_instance_count = count
 		asset_root.add_child(group)
 		var data := {"node": group, "glass": null, "poses": [], "clock": -INF}
@@ -1006,7 +1033,8 @@ func _build_lift(lift: Dictionary) -> void:
 
 func _build_building(building: Dictionary) -> void:
 	var point := Terrain.unpack(building.point)
-	var instance := _baked(asset_root, Art.new().chalet(building.kind, int(building.get("level", 1)), Color(building.get("color", "") if building.get("color", "") != "" else Catalog.BUILDINGS[building.kind].color)), terrain.world(point))
+	var instance := _baked(asset_root, StyleAssets.building(building.kind,int(building.get("level",1)),Color(building.get("color", "") if building.get("color", "") != "" else Catalog.BUILDINGS[building.kind].color),visual_style), terrain.world(point))
+	instance.set_meta("styled_building",int(building.id))
 	instance.rotation.y = int(building.get("rotation", 0)) * PI * 0.5
 	_occluders.append(instance)
 	if building.kind == "snowmaker":
@@ -1116,7 +1144,7 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		if not analysis.get("connection", {}).is_empty():
 			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
 		var livery: String = analysis.get("color", "")
-		var ghost := _baked(preview_root, Art.new().chalet(building_kind, 1, Color(livery) if livery != "" else color), terrain.world(Terrain.unpack(points.back())))
+		var ghost := _baked(preview_root, StyleAssets.building(building_kind,1,Color(livery) if livery!="" else color,visual_style), terrain.world(Terrain.unpack(points.back())))
 		ghost.rotation.y = int(analysis.get("rotation", 0)) * PI * 0.5
 		var proposed := {"kind": building_kind, "point": points.back(), "rotation": int(analysis.get("rotation", 0))}
 		var center := Terrain.unpack(points.back())
@@ -1624,7 +1652,7 @@ func set_camera_pitch(value: float) -> void:
 
 func _update_camera() -> void:
 	camera.size = zoom
-	var cartographic:bool=visual_style=="piste_map"
+	var cartographic:bool=visual_style=="piste_map" and not tour.active
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL if cartographic or camera_mode == 3 else Camera3D.PROJECTION_PERSPECTIVE
 	camera.size=zoom*(1.12 if cartographic else 1.0)
 	var target := terrain.world(focus, clampf(zoom * 0.06, 3, 38))
@@ -1827,6 +1855,8 @@ func set_visual_style(id: String) -> void:
 	# Never reset guest animations, snow tracks, piste meshes, lift fleets or
 	# cached collision geometry just to change the mountain's appearance.
 	forest.apply_style(self)
+	_refresh_architecture()
+	_ink_layer.visible=visual_style=="monochrome"
 	# Rebuild presentation-only decorative meshes on a style change; their
 	# placement remains deterministic and cleared of all player structures.
 	landscape_details.build(self)
@@ -1836,7 +1866,7 @@ func set_visual_style(id: String) -> void:
 	festival_scene.build(self)
 	# Printed piste atlas overlays: retain player-selected contours in every
 	# other theme, and never alter the underlying navigation/collision geometry.
-	if visual_style=="piste_map":
+	if visual_style in ["piste_map","monochrome"]:
 		_relief.set_shader_parameter("contours",true)
 		if not is_instance_valid(topography):_build_topography()
 		topography.visible=true
@@ -1879,11 +1909,35 @@ func _adapt_quality(delta: float) -> void:
 	_apply_quality()
 
 func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
-	var key := "%s/%s/%d/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", "")]
+	var key := "%s/%s/%d/%s/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", ""),visual_style]
 	if not _art_cache.has(key):
 		if _art_cache.size() > 128: _art_cache.clear()
-		_art_cache[key] = Art.new().station(lift.kind, int(lift.get("level", 1)), lift.get("color", "")) if type == "station" else Art.new().chair(lift.kind, lift.get("color", ""))
+		_art_cache[key] = StyleAssets.station(lift.kind,int(lift.get("level",1)),lift.get("color",""),visual_style) if type=="station" else Art.new().chair(lift.kind,lift.get("color",""))
 	return _art_cache[key]
 
 
 
+
+
+
+func _refresh_architecture() -> void:
+	for node in asset_root.get_children():
+		if node is MeshInstance3D:
+			if node.has_meta("styled_building"):
+				var building: Dictionary=model.asset(int(node.get_meta("styled_building")))
+				if building.is_empty(): continue
+				var color:=Color(building.get("color","") if building.get("color","")!="" else Catalog.BUILDINGS[building.kind].color)
+				node.mesh=StyleAssets.building(building.kind,int(building.get("level",1)),color,visual_style)
+			elif node.has_meta("styled_station"):
+				var lift: Dictionary=model.asset(int(node.get_meta("styled_station")))
+				if not lift.is_empty():node.mesh=_lift_art(lift,"station")
+			elif node.has_meta("presentation_source"):
+				var source: Mesh=node.get_meta("presentation_source")
+				node.mesh=LineArt.bounds_model(source) if visual_style=="monochrome" else source
+			node.material_override=_ink_material if visual_style=="monochrome" else node.get_meta("presentation_material",_solid)
+		elif node is MultiMeshInstance3D and node.has_meta("styled_vehicle"):
+			var lift: Dictionary=model.asset(int(node.get_meta("styled_vehicle")))
+			if lift.is_empty():continue
+			var mesh: ArrayMesh=_lift_art(lift,"chair")
+			node.multimesh.mesh=LineArt.bounds_model(mesh) if visual_style=="monochrome" else mesh
+			node.material_override=_ink_material if visual_style=="monochrome" else null

@@ -5,6 +5,7 @@ var visual_style := "alpine"
 var target_fps := 60
 var snowfall := true
 var camera_smoothing := true
+var cinematic_attention := 0.55
 var language := "system"
 var career_slot := 1
 var free_play := false
@@ -24,13 +25,15 @@ func load_from() -> void:
 	var value: Variant = config.get_value("display", "quality", "auto")
 	quality = value if value is String and value in ["auto", "economy", "balanced", "high"] else "auto"
 	value = config.get_value("display", "visual_style", "alpine")
-	visual_style = value if value is String and value in ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus"] else "alpine"
+	visual_style = value if value is String and value in ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus", "monochrome"] else "alpine"
 	value = config.get_value("display", "target_fps", 60)
 	target_fps = value if value is int and value in [30, 60] else 60
 	value = config.get_value("display", "snowfall", true)
 	snowfall = value if value is bool else true
 	value = config.get_value("display", "camera_smoothing", true)
 	camera_smoothing = value if value is bool else true
+	value=config.get_value("display","cinematic_attention",0.55)
+	cinematic_attention=clampf(float(value),0,1) if (value is int or value is float) and is_finite(float(value)) else 0.55
 	value=config.get_value("display","language","system")
 	language=value if value is String and value in ["system","de","en"] else "system"
 	value=config.get_value("play","day_length","balanced")
@@ -60,7 +63,7 @@ func load_from() -> void:
 
 func save_to() -> Error:
 	var config := ConfigFile.new()
-	for key in ["quality", "visual_style", "target_fps", "snowfall", "camera_smoothing", "language", "contour_lines", "wildlife", "night_forward"]:
+	for key in ["quality", "visual_style", "target_fps", "snowfall", "camera_smoothing", "cinematic_attention", "language", "contour_lines", "wildlife", "night_forward"]:
 		config.set_value("display", key, get(key))
 	config.set_value("audio","music_genre",music_genre)
 	config.set_value("audio","music_volume",music_volume)
@@ -83,5 +86,7 @@ func apply(view: Node3D) -> void:
 	view.effects_enabled = snowfall
 	view.camera_smoothing = camera_smoothing
 	view._atmosphere_tick = ""
+
+
 
 

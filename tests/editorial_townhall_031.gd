@@ -27,7 +27,7 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Styles.IDS.size()==9 and Styles.IDS.has("neon_noir") and Styles.IDS.has("aurora_ink") and Styles.IDS.has("bauhaus"),"All nine creative themes are selectable")
+	check(Styles.IDS.size()==10 and Styles.IDS.has("neon_noir") and Styles.IDS.has("aurora_ink") and Styles.IDS.has("bauhaus"),"All ten creative themes are selectable")
 	var distinct: Dictionary={}
 	for id in Styles.IDS:
 		var values: Dictionary=Styles.palette(id)
@@ -35,7 +35,7 @@ func run() -> void:
 		var detail: Dictionary=Styles.detail_tints(id)
 		check(values.has("snow") and values.has("rock") and colors.has("panel") and detail.has("wood"),"Complete world and UI art palette: "+id)
 		distinct[str(values.top)+str(values.snow)+str(values.rock)] = true
-	check(distinct.size()==9,"All nine world styles use distinct palette identity")
+	check(distinct.size()==10,"All ten world styles use distinct palette identity")
 	var nov1: Dictionary={"year":2026,"month":11,"day":1}
 	var nov30: Dictionary={"year":2026,"month":11,"day":30}
 	var bad31: Dictionary={"year":2026,"month":11,"day":31}
@@ -86,3 +86,4 @@ func run() -> void:
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed>0 else 0)
+

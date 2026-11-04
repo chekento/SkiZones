@@ -1,5 +1,6 @@
 extends RefCounted
 ## Small original 3D models, baked into one colored mesh per asset.
+const Lines = preload("res://src/world/line_art.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
@@ -110,6 +111,7 @@ func finish() -> ArrayMesh:
 	return surface.commit()
 
 func tree_variant(style_id: String, species: int, simplified: bool = false) -> ArrayMesh:
+	if style_id=="monochrome": return Lines.new().tree(species)
 	if species == 0: return pine_painted(style_id, simplified)
 	var bark := Color("79614d")
 	var snow := Color("e7eef3")
@@ -1005,6 +1007,7 @@ func groomer() -> ArrayMesh:
 	box(Vector3(0, 1.2, -4), Vector3(8, 0.7, 1.6), Color("486773"))
 	sphere(Vector3(0, 5.1, 1), 0.4, Color("f3bb60"))
 	return finish()
+
 
 
 

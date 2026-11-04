@@ -157,12 +157,32 @@ jobs:
           # Bound transient apt/network stalls instead of consuming the entire Android job.
           sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
           sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
+      - name: Complete English and German interface with live language switching
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
+      - name: Original wordmark and operating header on phones and desktop
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/wordmark_header_scene_032.gd
+      - name: Theme architecture and holiday catalogue models
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/style_asset_festival_032.gd
+      - name: Real monochrome, distinct buildings and holiday dressing
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/style_asset_festival_scene_032.gd
+      - name: Cinematic director planning and saved attention
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/cinematic_director_032.gd
+      - name: Interactive piste map and cinematic camera on real phone layouts
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
+      - name: 0.32 direct compile of career, recruitment and panel dependency graph
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
       - name: Eight landscapes, village promenade and real entrance controls
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
+      - name: 0.32 screen-size layout of careers and real scenarios
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-layout-032
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/responsive_selectors_032.gd
       - name: Newspaper adverts and poster touch, pause and Android Back integration
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
       - name: Five art directions, terrain geometry stability and persistent display settings
@@ -180,6 +200,16 @@ jobs:
         run: |
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/run.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd
+      - name: 0.32 curated CC0 radio and nonrepeating playlists
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_curation_032.gd
+      - name: 0.32 crew and scenario support feasibility
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-staff-032
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/recruitment_scenarios_032.gd
+      - name: 0.32 five wealth tiers compatibility gate
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-economy-032
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/start_tiers_032.gd
       - name: 0.31 complete main-game save library and lossless recovery regression
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-main-save-library
@@ -291,10 +321,6 @@ jobs:
         run: timeout 150 xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/lifecycle_scene.gd
       - name: Cute winter scenery, opaque guest materials and bounded batches
         run: timeout 150 xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/cute_scene.gd
-      - name: Complete English and German interface with live language switching
-        env:
-          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
       - name: Actual surface picking, construction widths and clear piste geometry
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_surfaces_scene.gd
       - name: Phone insets, individual point dragging and joined piste rendering
@@ -428,7 +454,12 @@ jobs:
           disable-animations: true
           # Godot uses GLES; avoid the unsupported Vulkan/browser path on CI hosts.
           # https://developer.android.com/studio/run/emulator-troubleshooting
-          emulator-options: -no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none
+          # The API 30 SwiftShader run 41856228949 displayed only the clear
+          # colour: its GLES linker reported GL_MAX_FRAGMENT_UNIFORM_VECTORS
+          # and hundreds of program errors. Use the same host GLES backend
+          # that rendered real gameplay on API 36; never relax pixel checks.
+          # Re-test all lifecycle and save-preservation gates before release.
+          emulator-options: '-no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none'
           script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa
       - uses: actions/upload-artifact@v4
         if: always()
@@ -479,6 +510,9 @@ jobs:
               --notes-file "docs/releases/${VERSION}.md" \
               --prerelease --latest=false
           fi
+
+
+
 
 
 

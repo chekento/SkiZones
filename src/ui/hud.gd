@@ -37,7 +37,7 @@ const UpdateDialog=preload("res://src/ui/update_dialog.gd")
 const CareerSlots = preload("res://src/ui/career_slots.gd")
 const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
-const BRAND_MARK = preload("res://assets/branding/icon_512.png")
+const BRAND_MARK = preload("res://assets/branding/skizones_wordmark.png")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
 const COMMUNITY_BUG := "https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml"
 const COMMUNITY_FEATURE := "https://github.com/chekento/SkiZones/issues/new?template=feature_request.yml"
@@ -108,6 +108,12 @@ var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
 var cinema_title := Label.new()
 var cinema_mode := false
+var attention_sliders: Array=[]
+var attention_labels: Array=[]
+var _attention_dragging := false
+var piste_map_window := Control.new()
+var piste_map_full := Minimap.new()
+var piste_map_mini := Minimap.new()
 var camera_bar: PanelContainer
 var camera_panel: PanelContainer
 var camera_choice := OptionButton.new()
@@ -121,6 +127,12 @@ var _toast_until := 0.0
 var map_focus := false
 var map_focus_button: Button
 var slopes_button: Button
+var header_logo: TextureRect
+var menu_logo: TextureRect
+var header_panel: PanelContainer
+var header_details: Dictionary={}
+var header_captions: Dictionary={}
+var _header_micro := false
 var header_row: HBoxContainer
 var header_save_button: Button
 var header_menu_button: Button
@@ -208,6 +220,7 @@ func setup(controller: Node) -> void:
 	_build_dialogs()
 	_build_camera_dialog()
 	_build_cinema_overlay()
+	_build_piste_map_window()
 	root.add_child(management)
 	management.setup(game, self)
 	root.add_child(lift_staff)
@@ -372,14 +385,29 @@ func _update_responsive_layout(available_width: float) -> void:
 	compact_layout = available_width < 1160.0
 	var very_narrow: bool = available_width < 830.0
 	var micro: bool = available_width < 600.0
+	# Header density follows the real screen width, including stretched canvases.
+	var physical_width: float=available_width*float(get_window().size.x)/maxf(1,get_viewport().get_visible_rect().size.x)
+	_header_micro=physical_width<600
+	var header_compact: bool=physical_width<1160
 	if is_instance_valid(header_row):
-		header_row.add_theme_constant_override("separation", 6 if micro else 10 if compact_layout else 28)
-	if is_instance_valid(header_guests_column): header_guests_column.visible = not micro
+		header_row.add_theme_constant_override("separation",6 if _header_micro else 10 if header_compact else 18)
+	if is_instance_valid(header_logo):
+		header_logo.custom_minimum_size=Vector2(68,30) if _header_micro else Vector2(120,40) if header_compact else Vector2(156,52)
+	if is_instance_valid(menu_logo):
+		# Keep extra horizontal room on portrait phones: the proportional
+		# PNG and the scroll panel's inner padding both consume width.
+		menu_logo.custom_minimum_size.y=clampf((minf(560,available_width)-96.0)/3.0,64,148)
+	for key in header_details:header_details[key].visible=physical_width>=1080
+	for key in header_captions:
+		header_captions[key].add_theme_font_size_override("font_size",10 if _header_micro else 11)
+		labels[key].add_theme_font_size_override("font_size",(14 if key=="clock" else 18) if _header_micro else 20)
+	if header_captions.has("clock"):header_captions.clock.text=L.text("TAG & ZEIT") if _header_micro else L.text("BETRIEBSTAG")
+	if is_instance_valid(header_guests_column): header_guests_column.visible=not _header_micro
 	for action in [header_save_button,header_menu_button]:
 		if is_instance_valid(action):
-			action.custom_minimum_size.x = 42 if micro else 0
-			action.text = ("▣" if action == header_save_button else "☰") if micro else (L.text("Speichern") if action == header_save_button else L.text("Menü"))
-			action.tooltip_text = L.text("Speichern") if action == header_save_button else L.text("Menü")
+			action.custom_minimum_size=Vector2(34,42) if _header_micro else Vector2(0,50)
+			action.text=("▣" if action==header_save_button else "☰") if _header_micro else (L.text("Speichern") if action==header_save_button else L.text("Menü"))
+			action.tooltip_text=L.text("Speichern") if action==header_save_button else L.text("Menü")
 	for shortcut in ultra_camera_buttons:
 		if is_instance_valid(shortcut):
 			shortcut.visible = not very_narrow and (shortcut != winter_toolbar_button or AnnualFestival.visible(AnnualFestival.device_now()))
@@ -388,6 +416,8 @@ func _update_responsive_layout(available_width: float) -> void:
 		menu_panel.offset_right = minf(610.0,available_width-12.0)
 	if is_instance_valid(tools_panel):
 		tools_panel.offset_right = minf(316.0,maxf(184.0,available_width*0.37))
+	if is_instance_valid(piste_map_mini):
+		piste_map_mini.custom_minimum_size.y = 112 if root.size.y < 650 else 150
 	if is_instance_valid(plan_panel):
 		plan_panel.offset_left = minf(340.0,maxf(198.0,available_width*0.40))
 	if is_instance_valid(camera_panel):
@@ -410,7 +440,7 @@ func _update_responsive_layout(available_width: float) -> void:
 		inspector_panel.offset_right = -compass_edge
 		inspector_panel.custom_minimum_size.x = 0.0
 	for column in compact_header_columns:
-		column.visible = not compact_layout
+		column.visible = not header_compact
 	for button in compact_camera_buttons:
 		button.visible = not compact_layout
 	if labels.has("weather"):
@@ -469,13 +499,14 @@ func _panel(parent: Node, left: float, top: float, right: float, bottom: float, 
 	map_panels.append(panel)
 	return panel
 
-func _brand_logo(parent: Node, side: int) -> TextureRect:
+func _brand_logo(parent: Node, display_size: Vector2) -> TextureRect:
 	var mark := TextureRect.new()
 	mark.name = "skizones_brand_mark"
 	mark.texture = BRAND_MARK
 	mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mark.custom_minimum_size = Vector2(side, side)
+	mark.custom_minimum_size = display_size
+	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mark.tooltip_text = "SkiZones"
 	parent.add_child(mark)
@@ -529,18 +560,26 @@ func _spacer(parent: Node, vertical: bool = true) -> Control:
 
 func _build_header() -> void:
 	var panel := _panel(root, 24, 20, -24, 96, 1)
+	header_panel=panel
+	panel.add_theme_stylebox_override("panel",_style(Color("fffaf2"),16,10))
 	var box := HBoxContainer.new()
 	header_row = box
 	box.add_theme_constant_override("separation", 28)
 	panel.add_child(box)
-	_brand_logo(box, 36)
+	header_logo=_brand_logo(box,Vector2(156,52))
 	for item in [["money", L.text("BUDGET")], ["guests", L.text("GÄSTE")], ["rep", L.text("RUF")], ["rides", L.text("ABFAHRTEN")], ["clock", L.text("BETRIEBSTAG")]]:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if item[0] in ["rep", "rides"]: compact_header_columns.append(column)
 		if item[0] == "guests": header_guests_column = column
-		_label(column, item[1], 12, MUTED)
-		labels[item[0]] = _label(column, "—", 22)
+		header_captions[item[0]]=_label(column,item[1],11,MUTED)
+		labels[item[0]] = _label(column, "—", 20)
+		labels[item[0]].clip_text=true
+		labels[item[0]].text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		var detail: Label=_label(column,"",10,TEAL)
+		detail.clip_text=true
+		detail.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		header_details[item[0]]=detail
 	header_save_button = _button(box,L.text("Speichern"),game.save_game)
 	header_menu_button = _button(box,L.text("Menü"),game.show_menu)
 
@@ -561,10 +600,11 @@ func _build_tools() -> void:
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	palette.setup(self)
-	var overview := Minimap.new()
+	var overview = piste_map_mini
 	overview.game = game
 	box.add_child(overview)
-	_label(box, L.text("Gebietskarte: tippen zum Navigieren"), 12, MUTED)
+	overview.expand_requested.connect(show_piste_map)
+	_label(box, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED, true)
 	var navigation := HBoxContainer.new()
 	box.add_child(navigation)
 	_button(navigation, L.text("Übersicht"), func(): game.view.overview()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -710,7 +750,11 @@ func _build_camera_dialog() -> void:
 	camera_dialog.add_child(shade)
 	camera_panel = _panel(camera_dialog, -300, -245, 300, 245, 0.5, 0.5)
 	camera_panel.add_theme_stylebox_override("panel", _style(Color("e8f0ed"), 18, 24, Color("b9d9ce")))
-	var box := _vbox(camera_panel, 16)
+	var scroll := DragScroll.new()
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	camera_panel.add_child(scroll)
+	var box := _vbox(scroll, 12)
+	box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	_label(box, L.text("Dein Blick auf den Berg"), 24, TEAL)
 	_label(box, L.text("Die Ansicht wechselt, deine Bauplanung bleibt erhalten."), 15, MUTED, true)
 	box.add_child(camera_choice)
@@ -735,6 +779,7 @@ func _build_camera_dialog() -> void:
 	box.add_child(orbit)
 	for entry in [[L.text("↶ Drehen"), func(): game.view.rotate_view(-0.3)], [L.text("Drehen ↷"), func(): game.view.rotate_view(0.3)], [L.text("Talansicht"), func(): game.view.home()]]:
 		_button(orbit, entry[0], entry[1]).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_build_attention_control(box)
 	_button(box,L.text("Filmische Kamerafahrt · Resort-Tour"),func():
 		camera_dialog.hide()
 		game.start_cinematic_tour()
@@ -749,23 +794,107 @@ func _build_cinema_overlay() -> void:
 	root.add_child(cinema_overlay)
 	cinema_overlay.anchor_top=1.0
 	cinema_overlay.anchor_bottom=1.0
-	cinema_overlay.offset_left=20
-	cinema_overlay.offset_top=-98
+	cinema_overlay.offset_left=12
+	cinema_overlay.offset_top=-164
 	cinema_overlay.offset_right=510
-	cinema_overlay.offset_bottom=-20
-	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.78),12,10))
+	cinema_overlay.offset_bottom=-12
+	cinema_overlay.add_theme_stylebox_override("panel",_style(Color(0.03,0.07,0.11,0.86),12,10))
+	var stack:=_vbox(cinema_overlay,5)
 	var bar:=HBoxContainer.new()
-	bar.add_theme_constant_override("separation",12)
-	cinema_overlay.add_child(bar)
+	stack.add_child(bar)
+	bar.add_theme_constant_override("separation",10)
 	cinema_title=_label(bar,L.text("Filmische Kamerafahrt · Resort-Tour"),17,Color("f5f7fc"),true)
 	cinema_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var exit_button:=_button(bar,L.text("Zurück"),func(): game.stop_cinematic_tour())
-	exit_button.custom_minimum_size=Vector2(95,52)
+	exit_button.custom_minimum_size=Vector2(86,44)
+	_build_attention_control(stack,true)
 	cinema_overlay.hide()
+
+func _build_attention_control(parent: Node, compact: bool = false) -> void:
+	var label_control: Label=_label(parent,"",14,Color("eef6f3") if compact else INK,true)
+	attention_labels.append(label_control)
+	var slider:=HSlider.new()
+	slider.min_value=0
+	slider.max_value=100
+	slider.step=5
+	slider.custom_minimum_size.y=32 if compact else 44
+	slider.tooltip_text=L.text("Panorama bis Betriebsprobleme zuerst")
+	slider.set_value_no_signal(roundi(game.preferences.cinematic_attention*100))
+	parent.add_child(slider)
+	attention_sliders.append(slider)
+	slider.drag_started.connect(func(): _attention_dragging=true)
+	slider.value_changed.connect(func(value: float):
+		game.preferences.cinematic_attention=value/100.0
+		_sync_attention()
+		if not _attention_dragging: _apply_attention()
+	)
+	slider.drag_ended.connect(func(_changed: bool):
+		_attention_dragging=false
+		_apply_attention()
+	)
+	_sync_attention()
+
+func _sync_attention() -> void:
+	var value: float=game.preferences.cinematic_attention*100.0
+	for slider in attention_sliders: slider.set_value_no_signal(value)
+	for label_control in attention_labels:
+		label_control.text=L.text("Aufmerksamkeit %d %% · Panorama ↔ Betrieb") % roundi(value)
+
+func _apply_attention() -> void:
+	game.view.tour.set_attention(game.preferences.cinematic_attention,game.view)
+	game.preferences.save_to()
+
+func _build_piste_map_window() -> void:
+	root.add_child(piste_map_window)
+	piste_map_window.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	piste_map_window.mouse_filter=Control.MOUSE_FILTER_STOP
+	piste_map_window.z_index=75
+	var panel:=PanelContainer.new()
+	piste_map_window.add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.offset_left=10
+	panel.offset_top=10
+	panel.offset_right=-10
+	panel.offset_bottom=-10
+	panel.add_theme_stylebox_override("panel",_style(Color("e9e2cf"),12,10))
+	var stack:=_vbox(panel,8)
+	var bar:=HBoxContainer.new()
+	stack.add_child(bar)
+	var title: Label=_label(bar,L.text("Interaktiver Pistenplan"),19,INK,true)
+	title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var overview_button: Button=_button(bar,"◎",func(): piste_map_full.reset_plan())
+	overview_button.tooltip_text=L.text("Übersicht")
+	_button(bar,"−",func(): piste_map_full.zoom_by(1.0/1.3))
+	_button(bar,"+",func(): piste_map_full.zoom_by(1.3))
+	_button(bar,L.text("Zurück"),func(): piste_map_window.hide())
+	piste_map_full.game=game
+	piste_map_full.expanded=true
+	piste_map_full.custom_minimum_size=Vector2(0,100)
+	piste_map_full.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	stack.add_child(piste_map_full)
+	piste_map_full.asset_selected.connect(func(id: int):
+		piste_map_window.hide()
+		show_context("inspect",id)
+	)
+	piste_map_window.hide()
+
+func show_piste_map() -> void:
+	if not game.points.is_empty():
+		toast(L.text("Zuerst die laufende Planung abschließen oder abbrechen."))
+		return
+	game.stop_cinematic_tour()
+	achievement_overlay.hide()
+	achievement_overlay.set_process(false)
+	game._clear_input()
+	piste_map_full.frame_resort()
+	piste_map_window.show()
+	piste_map_full.queue_redraw()
 
 func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
 	if on:
+		achievement_overlay.hide()
+		achievement_overlay.set_process(false)
 		jukebox.close()
 		cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % game.model.day
 	cinema_overlay.visible=on
@@ -872,7 +1001,7 @@ func _build_menu() -> void:
 	var box := _vbox(scroll, 13)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label(box, L.text("DEIN BERG. DEINE REGELN."), 15, TEAL)
-	_brand_logo(box, 136)
+	menu_logo=_brand_logo(box,Vector2(0,148))
 	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
 	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
 	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
@@ -917,6 +1046,16 @@ func _build_menu() -> void:
 	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
 	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")), 13, MUTED, true)
+	# The menu contains a few long translated button labels. Their intrinsic
+	# text widths must never force the whole portrait panel past the screen.
+	# Ellipsis applies only when the available width is actually insufficient;
+	# the full labels remain available through tooltips.
+	for item in panel.find_children("*", "Button", true, false):
+		var menu_button: Button = item as Button
+		menu_button.clip_text = true
+		menu_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		menu_button.tooltip_text = menu_button.text
+
 
 func _build_dialogs() -> void:
 	root.add_child(daily_dialog)
@@ -938,6 +1077,7 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	piste_map_window.hide()
 	seasonal_poster.hide()
 	building_browser.hide()
 	piste_workshop.close()
@@ -969,7 +1109,7 @@ func blocks_map(point: Vector2) -> bool:
 	if jukebox.visible:return true
 	if medal_cabinet.visible: return true
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if piste_map_window.visible or seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
@@ -1217,16 +1357,27 @@ func refresh() -> void:
 	var model: RefCounted = game.model
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	# Styling is synced before displaying queued achievements.
+	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
+	achievement_overlay.visible=show_achievement
+	achievement_overlay.set_process(show_achievement)
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
-	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
+	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
-	labels.money.text = money_text(model.money) + " €"
+	labels.money.text=money_text(model.money)+" €"
+	labels.money.tooltip_text=L.text("BUDGET")+": "+money_text(model.money)+" €"
+	var operating: float=float(model.report.get("tickets",0))+float(model.report.get("services",0))-float(model.report.get("costs",0))
+	header_details.money.text=L.text("Heute: %s €") % money_text(operating)
+	header_details.guests.text=L.text("%d warten") % model.queue_size()
+	header_details.rep.text=L.text("%d Resort-Sterne") % int(model.campaign.rank)
+	header_details.rides.text=L.text("%d Pisten · %d Lifte") % [model.pistes.size(),model.lifts.size()]
+	header_details.clock.text=L.text("Baupause") if not game.points.is_empty() else L.text("Pause") if game.paused else L.text("Abendbetrieb") if model.is_closing() else L.text("Betrieb läuft")
 	labels.guests.text = "%d / %d" % [model.present_guests(), model.total_guests]
 	labels.rep.text = "%.0f %%" % model.reputation
 	labels.rides.text = str(model.total_rides)
 	labels.clock.text = L.text("Tag %d · %02d:%02d") % L.args([model.day, (model.minute / 60) % 24, model.minute % 60])
 	labels.weather.text = L.text("%s   /   %.0f °C   /   Wind %.0f km/h") % L.args([model.weather().name, model.weather().temperature, model.weather().wind])
+	for key in header_details:labels[key].tooltip_text=(labels.money.tooltip_text if key=="money" else str(labels[key].text))+"\n"+str(header_details[key].text)
 	pause_button.text = L.text("Weiter") if game.paused else L.text("Pause")
 	for i in range(speed_buttons.size()):
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
@@ -1367,6 +1518,8 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
+
 
 
 

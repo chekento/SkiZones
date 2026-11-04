@@ -1,7 +1,7 @@
 extends RefCounted
 ## Presentation-only palettes. Do not change terrain physics or saved geometry.
-const IDS := ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus"]
-const NAMES := ["Alpin · klassisch", "Comic · lebendig", "Pastell · gemütlich", "Filmisch · naturbetont", "Winterklar · kontrastreich", "Pistenatlas · Reliefkarte", "Neon Noir · Cyberalpen", "Aurora Ink · Tintenpolarlicht", "Bauhaus · Alpine Avantgarde"]
+const IDS := ["alpine", "comic", "pastel", "cinematic", "crisp", "piste_map", "neon_noir", "aurora_ink", "bauhaus", "monochrome"]
+const NAMES := ["Alpin · klassisch", "Comic · lebendig", "Pastell · gemütlich", "Filmisch · naturbetont", "Winterklar · kontrastreich", "Pistenatlas · Reliefkarte", "Neon Noir · Cyberalpen", "Aurora Ink · Tintenpolarlicht", "Bauhaus · Alpine Avantgarde", "Monochrom · Strichlinien"]
 const DESCRIPTIONS := [
 	"Die vertraute SkiZones-Winterwelt.",
 	"Kräftige Farben, klare Fels- und Schneekanten.",
@@ -11,7 +11,8 @@ const DESCRIPTIONS := [
 	"Eine nostalgische Pistenkarte: reliefierte Berge, Druckfarben, Höhenlinien und klare Pistenfarben.",
 	"Elektrisches Magenta, kühles Cyan und dunkle Cyber-Nacht auf einem echten Pistenrelief.",
 	"Malerei wie nasse Tinte: leuchtendes Polarlicht, dunkle Gletscher und aquarellartige Kontraste.",
-	"Mutige plakative Geometrie: Ultramarin, Senfgelb, Rostrot und kantige Farbflächen."
+	"Mutige plakative Geometrie: Ultramarin, Senfgelb, Rostrot und kantige Farbflächen.",
+	"Schwarze Strichlinien auf hellem Papier: reduzierte Häuser, Bäume, Liftstationen und Symbole ohne Farbtöne."
 ]
 
 static func valid(id: String) -> String:
@@ -19,6 +20,8 @@ static func valid(id: String) -> String:
 
 static func palette(id: String) -> Dictionary:
 	match valid(id):
+		"monochrome":
+			return {"top":"ffffff","horizon":"ffffff","ground":"ffffff","ambient":"ffffff","fog":"ffffff","sun":"ffffff","sun_gain":0.6,"ambient_gain":1.5,"fog_gain":0.0,"snow":"ffffff","rock":"dedede","foliage":"282828","ground_mix":1.0,"contrast":1.0,"saturation":0.0,"rock_mix":0.1}
 		"comic":
 			return {"top":"68bcf4","horizon":"f7e6cc","ground":"a9d8ee","ambient":"eff8ff","fog":"e0f1fa","sun":"fff1c8","sun_gain":1.12,"ambient_gain":1.28,"fog_gain":0.62,"snow":"cde9f7","rock":"6583a1","foliage":"52a48b","ground_mix":0.68,"contrast":1.24,"saturation":1.46,"rock_mix":0.70}
 		"pastel":
@@ -39,6 +42,7 @@ static func palette(id: String) -> Dictionary:
 			return {"top":"a9cddd","horizon":"f3e8df","ground":"b9c8dc","ambient":"c7d9e9","fog":"d7e2f0","sun":"fff1dc","sun_gain":1.0,"ambient_gain":1.0,"fog_gain":1.0,"snow":"f4f5fc","rock":"929cb3","foliage":"b5c4b9","ground_mix":0.0,"contrast":1.0,"saturation":1.0,"rock_mix":0.0}
 
 static func ground_color(base: Color, slope: float, id: String) -> Color:
+	if valid(id)=="monochrome": return Color("fafafa").lerp(Color("dedede"),clampf(slope/200.0,0,0.3))
 	if valid(id) == "alpine":
 		return base
 	var data := palette(id)
@@ -68,6 +72,7 @@ static func ground_color(base: Color, slope: float, id: String) -> Color:
 ## future MicroWorld scenes. The Alpine world palette remains unchanged.
 static func ui_palette(id: String) -> Dictionary:
 	match valid(id):
+		"monochrome": return {"panel":"f9f9f9","ink":"121212","accent":"353535","outline":"111111","highlight":"bbbbbb","shadow":"dddddd","corner":0,"depth":1,"sparkle":0,"letter_arc":0.0,"fx":0.4}
 		"comic":
 			return {"panel":"223b65","ink":"ffffff","accent":"ffe05e","outline":"0c1537","highlight":"70d8ff","shadow":"172247","corner":3,"depth":8,"sparkle":13,"letter_arc":0.12,"fx":1.45}
 		"pastel":
@@ -90,6 +95,7 @@ static func ui_palette(id: String) -> Dictionary:
 ## Landscape accents are independent of geometry and all physics.
 static func detail_tints(id: String) -> Dictionary:
 	match valid(id):
+		"monochrome": return {"snow":"ffffff","stone":"999999","wood":"222222","flora":"222222","metal":"111111"}
 		"comic": return {"snow":"e9fbff","stone":"4a6a98","wood":"98614b","flora":"46b188","metal":"ffe07c"}
 		"pastel": return {"snow":"fff1fb","stone":"b49dbf","wood":"c59da0","flora":"a1b7aa","metal":"efc1d8"}
 		"cinematic": return {"snow":"d5e3e9","stone":"596574","wood":"6c5b51","flora":"667668","metal":"a3b5b7"}
@@ -99,3 +105,4 @@ static func detail_tints(id: String) -> Dictionary:
 		"bauhaus": return {"snow":"f8e9c9","stone":"ac6245","wood":"a96847","flora":"3b8075","metal":"f6ca58"}
 		"crisp": return {"snow":"ffffff","stone":"4e789c","wood":"5a7189","flora":"4e9ab3","metal":"8be6f5"}
 		_: return {"snow":"eaf1f5","stone":"8a969b","wood":"79604c","flora":"768c7e","metal":"b7cbd0"}
+

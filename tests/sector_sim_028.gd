@@ -48,7 +48,7 @@ func run() -> void:
 	check(not Audio.AMBIENT_FX_ENABLED,"Piercing synthesized FX remain disabled")
 	var radio := Audio.new()
 	root.add_child(radio)
-	check(radio.station_track_count("folk_alpine")==7 and radio.station_track_count("folk_swedish")==7,"Both folk stations have seven locally indexed temporary tracks")
+	check(radio.station_track_count("folk_alpine")>=10 and radio.station_track_count("folk_swedish")>=10,"Both acoustic folk programmes now have at least ten licensed local tracks")
 	check(radio.station_track_count("space")>=15 and radio.station_track_count("erg0sphere")==0,"Deep Space is offline, own album must open explicitly")
 	var prefs := Preferences.new()
 	prefs.music_genre="erg0sphere"

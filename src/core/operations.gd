@@ -29,6 +29,40 @@ const GOALS := {
 	"seiseralm": ["Rettung und Technik koordinieren", "Drei Pistenraupen besitzen und drei Präparierungen abschließen", "Hotel und Abendangebot betreiben", "Alle geöffneten Stationen besetzen", "Drei wirtschaftliche Betriebstage"]
 }
 
+
+## The goal flags above are unchanged for save compatibility; this is a
+## contextual, step-by-step mission guide for the player.
+const GOAL_TIPS := {
+	"braunlage":[
+		"Liftteam öffnen und Stationen in der Tagschicht besetzen.",
+		"Reparaturzentrale öffnen: Techniker und Elektriker einstellen.",
+		"Defekten Lift wählen, Ersatzteile bereitstellen und Reparatur starten.",
+		"Pistenraupengarage öffnen: Fahrzeug und Fahrer einsetzen, Piste vorher leeren.",
+		"Gäste über funktionierende Routen bedienen; Ruf und Besucherzahl steigern."
+	],
+	"filzmoos":[
+		"Alle geöffneten Tal-, Mittel- und Bergstationen prüfen.",
+		"Bergwacht mit mindestens zwei Rettungskräften besetzen.",
+		"Drei Pisten im Garagen-Menü nacheinander oder parallel präparieren.",
+		"Wartezeit durch mehr Liftkapazität, Personal und erreichbare Pisten senken.",
+		"Zwei profitable Betriebstage mit ausreichendem Service und Lifteinsatz erreichen."
+	],
+	"kitzbuehel":[
+		"Reparaturzentrale besetzen und defekten Verbindungslift reparieren.",
+		"Jede offene Station einschließlich der gemeinsamen Mittelstation besetzen.",
+		"Ersatzteilbestellung aufgeben und zwei Pakete im Lager behalten.",
+		"200 Gäste anziehen und Warteschlangen durch zusätzliche Kapazität verkürzen.",
+		"300 Gäste und einen profitablen Betriebstag erreichen."
+	],
+	"seiseralm":[
+		"Bergwacht und Reparaturzentrale mit allen benötigten Rollen besetzen.",
+		"Mindestens drei Pistenraupen kaufen, Fahrer zuweisen und drei Pisten präparieren.",
+		"Hotel und Après-Ski mit passenden Schichten für den Abendbetrieb besetzen.",
+		"Alle geöffneten Berg- und Talstationen mit genügend Liftpersonal ausstatten.",
+		"Drei profitable Betriebstage mit beherrschbaren Kosten erreichen."
+	]
+}
+
 static func initial() -> Dictionary:
 	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
 
@@ -64,7 +98,10 @@ static func enable(model: RefCounted, scenario: String = "") -> void:
 	else:
 		for lift in model.lifts:
 			if lift.id != model.lifts[0].id: fill_stations(model, lift.id, true)
-		for building in model.buildings: fill_building(model, building.id, true)
+		# New scenarios provide a workshop site, but recruiting its actual
+		# repair team remains a player task described in the mission guide.
+		for building in model.buildings:
+			if building.kind != "repair_office": fill_building(model, building.id, true)
 		var victim: Dictionary = model.lifts[mini(1, model.lifts.size() - 1)] if not model.lifts.is_empty() else {}
 		if not victim.is_empty():
 			victim.fault = "mechanical"
@@ -354,12 +391,22 @@ static func repair(model: RefCounted, id: int, workshop_id: int = -1) -> Diction
 	return model._result(true, L.text("Reparatur gestartet. Die Anlage bleibt bis zur Fertigstellung gesperrt."))
 
 static func buy_groomer(model: RefCounted, garage: int) -> Dictionary:
-	var building: Dictionary = model.asset(garage)
-	if building.get("kind") != "maintenance" or not building.enabled: return model._result(false, L.text("Eine geöffnete Pistenraupengarage wählen."))
-	if model.operations.vehicles.size() >= 24 or not model._spend(65000): return model._result(false, L.text("Für eine Pistenraupe werden 65.000 € benötigt. Maximal 24 Fahrzeuge."))
-	model.operations.vehicles.append({"id": model.operations.next_vehicle, "garage": garage, "piste": -1, "remaining": 0.0, "total": 0.0, "hours": 0.0, "fuel": 100.0, "wear": 0.0, "point": building.point.duplicate()})
-	model.operations.next_vehicle += 1
-	return model._result(true, L.text("Pistenraupe gekauft. Fahrer einstellen und eine Piste zuweisen oder Nachtpräparierung aktivieren."))
+	return buy_groomers(model,garage,1)
+
+static func buy_groomers(model: RefCounted, garage: int, count: int) -> Dictionary:
+	var building: Dictionary=model.asset(garage)
+	if building.get("kind","") != "maintenance" or not building.get("enabled",false):
+		return model._result(false,L.text("Eine geöffnete Pistenraupengarage wählen."))
+	if count < 1 or count > 6 or model.operations.vehicles.size()+count > 24:
+		return model._result(false,L.text("Maximal 24 Pistenraupen im Fuhrpark."))
+	var price: int=count*65000
+	if model.money < price: return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
+	if not model._spend(price):return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
+	for i in range(count):
+		model.operations.vehicles.append({"id": model.operations.next_vehicle, "garage": garage, "piste": -1, "remaining": 0.0, "total": 0.0, "hours": 0.0, "fuel": 100.0, "wear": 0.0, "point": building.point.duplicate()})
+		model.operations.next_vehicle+=1
+	model._operational_change()
+	return model._result(true,L.text("%d Pistenraupen gekauft. Für parallele Einsätze entsprechend viele Fahrer einstellen.") % count)
 
 static func groom(model: RefCounted, id: int, garage_id: int = -1) -> Dictionary:
 	var piste: Dictionary = model.asset(id)
@@ -732,6 +779,10 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		if not person.get("name") is String or not ROLES.has(person.get("role")) or not SHIFTS.has(person.get("shift")) or not person.get("assignment") is String or ids.has(int(person.id)): return false
 		ids[int(person.id)] = true
 		if person.wage != ROLES[person.role].wage or person.motivation > 100 or person.fatigue > 100 or person.id >= state.next_staff: return false
+	for person in state.staff:
+		if person.has("applicant_id") and (not person.applicant_id is String or person.applicant_id.length()>48):return false
+		if person.has("specialty") and (not person.specialty is String or person.specialty.length()>90):return false
+		if person.has("experience") and (not Terrain.number(person.experience) or person.experience<0 or person.experience>100 or person.experience!=floorf(person.experience)):return false
 	for vehicle in state.vehicles:
 		if not vehicle is Dictionary: return false
 		for key in ["id", "garage", "piste", "remaining", "total", "hours", "fuel", "wear"]:

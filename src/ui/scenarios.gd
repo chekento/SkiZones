@@ -7,6 +7,9 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Minimap = preload("res://src/ui/minimap.gd")
 var hud: CanvasLayer
 var grid: GridContainer
+var title_label: Label
+var close_button: Button
+var previews: Array = []
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -19,9 +22,12 @@ func setup(interface: CanvasLayer) -> void:
 	var body: VBoxContainer = hud._vbox(self, 12)
 	var header := HBoxContainer.new()
 	body.add_child(header)
-	hud._label(header, L.text("ECHTE BERGE · DEIN BETRIEB"), 27, hud.ACCENT)
+	title_label=hud._label(header, L.text("ECHTE BERGE · DEIN BETRIEB"), 27, hud.ACCENT)
+	title_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	title_label.clip_text=true
+	title_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	hud._spacer(header, false)
-	hud._button(header, L.text("Zurück"), hide)
+	close_button=hud._button(header, L.text("Zurück"), hide)
 	hud._label(body, L.text("Vier reale Gebiete mit jeweils drei wählbaren Betriebsintensitäten. Geografie aus offenen Daten, Missionsereignisse sind spielerisch erfunden."), 17, hud.MUTED, true)
 	var scroll := DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -48,6 +54,7 @@ func setup(interface: CanvasLayer) -> void:
 		preview.interactive = false
 		preview.custom_minimum_size = Vector2(260, 140)
 		card.add_child(preview)
+		previews.append(preview)
 		var tasks := ""
 		for goal in Ops.GOALS[id]: tasks += "• " + L.text(goal) + "\n"
 		hud._label(card, tasks.strip_edges(), 16, hud.INK, true)
@@ -75,8 +82,25 @@ func setup(interface: CanvasLayer) -> void:
 	hide()
 
 func _fit_grid() -> void:
-	if grid!=null: grid.columns=1 if size.x<930 else 2
+	if grid==null:return
+	var available: float=minf(get_viewport_rect().size.x,get_tree().root.size.x)
+	var compact: bool=available<1060.0
+	grid.columns=1 if compact else 2
+	offset_left=10 if compact else 48
+	offset_right=-10 if compact else -48
+	offset_top=72 if available<650.0 else 116
+	offset_bottom=-10 if compact else -28
+	if is_instance_valid(title_label):
+		title_label.add_theme_font_size_override("font_size",18 if available<650.0 else 24 if compact else 27)
+	if is_instance_valid(close_button):
+		close_button.text="✕" if available<650.0 else L.text("Zurück")
+		close_button.tooltip_text=L.text("Zurück")
+		close_button.custom_minimum_size.x=48 if available<650.0 else 0
+	for preview in previews:
+		if is_instance_valid(preview):
+			preview.custom_minimum_size=Vector2(minf(260.0,maxf(140.0,available-96.0)),110 if available<650.0 else 140)
 
 func open() -> void:
 	hud.game._clear_input()
+	_fit_grid()
 	show()

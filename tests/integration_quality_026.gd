@@ -33,8 +33,8 @@ func run() -> void:
 	var brand_ready: bool = brand_nodes.size()==2
 	for node in brand_nodes:
 		var mark := node as TextureRect
-		brand_ready = brand_ready and mark != null and mark.texture != null and mark.texture.get_width()==512
-	check(brand_ready,"The main menu and in-game HUD display the actual SkiZones app logo instead of decorative text")
+		brand_ready = brand_ready and mark != null and mark.texture != null and mark.texture.get_width()==2172 and mark.texture.get_height()==724
+	check(brand_ready,"The main menu and in-game HUD display the actual wide SkiZones wordmark instead of the app icon")
 	game.preferences.path="user://integration026-display.cfg"
 	game.preferences.music_genre="off"
 	game.preferences.sound_enabled=true
@@ -150,3 +150,4 @@ func find_button(node: Node, caption: String) -> Button:
 		var found: Button=find_button(child,caption)
 		if found!=null:return found
 	return null
+

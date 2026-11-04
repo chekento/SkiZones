@@ -6755,3 +6755,372 @@ msgstr "Inspect saved game"
 
 msgid "Weitere gespeicherte Gebiete"
 msgstr "Other saved resorts"
+
+msgid "STARTKAPITAL · NUR FÜR NEUE KARRIEREN"
+msgstr "STARTING CASH · NEW CAREERS ONLY"
+
+msgid "Die Wahl verändert nur neue Karrieren und niemals bestehende Spielstände."
+msgstr "This choice affects new careers only, never existing saves."
+
+msgid "Karriereprofil: "
+msgstr "Career profile: "
+
+msgid "Startkapital"
+msgstr "Starting cash"
+
+msgid "Existenzkampf"
+msgstr "Survival"
+
+msgid "Knappes Budget"
+msgstr "Tight Budget"
+
+msgid "Wohlhabend"
+msgstr "Prosperous"
+
+msgid "Großinvestor"
+msgstr "Major Investor"
+
+msgid "Ein funktionierender Starterberg, aber kaum Reserven. Jeder Kredit und Auftrag zählt."
+msgstr "A working starter mountain with almost no reserves. Every loan and contract matters."
+
+msgid "Kleine Rücklage, behutsame Investitionen und frühe Einnahmen sind entscheidend."
+msgstr "A small reserve; cautious investment and early earnings matter."
+
+msgid "Genug Kapital für den behutsamen Ausbau – der Standard für eine neue Karriere."
+msgstr "Enough money for careful expansion – the default new career."
+
+msgid "Großer Handlungsspielraum für Personal, neue Pisten und Pistenraupen."
+msgstr "Room to invest in staff, new slopes and snow groomers."
+
+msgid "Üppiges Startkapital und ein guter Ruf. Konzentriere dich auf große Ausbaupläne."
+msgstr "Large starting funds and a strong reputation. Focus on big expansion plans."
+
+msgid "Bewerbermarkt"
+msgstr "Applicant Market"
+
+msgid "Bewerber, Steckbriefe & Freischaltungen"
+msgstr "Candidates, Profiles & Unlocks"
+
+msgid "Jede Person ist einmalig verfügbar. Fachkräfte werden durch passende Gebäude und zusätzliche Qualifikationen freigeschaltet. Bereits bestehendes Personal bleibt unberührt."
+msgstr "Each person can be hired once. Specialists require matching buildings and additional qualifications; existing staff remain unchanged."
+
+msgid "Seite %d / %d"
+msgstr "Page %d / %d"
+
+msgid "%d Jahre Erfahrung"
+msgstr "%d years of experience"
+
+msgid "Qualifikation %d"
+msgstr "Qualification %d"
+
+msgid "Motivation %.0f %%"
+msgstr "Motivation %.0f %%"
+
+msgid "Stärke: "
+msgstr "Strength: "
+
+msgid "Einstellungskosten"
+msgstr "Recruitment fee"
+
+msgid "Einstellen"
+msgstr "Hire"
+
+msgid "Noch gesperrt: "
+msgstr "Locked: "
+
+msgid "Drei Pistenraupen kaufen · 195.000 €"
+msgstr "Buy three snow groomers · €195,000"
+
+msgid "Zusätzlichen Pistenraupenfahrer einstellen · 180 €"
+msgstr "Hire extra snow groomer driver · €180"
+
+msgid "Weiteren Pistenraupenfahrer einstellen · 180 €"
+msgstr "Hire another snow groomer driver · €180"
+
+msgid "Fahrer zugewiesen: %d · für parallele Präparierungen einen Fahrer je Maschine einteilen"
+msgstr "Assigned drivers: %d · allocate one driver per machine for concurrent grooming"
+
+msgid "Maximal 24 Pistenraupen im Fuhrpark."
+msgstr "No more than 24 snow groomers per fleet."
+
+msgid "Das Budget reicht für diesen Fuhrpark nicht."
+msgstr "Insufficient funds to purchase this fleet."
+
+msgid "%d Pistenraupen gekauft. Für parallele Einsätze entsprechend viele Fahrer einstellen."
+msgstr "Purchased %d snow groomers. Hire enough drivers for concurrent jobs."
+
+msgid "10 CC0-Titel · akustische Winterstimmung, regionale Originalaufnahmen noch in Prüfung."
+msgstr "10 CC0 tracks · acoustic winter atmosphere; original regional recordings are still being verified."
+
+msgid "AlpenFolk · Akustik & Berghütte"
+msgstr "AlpenFolk · Acoustic & Mountain Lodge"
+
+msgid "Nordic Folk · Nordische Klangfarben"
+msgstr "Nordic Folk · Northern Soundscapes"
+
+msgid "Lena Vogt"
+msgstr "Lena Vogt"
+
+msgid "Mika Holm"
+msgstr "Mika Holm"
+
+msgid "Noah Berg"
+msgstr "Noah Berg"
+
+msgid "Finja Winter"
+msgstr "Finja Winter"
+
+msgid "Amir Kaya"
+msgstr "Amir Kaya"
+
+msgid "Elin Lind"
+msgstr "Elin Lind"
+
+msgid "Robin Seidel"
+msgstr "Robin Seidel"
+
+msgid "Juna Wolf"
+msgstr "Juna Wolf"
+
+msgid "Sam Falk"
+msgstr "Sam Falk"
+
+msgid "Mara Busch"
+msgstr "Mara Busch"
+
+msgid "Toni Adler"
+msgstr "Toni Adler"
+
+msgid "Kim Nielsen"
+msgstr "Kim Nielsen"
+
+msgid "Lea Hansen"
+msgstr "Lea Hansen"
+
+msgid "Jules Frank"
+msgstr "Jules Frank"
+
+msgid "Nico Roth"
+msgstr "Nico Roth"
+
+msgid "Lotte Brandt"
+msgstr "Lotte Brandt"
+
+msgid "Alex Fischer"
+msgstr "Alex Fischer"
+
+msgid "Nika Sturm"
+msgstr "Nika Sturm"
+
+msgid "Gästebetreuung"
+msgstr "Guest relations"
+
+msgid "Sicherheitsroutinen"
+msgstr "Safety procedures"
+
+msgid "Nachtdienst"
+msgstr "Night shift"
+
+msgid "Teamkoordination"
+msgstr "Team coordination"
+
+msgid "Technikdiagnose"
+msgstr "Technical diagnostics"
+
+msgid "Bereits eingestellt"
+msgstr "Already hired"
+
+msgid "Unbekanntes Berufsbild"
+msgstr "Unknown job role"
+
+msgid "Erfordert mindestens einen Lift"
+msgstr "Requires at least one lift"
+
+msgid "Erfordert passende Einrichtung: "
+msgstr "Requires facility: "
+
+msgid "Ab Resort-Stern 2: geprüfte Zusatzqualifikation"
+msgstr "Requires resort star 2: certified advanced training"
+
+msgid "Bewerbung nicht gefunden."
+msgstr "Applicant not found."
+
+msgid "Budget für die Einstellung reicht nicht."
+msgstr "Insufficient recruitment budget."
+
+msgid " eingestellt · "
+msgstr " hired · "
+
+msgid "Liftteam öffnen und Stationen in der Tagschicht besetzen."
+msgstr "Open the lift team and staff all stations on day shift."
+
+msgid "Reparaturzentrale öffnen: Techniker und Elektriker einstellen."
+msgstr "Open the repair office and hire mechanics and electricians."
+
+msgid "Defekten Lift wählen, Ersatzteile bereitstellen und Reparatur starten."
+msgstr "Select the broken lift, secure spare parts and order repair."
+
+msgid "Pistenraupengarage öffnen: Fahrzeug und Fahrer einsetzen, Piste vorher leeren."
+msgstr "Open the groomer garage: assign machine and driver; clear the piste first."
+
+msgid "Gäste über funktionierende Routen bedienen; Ruf und Besucherzahl steigern."
+msgstr "Serve guests on functioning routes; increase reputation and visitors."
+
+msgid "Alle geöffneten Tal-, Mittel- und Bergstationen prüfen."
+msgstr "Check all open valley, mid and summit stations."
+
+msgid "Bergwacht mit mindestens zwei Rettungskräften besetzen."
+msgstr "Staff mountain rescue with at least two rescuers."
+
+msgid "Drei Pisten im Garagen-Menü nacheinander oder parallel präparieren."
+msgstr "Groom three pistes, consecutively or in parallel from the garage menu."
+
+msgid "Wartezeit durch mehr Liftkapazität, Personal und erreichbare Pisten senken."
+msgstr "Reduce waits with lift capacity, staff and reachable pistes."
+
+msgid "Zwei profitable Betriebstage mit ausreichendem Service und Lifteinsatz erreichen."
+msgstr "Complete two profitable days with enough services and operating lifts."
+
+msgid "Reparaturzentrale besetzen und defekten Verbindungslift reparieren."
+msgstr "Staff the repair office and fix the broken connecting lift."
+
+msgid "Jede offene Station einschließlich der gemeinsamen Mittelstation besetzen."
+msgstr "Staff every open station including shared mid-stations."
+
+msgid "Ersatzteilbestellung aufgeben und zwei Pakete im Lager behalten."
+msgstr "Order parts and keep two spare packages in storage."
+
+msgid "200 Gäste anziehen und Warteschlangen durch zusätzliche Kapazität verkürzen."
+msgstr "Attract 200 guests; add lift capacity to shorten queues."
+
+msgid "300 Gäste und einen profitablen Betriebstag erreichen."
+msgstr "Reach 300 guests and one profitable operating day."
+
+msgid "Bergwacht und Reparaturzentrale mit allen benötigten Rollen besetzen."
+msgstr "Staff rescue and repair offices with every required role."
+
+msgid "Mindestens drei Pistenraupen kaufen, Fahrer zuweisen und drei Pisten präparieren."
+msgstr "Buy at least three groomers, assign drivers and groom three pistes."
+
+msgid "Hotel und Après-Ski mit passenden Schichten für den Abendbetrieb besetzen."
+msgstr "Staff the hotel and après-ski venue for evening hours."
+
+msgid "Alle geöffneten Berg- und Talstationen mit genügend Liftpersonal ausstatten."
+msgstr "Assign enough operators to all open summit and valley stations."
+
+msgid "Drei profitable Betriebstage mit beherrschbaren Kosten erreichen."
+msgstr "Achieve three profitable operating days with sustainable expenses."
+
+msgid "Grundbetrieb & Teamroutine"
+msgstr "Core operations & teamwork"
+
+msgid "Einsatzort: "
+msgstr "Workplace: "
+
+msgid "Schicht: "
+msgstr "Shift: "
+
+msgid "Profil: "
+msgstr "Profile: "
+
+msgid "Personal-ID %d"
+msgstr "Staff ID %d"
+
+
+msgid "Bergrettung · Einsatz"
+msgstr "Mountain rescue · response"
+
+msgid "Störung · "
+msgstr "Fault · "
+
+msgid "Personal fehlt · "
+msgstr "Staff needed · "
+
+msgid "Warteschlange · "
+msgstr "Queue · "
+
+msgid "Piste braucht Pflege · "
+msgstr "Piste needs grooming · "
+
+msgid "Besucherleben · %d Gäste"
+msgstr "Visitor life · %d guests"
+
+msgid "Resort-Panorama"
+msgstr "Resort panorama"
+
+msgid "Gipfel · %.0f m"
+msgstr "Summit · %.0f m"
+
+msgid "Hügel und Hangrelief"
+msgstr "Hills and slope relief"
+
+msgid "Pistenplan vergrößern"
+msgstr "Expand piste map"
+
+msgid "PISTENPLAN"
+msgstr "PISTE MAP"
+
+msgid "Blau"
+msgstr "Blue"
+
+msgid "Rot"
+msgstr "Red"
+
+msgid "Schwarz"
+msgstr "Black"
+
+msgid "Gestrichelt: geschlossen · !: Aufmerksamkeit"
+msgstr "Dashed: closed · !: needs attention"
+
+msgid "Pistenplan: tippen oder vergrößern"
+msgstr "Piste map: tap or expand"
+
+msgid "Panorama bis Betriebsprobleme zuerst"
+msgstr "Scenery through to operational issues first"
+
+msgid "Aufmerksamkeit %d %% · Panorama ↔ Betrieb"
+msgstr "Attention %d %% · Scenery ↔ Operations"
+
+msgid "Interaktiver Pistenplan"
+msgstr "Interactive piste map"
+
+
+msgid "Monochrom · Strichlinien"
+msgstr "Monochrome · Line art"
+
+msgid "Schwarze Strichlinien auf hellem Papier: reduzierte Häuser, Bäume, Liftstationen und Symbole ohne Farbtöne."
+msgstr "Black lines on light paper: simplified houses, trees, lift stations and symbols without color hues."
+
+msgid "Lebkuchen-Festhütte"
+msgstr "Gingerbread festive lodge"
+
+msgid "Geschenkewerkstatt"
+msgstr "Gift workshop"
+
+msgid "Silvester-Festbühne"
+msgstr "New Year’s Eve stage"
+
+msgid "Weihnachtsmarkt-Bude"
+msgstr "Christmas market stall"
+
+
+msgid "TAG & ZEIT"
+msgstr "DAY & TIME"
+
+msgid "Heute: %s €"
+msgstr "Today: €%s"
+
+msgid "%d warten"
+msgstr "%d waiting"
+
+msgid "%d Resort-Sterne"
+msgstr "%d resort stars"
+
+msgid "%d Pisten · %d Lifte"
+msgstr "%d pistes · %d lifts"
+
+msgid "Abendbetrieb"
+msgstr "Evening operations"
+
+msgid "Betrieb läuft"
+msgstr "Operating"

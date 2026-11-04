@@ -63,6 +63,37 @@ static func _kind(tags: Dictionary) -> String:
 	var seats := int(str(tags.get("aerialway:occupancy", "4")).to_int())
 	return "chair8" if seats >= 8 else "chair6" if seats >= 6 else "chair" if seats >= 4 else "chair2" if seats >= 2 else "chair1"
 
+## Baked map fixtures bypass the normal fresh-geodata starter building loop.
+## Every NEW real-world scenario still needs the operational facilities
+## required by its missions; never mutate an existing loaded player save.
+static func ensure_operations_facilities(model: RefCounted) -> void:
+	for kind in ["maintenance","repair_office","first_aid","disco"]:
+		if model.buildings.any(func(b):return str(b.kind)==kind):continue
+		var placed := false
+		for ring in range(1,31):
+			if placed:break
+			for angle in range(32):
+				var at: Vector2=Terrain.BASE+Vector2(cos(float(angle)*TAU/32.0),sin(float(angle)*TAU/32.0))*(40.0+float(ring)*21.0)
+				if not model.terrain.contains(at) or model.terrain.slope_percent(at)>40.0:continue
+				if model.buildings.any(func(b):return Terrain.unpack(b.point).distance_to(at)<50.0):continue
+				var blocked := false
+				for lift in model.lifts:
+					if at.distance_to(Terrain.unpack(lift.bottom))<60.0 or at.distance_to(Terrain.unpack(lift.top))<60.0:
+						blocked=true
+						break
+				if blocked:continue
+				for piste in model.pistes:
+					for i in range(1,piste.points.size()):
+						if Geometry2D.get_closest_point_to_segment(at,Terrain.unpack(piste.points[i-1]),Terrain.unpack(piste.points[i])).distance_to(at)<30.0:
+							blocked=true
+							break
+					if blocked:break
+				if blocked:continue
+				model.buildings.append({"id":model.next_id,"kind":kind,"point":Terrain.pack(at),"cost":Catalog.BUILDINGS[kind].cost,"enabled":true,"level":1,"upgrade_total":0.0,"name":Catalog.BUILDINGS[kind].name,"visits":0,"revenue":0.0,"rotation":0})
+				model.next_id+=1
+				placed=true
+				break
+
 static func seed(model: RefCounted) -> void:
 	var prepared := baked(model.map_id) if not OS.get_cmdline_user_args().has("--fresh-geodata") else {}
 	if not prepared.is_empty():
@@ -75,6 +106,7 @@ static func seed(model: RefCounted) -> void:
 				for key in ["id", "number", "level", "difficulty", "section", "sections", "boarded", "last_load", "rotation"]:
 					if item.has(key): item[key] = int(item[key])
 		VillageServices.add(model)
+		ensure_operations_facilities(model)
 		model.campaign.mode = "career"
 		model._reset_report()
 		model._invalidate()
@@ -130,12 +162,12 @@ static func seed(model: RefCounted) -> void:
 	# The existing access coordinate is the WGS84 origin of this map. Place
 	# starter services beside it, checking the real ground and existing assets.
 	var used_lots: Array = []
-	for kind in ["rental", "restaurant", "hotel"]:
+	for kind in ["rental", "restaurant", "hotel", "maintenance", "repair_office", "first_aid", "disco"]:
 		var found := false
-		for ring in range(1, 9):
+		for ring in range(1, 15):
 			if found: break
-			for angle in range(20):
-				var at := Terrain.BASE + Vector2(cos(angle * TAU / 20), sin(angle * TAU / 20)) * (30 + ring * 22)
+			for angle in range(24):
+				var at := Terrain.BASE + Vector2(cos(angle * TAU / 24), sin(angle * TAU / 24)) * (30 + ring * 22)
 				if not model.terrain.contains(at) or model.terrain.slope_percent(at) > 40: continue
 				if used_lots.any(func(p): return at.distance_to(p) < 45): continue
 				var blocked := false
