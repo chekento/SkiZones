@@ -175,6 +175,8 @@ jobs:
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
       - name: 0.33 rare weather, no consecutive storms and stable lift wind safety
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/weather_distribution_033.gd
+      - name: 0.33 five animated weather looks, no overlay and mobile particle budget
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/weather_atmosphere_scene_033.gd
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
