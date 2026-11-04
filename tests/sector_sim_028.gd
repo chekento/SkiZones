@@ -41,7 +41,7 @@ func run() -> void:
 			check(case_data.get("mode","")=="decision" and (case_data.get("choices",[]) as Array).size()==3,kind+" scenario has three actual tradeoffs")
 			check(int(case_data.get("answer",-1))>=0 and int(case_data.get("answer",-1))<3,kind+" scenario admits a valid decision")
 			check(str(case_data.get("context","")).contains("32"),kind+" case uses actual live queue size")
-	check(Design.GENRES.size()==14,"Thirteen radio programmes and silent mode")
+	check(Design.GENRES.size()==18,"Seventeen programmes and silent mode")
 	check("erg0sphere" in Design.EXTERNAL_STATIONS,"Own album is explicitly external")
 	check(Design.genre_valid("folk_swedish")=="folk_swedish","Swedish folk genre is valid")
 	check(Design.genre_valid("space")=="space","Deep Space genre stays separate")
