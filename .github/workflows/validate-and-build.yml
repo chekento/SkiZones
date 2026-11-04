@@ -163,6 +163,10 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
       - name: Eight landscapes, village promenade and real entrance controls
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
+      - name: 0.32 screen-size layout of careers and real scenarios
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-layout-032
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/responsive_selectors_032.gd
       - name: Newspaper adverts and poster touch, pause and Android Back integration
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
       - name: Five art directions, terrain geometry stability and persistent display settings
