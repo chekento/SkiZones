@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "offline": true,
   "policy": "Only tracks documented as CC0 by the individual upstream listing or mirrored source manifest. Every bundled file is checksum-verified. Curatorial listening and third-party clearance remain separate from the CC0 assertion. Version 4 reuses individually documented CC0 files across station playlists; positions are not unique new recordings. Deep Space 4-minute target requires duration QA before it is claimed as complete. User-provided SoundCloud playlist is a credited external link, not a bundled file.",
   "stations": {
@@ -675,6 +675,32 @@
         "mountain_moment": "Kicker · Action",
         "sport_fit": "both",
         "playlist_reuse": true
+      },
+      {
+        "id": "long-joyfully",
+        "title": "Joyfully (Full Mix)",
+        "artist": "MintoDog",
+        "file": "res://assets/music/cc0/long-joyfully.ogg",
+        "style": "electronic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/joyfully",
+        "source_file_url": "https://opengameart.org/sites/default/files/joyfully_bpm170_0.ogg",
+        "source_sha256": "97adaee9b287b46126130561e944b606b5b2ca277ae97acf39e991ac65ff67cd",
+        "transcoded_sha256": "ff329921799b0d70ddbc614580195e479a7291c3362e0b4fcc51487322c8d112",
+        "duration_seconds": 325.06,
+        "duration_verified": true,
+        "mountain_moment": "Powder-Speed · belebender Wintersport",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-joyfully.ogg",
+          "git_blob_sha1": "09ab589e918e7cce76e6bbe9aff32a1173a239d2",
+          "bytes": 4359208
+        }
       }
     ],
     "hiphop": [
@@ -2384,6 +2410,32 @@
         "mountain_moment": "Winterruhe · Bergstille",
         "sport_fit": "both",
         "playlist_reuse": true
+      },
+      {
+        "id": "long-joyfully",
+        "title": "Joyfully (Full Mix)",
+        "artist": "MintoDog",
+        "file": "res://assets/music/cc0/long-joyfully.ogg",
+        "style": "electronic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/joyfully",
+        "source_file_url": "https://opengameart.org/sites/default/files/joyfully_bpm170_0.ogg",
+        "source_sha256": "97adaee9b287b46126130561e944b606b5b2ca277ae97acf39e991ac65ff67cd",
+        "transcoded_sha256": "ff329921799b0d70ddbc614580195e479a7291c3362e0b4fcc51487322c8d112",
+        "duration_seconds": 325.06,
+        "duration_verified": true,
+        "mountain_moment": "Powder-Speed · belebender Wintersport",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-joyfully.ogg",
+          "git_blob_sha1": "09ab589e918e7cce76e6bbe9aff32a1173a239d2",
+          "bytes": 4359208
+        }
       }
     ],
     "space": [
@@ -2714,6 +2766,32 @@
         "mountain_moment": "Carving · Tempo",
         "sport_fit": "both",
         "playlist_reuse": true
+      },
+      {
+        "id": "long-hypnotic-chill",
+        "title": "Hypnotic Chill — Extended Mix",
+        "artist": "cynicmusic",
+        "file": "res://assets/music/cc0/long-hypnotic-chill.ogg",
+        "style": "trance",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/hypnotic-chill-extended-4-minute-mix",
+        "source_file_url": "https://opengameart.org/sites/default/files/2010_June_HypnoticChill_17.mp3",
+        "source_sha256": "8fa1ace27d6acbe740f729ad684b739143a7b7acb2fe2ffaa5ab2669cd9e297f",
+        "transcoded_sha256": "34f4a29dac956dfebb81f7a5470e559fc1ec4cb1663515b942b068c8bfb541f9",
+        "duration_seconds": 250.04,
+        "duration_verified": true,
+        "mountain_moment": "Trance-Reise durch das Sternenlicht",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-hypnotic-chill.ogg",
+          "git_blob_sha1": "5d372bbc415fc562ebd0aab892226667b563307d",
+          "bytes": 3712551
+        }
       }
     ],
     "apres": [
@@ -3937,6 +4015,110 @@
         "playlist_reuse": true,
         "curation_tag": "atmospherics",
         "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "long-calm-track",
+        "title": "Calm Track",
+        "artist": "pmiller",
+        "file": "res://assets/music/cc0/long-calm-track.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/calm-track",
+        "source_file_url": "https://opengameart.org/sites/default/files/calm_track.ogg",
+        "source_sha256": "ab004477a4f37183beb5b6153fdccd6659181c2cca87b12bee68d29ffb7a4f33",
+        "transcoded_sha256": "8cbc21f8750e799d101211c3d943923046a792cd320ff3d7ef40606aadcf5039",
+        "duration_seconds": 251.96,
+        "duration_verified": true,
+        "mountain_moment": "Tiefenentspannung · verschneites Panorama",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-calm-track.ogg",
+          "git_blob_sha1": "e097891310926859d9b93bb900c3a6d0cddb4594",
+          "bytes": 2136382
+        }
+      },
+      {
+        "id": "long-slowly-running",
+        "title": "Slowly Running",
+        "artist": "Game_assets_66",
+        "file": "res://assets/music/cc0/long-slowly-running.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/slowly-running",
+        "source_file_url": "https://opengameart.org/sites/default/files/Slowly%20running%20mp3.mp3",
+        "source_sha256": "207e5e4d380d82939644a6492a73455c888488c229e74cd3aa96ff129a4d81fd",
+        "transcoded_sha256": "8cc79c3431d9a6e6b6bcbd1779440675e2eb6de9787b177b98a70f162c8b71ac",
+        "duration_seconds": 300.54,
+        "duration_verified": true,
+        "mountain_moment": "Fünf Minuten Ruhe · Gipfelmorgen",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-slowly-running.ogg",
+          "git_blob_sha1": "55c162117b756c317ec6b2eefb5e41323db831fc",
+          "bytes": 3563443
+        }
+      },
+      {
+        "id": "long-hypnotic-chill",
+        "title": "Hypnotic Chill — Extended Mix",
+        "artist": "cynicmusic",
+        "file": "res://assets/music/cc0/long-hypnotic-chill.ogg",
+        "style": "trance",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/hypnotic-chill-extended-4-minute-mix",
+        "source_file_url": "https://opengameart.org/sites/default/files/2010_June_HypnoticChill_17.mp3",
+        "source_sha256": "8fa1ace27d6acbe740f729ad684b739143a7b7acb2fe2ffaa5ab2669cd9e297f",
+        "transcoded_sha256": "34f4a29dac956dfebb81f7a5470e559fc1ec4cb1663515b942b068c8bfb541f9",
+        "duration_seconds": 250.04,
+        "duration_verified": true,
+        "mountain_moment": "Trance-Reise durch das Sternenlicht",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-hypnotic-chill.ogg",
+          "git_blob_sha1": "5d372bbc415fc562ebd0aab892226667b563307d",
+          "bytes": 3712551
+        }
+      },
+      {
+        "id": "long-somnium",
+        "title": "Somnium",
+        "artist": "Adiutorium",
+        "file": "res://assets/music/cc0/long-somnium.ogg",
+        "style": "meditative",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/somnium",
+        "source_file_url": "https://opengameart.org/sites/default/files/somnium.mp3",
+        "source_sha256": "fe6055d9eb118faafeb2ebb30e453b2b288c0c22d67331200c922fefb7d6a371",
+        "transcoded_sha256": "2e9b5a767b626e3cd1f6ef0f580bca6993e4e878b56c3bf30c2f83962078b7a4",
+        "duration_seconds": 219.06,
+        "duration_verified": true,
+        "mountain_moment": "Traumlandschaft · Ruhe und Tiefe",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-somnium.ogg",
+          "git_blob_sha1": "6a7b4d32ff9350fbf539ee1309e8f6f46eaf6bf3",
+          "bytes": 2665604
+        }
       }
     ],
     "hotel_lobby": [
@@ -4323,6 +4505,58 @@
         "playlist_reuse": true,
         "curation_tag": "hotel_lobby",
         "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "long-calm-track",
+        "title": "Calm Track",
+        "artist": "pmiller",
+        "file": "res://assets/music/cc0/long-calm-track.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/calm-track",
+        "source_file_url": "https://opengameart.org/sites/default/files/calm_track.ogg",
+        "source_sha256": "ab004477a4f37183beb5b6153fdccd6659181c2cca87b12bee68d29ffb7a4f33",
+        "transcoded_sha256": "8cbc21f8750e799d101211c3d943923046a792cd320ff3d7ef40606aadcf5039",
+        "duration_seconds": 251.96,
+        "duration_verified": true,
+        "mountain_moment": "Tiefenentspannung · verschneites Panorama",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-calm-track.ogg",
+          "git_blob_sha1": "e097891310926859d9b93bb900c3a6d0cddb4594",
+          "bytes": 2136382
+        }
+      },
+      {
+        "id": "long-slowly-running",
+        "title": "Slowly Running",
+        "artist": "Game_assets_66",
+        "file": "res://assets/music/cc0/long-slowly-running.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/slowly-running",
+        "source_file_url": "https://opengameart.org/sites/default/files/Slowly%20running%20mp3.mp3",
+        "source_sha256": "207e5e4d380d82939644a6492a73455c888488c229e74cd3aa96ff129a4d81fd",
+        "transcoded_sha256": "8cc79c3431d9a6e6b6bcbd1779440675e2eb6de9787b177b98a70f162c8b71ac",
+        "duration_seconds": 300.54,
+        "duration_verified": true,
+        "mountain_moment": "Fünf Minuten Ruhe · Gipfelmorgen",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-slowly-running.ogg",
+          "git_blob_sha1": "55c162117b756c317ec6b2eefb5e41323db831fc",
+          "bytes": 3563443
+        }
       }
     ],
     "mountain_sunrise": [
@@ -4619,6 +4853,32 @@
         "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire.",
         "curation_tag": "mountain_sunrise",
         "vetting": "source-license-checked; duration and full-genre QA pending"
+      },
+      {
+        "id": "long-slowly-running",
+        "title": "Slowly Running",
+        "artist": "Game_assets_66",
+        "file": "res://assets/music/cc0/long-slowly-running.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/slowly-running",
+        "source_file_url": "https://opengameart.org/sites/default/files/Slowly%20running%20mp3.mp3",
+        "source_sha256": "207e5e4d380d82939644a6492a73455c888488c229e74cd3aa96ff129a4d81fd",
+        "transcoded_sha256": "8cc79c3431d9a6e6b6bcbd1779440675e2eb6de9787b177b98a70f162c8b71ac",
+        "duration_seconds": 300.54,
+        "duration_verified": true,
+        "mountain_moment": "Fünf Minuten Ruhe · Gipfelmorgen",
+        "sport_fit": "both",
+        "playlist_reuse": true,
+        "curation_tag": "longform-verified",
+        "mirror": {
+          "repository": "chekento/SkiZones",
+          "commit": "import-029",
+          "path": "assets/music/cc0/long-slowly-running.ogg",
+          "git_blob_sha1": "55c162117b756c317ec6b2eefb5e41323db831fc",
+          "bytes": 3563443
+        }
       }
     ],
     "lodge_lofi": [
@@ -4979,5 +5239,6 @@
       "offline_tracks": 0,
       "creator_owned": true
     }
-  }
+  },
+  "longform_import_note": "Only tracks whose original sources were actually downloaded and measured >=180 seconds were added. Per-asset source and output hashes are recorded."
 }
