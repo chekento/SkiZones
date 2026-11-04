@@ -10,6 +10,7 @@ const Catalog=preload("res://src/core/catalog.gd")
 const PosterArt=preload("res://src/ui/seasonal_poster_art.gd")
 const NewspaperArt=preload("res://src/ui/newspaper_art.gd")
 const RadioAd=preload("res://src/ui/radio_ad_art.gd")
+const Radio=preload("res://src/core/audio_design.gd")
 const Scenery=preload("res://src/world/festival_scenery.gd")
 const Dressing=preload("res://src/world/village_dressing.gd")
 var passed:=0
