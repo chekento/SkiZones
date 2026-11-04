@@ -28,9 +28,9 @@ func run() -> void:
 	var tickets: float=model.report.tickets
 	var visitors: int=model.total_guests
 	var old_day: int=model.day
-	for i in range(539):
+	for i in range(1440 - 1320 + model.OPENING - 1):
 		if not model.advance_empty_minute(): break
-	check(model.day==old_day+1 and model.minute==419,"Night skips forward across real midnight until 06:59 without stalling")
+	check(model.day==old_day+1 and model.minute==model.OPENING-1,"Night skips to one minute before the actual lift opening without stalling")
 	check(model.total_guests==visitors and model.report.tickets==tickets and model.guests.is_empty(),"Quiet-night demand creates no ghost guests and charges no imaginary ticket")
 	check(int(model.operations.pending_arrivals)>=6 and int(model.operations.pending_arrivals)<=24,"Late-night interest is bounded until morning, never infinite arrivals")
 	var pending: int=int(model.operations.pending_arrivals)
@@ -49,7 +49,7 @@ func run() -> void:
 	check(old_copy.restore(old_snapshot).ok and int(old_copy.operations.pending_arrivals)==0,"Legacy 0.32 operations without new field migrate to safe zero")
 	var guest_count: int=model.total_guests
 	model.advance_empty_minute()
-	check(model.minute==420 and not model.empty_night(),"Morning at 07:00 resumes normal time instead of skipping the ski day")
+	check(model.minute==model.OPENING and not model.empty_night(),"Morning at actual 08:00 lift opening resumes normal simulation")
 	check(int(model.operations.pending_arrivals)<=pending and int(model.operations.pending_arrivals)>=0,"Morning demand is released only within bounded capacity")
 	check(model.total_guests-guest_count>=pending-int(model.operations.pending_arrivals),"Every consumed dawn-interest slot corresponds to a real admitted visitor")
 	# Actual staffed village: an existing guest walking to night service may
