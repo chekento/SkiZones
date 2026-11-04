@@ -51,7 +51,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	station_info.add_theme_color_override("font_color",hud.INK)
 	station_info.add_theme_font_size_override("font_size",17)
 	tuner.add_child(station_info)
-	hud._label(page,L.text("Offline-Musik mit dokumentierten CC0-Quellen. Die persönliche ERG0SPHERE-Playlist wird nur auf ausdrücklichen Klick extern geöffnet."),15,hud.MUTED,true)
+	hud._label(page,L.text("Offline-Musik mit dokumentierten CC0-Quellen. Der separate ERG0SPHERE-Albumkanal öffnet SoundCloud ausschließlich auf ausdrücklichen Klick."),15,hud.MUTED,true)
 	enabled.text=L.text("Audio einschalten")
 	enabled.custom_minimum_size.y=46
 	page.add_child(enabled)
@@ -93,7 +93,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 		hud.game.audio.next_track()
 		_update_now_playing()
 	)
-	space_link = hud._button(page,L.text("ERG0SPHERE Journey · eigene SoundCloud-Playlist öffnen"),func():
+	space_link = hud._button(page,L.text("ERG0SPHERE Journey · SoundCloud-Player öffnen"),func():
 		var error: Error = OS.shell_open(Design.SPACE_COLLECTION_URL)
 		if error != OK: hud.toast(L.text("SoundCloud konnte nicht geöffnet werden."))
 	)
@@ -192,8 +192,13 @@ func _refresh_tuner() -> void:
 	var song_count: int = hud.game.audio.station_track_count(key)
 	station_info.text = L.text("FREQUENZ %02d · %s · %d Titel im Offline-Archiv") % [genre_choice.selected,str(Design.GENRE_NAMES[key]),song_count]
 	if key=="space":
-		station_info.text += "\n" + L.text("Deep Space Trance · ERG0SPHERE Journey (externe Originalsammlung)")
+		station_info.text += "\n" + L.text("Deep Space Trance · atmosphärische Offline-Auswahl")
 		station_info.text += "\n" + L.text("Laufzeiten >4 Minuten sind für die Offline-Titel noch nicht verifiziert.")
+	if key=="erg0sphere":
+		station_info.text = L.text("KoSch ORIGINALALBUM · ERG0SPHERE Journey")
+		station_info.text += "\n" + L.text("Nur auf Knopfdruck: Browser/SoundCloud. Keine automatische Wiedergabe im Spiel.")
+	if key in ["folk_alpine","folk_swedish"]:
+		station_info.text += "\n" + L.text("7 Übergangstitel · regionale Originalaufnahmen werden noch kuratiert.")
 	if key=="punk":
 		station_info.text += "\n" + L.text("Skater-Punk-Kuration: richtige Gitarren-Songs werden noch ergänzt.")
-	if is_instance_valid(space_link): space_link.visible=(key=="space")
+	if is_instance_valid(space_link): space_link.visible=(key=="erg0sphere")
