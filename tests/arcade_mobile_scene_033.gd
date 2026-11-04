@@ -60,10 +60,10 @@ func run() -> void:
 			await settle()
 			var buttons: Array = experience.find_children("square_*", "Button", true, false)
 			check(buttons.size() == 9, "%s %s: lodge unlocks a genuine nine-square game" % [language, str(dims)])
-			var surface := experience.find_child("ArcadeSurface", true, false) as PanelContainer
-			var title := experience.find_child("ArcadeTitle", true, false) as Label
-			var instructions := experience.find_child("ArcadeInstructions", true, false) as Label
-			var score := experience.find_child("ArcadeScore", true, false) as Label
+			var surface := experience.find_child("arcade_surface", true, false) as PanelContainer
+			var title := experience.find_child("arcade_title", true, false) as Label
+			var instructions := experience.find_child("arcade_instructions", true, false) as Label
+			var score := experience.find_child("arcade_score", true, false) as Label
 			check(surface != null and title != null and instructions != null and score != null,
 				"%s %s: arcade presents a complete themed text surface" % [language, str(dims)])
 			if surface != null and title != null and instructions != null and score != null:
