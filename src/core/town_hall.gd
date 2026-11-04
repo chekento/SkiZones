@@ -81,7 +81,7 @@ static func _suitable(model: RefCounted, at: Vector2, limit: float) -> bool:
 	if not at.is_finite() or not model.terrain.contains(at): return false
 	if model.terrain.slope_percent(at)>limit: return false
 	for item in model.buildings:
-		if Terrain.unpack(item.point).distance_to(at)<44.0: return false
+		if Terrain.unpack(item.point).distance_to(at)<100.0: return false
 	for lift in model.lifts:
 		if at.distance_to(Terrain.unpack(lift.bottom))<75.0 or at.distance_to(Terrain.unpack(lift.top))<60.0: return false
 	for piste in model.pistes:
@@ -99,11 +99,14 @@ static func ensure_new_town(model: RefCounted) -> bool:
 		if str(item.get("kind","")) in ["rental","hotel","guesthouse","restaurant","lodge","bus"]:
 			anchors.push_front(Terrain.unpack(item.point))
 	for anchor in anchors:
-		for ring in [52.0,78.0,108.0,148.0,192.0]:
+		for ring in [108.0,148.0,192.0]:
 			for angle_index in range(16):
 				var direction: Vector2=Vector2.from_angle(float(angle_index)*TAU/16.0)
 				var pos: Vector2=anchor+direction*ring
 				if not _suitable(model,pos,48.0): continue
+				# Validate real footprints and pedestrian access; keep central
+				# starter service lots clear for the player\'s first buildings.
+				if not model.preview_building("town_hall",pos).ok: continue
 				model.buildings.append({"id":model.next_id,"kind":"town_hall","point":Terrain.pack(pos),
 					"cost":0,"enabled":true,"level":1,"upgrade_total":0.0,
 					"name":str(Catalog.BUILDINGS.town_hall.name),"visits":0,"revenue":0.0,"rotation":0})

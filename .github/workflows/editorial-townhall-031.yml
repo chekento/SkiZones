@@ -31,7 +31,9 @@ jobs:
           python3 tools/check_localization.py
       - name: Confirm municipal chronology, new-game town hall, dated posters and newspaper adverts
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/editorial_townhall_031.gd
+      - name: Install real renderer for theme color and screenshot checks
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Verify nine visual styles retain original terrain geometry
-        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/visual_styles_scene.gd
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
       - name: Verify historical save migration is still safe
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/achievement_progression.gd
