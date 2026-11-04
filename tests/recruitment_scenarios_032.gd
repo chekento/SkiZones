@@ -3,6 +3,7 @@ const Ops=preload("res://src/core/operations.gd")
 const Recruit=preload("res://src/core/recruitment.gd")
 const Resort=preload("res://src/core/resort.gd")
 const Geo=preload("res://src/core/real_resorts.gd")
+const Terrain=preload("res://src/core/terrain.gd")
 var passed:=0
 var failed:=0
 func _init() -> void:call_deferred("run")
@@ -52,16 +53,16 @@ func run()->void:
 	var fresh_aid: Array = clearance_model.buildings.filter(func(b):return str(b.kind)=="first_aid" and not old_ids.has(int(b.id)))
 	check(fresh_aid.size()==1,"Missing Braunlage rescue facility can be re-sited on real terrain")
 	if fresh_aid.size()==1:
-		var site: Vector2 = Geo.Terrain.unpack(fresh_aid[0].point)
+		var site: Vector2 = Terrain.unpack(fresh_aid[0].point)
 		var cleared: bool = clearance_model.terrain.contains(site) and clearance_model.terrain.slope_percent(site)<=40.0
 		for building in clearance_model.buildings:
-			if int(building.id)!=int(fresh_aid[0].id) and Geo.Terrain.unpack(building.point).distance_to(site)<50.0:cleared=false
+			if int(building.id)!=int(fresh_aid[0].id) and Terrain.unpack(building.point).distance_to(site)<50.0:cleared=false
 		for lift in clearance_model.lifts:
-			if Geo.Terrain.unpack(lift.bottom).distance_to(site)<60.0 or Geo.Terrain.unpack(lift.top).distance_to(site)<60.0:cleared=false
+			if Terrain.unpack(lift.bottom).distance_to(site)<60.0 or Terrain.unpack(lift.top).distance_to(site)<60.0:cleared=false
 		for piste in clearance_model.pistes:
 			for point_index in range(1,piste.points.size()):
-				var a: Vector2 = Geo.Terrain.unpack(piste.points[point_index-1])
-				var b: Vector2 = Geo.Terrain.unpack(piste.points[point_index])
+				var a: Vector2 = Terrain.unpack(piste.points[point_index-1])
+				var b: Vector2 = Terrain.unpack(piste.points[point_index])
 				if Geometry2D.get_closest_point_to_segment(site,a,b).distance_to(site)<30.0:cleared=false
 		check(cleared,"Cached segment placement keeps original 30/50/60 metre safety clearances")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
