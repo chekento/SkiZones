@@ -45,31 +45,32 @@ func run() -> void:
     check(int(occupancy.get(17,0))==10 and int(occupancy.get(18,0))==3,
         "Only currently visiting real parties count; leaving and skiing visitors do not")
     var view := FakeView.new()
-    view.model = FakeModel.new()
+    var model := FakeModel.new()
+    view.model = model
     var building := MeshInstance3D.new()
     building.position = Vector3(20,0,20)
     view.add_child(building)
     var art := Living.new()
-    art.register(view.model.building, building, "alpine")
+    art.register(model.building, building, "alpine")
     check(art.entries.size()==1 and art.entries[0].notes.size()==2,
         "Disco has two presentation-only musical notes")
-    view.model.guests = [guest(17, 5)]
+    model.guests = [guest(17, 5)]
     art.update(view, 0.12)
     check(art.entries[0].notes[0].visible and not art.entries[0].notes[1].visible and is_equal_approx(building.scale.x,1.0),
         "Five people show subtle notes without geometry growth")
-    view.model.guests = [guest(17, 8),guest(17, 5)]
+    model.guests = [guest(17, 8),guest(17, 5)]
     art.update(view, 0.12)
     check(art.entries[0].notes[1].visible and building.scale.x>1.0,
         "Ten people visibly strengthen the animation")
-    view.model.guests = [guest(17, 8),guest(17, 8),guest(17, 7)]
+    model.guests = [guest(17, 8),guest(17, 8),guest(17, 7)]
     art.update(view, 0.12)
     check(building.scale.x>=1.08 and building.scale.x<=1.10,
         "Twenty people widen the visible house without moving game coordinates")
-    view.model.building.enabled=false
+    model.building.enabled=false
     art.update(view, 0.12)
     check(is_equal_approx(building.scale.x,1.0) and not art.entries[0].notes[0].visible,
         "Disabling a venue ends its party visuals")
-    view.model.building.enabled=true
+    model.building.enabled=true
     art.restyle("monochrome")
     check(art.entries[0].notes[0].modulate==Color(str(Styles.ui_palette("monochrome").accent)),
         "Theme switching recolors the animated notes")
