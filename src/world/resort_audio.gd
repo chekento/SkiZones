@@ -284,7 +284,8 @@ func sync() -> void:
 		if layer=="crowd":target*=_crowd_gain
 		if layer=="machinery":target*=_machinery_gain
 		_targets[layer]=target
-	_targets.music=music*(0.22+float(profile.get("music",0))*0.72) if station!="off" else 0.0
+	# User-selected radio is continuous background music; location only affects ambient SFX.
+	_targets.music=music if station!="off" else 0.0
 	_mix(0.0)
 
 func _mix(delta: float) -> void:
