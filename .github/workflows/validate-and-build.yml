@@ -452,11 +452,12 @@ jobs:
           disable-animations: true
           # Godot uses GLES; avoid the unsupported Vulkan/browser path on CI hosts.
           # https://developer.android.com/studio/run/emulator-troubleshooting
-          # API 30's host glestranslator lost its GL context when Android
-          # force-stopped and recreated the Godot activity in the previous
-          # release. Software GPU isolates the emulator surface lifecycle.
-          # Keep the working API 36 hardware-backed configuration unchanged.
-          emulator-options: ${{ matrix.api == 30 && '-no-window -gpu swiftshader_indirect -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none' || '-no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none' }}
+          # The API 30 SwiftShader run 41856228949 displayed only the clear
+          # colour: its GLES linker reported GL_MAX_FRAGMENT_UNIFORM_VECTORS
+          # and hundreds of program errors. Use the same host GLES backend
+          # that rendered real gameplay on API 36; never relax pixel checks.
+          # Re-test all lifecycle and save-preservation gates before release.
+          emulator-options: '-no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none'
           script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa
       - uses: actions/upload-artifact@v4
         if: always()
