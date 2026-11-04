@@ -938,6 +938,7 @@ func show_help() -> void:
 	help_dialog.popup_centered(Vector2i(800, 630))
 
 func show_menu() -> void:
+	seasonal_poster.hide()
 	building_browser.hide()
 	piste_workshop.close()
 	experience.close()

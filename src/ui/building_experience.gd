@@ -11,6 +11,7 @@ const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
 const NewspaperArt = preload("res://src/ui/newspaper_art.gd")
+const AudioDesign = preload("res://src/core/audio_design.gd")
 const RadioAdArt = preload("res://src/ui/radio_ad_art.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const HotelStoryArt = preload("res://src/ui/hotel_story_art.gd")
@@ -204,8 +205,8 @@ func _newspaper(building: Dictionary) -> void:
 		divide.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		content.add_child(divide)
 		hud._label(content,L.text(str(article.detail)),17,ink,true)
-		hud._label(content,L.text(str(article.summary)),13,muted,true)
-		hud._label(content,L.text(str(article.byline))+" · #"+str(article.id),12,muted,true)
+		hud._label(content,L.text("%s · %d Abfahrten · %d Gäste insgesamt") % [L.text(str(edition.district)),int(model.total_rides),int(model.total_guests)],13,muted,true)
+		hud._label(content,L.text("Die Redaktion · Tag %d") % int(model.day)+" · #"+str(article.id),12,muted,true)
 	hud._label(page,L.text("ANZEIGENTEIL · ALPINE RADIO"),19,accent,true)
 	hud._label(page,L.text("Unsere Sender für Piste, Hütte, Hotellobby, Snowpark und lange Winterabende. Jede Ausgabe setzt andere Programmtipps."),14,hud.MUTED,true)
 	var ads:=GridContainer.new()
@@ -226,8 +227,16 @@ func _newspaper(building: Dictionary) -> void:
 		hud._label(block,L.text(str(advert.copy)),14,muted,true)
 		var condition:=L.text("Externes Künstleralbum · SoundCloud nur auf Klick") if bool(advert.external) else L.text("Exklusiv in der Hotelverwaltung") if bool(advert.exclusive) else L.text("Offline-Radio · CC0-Quellennachweise im Impressum")
 		hud._label(block,condition,12,accent,true)
-		hud._button(block,L.text("Sender im Radio ansehen"),func(): hud.jukebox.open())
+		hud._button(block,L.text("Sender im Radio ansehen"),_open_radio_ad.bind(str(advert.id)))
 
+
+func _open_radio_ad(station_id: String) -> void:
+	close()
+	hud.jukebox.open()
+	var index: int = AudioDesign.GENRES.find(station_id)
+	if index >= 0:
+		hud.jukebox.genre_choice.select(index)
+		hud.jukebox.genre_choice.item_selected.emit(index)
 
 func _town_hall(_building: Dictionary) -> void:
 	var style_name: String=VisualStyles.valid(hud.game.preferences.visual_style)

@@ -37,8 +37,8 @@ func _draw() -> void:
 	while title_size > 18 and font.get_string_size(masthead,HORIZONTAL_ALIGNMENT_LEFT,-1,title_size).x > w-34:
 		title_size -= 1
 	var subtitle_size := clampi(roundi(w/44.0),11,15)
-	draw_string(font,Vector2(w*0.5,46),L.text("SEIT DEM ERSTEN SKITAG  ·  STIMME DER BERGE"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-35),subtitle_size,thin)
-	draw_string(font,Vector2(w*0.5,92),masthead,HORIZONTAL_ALIGNMENT_CENTER,roundi(w-28),title_size,ink)
+	draw_string(font,Vector2(17,46),L.text("SEIT DEM ERSTEN SKITAG  ·  STIMME DER BERGE"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-35),subtitle_size,thin)
+	draw_string(font,Vector2(14,92),masthead,HORIZONTAL_ALIGNMENT_CENTER,roundi(w-28),title_size,ink)
 	draw_line(Vector2(21,102),Vector2(w-21,102),accent,3)
 	draw_line(Vector2(21,107),Vector2(w-21,107),thin,1)
 	# A miniature hand-inked mountain panorama with expressive contour lines.
@@ -52,4 +52,4 @@ func _draw() -> void:
 		var yy: float=h-25-float(i)*8.0
 		draw_line(Vector2(20,yy),Vector2(w-20,yy),thin,1)
 	draw_string(font,Vector2(28,h-9),L.text("BETRIEBSTAG %d") % edition_day,HORIZONTAL_ALIGNMENT_LEFT,roundi(w-54),13,ink)
-	draw_string(font,Vector2(w-22,h-9),district.to_upper(),HORIZONTAL_ALIGNMENT_RIGHT,roundi(w-54),13,ink)
+	draw_string(font,Vector2(28,h-9),district.to_upper(),HORIZONTAL_ALIGNMENT_RIGHT,roundi(w-54),13,ink)

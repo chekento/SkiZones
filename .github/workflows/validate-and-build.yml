@@ -261,6 +261,8 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/integration_quality_026.gd
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
+      - name: Newspaper adverts and poster touch, pause and Android Back integration
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
       - name: Rendered lift occupants and station plazas
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Build cancellation, two-finger camera and pen/finger scrolling

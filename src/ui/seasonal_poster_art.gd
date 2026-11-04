@@ -35,7 +35,7 @@ func _draw() -> void:
 		while font_size>15 and font.get_string_size(line,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x>w-38:
 			font_size-=1
 	for i in range(3):
-		draw_string(font,Vector2(w*.5,h*.20+float(i)*font_size*1.08),L.text(["WINTER","WUNDER","SKIZONES"][i]),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-24),font_size,Color("fff2d3"))
+		draw_string(font,Vector2(12,h*.20+float(i)*font_size*1.08),L.text(["WINTER","WUNDER","SKIZONES"][i]),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-24),font_size,Color("fff2d3"))
 	var call_size:=clampi(roundi(w*.047),14,35)
-	draw_string(font,Vector2(w*.5,h*.77),L.text("AB 1. DEZEMBER"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),call_size,Color("f5ffe9"))
-	draw_string(font,Vector2(w*.5,h*.83),L.text("24 TÜRCHEN · EIN BERGDORF"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),clampi(roundi(w*.028),11,22),Color("fff3d3"))
+	draw_string(font,Vector2(10,h*.77),L.text("AB 1. DEZEMBER"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),call_size,Color("f5ffe9"))
+	draw_string(font,Vector2(10,h*.83),L.text("24 TÜRCHEN · EIN BERGDORF"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),clampi(roundi(w*.028),11,22),Color("fff3d3"))

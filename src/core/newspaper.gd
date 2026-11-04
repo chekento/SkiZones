@@ -69,8 +69,7 @@ static func sales(model: RefCounted) -> float:
 ## Editorial ads are deterministic and based on actual registered station names.
 ## No sponsorship revenue is invented by displaying an advertisement.
 static func radio_spots(model: RefCounted, count: int = 6) -> Array:
-	var keys := ["alpine","meditative","atmospherics","space","mountain_sunrise","lodge_lofi",
-		"folk_alpine","folk_swedish","punk","hotel_lobby","erg0sphere","ska_album"]
+	var keys: Array = Radio.GENRES.filter(func(id): return id != "off") + Radio.CONTEXT_STATIONS
 	var result: Array = []
 	var start: int = posmod(int(model.day)-1,keys.size())
 	for i in range(clampi(count,0,keys.size())):
