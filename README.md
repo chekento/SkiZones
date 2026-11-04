@@ -29,17 +29,17 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 *Nur APK-Dateien werden gezählt, einschließlich Previews. Prüfsummen und Metadaten sind ausgeschlossen. Downloads sind keine eindeutigen Installationen. Der Download-Link wird nach dem Build und zusätzlich stündlich aktualisiert; GitHub-Bildcaches können verzögern.*
 <!-- APK-DOWNLOAD:END -->
 
-### 🧪 Entwicklungsstand und APK-Status
+### Aktuelle Version und APK-Status
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**Gesamthotfix 0.31.0 · Android-VersionCode 36:** [Zusammenführung und Freigabeprüfung · PR #36](https://github.com/chekento/SkiZones/pull/36). Enthält die Änderungen aus 0.28–0.30 sowie Zeitung, Radiowerbung, neun Kunststile, Rathaus und November-Plakate. Veröffentlichung nach vollständigen Spielstand-, Godot-, Signatur- und Android-30/36-Prüfungen.
+**Gesamthotfix 0.31.0 · Android-VersionCode 36:** [Zusammengeführte Änderungen · PR #36](https://github.com/chekento/SkiZones/pull/36). Enthält die Änderungen aus 0.28–0.30 sowie Zeitung, Radiowerbung, neun Kunststile, Rathaus und November-Plakate. **Veröffentlicht nach bestandenen Spielstand-, Godot-, Signatur- und Android-30/36-Prüfungen.** [Release und APK](https://github.com/chekento/SkiZones/releases/tag/v0.31.0).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
 | [0.23.0–0.27.0](https://github.com/chekento/SkiZones/releases) | Pistenmodule, Hotelwelten, Winterfeste, Szenarien, Kamera und Offline-Radio | Veröffentlicht |
 | [0.30.0](docs/releases/0.30.0.md) | Alte Karrieren, erweiterte Radiosender, Hotellobby, Künstlerkanäle und mobile Bedienung | Veröffentlicht · Android 11/16 bestanden |
-| [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | Im Hauptzweig · Android-Release-Build läuft |
+| [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | **Veröffentlicht · Android 11/16 bestanden** |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
@@ -52,23 +52,23 @@ Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffen
 
 </div>
 
-## 0.31.0 · Gesamthotfix in Freigabeprüfung
+## 0.31.0 · Gesamthotfix mit Radio, Zeitung und neun Kunststilen
 
-Der Releasekandidat verbindet die Spielstand-Reparaturen und die erweiterte Klangwelt mit den neuesten Winter- und Zeitungserweiterungen. Acht normale Berge, vier Karriereplätze und vier optionale reale Szenarien bleiben erhalten.
+Die veröffentlichte Preview verbindet die Spielstand-Reparaturen und die erweiterte Klangwelt mit den neuesten Winter- und Zeitungserweiterungen. Acht normale Berge, vier Karriereplätze und vier optionale reale Szenarien bleiben erhalten.
 
 - **Alte Karrieren:** Wiederherstellung über gültige Slotdateien, Backups und erhaltene Originaldateien; echte 0.19- und 0.27-Saves gehören zur verpflichtenden Freigabe.
 - **Radio:** erweiterte Offline-Programme mit Titel-/Künstler-Credits, Crossfades und gespeicherten Lautstärken. Hotel Lobby FM begleitet ausschließlich die Hotelverwaltung. Das schrille synthetische FX-Fiepen bleibt abgeschaltet.
 - **Eigene Künstlerkanäle:** ERG0SPHERE Journey und KoSch Milton – Ska'radise Lost öffnen SoundCloud ausschließlich nach Klick. Die Album-Masters sind nicht offline in der APK eingebettet. Suno ist weiterhin nicht angebunden.
 - **Zeitung und Kunst:** individuelles Alpen-ExtraBlatt mit echten Resortzahlen, Erfolgen und täglich wechselnder Werbung für sämtliche registrierten Radiosender. Neon Noir, Aurora Ink und Bauhaus ergänzen die bisherigen sechs speicherbaren Stile.
-- **Winterdorf:** Rathaus mit Chronik für neue Orte und zusätzliche Dekoration an vorhandenen Wegen. Anklickbare Plakate erscheinen vom 1. bis 30. November; am 1. Dezember beginnt der Adventskalender. Für das bisher nicht als Spielasset verifizierte Originalplakat ist eine prozedurale Ersatzgrafik enthalten.
+- **Winterdorf:** Rathaus mit Chronik für neue Orte und zusätzliche Dekoration an vorhandenen Wegen. Bestehende Saves können das Rathaus im Baukatalog für 18.000 € ergänzen. Anklickbare Plakate erscheinen vom 1. bis 30. November; am 1. Dezember beginnt der Adventskalender. Für das bisher nicht als Spielasset verifizierte Originalplakat ist eine prozedurale Ersatzgrafik enthalten.
 - **Bedienung:** größere mobile Sicherheitsabstände, freie Kamera bei geschlossenen Fenstern und klare Pause-/Zurück-Regeln für Plakate und Innenräume.
 
 [Gesamte Änderungen 0.31.0](docs/releases/0.31.0.md) · [0.30-Hotfix](docs/releases/0.30.0.md). Physische Handy-Hörtests, authentische Genre-Nachkuratierung und eine vollständige Fahrtprüfung aller importierten Szenarioabschnitte bleiben zusätzliche Arbeit.
 
 <details>
-<summary>Vorschau 0.31.0: echte Spielansichten der Zeitung und drei neuen Kunststile</summary>
+<summary>SkiZones 0.31.0: echte Spielansichten der Zeitung und drei neuen Kunststile</summary>
 
-Diese Aufnahmen stammen aus gerenderten Godot-Testresorts. Sie zeigen die tatsächliche Oberfläche und Grafik des 0.31-Releasekandidaten; der Downloadblock oben nennt weiterhin ausschließlich veröffentlichte APKs.
+Diese Aufnahmen stammen aus gerenderten Godot-Testresorts. Sie zeigen die tatsächliche Oberfläche und Grafik der veröffentlichten 0.31.0; der Downloadblock oben nennt weiterhin ausschließlich veröffentlichte APKs.
 
 ![Alpen-ExtraBlatt mit echten Resortzahlen und zwei redaktionellen Spalten](docs/screenshots/newspaper-031.webp)
 
