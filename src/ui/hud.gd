@@ -854,6 +854,7 @@ func show_piste_map() -> void:
 		return
 	game.stop_cinematic_tour()
 	achievement_overlay.hide()
+	achievement_overlay.set_process(false)
 	game._clear_input()
 	piste_map_full.frame_resort()
 	piste_map_window.show()
@@ -863,6 +864,7 @@ func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
 	if on:
 		achievement_overlay.hide()
+		achievement_overlay.set_process(false)
 		jukebox.close()
 		cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % game.model.day
 	cinema_overlay.visible=on
@@ -1315,7 +1317,9 @@ func refresh() -> void:
 	var model: RefCounted = game.model
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	# Styling is synced before displaying queued achievements.
-	achievement_overlay.visible=not cinema_mode and not piste_map_window.visible
+	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
+	achievement_overlay.visible=show_achievement
+	achievement_overlay.set_process(show_achievement)
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
 	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):

@@ -70,6 +70,7 @@ func run() -> void:
 		var point:=Vector2(game.view.camera.position.x,game.view.camera.position.z)
 		check(not game.view.terrain.contains(point) or game.view.camera.position.y>=game.view.terrain.height(point)+4.9,"Summit camera stays above actual terrain")
 		game.hud.refresh()
+		check(not game.hud.achievement_overlay.visible,"Cinematic footage stays clear of achievement banners")
 		await capture("cinematic-032-summit")
 	game.stop_cinematic_tour()
 	check(game.view.focus==pose.focus and is_equal_approx(game.view.zoom,pose.zoom) and is_equal_approx(game.view.yaw,pose.yaw) and is_equal_approx(game.view.pitch_degrees,pose.pitch) and is_equal_approx(game.view.camera.fov,pose.fov) and game.view.camera_mode==pose.mode,"Leaving the tour restores every camera setting")
@@ -86,6 +87,7 @@ func run() -> void:
 		game.hud.camera_dialog.hide()
 		game.hud.show_piste_map()
 		await settle()
+		check(not game.hud.achievement_overlay.visible,"Map remains clear of achievement banners")
 		check(inside(plan) and plan.size.y>100,"Full piste map fits "+str(resolution))
 		var bounds: Rect2=game.model.terrain.bounds
 		for uv in [Vector2(0.1,0.1),Vector2(0.5,0.5),Vector2(0.9,0.9)]:

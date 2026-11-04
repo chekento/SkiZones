@@ -33,6 +33,7 @@ func _ready() -> void:
 	mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
 	resized.connect(queue_redraw)
 	set_process(game!=null)
+	if game!=null: frame_resort()
 	if interactive and game!=null and not expanded:
 		_expand_button.text="⤢"
 		_expand_button.tooltip_text=L.text("Pistenplan vergrößern")
@@ -52,7 +53,7 @@ func _process(delta: float) -> void:
 	_refresh_time=0
 	if map_id!=game.model.map_id:
 		map_id=game.model.map_id
-		reset_plan()
+		frame_resort()
 	var state := "%s/%d/%s/%s/%s" % [map_id,game.model.revision,str(game.view.focus),str(game.view.visual_style),str(game.model.minute)]
 	if state!=_draw_state:
 		_draw_state=state
@@ -101,6 +102,7 @@ func reset_plan() -> void:
 func frame_resort() -> void:
 	reset_plan()
 	if game==null: return
+	map_id=game.model.map_id
 	var points: Array=[]
 	for lift in game.model.lifts:
 		points.append(Terrain.unpack(lift.bottom))
@@ -199,7 +201,7 @@ func _draw() -> void:
 	if size.x<10 or size.y<10: return
 	if game!=null and map_id!=game.model.map_id:
 		map_id=game.model.map_id
-		reset_plan()
+		frame_resort()
 	var style: String=game.view.visual_style if game!=null else "piste_map"
 	var dark: bool=style in ["neon_noir","aurora_ink"]
 	var paper := Color("172b38") if dark else Color("f5edd8")
