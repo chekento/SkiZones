@@ -25,3 +25,15 @@ Die vom Nutzer bestätigten Rechte an ERG0SPHERE berechtigen zur vorgesehenen ei
 ## Rechtlicher Status
 
 Dies ist eine projektbezogene technische Dokumentation und keine vollständig individualisierte Datenschutzerklärung. Vor Veröffentlichung mit tatsächlich eingebautem iFrame oder einem WebView sind Consent-Mechanik, Anbieterangaben, Tracking, Hosting, Verarbeitungsdetails und Impressum juristisch zu prüfen. **Ein SoundCloud-Embed ohne vorherige Zustimmung ist nicht implementiert.**
+
+
+## Ska'radise Lost — zweiter eigener SoundCloud-Künstlerkanal
+
+Zusätzlich zum ERG0SPHERE-Album bietet SkiZones den freiwilligen Künstlerkanal **KoSch Milton — Ska'radise Lost** an. Der Rechteinhaber hat die eigenen Verwendungsrechte am Album ausdrücklich bestätigt. Quelle: https://soundcloud.com/koljawschumann/sets/kosch-milton-skaradise-lost (Playlist-ID laut dem bereitgestellten Embed: `1796940615`).
+
+Die Android-App öffnet SoundCloud nur durch einen ausdrücklich betätigten Button. Der optionale HTML-Player (`docs/embed/skaradise_lost.html`) setzt ein Zwei-Klick-Verfahren ein und lädt den Drittanbieter-iframe erst nach ausdrücklicher Zustimmung. `auto_play=false`, keine heimliche Verbindung und keine Weitergabe eigener Spielstände oder SoundCloud-Zugangsdaten durch SkiZones. Bei Verwendung des externen Angebots können IP-Adresse, Browser-/Gerätedaten und Cookies durch SoundCloud verarbeitet werden. Details unter https://soundcloud.com/pages/privacy und https://soundcloud.com/pages/cookies. Für die Offline-Auslieferung wird originales Audiomaterial mit dokumentierter Freigabe benötigt; das bereitgestellte iframe ist keine offline abspielbare Audiodatei.
+
+## Hotel Lobby FM und lokale Musik
+
+Das eigens reservierte Lobby-Programm wird ausschließlich während des geöffneten Hotelverwaltungsfensters als lokal gespeichertes CC0-Radio abgespielt, sofern die Audioeinstellungen die Wiedergabe erlauben. Beim Verlassen des Fensters wird die vorher gewählte Radiostation wiederhergestellt. Hierfür erfolgt keine Anfrage an Drittdienste. Auch Deep Atmospherics, Mountain Sunrise und Lodge Lo-Fi sind lokale Programmkataloge; die Einzeltitel sind in `assets/music/cc0/library.json` mit Quellen und CC0-Angaben dokumentiert. Langform-Dauer und Genrepassung werden gesondert auditiert.
+
