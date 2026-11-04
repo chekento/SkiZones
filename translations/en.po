@@ -7265,3 +7265,27 @@ msgstr "Next: stable Android APK and safe saves, fewer recurring storms, quiet n
 
 msgid "Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"
 msgstr "Open the full two-month plan on GitHub"
+
+msgid "Winterkunst, Zeitung und Radiowerbung"
+msgstr "Winter art, newspaper and radio advertising"
+
+msgid "Die veröffentlichte APK führte neue künstlerische Winterstile, eine lebendigere Resortzeitung und Hinweise auf die Radiosender ein."
+msgstr "The published APK introduced new artistic winter styles, a livelier resort newspaper and radio-station promotions."
+
+msgid "Winterbetrieb und sichere Karrieren"
+msgstr "Winter operations and protected careers"
+
+msgid "Der veröffentlichte Android-Build brachte fünf Karriere-Startstufen, Bewerbermarkt, Missionsverbesserungen und das originale breite SkiZones-Schriftlogo. Alte Spielstände und Android-Updates bestanden die Freigabetests."
+msgstr "The published Android build added five career starting budgets, applicant recruitment, mission improvements and the original wide SkiZones wordmark. Legacy saves and Android updates passed release tests."
+
+msgid "0.32 veröffentlicht / 0.33-Grundlagen"
+msgstr "0.32 published / 0.33 foundations"
+
+msgid "0.32 veröffentlicht · Rest in Arbeit"
+msgstr "0.32 published · remaining work underway"
+
+msgid "0.32-APK am 04.11. veröffentlicht und GitHub-Downloadbanner aktualisiert; In-App-Update weiterhin mit echten Installationen prüfen"
+msgstr "0.32 APK published November 4 and GitHub download banner updated; continue verifying the in-app updater on real installations"
+
+msgid "Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
+msgstr "Selected published milestones through 0.32.0 · oldest first; find the latest APK on GitHub."
