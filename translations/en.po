@@ -5219,3 +5219,6 @@ msgstr "Summit Rush FM · Ski & Snowboard"
 
 msgid "Bergmoment: "
 msgstr "Mountain moment: "
+
+msgid "Älterer Spielstand geladen. Die ursprüngliche Datei bleibt erhalten."
+msgstr "Older save loaded. The original file has been preserved."
