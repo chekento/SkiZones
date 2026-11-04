@@ -40,6 +40,10 @@ jobs:
         with:
           ref: v0.19.0
           path: legacy019
+      - uses: actions/checkout@v4
+        with:
+          ref: v0.27.0
+          path: legacy027
       - uses: actions/cache@v4
         id: godot-cache
         with:
@@ -72,6 +76,14 @@ jobs:
       - name: Render live detailed loading and restored original career
         working-directory: current
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/loading_scene.gd
+      - name: Generate real 0.27 careers and verify all hotfix recovery paths
+        run: |
+          cd legacy027
+          "$GODOT_BIN" --headless --editor --import --quit
+          SKIZONES_LEGACY_FIXTURES=/home/runner/legacy027-careers python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script ../current/tests/generate_019_careers.gd
+          cd ../current
+          SKIZONES_LEGACY_FIXTURES=/home/runner/legacy027-careers python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/legacy_career_compat.gd
+          SKIZONES_LEGACY_FIXTURES=/home/runner/legacy027-careers python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/save_hotfix_030.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -137,6 +149,15 @@ jobs:
           print(result.stdout)
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
+      - name: Current radio, hotel context, sector operations and editorial release gates
+        run: |
+          python3 tools/check_localization.py
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_cc0_library_027.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_crossfade_027.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_context_029.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_duration_inventory_029.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/sector_sim_028.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/editorial_townhall_031.gd
       - name: Main-mode slope traffic and operating-finance release gates
         run: |
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
