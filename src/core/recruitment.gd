@@ -34,7 +34,7 @@ static func gate(model: RefCounted, role: String, level: int) -> String:
 	if role=="operator" and model.lifts.is_empty():return "Erfordert mindestens einen Lift"
 	if not needed.is_empty() and not needed.has("lift"):
 		var exists: bool=model.buildings.any(func(b):return b.enabled and str(b.kind) in needed)
-		if not exists:return "Erfordert passende Einrichtung: " + " / ".join(needed)
+		if not exists:return "Erfordert passende Einrichtung: " + " / ".join(PackedStringArray(needed))
 	if level>=2 and int(model.campaign.get("rank",1))<2:
 		return "Ab Resort-Stern 2: geprüfte Zusatzqualifikation"
 	return ""
