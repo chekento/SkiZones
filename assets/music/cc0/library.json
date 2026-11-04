@@ -1248,7 +1248,8 @@
         "duration_seconds": 106.6,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "funk-simple-action-beat",
@@ -1291,7 +1292,8 @@
         "duration_seconds": 87,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "vaporwave-mechanical-golem",
