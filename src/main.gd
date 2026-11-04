@@ -718,6 +718,11 @@ func _map_tap(position_value: Vector2) -> void:
 	if not model.terrain.contains(point):
 		return
 	if tool == "inspect":
+		# November noticeboards are non-physical and do not alter the career.
+		# A direct tap opens their original/fallback artwork at full screen.
+		if view.festival_scene.hit_poster(point):
+			hud.show_seasonal_poster()
+			return
 		var visitor: int = view.pick_guest(position_value)
 		if visitor != -1:
 			hud.show_guest(visitor)
