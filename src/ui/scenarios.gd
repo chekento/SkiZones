@@ -83,7 +83,7 @@ func setup(interface: CanvasLayer) -> void:
 
 func _fit_grid() -> void:
 	if grid==null:return
-	var available: float=get_viewport_rect().size.x
+	var available: float=minf(get_viewport_rect().size.x,get_tree().root.size.x)
 	var compact: bool=available<1060.0
 	grid.columns=1 if compact else 2
 	offset_left=10 if compact else 48
@@ -102,4 +102,5 @@ func _fit_grid() -> void:
 
 func open() -> void:
 	hud.game._clear_input()
+	_fit_grid()
 	show()
