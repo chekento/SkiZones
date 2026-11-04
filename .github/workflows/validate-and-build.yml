@@ -161,6 +161,8 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-localization
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1536x864 --script tests/localization_scene.gd
+      - name: Original wordmark and operating header on phones and desktop
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/wordmark_header_scene_032.gd
       - name: Theme architecture and holiday catalogue models
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/style_asset_festival_032.gd
       - name: Real monochrome, distinct buildings and holiday dressing
@@ -507,6 +509,7 @@ jobs:
               --notes-file "docs/releases/${VERSION}.md" \
               --prerelease --latest=false
           fi
+
 
 
 

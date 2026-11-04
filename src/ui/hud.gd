@@ -37,7 +37,7 @@ const UpdateDialog=preload("res://src/ui/update_dialog.gd")
 const CareerSlots = preload("res://src/ui/career_slots.gd")
 const Audience = preload("res://src/ui/audience.gd")
 const MENU_PANORAMA = preload("res://assets/menu_panorama.webp")
-const BRAND_MARK = preload("res://assets/branding/icon_512.png")
+const BRAND_MARK = preload("res://assets/branding/skizones_wordmark.png")
 const COMMUNITY_DISCORD := "https://discord.gg/AFXtwWvm"
 const COMMUNITY_BUG := "https://github.com/chekento/SkiZones/issues/new?template=bug_report.yml"
 const COMMUNITY_FEATURE := "https://github.com/chekento/SkiZones/issues/new?template=feature_request.yml"
@@ -127,6 +127,12 @@ var _toast_until := 0.0
 var map_focus := false
 var map_focus_button: Button
 var slopes_button: Button
+var header_logo: TextureRect
+var menu_logo: TextureRect
+var header_panel: PanelContainer
+var header_details: Dictionary={}
+var header_captions: Dictionary={}
+var _header_micro := false
 var header_row: HBoxContainer
 var header_save_button: Button
 var header_menu_button: Button
@@ -379,14 +385,27 @@ func _update_responsive_layout(available_width: float) -> void:
 	compact_layout = available_width < 1160.0
 	var very_narrow: bool = available_width < 830.0
 	var micro: bool = available_width < 600.0
+	# Header density follows the real screen width, including stretched canvases.
+	var physical_width: float=available_width*float(get_window().size.x)/maxf(1,get_viewport().get_visible_rect().size.x)
+	_header_micro=physical_width<600
+	var header_compact: bool=physical_width<1160
 	if is_instance_valid(header_row):
-		header_row.add_theme_constant_override("separation", 6 if micro else 10 if compact_layout else 28)
-	if is_instance_valid(header_guests_column): header_guests_column.visible = not micro
+		header_row.add_theme_constant_override("separation",6 if _header_micro else 10 if header_compact else 18)
+	if is_instance_valid(header_logo):
+		header_logo.custom_minimum_size=Vector2(68,30) if _header_micro else Vector2(120,40) if header_compact else Vector2(156,52)
+	if is_instance_valid(menu_logo):
+		menu_logo.custom_minimum_size.y=clampf((minf(560,available_width-24)-44)/3.0,64,148)
+	for key in header_details:header_details[key].visible=physical_width>=1080
+	for key in header_captions:
+		header_captions[key].add_theme_font_size_override("font_size",10 if _header_micro else 11)
+		labels[key].add_theme_font_size_override("font_size",(14 if key=="clock" else 18) if _header_micro else 20)
+	if header_captions.has("clock"):header_captions.clock.text=L.text("TAG & ZEIT") if _header_micro else L.text("BETRIEBSTAG")
+	if is_instance_valid(header_guests_column): header_guests_column.visible=not _header_micro
 	for action in [header_save_button,header_menu_button]:
 		if is_instance_valid(action):
-			action.custom_minimum_size.x = 42 if micro else 0
-			action.text = ("▣" if action == header_save_button else "☰") if micro else (L.text("Speichern") if action == header_save_button else L.text("Menü"))
-			action.tooltip_text = L.text("Speichern") if action == header_save_button else L.text("Menü")
+			action.custom_minimum_size=Vector2(34,42) if _header_micro else Vector2(0,50)
+			action.text=("▣" if action==header_save_button else "☰") if _header_micro else (L.text("Speichern") if action==header_save_button else L.text("Menü"))
+			action.tooltip_text=L.text("Speichern") if action==header_save_button else L.text("Menü")
 	for shortcut in ultra_camera_buttons:
 		if is_instance_valid(shortcut):
 			shortcut.visible = not very_narrow and (shortcut != winter_toolbar_button or AnnualFestival.visible(AnnualFestival.device_now()))
@@ -419,7 +438,7 @@ func _update_responsive_layout(available_width: float) -> void:
 		inspector_panel.offset_right = -compass_edge
 		inspector_panel.custom_minimum_size.x = 0.0
 	for column in compact_header_columns:
-		column.visible = not compact_layout
+		column.visible = not header_compact
 	for button in compact_camera_buttons:
 		button.visible = not compact_layout
 	if labels.has("weather"):
@@ -478,13 +497,14 @@ func _panel(parent: Node, left: float, top: float, right: float, bottom: float, 
 	map_panels.append(panel)
 	return panel
 
-func _brand_logo(parent: Node, side: int) -> TextureRect:
+func _brand_logo(parent: Node, display_size: Vector2) -> TextureRect:
 	var mark := TextureRect.new()
 	mark.name = "skizones_brand_mark"
 	mark.texture = BRAND_MARK
 	mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	mark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mark.custom_minimum_size = Vector2(side, side)
+	mark.custom_minimum_size = display_size
+	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mark.tooltip_text = "SkiZones"
 	parent.add_child(mark)
@@ -538,18 +558,26 @@ func _spacer(parent: Node, vertical: bool = true) -> Control:
 
 func _build_header() -> void:
 	var panel := _panel(root, 24, 20, -24, 96, 1)
+	header_panel=panel
+	panel.add_theme_stylebox_override("panel",_style(Color("fffaf2"),16,10))
 	var box := HBoxContainer.new()
 	header_row = box
 	box.add_theme_constant_override("separation", 28)
 	panel.add_child(box)
-	_brand_logo(box, 36)
+	header_logo=_brand_logo(box,Vector2(156,52))
 	for item in [["money", L.text("BUDGET")], ["guests", L.text("GÄSTE")], ["rep", L.text("RUF")], ["rides", L.text("ABFAHRTEN")], ["clock", L.text("BETRIEBSTAG")]]:
 		var column := _vbox(box, 0)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if item[0] in ["rep", "rides"]: compact_header_columns.append(column)
 		if item[0] == "guests": header_guests_column = column
-		_label(column, item[1], 12, MUTED)
-		labels[item[0]] = _label(column, "—", 22)
+		header_captions[item[0]]=_label(column,item[1],11,MUTED)
+		labels[item[0]] = _label(column, "—", 20)
+		labels[item[0]].clip_text=true
+		labels[item[0]].text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		var detail: Label=_label(column,"",10,TEAL)
+		detail.clip_text=true
+		detail.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		header_details[item[0]]=detail
 	header_save_button = _button(box,L.text("Speichern"),game.save_game)
 	header_menu_button = _button(box,L.text("Menü"),game.show_menu)
 
@@ -971,7 +999,7 @@ func _build_menu() -> void:
 	var box := _vbox(scroll, 13)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label(box, L.text("DEIN BERG. DEINE REGELN."), 15, TEAL)
-	_brand_logo(box, 136)
+	menu_logo=_brand_logo(box,Vector2(0,148))
 	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
 	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
 	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
@@ -1324,12 +1352,20 @@ func refresh() -> void:
 	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
-	labels.money.text = money_text(model.money) + " €"
+	labels.money.text=money_text(model.money)+" €"
+	labels.money.tooltip_text=L.text("BUDGET")+": "+money_text(model.money)+" €"
+	var operating: float=float(model.report.get("tickets",0))+float(model.report.get("services",0))-float(model.report.get("costs",0))
+	header_details.money.text=L.text("Heute: %s €") % money_text(operating)
+	header_details.guests.text=L.text("%d warten") % model.queue_size()
+	header_details.rep.text=L.text("%d Resort-Sterne") % int(model.campaign.rank)
+	header_details.rides.text=L.text("%d Pisten · %d Lifte") % [model.pistes.size(),model.lifts.size()]
+	header_details.clock.text=L.text("Baupause") if not game.points.is_empty() else L.text("Pause") if game.paused else L.text("Abendbetrieb") if model.is_closing() else L.text("Betrieb läuft")
 	labels.guests.text = "%d / %d" % [model.present_guests(), model.total_guests]
 	labels.rep.text = "%.0f %%" % model.reputation
 	labels.rides.text = str(model.total_rides)
 	labels.clock.text = L.text("Tag %d · %02d:%02d") % L.args([model.day, (model.minute / 60) % 24, model.minute % 60])
 	labels.weather.text = L.text("%s   /   %.0f °C   /   Wind %.0f km/h") % L.args([model.weather().name, model.weather().temperature, model.weather().wind])
+	for key in header_details:labels[key].tooltip_text=(labels.money.tooltip_text if key=="money" else str(labels[key].text))+"\n"+str(header_details[key].text)
 	pause_button.text = L.text("Weiter") if game.paused else L.text("Pause")
 	for i in range(speed_buttons.size()):
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
@@ -1470,6 +1506,7 @@ func _process(delta: float) -> void:
 	var elapsed := maxi(0, int((now - _loading_started) / 1000))
 	var since_work := maxi(0, int((now - _loading_last_work) / 1000))
 	loading_elapsed.text = L.format_message("Ladezeit %s · letzter Fortschritt vor %s", ["%d:%02d" % [elapsed / 60, elapsed % 60], "%d s" % since_work])
+
 
 
 
