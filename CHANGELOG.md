@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **33 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **34 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.32.0](https://github.com/chekento/SkiZones/releases/tag/v0.32.0)** | 04.11.2026 | Winter Operations & Curated Radio | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk) | [Details](docs/releases/0.32.0.md) |
 | **[v0.31.0](https://github.com/chekento/SkiZones/releases/tag/v0.31.0)** | 04.11.2026 | Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk) | [Details](docs/releases/0.31.0.md) |
 | **[v0.30.0](https://github.com/chekento/SkiZones/releases/tag/v0.30.0)** | 04.11.2026 | Hotfix: alte Karrieren, Radio und mobile Bedienung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk) | [Details](docs/releases/0.30.0.md) |
 | **[v0.27.0](https://github.com/chekento/SkiZones/releases/tag/v0.27.0)** | 04.11.2026 | Nahtlose Alpine-Radio-Klangwelt (erste Iteration) | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk) | [Details](docs/releases/0.27.0.md) |
@@ -43,6 +44,58 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.32.0 · Winter Operations & Curated Radio (04.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.32.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk)** (144.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.32.0/manifest.json) · [Originalnotizen](docs/releases/0.32.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.32.0)
+
+**Android ARM64 Preview · versionCode 38 · 04.11.2026**
+
+All existing v0.31.1 save recovery and in-place update safeguards are retained. New gameplay difficulty applies **only to newly created careers**, never to existing or free-build worlds.
+
+### Karriere und Balancing
+- Fünf wählbare Startkapital-Profile in der Karriereauswahl, von Existenzkampf (25.000 €) über knapp (85.000 €), ausgewogen (190.000 €), wohlhabend (390.000 €) bis Großinvestor (850.000 €).
+- Reputation und Ersatzteil-Vorrat folgen dem gewählten neuen Karriereprofil. Altspielstände behalten ihre bisherigen Werte; optionale Profile werden beim Speichern/Laden validiert.
+- Die Karte der vier Karriereslots passt sich der Bildschirmbreite an; auf schmalen Geräten werden die Karten untereinander dargestellt.
+
+### Personal und Missionen
+- Neuer Bewerbermarkt mit achtzehn individuellen Steckbriefen, Qualifikationsstufe, Erfahrung, Motivation, Spezialgebiet und Einstellungsgebühr.
+- Bestimmte Fachkräfte benötigen eine passende vorhandene Einrichtung; geprüfte Senior-Fachkräfte werden erst mit höherem Resort-Stern angeboten.
+- Neu erzeugte Real-Szenarien erhalten zusätzlich ein Betriebsgebäude für Pistenraupen, eine Reparaturzentrale, eine Bergwacht und ein Abendangebot, soweit standortgerecht platzierbar. Bestehende Szenariospielstände werden dabei **nicht** verändert.
+- Pistenraupen einzeln oder im Dreierpaket kaufen. Der Paketkauf prüft das Budget und die maximale Flottengröße im Voraus; mehrere zugewiesene Fahrer erlauben parallele Aufträge.
+- Direkte Fahrer-Nachbesetzung im Technik- und Garagenmenü. Betriebs-/Personalansichten bleiben im vorhandenen UI verknüpft.
+- Das Reparaturteam neuer Szenarien wird vom Spieler eingestellt. Die vorhandene Werkstatt überspringt die Personalmission nicht mehr; die zwei Fachkräfte kosten zusammen wie angezeigt 360 €.
+- Das Anlagen-Personalmenü passt seine Spalten an die tatsächliche Bildschirmfläche an. Die große interne Zeichenfläche führt auf kleinen Handys nicht mehr zu drei zu schmalen Spalten; wiederholte Größenwechsel werden ebenfalls berücksichtigt.
+
+### Alpine Radio
+- **Keine neuen oder fremd lizenzierten Audiodateien** als geprüft ausgegeben: 72 verschiedene bereits dokumentierte CC0-Dateien werden weiterhin offline mitgeliefert.
+- Alle lokalen Sender bieten mindestens 10 Aufnahmeplätze; Alpine und Nordic Acoustic sind auf je 10 akustische CC0-Einträge aus der bestehenden Bibliothek erweitert.
+- Shuffle-Bag gegen unmittelbare Wiederholungen und gegen ständig gleiche Abspielreihenfolgen.
+- Ehrliche Kennzeichnung der regionalen Akustikprogramme: derzeit atmosphärische Auswahlen, keine nachgewiesenen originalen Blasmusik- oder schwedischen Folkmitschnitte.
+- Externe SoundCloud-Alben bleiben ausschließlich manuell geöffnete Links, keine unerlaubten eingebundenen Streams.
+
+### Filmische Resort-Tour und interaktiver Pistenplan
+- Tour mit echten Gelände-Gipfeln, 1,8 Sekunden kurzen Gipfelaufnahmen, Hangrelief, variierenden Blickwinkeln sowie Nahaufnahmen tatsächlicher Besuchergruppen. Weiche Kameraübergänge und Schutz vor einer Kamera unter dem Gelände.
+- Gespeicherter Aufmerksamkeitsregler direkt in den Kameraeinstellungen und während der Tour: Panorama bis Betriebsprobleme zuerst. Berücksichtigt aktuelle Rettungseinsätze, Liftstörungen, fehlendes Personal, Warteschlangen und Pistenpflege.
+- Der Pistenplan unten links bekommt terrainbasiertes Relief, Höhenlinien, Pistenfarben und Nummern, Liftstationen, Legende und Kameramarker. Vergrößerbare interaktive Ansicht mit Zoom, Verschieben, Anlagenwahl und Kamera-Navigation. Die Relief-Farbpalette folgt dem gewählten Grafikstil.
+- Karte und Tour ändern keine Spielstände; beim Beenden der Tour wird die vorherige Kamera vollständig wiederhergestellt.
+
+### Unterschiedliche Theme-Assets und Festtagsarchitektur
+- Zehn Grafikstile einschließlich Monochrom mit eigenen reduzierten Strichlinien-Modellen und vollständig graustufiger Anzeige.
+- Stilabhängige Gebäude-, Liftstations- und Katalogmodelle: Comic-Giebel, weiche Pastell-Dächer, filmische Holzfassaden, klare Glas-/Lamellenformen, gedruckter Pistenatlas, Cyber-Architektur, organische Tintendächer und geometrische Bauhaus-Körper. Wechsel ersetzt nur Darstellung und erhält Gelände, Bauflächen, Anlagen-IDs und Spielstand.
+- Weihnachtskränze, Dachsterne und Lichterketten an allen bestehenden Gebäuden ab Dezember. Silvester ergänzt Dachschilder; die bestehende datumsabhängige Feierlogik bleibt erhalten.
+- Vier zusätzliche käufliche Dekorationsbauten im Winterfest-Katalog: Lebkuchen-Festhütte, Geschenkewerkstatt, Weihnachtsmarkt-Bude und Silvester-Festbühne. Diese sind saisonale Dekorationen, keine neu simulierten Gastronomie-/Produktionsbetriebe. Die Festbühne erscheint zum Jahreswechsel, gekaufte Objekte bleiben im Festtagsarchiv erhalten.
+
+### Korrekte Wortmarke und Betriebsleiste
+- Hauptmenü und obere Betriebsleiste zeigen den originalen transparenten SkiZones-Schriftzug mit Schnee und Tannen im breiten Seitenverhältnis. Das App-Icon bleibt der Android-Anwendung zugeordnet.
+- Die Leiste ergänzt auf größeren Displays Tages-Betriebsergebnis, Warteschlangen, Resort-Sterne, Anlagenzahlen und den Betriebsstatus aus dem tatsächlichen Spielstand. Auf kleinen Bildschirmen werden die Angaben verdichtet; die Wortmarke bleibt proportional.
+
+### Freigabe
+APK erst nach Erfolg von Save-Migration, 0.32-Balancing- und Personalgates, vollständiger Radio-QA, Szenariogates, Oberflächen-/Kameratests, Paketexport sowie Android-30-/36-In-place-Update-Tests veröffentlichen. Auf dem Gerät nicht deinstallieren und keine App-Daten löschen.
+
+**Weitere Lizenzprüfung:** Neue Musikempfehlungen stehen als Recherche-Kandidaten in der Musikdokumentation; erst nach individueller Rechte- und Qualitätskontrolle in die Binärbibliothek übernehmen.
+
+---
 
 ## v0.31.0 · Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter (04.11.2026)
 
