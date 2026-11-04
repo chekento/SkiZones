@@ -24,6 +24,7 @@ const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
+const LivingAssets = preload("res://src/world/living_assets.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
 const CrewLife=preload("res://src/world/crew_life.gd")
 const CinematicTour = preload("res://src/world/cinematic_tour.gd")
@@ -41,6 +42,7 @@ var _terrain_grading := -1
 var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
+var living_assets := LivingAssets.new()
 var festival_scene := FestivalScenery.new()
 var village_dressing := VillageDressing.new()
 var crew_life:=CrewLife.new()
@@ -746,6 +748,7 @@ func rebuild(progress: RefCounted = null) -> void:
 	snow_renderer.ground = ground_surface
 	for child in landscape.get_children():
 		if child.has_meta("walk_surface"): surface_picker.add_mesh("floor_%d" % child.get_instance_id(), child.mesh)
+	living_assets.clear()
 	_queue_paths.clear()
 	_motion_cache.clear()
 	_trace_cache.clear()
@@ -1036,6 +1039,7 @@ func _build_building(building: Dictionary) -> void:
 	var instance := _baked(asset_root, StyleAssets.building(building.kind,int(building.get("level",1)),Color(building.get("color", "") if building.get("color", "") != "" else Catalog.BUILDINGS[building.kind].color),visual_style), terrain.world(point))
 	instance.set_meta("styled_building",int(building.id))
 	instance.rotation.y = int(building.get("rotation", 0)) * PI * 0.5
+	living_assets.register(building, instance, visual_style)
 	_occluders.append(instance)
 	if building.kind == "snowmaker":
 		return
@@ -1267,6 +1271,7 @@ func _process(delta: float) -> void:
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	living_assets.update(self, delta)
 	crew_life.update(self,delta)
 	festival_scene.update(self,delta)
 	_adapt_quality(delta)
@@ -1690,7 +1695,11 @@ func _update_camera() -> void:
 		camera.look_at(target, Vector3(-sin(yaw), 0, -cos(yaw)))
 	else:
 		# Keep the apparent scale similar while changing the viewing angle.
-		var distance := zoom * 1.22
+		# PMDD depth: genuine perspective separation of near props, buildings,
+		# alpine forest and high ridges. No fake screen-space displacement:
+		# picking/collision rays continue to use the very same camera matrix.
+		camera.fov = 46.0
+		var distance := zoom * 1.17
 		var pitch := deg_to_rad(pitch_degrees)
 		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 		camera.look_at(target)
@@ -1877,6 +1886,7 @@ func set_visual_style(id: String) -> void:
 	# cached collision geometry just to change the mountain's appearance.
 	forest.apply_style(self)
 	_refresh_architecture()
+	living_assets.restyle(visual_style)
 	_ink_layer.visible=visual_style=="monochrome"
 	# Rebuild presentation-only decorative meshes on a style change; their
 	# placement remains deterministic and cleared of all player structures.
