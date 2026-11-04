@@ -173,6 +173,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
       - name: 0.32 direct compile of career, recruitment and panel dependency graph
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
+      - name: 0.33 quiet-night pedestrian fast-forward and bounded dawn interest
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
