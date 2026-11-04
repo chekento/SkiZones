@@ -1723,8 +1723,20 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			for i in range(arrivals_count):
 				var intent := Agenda.sample(self)
 				if intent != "": admit_guest(int(Agenda.TYPES[intent].comfort), intent)
-		if arrivals and Ops.continuous(self) and (minute >= 1020 or minute < 120) and minute % 5 == 0:
+		# The evening is alive until 22:00, but no continuous 00–02h
+		# influx should interrupt the quiet-night calendar acceleration.
+		if arrivals and Ops.continuous(self) and minute >= 1020 and minute < DayRhythm.QUIET_FROM and minute % 5 == 0:
 			Ops.admit_evening(self)
+		# Demand is an interest counter, NOT an invisible visitor or ticket sale.
+		# It survives midnight/save and can never grow beyond a small dawn wave.
+		if arrivals and Ops.continuous(self) and time_divisor > 1 and (minute >= DayRhythm.QUIET_FROM or minute < 120) and minute % 30 == 0:
+			operations.pending_arrivals = mini(24, int(operations.get("pending_arrivals", 0)) + 1)
+		if arrivals and Ops.continuous(self) and int(operations.get("pending_arrivals", 0)) > 0 and minute >= OPENING and minute < OPENING + 120 and minute % 12 == 0 and guests.size() < MAX_GUESTS:
+			var morning_intent: String = Agenda.sample(self)
+			if morning_intent != "" and admit_guest(int(Agenda.TYPES[morning_intent].comfort), morning_intent):
+				operations.pending_arrivals = int(operations.pending_arrivals) - 1
+		# Unfulfilled interest expires rather than piling up across winters.
+		if Ops.continuous(self) and minute == OPENING + 120: operations.pending_arrivals = 0
 	if empty_calendar_step and not DayRhythm.indoors_only(self): movement=1.0
 	var departures: Array = []
 	var traffic := Traffic.steps(self) if terrain_generation >= 2 else {}
