@@ -30,6 +30,11 @@ func run()->void:
 			if building.kind=="repair_office":workshop=building
 			if building.kind=="first_aid":aid=building
 		check(not garage.is_empty() and not workshop.is_empty() and not aid.is_empty(),"Scenario "+id+" provides garage, repair office and rescue facility")
+		if not workshop.is_empty():
+			check(not Ops.building_staffed(scenario,workshop),"Scenario "+id+" leaves the advertised repair-team mission actionable")
+			var budget: float=scenario.money
+			check(Ops.fill_building(scenario,int(workshop.id)).ok and scenario.money==budget-360,"Scenario "+id+" recruits its two repair specialists for the quoted cost")
+			check(Ops.building_staffed(scenario,workshop),"Scenario "+id+" workshop becomes operational after recruitment")
 		if id=="seiseralm" and not garage.is_empty():
 			var initial: int=scenario.operations.vehicles.size()
 			var balance: float=scenario.money

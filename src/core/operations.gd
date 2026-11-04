@@ -98,7 +98,10 @@ static func enable(model: RefCounted, scenario: String = "") -> void:
 	else:
 		for lift in model.lifts:
 			if lift.id != model.lifts[0].id: fill_stations(model, lift.id, true)
-		for building in model.buildings: fill_building(model, building.id, true)
+		# New scenarios provide a workshop site, but recruiting its actual
+		# repair team remains a player task described in the mission guide.
+		for building in model.buildings:
+			if building.kind != "repair_office": fill_building(model, building.id, true)
 		var victim: Dictionary = model.lifts[mini(1, model.lifts.size() - 1)] if not model.lifts.is_empty() else {}
 		if not victim.is_empty():
 			victim.fault = "mechanical"
