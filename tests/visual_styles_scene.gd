@@ -74,7 +74,9 @@ func run() -> void:
 		var sample: Color = game.view._ground_color(Vector2(300, -150), 400.0, 65.0)
 		distinct[str(sample)] = true
 		if not game.view.forest.groups.is_empty():
-			distinct_foliage[str(game.view.forest.groups[0].node.multimesh.get_instance_color(0))] = true
+			var sample_foliage: Color=game.view.forest.groups[0].node.multimesh.get_instance_color(0)
+			print("THEME_TREE_COLOR|",id,"|",sample_foliage)
+			distinct_foliage[str(sample_foliage)] = true
 			var tree_mesh: Mesh = game.view.forest.groups[0].node.multimesh.mesh
 			distinct_tree_shapes[str(tree_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])] = true
 		check(game.view.visual_style == id and game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX] == original_vertices, "%s changes presentation while retaining rendered terrain geometry" % id)
