@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "offline": true,
   "policy": "Only tracks documented as CC0 by the individual upstream listing or mirrored source manifest. Every bundled file is checksum-verified. Curatorial listening and third-party clearance remain separate from the CC0 assertion. Version 4 reuses individually documented CC0 files across station playlists; positions are not unique new recordings. Deep Space 4-minute target requires duration QA before it is claimed as complete. User-provided SoundCloud playlist is a credited external link, not a bundled file.",
   "stations": {
@@ -3478,6 +3478,72 @@
         "playlist_reuse": true,
         "temporary_programming": true,
         "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-cozy-puzzle-in-game-3",
+        "title": "Cozy Puzzle In-Game 3",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-cozy-puzzle-in-game-3.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/cozy-puzzle-in-game-3",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Cozy_Puzzle_In_Game_3.ogg",
+          "git_blob_sha1": "a020e9b5511bd45b661c96f98cba6cd9fae74d53",
+          "bytes": 1491173
+        },
+        "duration_seconds": 124.4,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Akustik · Berghütte",
+        "sport_fit": "both",
+        "playlist_reuse": true
+      },
+      {
+        "id": "acoustic-just-you-and-me-guitar",
+        "title": "Just you and me Guitar",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-just-you-and-me-guitar.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/just-you-and-me-guitar",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Just_you_and_me_Guitar.ogg",
+          "git_blob_sha1": "f71c0fc85955e5404a8b084a7a9dbd48c105a62b",
+          "bytes": 1168011
+        },
+        "duration_seconds": 99,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Akustik · Berghütte",
+        "sport_fit": "both",
+        "playlist_reuse": true
+      },
+      {
+        "id": "acoustic-short-kalimba-loop",
+        "title": "Short kalimba loop",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-short-kalimba-loop.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/short-kalimba-loop",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Short_kalimba_loop.ogg",
+          "git_blob_sha1": "e78b004a40ad2f2a5e23e58d41d14addb98aaba3",
+          "bytes": 600416
+        },
+        "duration_seconds": 46.9,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Akustik · Berghütte",
+        "sport_fit": "both",
+        "playlist_reuse": true
       }
     ],
     "folk_swedish": [
@@ -3646,6 +3712,72 @@
         "playlist_reuse": true,
         "temporary_programming": true,
         "curation_notice": "Transitional CC0 tracks; not verified as authentic regional repertoire."
+      },
+      {
+        "id": "acoustic-down-the-river",
+        "title": "Down The River",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-down-the-river.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/down-the-river",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Down_The_River.ogg",
+          "git_blob_sha1": "3d87a6c9ed8bd53cfb4542c7523704505b2746d0",
+          "bytes": 1296632
+        },
+        "duration_seconds": 114.5,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Nordische Winterstimmung · Instrumental",
+        "sport_fit": "both",
+        "playlist_reuse": true
+      },
+      {
+        "id": "classical-bluebonnet",
+        "title": "Bluebonnet",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/classical-bluebonnet.ogg",
+        "style": "classical",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/bluebonnet",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/classical/Bluebonnet.ogg",
+          "git_blob_sha1": "febc05c422578b95f160077dfc6ca4a6fde7238b",
+          "bytes": 1349937
+        },
+        "duration_seconds": 126.9,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Nordische Winterstimmung · Instrumental",
+        "sport_fit": "both",
+        "playlist_reuse": true
+      },
+      {
+        "id": "acoustic-piano-melody-with-acoustic-bass",
+        "title": "Piano Melody With Acoustic Bass",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-piano-melody-with-acoustic-bass.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/piano-melody-with-acoustic-bass",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Piano_Melody_With_Acoustic_Bass.ogg",
+          "git_blob_sha1": "55e5b32329538e80a58f73a248895f3737a8dab5",
+          "bytes": 772348
+        },
+        "duration_seconds": 131.2,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Nordische Winterstimmung · Instrumental",
+        "sport_fit": "both",
+        "playlist_reuse": true
       }
     ],
     "erg0sphere": [],
@@ -5181,7 +5313,7 @@
   },
   "station_count": 7,
   "unique_audio_files": 72,
-  "playlist_entries": 84,
+  "playlist_entries": 236,
   "mountain_curation": {
     "description": "All 72 original recordings retain their actual composer and title. Ski/Snowboard mountain-moment labels are editorial recommendations, not claims that the composers wrote music specifically for ski resorts. Gipfelrausch FM reuses existing CC0 audio and adds no extra bytes.",
     "station_moods": {
@@ -5217,7 +5349,7 @@
       "rights_note": "Creator declares album rights; offline distribution requires original mastered audio."
     }
   ],
-  "regional_folk_status": "Two 7-track transitional, openly marked CC0 playlists, not confirmed Swedish folk or Alpine brass. Replace with genuine, duration-verified recordings; archive sources staged separately.",
+  "regional_folk_status": "Two 10-track curated CC0 acoustic collections sourced from the existing 72 verified offline audio assets. The Alpine and Nordic labels describe atmosphere, not verified authentic Alpine brass bands or Swedish folk performances. Seek distinct regionally representative recordings before changing those claims.",
   "station_guidance": {
     "atmospherics": {
       "intended_min_seconds": 180,
