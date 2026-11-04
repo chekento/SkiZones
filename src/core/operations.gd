@@ -64,7 +64,7 @@ const GOAL_TIPS := {
 }
 
 static func initial() -> Dictionary:
-	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true}
+	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true, "pending_arrivals": 0}
 
 static func group_size(model: RefCounted) -> int:
 	if model.map_id not in Geo.IDS: return 1
@@ -759,6 +759,9 @@ static func evaluate(model: RefCounted) -> Array:
 
 static func valid(state: Variant, model: RefCounted) -> bool:
 	if not state is Dictionary: return false
+	# Legacy releases have no banked morning interest. Migrate it to zero,
+	# with strict bounds before admitting anybody to an existing career.
+	if not state.has("pending_arrivals"): state["pending_arrivals"] = 0
 	var defaults := initial()
 	for key in defaults:
 		if not state.has(key) or typeof(state[key]) != typeof(defaults[key]) and not (defaults[key] is float and Terrain.number(state[key])) and not (defaults[key] is int and Terrain.number(state[key])): return false
@@ -768,6 +771,7 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	if state.has("weekly_enabled") and not state.weekly_enabled is bool: return false
 	if state.has("weekly_discount") and (not Terrain.number(state.weekly_discount) or state.weekly_discount < 5 or state.weekly_discount > 20 or state.weekly_discount != floorf(state.weekly_discount)): return false
 	if state.parts > 10000 or state.room_price < 40 or state.room_price > 250: return false
+	if state.pending_arrivals > 24: return false
 	if state.scenario != "" and state.scenario not in Geo.IDS: return false
 	if state.has("scenario_difficulty") and state.scenario_difficulty not in ["relaxed","normal","expert"]: return false
 	if state.staff.size() > 1200 or state.vehicles.size() > 24 or state.repairs.size() > 160 or state.incidents.size() > 100 or state.history.size() > 28: return false
