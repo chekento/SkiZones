@@ -48,7 +48,7 @@ func run() -> void:
 	check(game.audio.players.size()==5 and game.audio.players.has("music_alt"),"One shared audio engine owns ambient layers and two crossfading music players")
 	check(game.audio.population(game.view.focus)==0,"An empty resort does not invent a crowd")
 	game.audio._process(0.5)
-	check(game.audio.players.crowd.stream_paused,"Empty places have no fake background conversations")
+	check(not game.audio.players.crowd.playing and game.audio.players.crowd.stream == null,"Empty places have no synthetic background conversations")
 	var box: Control=game.hud.jukebox
 	game.hud.show_radio()
 	check(box.visible and not game.simulation_running() and game.hud.blocks_map(Vector2(10,10)),"Both radio entry points open the same input-blocking jukebox")
@@ -85,7 +85,7 @@ func run() -> void:
 	game._resume_application()
 	game._process(0.0)
 	game.audio._process(1.0)
-	check(not game.audio.players.wind.stream_paused,"Returning to the resort resumes the ambient mix")
+	check(not game.audio.players.wind.playing and game.audio.players.wind.stream == null and game.audio.players.music.playing and not game.audio.players.music.stream_paused,"Returning to the resort resumes real radio without synthetic ambient FX")
 	var prefs:=Preferences.new()
 	prefs.path="user://integration026-legacy-radio.cfg"
 	var old:=ConfigFile.new()
