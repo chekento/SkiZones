@@ -1,0 +1,39 @@
+name: 0.29 hotel lobby, Ska, Atmospherics and adaptive HUD QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: radio29-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  hotel-radio-and-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and lint bilingual catalogue
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          python3 tools/check_localization.py
+      - name: Test hotel-radio restoration, artist opt-in and achievement bounds
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_context_029.gd
+      - name: Audit REAL Ogg audio durations, don't infer from playlist length
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_duration_inventory_029.gd
+      - name: Verify all radio playlist sources
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/audio_cc0_library_027.gd
+      - name: Run existing milestone drawing regression
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/achievement_scene.gd
