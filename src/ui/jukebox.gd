@@ -11,6 +11,8 @@ var genre_choice:=OptionButton.new()
 var music_slider:=HSlider.new()
 var ambience_slider:=HSlider.new()
 var area_label:=Label.new()
+var playing_label:=Label.new()
+var _now_playing_timer := 0.0
 var enabled := CheckButton.new()
 var master_slider := HSlider.new()
 
@@ -32,7 +34,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var page: VBoxContainer=hud._vbox(scroll,14)
 	page.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	hud._label(page,L.text("Deine Musik für den Berg"),25,hud.TEAL)
-	hud._label(page,L.text("Kostenlose Offline-Basis: kleine eigens erzeugte Klangschleifen, keine Songs fremder Künstler. Suno-Generierung und lizenzierte Sender sind spätere optionale Erweiterungen."),16,hud.MUTED,true)
+	hud._label(page,L.text("Offline-Radiosender mit frei verwendbarer CC0-Musik, mehreren Titeln und Übergängen. Ohne Streaming, Abo oder Internetverbindung."),16,hud.MUTED,true)
 	enabled.text=L.text("Audio einschalten")
 	enabled.custom_minimum_size.y=46
 	page.add_child(enabled)
@@ -60,6 +62,14 @@ func setup(owner_hud: CanvasLayer) -> void:
 	area_label.add_theme_font_size_override("font_size",17)
 	area_label.add_theme_color_override("font_color",hud.TEAL)
 	page.add_child(area_label)
+	playing_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	playing_label.add_theme_font_size_override("font_size",18)
+	page.add_child(playing_label)
+	hud._button(page,L.text("Nächster Titel"),func():
+		hud.game.audio.next_track()
+		_update_now_playing()
+	)
+	hud._label(page,L.text("CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert."),14,hud.MUTED,true)
 	hud._button(page,L.text("Jukebox-Einstellungen speichern"),func():
 		var prefs:RefCounted=hud.game.preferences
 		prefs.sound_enabled=enabled.button_pressed
@@ -86,6 +96,7 @@ func open() -> void:
 	show()
 	window._fit()
 	_preview()
+	_update_now_playing()
 
 func close(restore: bool = true) -> void:
 	if restore and hud!=null and hud.game!=null:
@@ -96,3 +107,22 @@ func close(restore: bool = true) -> void:
 func _preview() -> void:
 	if not visible or hud==null or hud.game==null:return
 	hud.game.audio.set_preview({"genre":str(Design.GENRES[genre_choice.selected]),"enabled":enabled.button_pressed,"master":master_slider.value,"music":music_slider.value,"ambient":ambience_slider.value})
+	_update_now_playing()
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	_now_playing_timer += delta
+	if _now_playing_timer >= 0.7:
+		_now_playing_timer = 0.0
+		_update_now_playing()
+
+func _update_now_playing() -> void:
+	if hud == null or hud.game == null:
+		return
+	var info: Dictionary = hud.game.audio.now_playing()
+	var track: String = str(info.get("title", ""))
+	var artist: String = str(info.get("artist", ""))
+	playing_label.text = L.text("Jetzt läuft: ") + (track if not track.is_empty() else L.text("Musik aus"))
+	if not artist.is_empty():
+		playing_label.text += " · " + artist

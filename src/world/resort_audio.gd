@@ -1,6 +1,6 @@
 extends Node
-## Original locally composed multi-instrument WAV arrangements and ambient synthesis.
-## All offline; no third-party samples, voice recordings or network streams.
+## Offline Alpine Radio: vetted third-party CC0 OGG songs, plus original fallback WAVs.
+## Music is bundled in APK, never streamed or generated over a network.
 const Design=preload("res://src/core/audio_design.gd")
 const MUSIC_TRACKS := {
 	"alpine": preload("res://assets/music/alpine.wav"),
@@ -20,6 +20,11 @@ var _cache: Dictionary={}
 var _poll := 0.0
 var active_zone := "wilderness"
 var current_genre := "off"
+var current_track_title := ""
+var current_track_artist := ""
+var _cc0_loaded := false
+var _cc0_stations: Dictionary = {}
+var _song_positions: Dictionary = {}
 var active := true
 var preview_settings: Dictionary = {}
 var _targets: Dictionary = {}
@@ -46,6 +51,8 @@ func setup(resort_view: Node3D, prefs: RefCounted) -> void:
 	alternate.volume_db=-60.0
 	add_child(alternate)
 	players["music_alt"]=alternate
+	players["music"].finished.connect(_on_music_finished.bind(players["music"]))
+	players["music_alt"].finished.connect(_on_music_finished.bind(players["music_alt"]))
 	for kind in LAYERS:
 		players[kind].stream=_create(kind)
 		players[kind].play()
@@ -124,13 +131,97 @@ func _music_stream(id: String) -> AudioStream:
 		wav.loop_end = roundi(wav.get_length() * wav.mix_rate)
 	return track
 
-func set_genre(id: String) -> void:
+## Load only tracks whose verified OGG files are already bundled with the app.
+func _load_cc0_library() -> void:
+	if _cc0_loaded:
+		return
+	_cc0_loaded = true
+	var data_file: FileAccess = FileAccess.open("res://assets/music/cc0/library.json", FileAccess.READ)
+	if data_file == null:
+		return
+	var parsed: Variant = JSON.parse_string(data_file.get_as_text())
+	if not (parsed is Dictionary):
+		return
+	var all_stations: Dictionary = parsed.get("stations", {})
+	for genre in Design.GENRES:
+		if genre == "off":
+			continue
+		var entries: Array = all_stations.get(genre, [])
+		var present: Array = []
+		for item in entries:
+			if not (item is Dictionary):
+				continue
+			if str(item.get("license", "")) != "CC0-1.0":
+				continue
+			var audio_path: String = str(item.get("file", ""))
+			if audio_path.begins_with("res://assets/music/cc0/") and ResourceLoader.exists(audio_path):
+				present.append(item)
+		if not present.is_empty():
+			_cc0_stations[genre] = present
+
+func station_track_count(id: String) -> int:
+	_load_cc0_library()
+	return (_cc0_stations.get(id, []) as Array).size()
+
+func track_credits(id: String) -> Array:
+	_load_cc0_library()
+	return (_cc0_stations.get(id, []) as Array).duplicate(true)
+
+func now_playing() -> Dictionary:
+	return {"genre": current_genre, "title": current_track_title, "artist": current_track_artist}
+
+func _radio_stream(id: String, advance: bool = false) -> AudioStream:
+	_load_cc0_library()
+	var entries: Array = _cc0_stations.get(id, [])
+	if entries.is_empty():
+		current_track_title = id
+		current_track_artist = ""
+		return _music_stream(id)
+	var index: int = int(_song_positions.get(id, 0))
+	if advance:
+		index = (index + 1) % entries.size()
+	_song_positions[id] = index
+	var record: Dictionary = entries[index]
+	var music: AudioStream = load(str(record.get("file", ""))) as AudioStream
+	if music == null:
+		return _music_stream(id)
+	# The player advances to the next real song; a short two-player crossfade
+	# begins before end of song, rather than hard-looping a single track.
+	if music is AudioStreamOggVorbis:
+		(music as AudioStreamOggVorbis).loop = false
+	current_track_title = str(record.get("title", id))
+	current_track_artist = str(record.get("artist", ""))
+	return music
+
+func next_track() -> void:
+	if current_genre != "off" and _crossfade >= 1.0:
+		set_genre(current_genre, true)
+
+func _on_music_finished(finished_player: AudioStreamPlayer) -> void:
+	if active and current_genre != "off" and players.get("music") == finished_player:
+		set_genre(current_genre, true)
+
+func _maybe_advance_song() -> void:
+	if not active or current_genre == "off" or _crossfade < 1.0:
+		return
+	var music_player: AudioStreamPlayer = players.get("music")
+	if music_player == null or not music_player.playing or music_player.stream_paused:
+		return
+	if not (music_player.stream is AudioStreamOggVorbis):
+		return
+	var remaining: float = music_player.stream.get_length() - music_player.get_playback_position()
+	if remaining > 0.0 and remaining <= CROSSFADE_SECONDS + 0.25:
+		set_genre(current_genre, true)
+
+func set_genre(id: String, next_song: bool = false) -> void:
 	var wanted:String=Design.genre_valid(id)
-	if current_genre==wanted and (wanted=="off" or (players.has("music") and players.music.playing)):return
+	if current_genre==wanted and not next_song and (wanted=="off" or (players.has("music") and players.music.playing)):return
 	var primary:AudioStreamPlayer=players.get("music")
 	if primary==null:return
 	current_genre=wanted
 	if wanted=="off":
+		current_track_title = ""
+		current_track_artist = ""
 		# Explicit opt-out must silence both streams without a fade.
 		primary.stop()
 		var standby:AudioStreamPlayer=players.get("music_alt")
@@ -150,7 +241,7 @@ func set_genre(id: String) -> void:
 		if alternate!=null:alternate.stop()
 		_retiring_music=null
 	_crossfade=0.0
-	primary.stream=_music_stream(wanted)
+	primary.stream=_radio_stream(wanted, next_song)
 	primary.volume_db=-60.0
 	primary.play()
 	primary.stream_paused=not active
@@ -235,6 +326,7 @@ func population(focus: Vector2) -> int:
 func _process(delta: float) -> void:
 	if scene==null or preferences==null or scene.model==null:return
 	_mix(delta)
+	_maybe_advance_song()
 	if not active:return
 	_poll+=maxf(0.0,delta)
 	if _poll<0.35:return

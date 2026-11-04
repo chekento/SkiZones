@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "offline": true,
+  "policy": "CC0 only; exact pinned GitHub blobs verified against their Git blob SHA-1 before bundling; original source and artist recorded per track",
+  "stations": {
+    "alpine": [
+      {
+        "id": "old-tower-inn",
+        "title": "The Old Tower Inn",
+        "artist": "RandomMind",
+        "file": "res://assets/music/cc0/old-tower-inn.ogg",
+        "style": "folk",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/medieval-the-old-tower-inn",
+        "mirror": {
+          "repository": "GabrielGLevine/wandering-inn-rpg",
+          "commit": "7dacb3b3ceb856d33d6a39a6f20b7169c6a97419",
+          "path": "wandering_inn_game/assets/audio/music/randommind_old_tower_inn.ogg",
+          "git_blob_sha1": "6e1fb384bddae15d6e8b2758243a53f5d4c7b098",
+          "bytes": 832498
+        }
+      },
+      {
+        "id": "fireplace-guitar",
+        "title": "Calm Fireplace Guitar Song",
+        "artist": "ShggothSlave",
+        "file": "res://assets/music/cc0/fireplace-guitar.ogg",
+        "style": "guitar",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/calm-fireplace-guitar-song",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/relax/Calm_fireplace_guitar_song.ogg",
+          "git_blob_sha1": "8ea9ff6fb15f80632cc0cd7bf29266823fdae809",
+          "bytes": 967203
+        }
+      },
+      {
+        "id": "small-fire",
+        "title": "A Small Fire Will Do",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/small-fire.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/a-small-fire-will-do-calming-loop",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/A_Small_Fire_Will_Do_Calming_Loop.ogg",
+          "git_blob_sha1": "87ec28b52ecd35a3e94643616837b8d5ae7a1f07",
+          "bytes": 604685
+        }
+      }
+    ],
+    "techno": [
+      {
+        "id": "tech-rave",
+        "title": "Tech Rave",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/tech-rave.ogg",
+        "style": "electronic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/tech-rave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Tech_rave.ogg",
+          "git_blob_sha1": "7740902b6f88aa91a6303b5887e039467a8284a1",
+          "bytes": 1440956
+        }
+      },
+      {
+        "id": "piece-of-techno",
+        "title": "Piece of Techno Music",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/piece-of-techno.ogg",
+        "style": "techno",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/piece-of-techno-music",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Piece_of_techno_music.ogg",
+          "git_blob_sha1": "f450cb08c999d0c3f58edcc6122ae196d0b71417",
+          "bytes": 1076936
+        }
+      }
+    ],
+    "hiphop": [
+      {
+        "id": "lofi-hip-hop",
+        "title": "Lofi Hip Hop Loop",
+        "artist": "omfgdude",
+        "file": "res://assets/music/cc0/lofi-hip-hop.ogg",
+        "style": "hip-hop",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/lofi-hip-hop-loop",
+        "mirror": {
+          "repository": "euuuuuuan/neko-shift-public",
+          "commit": "e0294851d15053eb2e2d7f828929f5de76dbfd0f",
+          "path": "assets-src/audio-src/opengameart_lofi-hip-hop-loop_omfgdude.ogg",
+          "git_blob_sha1": "3fd69651673a23220c88e304d9300e3eff4c3dd1",
+          "bytes": 1430666
+        }
+      },
+      {
+        "id": "bubbles-lofi",
+        "title": "Bubbles (Lofi, Bright, Relaxed)",
+        "artist": "HoliznaCC0",
+        "file": "res://assets/music/cc0/bubbles-lofi.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/bubbles-lofi-bright-relaxed/",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/Bubbles_Lofi_Bright_Relaxed.ogg",
+          "git_blob_sha1": "64ddb3274604af1e84c8ed64c28dce3b29a98f6f",
+          "bytes": 1642372
+        }
+      }
+    ],
+    "punk": [
+      {
+        "id": "rock-and-jazz",
+        "title": "Done (Rock and Jazz)",
+        "artist": "Alex McCulloch / Pro Sensory",
+        "file": "res://assets/music/cc0/rock-and-jazz.ogg",
+        "style": "rock",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/done-rock-and-jazz",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/jazz/Done_Rock_and_Jazz.ogg",
+          "git_blob_sha1": "23b32980a05991ee3ed4852edc3c00d97d29afe5",
+          "bytes": 1796970
+        }
+      },
+      {
+        "id": "intensity-guitar",
+        "title": "Intensity Buffer (Guitar)",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/intensity-guitar.ogg",
+        "style": "guitar",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/intensity-buffer-guitar",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/classical/Intensity_Buffer_Guitar.ogg",
+          "git_blob_sha1": "83e0d7163c7b42047b2da72e860a563f62178027",
+          "bytes": 1464921
+        }
+      }
+    ],
+    "classical": [
+      {
+        "id": "at-home-orchestral",
+        "title": "At Home – Orchestral",
+        "artist": "Wolfgang_",
+        "file": "res://assets/music/cc0/at-home-orchestral.ogg",
+        "style": "orchestral",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/at-home-orchestral",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/relax/At_Home_Orchestral.ogg",
+          "git_blob_sha1": "ce06125bd06395592eb93ded412467663d69704b",
+          "bytes": 886227
+        }
+      },
+      {
+        "id": "classical-pop",
+        "title": "Classical Pop (Instrumental)",
+        "artist": "Alex McCulloch / Pro Sensory",
+        "file": "res://assets/music/cc0/classical-pop.ogg",
+        "style": "classical",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/classical-pop-instrumental",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/classical/Classical_Pop_Instrumental.ogg",
+          "git_blob_sha1": "3c8582ff9a22708591324c2562afc933d8a652e5",
+          "bytes": 885573
+        }
+      }
+    ],
+    "meditative": [
+      {
+        "id": "heavenly-loop",
+        "title": "Heavenly Loop",
+        "artist": "isaiah658",
+        "file": "res://assets/music/cc0/heavenly-loop.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/heavenly-loop",
+        "mirror": {
+          "repository": "euuuuuuan/neko-shift-public",
+          "commit": "e0294851d15053eb2e2d7f828929f5de76dbfd0f",
+          "path": "assets-src/audio-src/opengameart_heavenly-loop_isaiah658.ogg",
+          "git_blob_sha1": "9a39a4842eeac274124c50caad179a0052aa1d3f",
+          "bytes": 1224922
+        }
+      },
+      {
+        "id": "ice-shine-bells",
+        "title": "Ice Shine Bells",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/ice-shine-bells.ogg",
+        "style": "winter",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/ice-shine-bells",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Ice_Shine_Bells.ogg",
+          "git_blob_sha1": "a64ff835ff6c9a3247eab00c91b3f25f87d21c0a",
+          "bytes": 1619836
+        }
+      }
+    ]
+  }
+}

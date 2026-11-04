@@ -40,3 +40,5 @@ jobs:
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_crew_026.gd
       - name: Check six original radio tracks and loop metadata
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_loop_pack_027.gd
+      - name: Check offline CC0 playlists, artist credits and transitions
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/audio_cc0_library_027.gd
