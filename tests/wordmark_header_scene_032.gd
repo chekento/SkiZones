@@ -39,7 +39,16 @@ func run() -> void:
 		check(hud.header_details.money.visible==(resolution.x>=1080),"Extra details adapt to available screen width at "+str(resolution))
 		hud.hide_menu();await capture("wordmark-032-header-"+str(resolution.x))
 		hud.show_menu();await settle()
-		check(inside(hud.menu_panel) and inside(hud.menu_logo),"Main-menu wordmark fits "+str(resolution))
+		check(inside(hud.menu_panel),"Main-menu panel fits "+str(resolution))
+		check(inside(hud.menu_logo),"Main-menu wordmark fits "+str(resolution))
+		var menu_buttons_inside: bool = true
+		var panel_rect: Rect2 = hud.menu_panel.get_global_rect()
+		for menu_item in hud.menu_panel.find_children("*", "Button", true, false):
+			var rect: Rect2 = (menu_item as Button).get_global_rect()
+			if rect.position.x < panel_rect.position.x or rect.end.x > panel_rect.end.x:
+				menu_buttons_inside = false
+				break
+		check(menu_buttons_inside,"Main-menu action widths fit "+str(resolution))
 		check(hud.menu_logo.stretch_mode==TextureRect.STRETCH_KEEP_ASPECT_CENTERED,"Menu preserves original wordmark proportions")
 		await capture("wordmark-032-menu-"+str(resolution.x))
 		hud.hide_menu()
