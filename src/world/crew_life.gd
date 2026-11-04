@@ -6,6 +6,7 @@ const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
 const Art=preload("res://src/world/alpine_art.gd")
 const Styles=preload("res://src/core/visual_styles.gd")
+const StyleAssets=preload("res://src/world/style_assets.gd")
 const MAX_VISIBLE_STAFF := 56
 const MAX_VISIBLE_RESCUE := 12
 var root: Node3D
@@ -86,6 +87,8 @@ static func rescue_mesh(style: String) -> ArrayMesh:
 	return art.finish()
 
 static func lodge_mesh(style: String) -> ArrayMesh:
+	if style!="alpine":
+		return StyleAssets.building("hotel",1,Color(str(Styles.detail_tints(style).wood)),style)
 	var art:=Art.new()
 	var p:Dictionary=Styles.detail_tints(style)
 	var wood:=Color(str(p.wood))
@@ -209,4 +212,3 @@ func update(view: Node3D,delta: float) -> void:
 		emergency_mesh.multimesh.set_instance_color(rescue_count,Color.WHITE)
 		rescue_count+=1
 	emergency_mesh.multimesh.visible_instance_count=rescue_count
-

@@ -46,6 +46,13 @@ func run() -> void:
 		check(dressed==game.model.buildings.size(),style+" dresses every actual resort building")
 		check(game.view.asset_root.get_children()==original_nodes,style+" preserves building, lift and vehicle nodes")
 		check(game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]==terrain_vertices,style+" preserves terrain geometry")
+		var decorations: Array=festive.root.get_children().filter(func(node):return node.has_meta("festival_kind"))
+		var spaced:=true
+		for i in range(decorations.size()):
+			for j in range(i):
+				var separation: float=decorations[i].position.distance_to(decorations[j].position)
+				spaced=spaced and separation>=float(decorations[i].get_meta("festival_clearance"))+float(decorations[j].get_meta("festival_clearance"))-.01
+		check(spaced,style+" purchased festive buildings and props do not overlap each other")
 		await capture("assets-032-christmas-"+style,style=="monochrome")
 		if style in ["pastel","bauhaus","monochrome"]:
 			game.hud.building_browser.open()

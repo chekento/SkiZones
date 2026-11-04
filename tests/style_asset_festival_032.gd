@@ -5,6 +5,7 @@ const Festival=preload("res://src/world/festive_buildings.gd")
 const Calendar=preload("res://src/core/annual_festival.gd")
 const Catalog=preload("res://src/core/catalog.gd")
 const Preferences=preload("res://src/core/preferences.gd")
+const Crew=preload("res://src/world/crew_life.gd")
 var passed:=0
 var failed:=0
 func _init() -> void:call_deferred("run")
@@ -15,11 +16,15 @@ func run() -> void:
 	check(Styles.IDS.size()==10,"Ten named styles include monochrome line art")
 	var hotel_shapes: Dictionary={}
 	var stations: Dictionary={}
+	var crew_homes: Dictionary={}
 	for style in Styles.IDS:
 		var hotel: ArrayMesh=Assets.building("hotel",2,Color("aabbcc"),style)
 		hotel_shapes[str(hotel.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])]=true
 		var station: ArrayMesh=Assets.station("chair2",1,"",style)
 		stations[str(station.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])]=true
+		var home: ArrayMesh=Crew.lodge_mesh(style)
+		crew_homes[str(home.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])]=true
+		if style=="monochrome":check(home.surface_get_primitive_type(0)==Mesh.PRIMITIVE_LINES,"Staff accommodation also uses sparse monochrome lines")
 		var valid:=true
 		for kind in Catalog.BUILDINGS:
 			var mesh: ArrayMesh=Assets.building(kind,1,Color(Catalog.BUILDINGS[kind].color),style)
@@ -33,6 +38,7 @@ func run() -> void:
 		check(dressed.get_surface_count()>0,"Real hotel roof dressing in "+style)
 	check(hotel_shapes.size()==10,"Every theme changes actual hotel geometry")
 	check(stations.size()==10,"Every theme changes actual station geometry")
+	check(crew_homes.size()==10,"Staff accommodation follows all ten architectural styles")
 	var pref:=Preferences.new();pref.path="user://line-art-032.cfg";pref.visual_style="monochrome";pref.save_to()
 	var restored:=Preferences.new();restored.path=pref.path;restored.load_from()
 	check(restored.visual_style=="monochrome","Monochrome survives settings reload")

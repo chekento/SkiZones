@@ -38,6 +38,12 @@ func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
 			if distance<float(path.get("width",7))*.5+clearance:return false
 	return true
 
+func _free_decoration_site(view: Node3D, at: Vector2, clearance: float, occupied: Array) -> bool:
+	if not _valid_place(view,at,clearance):return false
+	for site in occupied:
+		if at.distance_to(site.point)<clearance+float(site.radius):return false
+	return true
+
 func build(view: Node3D) -> void:
 	if is_instance_valid(root): root.queue_free()
 	root=Node3D.new()
@@ -111,23 +117,27 @@ func build(view: Node3D) -> void:
 		schedule.append({"kind":extra[kind],"angle":(float(k)+0.4)*TAU/6.0,"radius":91.0+float(k%2)*9.0})
 		k+=1
 	var meshes: Dictionary={}
+	var occupied: Array=[]
 	for item in schedule:
 		var kind: String=item.kind
 		# The countdown board is meaningful only at the year change.
 		if kind in ["clock","winter_stage"] and stage not in ["new_year_eve","new_year"]: continue
 		var center: Vector2=Terrain.BASE+Vector2.from_angle(float(item.angle))*float(item.radius)
 		var clearance:=15.0 if kind in FestiveBuildings.KINDS else 9.0
-		if not _valid_place(view,center,clearance):
+		if not _free_decoration_site(view,center,clearance,occupied):
 			var found:=false
-			for attempt in range(32):
+			for attempt in range(64):
 				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(float(item.angle)+attempt*.23)*(float(item.radius)+20+float(attempt%6)*16)
-				if _valid_place(view,candidate,clearance):center=candidate;found=true;break
+				if _free_decoration_site(view,candidate,clearance,occupied):center=candidate;found=true;break
 			if not found:continue
+		occupied.append({"point":center,"radius":clearance})
 		if not meshes.has(kind):
 			var mesh: ArrayMesh=FestivalArt.make(kind,view.visual_style)
 			mesh.surface_set_material(0,view._solid)
 			meshes[kind]=mesh
 		var node:=MeshInstance3D.new()
+		node.set_meta("festival_kind",kind)
+		node.set_meta("festival_clearance",clearance)
 		node.mesh=meshes[kind]
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.position=view.terrain.world(center,0.4)
