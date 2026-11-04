@@ -47,7 +47,7 @@ jobs:
         working-directory: legacy019
         run: |
           mkdir -p "$SKIZONES_LEGACY_FIXTURES/019"
-          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/019" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/generate_019_careers.gd
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/019" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script ../current/tests/generate_019_careers.gd
       - name: Import candidate hotfix
         working-directory: current
         run: '"$GODOT_BIN" --headless --editor --import --quit'
@@ -63,7 +63,7 @@ jobs:
         working-directory: legacy027
         run: |
           mkdir -p "$SKIZONES_LEGACY_FIXTURES/027"
-          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/027" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script tests/generate_019_careers.gd
+          SKIZONES_LEGACY_FIXTURES="$SKIZONES_LEGACY_FIXTURES/027" python3 ../current/tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --headless --script ../current/tests/generate_019_careers.gd
       - name: Validate all original 0.27 careers and independent old-save fallbacks
         working-directory: current
         run: |
