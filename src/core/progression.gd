@@ -355,6 +355,7 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	# only a truly stored mastery rank requires separate validation.
 	if state.has("mastery_rank") and (not Terrain.number(state.mastery_rank) or state.mastery_rank < 1 or state.mastery_rank > 500 or state.mastery_rank != floorf(float(state.mastery_rank))):
 		return false
+	if state.has("starting_tier") and (not Terrain.number(state.starting_tier) or state.starting_tier < 0 or state.starting_tier > 4 or state.starting_tier != floorf(float(state.starting_tier))): return false
 	var ranges := {"xp": [0, 10000000000], "xp_awarded": [0, 10000000], "points": [0, 10000000], "rank": [1, 5], "completed": [0, 10000000], "turnover": [0, 100000000000], "happy": [0, 1000000000], "profit": [-100000000000, 100000000000], "finalized_day": [0, model.day], "season_reward_day": [0, model.day]}
 	for key in ranges:
 		if not Terrain.number(state.get(key)) or state[key] < ranges[key][0] or state[key] > ranges[key][1]:

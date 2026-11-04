@@ -6755,3 +6755,42 @@ msgstr "Inspect saved game"
 
 msgid "Weitere gespeicherte Gebiete"
 msgstr "Other saved resorts"
+
+msgid "STARTKAPITAL · NUR FÜR NEUE KARRIEREN"
+msgstr "STARTING CASH · NEW CAREERS ONLY"
+
+msgid "Die Wahl verändert nur neue Karrieren und niemals bestehende Spielstände."
+msgstr "This choice affects new careers only, never existing saves."
+
+msgid "Karriereprofil: "
+msgstr "Career profile: "
+
+msgid "Startkapital"
+msgstr "Starting cash"
+
+msgid "Existenzkampf"
+msgstr "Survival"
+
+msgid "Knappes Budget"
+msgstr "Tight Budget"
+
+msgid "Wohlhabend"
+msgstr "Prosperous"
+
+msgid "Großinvestor"
+msgstr "Major Investor"
+
+msgid "Ein funktionierender Starterberg, aber kaum Reserven. Jeder Kredit und Auftrag zählt."
+msgstr "A working starter mountain with almost no reserves. Every loan and contract matters."
+
+msgid "Kleine Rücklage, behutsame Investitionen und frühe Einnahmen sind entscheidend."
+msgstr "A small reserve; cautious investment and early earnings matter."
+
+msgid "Genug Kapital für den behutsamen Ausbau – der Standard für eine neue Karriere."
+msgstr "Enough money for careful expansion – the default new career."
+
+msgid "Großer Handlungsspielraum für Personal, neue Pisten und Pistenraupen."
+msgstr "Room to invest in staff, new slopes and snow groomers."
+
+msgid "Üppiges Startkapital und ein guter Ruf. Konzentriere dich auf große Ausbaupläne."
+msgstr "Large starting funds and a strong reputation. Focus on big expansion plans."

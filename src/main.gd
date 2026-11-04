@@ -11,6 +11,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
+const StartTiers = preload("res://src/core/start_tiers.gd")
 const LoadProgress = preload("res://src/core/load_progress.gd")
 const AppSession = preload("res://src/core/app_session.gd")
 const ResortView = preload("res://src/world/resort_view.gd")
@@ -357,7 +358,7 @@ func _select_save_context(slot: int) -> void:
 	passport.load_from(SaveStore.passport_path())
 	has_game=false
 
-func select_career_slot(slot: int, fresh: bool = false) -> void:
+func select_career_slot(slot: int, fresh: bool = false, tier: int = 2) -> void:
 	if slot<1 or slot>4: return
 	if has_game and not save_game(): return
 	if fresh and (SaveStore.summary(slot).occupied or FileAccess.file_exists(SaveStore.passport_path(slot))) and not SaveStore.archive_slot(slot):
@@ -367,6 +368,8 @@ func select_career_slot(slot: int, fresh: bool = false) -> void:
 	hud.career_slots.hide()
 	if fresh:
 		start_game(true)
+		StartTiers.apply(model, tier)
+		hud.refresh()
 		save_game()
 	else:
 		var saved:=SaveStore.summary(slot)

@@ -7,6 +7,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
+const StartTiers = preload("res://src/core/start_tiers.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
 
@@ -142,6 +143,9 @@ func _career(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
 	var state: Dictionary = model.campaign
 	var summary := _card(page, L.text("%s  ·  %s") % L.args(["★".repeat(state.rank), Progression.RANK_NAMES[state.rank - 1]]), L.text("Winter %d · Tag %d von 28\n%.0f Erfahrung · %d abgeschlossene Aufträge · %s € Budget") % L.args([Progression.season_number(model), Progression.season_day(model), state.xp, state.completed, hud.money_text(model.money)]))
+	if state.has("starting_tier"):
+		var starting: Dictionary = StartTiers.choice(int(state.starting_tier))
+		hud._label(summary,L.text("Karriereprofil: ") + L.text(str(starting.name)) + " · " + L.text("Startkapital") + " " + hud.money_text(starting.money) + " €",16,hud.ACCENT,true)
 	hud._label(summary, Progression.next_goal(model), 18, hud.TEAL, true)
 	if state.rank < 5:
 		var bar := ProgressBar.new()
