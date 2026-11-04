@@ -15,6 +15,22 @@ static func path_for_map(id: String, slot: int = -1) -> String:
 	var selected := active_slot if slot < 0 else slot
 	return "user://free_%s.json" % id if selected == 0 else "user://career_%d_%s.json" % [clampi(selected,1,4),id]
 
+## A passport may be missing independently of its career save. A readable
+## archive still owns its resort and must not be hidden behind unlock gates.
+## Actual model validation always happens in load_game before the scene is used.
+static func has_readable_save(id: String, slot: int = -1) -> bool:
+	var selected: int = active_slot if slot < 0 else slot
+	for source in [path_for_map(id, selected),path_for_map(id, selected)+".bak"]:
+		var read: Dictionary = _read(source)
+		if read.ok and str(read.data.get("map_id","sonnenhang")) == id:
+			return true
+	if selected not in [0,1] or not Maps.FANTASY_MAPS.has(id): return false
+	for source in [legacy_path(id),legacy_path(id)+".bak"]:
+		var read: Dictionary = _read(source)
+		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and _free_data(read.data) == (selected==0):
+			return true
+	return false
+
 static func passport_path(slot: int = -1) -> String:
 	var selected := active_slot if slot < 0 else slot
 	return "user://free_passport.json" if selected == 0 else "user://career_%d_passport.json" % clampi(selected,1,4)
