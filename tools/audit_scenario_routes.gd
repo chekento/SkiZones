@@ -10,6 +10,8 @@ func _init() -> void:
     call_deferred("run")
 
 func run() -> void:
+    var passed: int = 0
+    var failed: int = 0
     var selected: Array = Maps.FANTASY_MAPS.keys() + Geo.IDS
     for argument in OS.get_cmdline_user_args():
         if argument.begins_with("--map="):
@@ -56,6 +58,13 @@ func run() -> void:
             if not covered_by_ability[0].has(piste_id) and not covered_by_ability[1].has(piste_id) and not expert_ids.has(piste_id):
                 missing_all.append(piste_id)
 
+        var sanity: bool = circuits_by_ability["0"] <= circuits_by_ability["1"] and circuits_by_ability["1"] <= circuits_by_ability["2"] and expert_ids.size() <= model.pistes.size()
+        if sanity:
+            passed += 1
+            print("PASS ", map_id, " route coverage is skill-ordered and bounded by piste count")
+        else:
+            failed += 1
+            push_error("FAIL " + str(map_id) + " route coverage counters are inconsistent")
         print("ROUTE_AUDIT ", JSON.stringify({
             "map": map_id,
             "pistes": model.pistes.size(),
@@ -66,4 +75,5 @@ func run() -> void:
             "missing_circuits_by_ability": missing_counts,
             "no_route_at_any_ability": missing_all
         }))
-    quit()
+    print("RESULT: %d passed; %d failed" % [passed, failed])
+    quit(1 if failed else 0)
