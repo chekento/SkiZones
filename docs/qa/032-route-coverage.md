@@ -19,3 +19,7 @@ These results use the unchanged imported geometry in commit 57a63fc. The existin
 An experimental 10 m centerline join increased Braunlage to 23 circuits, but its two new connections failed the existing pedestrian obstacle checks. That experiment was discarded. The source geometry and routing tolerance remain unchanged.
 
 Before describing all real pistes as fully connected, repeat this inventory and add regression coverage for every repaired connection. The two originally disabled Kitzbühel seed runs also require an individual geometry/dynamics review.
+
+## Reproducible ability-level diagnostics
+
+The current audit now reports full-return coverage independently for ability 0 (beginner), 1 (intermediate) and 2 (expert), without altering either source geometry or player saves. Its existing `complete_routes` and `missing_circuit` fields remain **expert** metrics for compatibility with the published table; additionally inspect `complete_routes_by_ability`, `missing_circuits_by_ability`, and `no_route_at_any_ability`. Counts in the table above are **not** beginner or intermediate results. No new values are claimed until the updated script runs successfully on the exact candidate revision. The diagnostic cannot by itself justify changing route connectivity or removing collision constraints.
