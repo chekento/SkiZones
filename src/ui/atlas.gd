@@ -67,10 +67,11 @@ func open() -> void:
 	if game.has_game:
 		game.passport.record(game.model)
 	for card in _cards:
-		var unlocked: bool = Saves.active_slot==0 or game.passport.unlocked(card.id)
-		card.requirement.text = L.text("Gebiet freigeschaltet") if unlocked else game.passport.requirement(card.id)
-		var saved := FileAccess.file_exists(Saves.path_for_map(card.id))
-		card.enter.text = L.text("Zurück zu deinem Resort") if game.has_game and game.model.map_id == card.id else (L.text("Resort fortsetzen") if saved else L.text("Resort eröffnen"))
+		var saved: bool = Saves.has_any_save(card.id)
+		var readable: bool = Saves.has_readable_save(card.id)
+		var unlocked: bool = Saves.active_slot == 0 or game.passport.unlocked(card.id) or saved
+		card.requirement.text = L.text("Spielstand vorhanden – Wiederherstellung prüfen") if saved and not readable else (L.text("Gebiet freigeschaltet") if unlocked else game.passport.requirement(card.id))
+		card.enter.text = L.text("Zurück zu deinem Resort") if game.has_game and game.model.map_id == card.id else (L.text("Spielstand prüfen") if saved and not readable else (L.text("Resort fortsetzen") if saved else L.text("Resort eröffnen")))
 		if not unlocked:
 			card.enter.text = L.text("Noch nicht freigeschaltet")
 		card.enter.disabled = not unlocked

@@ -37,8 +37,18 @@ func refresh() -> void:
 		var body: VBoxContainer=hud._vbox(panel,8)
 		hud._label(body,L.text("Karriere %d") % slot,23,hud.TEAL)
 		if summary.occupied:
-			hud._label(body,L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)],17,hud.INK,true)
-			hud._button(body,L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
+			var damaged: bool = summary.get("damaged", false)
+			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),17,hud.INK,true)
+			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
+			# Do not hide another old mountain behind a single last-map index.
+			var entries: Array = Saves.saved_resorts(slot)
+			if entries.size() > 1:
+				hud._label(body,L.text("Weitere gespeicherte Gebiete"),16,hud.TEAL,true)
+				for entry in entries:
+					if entry.map == summary.map: continue
+					var area: String = str(entry.map)
+					var subtitle: String = L.text("Spielstand prüfen") if entry.damaged else L.text("Resort fortsetzen")
+					hud._button(body,L.text(Maps.spec(area).name) + " · " + subtitle,func():hud.game.select_career_area(slot,area))
 			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;confirmation.popup_centered(Vector2i(620,230)))
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
