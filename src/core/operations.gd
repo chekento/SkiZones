@@ -354,12 +354,22 @@ static func repair(model: RefCounted, id: int, workshop_id: int = -1) -> Diction
 	return model._result(true, L.text("Reparatur gestartet. Die Anlage bleibt bis zur Fertigstellung gesperrt."))
 
 static func buy_groomer(model: RefCounted, garage: int) -> Dictionary:
-	var building: Dictionary = model.asset(garage)
-	if building.get("kind") != "maintenance" or not building.enabled: return model._result(false, L.text("Eine geöffnete Pistenraupengarage wählen."))
-	if model.operations.vehicles.size() >= 24 or not model._spend(65000): return model._result(false, L.text("Für eine Pistenraupe werden 65.000 € benötigt. Maximal 24 Fahrzeuge."))
-	model.operations.vehicles.append({"id": model.operations.next_vehicle, "garage": garage, "piste": -1, "remaining": 0.0, "total": 0.0, "hours": 0.0, "fuel": 100.0, "wear": 0.0, "point": building.point.duplicate()})
-	model.operations.next_vehicle += 1
-	return model._result(true, L.text("Pistenraupe gekauft. Fahrer einstellen und eine Piste zuweisen oder Nachtpräparierung aktivieren."))
+	return buy_groomers(model,garage,1)
+
+static func buy_groomers(model: RefCounted, garage: int, count: int) -> Dictionary:
+	var building: Dictionary=model.asset(garage)
+	if building.get("kind","") != "maintenance" or not building.get("enabled",false):
+		return model._result(false,L.text("Eine geöffnete Pistenraupengarage wählen."))
+	if count < 1 or count > 6 or model.operations.vehicles.size()+count > 24:
+		return model._result(false,L.text("Maximal 24 Pistenraupen im Fuhrpark."))
+	var price: int=count*65000
+	if model.money < price: return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
+	if not model._spend(price):return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
+	for i in range(count):
+		model.operations.vehicles.append({"id": model.operations.next_vehicle, "garage": garage, "piste": -1, "remaining": 0.0, "total": 0.0, "hours": 0.0, "fuel": 100.0, "wear": 0.0, "point": building.point.duplicate()})
+		model.operations.next_vehicle+=1
+	model._operational_change()
+	return model._result(true,L.text("%d Pistenraupen gekauft. Für parallele Einsätze entsprechend viele Fahrer einstellen.") % count)
 
 static func groom(model: RefCounted, id: int, garage_id: int = -1) -> Dictionary:
 	var piste: Dictionary = model.asset(id)
@@ -732,6 +742,10 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		if not person.get("name") is String or not ROLES.has(person.get("role")) or not SHIFTS.has(person.get("shift")) or not person.get("assignment") is String or ids.has(int(person.id)): return false
 		ids[int(person.id)] = true
 		if person.wage != ROLES[person.role].wage or person.motivation > 100 or person.fatigue > 100 or person.id >= state.next_staff: return false
+	for person in state.staff:
+		if person.has("applicant_id") and (not person.applicant_id is String or person.applicant_id.length()>48):return false
+		if person.has("specialty") and (not person.specialty is String or person.specialty.length()>90):return false
+		if person.has("experience") and (not Terrain.number(person.experience) or person.experience<0 or person.experience>100 or person.experience!=floorf(person.experience)):return false
 	for vehicle in state.vehicles:
 		if not vehicle is Dictionary: return false
 		for key in ["id", "garage", "piste", "remaining", "total", "hours", "fuel", "wear"]:
