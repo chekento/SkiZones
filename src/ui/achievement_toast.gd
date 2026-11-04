@@ -17,6 +17,8 @@ var headline := Label.new()
 var detail := Label.new()
 var _card_top := 0.0
 var _card_width := 0.0
+var _headline_full := ""
+var _detail_full := ""
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -30,7 +32,7 @@ func _ready() -> void:
 	card.add_child(content)
 	for line in [kicker,headline,detail]:
 		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.autowrap_mode = TextServer.AUTOWRAP_OFF
 		line.clip_text = false
 		line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	kicker.add_theme_font_size_override("font_size",11)
@@ -67,11 +69,11 @@ func _next() -> void:
 	active = waiting.pop_front()
 	elapsed = 0.0
 	kicker.text = "✦  MASTERY LEVEL" if str(active.get("kind","")) == "rank" else "✦  ACHIEVEMENT UNLOCKED"
-	headline.text = str(active.get("title",""))
+	_headline_full = str(active.get("title",""))
 	var extra := str(active.get("detail",""))
 	if int(active.get("reward",0)) > 0:
 		extra += ("   " if not extra.is_empty() else "") + "+%d €" % int(active.reward)
-	detail.text = extra
+	_detail_full = extra
 	detail.visible = not extra.is_empty()
 	_reflow()
 	show()
@@ -97,6 +99,36 @@ func _apply_style() -> void:
 	detail.add_theme_color_override("font_color",Color("c8e6e2"))
 	accent_bar.color = Color(primary,0.72)
 
+## Pre-wrap using a measured pixel width. Godot can otherwise calculate
+## container minimum height with an unallocated (zero-width) label and force
+## thousands of pixels of height before the first frame.
+func _wrap_to_width(value: String, limit: float, font_size: int) -> String:
+	if value.is_empty(): return ""
+	var font: Font = get_theme_default_font()
+	if font == null: return value
+	var lines := PackedStringArray()
+	var running := ""
+	var words := value.replace("\n"," ").split(" ",false)
+	for part in words:
+		var word: String = str(part)
+		var proposed: String = word if running.is_empty() else running + " " + word
+		if font.get_string_size(proposed,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x <= limit:
+			running = proposed
+			continue
+		if not running.is_empty():
+			lines.append(running)
+			running = ""
+		var fragment := ""
+		for index in range(word.length()):
+			var glyph: String = word.substr(index,1)
+			if not fragment.is_empty() and font.get_string_size(fragment+glyph,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit:
+				lines.append(fragment)
+				fragment = ""
+			fragment += glyph
+		running = fragment
+	if not running.is_empty(): lines.append(running)
+	return "\n".join(lines)
+
 func _reflow() -> void:
 	if not is_inside_tree() or size.x <= 0.0 or size.y <= 0.0:return
 	var narrow: bool = size.x < 640.0 or size.y < 480.0
@@ -107,6 +139,8 @@ func _reflow() -> void:
 	detail.add_theme_font_size_override("font_size",detail_size)
 	kicker.add_theme_font_size_override("font_size",10 if tiny else 11)
 	_card_width = minf(620.0,maxf(100.0,size.x - (16.0 if tiny else 28.0)))
+	headline.text = _wrap_to_width(_headline_full,maxf(65.0,_card_width-34.0),headline_size)
+	detail.text = _wrap_to_width(_detail_full,maxf(65.0,_card_width-34.0),detail_size)
 	card.size = Vector2(_card_width,0.0)
 	var min_height: float = card.get_combined_minimum_size().y
 	var usable_height: float = maxf(45.0,size.y - 12.0)
