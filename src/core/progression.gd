@@ -68,10 +68,26 @@ static func event(model: RefCounted) -> Dictionary:
 		6: return {"name": L.text("Sportwochenende"), "demand": 1.2, "beginner_share": 0.34, "description": L.text("Heute reisen mehr sportliche Gäste an. Ein abwechslungsreiches Pistennetz lohnt sich.")}
 	return {"name": L.text("Regulärer Betriebstag"), "demand": 1.0, "beginner_share": 0.53, "description": L.text("Zeit, dein Angebot auszubauen und die nächsten Aufträge vorzubereiten.")}
 
-static func weather_for_day(seed_value: int, day_number: int) -> int:
+## Distinct alpine weather remains reproducible for each seed/day across
+## saves and forecast previews; only future days use the new distribution.
+## A real storm is still dangerous for chairs and never bypasses wind limits.
+static func _weather_roll(seed_value: int, day_number: int) -> int:
 	var random := RandomNumberGenerator.new()
 	random.seed = seed_value ^ (day_number * 104729)
-	return random.randi_range(0, Catalog.WEATHER.size() - 1)
+	return random.randi_range(0, 99)
+
+static func weather_for_day(seed_value: int, day_number: int) -> int:
+	var roll: int = _weather_roll(seed_value, day_number)
+	if roll < 44: return 0 # Clear alpine light: 44% of baseline days.
+	if roll < 72: return 1 # Snowfall: 28%.
+	if roll < 85: return 2 # Fog: 13%.
+	if roll < 92:
+		# The underlying candidate for yesterday is computed independently;
+		# never replace a real storm with another lift-closing storm tomorrow.
+		# The effective 7% storm weight falls to about 6.5% after this guard.
+		var previous: int = _weather_roll(seed_value, day_number - 1) if day_number > 1 else -1
+		return 1 if previous >= 85 and previous < 92 else 3
+	return 4 # Thaw: 8%; snowmaking and grooming still matter.
 
 static func access_message(model: RefCounted, kind: String, is_lift: bool) -> String:
 	if model.campaign.get("mode", "free") == "free":

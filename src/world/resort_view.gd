@@ -1158,27 +1158,48 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		marker.basis = Basis.looking_at(Vector3(-front.x, 0, -front.y), Vector3.UP)
 
 func _update_atmosphere() -> void:
-	var key := "%s-%d-%d-%d" % [model.map_id, model.day, model.minute, model.weather_index]
+	var key := "%s-%d-%d-%d-%s-%d-%s" % [model.map_id, model.day, model.minute, model.weather_index, visual_style, quality_tier, str(effects_enabled)]
 	if key == _atmosphere_tick:
 		return
 	_atmosphere_tick = key
 	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
 	var style: Dictionary = VisualStyles.palette(visual_style)
-	_sun.light_energy = ((0.10 + daylight * 0.80) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * (0.72 if model.weather_index in [2, 3] else 1.0) * float(style.sun_gain)
+	# Weather alters the existing palette rather than adding full-screen sprites:
+	# this preserves readability and the chosen style on weak Android GPUs.
+	var weather_kind: int = clampi(int(model.weather_index),0,4)
+	var monochrome: bool = visual_style == "monochrome"
+	var weather_sky: Color = Color("929292") if monochrome else [Color("72a9d7"),Color("829bb1"),Color("a3aab0"),Color("4f6578"),Color("abb7b9")][weather_kind]
+	var weather_horizon: Color = Color("b0b0b0") if monochrome else [Color("c9dfec"),Color("bbc8d5"),Color("c7cfd2"),Color("8496a5"),Color("c6c6ba")][weather_kind]
+	var mood: float = [0.12,0.30,0.39,0.42,0.21][weather_kind]
+	var sun_factor: float = [1.09,0.79,0.57,0.48,0.92][weather_kind]
+	_sun.light_energy = ((0.10 + daylight * 0.80) if Ops.continuous(model) else (0.38 + daylight * 0.28)) * sun_factor * float(style.sun_gain)
 	_sun.light_color = Color("f5d7cc").lerp(Color(style.sun), daylight)
 	_sun.rotation_degrees.x = -25 - daylight * 32
 	var palette := Color(Maps.spec(model.map_id).sky)
 	var sky_material: ProceduralSkyMaterial = _environment.sky.sky_material
-	sky_material.sky_top_color = Color("12243f").lerp(Color(style.top).lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color(style.top).lerp(palette, 0.18)
-	sky_material.sky_horizon_color = Color("344563").lerp(Color(style.horizon).lerp(palette, 0.12), daylight) if Ops.continuous(model) else Color(style.horizon).lerp(palette, 0.12)
+	var top_base: Color = Color("12243f").lerp(Color(style.top).lerp(palette, 0.18), daylight) if Ops.continuous(model) else Color(style.top).lerp(palette, 0.18)
+	var horizon_base: Color = Color("344563").lerp(Color(style.horizon).lerp(palette, 0.12), daylight) if Ops.continuous(model) else Color(style.horizon).lerp(palette, 0.12)
+	if monochrome:
+		top_base = Color(style.top)
+		horizon_base = Color(style.horizon)
+	sky_material.sky_top_color = top_base.lerp(weather_sky,mood * daylight)
+	sky_material.sky_horizon_color = horizon_base.lerp(weather_horizon,mood * daylight)
 	sky_material.ground_horizon_color = Color(style.horizon)
 	sky_material.ground_bottom_color = Color(style.ground)
-	_environment.ambient_light_color = Color(style.ambient)
-	_environment.ambient_light_energy = (0.23 + daylight * 0.10) * float(style.ambient_gain)
-	_environment.fog_light_color = Color(style.fog).lerp(palette, 0.08)
-	_environment.fog_density = (0.00065 if model.weather_index == 2 else (0.0004 if model.weather_index == 3 else 0.00008)) * float(style.fog_gain)
-	_snow.emitting = effects_enabled and model.weather_index in [1, 3]
-	_snow.position = terrain.world(focus, 130)
+	_environment.ambient_light_color = Color(style.ambient).lerp(weather_horizon,mood * 0.22)
+	_environment.ambient_light_energy = (0.23 + daylight * 0.10) * float(style.ambient_gain) * [1.05,0.94,0.84,0.82,0.98][weather_kind]
+	_environment.fog_light_color = Color(style.fog).lerp(weather_horizon,mood * 0.28)
+	_environment.fog_density = [0.00006,0.00022,0.00055,0.00036,0.00013][weather_kind] * float(style.fog_gain)
+	# Light snow drifts slowly; rare storms have faster diagonal gusts. The
+	# existing quality preset caps flake count (no extra particle emitter).
+	_snow.direction = Vector3(0.85,-1.0,0.16).normalized() if weather_kind == 3 else Vector3(0.13,-1.0,0.03).normalized()
+	_snow.initial_velocity_min = 10.0 if weather_kind == 3 else 4.0
+	_snow.initial_velocity_max = 17.0 if weather_kind == 3 else 8.0
+	_snow.spread = 20.0 if weather_kind == 3 else 11.0
+	var flake_budget: int = [50,90,140][quality_tier]
+	_snow.amount = flake_budget * (2 if weather_kind == 3 else 1)
+	_snow.emitting = effects_enabled and weather_kind in [1,3]
+	_snow.position = terrain.world(focus,130)
 
 func _process(delta: float) -> void:
 	if model == null or loading_in_progress:
@@ -1889,7 +1910,7 @@ func _apply_quality() -> void:
 	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][quality_tier]
 	trace_budget = [700, 1200, 2000][quality_tier]
 	_sun.shadow_enabled = quality_tier > 0
-	var flakes: int = [50, 90, 140][quality_tier]
+	var flakes: int = [50, 90, 140][quality_tier] * (2 if model != null and int(model.weather_index) == 3 else 1)
 	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
