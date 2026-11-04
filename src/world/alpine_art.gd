@@ -118,7 +118,7 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 	if style_id == "comic": tint = tint.lightened(0.12)
 	if style_id == "cinematic": tint = tint.darkened(0.18)
 	cone(Vector3(0,7,0),0.55,14,bark,0.16)
-	var spread: float={"alpine":1.0,"comic":1.12,"pastel":0.92,"cinematic":1.04,"crisp":0.98,"piste_map":0.86}.get(style_id,1.0)
+	var spread: float={"alpine":1.0,"comic":1.12,"pastel":0.92,"cinematic":1.04,"crisp":0.98,"piste_map":0.86,"neon_noir":0.94,"aurora_ink":1.16,"bauhaus":0.79}.get(style_id,1.0)
 	var layers := 3 if simplified else 6
 	for i in range(layers):
 		var y := 4.0 + i * 9.0 / layers
@@ -460,6 +460,37 @@ func pine_painted(style_id: String, simplified: bool = false) -> ArrayMesh:
 				cone(Vector3(0,y,0),radius,2.45,Color("62866c"),radius*0.08)
 				box(Vector3(0,y+1.1,0),Vector3(radius*0.7,0.4,radius*0.7),Color("f2f0dc"))
 			cone(Vector3(0,16,0),0.65,1.4,Color("739b77"),0.03)
+		"neon_noir":
+			# Cybernetic crystalline pines: glowing triangular lattice rather than
+			# conventional foliage. Original geometry, no emissive shader overhead.
+			for tier in range(3 if simplified else 6):
+				var y:=3.6+tier*2.25
+				var radius:=4.9-tier*0.64
+				cone(Vector3(0,y,0),radius,2.7,Color("35587b"),radius*0.08)
+				for j in range(4):
+					var ang:=float(j)*TAU/4.0+float(tier)*0.13
+					var end:=Vector3(cos(ang)*radius,y-1.15,sin(ang)*radius)
+					link(Vector3(0,y+1.4,0),end,0.13,Color("fb65c6"))
+			sphere(Vector3(0,17.0,0),0.6,Color("71e8f9"))
+		"aurora_ink":
+			# Four winds: drifting watercolor-like separated cloud-tree crowns.
+			for tier in range(3 if simplified else 5):
+				var y:=4.2+tier*2.45
+				var radius:=4.9-tier*0.67
+				for side in range(4):
+					var angle:=float(side)*TAU/4.0+float(tier)*0.49
+					var p:=Vector3(cos(angle)*radius*.39,y+sin(angle)*.5,sin(angle)*radius*.39)
+					sphere(p,radius*.56,Color("70b7a4"),Vector3(1.25,0.44,1.0))
+					sphere(p+Vector3(0,.7,0),radius*.35,Color("d2f3df"),Vector3(1,0.31,1.2))
+			cone(Vector3(0,16.0,0),.8,2.7,Color("c1e8b8"),.04)
+		"bauhaus":
+			# Monumental angular art-deco spires with yellow snow facets.
+			for tier in range(3 if simplified else 5):
+				var y:=3.2+tier*2.65
+				var radius:=5.4-tier*.82
+				box(Vector3(0,y,0),Vector3(radius*1.50,1.35,radius*1.28),Color("477f83"))
+				box(Vector3(0,y+.75,0),Vector3(radius*1.55,.36,radius*1.34),Color("f7cf56"))
+				cone(Vector3(0,y+1.7,0),radius*.58,2.7,Color("b95842"),.05)
 		"crisp":
 			# Sharp frosty layers and little facets, like paper-cut glass.
 			for tier in range(4 if simplified else 6):
