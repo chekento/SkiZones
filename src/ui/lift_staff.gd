@@ -145,6 +145,10 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 	if item.kind=="maintenance":
 		var garage:=_card(parent,L.text("Fahrzeuge & Präparierung"))
 		_button(garage,L.text("Pistenraupe kaufen · 65.000 €"),func():return Ops.buy_groomer(model,lift_id),item.enabled and model.money>=65000 and model.operations.vehicles.size()<24)
+		_button(garage,L.text("Drei Pistenraupen kaufen · 195.000 €"),func():return Ops.buy_groomers(model,lift_id,3),item.enabled and model.money>=195000 and model.operations.vehicles.size()<=21)
+		var driver_count: int=model.operations.staff.filter(func(p):return p.role=="driver" and p.assignment=="building:%d" % lift_id).size()
+		hud._label(garage,L.text("Fahrer zugewiesen: %d · für parallele Präparierungen einen Fahrer je Maschine einteilen") % driver_count,16,hud.MUTED,true)
+		_button(garage,L.text("Weiteren Pistenraupenfahrer einstellen · 180 €"),func():return Ops.hire(model,"driver","building:%d" % lift_id,"evening"),model.money>=180)
 		var auto:=CheckButton.new();auto.text=L.text("Pisten nachts automatisch präparieren");auto.button_pressed=model.operations.auto_groom
 		auto.toggled.connect(func(value):model.operations.auto_groom=value);garage.add_child(auto)
 		for vehicle in model.operations.vehicles:
@@ -173,7 +177,8 @@ func _parts(parent: Node) -> void:
 	if model.operations.delivery_at>=0:hud._label(box,L.text("Ersatzteillieferung in %d Minuten") % maxi(0,int(model.operations.delivery_at)-Ops.clock(model)),16)
 	_button(box,L.text("6 Ersatzteilpakete bestellen · 1.800 €"),func():return Ops.order_parts(model),model.operations.delivery_at<0 and model.money>=1800)
 func _columns() -> int:
-	return 3 if get_window().size.x >= 1250 else 2 if get_window().size.x >= 1100 else 1
+	var available: float = size.x if size.x > 0 else get_viewport_rect().size.x
+	return 3 if available >= 1270 else 2 if available >= 970 else 1
 func _team_details(parent: Node, key: String) -> VBoxContainer:
 	var details: VBoxContainer=hud._vbox(parent,8)
 	var toggle: Button=hud._button(parent,L.text("Team & Schichten anzeigen"),func():
