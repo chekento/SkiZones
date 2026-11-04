@@ -6713,3 +6713,7 @@ msgstr "Automatic Village Dressing (non-colliding)"
 msgid "Bildstil · neun Looks"
 msgstr "Visual Style · Nine Looks"
 
+
+# SkiZones 0.31 masthead
+msgid "DAS ALPEN-EXTRABLATT"
+msgstr "THE ALPINE EXTRA"
