@@ -5210,3 +5210,6 @@ msgstr "CC0 music sources include artist and license records."
 
 msgid "Jetzt läuft: "
 msgstr "Now playing: "
+
+msgid "Musik-Credits anzeigen"
+msgstr "Show music credits"
