@@ -7,6 +7,7 @@ var title := Label.new()
 var fullscreen := true
 var restore_rect := Rect2(70,70,900,610)
 var toggle := Button.new()
+var close_button: Button
 var _dragging := false
 var _resizing := false
 var _pointer := -2
@@ -37,8 +38,8 @@ func setup(hud: CanvasLayer, caption: String) -> void:
 	header.add_child(toggle)
 	toggle.custom_minimum_size=Vector2(140,46)
 	toggle.pressed.connect(toggle_fullscreen)
-	var close: Button = hud._button(header,L.text("Schließen"),func(): close_requested.emit())
-	close.custom_minimum_size.x=120
+	close_button = hud._button(header,L.text("Schließen"),func(): close_requested.emit())
+	close_button.custom_minimum_size.x=120
 	var grip := Control.new()
 	add_child(grip)
 	grip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -59,10 +60,16 @@ func _bounds() -> Vector2:
 func _fit() -> void:
 	if not is_inside_tree(): return
 	var bounds := _bounds()
-	var minimum := Vector2(minf(620,bounds.x-16),minf(420,bounds.y-16))
+	var minimum := Vector2(minf(620.0,maxf(100.0,bounds.x-16.0)),minf(420.0,maxf(100.0,bounds.y-16.0)))
+	var compact: bool = bounds.x < 580.0
+	toggle.visible = not compact
+	if is_instance_valid(close_button):
+		close_button.custom_minimum_size.x = 55 if compact else 120
+		close_button.text = "✕" if compact else L.text("Schließen")
+	title.add_theme_font_size_override("font_size",17 if compact else 24)
 	if fullscreen:
 		position=Vector2(8,8)
-		size=bounds-Vector2(16,16)
+		size=(bounds-Vector2(16,16)).max(Vector2(100,100))
 	else:
 		size=size.clamp(minimum,bounds-Vector2(16,16))
 		position=position.clamp(Vector2(8,8),bounds-size-Vector2(8,8))
