@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **34 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **35 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.33.0](https://github.com/chekento/SkiZones/releases/tag/v0.33.0)** | 04.11.2026 | Alpine Weather & Playable Resort Activities | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk) | [Details](docs/releases/0.33.0.md) |
 | **[v0.32.0](https://github.com/chekento/SkiZones/releases/tag/v0.32.0)** | 04.11.2026 | Winter Operations & Curated Radio | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk) | [Details](docs/releases/0.32.0.md) |
 | **[v0.31.0](https://github.com/chekento/SkiZones/releases/tag/v0.31.0)** | 04.11.2026 | Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk) | [Details](docs/releases/0.31.0.md) |
 | **[v0.30.0](https://github.com/chekento/SkiZones/releases/tag/v0.30.0)** | 04.11.2026 | Hotfix: alte Karrieren, Radio und mobile Bedienung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk) | [Details](docs/releases/0.30.0.md) |
@@ -44,6 +45,62 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.33.0 · Alpine Weather & Playable Resort Activities (04.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.33.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk)** (144.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.33.0/manifest.json) · [Originalnotizen](docs/releases/0.33.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.33.0)
+
+**Android ARM64 Preview · Android versionCode 39**
+
+> **Update über die vorhandene Installation installieren.** Nicht deinstallieren und keine App-Daten löschen; so bleiben die vier Karrieren und separaten Resort-/Szenariospielstände erhalten.
+
+### Neue Wetterbalance
+
+- Die fünf täglichen Wetterzustände werden reproduzierbar gewichtet statt gleichverteilt ausgewählt. Seltene Stürme machen im Langzeittest ungefähr 6–7 % der Betriebstage aus; direkt aufeinanderfolgende Sturmtage werden verhindert.
+- Schwere Stürme bleiben echte Ereignisse: Die Wind-Sicherheitsgrenzen der Liftanlagen werden **nicht** herabgesetzt.
+- Sonne, Schneefall, Nebel, Sturm und Tauwetter erhalten besser unterscheidbare Licht-, Himmels- und Nebelstimmungen. Bei Sturm bewegt sich der Schnee diagonal und schneller, bei normalem Schneefall sanfter.
+- Die zehn Grafikstile bleiben unterscheidbar, insbesondere das monochrome Strichlinien-Theme. Vorhandene Qualitäts- und Effektschalter begrenzen Partikel und schonen mobile Geräte.
+- Die aktive Wetterlage bereits geladener Karrieren bleibt unverändert; künftige Wetterprognosen verwenden dieselbe reproduzierbare Regel wie die tatsächlichen Tageswechsel.
+- Neue Tests prüfen 32.000 Spieltage, aufeinanderfolgende Stürme, Windgrenzen, Wettergrafik und Partikelbudget.
+
+### Erste echte Freizeit-Minispiele
+
+- Freiwilliges, **spielbares Tic-Tac-Toe** mit neun antippbaren Feldern, nachvollziehbarer Computergegner-Logik, Gewinn, Remis, Niederlage und Neustart.
+- Eigene Spielecke in Hütte, Bar, Disco und ausgewählten Unterkünften, teilweise über Betreiber-Ränge freigeschaltet.
+- Betriebsentscheidungen und textbasierte Schichten heißen nun **Betriebstraining**. Sie bleiben Wirtschaftsmechanik und werden nicht als Freizeit-Minispiele verkauft.
+- Keine Echtgeld-Einsätze, keine unbegrenzten Geldprämien durch Spielen und kein Zwang, an Minispielen teilzunehmen. Erste DE/EN-Übersetzungen und Designvarianten vorhanden.
+- Weitere Spiele (Reaktion, Koch-/Barkeeper-Spiele, Donut Ring Toss, Zimmerpflege, Billard, Schach und Kartenspiele ohne Echtgeld) folgen **nur schrittweise** und sind nicht automatisch Teil dieser APK.
+
+### Nachtbetrieb und Morgenankünfte
+
+- Ab 22 Uhr enden automatische neue Nightlife-Anreisen. Bereits anwesende Gäste bleiben in ihren echten Besuchen und erzeugen nur tatsächlich abgeschlossene Serviceumsätze.
+- Gäste auf sicheren Fußwegen zum Hotel, Abendangebot oder Ausgang können den automatischen Nacht-Zeitraffer nutzen. Pisten, Lifte, Warteschlangen und Rettungsfälle blockieren ihn weiter. Die bestehenden Wege werden beschleunigt durchlaufen.
+- Nächtliches Anreiseinteresse wird auf höchstens 24 vorgemerkte Anfragen begrenzt. Es erzeugt weder unsichtbare Gäste noch Ticketumsätze. Von 08 bis 10 Uhr wird es nach verfügbaren Routen und Plätzen gestaffelt freigegeben; übriges Interesse verfällt.
+- Das Resort-Büro zeigt die tatsächliche Anzahl vorgemerkter Anfragen und erklärt den Anreisezeitraum. Alte Spielstände ohne das neue Feld erhalten den Wert null; vorhandene Gäste und Wege bleiben erhalten.
+- Neue Prüfungen decken zehn aufeinanderfolgende Mitternachtsabrechnungen mit Save/Load sowie sichere Fußwege, Morgenstaffelung, abgewiesene ungültige Werte und auslaufende Nachfrage ab.
+
+### Radio- und Bau-Hotfix
+
+- Senderwahl, Ein/Aus sowie Musik-, Gesamt- und Umgebungslautstärke werden sofort angewendet und gespeichert. Es gibt keinen zusätzlichen Übernehmen-/Speichern-Knopf. Zurück, Escape und erneutes Öffnen behalten die gewählten Werte. Dies gilt auch für eine Senderwahl aus der Zeitung.
+- Jeder gebündelte Offline-Sender erhält einen nach Uhrzeit fortlaufenden, geloopten Programmablauf. Beim Wechsel und nach Stummschaltung/App-Pause wird die aktuelle Stelle des laufenden Titels angesprungen. Die anderen Sender benötigen dafür keine laufenden Audioplayer und keinen Internetzugriff.
+- Der Programmablauf verwendet die gemessenen Laufzeiten aller 76 vorhandenen Aufnahmen. Eine neue Messung ist mit `tools/measure_radio_durations.gd` reproduzierbar; es werden keine neuen Musikdateien hinzugefügt. „Nächster Titel“ bleibt als manueller Sprung für den gewählten Sender erhalten.
+- Nach erfolgreichem Bau von Gebäuden, Pisten, Liften und Wegen wird direkt der Inspektor der tatsächlich fertiggestellten Anlage ausgewählt. Die untere Bau-/Statusleiste verschwindet. Neue Baupläne zeigen ihre Werkzeuge wieder; bei ungültigem Bau bleibt die korrigierbare Planung erhalten.
+- Lange Aktionsnamen im Anlageninspektor werden umgebrochen, damit die Ansicht der fertigen Anlage im Bildschirm bleibt.
+
+### Rathaus und mobile Bedienung
+
+- Aktualisierte Rathaus-Chronik mit den tatsächlich veröffentlichten 0.31-/0.32-Etappen und einem ausführlichen Zwei-Monats-Plan bis 04.01.2027, auf Deutsch und Englisch. Planung und veröffentlichte Funktionen bleiben erkennbar getrennt.
+- Größenänderungen direkt nach einem Sprachwechsel greifen nicht mehr auf die bereits abgelöste HUD-/Bürooberfläche zu.
+- Zusätzliche gerenderte Tests bedienen die Spielecke mit echten Screen-Touch-Ereignissen bei 360×740, 420×860 und 740×360, jeweils in Deutsch und Englisch. Sie prüfen außerdem Android Back, Pause und unveränderte Karriere-/Wirtschaftsdaten.
+
+### Freigabe und Bestandsschutz
+
+- Die bereits veröffentlichte Version **0.32.0** bleibt gültig: [GitHub-Release v0.32.0](https://github.com/chekento/SkiZones/releases/tag/v0.32.0).
+- Die Release-Pipeline prüft Godot-/Szenenregressionen, originale alte Karrierespielstände, Android API 30/36, Appwechsel, signierte In-place-Updates, Signaturkontinuität sowie Paket und Download-Manifest vor der Veröffentlichung.
+- Prüfgrenzen: Die Android-Prüfung verwendet Emulatoren. Ein physisches ARM64-Gerät und eine unabhängige Google-Play-Protect-Einstufung wurden nicht geprüft; siehe [Play-Protect-Status](docs/PLAY_PROTECT.md).
+- [Entwicklungsstand und CI](https://github.com/chekento/SkiZones/pull/52) · [Zwei-Monats-Plan](docs/ROADMAP_2026_11_2027_01.md)
+
+---
 
 ## v0.32.0 · Winter Operations & Curated Radio (04.11.2026)
 
