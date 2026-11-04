@@ -4,6 +4,10 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const PATH := "user://skizones_annual_festival.cfg"
 const DECORATIONS := {
+	"gingerbread_lodge":{"name":"Lebkuchen-Festhütte","price":24},
+	"gift_workshop":{"name":"Geschenkewerkstatt","price":20},
+	"winter_stage":{"name":"Silvester-Festbühne","price":28},
+	"market_stall":{"name":"Weihnachtsmarkt-Bude","price":16},
 	"lanterns":{"name":"Winter-Laternen","price":6},
 	"star":{"name":"Holzsterne","price":8},
 	"gifts":{"name":"Geschenkestapel","price":12},
@@ -166,4 +170,5 @@ func celebrate_new_year(date: Dictionary = {}) -> Dictionary:
 	state.coins=mini(100000,int(state.coins)+18)
 	if _save(state)!=OK: return {"ok":false,"message":"Feier konnte nicht sicher gespeichert werden."}
 	return {"ok":true,"message":"Ein frohes neues Jahr! +18 Wintertaler für dein Bergdorf."}
+
 

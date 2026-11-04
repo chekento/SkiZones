@@ -1,10 +1,14 @@
 extends RefCounted
 ## Low-poly holiday props authored as original procedural meshes. The same
 ## physics-free geometry follows all five visual styles through color accents.
+const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
+const Lines=preload("res://src/world/line_art.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 
 static func make(kind: String, style: String = "alpine") -> ArrayMesh:
+	if kind in FestiveBuildings.KINDS: return FestiveBuildings.make(kind,style)
+	if style=="monochrome":return Lines.new().prop(kind)
 	var a := Art.new()
 	var colors: Dictionary=VisualStyles.detail_tints(style)
 	var snow := Color(str(colors.snow))
@@ -102,4 +106,6 @@ static func make(kind: String, style: String = "alpine") -> ArrayMesh:
 				var direction:=Vector3(cos(ang),sin(ang),0)
 				a.link(Vector3.ZERO,direction*4.5,0.10,gold if i%2==0 else red)
 				a.sphere(direction*5,0.35,gold)
-	return a.finish()
+	var mesh:=a.finish()
+	return Lines.bounds_model(mesh) if style=="monochrome" else mesh
+

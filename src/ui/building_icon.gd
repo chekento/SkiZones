@@ -1,12 +1,41 @@
 extends Control
+const Assets = preload("res://src/world/style_assets.gd")
+const IconArt = preload("res://src/ui/asset_icon_art.gd")
+static var theme_meshes: Dictionary={}
+var style_override := ""
+var _style_seen := ""
+var _style_hud: CanvasLayer
 const Catalog = preload("res://src/core/catalog.gd")
 var kind := "cabin"
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size=Vector2(100,82)
+	var ancestor: Node=get_parent()
+	while ancestor!=null:
+		if ancestor is CanvasLayer and ancestor.get("game")!=null:
+			_style_hud=ancestor
+			break
+		ancestor=ancestor.get_parent()
+
+func current_style() -> String:
+	return style_override if style_override!="" else str(_style_hud.game.view.visual_style) if _style_hud!=null else "alpine"
+
+func _process(_delta: float) -> void:
+	var style: String=current_style()
+	if style!=_style_seen:
+		_style_seen=style
+		queue_redraw()
 
 func _draw() -> void:
+	var style: String=current_style()
+	if style!="alpine":
+		var key: String=style+"/"+kind
+		if not theme_meshes.has(key):
+			if theme_meshes.size()>320:theme_meshes.clear()
+			theme_meshes[key]=Assets.building(kind,1,Color(Catalog.BUILDINGS.get(kind,{"color":"999999"}).color),style)
+		IconArt.paint(self,theme_meshes[key],Rect2(Vector2(5,4),size-Vector2(10,8)))
+		return
 	var scale_value := minf(size.x/120,size.y/90)
 	draw_set_transform(Vector2((size.x-120*scale_value)/2,(size.y-90*scale_value)/2),0,Vector2.ONE*scale_value)
 	var color := Color(Catalog.BUILDINGS.get(kind,{"color":"9bb8b4"}).color)
@@ -142,4 +171,5 @@ func _colored(color: Color, radius: int) -> StyleBoxFlat:
 	result.bg_color=color
 	result.set_corner_radius_all(radius)
 	return result
+
 

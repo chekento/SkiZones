@@ -102,7 +102,7 @@ func open() -> void:
 
 func _refresh(force: bool = false) -> void:
 	var model: RefCounted=hud.game.model
-	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)
+	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)+str(hud.game.view.visual_style)
 	if state==_state and not force: return
 	_state=state
 	grid.columns=clampi(floori((window.size.x-38)/255),2,4)
@@ -134,3 +134,4 @@ func blocks_map(point: Vector2) -> bool:
 
 func _process(_delta: float) -> void:
 	if visible: _refresh()
+

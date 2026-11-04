@@ -1,11 +1,34 @@
 extends Control
+const Assets=preload("res://src/world/style_assets.gd")
+const IconArt=preload("res://src/ui/asset_icon_art.gd")
+var style_override := ""
+var _style_hud: CanvasLayer
+var _seen := ""
+static var themes: Dictionary={}
 const Catalog = preload("res://src/core/catalog.gd")
 var kind := "drag"
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+func _ready() -> void:
+	var ancestor: Node=get_parent()
+	while ancestor!=null:
+		if ancestor is CanvasLayer and ancestor.get("game")!=null:
+			_style_hud=ancestor;break
+		ancestor=ancestor.get_parent()
+func current_style() -> String:
+	return style_override if style_override!="" else str(_style_hud.game.view.visual_style) if _style_hud!=null else "alpine"
+func _process(_delta: float) -> void:
+	var state: String=current_style()+"/"+kind
+	if state!=_seen:_seen=state;queue_redraw()
 func _draw() -> void:
+	var style: String=current_style()
+	if style!="alpine":
+		var key: String=style+"/"+kind
+		if not themes.has(key):themes[key]=Assets.station(kind,1,"",style)
+		IconArt.paint(self,themes[key],Rect2(2,2,maxf(1,size.x-4),maxf(1,size.y-4)))
+		return
 	var spec: Dictionary = Catalog.LIFTS[kind]
 	var color := Color("b8754f")
 	draw_line(Vector2(3, 10), Vector2(39, 6), Color("607f84"), 2, true)
@@ -41,3 +64,4 @@ func _box(color: Color) -> StyleBoxFlat:
 	box.bg_color = color
 	box.set_corner_radius_all(5)
 	return box
+
