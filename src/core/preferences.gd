@@ -39,7 +39,7 @@ func load_from() -> void:
 		value=config.get_value("display",key,true)
 		set(key,value if value is bool else true)
 	value=config.get_value("audio","music_genre","off")
-	music_genre=value if value is String and value in ["off","alpine","techno","hiphop","punk","classical","meditative","freeride"] else "off"
+	music_genre=value if value is String and value in ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier","erg0sphere","folk_alpine","folk_swedish"] else "off"
 	value=config.get_value("audio","music_volume",0.35)
 	music_volume=clampf(float(value),0,1) if (value is int or value is float) and is_finite(float(value)) else 0.35
 	value=config.get_value("audio","ambient_volume",0.45)
