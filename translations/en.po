@@ -7124,3 +7124,39 @@ msgstr "Evening operations"
 
 msgid "Betrieb läuft"
 msgstr "Operating"
+
+msgid "TIC-TAC-TOE · DU GEGEN DEN COMPUTER"
+msgstr "TIC-TAC-TOE · YOU VS COMPUTER"
+
+msgid "Neue Runde"
+msgstr "New round"
+
+msgid "Gewonnen! Du hast drei Zeichen in einer Reihe."
+msgstr "You win! Three marks in a row."
+
+msgid "Der Computer gewinnt. Noch eine Runde?"
+msgstr "The computer wins. Play again?"
+
+msgid "Unentschieden! Das Spielfeld ist voll."
+msgstr "Draw! The board is full."
+
+msgid "Setze dein X. Drei in einer Reihe gewinnen."
+msgstr "Place your X. Three in a row wins."
+
+msgid "Siege %d · Remis %d · Niederlagen %d"
+msgstr "Wins %d · Draws %d · Losses %d"
+
+msgid "Spielecke"
+msgstr "Game corner"
+
+msgid "Noch gesperrt"
+msgstr "Not yet unlocked"
+
+msgid "Wird ab Betreiber-Rang %d freigeschaltet."
+msgstr "Unlocks at manager rank %d."
+
+msgid "Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."
+msgstr "A real board game against the computer. No stakes, cash rewards or time pressure."
+
+msgid "Betriebstraining"
+msgstr "Operations training"
