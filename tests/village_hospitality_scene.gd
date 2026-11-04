@@ -46,7 +46,7 @@ func run() -> void:
 	check(not game.paused, "Leaving a building restores the previous running state")
 	experience.open(int(placed.hotel))
 	await process_frame
-	check(experience.tabs.get_tab_count() == 6, "Hotel exposes management, rooms, chains, linear modules, game and staffing")
+	check(experience.tabs.get_tab_count() == 7, "Hotel exposes management, rooms, chains, modules, arcade, training and staffing")
 	experience._start_shift()
 	check(experience.task.mode == "hotel_story" and experience.task.scene == "arrival", "Hotel uses a bespoke illustrated scene in the real building window")
 	check(experience.game_box.get_children().any(func(child): return child.get_script() != null and child.get_script().resource_path == "res://src/ui/hotel_story_art.gd"), "Hotel chapter creates its own animated PMDD-style visual tableau")
