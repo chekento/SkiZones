@@ -1,5 +1,5 @@
 extends SceneTree
-## SkiZones 0.29: hotel context, optional artist links, mobile-safe achievements.
+## SkiZones 0.34: privacy-friendly offline hotel radio and mobile-safe achievements.
 const Radio=preload("res://src/world/resort_audio.gd")
 const Design=preload("res://src/core/audio_design.gd")
 const Preferences=preload("res://src/core/preferences.gd")
@@ -19,10 +19,10 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Design.GENRES.size()==18,"Seventeen selectable channels plus off")
+	check(Design.GENRES.size()==16,"Fifteen genuine offline radio channels plus off")
 	check(Design.CONTEXT_STATIONS==["hotel_lobby"],"Exclusive Hotel Lobby channel has an isolated context")
-	check("ska_album" in Design.EXTERNAL_STATIONS and "erg0sphere" in Design.EXTERNAL_STATIONS,"Both owned albums require explicit SoundCloud action")
-	check(Design.SKA_COLLECTION_URL.begins_with("https://soundcloud.com/"),"Own Ska album has a controlled external destination")
+	check(Design.EXTERNAL_STATIONS.is_empty() and "ska_album" not in Design.GENRES and "erg0sphere" not in Design.GENRES,"Both external artist placeholders are removed from station selection")
+	check(Design.genre_valid("ska_album")=="apres" and Design.genre_valid("erg0sphere")=="space","Legacy saved artist selections migrate to suitable working offline stations")
 	var radio:=Radio.new()
 	root.add_child(radio)
 	var prefs:=Preferences.new()
@@ -33,7 +33,7 @@ func run() -> void:
 	radio.setup(null,prefs)
 	check(radio.station_track_count("hotel_lobby")>=16,"Hotel Lobby has sixteen indexed Ogg titles")
 	check(radio.station_track_count("atmospherics")>=15,"Atmospherics has fifteen indexed and documented CC0 titles")
-	check(radio.station_track_count("mountain_sunrise")>=12 and radio.station_track_count("lodge_lofi")==12,"Two new mountain-oriented mood channels")
+	check(radio.station_track_count("mountain_sunrise")>=15 and radio.station_track_count("lodge_lofi")>=15,"Two new mountain-oriented mood channels")
 	check(radio.current_genre=="alpine","Player starts with saved station")
 	radio.set_context_station("hotel_lobby")
 	check(radio.current_genre=="hotel_lobby" and radio.now_playing().context=="hotel_lobby","Hotel UI overrides radio without altering preferences")
@@ -47,10 +47,11 @@ func run() -> void:
 	prefs.sound_enabled=true
 	prefs.music_genre="ska_album"
 	radio.sync()
-	check(radio.current_genre=="ska_album" and is_zero_approx(float(radio._targets.music)),"Ska artist channel never silently streams or plays unrelated radio")
-	check(radio.station_track_count("ska_album")==0,"Own album masters are not falsely represented as bundled files")
-	var statement: String = FileAccess.get_file_as_string("res://assets/licenses/SoundCloud.txt")
-	check("Ska'radise Lost" in statement and "IP-Adresse" in statement,"Ska album source and privacy disclosed inside game")
+	check(radio.current_genre=="apres" and float(radio._targets.music)>0.0,"Old Ska preset retunes to real offline Après-Ski music")
+	prefs.music_genre="erg0sphere"
+	radio.sync()
+	check(radio.current_genre=="space","Old ERG0SPHERE preset retunes to genuine local Cosmic Drift")
+	check(radio.station_track_count("ska_album")==0 and radio.station_track_count("erg0sphere")==0,"Deleted stations never expose phantom or external tracks")
 	var toast:=Toast.new()
 	root.add_child(toast)
 	toast.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
