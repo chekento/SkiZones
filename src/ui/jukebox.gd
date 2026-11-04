@@ -1,6 +1,6 @@
 extends Control
 ## Explicit opt-in: station playback is off by default; never contacts Suno,
-## SoundCloud, an internet radio server or an account without permission.
+## an internet radio server or an account without permission.
 const L=preload("res://src/core/i18n.gd")
 const Design=preload("res://src/core/audio_design.gd")
 const FloatingFrame=preload("res://src/ui/floating_window.gd")
@@ -17,8 +17,6 @@ var credits_label:=Label.new()
 var _now_playing_timer := 0.0
 var face:=RadioFace.new()
 var station_info:=Label.new()
-var space_link: Button
-var ska_link: Button
 var enabled := CheckButton.new()
 var master_slider := HSlider.new()
 
@@ -52,7 +50,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	station_info.add_theme_color_override("font_color",hud.INK)
 	station_info.add_theme_font_size_override("font_size",17)
 	tuner.add_child(station_info)
-	hud._label(page,L.text("Offline-Musik mit dokumentierten CC0-Quellen. Eigene Alben auf SoundCloud werden ausschließlich nach ausdrücklichem Klick geöffnet."),15,hud.MUTED,true)
+	hud._label(page,L.text("Offline-Radio mit dokumentierten CC0-Quellen. Keine externen Playlists, Konten oder Streamingdienste."),15,hud.MUTED,true)
 	enabled.text=L.text("Audio einschalten")
 	enabled.custom_minimum_size.y=46
 	page.add_child(enabled)
@@ -94,16 +92,6 @@ func setup(owner_hud: CanvasLayer) -> void:
 		hud.game.audio.next_track()
 		_update_now_playing()
 	)
-	space_link = hud._button(page,L.text("ERG0SPHERE Journey · SoundCloud-Player öffnen"),func():
-		var error: Error = OS.shell_open(Design.SPACE_COLLECTION_URL)
-		if error != OK: hud.toast(L.text("SoundCloud konnte nicht geöffnet werden."))
-	)
-	space_link.visible=false
-	ska_link = hud._button(page,L.text("KoSch Milton · Ska'radise Lost auf SoundCloud öffnen"),func():
-		var error: Error = OS.shell_open(Design.SKA_COLLECTION_URL)
-		if error != OK: hud.toast(L.text("Ska-Album konnte nicht geöffnet werden."))
-	)
-	ska_link.visible=false
 	hud._label(page,L.text("CC0-Musikquellen sind mit Künstler und Lizenz dokumentiert. Sender können lizenzierte Aufnahmen gemeinsam nutzen."),14,hud.MUTED,true)
 	hud._button(page,L.text("Musik-Credits anzeigen"),func(): _toggle_credits())
 	credits_label.visible=false
@@ -194,22 +182,15 @@ func _refresh_tuner() -> void:
 	if hud == null or hud.game == null or genre_choice.selected < 0: return
 	var key: String = str(Design.GENRES[genre_choice.selected])
 	var song_count: int = hud.game.audio.station_track_count(key)
-	station_info.text = L.text("FREQUENZ %02d · %s · %d Titel im Offline-Archiv") % [genre_choice.selected,str(Design.GENRE_NAMES[key]),song_count]
+	station_info.text = L.text("FREQUENZ %02d · %s · %d Titel im Offline-Archiv") % [genre_choice.selected,L.text(str(Design.GENRE_NAMES[key])),song_count]
+	if Design.GENRE_MOODS.has(key): station_info.text += "\n" + L.text(str(Design.GENRE_MOODS[key]))
 	if key=="space":
 		station_info.text += "\n" + L.text("Deep Space Trance · atmosphärische Offline-Auswahl")
 		station_info.text += "\n" + L.text("Laufzeiten >4 Minuten sind für die Offline-Titel noch nicht verifiziert.")
-	if key=="erg0sphere":
-		station_info.text = L.text("KoSch ORIGINALALBUM · ERG0SPHERE Journey")
-		station_info.text += "\n" + L.text("Nur auf Knopfdruck: Browser/SoundCloud. Keine automatische Wiedergabe im Spiel.")
 	if key in ["folk_alpine","folk_swedish"]:
-		station_info.text += "\n" + L.text("10 CC0-Titel · akustische Winterstimmung, regionale Originalaufnahmen noch in Prüfung.")
-	if key=="ska_album":
-		station_info.text = L.text("KoSch Milton · Ska'radise Lost · Eigenes Album")
-		station_info.text += "\n" + L.text("SoundCloud wird nur nach deinem Klick im Browser geladen.")
+		station_info.text += "\n" + L.text("Akustische Winterstimmung; traditionelle Regionalaufnahmen noch nicht bestätigt.")
 	if key=="atmospherics":
-		station_info.text += "\n" + L.text("Deep atmospheric · 15 CC0-Titel auf Länge und Stimmung zu prüfen (Ziel 3–7 Min.).")
+		station_info.text += "\n" + L.text("Tiefe, sphärische Klänge; tatsächliche Laufzeiten variieren.")
 	if key=="punk":
-		station_info.text += "\n" + L.text("Skater-Punk-Kuration: richtige Gitarren-Songs werden noch ergänzt.")
+		station_info.text += "\n" + L.text("Gitarren, Rock und Board-Beats. Reine Punkband-Aufnahmen sind noch nicht vollständig vorhanden.")
 	station_info.text += "\n" + L.text("Hotel Lobby FM wird automatisch nur in der Hotelverwaltung verwendet.")
-	if is_instance_valid(space_link): space_link.visible=(key=="erg0sphere")
-	if is_instance_valid(ska_link): ska_link.visible=(key=="ska_album")
