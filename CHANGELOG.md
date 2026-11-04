@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **31 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **32 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.30.0](https://github.com/chekento/SkiZones/releases/tag/v0.30.0)** | 04.11.2026 | Hotfix: alte Karrieren, Radio und mobile Bedienung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk) | [Details](docs/releases/0.30.0.md) |
 | **[v0.27.0](https://github.com/chekento/SkiZones/releases/tag/v0.27.0)** | 04.11.2026 | Nahtlose Alpine-Radio-Klangwelt (erste Iteration) | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk) | [Details](docs/releases/0.27.0.md) |
 | **[v0.26.0](https://github.com/chekento/SkiZones/releases/tag/v0.26.0)** | 03.11.2026 | Alpine Radio, Crewleben und illustrierter Pistenatlas | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk) | [Details](docs/releases/0.26.0.md) |
 | **[v0.25.0](https://github.com/chekento/SkiZones/releases/tag/v0.25.0)** | 03.11.2026 | Lineare Hotelmodule und wiederkehrende Winterfeste | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk) | [Details](docs/releases/0.25.0.md) |
@@ -41,6 +42,52 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.30.0 · Hotfix: alte Karrieren, Radio und mobile Bedienung (04.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.30.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk)** (143.8 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.30.0/SkiZones-0.30.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.30.0/manifest.json) · [Originalnotizen](docs/releases/0.30.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.30.0)
+
+**Android ARM64 Preview · VersionCode 35 · 04.11.2026**
+
+Dieser Build darf erst nach erfolgreichen alten Spielstand-Regressionen (echte 0.19- und 0.27-Karrieren), Godot-Quellcodeprüfungen, Android 30/36 Emulator-Lebenszyklustests, Quell-/Signaturprüfung und abgeschlossenen Release-Gates veröffentlicht werden. Ein Entwicklungskandidat allein ist noch keine fertige APK.
+
+### Oberste Priorität — bestehende Spielstände erhalten
+- Die Karriere- und Szenariodateien werden nicht stillschweigend überschrieben. Alte 0.19-, 0.27- und weitere migrierbare Saves bleiben erreichbar.
+- Migration sucht bestehende Legacy-Spielstände auch bei gesetzten alten Migrations-Markern erneut. Defekte Index-/Passport-Dateien dürfen einen gültigen Karriere-Save nicht unsichtbar machen.
+- Falls die neue Slotdatei beschädigt ist, wird zuerst ein valides Backup oder eine unveränderte originale Legacy-Datei zur Wiederherstellung angeboten.
+- Der ursprüngliche Save bleibt bei Recovery lesbar und wird nicht durch einen fehlerhaften Import überschrieben. Korrekte neue Saves werden atomar mit Backup gespeichert.
+- Strenge Offline-Regressionen laden acht Fantasiegebiete über archivierte Vorgängerdateien; Android-Update-Signatur und -Datenkontinuität sind zusätzlich zu bestätigen.
+
+### Klangwelt — echter Free-Use Offline-Sound
+- Radio-Control-Center mit animierter analog/digitaler Front, Senderwahl, Artist-/Titel-Credits, Crossfade und gespeicherten Sound-Einstellungen.
+- Bestehende Programme werden erweitert; neue Themenstationen: **Cosmic Drift / Deep Space Trance**, **Glacier Dreams**, **Alpenglühen / Après-Ski**, **AlpenFolk**, **Nordic Folk**, **Mountain Sunrise**, **Lodge Lo-Fi** und **Deep Atmospherics**.
+- Der separate **Hotel Lobby FM**-Kanal (ruhige Piano-/Lounge-Auswahl) wird ausschließlich beim Öffnen der Hotelverwaltung eingeschaltet; beim Schließen wird die zuvor gewählte Musik wiederhergestellt. Lautstärkeeinstellungen und Stummschaltung haben Vorrang.
+- **KoSch – ERG0SPHERE Journey** und **KoSch Milton – Ska'radise Lost** sind als eigene Künstlerkanäle hinterlegt. Die SoundCloud-Alben öffnen ausschließlich durch bewussten Klick. Kein automatischer Drittanbieter-iframe, kein Streaming bei Spielstart.
+- 72 zuvor dokumentierte CC0-Titel plus fünf weitere, einzeln geprüfte Langform-CC0-Aufnahmen wurden in der Entwicklung kuratiert. Sender-Playlistpositionen können dieselbe Aufnahme mehrfach enthalten; die bloße Anzahl bedeutet nicht ebenso viele einzigartige Musikstücke.
+- Deep Atmospherics enthält 15+ Playlistpositionen. Die exakten realen Laufzeiten sind über `tests/radio_duration_inventory_029.gd` nachvollziehbar; kurze bestehende Titel sind noch keine garantierten 3–7-Minuten-Masters. Ska, schwedische Folklore und Skater-Punk benötigen für vollständig authentische Genres weiterhin weitere kuratierte Originalaufnahmen.
+- Das zuvor gemeldete schrille synthetische FX-Fiepen bleibt deaktiviert, bis ein sauberer Soundersatz vorhanden ist.
+
+### Betrieb und Gameplay
+- Gebäudebezogene Minispiele werden mit branchenspezifischen Entscheidungen, Gästewerten und Trainingsleveln verbunden, beispielsweise Beschneiung, Liftdienst, Bergrettung, Skischule, Snowpark, Hotel/Gastronomie und Nachtbetrieb.
+- Trainierte Betriebskompetenz verbessert begrenzt den echten Servicebetrieb. Alte Belohnungsgrenzen bleiben erhalten, um eine unbegrenzte Geldgenerierung über Minispiele zu verhindern.
+
+### Grafik, Orientierung und Touch-Sicherheit
+- Resortkompass erhält größere Randabstände auf schmalen Bildschirmen und schützt vor Kameraausschnitten/notches.
+- Dynamisch angepasste Header-/Werkzeugflächen, Menüs, Fenster, Dialoge und Camera-Controls; Aktionen sollen auf Android sichtbar und bedienbar bleiben.
+- Achievements erscheinen kompakter, moderner, digital und halbtransparent; der vollständige Titel wird umgebrochen statt mit Auslassungspunkten gekürzt. Benachrichtigungen dürfen Spielfinger-Eingaben nicht abfangen.
+
+### Datenschutz und Rechte
+- Offline-CC0-Musik mit individueller Quellen- und Lizenzdokumentation in `assets/music/cc0/library.json`.
+- SoundCloud-Links werden nur bei aktiver Benutzereingabe geöffnet. Optional bereitgestellte HTML-Embeds verwenden ein Zwei-Klick-Verfahren mit `auto_play=false`. Quellen, Risiko externer Netzwerkdatenverarbeitung und SoundCloud-Datenschutzinfos sind im Impressum und `docs/PRIVACY.md` aufgeführt.
+- Vom Nutzer angegebene Rechte an den zwei eigenen Alben sind dokumentiert. Ohne originale Audiodateien werden sie **nicht** fälschlich als in der APK offline eingebettet bezeichnet.
+
+### Prüfungen und Einschränkungen
+- Release-Gates: `tests/save_hotfix_030.gd`, `tests/radio_context_029.gd`, `tests/radio_duration_inventory_029.gd`, `tests/audio_cc0_library_027.gd`, `tests/sector_sim_028.gd`, Hotel-/Landschafts-/Gameplaytests, 0.19/0.27-Savefixtures und Android-Emulator-Updateprüfung.
+- Authentische regionale Musik, garantiert lange 15 einzigartige Atmospherics-Tracks, Musik-Masters der SoundCloud-Alben und sämtliche Geräteauflösungen können trotz neuer UI-Tests noch nicht als komplett geprüft gelten.
+
+**Release-Ausgabe (nur nach CI-Freigabe):** `SkiZones-0.30.0-android-arm64.apk` auf https://github.com/chekento/SkiZones/releases/tag/v0.30.0
+
+---
 
 ## v0.27.0 · Nahtlose Alpine-Radio-Klangwelt (erste Iteration) (04.11.2026)
 
