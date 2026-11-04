@@ -6084,3 +6084,632 @@ msgstr "+%d €"
 # Previous-career migration and recovery
 msgid "Älterer Spielstand geladen."
 msgstr "Older saved game loaded."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Neon Noir · Cyberalpen"
+msgstr "Neon Noir · Cyber Alps"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Aurora Ink · Tintenpolarlicht"
+msgstr "Aurora Ink · Polar Aurora"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bauhaus · Alpine Avantgarde"
+msgstr "Bauhaus · Alpine Avant-Garde"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Elektrisches Magenta, kühles Cyan und dunkle Cyber-Nacht auf einem echten Pistenrelief."
+msgstr "Electric magenta, cool cyan and cyber night atop an authentic ski slope relief."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Malerei wie nasse Tinte: leuchtendes Polarlicht, dunkle Gletscher und aquarellartige Kontraste."
+msgstr "Wet-ink painting: glowing auroras, dark glaciers and watercolor contrasts."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Mutige plakative Geometrie: Ultramarin, Senfgelb, Rostrot und kantige Farbflächen."
+msgstr "Bold graphic geometry: ultramarine, mustard yellow, rust red and sharply cut color planes."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "BERGSPORT"
+msgstr "MOUNTAIN SPORTS"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "DORFLEBEN"
+msgstr "VILLAGE LIFE"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "WINTERWIRTSCHAFT"
+msgstr "WINTER ECONOMY"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "PANORAMA"
+msgstr "PANORAMA"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "AUS DEM RATHAUS"
+msgstr "FROM TOWN HALL"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Akustische Berggefühle für den ganzen Skitag."
+msgstr "Acoustic mountain music for the whole ski day."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Ruhe hinter dem letzten Gipfel — ganz ohne Hektik."
+msgstr "Peace beyond the last summit — without a rush."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Wolken, Schnee und tiefe Meditation."
+msgstr "Clouds, snow and deep meditation."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Tanz zwischen Sternen und Gletscherlicht."
+msgstr "Dance among stars and glacier light."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Warme Lo-Fi-Momente am Kamin."
+msgstr "Warm lo-fi moments by the fireplace."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Ein Sonnenaufgang für jeden Bergmenschen."
+msgstr "A sunrise for every mountain lover."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Nur in der Hotelverwaltung: Piano und Lounge."
+msgstr "Piano and lounge music, exclusively in hotel management."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alpengefühl im traditionellen Radiofenster."
+msgstr "Alpine charm on a traditional radio channel."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Nordische Momente für weite Winterlandschaften."
+msgstr "Nordic moments for endless winter landscapes."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Gitarrenpower für den Snowpark."
+msgstr "Guitar power for the snowpark."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das eigene Ska-Album — SoundCloud erst nach Klick."
+msgstr "The creator's ska album — SoundCloud opens only on demand."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "KoSch-Originalalbum — SoundCloud erst nach Klick."
+msgstr "KoSch's original album — SoundCloud opens only on demand."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die Redaktion · Tag %d"
+msgstr "The Editors · Day %d"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "%s · %d Abfahrten · %d Gäste insgesamt"
+msgstr "%s · %d runs · %d guests in total"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Ein Klang für deinen Bergurlaub."
+msgstr "A soundtrack for your mountain holiday."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Android Preview"
+msgstr "Android Preview"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Der Stadtschreiber öffnete erstmals das Tor zur Android-Bergwelt. Noch war SkiZones ein kleines Experiment, aber der Grundstein war gelegt."
+msgstr "The town clerk opened the gates to our first Android mountain world. SkiZones was still an experiment, but its foundation was laid."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alpen und Karriere"
+msgstr "Alps and Careers"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Der Gemeinderat beschloss die ersten Karrieren. Alpenlandschaft, Wirtschaft und Bauverwaltung erhielten eine gemeinsame Spielordnung."
+msgstr "The municipal council created the first careers. Alpine landscapes, finances and construction entered one shared game world."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Auf den ersten Pisten tauchten Spuren im Schnee auf. Die Bürger erzählten erstmals vom gelebten Winterbetrieb."
+msgstr "The first pistes began to carry tracks in the snow. Our citizens started to tell stories about mountain life."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Dein Verlauf entscheidet"
+msgstr "Your Route Matters"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das Bauamt lernt, dass jeder gesetzte Streckenpunkt zählt: Der Verlauf sollte fortan tatsächlich den Weg bestimmen."
+msgstr "The planning office learned that every waypoint matters: the route must match the path the player draws."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Lifte und Stationsplätze"
+msgstr "Lifts and Station Plazas"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die Liftaufsicht bezog die Stationsplätze. Damit wurden Aufstieg, Kapazität und Zugang zu einer echten Planungsfrage."
+msgstr "Lift operations moved into their first station plazas. Boarding, capacity and access became serious planning decisions."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bauen und Bergleben"
+msgstr "Construction and Mountain Life"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Neue Gebäude brachten Leben zwischen die Abfahrten; das Skigebiet wuchs zum bewohnten Bergdorf."
+msgstr "New buildings filled the spaces between pistes. The ski area began to grow into an inhabited Alpine village."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Flüssiger Betrieb und dein eigener Resortstil"
+msgstr "Smoother Operations and Your Resort Style"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die Gemeinde konnte ihren eigenen Stil wählen, während die Betriebe flüssiger durch den Tag arbeiteten."
+msgstr "Each municipality could choose its own appearance while everyday business ran more smoothly."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Ein Skitag geht wirklich zu Ende"
+msgstr "A Ski Day Really Ends"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Der erste vollständig geregelte Skitag endete. Von nun an gehörten Abend, Nacht und neuer Morgen zum Dorfkalender."
+msgstr "Our first fully managed ski day ended. Evening, night and a new morning joined the town calendar."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Wege, Schwung und Gegenanstiege"
+msgstr "Paths, Turns and Uphill Sections"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Neue Wege, Gegenanstiege und Skischwünge brachten mehr Bewegungsfreiheit in die Schneeordnung."
+msgstr "New paths, uphill sections and ski turns gave visitors greater freedom across the snow."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Eine kleine Winterwelt und verlässlich weiterspielen"
+msgstr "A Small Winter World, Reliable Progress"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Der Stadtrat stellte die Sicherung der Fortschritte in den Mittelpunkt: Lieber eine kleinere Welt als verlorene Karrieren."
+msgstr "The council put progress protection first: a smaller world was better than a lost career."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Besser planen, echte Bedürfnisse, Deutsch und Englisch"
+msgstr "Better Planning, Real Needs, Two Languages"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Zweisprachige Schilder und echte Bedürfnisse öffneten die Gemeinde für neue Gäste und Spielweisen."
+msgstr "Bilingual signs and real needs welcomed new guests and new ways to play."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Präzise klicken, Breite wählen, Kurven glätten"
+msgstr "Precise Taps, Widths and Smooth Curves"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das Tiefbauamt erlaubte präzisere Fingerpositionen, Pistenbreiten und weichere Kurven."
+msgstr "Civil engineering improved touch precision, piste widths and smooth curves."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alpine Villages & Eight Resorts"
+msgstr "Alpine Villages and Eight Resorts"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Acht Fantasieorte und alpine Promenaden wurden verbunden. Die Bergregion bekam erstmals ein größeres Ortsbild."
+msgstr "Eight fictional areas and Alpine promenades connected the mountain region into a wider village landscape."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Real Resorts & 24h Operations"
+msgstr "Real Resorts and 24-Hour Operations"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die ersten vier realen Resort-Szenarien und ganztägige Betriebe wurden zum Gegenstand unserer Stadtplanung."
+msgstr "Our first four real-resort scenarios and round-the-clock businesses entered the town planning agenda."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das Rathaus bestätigte die neue Szenario- und Betriebsstruktur als frühen Ausbau des Gemeinwesens."
+msgstr "The council formally adopted the new scenario and operations structure as an early municipal expansion."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Pistenpunkte und echte Anschlüsse"
+msgstr "Piste Points and Proper Junctions"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Der Wegebau erhielt stabile Anschlussregeln; überlappende Strecken sollten nicht länger die Talstation verunstalten."
+msgstr "Path construction received stable connection rules; overlapping routes could no longer spoil the valley station."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die Baukommission erlaubte versetzbare Pistenpunkte und saubere Verbindungen zwischen Abschnitten."
+msgstr "Our planning commission approved movable piste points and smooth connections between sections."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Stabile Karte, klare Missionen und direkte Liftteams"
+msgstr "Stable Maps, Clear Missions and Lift Teams"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Missionskarten, direkte Mitarbeiterteams und stabilisierte Karten machten die Verwaltung übersichtlicher."
+msgstr "Mission cards, direct staff assignments and stable maps made the municipality easier to manage."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Gäste mit eigenen Urlaubswünschen"
+msgstr "Guests With Individual Vacation Wishes"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Gäste bekamen eigene Wünsche und unterschiedliche Wege durch das Dorf; unser Fremdenverkehrsamt musste mitdenken."
+msgstr "Guests gained personal wishes and varied routes through town; our visitor office had to adapt."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Vier Karrieren, Updates und eigene Wege"
+msgstr "Four Careers, Updates and Custom Paths"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Vier unabhängige Karrieren wurden eingerichtet, dazu Updatekontrollen und selbstgeplante Fußwege."
+msgstr "Four independent career slots opened, together with update checks and player-built walkways."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Anlagen direkt verwalten und leichter anschließen"
+msgstr "Manage Facilities and Connect Them More Easily"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Werkstätten, Liftstationen und Betriebsräume wurden vom Gebäude aus direkt verwaltbar."
+msgstr "Workshops, lift stations and operating rooms became manageable directly from their buildings."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "PMDD-Winterbranding und vollflächiger Ladebildschirm"
+msgstr "PMDD Winter Identity and Fullscreen Loading"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Ein neuer winterlicher Auftritt mit PMDD-Ladebild und App-Zeichen wurde auf dem Rathausplatz enthüllt."
+msgstr "The town square celebrated a new winter identity, PMDD loading art and app icon."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "kompakte Skiorte, mehrtägige Hotelgäste und fließender Pistenverkehr"
+msgstr "Compact Ski Towns, Multi-Day Guests and Smooth Traffic"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Kleine Skiorte, tatsächliche Übernachtungen und ein fließender Pistenverkehr machten das Dorf zum Ferienort."
+msgstr "Small ski towns, genuine overnight stays and smooth piste traffic turned our village into a holiday destination."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Hauptspiel vor Szenarien"
+msgstr "Main Game Before Scenarios"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Im Rathausprotokoll steht: Zuerst gehört die Bühne dem Hauptspiel; Szenarien bleiben zusätzliche Abenteuer."
+msgstr "The town records declare: the main game comes first, while scenarios remain optional adventures."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bergwelt, Spielgefühl und fünf Bildstile"
+msgstr "Mountain World, Atmosphere and Five Visual Styles"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Fünf gestalterische Handschriften gaben dem Ort unterschiedliche Lichtstimmungen und Oberflächen."
+msgstr "Five visual identities brought distinct lighting and surfaces to our Alpine communities."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Lebendige Pisten, kreative Bergwelten und 1.000 Erfolge"
+msgstr "Live Pistes, Creative Worlds and 1,000 Achievements"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Tausend erreichbare Erfolge, fünfhundert Ränge und lebendigere Pisten wurden ins Gemeindealbum aufgenommen."
+msgstr "One thousand achievements, five hundred mastery ranks and more lively pistes entered the town archive."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Landschaft, Pistenwerkstatt und freiere Dorfplanung"
+msgstr "Landscape, Piste Workshop and Freer Village Planning"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Neue Landschaftsdetails, freieres Bauen und eine Pistenwerkstatt verbesserten das Gelände und das Handwerk."
+msgstr "New scenery details, freer construction and a piste workshop improved the terrain and craftsmanship."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Hotel-Mikrowelten und sechs neue Landschaftsdetails"
+msgstr "Hotel Micro-Worlds and Six New Scenery Details"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Häuser erhielten kleine eigene Geschichten; sechs neue Landschaftsminiaturen verschönerten die Wege."
+msgstr "Buildings gained their own stories, and six new miniature scenery features brightened the streets."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Lineare Hotelmodule und wiederkehrende Winterfeste"
+msgstr "Linear Hotel Modules and Annual Winter Festivals"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Hotels wurden zu Ketten mit Modulen, und der jährliche Advents- und Silvesterkalender fand seinen Platz."
+msgstr "Hotels became chains of modules; annual Advent and New Year celebrations took their place on the calendar."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alpine Radio, Crewleben und illustrierter Pistenatlas"
+msgstr "Alpine Radio, Crew Life and Illustrated Piste Atlas"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das alpine Radio, die Crew und illustrierte Pistenkarten brachten Klang und Orientierung in jeden Ort."
+msgstr "Alpine Radio, staff routines and illustrated piste maps brought sound and orientation to each town."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Nahtlose Alpine-Radio-Klangwelt (erste Iteration)"
+msgstr "Seamless Alpine Radio — First Iteration"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Die Musik durfte sanfter von Titel zu Titel reisen; gleichzeitig wurde die unerwünschte grelle FX-Klangquelle stillgelegt."
+msgstr "Music began to flow more smoothly between songs; the unwanted shrill synthetic FX source was silenced."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bauakte 0.30: Spielstand-Hotfix, Radio, Hotel-Lounge und mobile Darstellung sind integriert. Erst nach erfolgreicher Android-Freigabe gilt v0.30.0 als veröffentlicht."
+msgstr "Municipal record 0.30: save recovery, radio, hotel lounge and mobile UI are integrated. Version 0.30.0 counts as released only after successful Android approval."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "I · Künstlerische Dorferneuerung"
+msgstr "I · Artistic Village Renewal"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Zeitungsdruck mit echter Doppelseite, typografischer Hierarchie und stilabhängigen Radiowerbungen"
+msgstr "Newspaper printing with a proper double-page layout, clear typographic hierarchy and theme-aware radio advertisements"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Drei neue Bildstile: Neon Noir, Aurora Ink und Bauhaus"
+msgstr "Three new art themes: Neon Noir, Aurora Ink and Bauhaus"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus-Chronik, überarbeitete Dorf-Ausstattung und saisonale Werbekästen"
+msgstr "Town Hall archive, improved village details and seasonal advertisement displays"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alte Spielstände 0.19–0.30 unverändert öffnen; Gebäudemenüs auf kleinen Displays prüfen"
+msgstr "Keep saved games from 0.19 to 0.30 readable; verify building menus on small displays"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Godot-Szenentests, Android-Screenshotvergleich, unveränderte Bestandskarrieren"
+msgstr "Godot scene tests, Android screenshot comparison and unchanged older careers"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "II · Advent und Stadtbild"
+msgstr "II · Advent and Townscape"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Weihnachtswerbung vom 1. bis 30. November, danach Türchen 1 am 1. Dezember"
+msgstr "Christmas ads from November 1–30, followed by Advent door one on December 1"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Sicherer Anschluss für bereits erstelltes Weihnachtsplakat, mit winterlichem Vektor-Fallback"
+msgstr "Safe support for the previously created Christmas poster, with an original vector fallback"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Automatische Gebäude- und Wegübergänge nur innerhalb der bebaubaren Grundstücke"
+msgstr "Automatic building and path transitions only on valid building plots"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Mehr Gebäudevarianten, Straßenmöbel, Zäune, Laternen und Platzdekoration"
+msgstr "More building variants, street furniture, fences, lamps and plaza decorations"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Datumstests für 30.11./01.12., kein Werbekasten auf Pisten, keine Kollision mit Wegen"
+msgstr "November 30 and December 1 calendar tests; no ads on pistes or collisions with walkways"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "III · Lebendige Betriebe und Gäste"
+msgstr "III · Living Businesses and Guests"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Hotellobbys, Restaurant- und Ladeninneres mit eigens angepassten Soundkulissen"
+msgstr "Hotel lobbies, restaurants and shops with tailored soundscapes"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Familien- und Gruppenbedürfnisse, Wartezeiten und Serviceentscheidungen deutlicher verknüpfen"
+msgstr "Better connections between family needs, queues and service decisions"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Schneeformung, Liftzufahrten, Busverkehr und Besucherströme verbessern"
+msgstr "Improve snow shaping, lift approaches, bus travel and visitor movement"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Zeitung mit saisonalen Geschichten, Resortzahlen und echten Erfolgen aus dem jeweiligen Spielstand"
+msgstr "Seasonal newspaper stories showing real resort metrics and saved achievements"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Messbare KPI-Auswirkungen, stabile Routen und verifizierte Spieltag-Fortsetzung"
+msgstr "Measurable effects on KPIs, stable routes and verified day continuation"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "IV · Qualitätswinter und Ausbau"
+msgstr "IV · Winter Quality and Expansion"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Langform-Atmospherics und echte Genreaufnahmen anhand CC0-Lizenzen und OGG-Dauer prüfen"
+msgstr "Verify long-form atmospheric recordings and authentic genres against CC0 licensing and Ogg length"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Android-Performance, Speicherdruck, Bildschirmeinrückungen und Grafik-Presets optimieren"
+msgstr "Optimize Android speed, memory pressure, screen insets and graphics presets"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Szenarien Braunlage, Filzmoos, Kitzbühel, Seiser Alm mit spielbaren Anschlüssen prüfen"
+msgstr "Verify playable connections in Braunlage, Filzmoos, Kitzbuehel and Seiser Alm scenarios"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus-Zeitkapsel mit durchgehender Chronik, künftigen Bauanträgen und Release-Nachweisen"
+msgstr "Town Hall time capsule with complete history, future construction plans and release evidence"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Signierter Android-Release, restaurierte Altsaves, keine kritischen Bau- oder Audio-Regressionen"
+msgstr "Signed Android release, restored legacy saves and no critical construction or audio regressions"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Alpen"
+msgstr "Alps"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "SEIT DEM ERSTEN SKITAG  ·  STIMME DER BERGE"
+msgstr "SINCE THE FIRST SKI DAY  ·  VOICE OF THE MOUNTAINS"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "BETRIEBSTAG %d"
+msgstr "OPERATING DAY %d"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "SONDERAUSGABE · NACHRICHTEN VOM BERG"
+msgstr "SPECIAL EDITION · NEWS FROM THE MOUNTAIN"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Betriebstag %d · %d verkaufte Zeitungen · %s € Kioskerlös"
+msgstr "Operating day %d · %d copies sold · %s € kiosk revenue"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Aus den echten Erfolgen und Betriebszahlen deines Skigebiets gesetzt. Die Redaktion erfindet keine Spielstände oder Verkaufsergebnisse."
+msgstr "Printed from your resort's real achievements and business figures. The editors never invent save data or sales."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Dorfredaktion noch geschlossen"
+msgstr "Village newsroom not yet open"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Mit einer eigenen Druckerei wird aus den erreichten Meilensteinen die nächste Ausgabe gedruckt."
+msgstr "Build a printing press to turn completed milestones into the next edition."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Zeitungskiosk · Einzelverkauf"
+msgstr "Newsstand · Individual Sales"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "%d Zeitungen verkauft · %.0f € tatsächlicher Umsatz"
+msgstr "%d newspapers sold · %.0f € actual revenue"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "NOCH KEIN GROSSES TITELTHEMA"
+msgstr "NO MAJOR HEADLINE YET"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Deine ersten Erfolge, Rennsiege und Meilensteine schreiben die nächste Ausgabe."
+msgstr "Your first achievements, race victories and milestones will write the next issue."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "ANZEIGENTEIL · ALPINE RADIO"
+msgstr "ADVERTISING · ALPINE RADIO"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Unsere Sender für Piste, Hütte, Hotellobby, Snowpark und lange Winterabende. Jede Ausgabe setzt andere Programmtipps."
+msgstr "Our channels for slopes, chalets, hotel lobbies, snowparks and long winter evenings. Each issue highlights different stations."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Externes Künstleralbum · SoundCloud nur auf Klick"
+msgstr "External artist album · SoundCloud opens on demand"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Exklusiv in der Hotelverwaltung"
+msgstr "Exclusive to hotel management"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Offline-Radio · CC0-Quellennachweise im Impressum"
+msgstr "Offline radio · CC0 sources in the legal credits"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Sender im Radio ansehen"
+msgstr "View station in Alpine Radio"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus · Stadtchronik"
+msgstr "Town Hall · Village Chronicle"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "DAS BUCH DER WINTER"
+msgstr "THE BOOK OF WINTERS"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Hier spricht das Rathaus: Unser Dorf führt Buch darüber, wie es von der ersten Android-Bergwelt zum lebendigen Skiresort gewachsen ist."
+msgstr "This is Town Hall speaking: our village records its journey from the first Android mountain world to a thriving ski resort."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "BEGLAUBIGTES ARCHIV"
+msgstr "CERTIFIED ARCHIVE"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "31 historisch veröffentlichte Versionen · älteste zuerst · aus unserem Gemeindeprotokoll."
+msgstr "31 historically published versions · oldest first · from our municipal records."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "RATHAUSAKTE · VERSION %s · %s"
+msgstr "TOWN HALL RECORD · VERSION %s · %s"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus · Bauplan bis Januar"
+msgstr "Town Hall · Development Plan Through January"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "ZWEI MONATE ZUKUNFT · 04.11.–04.01."
+msgstr "TWO MONTHS AHEAD · NOV 04 – JAN 04"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das sind geplante Verbesserungen und keine bereits veröffentlichten Funktionen. Jede Bauphase enthält konkrete Freigabekriterien."
+msgstr "These are planned improvements, not previously released features. Each phase has concrete approval criteria."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "%s bis %s"
+msgstr "%s to %s"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Abnahmekriterium: "
+msgstr "Acceptance criterion: "
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus · Bürgerinformation"
+msgstr "Town Hall · Citizen Information"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "STADTANZEIGER UND BÜRGERSERVICE"
+msgstr "TOWN BULLETIN AND PUBLIC SERVICES"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."
+msgstr "Our town records are read locally in the game; they need no GitHub login or network connection and do not modify existing saved games."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Offizielles GitHub-Changelog öffnen"
+msgstr "Open official GitHub changelog"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Veröffentlichte APKs auf GitHub ansehen"
+msgstr "View published APKs on GitHub"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bauprojekte der nächsten Versionen: neue Zeitungsdruckbilder, Weihnachtsplakate, KI-freie automatische Gebäudeübergänge, authentische lizenzierte Musik und bessere Qualität auf kleinen Telefonbildschirmen."
+msgstr "Upcoming work: newspaper artwork, Christmas posters, deterministic automated building transitions, authentically licensed music and better layouts on smaller phones."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "WINTER"
+msgstr "WINTER"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "WUNDER"
+msgstr "WONDER"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "SKIZONES"
+msgstr "SKIZONES"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "AB 1. DEZEMBER"
+msgstr "FROM DECEMBER 1"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "24 TÜRCHEN · EIN BERGDORF"
+msgstr "24 DOORS · ONE MOUNTAIN VILLAGE"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "SKIZONES · DER WINTER KOMMT"
+msgstr "SKIZONES · WINTER IS COMING"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Schließen · zurück zur Piste"
+msgstr "Close · Return to the Slopes"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Rathaus & Ortschronik"
+msgstr "Town Hall & Local Chronicle"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Das Stadtgedächtnis: alle veröffentlichten Versionen seit dem ersten Winter, die Bauakten des Gemeinderats und ein Zweimonatsplan für kommende Verbesserungen. In neuen Orten kostenfrei gesetzt."
+msgstr "The town's memory: every published version since the first winter, municipal planning records and a two-month improvement roadmap. Placed free of charge in new resorts."
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
+msgstr "SKIZONES · WINTER WONDER\\nFROM DECEMBER 1\\nTAP TO VIEW POSTER"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Automatic Village Dressing (non-colliding)"
+msgstr "Automatic Village Dressing (non-colliding)"
+
+# SkiZones 0.31 — artistic Town Hall and newspaper
+msgid "Bildstil · neun Looks"
+msgstr "Visual Style · Nine Looks"
+
