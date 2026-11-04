@@ -130,12 +130,12 @@ static func seed(model: RefCounted) -> void:
 	# The existing access coordinate is the WGS84 origin of this map. Place
 	# starter services beside it, checking the real ground and existing assets.
 	var used_lots: Array = []
-	for kind in ["rental", "restaurant", "hotel"]:
+	for kind in ["rental", "restaurant", "hotel", "maintenance", "repair_office", "first_aid", "disco"]:
 		var found := false
-		for ring in range(1, 9):
+		for ring in range(1, 15):
 			if found: break
-			for angle in range(20):
-				var at := Terrain.BASE + Vector2(cos(angle * TAU / 20), sin(angle * TAU / 20)) * (30 + ring * 22)
+			for angle in range(24):
+				var at := Terrain.BASE + Vector2(cos(angle * TAU / 24), sin(angle * TAU / 24)) * (30 + ring * 22)
 				if not model.terrain.contains(at) or model.terrain.slope_percent(at) > 40: continue
 				if used_lots.any(func(p): return at.distance_to(p) < 45): continue
 				var blocked := false
