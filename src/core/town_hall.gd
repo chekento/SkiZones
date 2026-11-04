@@ -36,7 +36,8 @@ const HISTORY: Array = [
 	{"version":"0.24.0","date":"03.11.2026","topic":"Hotel-Mikrowelten und sechs neue Landschaftsdetails","story":"Häuser erhielten kleine eigene Geschichten; sechs neue Landschaftsminiaturen verschönerten die Wege."},
 	{"version":"0.25.0","date":"03.11.2026","topic":"Lineare Hotelmodule und wiederkehrende Winterfeste","story":"Hotels wurden zu Ketten mit Modulen, und der jährliche Advents- und Silvesterkalender fand seinen Platz."},
 	{"version":"0.26.0","date":"03.11.2026","topic":"Alpine Radio, Crewleben und illustrierter Pistenatlas","story":"Das alpine Radio, die Crew und illustrierte Pistenkarten brachten Klang und Orientierung in jeden Ort."},
-	{"version":"0.27.0","date":"04.11.2026","topic":"Nahtlose Alpine-Radio-Klangwelt (erste Iteration)","story":"Die Musik durfte sanfter von Titel zu Titel reisen; gleichzeitig wurde die unerwünschte grelle FX-Klangquelle stillgelegt."}
+	{"version":"0.27.0","date":"04.11.2026","topic":"Nahtlose Alpine-Radio-Klangwelt (erste Iteration)","story":"Die Musik durfte sanfter von Titel zu Titel reisen; gleichzeitig wurde die unerwünschte grelle FX-Klangquelle stillgelegt."},
+	{"version":"0.30.0","date":"04.11.2026","topic":"Alte Karrieren, Radio und mobile Bedienung","story":"Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."}
 ]
 const DEVELOPMENT_NOTICE := "Bauakte 0.30: Spielstand-Hotfix, Radio, Hotel-Lounge und mobile Darstellung sind integriert. Erst nach erfolgreicher Android-Freigabe gilt v0.30.0 als veröffentlicht."
 const ROADMAP: Array = [

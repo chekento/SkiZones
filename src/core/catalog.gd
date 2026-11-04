@@ -50,7 +50,7 @@ const BUILDINGS := {
 	"craftshop": {"name":"Alpine Handwerksstube","cost":21500,"upkeep":170,"income":9.0,"appeal":11,"color":"aa885e","description":"Handgefertigte Schnitzereien, Holzwerkzeuge, lokale Souvenirs und Bergtradition."},
 	"printing_press": {"name":"Druckerei & Zeitungsredaktion","cost":33500,"upkeep":230,"income":0.0,"appeal":8,"color":"877a8e","description":"Druckt ein ExtraBlatt mit den fünf neuesten Achievements. Erst danach können Kioske Zeitungen verkaufen."},
 	"newsstand": {"name":"Alpiner Zeitungsstand","cost":8500,"upkeep":75,"income":5.0,"appeal":6,"color":"b89a7b","description":"Verkauft Zeitungen an Besucher, sofern eine geöffnete Dorfredaktion betrieben wird."},
-	"town_hall": {"name":"Rathaus & Ortschronik","cost":0,"upkeep":0,"income":0.0,"appeal":4,"color":"bc9a6e","description":"Das Stadtgedächtnis: alle veröffentlichten Versionen seit dem ersten Winter, die Bauakten des Gemeinderats und ein Zweimonatsplan für kommende Verbesserungen. In neuen Orten kostenfrei gesetzt."},
+	"town_hall": {"name":"Rathaus & Ortschronik","cost":18000,"upkeep":0,"income":0.0,"appeal":4,"color":"bc9a6e","description":"Das Stadtgedächtnis: alle veröffentlichten Versionen seit dem ersten Winter, die Bauakten des Gemeinderats und ein Zweimonatsplan für kommende Verbesserungen. In neuen Orten kostenfrei gesetzt."},
 	"first_aid": {"name": "Bergwacht", "cost": 24000, "upkeep": 210, "income": 0.0, "appeal": 8, "color": "dd6c70", "description": "Ein warmer Rückzugsort für erschöpfte Gäste. Ein tatsächlicher Besuch hilft bei Kälte und Müdigkeit."}
 }
 

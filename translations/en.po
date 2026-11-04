@@ -6740,3 +6740,9 @@ msgstr "Meeting Minutes"
 
 msgid "Dieser Ort hat bereits ein Rathaus."
 msgstr "This town already has a Town Hall."
+
+msgid "Alte Karrieren, Radio und mobile Bedienung"
+msgstr "Old careers, radio and mobile controls"
+
+msgid "Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."
+msgstr "The town secured its old records: earlier careers and backups became readable again. More radio stations, hotel lobby music and improved mobile controls joined the hotfix published on November 4."

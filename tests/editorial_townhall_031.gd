@@ -43,7 +43,7 @@ func run() -> void:
 	check(Calendar.preview_poster(nov1) and Calendar.preview_poster(nov30),"Christmas campaign is visible from November 1 through November 30 inclusive")
 	check(not Calendar.valid_date(bad31) and not Calendar.preview_poster(bad31),"November 31 is always rejected")
 	check(not Calendar.preview_poster(dec1) and Calendar.unlocked(dec1,1) and not Calendar.unlocked(dec1,2),"December 1 removes posters and opens only Advent door one")
-	check(TownHall.HISTORY.size()>=31 and str(TownHall.HISTORY[0].version)=="0.1.1" and str(TownHall.HISTORY[-1].version)=="0.27.0","Historically published versions are distinguished from the pending 0.30 release")
+	check(TownHall.HISTORY.size()>=32 and str(TownHall.HISTORY[0].version)=="0.1.1" and str(TownHall.HISTORY[-1].version)=="0.30.0","Published 0.30 hotfix is in the archive while 0.31 remains the current candidate")
 	check(TownHall.ROADMAP.size()==4 and str(TownHall.ROADMAP[0]["from"])=="04.11.2026" and str(TownHall.ROADMAP[-1]["to"])=="04.01.2027","Two-month roadmap has four delivery/acceptance phases")
 	for phase in TownHall.ROADMAP:
 		check(phase.deliverables.size()>=3 and not str(phase.acceptance).is_empty(),"Civic phase has concrete work and review gate")
@@ -63,7 +63,7 @@ func run() -> void:
 	check(spots.size()==6 and unique.size()==6,"Six rotating, distinct channel advertisements fill each edition")
 	model.day+=1
 	check(str(Newspaper.radio_spots(model,6)[0].id)!=str(spots[0].id),"Daily editorial schedule rotates independently of saved radio preference")
-	check(Catalog.BUILDINGS.has("town_hall") and int(Catalog.BUILDINGS.town_hall.cost)==0,"Municipal landmark has a catalog record and is free for starters")
+	check(Catalog.BUILDINGS.has("town_hall") and int(Catalog.BUILDINGS.town_hall.cost)>750 and model.buildings.filter(func(building): return building.kind=="town_hall")[0].cost==0,"Starter landmark is complimentary but manual replacement cannot farm free shift rewards")
 	var head:=NewspaperArt.new()
 	root.add_child(head)
 	head.size=Vector2(345,200)
