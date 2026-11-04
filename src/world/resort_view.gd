@@ -1144,7 +1144,7 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		if not analysis.get("connection", {}).is_empty():
 			_ribbon(preview_root, analysis.connection.points, 6, Color("75cdc7"), 0.6)
 		var livery: String = analysis.get("color", "")
-		var ghost := _baked(preview_root, Art.new().chalet(building_kind, 1, Color(livery) if livery != "" else color), terrain.world(Terrain.unpack(points.back())))
+		var ghost := _baked(preview_root, StyleAssets.building(building_kind,1,Color(livery) if livery!="" else color,visual_style), terrain.world(Terrain.unpack(points.back())))
 		ghost.rotation.y = int(analysis.get("rotation", 0)) * PI * 0.5
 		var proposed := {"kind": building_kind, "point": points.back(), "rotation": int(analysis.get("rotation", 0))}
 		var center := Terrain.unpack(points.back())

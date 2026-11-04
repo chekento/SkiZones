@@ -49,6 +49,10 @@ func prop(kind: String) -> ArrayMesh:
 		"clock":
 			line(Vector3(0,0,0),Vector3(0,8,0));circle(Vector3(0,10,0),2.5)
 			line(Vector3(0,10,0),Vector3(0,12,0));line(Vector3(0,10,0),Vector3(1.5,10,0))
+		"bench":box(Vector3(0,1.2,0),Vector3(5,.3,2));box(Vector3(0,2.1,-.8),Vector3(5,1.5,.2))
+		"lamp":line(Vector3.ZERO,Vector3(0,8,0));box(Vector3(0,7.5,0),Vector3(2,1,1))
+		"arch":line(Vector3(-3,0,0),Vector3(-3,6,0));line(Vector3(3,0,0),Vector3(3,6,0));line(Vector3(-3,6,0),Vector3(3,6,0))
+		"sculpture":box(Vector3(0,1,0),Vector3(4,2,4));line(Vector3(0,1,0),Vector3(0,7,0));circle(Vector3(0,6,0),1.5)
 		"market":box(Vector3(0,2,0),Vector3(10,4,7));roof(12,8,7)
 		_:box(Vector3(0,5,0),Vector3(5,8,1));line(Vector3(0,0,0),Vector3(0,10,0))
 	return finish()

@@ -89,6 +89,7 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 	# Doors, windows and a functional sign remain legible in every architecture.
 	a.box(Vector3(0,3,d*.5+.5),Vector3(3,6,.7),body.darkened(.4))
 	for x in [-w*.28,w*.28]:a.box(Vector3(x,h*.56,d*.5+.4),Vector3(4,3,.6),snow.lerp(trim,.3))
+	a._facade_details(kind,w,d,h,trim)
 	var sign_color:=Color("e35660") if kind=="first_aid" else trim
 	a.box(Vector3(0,h*.8,d*.5+.6),Vector3(6,1.1,.7),sign_color)
 	return a.finish()

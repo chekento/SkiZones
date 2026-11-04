@@ -1,6 +1,7 @@
 extends RefCounted
 ## Purely visual auto-dressing along already generated real pedestrian links.
 ## No new gameplay routes, fake roads or collisions are created.
+const Lines=preload("res://src/world/line_art.gd")
 const Art=preload("res://src/world/alpine_art.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
@@ -9,6 +10,7 @@ const MAX_PROPS := 34
 var root: Node3D
 
 static func prop_mesh(kind: String, style: String) -> ArrayMesh:
+	if style=="monochrome":return Lines.new().prop(kind)
 	var a:=Art.new()
 	var c: Dictionary=Styles.detail_tints(style)
 	var metal:=Color(str(c.metal))
@@ -103,3 +105,4 @@ func build(view: Node3D) -> void:
 			node.mesh=meshes["sculpture"]
 			node.position=view.terrain.world(at,0.28)
 			root.add_child(node)
+

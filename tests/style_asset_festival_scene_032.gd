@@ -43,6 +43,8 @@ func run() -> void:
 	for style in ["alpine","comic","pastel","cinematic","crisp","piste_map","neon_noir","aurora_ink","bauhaus","monochrome"]:
 		game.view.set_visual_style(style);festive.build(game.view)
 		var dressed: int=festive.root.get_children().filter(func(node):return node.has_meta("festive_building")).size()
+		var festive_types: Array=festive.root.get_children().map(func(node):return node.get_meta("festive_kind",""))
+		check(["gingerbread_lodge","gift_workshop","market_stall"].all(func(kind):return kind in festive_types),style+" actually places the three purchased Christmas buildings")
 		check(dressed==game.model.buildings.size(),style+" dresses every actual resort building")
 		check(game.view.asset_root.get_children()==original_nodes,style+" preserves building, lift and vehicle nodes")
 		check(game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]==terrain_vertices,style+" preserves terrain geometry")
@@ -55,6 +57,7 @@ func run() -> void:
 	festive.qa_date_override={"year":2026,"month":12,"day":31,"hour":23,"minute":59,"second":56}
 	festive.build(game.view)
 	await capture("assets-032-new-year-bauhaus")
+	check(festive.root.get_children().any(func(node):return node.get_meta("festive_kind","")=="winter_stage"),"Purchased stage is actually present at New Year")
 	check(not festive.firework_nodes.is_empty(),"New Year fireworks still use the actual seasonal clock")
 	festive.qa_date_override={"year":2026,"month":11,"day":15};festive.build(game.view)
 	check(not festive.root.get_children().any(func(node):return node.has_meta("festive_building")),"November advertising does not prematurely enable December roof dressing")

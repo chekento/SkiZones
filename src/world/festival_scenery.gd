@@ -25,13 +25,15 @@ func hit_poster(at: Vector2) -> bool:
 		if at.distance_to(site)<17.0:return true
 	return false
 
-func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
+func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0,reserved: Array=[]) -> bool:
 	if not view.terrain.contains(at) or not Foot.free_of_buildings(at,view.model.buildings,clearance): return false
 	if not view.piste_clear(at,clearance): return false
 	for lift in view.model.lifts:
 		var a:=Terrain.unpack(lift.bottom)
 		var b:=Terrain.unpack(lift.top)
 		if Geometry2D.get_closest_point_to_segment(at,a,b).distance_to(at)<15.0: return false
+	for site in reserved:
+		if at.distance_to(site.point)<clearance+float(site.radius):return false
 	for path in view._pedestrian_snapshot.get("links",[]):
 		for index in range(1,path.points.size()):
 			var distance: float=Geometry2D.get_closest_point_to_segment(at,Terrain.unpack(path.points[index-1]),Terrain.unpack(path.points[index])).distance_to(at)
@@ -108,27 +110,30 @@ func build(view: Node3D) -> void:
 	var k:=0
 	for kind in owned:
 		if not extra.has(kind): continue
-		schedule.append({"kind":extra[kind],"angle":(float(k)+0.4)*TAU/6.0,"radius":91.0+float(k%2)*9.0})
+		schedule.append({"kind":extra[kind],"angle":(float(k)+0.4)*TAU/maxf(6.0,float(owned.size())),"radius":91.0+float(k%2)*9.0})
 		k+=1
 	var meshes: Dictionary={}
+	var seasonal_sites: Array=[]
 	for item in schedule:
 		var kind: String=item.kind
 		# The countdown board is meaningful only at the year change.
 		if kind in ["clock","winter_stage"] and stage not in ["new_year_eve","new_year"]: continue
 		var center: Vector2=Terrain.BASE+Vector2.from_angle(float(item.angle))*float(item.radius)
 		var clearance:=15.0 if kind in FestiveBuildings.KINDS else 9.0
-		if not _valid_place(view,center,clearance):
+		if not _valid_place(view,center,clearance,seasonal_sites):
 			var found:=false
 			for attempt in range(32):
 				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(float(item.angle)+attempt*.23)*(float(item.radius)+20+float(attempt%6)*16)
-				if _valid_place(view,candidate,clearance):center=candidate;found=true;break
+				if _valid_place(view,candidate,clearance,seasonal_sites):center=candidate;found=true;break
 			if not found:continue
+		seasonal_sites.append({"point":center,"radius":clearance})
 		if not meshes.has(kind):
 			var mesh: ArrayMesh=FestivalArt.make(kind,view.visual_style)
 			mesh.surface_set_material(0,view._solid)
 			meshes[kind]=mesh
 		var node:=MeshInstance3D.new()
 		node.mesh=meshes[kind]
+		node.set_meta("festive_kind",kind)
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.position=view.terrain.world(center,0.4)
 		node.rotation.y=float(item.angle)
@@ -187,3 +192,10 @@ func _decorate_buildings(view: Node3D,stage: String) -> void:
 		node.rotation.y=int(building.get("rotation",0))*PI*.5
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(node)
+	if view.crew_life.lodge_point.is_finite():
+		var staff_dressing:=MeshInstance3D.new()
+		staff_dressing.mesh=FestiveBuildings.dressing("hotel",1,view.visual_style,stage)
+		staff_dressing.material_override=view._ink_material if view.visual_style=="monochrome" else view._solid
+		staff_dressing.position=view.terrain.world(view.crew_life.lodge_point)
+		staff_dressing.set_meta("festive_staff_lodge",true)
+		root.add_child(staff_dressing)
