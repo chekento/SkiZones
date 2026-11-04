@@ -139,6 +139,7 @@ func _rebuild() -> void:
 	heading.text = L.asset_name(building)
 	if str(building.kind)=="town_hall":
 		_town_hall(building)
+		_activity(building)
 		return
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
