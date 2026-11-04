@@ -1136,7 +1136,8 @@
         "duration_seconds": 88.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "vaporwave-die-hard-battle",
@@ -1157,7 +1158,8 @@
         "duration_seconds": 66.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "chiptune-hardcore-chiptune-theme",
@@ -1178,7 +1180,8 @@
         "duration_seconds": 106.9,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "chiptune-lo-fi-chiptune-glitch-d-n-b",
@@ -1220,7 +1223,8 @@
         "duration_seconds": 120,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "house-omw-to-beat-the-big-bad",
@@ -1262,7 +1266,8 @@
         "duration_seconds": 80,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-cyber-runner",
@@ -1453,7 +1458,8 @@
         "duration_seconds": 115.8,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-natures-beauty",
@@ -1474,7 +1480,8 @@
         "duration_seconds": 98.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-opl2-buxtehude-buxwv185-2",
@@ -1558,7 +1565,8 @@
         "duration_seconds": 110.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "focus-game-travel-1-piano",
@@ -1749,7 +1757,8 @@
         "duration_seconds": 76.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "sleep-sparkling-cosmic-dust",
@@ -1791,7 +1800,8 @@
         "duration_seconds": 100.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "sleep-persistence",
@@ -1812,7 +1822,8 @@
         "duration_seconds": 127.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "sleep-station-drone-2",
@@ -1854,7 +1865,8 @@
         "duration_seconds": 123.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "relax-calm-ambient-1-synthwave-4k",
@@ -1896,7 +1908,8 @@
         "duration_seconds": 96.1,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "ambient-ambient-soundscape",
@@ -2047,7 +2060,8 @@
           "bytes": 604685
         },
         "mountain_moment": "Ankommen · Hüttenzauber",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-cozy-puzzle-in-game-3",
@@ -2068,7 +2082,8 @@
         "duration_seconds": 124.4,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gondelauffahrt · Vorfreude",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-aerobics-synth-wave",
@@ -2089,7 +2104,8 @@
         "duration_seconds": 134.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Aufwärmen · Pistenstart",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "tech-rave",
@@ -2108,7 +2124,8 @@
           "bytes": 1440956
         },
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "house-looping-beats",
@@ -2129,7 +2146,8 @@
         "duration_seconds": 120,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Flow · Schwünge",
-        "sport_fit": "snowboard"
+        "sport_fit": "snowboard",
+        "playlist_reuse": true
       },
       {
         "id": "lofi-hip-hop",
@@ -2148,7 +2166,8 @@
           "bytes": 1430666
         },
         "mountain_moment": "Snowpark · Flow",
-        "sport_fit": "snowboard"
+        "sport_fit": "snowboard",
+        "playlist_reuse": true
       },
       {
         "id": "lofi-01-holiznacc0-poor-but-happy",
@@ -2169,7 +2188,8 @@
         "duration_seconds": 128,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Powder · Freeride",
-        "sport_fit": "snowboard"
+        "sport_fit": "snowboard",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-gypselectric-guitar",
@@ -2190,7 +2210,8 @@
         "duration_seconds": 106.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Kicker · Gitarrenenergie",
-        "sport_fit": "snowboard"
+        "sport_fit": "snowboard",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-boss-fight-2",
@@ -2211,7 +2232,8 @@
         "duration_seconds": 88.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Sportliche Abfahrt · Adrenalin",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "classical-faraway",
@@ -2232,7 +2254,8 @@
         "duration_seconds": 115.8,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama · Freiheit",
-        "sport_fit": "ski"
+        "sport_fit": "ski",
+        "playlist_reuse": true
       },
       {
         "id": "ice-shine-bells",
@@ -2251,7 +2274,8 @@
           "bytes": 1619836
         },
         "mountain_moment": "Schneefall · Durchatmen",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "heavenly-loop",
@@ -2270,7 +2294,8 @@
           "bytes": 1224922
         },
         "mountain_moment": "Alpenglühen · Sonnenuntergang",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-cyber-runner",
