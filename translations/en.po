@@ -7262,3 +7262,6 @@ msgstr "Release target: %s · %s"
 
 msgid "Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-Resort-Design."
 msgstr "Next: stable Android APK and safe saves, fewer recurring storms, quiet nighttime fast-forward, real touch minigames, reliable scenarios and a mature alpine resort design."
+
+msgid "Ausführlichen Zwei-Monats-Plan auf GitHub öffnen"
+msgstr "Open the full two-month plan on GitHub"
