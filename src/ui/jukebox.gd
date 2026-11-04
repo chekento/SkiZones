@@ -115,6 +115,7 @@ func _preview() -> void:
 	if not visible or hud==null or hud.game==null:return
 	hud.game.audio.set_preview({"genre":str(Design.GENRES[genre_choice.selected]),"enabled":enabled.button_pressed,"master":master_slider.value,"music":music_slider.value,"ambient":ambience_slider.value})
 	_update_now_playing()
+	_update_credits()
 
 func _process(delta: float) -> void:
 	if not visible:
@@ -136,12 +137,14 @@ func _update_now_playing() -> void:
 
 func _toggle_credits() -> void:
 	credits_label.visible = not credits_label.visible
+	if credits_label.visible:
+		_update_credits()
+
+func _update_credits() -> void:
 	if not credits_label.visible or hud == null or hud.game == null:
 		return
+	var station: String = str(Design.GENRES[genre_choice.selected])
 	var records := PackedStringArray()
-	for station in Design.GENRES:
-		if station == "off":
-			continue
-		for song in hud.game.audio.track_credits(station):
-			records.append(str(song.get("title","")) + " · " + str(song.get("artist","")) + "\n" + str(song.get("source_url","")))
+	for song in hud.game.audio.track_credits(station):
+		records.append(str(song.get("title","")) + " · " + str(song.get("artist","")) + "\n" + str(song.get("source_url","")))
 	credits_label.text = "\n\n".join(records)
