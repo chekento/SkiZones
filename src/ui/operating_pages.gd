@@ -105,9 +105,9 @@ static func add(office: Control) -> void:
 		# The full employee dossier survives reload; old pre-roster employees
 		# receive neutral default descriptors without changing their save.
 		var workplace: String=L.text("Reserve / Pausenvertretung")
-		for location in targets:
-			if location.key==person.assignment:
-				workplace=str(location.name)
+		for place_option in targets:
+			if place_option.key==person.assignment:
+				workplace=str(place_option.name)
 				break
 		var specialty: String=str(person.get("specialty",L.text("Grundbetrieb & Teamroutine")))
 		var experience: int=int(person.get("experience",maxi(1,int(person.worked)/600)))
