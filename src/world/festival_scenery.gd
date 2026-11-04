@@ -197,3 +197,11 @@ func _decorate_buildings(view: Node3D,stage: String) -> void:
 		node.rotation.y=int(building.get("rotation",0))*PI*.5
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(node)
+
+	if view.crew_life.lodge_point.is_finite():
+		var staff_dressing:=MeshInstance3D.new()
+		staff_dressing.mesh=FestiveBuildings.dressing("hotel",1,view.visual_style,stage)
+		staff_dressing.material_override=view._ink_material if view.visual_style=="monochrome" else view._solid
+		staff_dressing.position=view.terrain.world(view.crew_life.lodge_point)
+		staff_dressing.set_meta("festive_staff_lodge",true)
+		root.add_child(staff_dressing)
