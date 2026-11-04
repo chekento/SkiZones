@@ -64,6 +64,8 @@ static func landscape_points(model: RefCounted) -> Array:
 			samples.append({"point":at,"height":terrain.height(at),"x":x,"y":y})
 	var peaks: Array=[]
 	for sample in samples:
+		# A rising map boundary is not a summit.
+		if sample.x in [0,count-1] or sample.y in [0,count-1]: continue
 		var highest := true
 		for offset in [Vector2i(-1,0),Vector2i(1,0),Vector2i(0,-1),Vector2i(0,1)]:
 			var nx: int=sample.x+offset.x
@@ -91,6 +93,21 @@ static func landscape_points(model: RefCounted) -> Array:
 			step_size*=0.5
 		selected.append({"point":at,"height":terrain.height(at)})
 	return selected
+
+static func summit_yaw(model: RefCounted, point: Vector2, radius: float) -> float:
+	# Film from the open downhill side instead of putting a higher slope
+	# between the lens and its subject.
+	var best_yaw := 0.0
+	var lowest := INF
+	for index in range(16):
+		var angle: float=TAU*index/16.0
+		var at: Vector2=point+Vector2(sin(angle),cos(angle))*radius
+		if not model.terrain.contains(at): continue
+		var height: float=model.terrain.height(at)
+		if height<lowest:
+			lowest=height
+			best_yaw=angle
+	return best_yaw
 
 static func crowd_points(model: RefCounted, view: Node3D) -> Array:
 	if view==null: return []
@@ -130,7 +147,7 @@ static func build_hotspots(model: RefCounted, view: Node3D = null, weight: float
 	var peaks: Array=landscape_points(model)
 	for i in range(peaks.size()):
 		var peak: Dictionary=peaks[i]
-		result.append(_shot(peak.point,L.text("Gipfel · %.0f m") % float(peak.height),"peak",115.0+float(i)*28.0,24.0+float(i)*9.0,-1.1+float(i)*1.7,PEAK_HOLD_SECONDS))
+		result.append(_shot(peak.point,L.text("Gipfel · %.0f m") % float(peak.height),"peak",280.0+float(i)*40.0,22.0+float(i)*5.0,summit_yaw(model,peak.point,300.0),PEAK_HOLD_SECONDS))
 		if i==0:
 			result.append(_shot(peak.point,L.text("Hügel und Hangrelief"),"hill",420,57,1.6,4.5))
 	result.append_array(crowd_points(model,view))
@@ -246,9 +263,15 @@ func step(view: Node3D, delta: float) -> void:
 	view.zoom=float(pose.zoom)
 	view.camera.fov=float(pose.fov)
 	view._update_camera()
-	var camera_point := Vector2(view.camera.position.x,view.camera.position.z)
-	if view.terrain.contains(camera_point):
-		var minimum: float=view.terrain.height(camera_point)+12.0
-		if view.camera.position.y<minimum:
-			view.camera.position.y=minimum
-			view.camera.look_at(view.terrain.world(view.focus,clampf(view.zoom*0.06,3,38)),Vector3.UP)
+	var target: Vector3=view.terrain.world(view.focus,clampf(view.zoom*0.06,3,38))
+	var origin: Vector3=view.camera.position
+	var lift_camera := 0.0
+	for index in range(1,13):
+		var t: float=float(index)/12.0
+		var sample: Vector3=target.lerp(origin,t)
+		var at:=Vector2(sample.x,sample.z)
+		if view.terrain.contains(at):
+			lift_camera=maxf(lift_camera,(view.terrain.height(at)+5.0-sample.y)/t)
+	if lift_camera>0:
+		view.camera.position.y+=lift_camera
+		view.camera.look_at(target,Vector3.UP)

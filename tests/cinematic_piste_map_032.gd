@@ -68,7 +68,8 @@ func run() -> void:
 		game.view.tour.elapsed=peak_clock+float(peak.travel)+0.8
 		game.view.tour.step(game.view,0)
 		var point:=Vector2(game.view.camera.position.x,game.view.camera.position.z)
-		check(not game.view.terrain.contains(point) or game.view.camera.position.y>=game.view.terrain.height(point)+11.9,"Summit camera stays above actual terrain")
+		check(not game.view.terrain.contains(point) or game.view.camera.position.y>=game.view.terrain.height(point)+4.9,"Summit camera stays above actual terrain")
+		game.hud.refresh()
 		await capture("cinematic-032-summit")
 	game.stop_cinematic_tour()
 	check(game.view.focus==pose.focus and is_equal_approx(game.view.zoom,pose.zoom) and is_equal_approx(game.view.yaw,pose.yaw) and is_equal_approx(game.view.pitch_degrees,pose.pitch) and is_equal_approx(game.view.camera.fov,pose.fov) and game.view.camera_mode==pose.mode,"Leaving the tour restores every camera setting")
@@ -94,7 +95,8 @@ func run() -> void:
 		var world_before: Vector2=plan.world_at(anchor)
 		plan.zoom_by(1.3,anchor)
 		check(plan.world_at(anchor).distance_to(world_before)<0.01,"Zoom preserves location under pointer")
-		plan.reset_plan()
+		plan.frame_resort()
+		check(plan.map_zoom>1,"Initial map frames the developed resort")
 		for style in ["piste_map","neon_noir","bauhaus"]:
 			game.view.visual_style=style
 			plan.queue_redraw()

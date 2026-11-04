@@ -574,7 +574,7 @@ func _build_tools() -> void:
 	overview.game = game
 	box.add_child(overview)
 	overview.expand_requested.connect(show_piste_map)
-	_label(box, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED)
+	_label(box, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED, true)
 	var navigation := HBoxContainer.new()
 	box.add_child(navigation)
 	_button(navigation, L.text("Übersicht"), func(): game.view.overview()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -832,6 +832,8 @@ func _build_piste_map_window() -> void:
 	stack.add_child(bar)
 	var title: Label=_label(bar,L.text("Interaktiver Pistenplan"),19,INK,true)
 	title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var overview_button: Button=_button(bar,"◎",func(): piste_map_full.reset_plan())
+	overview_button.tooltip_text=L.text("Übersicht")
 	_button(bar,"−",func(): piste_map_full.zoom_by(1.0/1.3))
 	_button(bar,"+",func(): piste_map_full.zoom_by(1.3))
 	_button(bar,L.text("Zurück"),func(): piste_map_window.hide())
@@ -851,14 +853,16 @@ func show_piste_map() -> void:
 		toast(L.text("Zuerst die laufende Planung abschließen oder abbrechen."))
 		return
 	game.stop_cinematic_tour()
+	achievement_overlay.hide()
 	game._clear_input()
-	piste_map_full.reset_plan()
+	piste_map_full.frame_resort()
 	piste_map_window.show()
 	piste_map_full.queue_redraw()
 
 func set_cinema_mode(on: bool) -> void:
 	cinema_mode=on
 	if on:
+		achievement_overlay.hide()
 		jukebox.close()
 		cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % game.model.day
 	cinema_overlay.visible=on
@@ -1311,8 +1315,9 @@ func refresh() -> void:
 	var model: RefCounted = game.model
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	# Styling is synced before displaying queued achievements.
+	achievement_overlay.visible=not cinema_mode and not piste_map_window.visible
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
-	if game.has_game and not menu.visible and not model.recent_unlocks.is_empty():
+	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
 	labels.money.text = money_text(model.money) + " €"

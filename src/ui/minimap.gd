@@ -24,6 +24,7 @@ var _press := Vector2.ZERO
 var _down := false
 var _dragged := false
 var _alerts: Array=[]
+var _summits: Array=[]
 var _expand_button := Button.new()
 
 func _ready() -> void:
@@ -97,29 +98,57 @@ func reset_plan() -> void:
 	map_center=Vector2(0.5,0.5)
 	queue_redraw()
 
+func frame_resort() -> void:
+	reset_plan()
+	if game==null: return
+	var points: Array=[]
+	for lift in game.model.lifts:
+		points.append(Terrain.unpack(lift.bottom))
+		points.append(Terrain.unpack(lift.top))
+	for piste in game.model.pistes:
+		for point in piste.points: points.append(Terrain.unpack(point))
+	for building in game.model.buildings: points.append(Terrain.unpack(building.point))
+	if points.is_empty(): return
+	var lo: Vector2=points[0]
+	var hi: Vector2=points[0]
+	for point in points:
+		lo=lo.min(point)
+		hi=hi.max(point)
+	var bounds: Rect2=_terrain().bounds
+	var extent: Vector2=(hi-lo+Vector2(140,140)).max(Vector2(350,350))
+	map_zoom=clampf(0.78/maxf(extent.x/bounds.size.x,extent.y/bounds.size.y),1,5)
+	map_center=((lo+hi)*0.5-bounds.position)/bounds.size
+	var edge:=Vector2.ONE*(0.5/map_zoom)
+	map_center=map_center.clamp(edge,Vector2.ONE-edge)
+	queue_redraw()
+
 func _natural(at: Vector2) -> float:
 	var terrain: RefCounted=_terrain()
 	return terrain.natural_height(at) if terrain.has_method("natural_height") else terrain.height(at)
 
 func _prepare_background(style: String) -> void:
 	var terrain: RefCounted=_terrain()
-	var key := "%s/%d/%s" % [map_id,terrain.generation,style]
+	var resolution:=Vector2i(384,288) if expanded else Vector2i(160,120)
+	var key := "%s/%d/%s/%s" % [map_id,terrain.generation,style,str(resolution)]
 	if _seen==key: return
 	_seen=key
+	_summits=Director.landscape_points(game.model) if game!=null else []
 	if not _images.has(key):
-		var pixels := Image.create(192,144,false,Image.FORMAT_RGB8)
+		var pixels := Image.create(resolution.x,resolution.y,false,Image.FORMAT_RGB8)
 		var palette: Dictionary=Styles.palette(style)
 		var light := Vector3(-0.55,0.85,0.2).normalized()
-		for y in range(144):
-			for x in range(192):
-				var at: Vector2=terrain.bounds.position+terrain.bounds.size*Vector2(x/191.0,y/143.0)
+		for y in range(resolution.y):
+			for x in range(resolution.x):
+				var at: Vector2=terrain.bounds.position+terrain.bounds.size*Vector2(float(x)/(resolution.x-1),float(y)/(resolution.y-1))
 				var h: float=_natural(at)
 				var dx: float=_natural(at+Vector2(12,0))-_natural(at-Vector2(12,0))
 				var dz: float=_natural(at+Vector2(0,12))-_natural(at-Vector2(0,12))
 				var normal := Vector3(-dx/24.0,1,-dz/24.0).normalized()
 				var color: Color=Color(palette.foliage).lerp(Color(palette.snow),clampf(h/900.0+0.18,0.18,0.95))
 				color*=0.72+maxf(0,normal.dot(light))*0.40
-				if fposmod(h,80.0)<3.0: color=color.darkened(0.13)
+				var contour_distance: float=minf(fposmod(h,80.0),80.0-fposmod(h,80.0))
+				var contour_width: float=maxf(1.3,Vector2(dx,dz).length()/24.0*terrain.bounds.size.length()/resolution.x*0.22)
+				if contour_distance<contour_width: color=color.darkened(0.16)
 				pixels.set_pixel(x,y,color)
 		if _images.size()>=12: _images.erase(_images.keys()[0])
 		_images[key]=ImageTexture.create_from_image(pixels)
@@ -182,6 +211,12 @@ func _draw() -> void:
 	draw_texture_rect(_background,image_rect,false)
 	var width := 4.0 if expanded else 2.0
 	var colors := [Color("1676c2"),Color("cb3946"),Color("242a34")]
+	if expanded:
+		for summit in _summits:
+			var at: Vector2=_point(summit.point)
+			if not rect.grow(-25).has_point(at): continue
+			draw_colored_polygon(PackedVector2Array([at+Vector2(0,-8),at+Vector2(-6,3),at+Vector2(6,3)]),ink)
+			_text_fit(L.text("Gipfel · %.0f m") % float(summit.height),at+Vector2(10,3),145,12,ink)
 	if game!=null:
 		_route(game.model.portal_path,Color("bb955c"),width*0.7)
 		var drawn_labels := 0
