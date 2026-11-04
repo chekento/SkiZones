@@ -1,7 +1,7 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride"]
+const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
 	"alpine":"AlpenWelle FM · Hüttenmorgen",
@@ -10,8 +10,13 @@ const GENRE_NAMES := {
 	"punk":"PistenPunk · Kantenwind",
 	"classical":"Alpine Classic · Schneelicht",
 	"meditative":"Mountain Chill · Wolkenmeer",
-	"freeride":"Gipfelrausch FM · Ski & Snowboard"
+	"freeride":"Gipfelrausch FM · Ski & Snowboard",
+	"space":"ERG0SPHERE · Deep Space Trance",
+	"apres":"Alpenglühen FM · Après-Ski",
+	"glacier":"Glacier Dreams · Polar Ambient"
 }
+## Personal soundtrack is linked, not streamed silently or bundled without masters.
+const SPACE_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/erg0sphere-journey"
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {
 	"wilderness":"Freier Berg", "piste":"Piste", "lift":"Lift", "village":"Dorf",
