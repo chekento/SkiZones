@@ -2,6 +2,7 @@ extends SceneTree
 ## Real phone-sized building navigation and screen-touch input, not direct
 ## signal emission. Playing never changes the resort's economy or save.
 const L = preload("res://src/core/i18n.gd")
+const Board = preload("res://src/ui/tic_tac_toe_board.gd")
 var passed := 0
 var failed := 0
 var game: Node
@@ -59,6 +60,21 @@ func run() -> void:
 			await settle()
 			var buttons: Array = experience.find_children("square_*", "Button", true, false)
 			check(buttons.size() == 9, "%s %s: lodge unlocks a genuine nine-square game" % [language, str(dims)])
+			var surface := experience.find_child("ArcadeSurface", true, false) as PanelContainer
+			var title := experience.find_child("ArcadeTitle", true, false) as Label
+			var instructions := experience.find_child("ArcadeInstructions", true, false) as Label
+			var score := experience.find_child("ArcadeScore", true, false) as Label
+			check(surface != null and title != null and instructions != null and score != null,
+				"%s %s: arcade presents a complete themed text surface" % [language, str(dims)])
+			if surface != null and title != null and instructions != null and score != null:
+				var backdrop := surface.get_theme_stylebox("panel") as StyleBoxFlat
+				if backdrop != null:
+					for label in [title,instructions,score]:
+						check(Board.contrast_ratio(label.get_theme_color("font_color"), backdrop.bg_color) >= 4.5,
+							"%s %s: %s is legible above its real backdrop" % [language,str(dims),label.name])
+					check(surface.get_global_rect().grow(1).encloses(title.get_global_rect())
+						and surface.get_global_rect().grow(1).encloses(instructions.get_global_rect()),
+						"%s %s: title and instructions stay inside the painted panel" % [language,str(dims)])
 			check(inside(experience.window.close_button), "%s %s: close action stays on screen" % [language, str(dims)])
 			if buttons.size() == 9:
 				var page: ScrollContainer = experience.tabs.get_current_tab_control()
