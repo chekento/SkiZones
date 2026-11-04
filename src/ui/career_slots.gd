@@ -10,6 +10,8 @@ var confirmation:=ConfirmationDialog.new()
 var pending_slot:=1
 var starting_tier:=OptionButton.new()
 var tier_details:=Label.new()
+var heading_label: Label
+var close_button: Button
 func setup(interface: CanvasLayer) -> void:
 	hud=interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -17,8 +19,11 @@ func setup(interface: CanvasLayer) -> void:
 	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),18,22))
 	var body: VBoxContainer=hud._vbox(self,12)
 	var row:=HBoxContainer.new();body.add_child(row)
-	hud._label(row,L.text("DEINE VIER KARRIEREN"),26,hud.ACCENT)
-	hud._spacer(row,false);hud._button(row,L.text("Zurück"),hide)
+	heading_label=hud._label(row,L.text("DEINE VIER KARRIEREN"),26,hud.ACCENT)
+	heading_label.clip_text=true
+	heading_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+	heading_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	close_button=hud._button(row,L.text("Zurück"),hide)
 	hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
 	var tier_box:=PanelContainer.new();tier_box.add_theme_stylebox_override("panel",hud._style(Color("e1eeea"),12,12));body.add_child(tier_box)
 	var controls: VBoxContainer=hud._vbox(tier_box,5)
@@ -87,3 +92,9 @@ func _fit() -> void:
 	offset_right = -10 if narrow else -48
 	offset_top = 76 if w < 650.0 else 110
 	offset_bottom = -10 if narrow else -28
+	if is_instance_valid(heading_label):
+		heading_label.add_theme_font_size_override("font_size",18 if w<650 else 22 if narrow else 26)
+	if is_instance_valid(close_button):
+		close_button.text="✕" if w<650 else L.text("Zurück")
+		close_button.tooltip_text=L.text("Zurück")
+		close_button.custom_minimum_size.x=48 if w<650 else 0
