@@ -51,6 +51,7 @@ func run() -> void:
 	model.new_game(true,20261027,"sonnenhang",true)
 	check(model.building_count("town_hall")==1,"New starter resort contains exactly one complimentary Rathaus")
 	var original: Dictionary=model.snapshot()
+	check(not model.build_access_message("town_hall",false).is_empty() and not model.build_building("town_hall",Vector2(300,300)).ok and model.snapshot()==original,"A free civic landmark cannot be duplicated to farm shift rewards")
 	check(TownHall.ensure_new_town(model) and model.snapshot()==original,"Reopening City Hall never creates duplicate buildings or modifies careers")
 	var newspaper: Dictionary=Newspaper.statistics(model)
 	check(newspaper.issue==model.day and newspaper.district!="" and newspaper.sold==Newspaper.sold(model),"Newspaper reports only the live resort's real metrics")

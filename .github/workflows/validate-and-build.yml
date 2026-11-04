@@ -151,6 +151,22 @@ jobs:
           print(result.stdout)
           sys.exit(1 if result.returncode or 'SCRIPT ERROR' in result.stdout or '\nERROR:' in result.stdout else 0)
           PYCODE
+      - name: Install virtual display for rendered tests
+        timeout-minutes: 10
+        run: |
+          # Bound transient apt/network stalls instead of consuming the entire Android job.
+          sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+          sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
+      - name: Scene, touch and rendered animation tests
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
+      - name: Rendered remodeling, profiles and bounded visual updates
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
+      - name: Eight landscapes, village promenade and real entrance controls
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
+      - name: Newspaper adverts and poster touch, pause and Android Back integration
+        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
+      - name: Five art directions, terrain geometry stability and persistent display settings
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
       - name: Current radio, hotel context, sector operations and editorial release gates
         run: |
           python3 tools/check_localization.py
@@ -245,20 +261,12 @@ jobs:
           python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/pacing_and_nights.gd
           python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/individual_parties.gd
           python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --headless --script tests/resort_access.gd
-      - name: Install virtual display for rendered tests
-        timeout-minutes: 10
-        run: |
-          # Bound transient apt/network stalls instead of consuming the entire Android job.
-          sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
-          sudo apt-get install -y -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 xvfb libgl1-mesa-dri
       - name: Direct asset operations, lift docking and warm village services
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-version018
         run: |
           python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/version018.gd
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
-      - name: Scene, touch and rendered animation tests
-        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Camera, terrain and editable waypoint tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/planning_scene.gd
       - name: Rendered landscape, wildlife and floating construction windows
@@ -267,14 +275,10 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/integration_quality_026.gd
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
-      - name: Newspaper adverts and poster touch, pause and Android Back integration
-        run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/editorial_scene_031.gd
       - name: Rendered lift occupants and station plazas
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Build cancellation, two-finger camera and pen/finger scrolling
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/build_input_scene.gd
-      - name: Rendered remodeling, profiles and bounded visual updates
-        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/customization_scene.gd
       - name: Scrollable day report at phone and tablet sizes
         run: xvfb-run -a -s '-screen 0 1536x864x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x710 --script tests/day_report_scene.gd
       - name: Real path editor and rendered hiking on Sonnenhang
@@ -291,12 +295,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_surfaces_scene.gd
       - name: Phone insets, individual point dragging and joined piste rendering
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/piste_editor_scene.gd
-      - name: Eight landscapes, village promenade and real entrance controls
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/resort_worlds_scene.gd
       - name: Main-mode menu, blocked scenarios and career continuity
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/main_mode_scene.gd
-      - name: Five art directions, terrain geometry stability and persistent display settings
-        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/visual_styles_scene.gd
       - name: Curved 0.22 achievement and mastery rank animation
         run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/achievement_scene.gd
       - name: Visible families, individual profiles and bilingual audience controls

@@ -6737,3 +6737,6 @@ msgstr "Municipal Budget"
 msgid "Sitzungsprotokoll"
 msgstr "Meeting Minutes"
 
+
+msgid "Dieser Ort hat bereits ein Rathaus."
+msgstr "This town already has a Town Hall."
