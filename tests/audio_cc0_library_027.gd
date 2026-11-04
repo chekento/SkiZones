@@ -22,7 +22,7 @@ func run() -> void:
 	radio._load_cc0_library()
 	var total := 0
 	var seen: Dictionary = {}
-	var expected := {"alpine":16,"techno":16,"hiphop":16,"punk":16,"classical":16,"meditative":16,"freeride":16,"space":15,"apres":12,"glacier":12,"erg0sphere":0,"folk_alpine":7,"folk_swedish":7}
+	var expected := {"alpine":16,"techno":16,"hiphop":16,"punk":16,"classical":16,"meditative":16,"freeride":16,"space":15,"apres":12,"glacier":12,"erg0sphere":0,"folk_alpine":7,"folk_swedish":7,"atmospherics":15,"mountain_sunrise":12,"lodge_lofi":12,"ska_album":0}
 	for station in Design.GENRES:
 		if station == "off":
 			continue
@@ -44,7 +44,9 @@ func run() -> void:
 	var title_a: String = radio.current_track_title
 	var second: AudioStream = radio._radio_stream("alpine", true)
 	check(second is AudioStreamOggVorbis and radio.current_track_title != title_a, "Advancing playlist selects another real song")
-	check(total == 165 and seen.size() == 72, "Twelve offline stations, 165 playlist positions, 72 verified underlying CC0 files")
+	check(total == 204 and seen.size() == 72, "Expanded offline library: 204 playlist positions and 72 unique CC0 files")
+	check(radio.station_track_count("hotel_lobby") == 16, "Hotel-only contextual radio is available as a separate 16-track station")
+	check(radio.station_track_count("ska_album") == 0, "Ska album remains external until original masters are supplied")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
