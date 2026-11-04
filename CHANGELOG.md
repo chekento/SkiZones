@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **30 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **31 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.27.0](https://github.com/chekento/SkiZones/releases/tag/v0.27.0)** | 04.11.2026 | Nahtlose Alpine-Radio-Klangwelt (erste Iteration) | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk) | [Details](docs/releases/0.27.0.md) |
 | **[v0.26.0](https://github.com/chekento/SkiZones/releases/tag/v0.26.0)** | 03.11.2026 | Alpine Radio, Crewleben und illustrierter Pistenatlas | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.26.0/SkiZones-0.26.0-android-arm64.apk) | [Details](docs/releases/0.26.0.md) |
 | **[v0.25.0](https://github.com/chekento/SkiZones/releases/tag/v0.25.0)** | 03.11.2026 | Lineare Hotelmodule und wiederkehrende Winterfeste | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.25.0/SkiZones-0.25.0-android-arm64.apk) | [Details](docs/releases/0.25.0.md) |
 | **[v0.24.0](https://github.com/chekento/SkiZones/releases/tag/v0.24.0)** | 03.11.2026 | Hotel-Mikrowelten und sechs neue Landschaftsdetails | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.24.0/SkiZones-0.24.0-android-arm64.apk) | [Details](docs/releases/0.24.0.md) |
@@ -40,6 +41,67 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.27.0 · Nahtlose Alpine-Radio-Klangwelt (erste Iteration) (04.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.27.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk)** (128.0 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.27.0/SkiZones-0.27.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.27.0/manifest.json) · [Originalnotizen](docs/releases/0.27.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.27.0)
+
+**Noch nicht veröffentlicht.** Dieser Entwicklungsstand baut auf 0.26.0 und der vorhandenen Offline-Jukebox auf; er enthält sechs neu komponierte, offline gerenderte Instrumental-Loops und noch keine professionell produzierten Songs.
+
+### Dringender Audio-Hotfix (04.11.2026)
+- **Schrilles FX-Fiepen abgeschaltet:** Die drei bisherigen synthetischen Umgebungsschleifen (Wind, Stimmenmenge, Lift-/Maschinengeräusche) werden nicht mehr gestartet und bleiben selbst bei maximaler Ambient-Lautstärke vollständig stumm.
+- **Radiosender laufen weiter:** CC0-OGG-Musiktitel, Offline-WAV-Titel und Musik-Crossfades sind davon unabhängig und bleiben aktiv.
+- **Kein synthetisches Fallback:** Wenn der gemischte Freeride-Sender keinen CC0-Titel laden kann, wird ein bereits vorhandenes richtiges Musikstück abgespielt, kein improvisierter Sinuston.
+- **Temporär:** Der Umgebungsregler bleibt als gespeicherte Benutzereinstellung vorhanden, hat bis zu einem späteren Ersatz der FX-Sounds jedoch keine akustische Wirkung.
+- **Regressionstest:** Prüft stumme FX beim Spielstart und bei 100 % Umgebungslautstärke sowie weiterhin spielende Musik.
+
+### In 0.27.0 implementierte Änderungen
+- **Sechs Original-Musikloops:** Alpine-Folk, Berg-Techno, Snowpark-Hip-Hop, Punk, Winter-Klassik und Berg-Ambient erhalten eigene acht-taktige Arrangements mit abgestimmten Akkordfolgen, Melodien, Bass, Drums und individuellen Tempi. Im Repository unter `assets/music/` als WAV-PCM (mono, 22.050 Hz / 16 Bit) gespeichert; kein synthetischer 8-Sekunden-Einheitsloop mehr. Alle sechs Titel sind eigenständig komponierte elektronische Instrumentals, keine Aufnahmen echter Instrumente oder von Dritten lizenzierte Werke.
+- **Weiche Soundkulissen:** Wind, tatsächliche NPC-Mengen und aktive Lift-/Werkstatttechnik folgen dem Kamerafokus. Kontinuierliche Übergänge ohne harte Lautstärkesprünge; bestehende Hotel- und Besuchslogik bleibt erhalten.
+- **Musik ohne abrupten Genrewechsel:** Beim Wechsel zwischen zwei aktiven Genres bleiben zwei AudioPlayer kurz parallel aktiv. Die vorige Melodie blendet aus, die neue ein. „Musik aus“ stoppt sofort.
+- **Vorhören in der Jukebox:** Die gemeinsame 0.26-Jukebox bietet weiterhin temporäre Genres, Master-Lautstärke und Stummschaltung. Abbrechen stellt alle gespeicherten Einstellungen wieder her; Speichern übernimmt sie dauerhaft.
+- **Separate Lautstärkepegel:** Master-Lautstärke, Musik-, Umgebungsregler und Ein/Aus-Schalter bleiben unabhängig und werden beim Appwechsel vollständig pausiert.
+- **Deterministische Audiowerte:** Die neue `mix_step()`-Funktion begrenzt Übergänge auf 0 bis 100 Prozent, funktioniert unabhängig von Bildrate und toleriert fehlerhafte Zeitschritte.
+- **Lokal und rechtssicher:** Weiterhin ausschließlich eigens komponierte, offline gerenderte elektronische Instrumentals; keinerlei Suno-/SoundCloud-Streams oder versteckte Netzwerkverbindungen.
+- **Eigene Regressionstests:** Kreuzfades, opt-out-Stummschaltung, akustische Zonenprofile, Preview-Verhalten und Rückkehr zum gespeicherten Zustand.
+
+### Nicht umgesetzt
+Noch keine professionell aufgenommenen Songtitel, externe Radioplaylisten, Voice-Synthese, 3D-Raumakustik mit Abschattung, AudioFocus-Anpassungen oder vollständige DJ-/NPC-Musiksteuerung. Die gehören in folgende Unterversionen; siehe [Iterationsplan](docs/ITERATION_026_AUDIO_CREW_MAP.md) und Issue #25.
+
+### Releasefreigabe
+Die neue APK soll als `SkiZones-0.27.0-android-arm64.apk` und Android-VersionCode 34 veröffentlicht werden, **erst wenn** alle vorherigen Release-APKs bis 0.26.0 freigegeben sind, die eigene CI und die vollständige Android-Lebenszyklusprüfung bestanden sind sowie die Signatur mit der Vorgängerversion übereinstimmt.
+
+### New: genuine offline CC0 Alpine Radio music collection
+- 13 original third-party musical recordings/arrangements across six selectable playlists, sourced from individual CC0 source pages and pinned public GitHub copies. Original artist, license and source URL recorded for every track.
+- Audio files play as local Ogg Vorbis assets with the engine's existing 1.3-second crossfade; selected channels rotate songs instead of looping a single 8-bar synthesizer forever.
+- No streaming, Suno API, accounts, music network requests or recurring music fees. Original synthetic loops remain a safe fallback only.
+- Users can skip tracks and see the currently playing title and artist in the mobile Jukebox; background music level stays independent of spatial ambient sound.
+- Approx. 15.9 MB of sourced OGG material before APK compression. Do not release until all files are hash-verified, imported, and the Android/in-game listening tests pass.
+- Alpine station currently features CC0 folk/acoustic music broadly matching mountain-village ambience, not a claim of traditional Austrian recordings. PistenPunk currently has guitar/rock rather than authentic punk band recordings.
+- See `assets/music/cc0/RIGHTS.md` for per-song sourcing and `library.json` for machine-readable integrity details.
+
+### Free CC0 Radio extension: 72-song package
+
+The follow-up branch `feature/027-cc0-radio-72` expands all six stations to **12 music tracks each**: 72 in total, with full source URL, pinned upstream mirror, Git SHA-1 and file size in `assets/music/cc0/library.json`. All are offline Ogg Vorbis, so no subscriptions, generation credits, streaming bills or new app permissions. In-game artist and source links remain available from the Jukebox.
+
+- AlpineWelle FM: 12 acoustic / folk-like tracks
+- SnowBeat Radio: 12 techno / house / synthwave tracks
+- Powder Flow: 12 hip-hop / lofi tracks
+- PistenPunk: 12 guitar / action / rock-adjacent tracks (punk authenticity still under curation)
+- Alpine Classic: 12 orchestral, classical and piano tracks
+- Mountain Chill: 12 gentle ambient / meditative tracks
+
+Total source asset size is **86,816,601 bytes (about 86.8 MB)** before export container overhead. A separate smaller installation preset or downloadable optional pack may be preferable for some Android devices; those alternatives are not claimed as implemented. With 72 songs no generator or API fee is involved, but the APK becomes larger. Complete listening QA and Android build/signature checks remain release blockers.
+
+
+### Siebter Sender: Gipfelrausch FM – Ski und Snowboard
+
+- 7 statt 6 Sender, weiterhin 72 einzigartige CC0-Aufnahmen; Gipfelrausch FM mischt zwölf bereits enthaltene Stücke zu einem Bergtag zwischen Hütte, Gondel, Piste, Snowpark, Powder, Panorama und Winterruhe.
+- Jede Titelkarte enthält einen redaktionell vergebenen Bergmoment. Die Jukebox zeigt beim gerade gespielten Titel den passenden Kontext.
+- Es fallen weder neue Lizenzkosten noch zusätzliche Musikdateigrößen an. Die Stücke wurden nicht ursprünglich als speziell für den Skisport komponiert ausgewiesen; volle Hörkuratierung bleibt nötig.
+- Ergänzte Tests für den neuen Sender, Nutzerpräferenzen und den Fallback-Synthesizer.
+
+---
 
 ## v0.26.0 · Alpine Radio, Crewleben und illustrierter Pistenatlas (03.11.2026)
 
