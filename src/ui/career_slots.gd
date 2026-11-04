@@ -52,7 +52,7 @@ func setup(interface: CanvasLayer) -> void:
 	confirmation.confirmed.connect(func():hud.game.select_career_slot(pending_slot,true,starting_tier.selected))
 	hide()
 func open() -> void:
-	hud.game._clear_input();refresh();show()
+	hud.game._clear_input();_fit();refresh();show()
 func refresh() -> void:
 	for child in cards.get_children():cards.remove_child(child);child.queue_free()
 	for number in range(1,5):
@@ -85,7 +85,7 @@ func _update_tier_hint() -> void:
 
 func _fit() -> void:
 	if not is_inside_tree(): return
-	var w: float = get_viewport_rect().size.x
+	var w: float = minf(get_viewport_rect().size.x, get_tree().root.size.x)
 	var narrow: bool = w < 1050.0
 	cards.columns = 1 if narrow else 2
 	offset_left = 10 if narrow else 48
