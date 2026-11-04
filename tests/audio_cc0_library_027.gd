@@ -22,7 +22,7 @@ func run() -> void:
 	radio._load_cc0_library()
 	var total := 0
 	var seen: Dictionary = {}
-	var expected := {"alpine":16,"techno":17,"hiphop":16,"punk":16,"classical":16,"meditative":16,"freeride":17,"space":16,"apres":12,"glacier":12,"erg0sphere":0,"folk_alpine":7,"folk_swedish":7,"atmospherics":19,"mountain_sunrise":13,"lodge_lofi":12,"ska_album":0}
+	var expected := {"alpine":16,"techno":17,"hiphop":16,"punk":16,"classical":16,"meditative":16,"freeride":17,"space":16,"apres":12,"glacier":12,"erg0sphere":0,"folk_alpine":10,"folk_swedish":10,"atmospherics":19,"mountain_sunrise":13,"lodge_lofi":12,"ska_album":0}
 	for station in Design.GENRES:
 		if station == "off":
 			continue
