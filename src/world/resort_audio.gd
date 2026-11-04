@@ -311,7 +311,7 @@ func sync() -> void:
 		if layer=="machinery":target*=_machinery_gain
 		_targets[layer]=target
 	# User-selected radio is continuous background music; location only affects ambient SFX.
-	_targets.music=music if station!="off" else 0.0
+	_targets.music=music if station!="off" and not station in Design.EXTERNAL_STATIONS else 0.0
 	_mix(0.0)
 
 func _mix(delta: float) -> void:
