@@ -677,6 +677,9 @@ func confirm_plan() -> void:
 	_committing = true
 	var result: Dictionary
 	var edited := editing_id
+	# Auxiliary access paths may also allocate IDs (e.g. after a lift). The
+	# first new ID belongs to the actual structure the player confirmed.
+	var created_id: int = model.next_id
 	if editing_id != -1:
 		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width, false)
 	elif tool == "walkway":
@@ -701,10 +704,9 @@ func confirm_plan() -> void:
 		undone_points.clear()
 		selected_waypoint = -1
 		snap_target = {}
-		if edited != -1:
-			editing_id = -1
-			tool = "inspect"
-			hud.show_context("inspect", edited)
+		editing_id = -1
+		tool = "inspect"
+		hud.show_context("inspect", edited if edited != -1 else created_id)
 	hud.toast(result.message)
 	_update_plan()
 	hud.refresh()

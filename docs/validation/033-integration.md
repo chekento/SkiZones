@@ -37,3 +37,30 @@ and 0.27 career fixtures, all rendered/route/finance suites, signed APK export,
 Android API 30/36 lifecycle and in-place update preservation, and signature and
 download/manifest checks. Local test counts do not authorize a claim that these
 device or release gates already passed. No physical ARM64 device was tested.
+
+## Radio / completed-construction hotfix
+
+Two additional local suites verify the requested hotfix behavior:
+
+- `radio_live_033.gd`: **89 assertions passed**. Verifies all 76 measured audio
+  lengths against the bundled files, actual player seek into the current song,
+  matching station positions after receiver restart, progression while tuned
+  away, real programme boundaries, immediate mute, unmute/background rejoining,
+  per-station skip, explicit off even in hotel context, and full-cycle looping.
+- `radio_build_hotfix_scene_033.gd`: **19 assertions passed**. Exercises actual
+  jukebox control signals, immediate on-disk persistence without Apply, mute,
+  Back/Escape and reopening; real successful building and piste confirmations,
+  the selected completed asset, hidden construction bar, wrapping inspector
+  controls, duplicate-confirm protection and retention of rejected plans.
+
+The existing radio crossfade, hotel-context, library curation, newspaper-radio,
+combined integration and construction-input suites are also rerun. The existing
+radio UI assertions now require immediate persistence instead of the removed
+preview/Apply behavior. The scene fixture explicitly starts a new piste tool
+after finishing a piste, as the new user flow requires.
+
+The hypothetical broadcast uses device UTC time and a stable shuffled programme
+per station. It does not play inactive stations, contact a streaming service or
+change the resort clock/save. Manual Next adjusts only the selected receiver's
+station offset; other stations keep their phase. APK/device validation remains
+subject to the combined CI at the final candidate SHA.

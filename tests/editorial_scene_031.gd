@@ -51,9 +51,9 @@ func run() -> void:
 	await capture("editorial-newspaper-031")
 	var stored_genre: String=game.preferences.music_genre
 	game.hud.experience._open_radio_ad("techno")
-	check(not game.hud.experience.visible and game.hud.jukebox.visible and game.audio.current_genre=="techno" and game.preferences.music_genre==stored_genre,"Radio advert previews its exact station without persisting settings")
+	check(not game.hud.experience.visible and game.hud.jukebox.visible and game.audio.current_genre=="techno" and game.preferences.music_genre=="techno","Radio advert selects and immediately persists its exact station")
 	game.hud.jukebox.close()
-	check(game.preferences.music_genre==stored_genre,"Closing advertised preview restores saved radio")
+	check(game.preferences.music_genre=="techno","Closing the radio retains the selected station")
 	game.queue_free()
 	await process_frame
 	await process_frame

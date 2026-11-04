@@ -7161,6 +7161,9 @@ msgstr "A real board game against the computer. No stakes, cash rewards or time 
 msgid "Betriebstraining"
 msgstr "Operations training"
 
+msgid "Änderungen gelten sofort und werden automatisch gespeichert. Offline-Sender laufen nach Uhrzeit weiter; du steigst ins laufende Programm ein."
+msgstr "Changes apply immediately and are saved automatically. Offline stations keep running by the clock; you join the programme in progress."
+
 msgid "Morgeninteresse: %d · Ankünfte 08–10 Uhr nach freien Plätzen. Noch keine Gäste oder Einnahmen."
 msgstr "Morning interest: %d · Arrivals 08–10 subject to capacity. No guests or revenue yet."
 msgid "Die Chronik dokumentiert ausgewählte veröffentlichte Etappen. Der Bauplan ist eine Vorschau, kein Release-Nachweis; die neueste APK steht bei GitHub-Releases."

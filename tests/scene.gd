@@ -118,6 +118,7 @@ func run() -> void:
 	var rewards_before: float = game.model.report.rewards
 	game.confirm_plan()
 	check(game.model.pistes.size() == count + 1 and game.model.money - (game.model.report.rewards - rewards_before) < balance and game.points.is_empty(), "Build confirmation creates the piste and charges its displayed cost")
+	game.set_tool("piste")
 	game.points = [[-170, -235], [-160, -50], [-80, 90], [100, 190]]
 	game._update_plan()
 	check(not game.hud.confirm_button.disabled and game.last_plan_check.difficulty == 2 and game.hud.palette.route_profile.analysis.difficulty == 2, "The real HUD automatically changes a steep plan to black and updates the profile")
