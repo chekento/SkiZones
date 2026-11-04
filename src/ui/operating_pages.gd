@@ -150,7 +150,7 @@ static func add(office: Control) -> void:
 	for applicant in market.slice(office.candidate_page*6,(office.candidate_page+1)*6):
 		var detail: String=L.text(Ops.ROLES[applicant.role].name)+" · "+L.text("Qualifikation %d") % int(applicant.qualification)+" · "+L.text("%d Jahre Erfahrung") % int(applicant.experience)+" · "+L.text("Motivation %.0f %%") % float(applicant.motivation)
 		var profile: VBoxContainer=office._card(applicants,str(applicant.name),detail)
-		hud._label(profile,L.text("Stärke: ")+str(applicant.specialty)+" · "+hud.money_text(applicant.fee)+" € "+L.text("Einstellungskosten"),16,hud.TEAL,true)
+		hud._label(profile,L.text("Stärke: ")+L.text(str(applicant.specialty))+" · "+hud.money_text(applicant.fee)+" € "+L.text("Einstellungskosten"),16,hud.TEAL,true)
 		if applicant.available:
 			office._action(profile,L.text("Einstellen"),func():return Recruitment.hire_candidate(model,str(applicant.id),str(targets[applicant_target.selected].key),str(Ops.SHIFTS.keys()[applicant_shift.selected])))
 		else:

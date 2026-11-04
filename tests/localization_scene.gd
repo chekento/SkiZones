@@ -31,6 +31,7 @@ func english_only(node: Node) -> bool:
 func capture(name: String) -> void:
 	game.hud.refresh()
 	for index in range(4): await process_frame
+	if DisplayServer.get_name()=="headless":return
 	await RenderingServer.frame_post_draw
 	DirAccess.make_dir_recursive_absolute("res://build/qa")
 	root.get_texture().get_image().save_png("res://build/qa/"+name+".png")
@@ -66,6 +67,10 @@ func run() -> void:
 	game.hud.atlas.open();check(english_only(game.hud.atlas),"All eight areas and unlock requirements appear in English");game.hud.atlas.hide()
 	game.hud.show_management(2)
 	check(english_only(game.hud.management),"Every Resort Office tab uses English titles, descriptions, conditions and actions")
+	for page in range(3):
+		game.hud.management.candidate_page=page
+		game.hud.management.refresh()
+		check(english_only(game.hud.management),"All applicant specialties and unlock reasons are English on page "+str(page+1))
 	await capture("en-research-0110");game.hud.management.hide()
 	game.set_tool("building");game.hud.refresh()
 	check(english_only(game.hud.root),"The full English HUD, catalogue, selectors and building inspector contain no untranslated German")
