@@ -14,8 +14,17 @@ PACKAGE = "cloud.kosch.skizones"
 
 
 def adb(*args, timeout=20):
-    return subprocess.run(["adb", *args], check=True, stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE, timeout=timeout).stdout
+    try:
+        return subprocess.run(["adb", *args], check=True, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, timeout=timeout).stdout
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        # Preserve ADB's actual installation or device error in CI logs.
+        if isinstance(exc, subprocess.CalledProcessError):
+            print(f"ADB failed ({' '.join(args)}): "
+                  f"{exc.stdout.decode(errors='replace') if exc.stdout else ''} "
+                  f"{exc.stderr.decode(errors='replace') if exc.stderr else ''}",
+                  flush=True)
+        raise
 
 
 def main():
@@ -295,6 +304,11 @@ def main():
         state = wait_for(lambda s: not s["background"] and s["installed_code"] == installed_code)
         capture("system-rejects-corruption", state)
         assert before_files == {name: saved_hash(name) for name in saved_files}, "Rejected replacement changed a career"
+        # An ordinary Android package update stops the running process. Move
+        # the game out of the foreground and release its GLES surface before
+        # the emulator replaces the APK. This must NOT remove app data.
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
+        adb("shell", "am", "force-stop", PACKAGE)
         adb("install", "-r", str(args.update_apk.resolve()), timeout=120)
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
