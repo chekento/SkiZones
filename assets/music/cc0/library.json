@@ -21,7 +21,8 @@
           "bytes": 832498
         },
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "fireplace-guitar",
@@ -40,7 +41,8 @@
           "bytes": 967203
         },
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "small-fire",
@@ -59,7 +61,8 @@
           "bytes": 604685
         },
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-acoustic-guitar-rpg-tune-with-strings-and-pi",
@@ -80,7 +83,8 @@
         "duration_seconds": 216.4,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-cozy-puzzle-in-game-3",
@@ -101,7 +105,8 @@
         "duration_seconds": 124.4,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-down-the-river",
@@ -122,7 +127,8 @@
         "duration_seconds": 114.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-fouler-l-horizon",
@@ -143,7 +149,8 @@
         "duration_seconds": 107.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-just-you-and-me-guitar",
@@ -164,7 +171,8 @@
         "duration_seconds": 99,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-serenade-guitar",
@@ -185,7 +193,8 @@
         "duration_seconds": 129.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-piano-melody-with-acoustic-bass",
@@ -206,7 +215,8 @@
         "duration_seconds": 131.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "acoustic-short-kalimba-loop",
@@ -227,7 +237,8 @@
         "duration_seconds": 46.9,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "relax-calm-and-simple-title-music",
@@ -248,7 +259,8 @@
         "duration_seconds": 57.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Hüttenzauber · Bergdorf",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "focus-drifting-piano",
@@ -341,7 +353,8 @@
           "bytes": 1440956
         },
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "piece-of-techno",
@@ -381,7 +394,8 @@
         "duration_seconds": 93.8,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "house-funky-house",
@@ -402,7 +416,8 @@
         "duration_seconds": 68.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "house-looping-beats",
@@ -423,7 +438,8 @@
         "duration_seconds": 120,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "house-synthwave-house-loop",
@@ -444,7 +460,8 @@
         "duration_seconds": 50.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "house-the-bass-of-the-future",
@@ -486,7 +503,8 @@
         "duration_seconds": 134.3,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-cyber-runner",
@@ -507,7 +525,8 @@
         "duration_seconds": 98,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "vaporwave-dawn-of-hope-techno",
@@ -528,7 +547,8 @@
         "duration_seconds": 96,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-synthwave-type",
@@ -549,7 +569,8 @@
         "duration_seconds": 113.2,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-space-city",
@@ -570,7 +591,8 @@
         "duration_seconds": 116.9,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "synthwave-boss-fight-2",
@@ -968,7 +990,8 @@
           "bytes": 1796970
         },
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "intensity-guitar",
@@ -987,7 +1010,8 @@
           "bytes": 1464921
         },
         "mountain_moment": "Kicker · Action",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "focus-vst-guitar",
@@ -1294,7 +1318,8 @@
           "bytes": 886227
         },
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-pop",
@@ -1313,7 +1338,8 @@
           "bytes": 885573
         },
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-bedazzled",
@@ -1334,7 +1360,8 @@
         "duration_seconds": 85,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-bluebonnet",
@@ -1355,7 +1382,8 @@
         "duration_seconds": 126.9,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-faraway",
@@ -1505,7 +1533,8 @@
         "duration_seconds": 116.7,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "piano-calm-piano-1-vaporware",
@@ -1526,7 +1555,8 @@
         "duration_seconds": 165,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Gipfelpanorama",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "ambient-inspirational-cinematic-ambient-after-the-st",
@@ -1635,7 +1665,8 @@
           "bytes": 1224922
         },
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "ice-shine-bells",
@@ -1654,7 +1685,8 @@
           "bytes": 1619836
         },
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "sleep-sleepy-clouds",
@@ -1697,7 +1729,8 @@
         "duration_seconds": 84,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "sleep-infinite-world",
@@ -1762,7 +1795,8 @@
         "duration_seconds": 190.6,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "ambient-inspirational-cinematic-ambient-after-the-st",
@@ -1805,7 +1839,8 @@
         "duration_seconds": 157.9,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "relax-in-the-middle-of-nowhere",
@@ -1848,7 +1883,8 @@
         "duration_seconds": 151.1,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "relax-calm-music",
@@ -1869,7 +1905,8 @@
         "duration_seconds": 70,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Winterruhe · Bergstille",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       },
       {
         "id": "classical-natures-beauty",
@@ -2864,7 +2901,8 @@
         "duration_seconds": 50.5,
         "review_status": "Provenance metadata prechecked; subjective listening review pending",
         "mountain_moment": "Carving · Tempo",
-        "sport_fit": "both"
+        "sport_fit": "both",
+        "playlist_reuse": true
       }
     ],
     "glacier": [
