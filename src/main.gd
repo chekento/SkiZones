@@ -293,7 +293,12 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	if not Maps.MAPS.has(area):
 		hud.toast(L.text("Dieses Gebiet steht nicht zur Verfügung."))
 		return
-	if not passport.unlocked(area):
+	# Existing, checksum-valid careers always remain accessible even when an
+	# old passport was lost, not migrated, or out of sync with the resort.
+	# Only brand-new mountain creation needs the unlock gate.
+	var own_save_path: String = SaveStore.path_for_map(area)
+	var has_saved_resort: bool = SaveStore._read(own_save_path).ok or SaveStore._read(own_save_path + ".bak").ok
+	if not passport.unlocked(area) and not has_saved_resort:
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
@@ -304,6 +309,9 @@ func enter_area(area: String, difficulty: String = "") -> void:
 		return
 	if has_game and not save_game(): return
 	var path := SaveStore.path_for_map(area)
+	# The old installation may still own a legacy file without a new-slot copy.
+	# Its migrations are retried idempotently and never overwrite player data.
+	if not has_saved_resort: SaveStore.migrate_legacy()
 	var prepared := await _prepare_area(area, FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"))
 	if not prepared.result.ok:
 		view.loading_in_progress = false
