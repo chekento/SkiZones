@@ -6755,3 +6755,30 @@ msgstr "Inspect saved game"
 
 msgid "Weitere gespeicherte Gebiete"
 msgstr "Other saved resorts"
+
+msgid "Existenzkampf · 35 %"
+msgstr "Survival · 35%"
+
+msgid "Knapp bei Kasse · 60 %"
+msgstr "Tight budget · 60%"
+
+msgid "Ausgewogen · 100 %"
+msgstr "Balanced · 100%"
+
+msgid "Gut ausgestattet · 150 %"
+msgstr "Well funded · 150%"
+
+msgid "Luxus-Investor · 250 %"
+msgstr "Luxury investor · 250%"
+
+msgid "Personalmarkt"
+msgstr "Recruitment market"
+
+msgid "Einstellung möglich"
+msgstr "Ready to hire"
+
+msgid "Für Reserve einstellen · 180 €"
+msgstr "Hire into reserve · €180"
+
+msgid "Teamübersicht"
+msgstr "Team roster"
