@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "offline": true,
   "policy": "Only tracks documented as CC0 by the individual upstream listing or mirrored source manifest. Every bundled file is checksum-verified. Curatorial listening and third-party clearance remain separate from the CC0 assertion.",
   "stations": {
@@ -19,7 +19,9 @@
           "path": "wandering_inn_game/assets/audio/music/randommind_old_tower_inn.ogg",
           "git_blob_sha1": "6e1fb384bddae15d6e8b2758243a53f5d4c7b098",
           "bytes": 832498
-        }
+        },
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "fireplace-guitar",
@@ -36,7 +38,9 @@
           "path": "assets/music/relax/Calm_fireplace_guitar_song.ogg",
           "git_blob_sha1": "8ea9ff6fb15f80632cc0cd7bf29266823fdae809",
           "bytes": 967203
-        }
+        },
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "small-fire",
@@ -53,7 +57,9 @@
           "path": "assets/music/acoustic/A_Small_Fire_Will_Do_Calming_Loop.ogg",
           "git_blob_sha1": "87ec28b52ecd35a3e94643616837b8d5ae7a1f07",
           "bytes": 604685
-        }
+        },
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-acoustic-guitar-rpg-tune-with-strings-and-pi",
@@ -72,7 +78,9 @@
           "bytes": 1296683
         },
         "duration_seconds": 216.4,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-cozy-puzzle-in-game-3",
@@ -91,7 +99,9 @@
           "bytes": 1491173
         },
         "duration_seconds": 124.4,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-down-the-river",
@@ -110,7 +120,9 @@
           "bytes": 1296632
         },
         "duration_seconds": 114.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-fouler-l-horizon",
@@ -129,7 +141,9 @@
           "bytes": 1073157
         },
         "duration_seconds": 107.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-just-you-and-me-guitar",
@@ -148,7 +162,9 @@
           "bytes": 1168011
         },
         "duration_seconds": 99,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-serenade-guitar",
@@ -167,7 +183,9 @@
           "bytes": 1494416
         },
         "duration_seconds": 129.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-piano-melody-with-acoustic-bass",
@@ -186,7 +204,9 @@
           "bytes": 772348
         },
         "duration_seconds": 131.2,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-short-kalimba-loop",
@@ -205,7 +225,9 @@
           "bytes": 600416
         },
         "duration_seconds": 46.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       },
       {
         "id": "relax-calm-and-simple-title-music",
@@ -224,7 +246,9 @@
           "bytes": 387977
         },
         "duration_seconds": 57.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Hüttenzauber · Bergdorf",
+        "sport_fit": "both"
       }
     ],
     "techno": [
@@ -243,7 +267,9 @@
           "path": "assets/music/synthwave/Tech_rave.ogg",
           "git_blob_sha1": "7740902b6f88aa91a6303b5887e039467a8284a1",
           "bytes": 1440956
-        }
+        },
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "piece-of-techno",
@@ -260,7 +286,9 @@
           "path": "assets/music/house/Piece_of_techno_music.ogg",
           "git_blob_sha1": "f450cb08c999d0c3f58edcc6122ae196d0b71417",
           "bytes": 1076936
-        }
+        },
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "house-bouncer",
@@ -279,7 +307,9 @@
           "bytes": 1093043
         },
         "duration_seconds": 93.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "house-funky-house",
@@ -298,7 +328,9 @@
           "bytes": 819427
         },
         "duration_seconds": 68.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "house-looping-beats",
@@ -317,7 +349,9 @@
           "bytes": 1128097
         },
         "duration_seconds": 120,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "house-synthwave-house-loop",
@@ -336,7 +370,9 @@
           "bytes": 1230899
         },
         "duration_seconds": 50.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "house-the-bass-of-the-future",
@@ -355,7 +391,9 @@
           "bytes": 1432513
         },
         "duration_seconds": 137.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "synthwave-aerobics-synth-wave",
@@ -374,7 +412,9 @@
           "bytes": 1528343
         },
         "duration_seconds": 134.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "synthwave-cyber-runner",
@@ -393,7 +433,9 @@
           "bytes": 1109688
         },
         "duration_seconds": 98,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "vaporwave-dawn-of-hope-techno",
@@ -412,7 +454,9 @@
           "bytes": 1562513
         },
         "duration_seconds": 96,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "synthwave-synthwave-type",
@@ -431,7 +475,9 @@
           "bytes": 1195483
         },
         "duration_seconds": 113.2,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       },
       {
         "id": "synthwave-space-city",
@@ -450,7 +496,9 @@
           "bytes": 1370771
         },
         "duration_seconds": 116.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "both"
       }
     ],
     "hiphop": [
@@ -469,7 +517,9 @@
           "path": "assets-src/audio-src/opengameart_lofi-hip-hop-loop_omfgdude.ogg",
           "git_blob_sha1": "3fd69651673a23220c88e304d9300e3eff4c3dd1",
           "bytes": 1430666
-        }
+        },
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "bubbles-lofi",
@@ -486,7 +536,9 @@
           "path": "assets/music/lofi/Bubbles_Lofi_Bright_Relaxed.ogg",
           "git_blob_sha1": "64ddb3274604af1e84c8ed64c28dce3b29a98f6f",
           "bytes": 1642372
-        }
+        },
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-01-holiznacc0-poor-but-happy",
@@ -505,7 +557,9 @@
           "bytes": 1160016
         },
         "duration_seconds": 128,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-calm-currents-lofi-relax-calm",
@@ -524,7 +578,9 @@
           "bytes": 1466017
         },
         "duration_seconds": 147.6,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-canon-event-lofi-sad-reflection",
@@ -543,7 +599,9 @@
           "bytes": 1657675
         },
         "duration_seconds": 153.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-color-of-a-soul-lofi-calm-nostalgic",
@@ -562,7 +620,9 @@
           "bytes": 1585929
         },
         "duration_seconds": 156.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-fractured",
@@ -581,7 +641,9 @@
           "bytes": 1432501
         },
         "duration_seconds": 145.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-ghost-town",
@@ -600,7 +662,9 @@
           "bytes": 1645863
         },
         "duration_seconds": 170.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-lucid-lofi-dreamy-chill",
@@ -619,7 +683,9 @@
           "bytes": 1580919
         },
         "duration_seconds": 144.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-one-good-day",
@@ -638,7 +704,9 @@
           "bytes": 1452767
         },
         "duration_seconds": 129.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-peaceful-drift-lofi-nostalgic-calm",
@@ -657,7 +725,9 @@
           "bytes": 1236423
         },
         "duration_seconds": 128.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       },
       {
         "id": "lofi-theta-frequency-lofi-chill-calm",
@@ -676,7 +746,9 @@
           "bytes": 1296249
         },
         "duration_seconds": 126.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "both"
       }
     ],
     "punk": [
@@ -695,7 +767,9 @@
           "path": "assets/music/jazz/Done_Rock_and_Jazz.ogg",
           "git_blob_sha1": "23b32980a05991ee3ed4852edc3c00d97d29afe5",
           "bytes": 1796970
-        }
+        },
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "intensity-guitar",
@@ -712,7 +786,9 @@
           "path": "assets/music/classical/Intensity_Buffer_Guitar.ogg",
           "git_blob_sha1": "83e0d7163c7b42047b2da72e860a563f62178027",
           "bytes": 1464921
-        }
+        },
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-action-style-10",
@@ -731,7 +807,9 @@
           "bytes": 980592
         },
         "duration_seconds": 151.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "acoustic-gypselectric-guitar",
@@ -750,7 +828,9 @@
           "bytes": 1276118
         },
         "duration_seconds": 106.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "focus-vst-guitar",
@@ -769,7 +849,9 @@
           "bytes": 1107648
         },
         "duration_seconds": 109.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "synthwave-boss-fight-2",
@@ -788,7 +870,9 @@
           "bytes": 1082897
         },
         "duration_seconds": 88.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "vaporwave-die-hard-battle",
@@ -807,7 +891,9 @@
           "bytes": 889556
         },
         "duration_seconds": 66.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "chiptune-hardcore-chiptune-theme",
@@ -826,7 +912,9 @@
           "bytes": 1135158
         },
         "duration_seconds": 106.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "chiptune-lo-fi-chiptune-glitch-d-n-b",
@@ -845,7 +933,9 @@
           "bytes": 1076727
         },
         "duration_seconds": 106.6,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "funk-simple-action-beat",
@@ -864,7 +954,9 @@
           "bytes": 1325822
         },
         "duration_seconds": 120,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "house-omw-to-beat-the-big-bad",
@@ -883,7 +975,9 @@
           "bytes": 991794
         },
         "duration_seconds": 87,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       },
       {
         "id": "vaporwave-mechanical-golem",
@@ -902,7 +996,9 @@
           "bytes": 1149086
         },
         "duration_seconds": 80,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Action",
+        "sport_fit": "both"
       }
     ],
     "classical": [
@@ -921,7 +1017,9 @@
           "path": "assets/music/relax/At_Home_Orchestral.ogg",
           "git_blob_sha1": "ce06125bd06395592eb93ded412467663d69704b",
           "bytes": 886227
-        }
+        },
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-pop",
@@ -938,7 +1036,9 @@
           "path": "assets/music/classical/Classical_Pop_Instrumental.ogg",
           "git_blob_sha1": "3c8582ff9a22708591324c2562afc933d8a652e5",
           "bytes": 885573
-        }
+        },
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-bedazzled",
@@ -957,7 +1057,9 @@
           "bytes": 889063
         },
         "duration_seconds": 85,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-bluebonnet",
@@ -976,7 +1078,9 @@
           "bytes": 1349937
         },
         "duration_seconds": 126.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-faraway",
@@ -995,7 +1099,9 @@
           "bytes": 1529482
         },
         "duration_seconds": 115.8,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-natures-beauty",
@@ -1014,7 +1120,9 @@
           "bytes": 1165808
         },
         "duration_seconds": 98.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-opl2-buxtehude-buxwv185-2",
@@ -1033,7 +1141,9 @@
           "bytes": 595349
         },
         "duration_seconds": 96,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-prologue-theme",
@@ -1052,7 +1162,9 @@
           "bytes": 920791
         },
         "duration_seconds": 82.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "classical-town-6",
@@ -1071,7 +1183,9 @@
           "bytes": 917304
         },
         "duration_seconds": 83.4,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "focus-drifting-piano",
@@ -1090,7 +1204,9 @@
           "bytes": 985731
         },
         "duration_seconds": 110.5,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "focus-game-travel-1-piano",
@@ -1109,7 +1225,9 @@
           "bytes": 1115421
         },
         "duration_seconds": 116.7,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       },
       {
         "id": "piano-calm-piano-1-vaporware",
@@ -1128,7 +1246,9 @@
           "bytes": 1605879
         },
         "duration_seconds": 165,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama",
+        "sport_fit": "both"
       }
     ],
     "meditative": [
@@ -1147,7 +1267,9 @@
           "path": "assets-src/audio-src/opengameart_heavenly-loop_isaiah658.ogg",
           "git_blob_sha1": "9a39a4842eeac274124c50caad179a0052aa1d3f",
           "bytes": 1224922
-        }
+        },
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "ice-shine-bells",
@@ -1164,7 +1286,9 @@
           "path": "assets/music/sleep/Ice_Shine_Bells.ogg",
           "git_blob_sha1": "a64ff835ff6c9a3247eab00c91b3f25f87d21c0a",
           "bytes": 1619836
-        }
+        },
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "sleep-sleepy-clouds",
@@ -1183,7 +1307,9 @@
           "bytes": 1497867
         },
         "duration_seconds": 76.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "sleep-sparkling-cosmic-dust",
@@ -1202,7 +1328,9 @@
           "bytes": 964422
         },
         "duration_seconds": 84,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "sleep-infinite-world",
@@ -1221,7 +1349,9 @@
           "bytes": 855866
         },
         "duration_seconds": 100.3,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "sleep-persistence",
@@ -1240,7 +1370,9 @@
           "bytes": 1375945
         },
         "duration_seconds": 127.2,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "sleep-station-drone-2",
@@ -1259,7 +1391,9 @@
           "bytes": 1460862
         },
         "duration_seconds": 190.6,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "ambient-inspirational-cinematic-ambient-after-the-st",
@@ -1278,7 +1412,9 @@
           "bytes": 1305327
         },
         "duration_seconds": 123.2,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "relax-calm-ambient-1-synthwave-4k",
@@ -1297,7 +1433,9 @@
           "bytes": 1623862
         },
         "duration_seconds": 157.9,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "relax-in-the-middle-of-nowhere",
@@ -1316,7 +1454,9 @@
           "bytes": 927289
         },
         "duration_seconds": 96.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "ambient-ambient-soundscape",
@@ -1335,7 +1475,9 @@
           "bytes": 1610429
         },
         "duration_seconds": 151.1,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
       },
       {
         "id": "relax-calm-music",
@@ -1354,7 +1496,253 @@
           "bytes": 664855
         },
         "duration_seconds": 70,
-        "review_status": "Provenance metadata prechecked; subjective listening review pending"
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Winterruhe · Bergstille",
+        "sport_fit": "both"
+      }
+    ],
+    "freeride": [
+      {
+        "id": "small-fire",
+        "title": "A Small Fire Will Do",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/small-fire.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/a-small-fire-will-do-calming-loop",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/A_Small_Fire_Will_Do_Calming_Loop.ogg",
+          "git_blob_sha1": "87ec28b52ecd35a3e94643616837b8d5ae7a1f07",
+          "bytes": 604685
+        },
+        "mountain_moment": "Ankommen · Hüttenzauber",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "acoustic-cozy-puzzle-in-game-3",
+        "title": "Cozy Puzzle In-Game 3",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-cozy-puzzle-in-game-3.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/cozy-puzzle-in-game-3",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Cozy_Puzzle_In_Game_3.ogg",
+          "git_blob_sha1": "a020e9b5511bd45b661c96f98cba6cd9fae74d53",
+          "bytes": 1491173
+        },
+        "duration_seconds": 124.4,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gondelauffahrt · Vorfreude",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "synthwave-aerobics-synth-wave",
+        "title": "Aerobics Synth Wave",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/synthwave-aerobics-synth-wave.ogg",
+        "style": "synthwave",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/aerobics-synth-wave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Aerobics_Synth_Wave.ogg",
+          "git_blob_sha1": "e44d859ef130a86513ffe8dfca82c9f82577a2c9",
+          "bytes": 1528343
+        },
+        "duration_seconds": 134.3,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Aufwärmen · Pistenstart",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "tech-rave",
+        "title": "Tech Rave",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/tech-rave.ogg",
+        "style": "electronic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/tech-rave",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Tech_rave.ogg",
+          "git_blob_sha1": "7740902b6f88aa91a6303b5887e039467a8284a1",
+          "bytes": 1440956
+        },
+        "mountain_moment": "Carving · Tempo",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "house-looping-beats",
+        "title": "Looping Beats",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/house-looping-beats.ogg",
+        "style": "house",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/looping-beats",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/house/Looping_Beats.ogg",
+          "git_blob_sha1": "1de3760fc0ca53b1bfdd40f5d43045fa3911be6e",
+          "bytes": 1128097
+        },
+        "duration_seconds": 120,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Flow · Schwünge",
+        "sport_fit": "snowboard"
+      },
+      {
+        "id": "lofi-hip-hop",
+        "title": "Lofi Hip Hop Loop",
+        "artist": "omfgdude",
+        "file": "res://assets/music/cc0/lofi-hip-hop.ogg",
+        "style": "hip-hop",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/lofi-hip-hop-loop",
+        "mirror": {
+          "repository": "euuuuuuan/neko-shift-public",
+          "commit": "e0294851d15053eb2e2d7f828929f5de76dbfd0f",
+          "path": "assets-src/audio-src/opengameart_lofi-hip-hop-loop_omfgdude.ogg",
+          "git_blob_sha1": "3fd69651673a23220c88e304d9300e3eff4c3dd1",
+          "bytes": 1430666
+        },
+        "mountain_moment": "Snowpark · Flow",
+        "sport_fit": "snowboard"
+      },
+      {
+        "id": "lofi-01-holiznacc0-poor-but-happy",
+        "title": "01 HoliznaCC0 - Poor, But Happy",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/lofi-01-holiznacc0-poor-but-happy.ogg",
+        "style": "lofi",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/happy-lo-fi-lofi-collection",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/lofi/01_HoliznaCC0_Poor_But_Happy.ogg",
+          "git_blob_sha1": "943c8f5c95b219a665bf7057f68b05ec893bf9e0",
+          "bytes": 1160016
+        },
+        "duration_seconds": 128,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Powder · Freeride",
+        "sport_fit": "snowboard"
+      },
+      {
+        "id": "acoustic-gypselectric-guitar",
+        "title": "Gypselectric (Guitar)",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/acoustic-gypselectric-guitar.ogg",
+        "style": "acoustic",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/gypselectric-guitar",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/acoustic/Gypselectric_Guitar.ogg",
+          "git_blob_sha1": "24c804720eff77fc29e6d6109189c8f9b29d258e",
+          "bytes": 1276118
+        },
+        "duration_seconds": 106.3,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Kicker · Gitarrenenergie",
+        "sport_fit": "snowboard"
+      },
+      {
+        "id": "synthwave-boss-fight-2",
+        "title": "Boss Fight 2",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/synthwave-boss-fight-2.ogg",
+        "style": "synthwave",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/boss-fight-2",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/synthwave/Boss_Fight_2.ogg",
+          "git_blob_sha1": "189864bfd662623e7f1f3f78a04430fcbc06279e",
+          "bytes": 1082897
+        },
+        "duration_seconds": 88.7,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Sportliche Abfahrt · Adrenalin",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "classical-faraway",
+        "title": "Faraway",
+        "artist": "OpenGameArt – Urheber siehe Originalquelle",
+        "file": "res://assets/music/cc0/classical-faraway.ogg",
+        "style": "classical",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/faraway",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/classical/Faraway.ogg",
+          "git_blob_sha1": "98893ca86db963668799df4b1d9b98702b6c9370",
+          "bytes": 1529482
+        },
+        "duration_seconds": 115.8,
+        "review_status": "Provenance metadata prechecked; subjective listening review pending",
+        "mountain_moment": "Gipfelpanorama · Freiheit",
+        "sport_fit": "ski"
+      },
+      {
+        "id": "ice-shine-bells",
+        "title": "Ice Shine Bells",
+        "artist": "OpenGameArt contributor",
+        "file": "res://assets/music/cc0/ice-shine-bells.ogg",
+        "style": "winter",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/ice-shine-bells",
+        "mirror": {
+          "repository": "euuuuuuan/todak-public",
+          "commit": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
+          "path": "assets/music/sleep/Ice_Shine_Bells.ogg",
+          "git_blob_sha1": "a64ff835ff6c9a3247eab00c91b3f25f87d21c0a",
+          "bytes": 1619836
+        },
+        "mountain_moment": "Schneefall · Durchatmen",
+        "sport_fit": "both"
+      },
+      {
+        "id": "heavenly-loop",
+        "title": "Heavenly Loop",
+        "artist": "isaiah658",
+        "file": "res://assets/music/cc0/heavenly-loop.ogg",
+        "style": "ambient",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source_url": "https://opengameart.org/content/heavenly-loop",
+        "mirror": {
+          "repository": "euuuuuuan/neko-shift-public",
+          "commit": "e0294851d15053eb2e2d7f828929f5de76dbfd0f",
+          "path": "assets-src/audio-src/opengameart_heavenly-loop_isaiah658.ogg",
+          "git_blob_sha1": "9a39a4842eeac274124c50caad179a0052aa1d3f",
+          "bytes": 1224922
+        },
+        "mountain_moment": "Alpenglühen · Sonnenuntergang",
+        "sport_fit": "both"
       }
     ]
   },
@@ -1363,5 +1751,20 @@
     "ref": "f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f",
     "ledger_path": "assets/music/LICENCES.json",
     "vocal_exclusions": "assets/music/VOCAL_EXCLUSIONS.json"
+  },
+  "station_count": 7,
+  "unique_audio_files": 72,
+  "playlist_entries": 84,
+  "mountain_curation": {
+    "description": "All 72 original recordings retain their actual composer and title. Ski/Snowboard mountain-moment labels are editorial recommendations, not claims that the composers wrote music specifically for ski resorts. Gipfelrausch FM reuses existing CC0 audio and adds no extra bytes.",
+    "station_moods": {
+      "alpine": "Almhütte und Bergdorf",
+      "techno": "Schnelle Carving-Abfahrten",
+      "hiphop": "Snowpark, Snowboard und Flow",
+      "punk": "Kicker und rockige Action",
+      "classical": "Gipfelblick und ruhiges Panorama",
+      "meditative": "Winterruhe, Schneefall und Wellness",
+      "freeride": "Best-of Gipfelrausch: Vom Hüttentag bis zur Powder-Abfahrt"
+    }
   }
 }

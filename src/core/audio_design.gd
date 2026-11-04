@@ -1,7 +1,7 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative"]
+const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride"]
 const GENRE_NAMES := {
 	"off":"Musik aus",
 	"alpine":"AlpenWelle FM · Hüttenmorgen",
@@ -9,7 +9,8 @@ const GENRE_NAMES := {
 	"hiphop":"Powder Flow · Park Lines",
 	"punk":"PistenPunk · Kantenwind",
 	"classical":"Alpine Classic · Schneelicht",
-	"meditative":"Mountain Chill · Wolkenmeer"
+	"meditative":"Mountain Chill · Wolkenmeer",
+	"freeride":"Gipfelrausch FM · Ski & Snowboard"
 }
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {

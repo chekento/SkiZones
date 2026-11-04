@@ -22,6 +22,7 @@ var active_zone := "wilderness"
 var current_genre := "off"
 var current_track_title := ""
 var current_track_artist := ""
+var current_mountain_moment := ""
 var _cc0_loaded := false
 var _cc0_stations: Dictionary = {}
 var _song_positions: Dictionary = {}
@@ -84,6 +85,8 @@ func _waveform(t: float, mode: String, frame: int) -> float:
 			return s*0.20+sin(p*hz*1.5)*0.10+sin(p*hz*0.5)*0.08
 		"meditative":
 			return sin(p*hz*0.5)*0.17+sin(p*hz)*0.12+sin(p*hz*1.003)*0.05
+		"freeride":
+			return (s*0.13+bass*0.19+tri*0.10+pulse*sin(p*(80.0-20.0*beat))*0.15)
 		"wind":
 			var noise:=sin(float(frame)*19.813)*sin(float(frame)*4.5317)
 			return noise*(0.11+0.065*sin(t*TAU*0.13))
@@ -168,7 +171,7 @@ func track_credits(id: String) -> Array:
 	return (_cc0_stations.get(id, []) as Array).duplicate(true)
 
 func now_playing() -> Dictionary:
-	return {"genre": current_genre, "title": current_track_title, "artist": current_track_artist}
+	return {"genre": current_genre, "title": current_track_title, "artist": current_track_artist, "moment":current_mountain_moment}
 
 func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 	_load_cc0_library()
@@ -176,6 +179,7 @@ func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 	if entries.is_empty():
 		current_track_title = id
 		current_track_artist = ""
+		current_mountain_moment = ""
 		return _music_stream(id)
 	var index: int = int(_song_positions.get(id, 0))
 	if advance:
@@ -191,6 +195,7 @@ func _radio_stream(id: String, advance: bool = false) -> AudioStream:
 		(music as AudioStreamOggVorbis).loop = false
 	current_track_title = str(record.get("title", id))
 	current_track_artist = str(record.get("artist", ""))
+	current_mountain_moment = str(record.get("mountain_moment", ""))
 	return music
 
 func next_track() -> void:
@@ -222,6 +227,7 @@ func set_genre(id: String, next_song: bool = false) -> void:
 	if wanted=="off":
 		current_track_title = ""
 		current_track_artist = ""
+		current_mountain_moment = ""
 		# Explicit opt-out must silence both streams without a fade.
 		primary.stop()
 		var standby:AudioStreamPlayer=players.get("music_alt")

@@ -34,14 +34,15 @@ func run() -> void:
 			check(ResourceLoader.exists(path), station + " actual Ogg asset")
 			var mirror: Dictionary = track.get("mirror", {})
 			check(str(mirror.get("git_blob_sha1","")).length() == 40 and int(mirror.get("bytes",0)) > 100000, station + " pinned source hash and size")
-			check(not seen.has(path), station + " no duplicated playlist asset")
+			check(not seen.has(path) or station == "freeride", station + " only the curated station reuses an asset")
 			seen[path] = true
+	check(radio.station_track_count("freeride") == 12, "Summit Rush has a 12-song cross-genre mountain journey")
 	var first: AudioStream = radio._radio_stream("alpine")
 	check(first is AudioStreamOggVorbis and first.get_length() > 20.0, "Folk radio streams long-form music")
 	var title_a: String = radio.current_track_title
 	var second: AudioStream = radio._radio_stream("alpine", true)
 	check(second is AudioStreamOggVorbis and radio.current_track_title != title_a, "Advancing playlist selects another real song")
-	check(total == 72 and seen.size() == 72, "Complete 72 unique-song CC0 pack available")
+	check(total == 84 and seen.size() == 72, "Seven radio stations, 84 playlist positions, 72 unique CC0 files")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])

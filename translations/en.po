@@ -5213,3 +5213,9 @@ msgstr "Now playing: "
 
 msgid "Musik-Credits anzeigen"
 msgstr "Show music credits"
+
+msgid "Gipfelrausch FM · Ski & Snowboard"
+msgstr "Summit Rush FM · Ski & Snowboard"
+
+msgid "Bergmoment: "
+msgstr "Mountain moment: "

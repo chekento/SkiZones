@@ -134,6 +134,9 @@ func _update_now_playing() -> void:
 	playing_label.text = L.text("Jetzt läuft: ") + (track if not track.is_empty() else L.text("Musik aus"))
 	if not artist.is_empty():
 		playing_label.text += " · " + artist
+	var moment: String = str(info.get("moment", ""))
+	if not moment.is_empty():
+		playing_label.text += "\n" + L.text("Bergmoment: ") + moment
 
 func _toggle_credits() -> void:
 	credits_label.visible = not credits_label.visible

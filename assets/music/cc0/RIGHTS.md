@@ -98,3 +98,7 @@ The Alpine Radio library contains 72 music files across six offline stations, as
 12. **calm music** — OpenGameArt – Urheber siehe Originalquelle. [Original entry](https://opengameart.org/content/calm-music) · [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) · `res://assets/music/cc0/relax-calm-music.ogg`; mirror: `euuuuuuan/todak-public@f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f`, `assets/music/relax/calm_music.ogg`, blob `1e483ba6a2fee44044856d8a071e80d4721daf42`, 664855 bytes.
 
 The six generated fallback WAV files under `assets/music/*.wav` are separate original SkiZones assets and are not part of this third-party license list.
+
+## Gepflegte siebte Station: Gipfelrausch FM
+
+A seventh mixed ski/snowboard station references 12 already-bundled recordings from the six original stations, with no new audio downloads and no additional licensing. Source credits and original artists remain as stated above. Playlist titles and `mountain_moment` tags describe the intended feeling (huts, gondola ascent, piste, snowboard, powder, summit sunset), not the musician's original production intent. There are 84 playlist positions containing **72 distinct audio files**. No artist endorsement is implied.

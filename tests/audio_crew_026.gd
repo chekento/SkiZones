@@ -19,10 +19,10 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Design.GENRES.size()==7 and Design.genre_valid("unknown")=="off","Six selectable genres plus off and a safe fallback")
+	check(Design.GENRES.size()==8 and Design.genre_valid("unknown")=="off","Seven selectable genres plus off and a safe fallback")
 	check(not Design.license_policy("suno") and not Design.license_policy("soundcloud") and not Design.license_policy("cc0") and Design.license_policy("cc0",true),"External providers remain disabled without explicit rights")
 	var audio:=Audio.new()
-	for genre in ["alpine","techno","hiphop","punk","classical","meditative","wind","crowd","machinery"]:
+	for genre in ["alpine","techno","hiphop","punk","classical","meditative","freeride","wind","crowd","machinery"]:
 		var stream:AudioStreamWAV=audio._create(genre)
 		check(stream!=null and stream.data.size()==Audio.SAMPLE_RATE*Audio.LOOP_SECONDS*2 and stream.loop_mode==AudioStreamWAV.LOOP_FORWARD,"Original offline PCM loop: "+genre)
 	var model:=Resort.new()
