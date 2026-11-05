@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **38 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **39 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.34.1](https://github.com/chekento/SkiZones/releases/tag/v0.34.1)** | 05.11.2026 | Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk) | [Details](docs/releases/0.34.1.md) |
 | **[v0.34.0](https://github.com/chekento/SkiZones/releases/tag/v0.34.0)** | 05.11.2026 | Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk) | [Details](docs/releases/0.34.0.md) |
 | **[v0.33.2](https://github.com/chekento/SkiZones/releases/tag/v0.33.2)** | 05.11.2026 | SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk) | [Details](docs/releases/0.33.2.md) |
 | **[v0.33.1](https://github.com/chekento/SkiZones/releases/tag/v0.33.1)** | 05.11.2026 | Alpine Arcade Contrast Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk) | [Details](docs/releases/0.33.1.md) |
@@ -48,6 +49,32 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.34.1 · Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche (05.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.34.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk)** (167.0 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.34.1/manifest.json) · [Originalnotizen](docs/releases/0.34.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.34.1)
+
+Android ARM64 · Update von `v0.34.0` · Paket `cloud.kosch.skizones` unverändert · **versionCode 43**
+
+### Behobene Spielfehler
+- **Tagesgäste ab Tag 2 und später:** Die Schneeschmelze bei Tauwetter war zehnmal stärker als ein sinnvoller Winterbetrieb. Bei +4 °C verlor eine Piste bis zu 103,68 Schneeeinheiten pro 24-Stunden-Tag; danach wurden alle Pisten geschlossen und die Besuchersimulation konnte niemanden mehr aufnehmen. Der Faktor ist jetzt auf 0,0018 pro positivem Grad und Spielminute gesenkt. Schnee und Wetter bleiben relevant; echtes Sperren einer Piste verhindert weiterhin Besucher und Ticketumsatz.
+- **Anreise um 08:00 Uhr:** Bei normalem 24-Stunden-Betrieb und real befahrbaren Routen wird bei ausbleibenden Besuchern ein begrenzter morgendlicher Anreiseversuch unternommen. Die Aufnahme erfolgt mit normalen Gästewegen und **realen Ticketzahlungen**; kein unsichtbarer, kostenloser oder erfundener Besucherbonus.
+- **Hotelgäste morgens 07:00–08:59 Uhr:** Hotelurlauber erhalten je Tag und Reiseparty eine wiederholbar verteilte Aufbruchszeit. Familien bleiben zusammen; ein Hotelgast benutzt nach dem Aufstehen die vorhandenen Fußwege und Betriebsrouten und wird nicht aus dem Hotel teleportiert.
+- **Keine mehrfachen Morgen-Tickets:** Falls der Fahrweg vor Liftöffnung oder durch echte Störung nicht verfügbar ist, wird die Route in zehn Minuten erneut geprüft. Erst bei einem tatsächlich erfolgreichen Aufbruch wird der Tagesticketkauf verbucht.
+
+### Erhalt vorhandener Daten
+- Bestehende vier Karrieren, vier Freies-Bauen-Plätze und Szenarien bleiben erhalten; kein neues Pflichtfeld in Gäste-Saves und keine veränderte Android-Paketkennung.
+- Die Weckplanung ist deterministisch aus vorhandener Gäste-, Unterkunfts- und Tageskennung. Kein Umbau/Verlust alter Hotelreservierungen.
+- Die reguläre 0.34-Radio-/Musikfassung bleibt unverändert. Das größere 0.35-Radio-Hardware-Redesign und Wirtschaftssystem werden unabhängig geprüft.
+
+### Qualitätssicherung
+- Neuer 0.34.1-Test: Tageswechsel 1→2→3, winterliche Schneeschmelze, reale Zuschauer und Ticketumsätze, Besucherblockade bei geschlossenen Pisten, Morgenzeiten, Familien, Hotelgast und Save/Load.
+- Bestehende Tests: Hotelübernachtungen, gemeinsame Familienroute, originaler Tagesablauf, Wetterverteilung, Nachtbeschleunigung, alte Karriere- und freien Speicherplätze sowie Android 30/36 inklusive In-place-Update.
+- Release nur nach vollständiger CI und Vorhandensein einer signierten APK, manifest.json und SHA-256.
+
+GitHub: [Hotfix-Aufgabe #76](https://github.com/chekento/SkiZones/issues/76) · [Umsetzungs-PR #77](https://github.com/chekento/SkiZones/pull/77).
+
+---
 
 ## v0.34.0 · Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht (05.11.2026)
 
