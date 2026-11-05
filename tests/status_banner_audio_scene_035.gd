@@ -43,10 +43,14 @@ func run() -> void:
 	game.audio.sync()
 	hud._announce_radio_track()
 	check(banner.history.size()==2,"Turned-off radio does not notify")
+	# Removed SoundCloud channel IDs migrate to a playable offline neighbor.
+	# Never reintroduce the external account as a selectable radio station.
 	game.preferences.music_genre="erg0sphere"
 	game.audio.sync()
+	await process_frame
 	hud._announce_radio_track()
-	check(banner.history.size()==2,"External SoundCloud link never pretends to play in-app")
+	check(game.audio.current_genre=="space" and banner.history.size()==3 and banner.history[0].kind=="music",
+		"Removed SoundCloud preference migrates to genuinely playing offline Space radio")
 	hud.management.open()
 	var found:=false
 	for i in range(hud.management.tabs.get_tab_count()):
