@@ -47,10 +47,10 @@ func run() -> void:
 	model.weather_index=0
 	next_morning(model)
 	check(model.day==2 and model.report.guests==0,"Real day-two report starts empty rather than inheriting old guests")
-	check(model.routes_for(0).size()>0,"Skiable access survives the midnight duty and routing reset")
 	var money_before:float=model.money
 	var total_before:int=model.total_guests
 	model.advance_minute(true) # actual 08:00 first morning minute
+	check(model.routes_for(0).size()>0,"Operational skiable access returns as scheduled at 08:00")
 	check(int(model.report.guests)>0 and model.total_guests>total_before and model.guests.size()>0,"A real first visitor arrives at the start of day two")
 	check(model.money>money_before and model.report.tickets>0.0,"Only admitted guests pay once for actual tickets")
 	var day2:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
@@ -61,12 +61,16 @@ func run() -> void:
 	check(model.day==3 and model.report.guests>0,"A real visitor is admitted again on the third winter day")
 	var closed:=starter()
 	next_morning(closed)
+	# A closed lift can still leave a legitimate walk-in route; an
+	# explicitly closed PISTE cannot create a ski ticket and a false guest.
 	for lift in closed.lifts: lift.enabled=false
+	for piste in closed.pistes: piste.enabled=false
 	closed._operational_change()
+	closed._invalidate()
 	var protected_cash:float=closed.money
 	var old_total:int=closed.total_guests
 	closed.advance_minute(true)
-	check(closed.report.guests==0 and closed.total_guests==old_total and is_equal_approx(closed.money,protected_cash),"Closed lifts cannot generate fake arrivals or money")
+	check(closed.report.guests==0 and closed.total_guests==old_total and is_equal_approx(closed.money,protected_cash),"Explicitly closed slopes cannot generate fake arrivals or money")
 	var times:Dictionary={}
 	var hotel:Dictionary={"lodging_id":23}
 	for i in range(1,33):
