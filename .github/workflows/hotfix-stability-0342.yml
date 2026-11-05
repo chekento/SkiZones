@@ -1,0 +1,59 @@
+name: 0.34.2 Traffic, Legacy Saves and Free Build Hotfix QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 0342-stability-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  stability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and check entire Godot project
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p = subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=240)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+      - name: Legacy roundtrip, sandbox and old piste connections
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-hotfix-0342
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/legacy_routes_free_mode_0342.gd
+      - name: Busy resort ski traffic regression
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-traffic-0342
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
+      - name: Routes, services and gondola lift loading
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-routes-0342
+        run: |
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/routes_and_services.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd
+      - name: 0.33.2 original save rescue and four free slots
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-rescue-0342
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
+      - name: 0.34.1 hotel mornings, arrivals and original careers
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-daily-0342
+        run: |
+          python3 tools/run_godot_test.py --timeout 250 -- "$GODOT_BIN" --language de --headless --script tests/daily_guests_hotfix_0341.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
