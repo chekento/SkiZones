@@ -7555,3 +7555,77 @@ msgstr "%d× ▸"
 
 msgid "Aktuell %d× · tippen für 1×, 4× oder 8×"
 msgstr "Current %d× · tap to cycle through 1×, 4× and 8×"
+
+# 0.35 consolidated notification banner and in-game activity feed
+msgid "✦  MEISTERSCHAFTSRANG"
+msgstr "✦  MASTERY RANK"
+
+msgid "✦  ACHIEVEMENT FREIGESCHALTET"
+msgstr "✦  ACHIEVEMENT UNLOCKED"
+
+msgid "◆  SZENARIOMEDAILLE"
+msgstr "◆  SCENARIO MEDAL"
+
+msgid "✓  MISSION ABGESCHLOSSEN"
+msgstr "✓  MISSION COMPLETED"
+
+msgid "♫  JETZT IM RADIO"
+msgstr "♫  NOW PLAYING"
+
+msgid "!  RESORT-WARNUNG"
+msgstr "!  RESORT WARNING"
+
+msgid "⚒  WIEDER EINSATZBEREIT"
+msgstr "⚒  BACK IN SERVICE"
+
+msgid "€  RESORT-FINANZEN"
+msgstr "€  RESORT FINANCES"
+
+msgid "◆  RESORT-MELDUNG"
+msgstr "◆  RESORT UPDATE"
+
+msgid "Szenario: %s · Mission %d von %d"
+msgstr "Scenario: %s · mission %d of %d"
+
+msgid "Resortbudget im Minus"
+msgstr "Resort cash balance is negative"
+
+msgid "Kontostand: %s € · Kosten, Preise und Finanzierung prüfen."
+msgstr "Cash balance: €%s · review costs, prices and financing."
+
+msgid "Meldungen"
+msgstr "Notifications"
+
+msgid " · +%d €"
+msgstr " · +€%d"
+
+msgid "Zum Radio"
+msgstr "Open radio"
+
+msgid "Missionsübersicht öffnen"
+msgstr "View scenario missions"
+
+msgid "Zu den Erfolgen"
+msgstr "View achievements"
+
+msgid "Finanzen prüfen"
+msgstr "Review finances"
+
+msgid "Noch keine Meldungen in dieser Spielsitzung."
+msgstr "No notifications in this game session yet."
+
+msgid "Deine Resort-Meldungen"
+msgstr "Your resort notifications"
+
+msgid "Songs, Szenariomissionen, Erfolge und wichtige Betriebswarnungen erscheinen im selben transparenten Banner. Hier kannst du die letzten 40 Meldungen dieser Spielsitzung nach Themen sortieren. Die Erfolgs- und Missionsstände selbst bleiben selbstverständlich im Spielstand erhalten."
+msgstr "Songs, scenario missions, achievements and important operations alerts share the same transparent banner. Filter the last 40 notices from this play session by topic. Achievements and scenario progress remain safely stored in your actual game save."
+
+msgid "Alle"
+msgstr "All"
+
+msgid "Erfolge & Medaillen"
+msgstr "Achievements & medals"
+
+msgid "Warnungen"
+msgstr "Warnings"
+
