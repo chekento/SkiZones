@@ -95,6 +95,15 @@ static func valid_contract(value: Variant, day: int, loan: int) -> bool:
 	if not (value.balance is float or value.balance is int) or not (value.paid_interest is float or value.paid_interest is int): return false
 	if is_nan(float(value.balance)) or is_inf(float(value.balance)) or is_nan(float(value.paid_interest)) or is_inf(float(value.paid_interest)): return false
 	if float(value.balance)<0 or float(value.balance)>750000 or float(value.paid_interest)<0 or float(value.paid_interest)>750000: return false
+	# A crafted JSON career must not allow a fake no-interest contract:
+	# fixed products keep their published terms, custom terms keep the
+	# correctly calculated risk premium for the persisted difficulty.
+	var expected: Dictionary = LoanOptions.offer(str(value.id),int(value.tier),
+		int(value.principal),int(value.days),str(value.mode),int(value.grace))
+	if not bool(expected.get("ok",false)): return false
+	if int(expected.principal) != int(value.principal) or int(expected.days) != int(value.days): return false
+	if int(expected.grace) != int(value.grace) or str(expected.mode) != str(value.mode): return false
+	if absf(float(expected.annual_rate)-float(value.annual_rate)) > 0.00001: return false
 	var schedule: Array = LoanOptions.schedule(int(value.principal),int(value.days),float(value.annual_rate),str(value.mode),int(value.grace))
 	var remaining: float = float(value.principal) if int(value.paid_days)==0 else float(schedule[int(value.paid_days)-1].balance)
 	if absf(float(value.balance)-remaining)>0.01 or loan!=ceili(remaining): return false
