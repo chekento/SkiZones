@@ -13,6 +13,19 @@ func check(ok: bool, title: String) -> void:
 	if ok: passed += 1;print("PASS ",title)
 	else: failed += 1;push_error("FAIL "+title)
 
+## JSON roundtrips finite float directions at bounded precision.
+## The semantic cell grid, hit count, and direction are what must survive.
+func equivalent_cells(left: Variant, right: Variant) -> bool:
+	if not left is Array or not right is Array or left.size() != right.size(): return false
+	for i in range(left.size()):
+		if not left[i] is Array or not right[i] is Array or left[i].size() != 5 or right[i].size() != 5: return false
+		for field in range(3):
+			if int(left[i][field]) != int(right[i][field]): return false
+		var a := Vector2(float(left[i][3]),float(left[i][4]))
+		var b := Vector2(float(right[i][3]),float(right[i][4]))
+		if a.distance_to(b) > 0.00005: return false
+	return true
+
 func run() -> void:
 	if not OS.get_environment("XDG_DATA_HOME").contains("skizones-test"):
 		push_error("Require isolated skizones-test XDG_DATA_HOME")
@@ -43,9 +56,11 @@ func run() -> void:
 		if FileAccess.file_exists(path+suffix):DirAccess.remove_absolute(ProjectSettings.globalize_path(path+suffix))
 	check(Saves.save_game(resort,path).ok,"Model and visual snow wear are atomically saved together")
 	var read: Dictionary=Saves._read(path)
-	check(read.ok and read.data.version==17 and read.data.foot_wear==frozen,"Checksum-protected v17 payload contains the unchanged footprints")
+	check(read.ok and read.data.version==17 and Wear.valid_state(read.data.foot_wear) and equivalent_cells(read.data.foot_wear,frozen),"Checksum-protected v17 payload contains the unchanged footprints")
 	var loaded := Resort.new()
-	check(Saves.load_game(loaded,path).ok and loaded.foot_wear_cells==frozen,"Full old resort geometry plus footprints reopen without losing snow")
+	var loaded_result: Dictionary=Saves.load_game(loaded,path)
+	check(loaded_result.ok and equivalent_cells(loaded.foot_wear_cells,frozen),"Full old resort geometry plus footprints reopen without losing snow")
+	if not loaded_result.ok: print("DIAGNOSTIC LOAD ",loaded_result)
 	var old: Dictionary=resort.snapshot()
 	old.version=16
 	old.erase("foot_wear")
