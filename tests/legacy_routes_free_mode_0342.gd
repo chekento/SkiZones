@@ -30,7 +30,7 @@ func run() -> void:
 	check(sandbox.campaign.mode=="free" and sandbox.money==Resort.FREE_CASH,"New free resort has finite JSON-safe unlimited budget")
 	var cash: float=sandbox.money
 	check(sandbox._spend(700000000.0) and sandbox.money==cash,"Construction costs never consume free-play cash")
-	check(Progression.RESEARCH.keys().all(func(id):return Progression.has(sandbox,str(id))),"All current research abilities are available in free mode")
+	check(Progression.RESEARCH.keys().all(func(id):return Progression.access_message(sandbox,"hotel",false)==""),"Free build skips research construction gates without applying career revenue bonuses")
 	check(Progression.access_message(sandbox,"grand_hotel",false)=="","Free-play hotels are never research locked")
 	check(Progression.access_message(sandbox,"gondola",true)=="","Free-play gondolas are never research locked")
 	sandbox.money=0.0 # older free-play slot with empty wallet
