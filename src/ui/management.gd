@@ -7,6 +7,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
+const LoanOptions = preload("res://src/core/loan_options_035.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
@@ -306,10 +307,102 @@ func _sponsoring(page: VBoxContainer) -> void:
 		_action(overview,L.text("Sponsorvertrag abschließen"),func(): return Sponsorship.sign(model,id),eligibility.ok)
 		if not eligibility.ok: hud._label(overview,eligibility.message,14,hud.MUTED,true)
 
+func _credit_confirmation(quote: Dictionary) -> void:
+	if not bool(quote.get("ok",false)): return
+	var preview := ConfirmationDialog.new()
+	preview.title = L.text("Kreditvertrag bestätigen")
+	preview.dialog_text = L.text("Dieses fiktive Spielangebot verpflichtet dein Resort zu Raten.\nBetrag: %d € · Laufzeit: %d Tage · Jahreszins: %.2f %%\nGesamtzinsen: %.2f € · Höchste Tagesrate: %.2f €\nDie Auszahlung ist kein Umsatz. Die Raten können dein Konto ins Minus bringen.") % [int(quote.principal),int(quote.days),float(quote.annual_rate)*100.0,float(quote.total_interest),float(quote.max_payment)]
+	add_child(preview)
+	preview.confirmed.connect(func():
+		var model: RefCounted = game.model
+		var result: Dictionary = model.take_credit(str(quote.id),int(quote.principal),int(quote.days),str(quote.mode),int(quote.grace))
+		hud.toast(str(result.get("message","")))
+		preview.queue_free()
+		refresh()
+	)
+	preview.canceled.connect(func(): preview.queue_free())
+	preview.popup_centered()
+
+func _credit_cards(page: VBoxContainer) -> void:
+	var model: RefCounted = game.model
+	var state: Dictionary = model.campaign
+	var tier: int = clampi(int(state.get("starting_tier",2)),0,4)
+	var current: Dictionary = state.get("credit_contract",{})
+	if model.loan > 0:
+		if not current.is_empty():
+			var remain: int = int(current.days)-int(current.paid_days)
+			var info: VBoxContainer = _card(page,L.text("Aktiver Resortkredit"),
+				L.text("Restschuld %s € · %d Raten noch offen · Zinsen bisher %.2f €") % [hud.money_text(model.loan),remain,float(current.paid_interest)])
+			var button := hud._button(info,L.text("Restschuld vollständig vorzeitig tilgen"),func():
+				var paid: bool = model.repay_loan()
+				hud.toast(L.text("Kredit getilgt.") if paid else L.text("Nicht genügend Geld für Sondertilgung."))
+				refresh()
+			)
+			button.disabled = model.money < float(current.balance)
+		else:
+			var old := _card(page,L.text("Bestehender Kredit aus einer älteren Spielversion"),
+				L.text("Die bisherigen Kreditregeln bleiben erhalten. 450 € pauschale Tageslast; vollständige Tilgung jederzeit möglich."))
+			var old_btn := hud._button(old,L.text("Altkredit vollständig tilgen"),func():
+				var paid: bool = model.repay_loan()
+				hud.toast(L.text("Kredit getilgt.") if paid else L.text("Nicht genügend Geld."))
+				refresh()
+			)
+			old_btn.disabled = model.money < float(model.loan)
+		return
+	_card(page,L.text("Finanzierung: sechs Kreditmodelle"),
+		L.text("Fiktive Spielbank · Kredite sind keine Betriebserlöse. Zinssätze berücksichtigen die gewählte Startstufe; bei fehlender Deckung droht ein negatives Konto. Nach dem Abschluss erscheinen Raten und Restschuld."))
+	var free_cash: float = float(model.last_report.get("tickets",0.0)) + float(model.last_report.get("services",0.0)) - float(model.last_report.get("costs",0.0))
+	for spec in LoanOptions.FIXED:
+		var quote: Dictionary = LoanOptions.offer(str(spec.id),tier)
+		if not bool(quote.get("ok",false)): continue
+		var card: VBoxContainer = _card(page,L.text(str(quote.name)),
+			L.text("%s € · %d Tage · %.2f %% Jahreszins\nGesamtzins %s € · maximal %.2f € pro Tag\n%s") % [hud.money_text(float(quote.principal)),int(quote.days),float(quote.annual_rate)*100.0,hud.money_text(float(quote.total_interest)),float(quote.max_payment),L.text(LoanOptions.risk_hint(quote,free_cash))])
+		hud._button(card,L.text("Kreditbedingungen prüfen"),func(q=quote): _credit_confirmation(q))
+	var mine: VBoxContainer = _card(page,L.text("Wunschkredit frei kalkulieren"),
+		L.text("Betrag, Laufzeit, Rückzahlungsart und maximal 14 Tage Stundung selbst wählen; die Bank kalkuliert den Risikozins."))
+	var amount := SpinBox.new()
+	amount.min_value = LoanOptions.MIN_PRINCIPAL
+	amount.max_value = LoanOptions.MAX_PRINCIPAL
+	amount.step = 1000
+	amount.value = 100000
+	amount.custom_minimum_size.y = 48
+	hud._label(mine,L.text("Kreditsumme in €"),16,hud.INK)
+	mine.add_child(amount)
+	var duration := SpinBox.new()
+	duration.min_value=7
+	duration.max_value=LoanOptions.MAX_DAYS
+	duration.step=7
+	duration.value=84
+	duration.custom_minimum_size.y=48
+	hud._label(mine,L.text("Laufzeit in Betriebstagen"),16,hud.INK)
+	mine.add_child(duration)
+	var grace := SpinBox.new()
+	grace.min_value=0
+	grace.max_value=LoanOptions.MAX_GRACE
+	grace.step=1
+	grace.value=0
+	grace.custom_minimum_size.y=48
+	hud._label(mine,L.text("Anfängliche Stundung in Tagen"),16,hud.INK)
+	mine.add_child(grace)
+	var modes := OptionButton.new()
+	modes.custom_minimum_size.y = 48
+	for mode in LoanOptions.REPAYMENT_MODES: modes.add_item(L.text(str(mode)))
+	hud._label(mine,L.text("Rückzahlungsart: Annuität / lineare Tilgung / endfällig"),16,hud.INK)
+	mine.add_child(modes)
+	hud._button(mine,L.text("Wunschkredit berechnen und prüfen"),func():
+		var mode: String = str(LoanOptions.REPAYMENT_MODES[modes.selected])
+		var quote: Dictionary = LoanOptions.offer("custom",tier,int(amount.value),int(duration.value),mode,int(grace.value))
+		if not bool(quote.get("ok",false)):
+			hud.toast(str(quote.get("message","")))
+			return
+		_credit_confirmation(quote)
+	)
+
 func _finances(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
 	var state: Dictionary = model.campaign
 	_card(page, L.text("Deine wirtschaftliche Entwicklung"), L.text("Budget: %s €\nTicket- und Serviceerlöse insgesamt: %s €\nBetriebliche Überschüsse seit Beginn: %s €\nAktueller Betrieb: ca. %s €/Tag\nKredit: %s €") % L.args([hud.money_text(model.money), hud.money_text(state.turnover), hud.money_text(state.profit), hud.money_text(model.operating_costs()), hud.money_text(model.loan)]))
+	_credit_cards(page)
 	var graph := _card(page, L.text("Ergebnis nach Investitionen · letzte 28 Betriebstage"), L.text("Grün: positives Ergebnis. Rot: Ausgaben für Betrieb und Investitionen übersteigen Einnahmen und Prämien. Kreditaufnahme und Tilgung sind keine Erlöse oder Betriebskosten."))
 	var chart := Chart.new()
 	chart.rows = state.history
