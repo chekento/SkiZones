@@ -79,5 +79,7 @@ jobs:
         if: always()
         with:
           name: unified-notifications-visual-QA
-          path: build/qa/achievement-024-raised-hud.png
+          path: |
+            build/qa/achievement-024-raised-hud.png
+            build/qa/radio-035-*.png
           retention-days: 60
