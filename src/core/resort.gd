@@ -61,6 +61,8 @@ var pistes: Array = []
 var lifts: Array = []
 var buildings: Array = []
 var walk_areas: Array = []
+## Compact pedestrian snow wear, stored atomically with the rest of the mountain.
+var foot_wear_cells: Array = []
 var parties: Array=[]
 var guests: Array = []
 var achievements: Array = []
@@ -133,6 +135,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	lifts.clear()
 	buildings.clear()
 	walk_areas.clear()
+	foot_wear_cells.clear()
 	guests.clear()
 	parties.clear()
 	portal_path.clear()
@@ -2171,7 +2174,7 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":16,"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -2247,7 +2250,7 @@ func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data, legacy_geometry)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path"]:
+	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path", "foot_wear_cells"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
@@ -2266,8 +2269,13 @@ func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	_loading(12.0, L.text("Spielstand und Karriere prüfen …"))
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 17:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
+	# A malformed or duplicated wear payload is rejected before touching the world.
+	# Older save versions simply start with fresh snow.
+	var wear: Variant = data.get("foot_wear", []) if data.version >= 17 else []
+	if not preload("res://src/world/foot_wear.gd").valid_state(wear): return invalid
+	foot_wear_cells = wear.duplicate(true)
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
 		return invalid
