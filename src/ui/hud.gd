@@ -588,6 +588,30 @@ func _build_header() -> void:
 	header_save_button = _button(box,L.text("Speichern"),game.save_game)
 	header_menu_button = _button(box,L.text("Menü"),game.show_menu)
 
+func _update_save_status() -> void:
+	if not is_instance_valid(header_save_button): return
+	if not game.has_game:
+		header_save_button.disabled = true
+		header_save_button.text = "▣" if _header_micro else L.text("Speichern")
+		header_save_button.modulate = Color("8a9c9a")
+		header_save_button.tooltip_text = L.text("Noch kein Resort geöffnet.")
+		return
+	header_save_button.disabled = false
+	var saved: bool = not game._last_saved_marker.is_empty() and game._last_saved_marker == game._save_state_marker()
+	if game._save_failed:
+		header_save_button.text = "!" if _header_micro else L.text("Speicherfehler")
+		header_save_button.tooltip_text = L.text("Speichern fehlgeschlagen – bitte erneut versuchen.")
+		header_save_button.modulate = Color("d65a4c")
+	elif saved:
+		var recently: bool = game._last_saved_at > 0 and Time.get_ticks_msec() - game._last_saved_at < 30000
+		header_save_button.text = "✓" if _header_micro else L.text("✓ Gespeichert") if recently else L.text("✓ Aktuell")
+		header_save_button.tooltip_text = L.text("Erfolgreich gesichert – keine neuen Änderungen.") 
+		header_save_button.modulate = Color("4aa897")
+	else:
+		header_save_button.text = "●" if _header_micro else L.text("● Speichern")
+		header_save_button.tooltip_text = L.text("Ungesicherte Änderungen – zum Speichern tippen.")
+		header_save_button.modulate = Color("e4a548")
+
 func _build_tools() -> void:
 	var panel := _panel(root, 24, 170, 316, -24, 0, 1)
 	tools_panel = panel
@@ -1012,7 +1036,7 @@ func _build_menu() -> void:
 	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
 	continue_button = _button(play, L.text("Fortsetzen"), game.continue_main_game, true)
 	_button(play, L.text("Karriere · vier Spielstände"), game.show_career_slots)
-	_button(play, L.text("Freier Aufbau · alle Anlagen"), game.start_free_play)
+	_button(play, L.text("Freier Aufbau · vier Spielstände"), game.start_free_play)
 	var manage := _menu_group(box, "02  ·  RESORT & BERGWELT", "Dein Betrieb und deine acht Skiberge")
 	_button(manage, L.text("Bergpass · alle Gebiete"), func():
 		hide_menu()
@@ -1383,6 +1407,7 @@ func refresh() -> void:
 	labels.clock.text = L.text("Tag %d · %02d:%02d") % L.args([model.day, (model.minute / 60) % 24, model.minute % 60])
 	labels.weather.text = L.text("%s   /   %.0f °C   /   Wind %.0f km/h") % L.args([model.weather().name, model.weather().temperature, model.weather().wind])
 	for key in header_details:labels[key].tooltip_text=(labels.money.tooltip_text if key=="money" else str(labels[key].text))+"\n"+str(header_details[key].text)
+	_update_save_status()
 	pause_button.text = L.text("Weiter") if game.paused else L.text("Pause")
 	for i in range(speed_buttons.size()):
 		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
