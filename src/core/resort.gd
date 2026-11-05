@@ -22,6 +22,7 @@ const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
 const PisteFeatures = preload("res://src/core/piste_features.gd")
@@ -1963,7 +1964,7 @@ func operating_costs(include_staff: bool = true) -> float:
 		for person in operations.staff:
 			var times: Array = Ops.SHIFTS[person.shift]
 			staff_cost += float(person.wage) * posmod(int(times[1]) - int(times[0]), 1440) / 60.0
-	return staff_cost + amount * (0.85 if Progression.has(self, "efficient_snow") else 1.0) + (450.0 if loan > 0 else 0.0)
+	return staff_cost + amount * (0.85 if Progression.has(self, "efficient_snow") else 1.0) + (450.0 if loan > 0 and not CreditService.active(self) else 0.0)
 
 func _close_day() -> void:
 	if day_finished() or not guests.is_empty():
@@ -1995,6 +1996,9 @@ func next_day() -> bool:
 	_invalidate()
 	return true
 
+func take_credit(kind: String, amount: int = 0, term: int = 0, mode: String = "annuity", grace: int = 0) -> Dictionary:
+	return CreditService.take(self,kind,amount,term,mode,grace)
+
 func take_loan() -> bool:
 	if loan > 0:
 		return false
@@ -2003,6 +2007,7 @@ func take_loan() -> bool:
 	return true
 
 func repay_loan() -> bool:
+	if CreditService.active(self): return bool(CreditService.early_repay(self).get("ok",false))
 	if loan <= 0 or money < loan:
 		return false
 	money -= loan
@@ -2281,7 +2286,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var journey_scale: Variant = data.get("journey_scale", 30.0)
 	if not Terrain.number(journey_scale) or journey_scale not in [10.0, 30.0]: return invalid
 	terrain.journey_scale = float(journey_scale)
-	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [0 if data.version >= 14 else OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 150000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
+	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [0 if data.version >= 14 else OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 750000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
 	for key in ranges:
 		var value: Variant = data.get(key)
 		if not Terrain.number(value) or value < ranges[key][0] or value > ranges[key][1]:
