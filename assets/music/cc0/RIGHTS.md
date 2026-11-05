@@ -1,10 +1,10 @@
-# SkiZones Alpine Radio – CC0 music credits (72 tracks)
+# SkiZones Alpine Radio – CC0 music credits (87 distinct recordings)
 
-The Alpine Radio library contains 72 music files across six offline stations, assembled from individually recorded CC0 source metadata and immutable mirrors. No subscription, token, streaming API, player registration, or automatic in-app audio download is required. Files are imported by `tools/import_cc0_radio.py` with exact Git blob SHA-1 and byte-size verification.
+The Alpine Radio library currently contains **87 unique OGG music files** across **15 selectable offline radio stations plus a contextual Hotel Lobby channel**, assembled from individually recorded CC0 source metadata and immutable mirrors. No subscription, token, streaming API, player registration, or automatic in-app audio download is required. Files are imported by `tools/import_cc0_radio.py` with exact Git blob SHA-1 and byte-size verification.
 
 **Licensing scope:** All entries were declared CC0 1.0 in their upstream catalog/source metadata. CC0 is a permissive copyright/public-domain dedication, but it is **not** a warranty about third-party rights, samples, trademarks, or identity. A curator must still listen to each track and spot-check license pages before marketing the entire pack as quality-controlled. The mirrored repository's general source code license is *not* the audio license. Credits below are included even though CC0 does not require them.
 
-**Musical fit disclaimer:** Alpine includes acoustic/folk-like game music, not necessarily recorded Austrian regional folk. PistenPunk currently mixes guitar, action rock, breakbeats and chiptune – it is *not* an all-punk recording collection. Track quality and genre accuracy require human listening review.
+**Musical fit disclaimer:** Alpine includes acoustic/folk-like game music, not necessarily recorded Austrian regional folk. PistenRock currently mixes guitar, action rock, breakbeats and chiptune – it is *not* an all-punk recording collection. Track quality and genre accuracy require human listening review.
 
 
 ## alpine — 12 recordings
@@ -102,3 +102,24 @@ The six generated fallback WAV files under `assets/music/*.wav` are separate ori
 ## Gepflegte siebte Station: Gipfelrausch FM
 
 A seventh mixed ski/snowboard station references 12 already-bundled recordings from the six original stations, with no new audio downloads and no additional licensing. Source credits and original artists remain as stated above. Playlist titles and `mountain_moment` tags describe the intended feeling (huts, gondola ascent, piste, snowboard, powder, summit sunset), not the musician's original production intent. There are 84 playlist positions containing **72 distinct audio files**. No artist endorsement is implied.
+
+
+## 0.34 radio re-curation – eleven additional source-verified CC0 tracks
+
+All listed files were downloaded by the pinned, hash-checking GitHub Actions importer from `euuuuuuan/todak-public@f298bf5d4fa9a0f1552ce8ca437ea1d940b42d4f` and measured by Godot's actual AudioStream decoder. Their original license pages identify CC0; acknowledgments remain included. **Audio aesthetic/listening review is separate from file-integrity verification.** No SoundCloud URL or artist playlist is required by the APK.
+
+| Song (artist) | Original CC0 listing | Bundled Ogg / pin | Godot duration |
+| --- | --- | --- | --- |
+| **Apple Cider** · Zane Little Music | [CC0 source](https://opengameart.org/content/apple-cider) | `r34-apple-cider.ogg` · SHA1 `4f7eb08e143cbbabaec6e5ec94740df4426ca384` · 2466972 B | 3:20 |
+| **Coffee House Bump** · OatCog | [CC0 source](https://opengameart.org/content/coffee-house-bump) | `r34-coffee-house-bump.ogg` · SHA1 `70924049e9976224ded5bda3af2bf06bb851a6a4` · 1559452 B | 2:36 |
+| **DJ Synth Wave / Funk** · Alex McCulloch / Pro Sensory | [CC0 source](https://opengameart.org/content/dj-synth-wave-funk) | `r34-dj-synth-funk.ogg` · SHA1 `007778c88530149fa16d4a14758a122bed68ba62` · 3515677 B | 4:57 |
+| **Etirwer** · Kistol | [CC0 source](https://opengameart.org/content/etirwer) | `r34-etirwer.ogg` · SHA1 `9d695ff3f849420d7e77e3217a9b64809de2ae8e` · 1963336 B | 2:10 |
+| **Funked Up** · Joth | [CC0 source](https://opengameart.org/content/funked-up) | `r34-funked-up.ogg` · SHA1 `cb577e4362f408f47d01da9c8f0978c5d41e636a` · 792207 B | 1:06 |
+| **Going _Home_** · HoliznaCC0 | [CC0 source](https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/going-home-3/) | `r34-going-home.ogg` · SHA1 `25ab5fab4b972b30f23f58e81529672dd14d332f` · 1566524 B | 2:30 |
+| **Jazz** · Spring Spring / Julie Damsgaard | [CC0 source](https://opengameart.org/content/jazz-1) | `r34-jazz-spring.ogg` · SHA1 `df35b8377c7381bb73a281045b23180bf2964894` · 1369162 B | 1:12 |
+| **Liquid Flame** · Of Far Different Nature | [CC0 source](https://opengameart.org/content/liquid-flame) | `r34-liquid-flame.ogg` · SHA1 `c6b0987ecf35e7f8efb02bb0054d6ebf6310069f` · 2651586 B | 3:41 |
+| **Lost in the Snow Wave** · hatmix | [CC0 source](https://opengameart.org/content/lost-in-the-snow-wave) | `r34-lost-snow-wave.ogg` · SHA1 `9c277dad9913bd8c01eb40590844db8306f6fda1` · 3478125 B | 2:53 |
+| **Moon Unit ( Lofi , Reflection , Dreamy )** · HoliznaCC0 | [CC0 source](https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/moon-unit-lofi-reflection-dreamy/) | `r34-moon-unit.ogg` · SHA1 `c59908364ca178a05335bcad9ca40a384765f00c` · 1780705 B | 2:52 |
+| **One Night In France ( Lofi, Nostalgic, Chill )** · HoliznaCC0 | [CC0 source](https://freemusicarchive.org/music/holiznacc0/public-domain-lofi/one-night-in-france-lofi-nostalgic-chill/) | `r34-one-night-france.ogg` · SHA1 `e06a1f6c0cb2f5c50c8c6e247a42030d7e3e2d88` · 1955224 B | 3:15 |
+
+These eleven additions supplement the previously bundled catalog. Programme positions are **not** individual new recordings: multiple channels may broadcast the same properly licensed file at different virtual times. `library.json` is the machine-readable station/artist/source index, `durations.json` contains exact Godot playback lengths, and `tools/import_cc0_radio.py` verifies every source Git blob SHA-1 and exact byte count before release.

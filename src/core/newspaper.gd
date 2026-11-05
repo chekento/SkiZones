@@ -6,18 +6,22 @@ const Maps = preload("res://src/core/maps.gd")
 const Radio = preload("res://src/core/audio_design.gd")
 const RUBRICS := ["BERGSPORT", "DORFLEBEN", "WINTERWIRTSCHAFT", "PANORAMA", "AUS DEM RATHAUS"]
 const RADIO_CLAIMS := {
-	"alpine":"Akustische Berggefühle für den ganzen Skitag.",
-	"meditative":"Ruhe hinter dem letzten Gipfel — ganz ohne Hektik.",
-	"atmospherics":"Wolken, Schnee und tiefe Meditation.",
-	"space":"Tanz zwischen Sternen und Gletscherlicht.",
-	"lodge_lofi":"Warme Lo-Fi-Momente am Kamin.",
-	"mountain_sunrise":"Ein Sonnenaufgang für jeden Bergmenschen.",
-	"hotel_lobby":"Nur in der Hotelverwaltung: Piano und Lounge.",
-	"folk_alpine":"Alpengefühl im traditionellen Radiofenster.",
-	"folk_swedish":"Nordische Momente für weite Winterlandschaften.",
-	"punk":"Gitarrenpower für den Snowpark.",
-	"ska_album":"Das eigene Ska-Album — SoundCloud erst nach Klick.",
-	"erg0sphere":"KoSch-Originalalbum — SoundCloud erst nach Klick."
+	"alpine": "Akustische Gitarren und warme Hüttenklänge für jeden Skitag.",
+	"folk_alpine": "HüttenFolk: ehrliche Akustik statt verkleideter Volksmusik.",
+	"folk_swedish": "Nordic Frost: kühle Akustik für weite Winterlandschaften.",
+	"mountain_sunrise": "Summit Sunrise: der erste Sonnenstrahl über dem Berg.",
+	"freeride": "Freeride Pulse: treibende Synthbeats für Ski und Board.",
+	"punk": "PistenRock: Gitarren, Rock und Energie für den Snowpark.",
+	"hiphop": "Powder Flow: Hip-Hop und Lo-Fi für die nächste Park Line.",
+	"techno": "SnowBeat Radio: Techno und House direkt vom Gipfel.",
+	"apres": "Alpenglühen FM: House und Funk für die Après-Ski-Nacht.",
+	"classical": "Alpine Classic: Piano und Orchester über dem Tal.",
+	"meditative": "Mountain Chill: ruhige Klangflächen ohne Hektik.",
+	"lodge_lofi": "Lodge Lo-Fi: entspannte Beats am warmen Kamin.",
+	"glacier": "Glacier Dreams: eisige Klangflächen und weite Stille.",
+	"space": "Cosmic Drift: Synthwave und Space-Ambient am Sternenhimmel.",
+	"atmospherics": "Deep Atmospherics: Drones und sphärische Bergnächte.",
+	"hotel_lobby": "Hotel Lobby FM: Piano und Jazz nur in der Hotellounge."
 }
 const LEGACY_NAMES := [
 	"Der hundertste Schwung",

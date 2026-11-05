@@ -22,11 +22,12 @@ func tree(species: int) -> ArrayMesh:
 	line(Vector3.ZERO,Vector3(0,16,0))
 	for layer in range(3):
 		var y:=4.0+layer*3.5
-		var r:=5.0-layer*1.3
+		var r:float=(2.8-layer*0.6) if species==3 else (6.2-layer*1.4) if species==4 else (5.0-layer*1.3)
 		for direction in [Vector3.RIGHT,Vector3.FORWARD]:
 			line(Vector3(0,y+4,0),Vector3(0,y,0)+direction*r)
 			line(Vector3(0,y+4,0),Vector3(0,y,0)-direction*r)
 			if species!=2: line(Vector3(0,y,0)-direction*r,Vector3(0,y,0)+direction*r)
+	if species==3: line(Vector3(0,16,0),Vector3(0,19,0))
 	return finish()
 func circle(at: Vector3,radius: float) -> void:
 	for index in range(16):
