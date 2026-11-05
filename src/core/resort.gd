@@ -1712,7 +1712,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	if clock_tick: Ops.tick(self)
 	# A free-builder may load an older save with a small cash balance.
 	# Replenish a finite JSON-safe reserve regardless of daily expenses.
-	if campaign.get("mode", "career") == "free": money = FREE_CASH
+	if campaign.get("mode", "career") == "free" and money < 100000.0: money = FREE_CASH
 	var movement: float=time_divisor if empty_calendar_step else 1.0
 	for lift in lifts:
 		if lift_running(lift): lift.clock=lift.get("clock",0.0)+movement
@@ -1822,7 +1822,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 		if guest.has("party_id"):guest.party_step=Parties.pace(self,guest)
 	_check_achievements()
 	Progression.refresh(self)
-	if campaign.get("mode", "career") == "free": money = FREE_CASH
+	if campaign.get("mode", "career") == "free" and money < 100000.0: money = FREE_CASH
 	if not Ops.continuous(self) and minute >= CLOSING and guests.is_empty():
 		_close_day()
 
