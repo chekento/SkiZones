@@ -1,0 +1,156 @@
+{
+  "version": "0.35.0",
+  "android_version_code": 44,
+  "base_commit": "b3a3f29c85561644791468b1e919c3b38163da12",
+  "source_commit": "84bbb0bfdf41b8cd06547078b4e8ade2dafee4a8",
+  "engine": "4.5.2.stable.official.6ce3de25a",
+  "official_archive_sha512_verified": true,
+  "generated_at_utc": "2026-11-05T18:17:46.187440+00:00",
+  "suites": [
+    {
+      "suite": "building_offers_loans_035",
+      "passed": 457,
+      "failed": 0
+    },
+    {
+      "suite": "credit_contracts_035",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "suite": "retail_sales_035",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "suite": "footwear_persistence_035",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "status_banner_035",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "suite": "daily_guests_hotfix_0341",
+      "passed": 49,
+      "failed": 0
+    },
+    {
+      "suite": "progression",
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "suite": "village_hospitality",
+      "passed": 62,
+      "failed": 0
+    },
+    {
+      "suite": "traffic_and_finances",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "quiet_night_033",
+      "passed": 63,
+      "failed": 0
+    },
+    {
+      "suite": "start_tiers_032",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "radio_live_033",
+      "passed": 100,
+      "failed": 0
+    },
+    {
+      "suite": "save_rescue_free_slots_0332",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "suite": "ground_surface_sampling_032",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "suite": "recruitment_scenarios_032",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "suite": "guest_agendas",
+      "passed": 72,
+      "failed": 0
+    },
+    {
+      "suite": "hotel_holidays",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "suite": "scenario_villages",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "suite": "achievement_progression",
+      "passed": 2499,
+      "failed": 0
+    },
+    {
+      "suite": "legacy019",
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "suite": "legacy027",
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "suite": "radio_hardware_035",
+      "passed": 64,
+      "failed": 0
+    },
+    {
+      "suite": "status_banner_audio_scene_035",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "arcade_mobile_scene_033",
+      "passed": 80,
+      "failed": 0
+    },
+    {
+      "suite": "expansion_ui_035",
+      "passed": 28,
+      "failed": 0
+    },
+    {
+      "suite": "compile_sensitive_032",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "portrait_hud_034",
+      "passed": 58,
+      "failed": 0
+    }
+  ],
+  "passed_assertions": 3904,
+  "failed_assertions": 0,
+  "localization_messages": 2745,
+  "android_release_tested": false,
+  "public_upload_blocked": true,
+  "limitations": [
+    "No signed 0.35 APK or Android API 30/36 lifecycle/upgrade results yet.",
+    "Existing rendered tests report residual Canvas/RID resources at process shutdown.",
+    "These local assertions are not a full multiwinter balance or complete real-piste connectivity audit."
+  ]
+}

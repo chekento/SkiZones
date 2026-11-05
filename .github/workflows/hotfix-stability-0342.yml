@@ -1,11 +1,11 @@
-name: 0.34.2 Traffic, Legacy Saves and Free Build Hotfix QA
+name: 0.35.1 Traffic, Legacy Saves and Free Build Hotfix QA
 on:
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: 0342-stability-${{ github.ref }}
+  group: 0351-stability-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   stability:
@@ -40,7 +40,9 @@ jobs:
       - name: Busy resort ski traffic regression
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-traffic-0342
-        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
+        run: |
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/busy_resort_0351.gd
       - name: Routes, services and gondola lift loading
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-routes-0342

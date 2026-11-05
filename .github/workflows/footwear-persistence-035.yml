@@ -1,0 +1,56 @@
+name: 0.35 persistent snow-wear and old-save QA
+on:
+  pull_request:
+    paths:
+      - 'src/world/foot_wear.gd'
+      - 'src/world/resort_view.gd'
+      - 'src/core/resort.gd'
+      - 'src/main.gd'
+      - 'tests/footwear_persistence_035.gd'
+      - '.github/workflows/footwear-persistence-035.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: skizones-snow-saves-035-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  snow-saves:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Validate GDScript import and localization
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=240)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: 0.35 cold-save snow wear and strict v16/v17 migration
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-snow-wear-035
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/footwear_persistence_035.gd
+      - name: 0.33.2 old career and independent free slots
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-backcompat-035
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
+      - name: 0.34 rate, camera and temporary visual snow regression
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+          xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/footwear_pacing_camera_034.gd

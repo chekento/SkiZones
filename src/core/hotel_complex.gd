@@ -61,12 +61,11 @@ static func check(model: RefCounted, hotel_id: int, module_id: int) -> Dictionar
 static func attach(model: RefCounted, hotel_id: int, module_id: int) -> Dictionary:
 	var test := check(model,hotel_id,module_id)
 	if not test.ok: return test
-	if model.money < LINK_COST: return {"ok":false,"message":"Für den Verbindungsgang fehlen 4.500 €."}
+	if not model.can_afford(LINK_COST): return {"ok":false,"message":"Für den Verbindungsgang fehlen 4.500 €."}
 	# All checks complete before state and budget change.
 	var module: Dictionary = model.asset(module_id)
 	module.hotel_attachment={"hotel_id":hotel_id,"after_id":int(test.after_id),"slot":int(test.slot)}
-	model.money -= LINK_COST
-	model.report.investments = float(model.report.get("investments",0.0)) + LINK_COST
+	model._spend(LINK_COST)
 	model._invalidate()
 	return {"ok":true,"message":L.format_message("Eigenständiger Betrieb ist jetzt Modul %d des Hotelkomplexes.",int(test.slot))}
 

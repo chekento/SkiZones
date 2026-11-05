@@ -27,6 +27,46 @@ static func wear_stage(passages: int) -> int:
 	if passages < 32: return 2
 	return 3
 
+## Stable, bounded per-resort data for save format 17.
+## No transient guest IDs or GPU/Node objects are persisted.
+static func valid_state(rows: Variant) -> bool:
+	if not rows is Array or rows.size() > MAX_CELLS: return false
+	var seen: Dictionary = {}
+	for row in rows:
+		if not row is Array or row.size() != 5: return false
+		for index in range(5):
+			if not (row[index] is int or row[index] is float) or not is_finite(float(row[index])): return false
+		for index in range(3):
+			if float(row[index]) != floorf(float(row[index])): return false
+		if absi(int(row[0])) > 16384 or absi(int(row[1])) > 16384 or int(row[2]) < 1 or int(row[2]) > 1000: return false
+		var direction := Vector2(float(row[3]),float(row[4]))
+		if direction.length_squared() < 0.5 or direction.length_squared() > 1.5: return false
+		var key := Vector2i(int(row[0]),int(row[1]))
+		if seen.has(key): return false
+		seen[key] = true
+	return true
+
+func export_state() -> Array:
+	var output: Array = []
+	var keys: Array = _cells.keys()
+	keys.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return a.x < b.x or a.x == b.x and a.y < b.y
+	)
+	for key in keys:
+		var cell: Dictionary = _cells[key]
+		var direction: Vector2 = cell.direction.normalized()
+		output.append([key.x,key.y,int(cell.hits),direction.x,direction.y])
+	return output
+
+func import_state(rows: Variant) -> bool:
+	if not valid_state(rows): return false
+	reset()
+	for row in rows:
+		var key := Vector2i(int(row[0]),int(row[1]))
+		_cells[key] = {"hits":int(row[2]),"direction":Vector2(float(row[3]),float(row[4])).normalized()}
+	_dirty = true
+	return true
+
 func setup() -> void:
 	if not _layers.is_empty(): return
 	for level in range(4):

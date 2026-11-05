@@ -41,6 +41,17 @@ func run() -> void:
 	check(sandbox_loaded.restore(sandbox_snapshot).ok and sandbox_loaded.campaign.mode=="free","Free-mode state and large finite balance survive JSON save/restore")
 	var starter := Resort.new()
 	starter.new_game(true,20261105,"sonnenhang")
+	var career_money: float=starter.money
+	check(starter._spend(850) and is_equal_approx(starter.money,career_money-850),"Career construction remains charged after starter seeding")
+	var free_starter := Resort.new()
+	free_starter.new_game(true,20261105,"sonnenhang")
+	free_starter.campaign.mode="free"
+	free_starter.money=0.0
+	var free_piste: int=int(free_starter.pistes[0].id)
+	check(free_starter.PisteFeatures.install(free_starter,free_piste,"ramp",0.35,0).ok and free_starter.money==0,"A paused legacy free resort can build with zero saved cash before its first tick")
+	check(free_starter.upgrade_asset(int(free_starter.buildings[0].id)).ok and free_starter.money==0,"Zero-budget free resort upgrades a real building without research or cash")
+	free_starter.Ops.enable(free_starter)
+	check(free_starter.Ops._expense(free_starter,180,"recruitment") and is_equal_approx(free_starter.money,Resort.FREE_CASH-180),"A free resort immediately funds a genuine operating action while preserving its exact expense")
 	check(starter.pistes.size()>0 and starter.lifts.size()>0,"Existing saved starter has old lift and slope")
 	var old_piste: Dictionary=starter.pistes[0]
 	var old_start: Vector2=Terrain.unpack(old_piste.points[0])

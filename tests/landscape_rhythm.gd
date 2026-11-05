@@ -23,7 +23,8 @@ func run() -> void:
 	model.new_game(true)
 	model.Ops.enable(model)
 	model.enable_runtime_rules()
-	model.campaign.mode="free"
+	model.campaign.mode="career"
+	model.campaign.research=["snowcraft","hospitality"]
 	model.money=3000000
 	model.party_mode=false
 	model.edge_entries=false
@@ -50,6 +51,10 @@ func run() -> void:
 	damaged.pistes[0].features[0].kind="unknown"
 	check(not restored.restore(damaged).ok,"Unknown feature kinds cannot enter a save")
 	check(Features.remove(model,id,1).ok and piste.features.size()==2,"A single section's feature can be removed independently")
+	model.campaign.mode="free"
+	money=model.money
+	check(Features.install(model,id,"rail",0.58,0).ok and model.money==money,"Free building installs a real module without a construction charge")
+	check(Features.install(model,id,"rail",0.60,0,2).ok and model.money==money,"Free building relocates a real module without a fee")
 	var lift: Dictionary=model.lifts[0].duplicate(true)
 	lift.kind="drag"
 	lift.length=300

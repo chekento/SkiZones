@@ -18,6 +18,12 @@ var suggest_button: Button
 var reverse_button: Button
 var site_button: Button
 var browser_button: Button
+var planning_bar := HBoxContainer.new()
+var route_tab: Button
+var stats_tab: Button
+var live_stats: Label
+var planning_page := 0
+var _previous_points := 0
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -40,6 +46,14 @@ func setup(interface: CanvasLayer) -> void:
 		button.add_theme_font_size_override("font_size", 16)
 		button.custom_minimum_size.y = 54
 		categories[key] = button
+	add_child(planning_bar)
+	planning_bar.add_theme_constant_override("separation", 6)
+	route_tab = hud._button(planning_bar, L.text("Route bauen"), func(): _select_planning_page(0))
+	stats_tab = hud._button(planning_bar, L.text("Live-Statistik"), func(): _select_planning_page(1))
+	for tab in [route_tab, stats_tab]:
+		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.add_theme_font_size_override("font_size", 14)
+	live_stats = hud._label(self, "", 14, hud.TEAL, true)
 	guidance = hud._label(self, "", 14, hud.MUTED, true)
 	guidance.custom_minimum_size.y = 54
 	guidance.tooltip_text = L.text("Wähle zuerst eine Anlage und platziere sie anschließend direkt auf dem Berg.")
@@ -141,8 +155,32 @@ func select_category(value: String, from_tool: bool = false) -> void:
 	refresh(true)
 	if value=="village" and not from_tool: hud.building_browser.open()
 
+func _select_planning_page(value: int) -> void:
+	planning_page = value
+	refresh(true)
+
+func _update_planning() -> void:
+	var count: int = game.points.size()
+	if game.tool == "piste":
+		if count > 0 and _previous_points == 0: planning_page = 1
+		elif count == 0: planning_page = 0
+	_previous_points = count
+	planning_bar.visible = category == "pistes"
+	live_stats.visible = planning_bar.visible and planning_page == 1
+	if live_stats.visible:
+		var analysis: Dictionary = route_profile.analysis
+		if count < 1:
+			live_stats.text = L.text("Setze den ersten Routenpunkt am Hang.")
+		elif count == 1:
+			live_stats.text = L.text("Start: %.0f m · nächster Punkt bergab") % game.model.terrain.height(game.model.Terrain.unpack(game.points[0]))
+		else:
+			live_stats.text = L.text("%d Punkte · %.0f m Strecke · %.0f m Höhenverlust") % [count,float(analysis.get("length",0)),float(analysis.get("drop",0))]
+	for tab in [route_tab, stats_tab]:
+		tab.modulate = Color.WHITE if (tab == route_tab) == (planning_page == 0) else Color("819c9f")
+
 func refresh(force: bool = false) -> void:
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	_update_planning()
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category+str(planning_page), game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
@@ -158,7 +196,7 @@ func refresh(force: bool = false) -> void:
 			"paths": L.text("1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen")
 		}.get(category, "")
 	browser_button.visible=category=="village"
-	route_profile.visible = category == "pistes"
+	route_profile.visible = category == "pistes" and planning_page == 1
 	suggest_button.visible=(category == "pistes" and game.tool == "piste") or (category == "paths" and game.tool == "walkway")
 	suggest_button.text=L.text("Begehbaren Weg vorschlagen") if game.tool == "walkway" else L.text("Sanften Verlauf vorschlagen")
 	reverse_button.visible=category == "pistes" and game.tool == "piste"
@@ -172,7 +210,7 @@ func refresh(force: bool = false) -> void:
 		categories[key].add_theme_stylebox_override("normal", hud._style(Color("c9e2d8") if key == category else Color("e1eeea"), 7, 7))
 	for card in cards:
 		var active_category: String = {"piste": "pistes", "lift": "lifts", "building": "village", "plaza": "paths"}[card.type]
-		card.button.visible = category == active_category
+		card.button.visible = category == active_category and (category != "pistes" or planning_page == 0)
 		var locked: String = "" if card.type in ["piste", "plaza"] else game.model.build_access_message(card.key, card.type == "lift")
 		var affordable: bool = game.model.money >= card.cost
 		card.button.disabled = locked != "" or not affordable or not game.points.is_empty()

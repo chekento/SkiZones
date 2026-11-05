@@ -7,6 +7,7 @@ const Foot = preload("res://src/core/foot_network.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
 const ROLES := {
@@ -64,7 +65,7 @@ const GOAL_TIPS := {
 }
 
 static func initial() -> Dictionary:
-	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true, "pending_arrivals": 0}
+	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "goal_notices": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true, "pending_arrivals": 0}
 
 static func group_size(model: RefCounted) -> int:
 	if model.map_id not in Geo.IDS: return 1
@@ -242,7 +243,7 @@ static func fill_station(model: RefCounted, id: int, key: String) -> Dictionary:
 	if not lift.has("bottom"): return model._result(false, L.text("Einen Lift wählen."))
 	for station in station_team(model, lift):
 		if station.key != key: continue
-		if model.operations.staff.size() + station.missing > 1200 or model.money < station.missing * 180:
+		if model.operations.staff.size() + station.missing > 1200 or not model.can_afford(station.missing * 180):
 			return model._result(false, L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
 		for i in range(station.missing): hire(model, "operator", key)
 		return model._result(true, L.text("Tagschicht besetzt · 07–18 Uhr. Der Dienststatus zeigt Pausen und Abwesenheiten."))
@@ -293,7 +294,7 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 		for person in model.operations.staff:
 			if person.role == "operator" and person.assignment == station.key and person.shift == "day": assigned += 1
 		for i in range(maxi(0, station.minimum - assigned)): additions.append(station.key)
-	if not free and model.money < additions.size() * 180: return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
+	if not free and not model.can_afford(additions.size() * 180): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	if model.operations.staff.size() + additions.size() > 1200: return model._result(false, L.text("Im Personalplan ist kein Platz für dieses Team."))
 	for target in additions: hire(model, "operator", target, "day", free)
 	return model._result(true, L.text("Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."))
@@ -335,7 +336,7 @@ static func fill_building(model: RefCounted, id: int, free: bool = false) -> Dic
 	for row in building_team(model, building):
 		for i in range(row.missing): missing.append([row.role, row.shift])
 	if model.operations.staff.size() + missing.size() > 1200: return model._result(false, L.text("Im Personalplan ist kein Platz für dieses Team."))
-	if not free and model.money < missing.size() * 180: return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
+	if not free and not model.can_afford(missing.size() * 180): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	for entry in missing: hire(model, entry[0], "building:%d" % id, entry[1], free)
 	return model._result(true, L.text("Gebäudeteam eingestellt. Im Personalplan sind weitere Schichten möglich."))
 
@@ -376,7 +377,7 @@ static func repair_check(model: RefCounted, id: int, workshop_id: int = -1) -> D
 				if int(task.workshop) == int(building.id): busy = true
 			if not busy: workshop = int(building.id)
 	if workshop < 0: return model._result(false, L.text("Eine freie Technikzentrale mit Techniker und Elektriker wird benötigt."))
-	if model.money < 900: return model._result(false, L.text("Das Budget reicht für die Reparatur noch nicht."))
+	if not model.can_afford(900): return model._result(false, L.text("Das Budget reicht für die Reparatur noch nicht."))
 	return model._result(true, L.text("Reparatur möglich · 900 € und ein Ersatzteilpaket"), {"workshop":workshop,"cost":900})
 
 static func repair(model: RefCounted, id: int, workshop_id: int = -1) -> Dictionary:
@@ -400,7 +401,7 @@ static func buy_groomers(model: RefCounted, garage: int, count: int) -> Dictiona
 	if count < 1 or count > 6 or model.operations.vehicles.size()+count > 24:
 		return model._result(false,L.text("Maximal 24 Pistenraupen im Fuhrpark."))
 	var price: int=count*65000
-	if model.money < price: return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
+	if not model.can_afford(price): return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
 	if not model._spend(price):return model._result(false,L.text("Das Budget reicht für diesen Fuhrpark nicht."))
 	for i in range(count):
 		model.operations.vehicles.append({"id": model.operations.next_vehicle, "garage": garage, "piste": -1, "remaining": 0.0, "total": 0.0, "hours": 0.0, "fuel": 100.0, "wear": 0.0, "point": building.point.duplicate()})
@@ -497,7 +498,8 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 	return model._result(false, L.text("Kein offener Hilferuf gefunden."))
 
 static func _expense(model: RefCounted, amount: float, centre: String) -> bool:
-	if model.money < amount: return false
+	if not model.can_afford(amount): return false
+	if model.campaign.get("mode", "career") == "free" and model.money < amount: model.money = model.FREE_CASH
 	_charge(model, amount, centre)
 	return true
 
@@ -520,8 +522,9 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 	upkeep += 35.0 + model.Hospitality.extra_upkeep(building)
 	var efficiency: float = 0.85 if Progression.has(model, "efficient_snow") else 1.0
 	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
-	var costs := wages + overhead
-	return {"sales": sales, "wages": wages, "overhead": overhead, "costs": costs, "net": sales - costs}
+	var supplies: float = float(model.operations.cost_centres.get("supplies:%d" % int(building.id), 0.0))
+	var costs := wages + overhead + supplies
+	return {"sales": sales, "wages": wages, "supplies": supplies, "overhead": overhead, "costs": costs, "net": sales - costs}
 
 static func tick(model: RefCounted) -> void:
 	if not active(model): return
@@ -579,6 +582,12 @@ static func tick(model: RefCounted) -> void:
 				lift.fault = ""
 				lift.wear = 0.0
 				model.operations.repairs_done += 1
+				# A successful real repair is worth an informative, single
+				# banner; removing the finished work order prevents repeats.
+				model.recent_unlocks.append({"kind":"repair",
+					"title":str(lift.get("name",L.text("Seilbahnanlage"))),
+					"detail":L.text("Reparatur abgeschlossen · Lift wieder betriebsbereit"),
+					"reward":0})
 			finished.append(task)
 			model._operational_change()
 	for task in finished: model.operations.repairs.erase(task)
@@ -684,6 +693,9 @@ static func tick(model: RefCounted) -> void:
 
 static func midnight(model: RefCounted) -> void:
 	model.Hospitality.daily(model)
+	# Interest is a real operating expense; principal reduces cash and debt,
+	# not the profit and loss account. Exactly once per closed day.
+	CreditService.service_day(model)
 	Progression.finish_day(model)
 	model.report.closed_at = 1440
 	model.last_report = model.report.duplicate(true)
@@ -746,6 +758,18 @@ static func evaluate(model: RefCounted) -> Array:
 		"filzmoos": values = [staffed, rescue_ready, model.operations.groomed >= 3, model.total_guests >= 100 and max_wait(model) < 12, profitable >= 2]
 		"kitzbuehel": values = [model.operations.repairs_done > 0, staffed, model.operations.parts >= 2, model.total_guests >= 200 and max_wait(model) < 15, model.total_guests >= 300 and profitable >= 1]
 		_: values = [rescue_ready and workshop_ready, model.operations.vehicles.size() >= 3 and model.operations.groomed >= 3, evening_ready, staffed, profitable >= 3]
+	# Notify each real milestone exactly once per scenario save, even if a
+	# staffing or queue condition becomes false and true again later.
+	# All older saves seed the notice ledger from their already-true goals.
+	var notified: Array = model.operations.get("goal_notices", [])
+	for i in range(values.size()):
+		if bool(values[i]) and not notified.has(i):
+			notified.append(i)
+			model.recent_unlocks.append({"kind":"mission",
+				"title":str(GOALS[scenario][i]),
+				"detail":L.text("Szenario: %s · Mission %d von %d") % [L.text(str(Geo.map_spec(scenario).name)),i+1,values.size()],
+				"reward":0})
+	model.operations.goal_notices = notified
 	model.operations.goals = values
 	if not model.operations.completed and values.all(func(v): return v):
 		model.operations.completed = true
@@ -762,6 +786,13 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	# Legacy releases have no banked morning interest. Migrate it to zero,
 	# with strict bounds before admitting anybody to an existing career.
 	if not state.has("pending_arrivals"): state["pending_arrivals"] = 0
+	# Older career/scenario snapshots carry goals but not a notification
+	# ledger. Their completed goals should never be reannounced on loading.
+	if not state.has("goal_notices"):
+		state["goal_notices"] = []
+		if state.get("goals") is Array:
+			for i in range((state.goals as Array).size()):
+				if state.goals[i] == true: state.goal_notices.append(i)
 	var defaults := initial()
 	for key in defaults:
 		if not state.has(key) or typeof(state[key]) != typeof(defaults[key]) and not (defaults[key] is float and Terrain.number(state[key])) and not (defaults[key] is int and Terrain.number(state[key])): return false
@@ -809,6 +840,13 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		for key in ["day", "tickets", "services", "costs", "guests", "rides", "investments", "departures", "satisfaction", "rewards"]:
 			if not Terrain.number(row.get(key)) or row[key] < 0: return false
 	if state.goals.size() > 5 or not state.goals.all(func(v): return v is bool): return false
+	if state.goal_notices.size() > 5: return false
+	var notified_once: Dictionary={}
+	for idx in state.goal_notices:
+		if not (idx is int or idx is float) or float(idx) != floorf(float(idx)) or int(idx) < 0 or int(idx) >= 5 or notified_once.has(int(idx)): return false
+		notified_once[int(idx)]=true
+	# Stable integer IDs after JSON decoding.
+	state.goal_notices=state.goal_notices.map(func(idx): return int(idx))
 	# JSON numbers are floats in Godot. Canonical integers keep a migrated
 	# populated save bit-for-bit deterministic after the next snapshot.
 	for key in defaults:
@@ -846,7 +884,7 @@ static func fill_line_station(model: RefCounted, id: int, key: String) -> Dictio
 	if not lift.has("bottom"): return model._result(false,L.text("Einen Lift wählen."))
 	for station in line_station_team(model,lift):
 		if station.key != key: continue
-		if model.operations.staff.size()+station.missing > 1200 or model.money < station.missing*180: return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
+		if model.operations.staff.size()+station.missing > 1200 or not model.can_afford(station.missing*180): return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
 		for i in range(station.missing): hire(model,"operator",key)
 		return model._result(true,L.text("Tagschicht besetzt · 07–18 Uhr. Der Dienststatus zeigt Pausen und Abwesenheiten."))
 	return model._result(false,L.text("Station nicht gefunden."))
@@ -857,7 +895,7 @@ static func fill_line(model: RefCounted, id: int) -> Dictionary:
 	var rows := line_station_team(model,lift)
 	var missing := 0
 	for row in rows: missing += row.missing
-	if model.operations.staff.size()+missing > 1200 or model.money < missing*180: return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
+	if model.operations.staff.size()+missing > 1200 or not model.can_afford(missing*180): return model._result(false,L.text("Das Budget oder der Personalplatz reicht für dieses Team noch nicht."))
 	for row in rows: fill_line_station(model,id,row.key)
 	return model._result(true,L.text("Alle Stationen dieses Liftverbunds sind eingeplant."))
 

@@ -4,8 +4,11 @@ const FloatingFrame = preload("res://src/ui/floating_window.gd")
 var window := FloatingFrame.new()
 const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const BuildingOffers = preload("res://src/core/building_offers_035.gd")
+const OFFER_CATEGORIES := {"food":"Speisen", "drink":"Getränke", "retail":"Souvenirs & Waren", "service":"Service", "upgrade":"Ausstattung", "training":"Kurse & Training", "rental":"Verleih", "event":"Veranstaltungen", "lodging":"Übernachtung", "rescue":"Rettung"}
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
+const ReactionGame = preload("res://src/ui/reaction_game.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
@@ -32,6 +35,7 @@ var status: Label
 var was_paused := false
 var _recipes: Array = []
 var _recipe_names: Array = []
+var _recipe_prices: Array = []
 var _pizza_checks: Array = []
 
 func setup(owner_hud: CanvasLayer) -> void:
@@ -131,6 +135,7 @@ func _check(parent: Node, label_text: String, value: bool) -> CheckButton:
 	return field
 
 func _rebuild() -> void:
+	var previous_page: String = tabs.get_tab_title(tabs.current_tab) if tabs.get_tab_count()>0 and tabs.current_tab>=0 else ""
 	for child in tabs.get_children():
 		tabs.remove_child(child)
 		child.queue_free()
@@ -141,10 +146,13 @@ func _rebuild() -> void:
 	heading.text = L.asset_name(building)
 	if str(building.kind)=="town_hall":
 		_town_hall(building)
+		_offers(building)
 		_activity(building)
+		_restore_page(previous_page)
 		return
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
+	_offers(building)
 	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
 	_mini_games(building)
 	_activity(building)
@@ -153,6 +161,50 @@ func _rebuild() -> void:
 	_card(operation, L.text("Dein Betriebsergebnis"), L.text("Umsatz %s € · Kosten %s € · Ergebnis %s €") % [hud.money_text(balance.sales), hud.money_text(balance.costs), hud.money_text(balance.net)])
 	hud._button(operation, L.text("Personal, Status und Reparatur"), func(): close(); hud.lift_staff.open(asset_id), true)
 	hud._label(operation, L.text("Minispiele sind freiwillig. Deine Betriebe arbeiten auch ohne manuelle Schichten weiter. Drei belohnte Schichten pro Gebäude und Tag; danach bleibt freies Üben möglich."), 16, hud.MUTED, true)
+
+	_restore_page(previous_page)
+
+func _restore_page(title_value: String) -> void:
+	for index in range(tabs.get_tab_count()):
+		if tabs.get_tab_title(index)==title_value:
+			tabs.current_tab=index
+			return
+
+func _offers(building: Dictionary) -> void:
+	# Retail is charged only after a real visit; free services retain their
+	# existing staffing and operational rules.
+	var kind: String = str(building.get("kind",""))
+	var level: int = int(building.get("level",1))
+	var page: VBoxContainer = _page(L.text("Angebote & Ausbau"))
+	var offered: Array = BuildingOffers.active(kind,level)
+	var pending: Array = BuildingOffers.locked(kind,level)
+	_card(page,L.text("Betrieb · Stufe %d") % maxi(1,level),
+		L.text("Speisen, Getränke und Souvenirs werden nach echten Besuchen verkauft. Wareneinsatz wird einmal je Verkauf abgebucht. Kurse, Ausrüstung und kostenlose Grunddienste folgen ihren bestehenden Betriebsregeln."))
+	var upgrade: Dictionary = hud.game.model.upgrade_check(int(building.id))
+	var upgrade_button: Button = _action(page,str(upgrade.message),func():
+		var result: Dictionary = hud.game.model.upgrade_asset(int(building.id))
+		if result.ok: hud.game.view.rebuild()
+		return result
+	)
+	upgrade_button.disabled = not upgrade.ok
+	var current: VBoxContainer = _card(page,L.text("Bereits verfügbare Angebote"),
+		L.text("%d Angebote und Leistungen für diesen Gebäudetyp.") % offered.size())
+	for offer in offered:
+		var unit_price: float = float(offer.price)
+		var summary: String = L.text("Aktiv · Kategorie: %s") % L.text(str(OFFER_CATEGORIES.get(str(offer.category),str(offer.category))))
+		if unit_price > 0.0:
+			summary += "\n" + L.text("Kalkulation je Einheit: %.2f € Verkauf · %.2f € Wareneinsatz · %.2f € Deckungsbeitrag vor Personal und Fixkosten.") % [unit_price,float(offer.cost),BuildingOffers.sale_margin(offer)]
+		else:
+			summary += "\n" + L.text("Im Grundbetrieb enthalten; Kosten und Kapazität werden weiterhin vom bestehenden Betriebssystem gesteuert.")
+		var sold: Dictionary = building.get("product_sales",{}).get(str(offer.id),{})
+		if not sold.is_empty():
+			summary += "\n" + L.text("Verkauft: %d · Umsatz %.2f € · Wareneinsatz %.2f €") % [int(sold.quantity),float(sold.revenue),float(sold.cost)]
+		_card(current,L.text(str(offer.name)),summary)
+	if not pending.is_empty():
+		var future: VBoxContainer = _card(page,L.text("Weitere Freischaltungen"),
+			L.text("Gebäude können bis Stufe 5 ausgebaut werden. Jeder Ausbau kostet Kapital und erhöht die laufenden Kosten."))
+		for offer in pending:
+			_card(future,L.text(str(offer.name)),L.text("Benötigt Gebäudestufe %d · Kategorie: %s") % [int(offer.level),L.text(str(OFFER_CATEGORIES.get(str(offer.category),str(offer.category))))])
 
 func _newspaper(building: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
@@ -293,43 +345,80 @@ func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))
 	_recipes = Hospitality.menu(building)
 	_recipe_names.clear()
+	_recipe_prices.clear()
 	_pizza_checks.clear()
-	hud._label(page, L.text("Drei eigene Pizzen · zwei bis sechs Zutaten pro Pizza"), 23, hud.TEAL, true)
-	for index in range(3):
+	var limit: int = Hospitality.pizza_capacity(building)
+	hud._label(page,L.text("Eigene Pizzen, Zutaten, Preise und Gewinne · %d von %d Plätzen") % [_recipes.size(),limit],22,hud.TEAL,true)
+	_card(page,L.text("Echte Pizzakalkulation"),L.text("Preis minus Teig, Zutaten und Wareneinsatz ergibt den Deckungsbeitrag je Pizza vor Personal und Gebäudekosten. Nur die wirklich gewählte Pizza wird einem Gast in Rechnung gestellt. Alte Pizzakarten bleiben beim Laden unverändert."))
+	for index in range(_recipes.size()):
 		var recipe: Dictionary = _recipes[index]
-		var card := _card(page, L.text("Pizza %d") % (index + 1))
+		var card := _card(page,L.text("Pizza %d") % (index+1))
 		var name_field := LineEdit.new()
 		name_field.max_length = 32
-		name_field.text = recipe.name
+		name_field.text = str(recipe.name)
 		name_field.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 		name_field.custom_minimum_size.y = 48
 		card.add_child(name_field)
 		_recipe_names.append(name_field)
+		var price := _spin(card,L.text("Dein Verkaufspreis · €"),int(recipe.get("price",15)),Hospitality.PIZZA_MIN_PRICE,Hospitality.PIZZA_MAX_PRICE,1)
+		_recipe_prices.append(price)
 		var preview := ActivityArt.new()
-		preview.custom_minimum_size = Vector2(0, 145)
+		preview.custom_minimum_size = Vector2(0,145)
 		preview.toppings = recipe.toppings.duplicate()
 		card.add_child(preview)
+		var breakdown: Label = hud._label(card,"",16,hud.INK,true)
 		var toppings := HFlowContainer.new()
 		card.add_child(toppings)
 		var checks := {}
 		for key in Hospitality.TOPPINGS:
-			checks[key] = _check(toppings, L.text(Hospitality.TOPPINGS[key]), recipe.toppings.has(key))
-			checks[key].toggled.connect(func(value):
+			var control := _check(toppings,L.text(Hospitality.TOPPINGS[key]),recipe.toppings.has(key))
+			var minimum: int = int(Hospitality.PIZZA_TOPPING_LEVEL.get(str(key),1))
+			control.disabled = minimum > int(building.get("level",1)) and not recipe.toppings.has(key)
+			if control.disabled: control.tooltip_text=L.text("Zutat ab Gebäudestufe %d") % minimum
+			checks[key] = control
+			control.toggled.connect(func(value):
 				if value: preview.toppings.append(key)
 				else: preview.toppings.erase(key)
-				preview.queue_redraw())
+				preview.queue_redraw()
+			)
 		_pizza_checks.append(checks)
-	hud._button(page, L.text("Drei Pizzen auf die Karte setzen"), func():
-		var recipes: Array = []
-		for index in range(3):
-			var toppings: Array = []
+		var update_calculation := func():
+			var selected: Array=[]
+			for topping_id in checks:
+				if checks[topping_id].button_pressed: selected.append(topping_id)
+			var result: Dictionary = Hospitality.pizza_unit({"toppings":selected,"price":int(price.value)})
+			breakdown.text=L.text("Verkauf %.2f € · Zutaten %.2f € · Deckungsbeitrag %.2f € (%.0f %%)") % [float(result.price),float(result.cost),float(result.margin),float(result.margin_ratio)*100.0]
+		price.value_changed.connect(func(_value): update_calculation.call())
+		for checkbox in checks.values(): checkbox.toggled.connect(func(_state): update_calculation.call())
+		update_calculation.call()
+	if _recipes.size() < limit:
+		hud._button(page,L.text("Weiteren Pizza-Platz freischalten"),func():
+			var recipes: Array=Hospitality.menu(hud.game.model.asset(asset_id))
+			recipes.append({"name":"Neue Pizza %d" % (recipes.size()+1),"toppings":["tomato","cheese"],"price":15})
+			var result: Dictionary=Hospitality.set_menu(hud.game.model,asset_id,recipes)
+			hud.toast(str(result.message))
+			if result.ok: _rebuild()
+		)
+	if _recipes.size() > 3:
+		hud._button(page,L.text("Letzten zusätzlichen Pizza-Platz entfernen"),func():
+			var recipes: Array=Hospitality.menu(hud.game.model.asset(asset_id))
+			recipes.remove_at(recipes.size()-1)
+			var result: Dictionary=Hospitality.set_menu(hud.game.model,asset_id,recipes)
+			hud.toast(str(result.message))
+			if result.ok: _rebuild()
+		)
+	hud._button(page,L.text("Meine Pizzakarte mit Preisen speichern"),func():
+		var recipes: Array=[]
+		for index in range(_recipes.size()):
+			var selected: Array=[]
 			for key in _pizza_checks[index]:
-				if _pizza_checks[index][key].button_pressed: toppings.append(key)
-			recipes.append({"name":_recipe_names[index].text.strip_edges(), "toppings":toppings})
-		var result: Dictionary = Hospitality.set_menu(hud.game.model, asset_id, recipes)
-		hud.toast(result.message)
+				if _pizza_checks[index][key].button_pressed: selected.append(key)
+			recipes.append({"name":_recipe_names[index].text.strip_edges(),
+				"toppings":selected,"price":int(_recipe_prices[index].value)})
+		var result: Dictionary=Hospitality.set_menu(hud.game.model,asset_id,recipes)
+		hud.toast(str(result.message))
 		if result.ok: _rebuild()
-	, true)
+	)
 
 func _hotel(building: Dictionary) -> void:
 	var model: RefCounted = hud.game.model
@@ -433,6 +522,9 @@ func _mini_games(building: Dictionary) -> void:
 	board.style_id = str(hud.game.preferences.visual_style)
 	page.add_child(board)
 	hud._label(page,L.text("Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."),15,hud.MUTED,true)
+	var reaction := ReactionGame.new()
+	reaction.style_id = str(hud.game.preferences.visual_style)
+	page.add_child(reaction)
 
 func _activity(building: Dictionary) -> void:
 	var page := _page(L.text("Betriebstraining"))

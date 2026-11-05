@@ -11,6 +11,7 @@ const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const FootWear = preload("res://src/world/foot_wear.gd")
 const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
@@ -21,7 +22,9 @@ const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
+const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
 const PisteFeatures = preload("res://src/core/piste_features.gd")
@@ -42,6 +45,7 @@ var terrain := Mountain.new()
 var snow_revision := 0
 
 var money := 400000.0
+var _seeding_starter := false
 var day := 1
 var minute := OPENING
 var time_divisor := 1
@@ -63,6 +67,8 @@ var pistes: Array = []
 var lifts: Array = []
 var buildings: Array = []
 var walk_areas: Array = []
+## Compact pedestrian snow wear, stored atomically with the rest of the mountain.
+var foot_wear_cells: Array = []
 var parties: Array=[]
 var guests: Array = []
 var achievements: Array = []
@@ -135,6 +141,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	lifts.clear()
 	buildings.clear()
 	walk_areas.clear()
+	foot_wear_cells.clear()
 	guests.clear()
 	parties.clear()
 	portal_path.clear()
@@ -156,6 +163,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		# The destination includes its advertised infrastructure. Research still
 		# gates further construction after the initial package has been seeded.
 		campaign.mode = "free"
+		_seeding_starter = true
 		var start := Maps.spec(map_id)
 		var bottom := Terrain.unpack(start.start_bottom)
 		var top := Terrain.unpack(start.start_top)
@@ -172,6 +180,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		var service: String = ["lodge", "shelter", "restaurant", "lodge", "kiosk", "school", "hotel", "lodge"][Maps.MAPS.keys().find(map_id)]
 		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
+		_seeding_starter = false
 		campaign.mode = "career"
 	if include_civic: TownHall.ensure_new_town(self)
 	Progression.begin_day(self)
@@ -257,9 +266,12 @@ func _result(ok: bool, message: String, extra: Dictionary = {}) -> Dictionary:
 	value.merge(extra)
 	return value
 
+func can_afford(cost: float) -> bool:
+	return campaign.get("mode", "career") == "free" and not _seeding_starter or money >= cost
+
 func _spend(cost: float) -> bool:
 	# Sandbox purchases are free. Do not store INF in JSON savegames.
-	if campaign.get("mode", "career") == "free": return true
+	if campaign.get("mode", "career") == "free" and not _seeding_starter: return true
 	if cost > money:
 		return false
 	money -= cost
@@ -779,7 +791,7 @@ func groom_check(id: int) -> Dictionary:
 	if minute > CLOSING - 45:
 		return _result(false, L.text("Bald ist Feierabend; nachts wird automatisch präpariert."))
 	var cost := roundi(piste.length * 1.5)
-	return _result(campaign.get("mode", "career") == "free" or money >= cost, L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if money >= cost else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
+	return _result(can_afford(cost), L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if can_afford(cost) else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
 
 func groom_piste(id: int) -> Dictionary:
 	if Ops.active(self): return Ops.groom(self, id)
@@ -1506,12 +1518,23 @@ func _finish_leg(guest: Dictionary) -> void:
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
+			var product_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else BuildingOffers.visit_sale(building,guest)
 			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
-			var revenue: float = base_revenue * (1.0 if Hospitality.lodging(str(building.kind)) else 1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
+			if not product_sale.is_empty():
+				# Opt-in per-recipe prices: actual gross menu sale replaces the old
+				# flat 15-€ shop tariff rather than stacking a second income source.
+				base_revenue = float(product_sale.revenue)
+			var level_multiplier: float = 1.0 if Hospitality.lodging(str(building.kind)) or not product_sale.is_empty() else 1.0 + (building.get("level", 1) - 1) * 0.35
+			var revenue: float = base_revenue if not product_sale.is_empty() else base_revenue * level_multiplier * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
 			money += revenue
+			if not product_sale.is_empty():
+				# Inventory costing happens exactly once per actual customer visit.
+				# Revenue stays gross, ingredient purchase is a recorded operating cost.
+				Ops._charge(self,float(product_sale.cost),"supplies:%d" % int(building.id))
+				BuildingOffers.record_sale(building,product_sale)
 			report.services += revenue
 			campaign.turnover += revenue
 			Needs.complete(guest,building.kind)
@@ -1998,7 +2021,7 @@ func operating_costs(include_staff: bool = true) -> float:
 		for person in operations.staff:
 			var times: Array = Ops.SHIFTS[person.shift]
 			staff_cost += float(person.wage) * posmod(int(times[1]) - int(times[0]), 1440) / 60.0
-	return staff_cost + amount * (0.85 if Progression.has(self, "efficient_snow") else 1.0) + (450.0 if loan > 0 else 0.0)
+	return staff_cost + amount * (0.85 if Progression.has(self, "efficient_snow") else 1.0) + (450.0 if loan > 0 and not CreditService.active(self) else 0.0)
 
 func _close_day() -> void:
 	if day_finished() or not guests.is_empty():
@@ -2030,6 +2053,9 @@ func next_day() -> bool:
 	_invalidate()
 	return true
 
+func take_credit(kind: String, amount: int = 0, term: int = 0, mode: String = "annuity", grace: int = 0) -> Dictionary:
+	return CreditService.take(self,kind,amount,term,mode,grace)
+
 func take_loan() -> bool:
 	if loan > 0:
 		return false
@@ -2038,6 +2064,7 @@ func take_loan() -> bool:
 	return true
 
 func repay_loan() -> bool:
+	if CreditService.active(self): return bool(CreditService.early_repay(self).get("ok",false))
 	if loan <= 0 or money < loan:
 		return false
 	money -= loan
@@ -2206,7 +2233,7 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":16,"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	return {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -2282,7 +2309,7 @@ func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data, legacy_geometry)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path"]:
+	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path", "foot_wear_cells"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
@@ -2301,8 +2328,13 @@ func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	_loading(12.0, L.text("Spielstand und Karriere prüfen …"))
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
-	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
+	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 17:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
+	# A malformed or duplicated wear payload is rejected before touching the world.
+	# Older save versions simply start with fresh snow.
+	var wear: Variant = data.get("foot_wear", []) if data.version >= 17 else []
+	if not FootWear.valid_state(wear): return invalid
+	foot_wear_cells = wear.duplicate(true)
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
 		return invalid
@@ -2316,7 +2348,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var journey_scale: Variant = data.get("journey_scale", 30.0)
 	if not Terrain.number(journey_scale) or journey_scale not in [10.0, 30.0]: return invalid
 	terrain.journey_scale = float(journey_scale)
-	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [0 if data.version >= 14 else OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 150000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
+	var ranges := {"money": [-100000000, 1000000000], "day": [1, 100000], "minute": [0 if data.version >= 14 else OPENING, 1000000], "reputation": [0, 100], "ticket_price": [20, 95], "weather_index": [0, Catalog.WEATHER.size() - 1], "loan": [0, 750000], "total_guests": [0, 1000000000], "total_rides": [0, 1000000000], "next_id": [1, 1000000], "guest_id": [1, 1000000000]}
 	for key in ranges:
 		var value: Variant = data.get(key)
 		if not Terrain.number(value) or value < ranges[key][0] or value > ranges[key][1]:
@@ -2365,7 +2397,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				return invalid
 			var level: Variant = item.get("level", 1)
 			var extra: Variant = item.get("upgrade_total", 0.0)
-			if not Terrain.number(level) or level < 1 or level > 3 or level != floorf(level) or not Terrain.number(extra) or extra < 0 or extra > 100000000:
+			if not Terrain.number(level) or level < 1 or level > (5 if key == "buildings" and data.version >= 17 else 3) or level != floorf(level) or not Terrain.number(extra) or extra < 0 or extra > 100000000:
 				return invalid
 			item.level = int(level)
 			item.upgrade_total = float(extra)

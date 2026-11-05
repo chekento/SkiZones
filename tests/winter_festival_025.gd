@@ -48,6 +48,7 @@ func run() -> void:
 		check(Catalog.BUILDINGS.has(kind) and Needs.SERVICES.has(kind) and not Activities.spec(kind).is_empty(),"New village trade is a playable, service-capable business: "+kind)
 	var model:=Resort.new()
 	model.new_game(false)
+	model.campaign.mode="career" # exact connector charge is a career rule
 	model.money=50000
 	model.buildings=[
 		{"id":1001,"kind":"hotel","point":Terrain.pack(Vector2(110,240)),"rotation":0,"enabled":true,"level":1},
@@ -70,6 +71,9 @@ func run() -> void:
 	check(not Complex.valid_all(invalid),"Broken or forged attachment references fail safe validation")
 	check(model.demolish(1001).get("ok",false)==false,"Hotel demolition is prevented until its attached businesses are detached")
 	check(Complex.detach(model,1001,1002).ok and Complex.valid_all(model.buildings),"Module detach does not demolish the operating business")
+	model.campaign.mode="free"
+	model.money=0
+	check(Complex.attach(model,1001,1002).ok and model.money==0,"A real free-build hotel connector works without research or money even while paused")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(cal.path))
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
