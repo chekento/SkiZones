@@ -17,6 +17,8 @@ var style_meshes: Dictionary = {}
 var variants: Array = []
 var available: Array = []
 var clearing: Dictionary = {}
+var wind_material: ShaderMaterial
+var _wind_tier := -1
 
 func _disk(blocked: Dictionary, point: Vector2, radius: float) -> void:
 	for x in range(floori((point.x - radius) / CELL), ceili((point.x + radius) / CELL) + 1):
@@ -31,13 +33,17 @@ func _line(blocked: Dictionary, a: Vector2, b: Vector2, width: float) -> void:
 
 func _choose_meshes(view: Node3D) -> void:
 	var id: String = VisualStyles.valid(view.visual_style)
+	if wind_material == null:
+		wind_material = ShaderMaterial.new()
+		wind_material.shader = preload("res://src/shaders/alpine_wind.gdshader")
+		wind_material.set_shader_parameter("canopy_height", 16.0)
 	if not style_meshes.has(id):
 		var meshes: Array = []
-		for species in range(3):
+		for species in range(5):
 			var near_mesh: ArrayMesh = Art.new().tree_variant(id,species,false)
 			var far_mesh: ArrayMesh = Art.new().tree_variant(id,species,true)
-			near_mesh.surface_set_material(0,view._solid)
-			far_mesh.surface_set_material(0,view._solid)
+			near_mesh.surface_set_material(0,wind_material)
+			far_mesh.surface_set_material(0,wind_material)
 			meshes.append({"near":near_mesh,"far":far_mesh})
 		style_meshes[id] = meshes
 	variants = style_meshes[id]
@@ -102,10 +108,10 @@ func build(view: Node3D) -> void:
 		if entry.grade > 47 and rocks.size() < 150:
 			rocks.append(entry)
 			continue
-		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(4800 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.12:
+		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(5400 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.12:
 			continue
 		var cell := Vector2i((entry.point / CHUNK).floor())
-		var species := 1 if absf(sin(entry.point.x*0.17+entry.point.y*0.07)) > 0.90 else 2 if absf(cos(entry.point.y*0.19)) > 0.97 else 0
+		var species := 1 if absf(sin(entry.point.x*0.17+entry.point.y*0.07)) > 0.90 else 2 if absf(cos(entry.point.y*0.19)) > 0.97 else 3 if absf(sin(entry.point.x*0.067-entry.point.y*0.071)) > 0.89 else 4 if absf(cos(entry.point.y*0.091+entry.point.x*0.019)) > 0.92 else 0
 		var key := Vector3i(cell.x,cell.y,species)
 		if not chunks.has(key):
 			chunks[key] = []
@@ -150,6 +156,10 @@ func apply_style(view: Node3D) -> void:
 			view.rocks.multimesh.set_instance_color(i, tint)
 
 func update(focus: Vector2, zoom: float, tier: int) -> void:
+	if wind_material != null and _wind_tier != tier:
+		_wind_tier = tier
+		# Vertex-only gusts; reduced on low-end phones, no per-tree CPU updates.
+		wind_material.set_shader_parameter("sway_metres", [0.14, 0.27, 0.38][clampi(tier, 0, 2)])
 	for group in groups:
 		var distance: float = group.center.distance_to(focus)
 		group.node.visible = distance < maxf(zoom * 2.5, 360) + CHUNK

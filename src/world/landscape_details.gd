@@ -5,6 +5,7 @@ var root := Node3D.new()
 var groups: Array = []
 var wildlife_groups: Array = []
 var animals: Array = []
+var _shrub_wind: ShaderMaterial
 
 func build(view: Node3D) -> void:
 	if not root.is_inside_tree(): view.add_child(root)
@@ -15,28 +16,35 @@ func build(view: Node3D) -> void:
 	animals.clear()
 	wildlife_groups.clear()
 	var buckets: Dictionary = {}
+	# Give visible natural stones, shrubs and saplings more weight than furniture.
+	const MIX := [0, 1, 5, 9, 10, 13, 15, 16, 17, 24, 25, 26, 27, 28, 29, 0, 1, 24, 25, 26, 27, 29, 2, 3, 4, 6, 7, 8, 11, 12, 14, 18, 19, 20, 21, 22, 23]
 	var count := 0
 	for entry in view.forest.available:
-		if count >= 1200: break
+		if count >= 2400: break
 		var point: Vector2 = entry.point
 		if entry.grade > 58 or not view.terrain.bounds.has_point(point): continue
 		var cell := Vector2i((point/192).floor())
-		var variety := 18 if view.visual_style == "alpine" else 24
-		var kind := posmod(roundi(point.x*3+point.y*7),variety)
+		var kind: int = MIX[posmod(roundi(point.x*3+point.y*7), MIX.size())]
 		var key := Vector3i(cell.x,cell.y,kind)
 		if not buckets.has(key): buckets[key]=[]
 		buckets[key].append(entry)
 		count += 1
 	var meshes: Array = []
-	for kind in range(18 if view.visual_style == "alpine" else 24):
+	for kind in range(30):
 		var mesh: ArrayMesh = Art.new().landscape_detail(kind,view.visual_style)
 		mesh.surface_set_material(0,view._solid)
 		meshes.append(mesh)
+	if _shrub_wind == null:
+		_shrub_wind = ShaderMaterial.new()
+		_shrub_wind.shader = preload("res://src/shaders/alpine_wind.gdshader")
+		_shrub_wind.set_shader_parameter("sway_metres", 0.15)
+		_shrub_wind.set_shader_parameter("canopy_height", 3.5)
 	for key in buckets:
 		var entries: Array = buckets[key]
 		var node := MultiMeshInstance3D.new()
 		node.multimesh=view._multimesh(meshes[key.z],entries.size())
 		node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if key.z in [1, 9, 15, 16, 24, 26, 27, 28]: node.material_override = _shrub_wind
 		for index in range(entries.size()):
 			var transform_value: Transform3D = entries[index].transform
 			transform_value.origin=view.ground_position(entries[index].point)
@@ -72,7 +80,7 @@ func build(view: Node3D) -> void:
 func update(view: Node3D) -> void:
 	for group in groups:
 		group.node.visible=group.center.distance_to(view.focus)<maxf(260,view.zoom*1.6) and view.zoom<1500
-		group.node.multimesh.visible_instance_count=int(group.node.multimesh.instance_count*(0.4 if view.quality_tier==0 else 1.0))
+		group.node.multimesh.visible_instance_count=int(group.node.multimesh.instance_count*(0.4 if view.quality_tier==0 else 0.75 if view.quality_tier==1 else 1.0))
 	for node in wildlife_groups: node.visible=view.wildlife_enabled and view.zoom<1100
 	if not view.wildlife_enabled: return
 	var clock: float=view.model.movement_clock()+view.simulation_fraction

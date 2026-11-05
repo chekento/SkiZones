@@ -1,39 +1,47 @@
 extends RefCounted
 ## 0.26: metadata-only jukebox and spatial zone scoring; no external music URLs.
 const Terrain = preload("res://src/core/terrain.gd")
-const GENRES := ["off","alpine","techno","hiphop","punk","classical","meditative","freeride","space","apres","glacier","erg0sphere","folk_alpine","folk_swedish","atmospherics","mountain_sunrise","lodge_lofi","ska_album"]
+const GENRES := ["off","alpine","folk_alpine","folk_swedish","mountain_sunrise","freeride","punk","hiphop","techno","apres","classical","meditative","lodge_lofi","glacier","space","atmospherics"]
 const GENRE_NAMES := {
-	"off":"Musik aus",
-	"alpine":"AlpenWelle FM · Hüttenmorgen",
-	"techno":"SnowBeat Radio · Gipfelpuls",
-	"hiphop":"Powder Flow · Park Lines",
-	"punk":"PistenPunk · Kantenwind",
-	"classical":"Alpine Classic · Schneelicht",
-	"meditative":"Mountain Chill · Wolkenmeer",
-	"freeride":"Gipfelrausch FM · Ski & Snowboard",
-	"space":"Cosmic Drift · Deep Space Trance",
-	"apres":"Alpenglühen FM · Après-Ski",
-	"glacier":"Glacier Dreams · Polar Ambient",
-	"erg0sphere":"KoSch · ERG0SPHERE Journey (SoundCloud)",
-	"folk_alpine":"AlpenFolk · Akustik & Berghütte",
-	"folk_swedish":"Nordic Folk · Nordische Klangfarben",
-	"atmospherics":"Deep Atmospherics · Wolken & Sterne",
-	"mountain_sunrise":"Mountain Sunrise · Goldene Gipfel",
-	"lodge_lofi":"Lodge Lo-Fi · Kamin & Schnee",
-	"ska_album":"KoSch Milton · Ska'radise Lost (SoundCloud)",
-	"hotel_lobby":"Hotel Lobby FM · Alpen-Lounge"
+	"off": "Musik aus",
+	"alpine": "AlpenWelle FM · Bergfolk & Akustik",
+	"folk_alpine": "HüttenFolk · Alpine Akustik",
+	"folk_swedish": "Nordic Frost · Nordische Klangfarben",
+	"mountain_sunrise": "Summit Sunrise · Sanfter Bergmorgen",
+	"freeride": "Freeride Pulse · Board Beats & Synth",
+	"punk": "PistenRock · Gitarren & Board Beats",
+	"hiphop": "Powder Flow · Hip-Hop & Lo-Fi",
+	"techno": "SnowBeat Radio · Techno & House",
+	"apres": "Alpenglühen FM · Après-Ski House & Funk",
+	"classical": "Alpine Classic · Piano & Orchester",
+	"meditative": "Mountain Chill · Sanfte Klangflächen",
+	"lodge_lofi": "Lodge Lo-Fi · Kamin & Beats",
+	"glacier": "Glacier Dreams · Eis & Ambient",
+	"space": "Cosmic Drift · Space & Synth",
+	"atmospherics": "Deep Atmospherics · Drones & Soundscapes",
+	"hotel_lobby": "Hotel Lobby FM · Piano & Jazz Lounge"
 }
-## Personal soundtrack is linked, not streamed silently or bundled without masters.
-const SPACE_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/erg0sphere-journey"
-const ERG0SPHERE_EMBED_URL := "https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fkoljawschumann%2Fsets%2Ferg0sphere-journey&color=%23ff5500&auto_play=false&show_comments=false&show_user=true"
-const SKA_COLLECTION_URL := "https://soundcloud.com/koljawschumann/sets/kosch-milton-skaradise-lost"
-const SKA_EMBED_URL := "https://w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Fplaylists%2F1796940615&color=%23ff5500&auto_play=false&show_comments=false&show_user=true"
-const EXTERNAL_STATIONS := ["erg0sphere","ska_album"]
+const GENRE_MOODS := {
+	"alpine": "Berghütten, akustische Gitarren und warme Winterinstrumente.",
+	"folk_alpine": "Ruhige Saiten und akustische Hüttenabende; keine echten regionalen Volksmusikaufnahmen.",
+	"folk_swedish": "Nordisch-kühle Akustikstimmung; traditionelle Aufnahmen sind noch nicht lizenziert.",
+	"mountain_sunrise": "Goldenes Morgenlicht, sanftes Piano und entspannte Gitarren.",
+	"freeride": "Sportlicher Synthwave und treibende Beats für Ski und Snowboard.",
+	"punk": "Gitarren, Rock und schnelle Actionbeats; keine reine Punkband-Rotation.",
+	"hiphop": "Instrumentale Hip-Hop-Grooves und entspannte Lo-Fi-Beats.",
+	"techno": "Elektronischer Gipfelpuls aus Techno, House und Dance.",
+	"apres": "Tanzbarer Après-Ski-Mix aus House, Funk und grooviger Elektronik.",
+	"classical": "Klavier, Orchesterklänge und ruhige Winterklassik.",
+	"meditative": "Ruhige Ambientflächen, Glocken und meditative Musik.",
+	"lodge_lofi": "Warme Lo-Fi-Beats für Kamin, Lounge und Schneepause.",
+	"glacier": "Eisige, weite Ambientlandschaften ohne hektische Beats.",
+	"space": "Synthetische Raumfahrtstimmung von verträumt bis treibend.",
+	"atmospherics": "Tiefe Drones und lange sphärische Stücke; Laufzeiten variieren."
+}
+## Only private local recordings are broadcast; neither SoundCloud account nor
+## remote playlist is a selectable station or required for offline playback.
+const EXTERNAL_STATIONS := []
 const CONTEXT_STATIONS := ["hotel_lobby"]
-const EXTERNAL_COLLECTIONS := {
-	"erg0sphere":{"url":SPACE_COLLECTION_URL,"title":"ERG0SPHERE Journey"},
-	"ska_album":{"url":SKA_COLLECTION_URL,"title":"KoSch Milton - Ska'radise Lost"}
-}
 const ZONES := ["wilderness","piste","lift","village","hotel","restaurant","disco","spa","workshop","rescue"]
 const ZONE_NAMES := {
 	"wilderness":"Freier Berg", "piste":"Piste", "lift":"Lift", "village":"Dorf",
@@ -58,6 +66,10 @@ const WORKSHOP := ["repair_office","maintenance","watchmaker","craftshop","renta
 const QUIET := ["spa","pool","fitness"]
 
 static func genre_valid(id: String) -> String:
+	# 0.33 saves can still reference either removed SoundCloud placeholder.
+	# Migrate to its closest live offline neighbour instead of losing audio.
+	if id == "erg0sphere": return "space"
+	if id == "ska_album": return "apres"
 	return id if id in GENRES or id in CONTEXT_STATIONS else "off"
 
 static func kind_zone(kind: String) -> String:

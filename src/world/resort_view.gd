@@ -21,9 +21,11 @@ const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
+const FootWear = preload("res://src/world/foot_wear.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
+const LivingAssets = preload("res://src/world/living_assets.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
 const CrewLife=preload("res://src/world/crew_life.gd")
 const CinematicTour = preload("res://src/world/cinematic_tour.gd")
@@ -41,6 +43,7 @@ var _terrain_grading := -1
 var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
+var living_assets := LivingAssets.new()
 var festival_scene := FestivalScenery.new()
 var village_dressing := VillageDressing.new()
 var crew_life:=CrewLife.new()
@@ -87,6 +90,7 @@ var _snow_seen := -1
 var _piste_meshes: Dictionary = {}
 var _snow_geometry: Dictionary = {}
 var _track_mesh := MeshInstance3D.new()
+var foot_wear := FootWear.new()
 var _riders := MultiMeshInstance3D.new()
 var _cabin_riders := MultiMeshInstance3D.new()
 var _walkers := MultiMeshInstance3D.new()
@@ -170,8 +174,9 @@ void fragment() {
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
 		add_child(node)
+	foot_wear.setup()
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
@@ -710,6 +715,8 @@ func rebuild(progress: RefCounted = null) -> void:
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
+	if progress != null or _terrain_id != model.map_id or _terrain_generation != terrain.generation:
+		foot_wear.reset()
 	if _terrain_id != model.map_id or _terrain_generation != terrain.generation or _portal_signature!=str(model.portal_path):
 		_portal_signature=str(model.portal_path)
 		_terrain_id = model.map_id
@@ -746,6 +753,7 @@ func rebuild(progress: RefCounted = null) -> void:
 	snow_renderer.ground = ground_surface
 	for child in landscape.get_children():
 		if child.has_meta("walk_surface"): surface_picker.add_mesh("floor_%d" % child.get_instance_id(), child.mesh)
+	living_assets.clear()
 	_queue_paths.clear()
 	_motion_cache.clear()
 	_trace_cache.clear()
@@ -1036,6 +1044,7 @@ func _build_building(building: Dictionary) -> void:
 	var instance := _baked(asset_root, StyleAssets.building(building.kind,int(building.get("level",1)),Color(building.get("color", "") if building.get("color", "") != "" else Catalog.BUILDINGS[building.kind].color),visual_style), terrain.world(point))
 	instance.set_meta("styled_building",int(building.id))
 	instance.rotation.y = int(building.get("rotation", 0)) * PI * 0.5
+	living_assets.register(building, instance, visual_style)
 	_occluders.append(instance)
 	if building.kind == "snowmaker":
 		return
@@ -1267,6 +1276,7 @@ func _process(delta: float) -> void:
 				_queue_labels[lift.id].modulate = Color("edb77c") if load.queue > load.seats * 4 else Color("d8ece2")
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	living_assets.update(self, delta)
 	crew_life.update(self,delta)
 	festival_scene.update(self,delta)
 	_adapt_quality(delta)
@@ -1388,12 +1398,20 @@ func _process(delta: float) -> void:
 			cabin_riding = counts.cabin
 			foot_visitors = counts.foot
 			climbers = counts.hike
+		# Sample actual simulated pedestrian positions only when their
+		# walking leg advances; paused construction and indoor visits leave
+		# no footprints, even at 8x or during accelerated empty nights.
+		if motion_running and guest.phase == "moving" and guest.leg < guest.route.legs.size():
+			var wear_leg: Dictionary = guest.route.legs[guest.leg]
+			if wear_leg.kind == "walk":
+				foot_wear.sample_guest(int(guest.id), position_value, int(model.motion_tick), int(guest.leg), int(guest.get("group_size", 1)))
 		next_positions[guest.id] = position_value
 		if follow_guest == int(guest.id):
 			_follow_position = _follow_position.lerp(position_value, minf(1, delta * 7)) if camera_smoothing and delta > 0 and _follow_position.is_finite() else position_value
 			focus = Vector2(_follow_position.x, _follow_position.z)
 			_update_camera()
 	_guest_positions = next_positions
+	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
 	if _selection.visible:
 		_selection.position = next_positions[selected_guest] + Vector3.UP * 0.2
@@ -1690,7 +1708,11 @@ func _update_camera() -> void:
 		camera.look_at(target, Vector3(-sin(yaw), 0, -cos(yaw)))
 	else:
 		# Keep the apparent scale similar while changing the viewing angle.
-		var distance := zoom * 1.22
+		# PMDD depth: genuine perspective separation of near props, buildings,
+		# alpine forest and high ridges. No fake screen-space displacement:
+		# picking/collision rays continue to use the very same camera matrix.
+		camera.fov = 46.0
+		var distance := zoom * 1.17
 		var pitch := deg_to_rad(pitch_degrees)
 		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 		camera.look_at(target)
@@ -1877,6 +1899,7 @@ func set_visual_style(id: String) -> void:
 	# cached collision geometry just to change the mountain's appearance.
 	forest.apply_style(self)
 	_refresh_architecture()
+	living_assets.restyle(visual_style)
 	_ink_layer.visible=visual_style=="monochrome"
 	# Rebuild presentation-only decorative meshes on a style change; their
 	# placement remains deterministic and cleared of all player structures.
