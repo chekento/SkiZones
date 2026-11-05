@@ -49,7 +49,7 @@ func run() -> void:
 	var gourmet: Dictionary = {"name":"Premium Alpine","toppings":["tomato","cheese","truffle"],"price":24}
 	var pizza: Dictionary = Hospitality.pizza_unit(gourmet)
 	check(float(pizza.margin) > 0.0 and absf(float(pizza.cost)-(1.90+0.55+1.10+3.50))<0.03,"Ingredient unit cost is derived from actual chosen toppings")
-	check(float(pizza.price) == float(pizza.cost)+float(pizza.margin),"Pizza price equals direct costs plus margin")
+	check(is_equal_approx(float(pizza.price), float(pizza.cost)+float(pizza.margin)),"Pizza price equals direct costs plus margin")
 	edited[0]=gourmet
 	var building: Dictionary = {"kind":"pizzeria","level":3,"pizza_menu":edited,"visits":0}
 	var sale: Dictionary = Hospitality.pizza_sale(building,{"id":3,"group_size":2})
