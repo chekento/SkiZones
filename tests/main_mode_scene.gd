@@ -33,7 +33,20 @@ func run() -> void:
 	var labels: Array = collect_buttons(game.hud.menu).map(func(button): return button.text)
 	check(Maps.SCENARIOS_ENABLED, "Real scenarios are restored as an optional mode")
 	check(not game.hud.scenarios.visible and game.hud.scenarios.get_parent() != null, "Scenario selection is available without covering the main menu")
-	check(labels.has("Szenarien · vier echte Skigebiete") and labels.find("Karriere · vier Spielstände") < labels.find("Szenarien · vier echte Skigebiete") and labels.has("Freier Aufbau · alle Anlagen"), "Career and free build stay above optional real scenarios")
+	var career_index: int = labels.find("Karriere · vier Spielstände")
+	var free_index: int = labels.find("Freier Aufbau · vier Spielstände")
+	var scenarios_index: int = labels.find("Szenarien · vier echte Skigebiete")
+	check(career_index >= 0 and free_index > career_index and scenarios_index > free_index, "Career and four free-build save slots stay above optional real scenarios")
+	var free_menu_button: Button = null
+	for item in collect_buttons(game.hud.menu):
+		if item.text == "Freier Aufbau · vier Spielstände":
+			free_menu_button = item
+			break
+	if free_menu_button != null:
+		free_menu_button.pressed.emit()
+		await process_frame
+	check(game.hud.career_slots.visible and game.hud.career_slots.free_mode and game.hud.career_slots.cards.get_child_count() == 4, "Actual main-menu free-build action presents four independent save slots")
+	game.hud.career_slots.hide()
 	var original_map: String = game.model.map_id
 	var old_path: String = Saves.path_for_map("braunlage")
 	await game.enter_area("not-a-resort")
