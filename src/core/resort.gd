@@ -2240,11 +2240,11 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 					return {}
 	return value.duplicate(true) if (has_target or int(value.target) == 0) and (previous.distance_to(Terrain.BASE) < 0.01 or not portal_path.is_empty() and previous.distance_to(Terrain.unpack(portal_path[-1]))<0.01) else {}
 
-func restore(data: Dictionary) -> Dictionary:
+func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	# Validate into a separate instance, so a failed load never damages this game.
 	var candidate = get_script().new()
 	candidate.load_progress = load_progress
-	var check: Dictionary = candidate._restore_checked(data)
+	var check: Dictionary = candidate._restore_checked(data, legacy_geometry)
 	if not check.ok:
 		return check
 	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path"]:
@@ -2263,7 +2263,7 @@ func restore(data: Dictionary) -> Dictionary:
 	_operating_signature=Ops.signature(self)
 	return _result(true, L.text("Spielstand geladen."))
 
-func _restore_checked(data: Dictionary) -> Dictionary:
+func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	_loading(12.0, L.text("Spielstand und Karriere prüfen …"))
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
 	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 16:
@@ -2341,7 +2341,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 					if not item.get("points") is Array or item.points.size() < 2 or item.points.size() > 64: return invalid
 					for point in item.points:
 						if not terrain.contains(Terrain.unpack(point)): return invalid
-					if not Foot.clear_walk(item.points,data.buildings,data.lifts) or not Foot.gentle(terrain,item.points): return invalid
+					# Legacy rescue preserves the authored footpath when later machine
+					# clearances or changed slope rules disagree with the old layout.
+					if not legacy_geometry and (not Foot.clear_walk(item.points,data.buildings,data.lifts) or not Foot.gentle(terrain,item.points)): return invalid
 					item.length = terrain.polyline_length(item.points)
 			elif key == "pistes":
 				if not item.get("points") is Array or not Terrain.number(item.get("difficulty")) or int(item.difficulty) != item.difficulty or item.difficulty < 0 or item.difficulty > 2:
@@ -2352,13 +2354,13 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				var analysis := Geo.cached_analysis(item, map_id) if is_imported else {}
 				if analysis.is_empty(): analysis = terrain.analyse(PisteLinks.profile_points(item.points), -1, is_imported)
 				if is_imported: analysis.difficulty = Geo.source_difficulty(str(item.get("osm_difficulty", "unknown")), int(analysis.difficulty))
-				if not analysis.ok and not Geo.exact_import(item, map_id, true):
+				if (not analysis.ok and not Geo.exact_import(item, map_id, true)) and (not legacy_geometry or analysis.length < 1):
 					return invalid
 				for field in ["condition", "snow", "rides"]:
 					if not Terrain.number(item.get(field)) or item[field] < 0 or item[field] > (1000000000 if field == "rides" else 110):
 						return invalid
 				if data.version >= 4:
-					if not Terrain.number(item.get("number")) or item.number != floorf(item.number) or item.number < 1 or item.number > 1000000 or piste_numbers.has(int(item.number)) or (data.version >= 6 and item.difficulty != analysis.difficulty):
+					if not Terrain.number(item.get("number")) or item.number != floorf(item.number) or item.number < 1 or item.number > 1000000 or piste_numbers.has(int(item.number)) or (data.version >= 6 and not legacy_geometry and item.difficulty != analysis.difficulty):
 						return invalid
 				else:
 					item.number = piste_numbers.size() + 1
@@ -2381,7 +2383,9 @@ func _restore_checked(data: Dictionary) -> Dictionary:
 				item.grade = analysis.grade
 				if not PisteFeatures.valid(item): return invalid
 			elif key == "lifts":
-				if not item.get("kind") is String or (not Geo.exact_import(item, map_id, false) and not preview_lift(item.kind, Terrain.unpack(item.get("bottom")), Terrain.unpack(item.get("top")), false).ok):
+				# 0.19–0.33 infrastructure must survive later placement rules.
+				# Still require a known machine and finite in-bounds endpoints.
+				if not item.get("kind") is String or (not legacy_geometry and not Geo.exact_import(item, map_id, false) and not preview_lift(item.kind, Terrain.unpack(item.get("bottom")), Terrain.unpack(item.get("top")), false).ok):
 					return invalid
 				if item.has("occupancy") and (not Terrain.number(item.occupancy) or item.occupancy != floorf(item.occupancy) or item.occupancy < 1 or item.occupancy > 64): return invalid
 				if item.has("source_capacity") and (not Terrain.number(item.source_capacity) or item.source_capacity < 50 or item.source_capacity > 10000): return invalid
