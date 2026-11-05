@@ -198,26 +198,33 @@ func _add_preset(parent: Node, id: String) -> void:
 	preset_buttons[id]=button
 
 func _add_volume_row(parent: VBoxContainer, id: String, slider: HSlider, caption: String) -> void:
-	var row:=HBoxContainer.new()
-	row.add_theme_constant_override("separation",7)
-	parent.add_child(row)
-	var minus:=_radio_button(row,"−",func(): _adjust(slider,-PAD))
+	# Two rows per volume control preserve real 48pt+ touch targets even
+	# on 360px Android portrait widths. No horizontal clipping of the
+	# label/percent/meter/plus/minus combination.
+	var block: VBoxContainer=hud._vbox(parent,3)
+	var headline:HBoxContainer=HBoxContainer.new()
+	headline.add_theme_constant_override("separation",6)
+	block.add_child(headline)
+	var text:Label=_label(headline,caption,14,INK_LIGHT)
+	text.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var percentage:Label=_label(headline,"0 %",14,Color("aee5d3"))
+	percentage.custom_minimum_size.x=53
+	volume_readouts[id]=percentage
+	var row:HBoxContainer=HBoxContainer.new()
+	row.add_theme_constant_override("separation",10)
+	block.add_child(row)
+	var minus:Button=_radio_button(row,"−",func(): _adjust(slider,-PAD))
 	minus.custom_minimum_size.x=52
 	minus.tooltip_text=L.text("Lautstärke verringern")
-	var text:=_label(row,caption,14,INK_LIGHT)
-	text.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	var meter:=ProgressBar.new()
+	var meter:ProgressBar=ProgressBar.new()
 	meter.min_value=0
 	meter.max_value=100
 	meter.show_percentage=false
-	meter.custom_minimum_size=Vector2(70,14)
+	meter.custom_minimum_size=Vector2(86,17)
 	meter.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	row.add_child(meter)
 	volume_meters[id]=meter
-	var percentage:=_label(row,"0 %",14,Color("aee5d3"))
-	percentage.custom_minimum_size.x=53
-	volume_readouts[id]=percentage
-	var plus:=_radio_button(row,"+",func(): _adjust(slider,PAD))
+	var plus:Button=_radio_button(row,"+",func(): _adjust(slider,PAD))
 	plus.custom_minimum_size.x=52
 	plus.tooltip_text=L.text("Lautstärke erhöhen")
 
