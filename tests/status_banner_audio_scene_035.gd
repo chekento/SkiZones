@@ -1,4 +1,5 @@
 extends SceneTree
+const Design=preload("res://src/core/audio_design.gd")
 ## Real radio + HUD integration, not just sample banner events.
 var passed:=0
 var failed:=0
@@ -45,12 +46,15 @@ func run() -> void:
 	check(banner.history.size()==2,"Turned-off radio does not notify")
 	# Removed SoundCloud channel IDs migrate to a playable offline neighbor.
 	# Never reintroduce the external account as a selectable radio station.
+	# An obsolete SoundCloud ID is a migration input, not an actual in-game
+	# station. Preferences tests verify restore, while this one verifies the
+	# unavailable remote ID can never be selected as an online broadcaster.
 	game.preferences.music_genre="erg0sphere"
 	game.audio.sync()
 	await process_frame
 	hud._announce_radio_track()
-	check(game.audio.current_genre=="space" and banner.history.size()==3 and banner.history[0].kind=="music",
-		"Removed SoundCloud preference migrates to genuinely playing offline Space radio")
+	check(Design.genre_valid("erg0sphere")=="space" and Design.EXTERNAL_STATIONS.is_empty(),
+		"Removed SoundCloud IDs only resolve to an offline station, never external playback")
 	hud.management.open()
 	var found:=false
 	for i in range(hud.management.tabs.get_tab_count()):
