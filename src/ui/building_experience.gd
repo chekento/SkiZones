@@ -398,9 +398,6 @@ func _town_hall(_building: Dictionary) -> void:
 		if result.ok: _rebuild()
 	)
 
-esult.ok: _rebuild()
-	, true)
-
 func _hotel(building: Dictionary) -> void:
 	var model: RefCounted = hud.game.model
 	var settings := Hospitality.config(building)
