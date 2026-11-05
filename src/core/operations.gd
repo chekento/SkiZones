@@ -579,6 +579,12 @@ static func tick(model: RefCounted) -> void:
 				lift.fault = ""
 				lift.wear = 0.0
 				model.operations.repairs_done += 1
+				# A successful real repair is worth an informative, single
+				# banner; removing the finished work order prevents repeats.
+				model.recent_unlocks.append({"kind":"repair",
+					"title":str(lift.get("name",L.text("Seilbahnanlage"))),
+					"detail":L.text("Reparatur abgeschlossen · Lift wieder betriebsbereit"),
+					"reward":0})
 			finished.append(task)
 			model._operational_change()
 	for task in finished: model.operations.repairs.erase(task)
