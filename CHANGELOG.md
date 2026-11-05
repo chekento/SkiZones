@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **36 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **37 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.33.2](https://github.com/chekento/SkiZones/releases/tag/v0.33.2)** | 05.11.2026 | SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk) | [Details](docs/releases/0.33.2.md) |
 | **[v0.33.1](https://github.com/chekento/SkiZones/releases/tag/v0.33.1)** | 05.11.2026 | Alpine Arcade Contrast Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk) | [Details](docs/releases/0.33.1.md) |
 | **[v0.33.0](https://github.com/chekento/SkiZones/releases/tag/v0.33.0)** | 04.11.2026 | Alpine Weather & Playable Resort Activities | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk) | [Details](docs/releases/0.33.0.md) |
 | **[v0.32.0](https://github.com/chekento/SkiZones/releases/tag/v0.32.0)** | 04.11.2026 | Winter Operations & Curated Radio | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk) | [Details](docs/releases/0.32.0.md) |
@@ -46,6 +47,48 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.33.2 · SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau (05.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.33.2) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk)** (144.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.33.2/manifest.json) · [Originalnotizen](docs/releases/0.33.2.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.33.2)
+
+**Hotfix-Release-Kandidat · Android ARM64 · versionCode 41 (Upgrade von 0.33.1 / 40)**
+
+**Nicht deinstallieren, keine App-Daten löschen.** Immer die neue APK als Update über die bestehende Installation installieren. Alle alten Primärdateien, Sicherungskopien und persönlichen Einstellungen sollen erhalten bleiben.
+
+### Wiederherstellung alter Spielstände
+
+- Die unveränderte, prüfsummengültige Datei und ihre .bak-Sicherung werden zunächst im **strengen Modus** geladen.
+- Sind in der Zwischenzeit nur **Bauvorschriften oder Abstandsregeln** verändert worden, kann eine verifizierte alte Anlage im Kompatibilitätsmodus geladen werden. Pisten und Lifte behalten ihre gespeicherten Positionen, Nummern, Bauten und finanziellen Daten.
+- Der Rettungsmodus versucht zunächst, alle **Gäste und laufenden Routen** zu übernehmen; erst im nächsten Versuch werden temporäre Gäste zurückgesetzt.
+- Vor dem Übernehmen eines solchen geretteten Spielstands wird die originale Datei als **.recovery-...json** archiviert. Weder alte Primärdateien noch .bak-Dateien werden durch bloßes Öffnen überschrieben.
+- Beschädigte, nicht prüfsummengültige oder strukturell ungültige Quellen werden nicht blind geladen. Keine pauschale Erfolgsgarantie für nicht getestete Drittdateien.
+
+### Freier Aufbau
+
+- Vier **wirklich getrennte Speicherplätze** für freien Aufbau mit eigenen Karten, Fortschritten und Namen.
+- Alter Pfad `free_<map>.json` und `free_passport.json` bleibt **Platz 1**; Plätze 2–4 verwenden zusätzliche getrennte Dateien. Karriereplätze 1–4 sind unverändert.
+- Auswahl, Fortsetzen, sämtliche alten gespeicherten freien Berge öffnen und bewusster Neustart mit vorheriger Archivierung im Hauptmenü.
+- Frei erstellte Karten werden beim Start explizit neu aufgebaut, auch wenn der vorherige Resort-Zustand dieselbe interne Revision hatte. Der freie Modus umgeht Karriere-Freischaltschranken.
+- Android-Sitzungswiederherstellung merkt sich den gewählten freien Platz.
+
+### Speichern-Oberfläche
+
+- Grün: **✓ Gespeichert / aktuell**. Bernstein: **● Speichern**, wenn Änderungen noch nicht gesichert wurden. Rot: **Speicherfehler**.
+- Auf schmalen Smartphone-Bildschirmen bleibt eine kompakte Statusmarkierung erhalten; ein Tooltip zeigt die Bedeutung.
+- Markierung wird nur nach tatsächlich erfolgreichem Speichern grün. Das Save-Format (Version 16) wird **nicht** verändert.
+
+### Freigabeprüfungen
+
+- Godot-Import, DE/EN-Nachrichtenkatalog und echte GUI-Szene
+- Neue direkte Free-Slot- und Lift-Kompatibilitätstests, Recovery-Archiv und getrennte Dateien
+- Bestehende Karriere- und Save-Wiederherstellungstests einschließlich echter v0.19/v0.27-Dateien
+- Android API 30 und 36: echtes App-Lifecycle-Update, Signatur, Installation über vorige APK und Erhaltung der App-Daten
+- Erst nach vollständigem grünem CI den offiziellen GitHub-Release `v0.33.2` veröffentlichen
+
+**Nicht enthalten:** die größeren 0.34-Features (8×, Schneespuren, Radio, Wind, PMDD), die separat integriert werden.
+
+---
 
 ## v0.33.1 · Alpine Arcade Contrast Hotfix (05.11.2026)
 
