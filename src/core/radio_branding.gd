@@ -133,12 +133,31 @@ const BRANDS := {
 	}
 }
 
+## Explicit resource references ensure SVGs are imported and packaged into APKs.
+const TEXTURES := {
+	"alpine": preload("res://assets/radio/logos/alpine.svg"),
+	"folk_alpine": preload("res://assets/radio/logos/folk_alpine.svg"),
+	"folk_swedish": preload("res://assets/radio/logos/folk_swedish.svg"),
+	"mountain_sunrise": preload("res://assets/radio/logos/mountain_sunrise.svg"),
+	"freeride": preload("res://assets/radio/logos/freeride.svg"),
+	"punk": preload("res://assets/radio/logos/punk.svg"),
+	"hiphop": preload("res://assets/radio/logos/hiphop.svg"),
+	"techno": preload("res://assets/radio/logos/techno.svg"),
+	"apres": preload("res://assets/radio/logos/apres.svg"),
+	"classical": preload("res://assets/radio/logos/classical.svg"),
+	"meditative": preload("res://assets/radio/logos/meditative.svg"),
+	"lodge_lofi": preload("res://assets/radio/logos/lodge_lofi.svg"),
+	"glacier": preload("res://assets/radio/logos/glacier.svg"),
+	"space": preload("res://assets/radio/logos/space.svg"),
+	"atmospherics": preload("res://assets/radio/logos/atmospherics.svg"),
+	"hotel_lobby": preload("res://assets/radio/logos/hotel_lobby.svg")
+}
+
 static func spec(id: String) -> Dictionary:
 	return (BRANDS.get(id,BRANDS["alpine"]) as Dictionary).duplicate(true)
 
 static func logo(id: String) -> Texture2D:
-	var path: String=str(spec(id).logo)
-	return load(path) as Texture2D
+	return TEXTURES.get(id,TEXTURES["alpine"]) as Texture2D
 
 static func valid_catalog() -> bool:
 	if BRANDS.size()!=Design.GENRES.size(): return false # 15 selectable + 1 hotel-only, excluding off
