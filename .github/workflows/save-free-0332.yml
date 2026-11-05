@@ -1,0 +1,61 @@
+name: 0.33.2 legacy save, free slots and emergency launch QA
+on:
+  pull_request:
+    paths:
+      - 'src/main.gd'
+      - 'src/core/save_store.gd'
+      - 'src/core/resort.gd'
+      - 'src/core/app_session.gd'
+      - 'src/core/preferences.gd'
+      - 'src/ui/hud.gd'
+      - 'src/ui/career_slots.gd'
+      - 'tests/save_rescue_free_slots_0332.gd'
+      - 'tests/free_slots_scene_0332.gd'
+      - '.github/workflows/save-free-0332.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: save-free-0332-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rescue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import the complete project, then check translations
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p=subprocess.run([os.environ["GODOT_BIN"],"--headless","--editor","--import","--quit"],capture_output=True,text=True,timeout=240)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+          python3 tools/check_localization.py
+      - name: Eight mountains, free slots and old machine placement
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-rescue-0332
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
+      - name: Strict save and career regression
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-main-save-library-0332
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/main_save_library_031.gd
+      - name: GUI renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Actual free-build launch and responsive save control
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-free-ui-0332
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x800 --script tests/free_slots_scene_0332.gd

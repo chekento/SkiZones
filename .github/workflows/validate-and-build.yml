@@ -232,6 +232,14 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-main-save-library
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/main_save_library_031.gd
+      - name: 0.33.2 real free-build slots and checksum-preserving recovery
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-free-slots-0332
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
+      - name: 0.33.2 free-build launch and live save-button color regression
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-free-slots-scene-0332
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x800 --script tests/free_slots_scene_0332.gd
       - name: Main-mode slope traffic and operating-finance release gates
         run: |
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd

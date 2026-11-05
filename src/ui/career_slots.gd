@@ -8,6 +8,9 @@ var hud: CanvasLayer
 var cards: GridContainer
 var confirmation:=ConfirmationDialog.new()
 var pending_slot:=1
+var free_mode := false
+var tier_panel: PanelContainer
+var intro_label: Label
 var starting_tier:=OptionButton.new()
 var tier_details:=Label.new()
 var heading_label: Label
@@ -24,9 +27,9 @@ func setup(interface: CanvasLayer) -> void:
 	heading_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	heading_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	close_button=hud._button(row,L.text("Zurück"),hide)
-	hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
-	var tier_box:=PanelContainer.new();tier_box.add_theme_stylebox_override("panel",hud._style(Color("e1eeea"),12,12));body.add_child(tier_box)
-	var controls: VBoxContainer=hud._vbox(tier_box,5)
+	intro_label=hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
+	tier_panel=PanelContainer.new();tier_panel.add_theme_stylebox_override("panel",hud._style(Color("e1eeea"),12,12));body.add_child(tier_panel)
+	var controls: VBoxContainer=hud._vbox(tier_panel,5)
 	hud._label(controls,L.text("STARTKAPITAL · NUR FÜR NEUE KARRIEREN"),17,hud.ACCENT,true)
 	for tier in StartTiers.LEVELS:
 		starting_tier.add_item(L.text(str(tier.name)) + " · " + hud.money_text(tier.money) + " €")
@@ -49,11 +52,57 @@ func setup(interface: CanvasLayer) -> void:
 	confirmation.dialog_text=L.text("Diese Karriere wird vor dem Neustart als Sicherung aufbewahrt. Die anderen drei Karrieren bleiben erhalten.")
 	confirmation.ok_button_text=L.text("Sichern und neu beginnen")
 	confirmation.cancel_button_text=L.text("Abbrechen")
-	confirmation.confirmed.connect(func():hud.game.select_career_slot(pending_slot,true,starting_tier.selected))
+	confirmation.confirmed.connect(func():
+		if free_mode: hud.game.select_free_slot(pending_slot,true)
+		else: hud.game.select_career_slot(pending_slot,true,starting_tier.selected)
+	)
 	hide()
 func open() -> void:
+	free_mode = false
 	hud.game._clear_input();_fit();refresh();show()
+
+func open_free() -> void:
+	free_mode = true
+	hud.game._clear_input();_fit();refresh();show()
+
+func _refresh_free_cards() -> void:
+	for number in range(1,5):
+		var free_slot: int = number
+		var summary: Dictionary = Saves.free_summary(free_slot)
+		var panel := PanelContainer.new()
+		panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		panel.add_theme_stylebox_override("panel", hud._style(Color("edf3ec"),12,16))
+		cards.add_child(panel)
+		var body: VBoxContainer = hud._vbox(panel,8)
+		hud._label(body,L.text("Freier Aufbau · Platz %d") % free_slot,22,hud.TEAL)
+		if summary.occupied:
+			var damaged: bool = bool(summary.get("damaged", false))
+			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),16,hud.INK,true)
+			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
+			var entries: Array = Saves.saved_resorts(0,free_slot)
+			if entries.size() > 1:
+				for entry in entries:
+					if entry.map == summary.map: continue
+					var area: String = str(entry.map)
+					hud._button(body,L.text(Maps.spec(area).name) + " · " + L.text("Resort fortsetzen"),func():hud.game.select_free_area(free_slot,area))
+			hud._button(body,L.text("Diesen freien Platz neu beginnen"),func():
+				pending_slot=free_slot
+				confirmation.popup_centered(Vector2i(620,230))
+			)
+		else:
+			hud._label(body,L.text("Leerer freier Spielstand"),16,hud.MUTED)
+			hud._button(body,L.text("Freies Resort starten"),func():hud.game.select_free_slot(free_slot,true),true)
+
 func refresh() -> void:
+	heading_label.text=L.text("DEINE VIER FREIEN SPIELSTÄNDE") if free_mode else L.text("DEINE VIER KARRIEREN")
+	intro_label.text=L.text("Vier unabhängige Plätze für freien Aufbau. Platz 1 enthält bisherige freie Spielstände.") if free_mode else L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände.")
+	tier_panel.visible=not free_mode
+	confirmation.title=L.text("Freien Spielstand neu beginnen?") if free_mode else L.text("Karriere neu beginnen?")
+	confirmation.dialog_text=L.text("Der bisherige freie Spielstand wird zuerst archiviert. Die anderen freien Plätze und Karrieren bleiben erhalten.") if free_mode else L.text("Diese Karriere wird vor dem Neustart als Sicherung aufbewahrt. Die anderen drei Karrieren bleiben erhalten.")
+	for child in cards.get_children():cards.remove_child(child);child.queue_free()
+	if free_mode:
+		_refresh_free_cards()
+		return
 	for child in cards.get_children():cards.remove_child(child);child.queue_free()
 	for number in range(1,5):
 		var slot: int=number

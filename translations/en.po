@@ -7330,3 +7330,60 @@ msgstr "0.32 APK published November 4 and GitHub download banner updated; contin
 
 msgid "Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
 msgstr "Selected published milestones through 0.32.0 · oldest first; find the latest APK on GitHub."
+
+msgid "Freier Aufbau · vier Spielstände"
+msgstr "Free Build · four save slots"
+
+msgid "Noch kein Resort geöffnet."
+msgstr "No resort currently open."
+
+msgid "Speicherfehler"
+msgstr "Save error"
+
+msgid "Speichern fehlgeschlagen – bitte erneut versuchen."
+msgstr "Save failed – please try again."
+
+msgid "✓ Gespeichert"
+msgstr "✓ Saved"
+
+msgid "✓ Aktuell"
+msgstr "✓ Up to date"
+
+msgid "Erfolgreich gesichert – keine neuen Änderungen."
+msgstr "Saved successfully – no unsaved changes."
+
+msgid "● Speichern"
+msgstr "● Save"
+
+msgid "Ungesicherte Änderungen – zum Speichern tippen."
+msgstr "Unsaved changes – tap to save."
+
+msgid "DEINE VIER FREIEN SPIELSTÄNDE"
+msgstr "YOUR FOUR FREE-BUILD SAVE SLOTS"
+
+msgid "Vier unabhängige Plätze für freien Aufbau. Platz 1 enthält bisherige freie Spielstände."
+msgstr "Four independent free-build slots. Slot 1 contains existing free-build saves."
+
+msgid "Freien Spielstand neu beginnen?"
+msgstr "Start over in free-build slot?"
+
+msgid "Der bisherige freie Spielstand wird zuerst archiviert. Die anderen freien Plätze und Karrieren bleiben erhalten."
+msgstr "The existing free-build save will be archived first. Other free slots and careers remain untouched."
+
+msgid "Freier Aufbau · Platz %d"
+msgstr "Free Build · Slot %d"
+
+msgid "Freies Resort fortsetzen"
+msgstr "Continue this free-build resort"
+
+msgid "Diesen freien Platz neu beginnen"
+msgstr "Restart this free-build slot"
+
+msgid "Leerer freier Spielstand"
+msgstr "Empty free-build slot"
+
+msgid "Freies Resort starten"
+msgstr "Start free-build resort"
+
+msgid "Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert."
+msgstr "Resort and career restored; the original save remains archived."

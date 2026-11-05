@@ -48,6 +48,9 @@ var _drag_has_moved := false
 var snap_target: Dictionary = {}
 var paused := false
 var speed := 1
+var _last_saved_marker := ""
+var _last_saved_at := 0
+var _save_failed := false
 var has_game := false
 var _accumulator := 0.0
 var _refresh_timer := 0.0
@@ -73,6 +76,7 @@ var audio := ResortAudio.new()
 func _ready() -> void:
 	preferences.load_from()
 	L.configure(preferences.language)
+	SaveStore.active_free_slot = preferences.free_save_slot
 	SaveStore.migrate_legacy()
 	SaveStore.active_slot=0 if preferences.free_play else preferences.career_slot
 	get_tree().auto_accept_quit = false
@@ -194,6 +198,10 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 		view._seen_revision = -1
 	else:
 		model.new_game(starter, 20261027, area, true)
+		# The previous loaded resort may have the same revision counter.
+		# Explicitly rebuild new free/career games instead of showing stale mesh.
+		view._seen_revision = -1
+		view.rebuild()
 	if not Ops.active(model): Ops.enable(model)
 	if model.map_id in Geo.IDS and model.operations.get("completed",false):
 		preload("res://src/core/scenario_medals.gd").new().record(model.map_id,str(model.operations.get("scenario_difficulty","normal")))
@@ -201,6 +209,8 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	hud.scenarios.hide()
 	passport.record(model)
 	has_game = true
+	_last_saved_marker = _save_state_marker() if prepared != null else ""
+	_save_failed = false
 	paused = false
 	speed = 1
 	_accumulator = 0
@@ -274,6 +284,9 @@ func _restore_android_session() -> void:
 	# Preserve dormant scenario saves without opening them on normal-mode startup.
 	if state.is_empty() or not Maps.MAPS.has(state.map): return
 	var slot:=SaveStore.slot_from_state(state)
+	if slot == 0:
+		SaveStore.active_free_slot = clampi(int(state.get("free_save_slot", 1)), 1, 4)
+		preferences.free_save_slot = SaveStore.active_free_slot
 	if not SaveStore.session_source_matches(state.map, slot, state.checksum): return
 	var prepared := await _prepare_area(state.map, true,slot)
 	if not prepared.result.ok:
@@ -288,6 +301,7 @@ func _restore_android_session() -> void:
 		SaveStore.active_slot = slot
 		preferences.free_play = slot == 0
 		if slot > 0: preferences.career_slot = slot
+		else: preferences.free_save_slot = SaveStore.active_free_slot
 		passport.load_from(SaveStore.passport_path(slot))
 		start_game(true, state.map, model)
 	_load_progress.report(100.0, L.text("Bergwelt bereit"))
@@ -305,7 +319,7 @@ func enter_area(area: String, difficulty: String = "") -> void:
 	# Only brand-new mountain creation needs the unlock gate.
 	var own_save_path: String = SaveStore.path_for_map(area)
 	var has_saved_resort: bool = SaveStore.has_any_save(area)
-	if not passport.unlocked(area) and not has_saved_resort:
+	if SaveStore.active_slot != 0 and not passport.unlocked(area) and not has_saved_resort:
 		hud.toast(L.text("Dieses Gebiet wird durch deinen Bergpass freigeschaltet."))
 		return
 	if has_game and model.map_id == area:
@@ -350,10 +364,12 @@ func show_career_slots() -> void:
 	if has_game and not save_game(): return
 	hud.career_slots.open()
 
-func _select_save_context(slot: int) -> void:
+func _select_save_context(slot: int, free_slot: int = 1) -> void:
 	SaveStore.active_slot=clampi(slot,0,4)
+	if slot == 0: SaveStore.active_free_slot=clampi(free_slot,1,4)
 	preferences.free_play=slot==0
 	if slot>0: preferences.career_slot=slot
+	else: preferences.free_save_slot=SaveStore.active_free_slot
 	preferences.save_to()
 	passport=Passport.new()
 	passport.load_from(SaveStore.passport_path())
@@ -385,11 +401,37 @@ func select_career_area(slot: int, area: String) -> void:
 	await enter_area(area)
 
 func start_free_play() -> void:
+	show_free_slots()
+
+func show_free_slots() -> void:
 	if has_game and not save_game(): return
-	_select_save_context(0)
-	var saved:=SaveStore.summary(0)
-	if saved.occupied: await enter_area(saved.map)
-	else: start_game(false);save_game()
+	hud.career_slots.open_free()
+
+func select_free_slot(free_slot: int, fresh: bool = false) -> void:
+	if free_slot < 1 or free_slot > 4: return
+	if has_game and not save_game(): return
+	if fresh and SaveStore.free_summary(free_slot).occupied and not SaveStore.archive_free_slot(free_slot):
+		hud.toast(L.text("Die Sicherung ist fehlgeschlagen. Die Karriere bleibt erhalten."))
+		return
+	_select_save_context(0, free_slot)
+	hud.career_slots.hide()
+	if fresh:
+		start_game(false)
+		save_game()
+	else:
+		var saved: Dictionary = SaveStore.free_summary(free_slot)
+		if saved.occupied: await enter_area(str(saved.map))
+		else:
+			start_game(false)
+			save_game()
+
+func select_free_area(free_slot: int, area: String) -> void:
+	if free_slot < 1 or free_slot > 4 or area not in Maps.FANTASY_MAPS: return
+	if not SaveStore.has_any_save(area, 0, free_slot): return
+	if has_game and not save_game(): return
+	_select_save_context(0, free_slot)
+	hud.career_slots.hide()
+	await enter_area(area)
 
 func main_game_area() -> String:
 	if has_game and model.map_id in Maps.FANTASY_MAPS: return model.map_id
@@ -410,15 +452,27 @@ func show_menu() -> void:
 	_clear_input()
 	hud.show_menu()
 
+func _save_state_marker() -> String:
+	# Lightweight change signature; never serialize the full mountain each frame.
+	return "%d/%d/%d/%d/%d/%d/%d/%.2f/%d/%d/%d" % [model.revision, model.day, model.minute, model.clock_steps, model.motion_tick, model.total_guests, model.total_rides, float(model.money), model.pistes.size(), model.lifts.size(), model.buildings.size()]
+
 func save_game() -> bool:
 	if has_game:
 		passport.record(model)
 		if not passport.save_to(SaveStore.passport_path()):
+			_save_failed = true
 			hud.toast(L.text("Die Sicherung ist fehlgeschlagen. Die Karriere bleibt erhalten."))
 			return false
 		var result := SaveStore.save_game(model, SaveStore.path_for_map(model.map_id))
-		if result.ok: app_session.save(self)
+		if result.ok:
+			_last_saved_marker = _save_state_marker()
+			_last_saved_at = Time.get_ticks_msec()
+			_save_failed = false
+			app_session.save(self)
+		else:
+			_save_failed = true
 		hud.toast(result.message)
+		hud.refresh()
 		return result.ok
 	return false
 
