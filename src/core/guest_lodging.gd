@@ -44,7 +44,7 @@ static func assign(model: RefCounted, guest: Dictionary) -> bool:
 	var options: Array = []
 	for hotel in model.buildings:
 		if not Hospitality.lodging(str(hotel.kind)) or not Ops.building_open(model, hotel): continue
-		var vacancies := room_count(hotel) - rooms_used(model, int(hotel.id))
+		var vacancies: int = model.HotelRooms.available(model,hotel)
 		if vacancies < rooms_needed(guest): continue
 		# Existing foot-network connects this hotel with actual resort
 		# access: no teleport or fictional off-road bus connection.

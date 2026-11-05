@@ -25,6 +25,7 @@ const Geo = preload("res://src/core/real_resorts.gd")
 const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const CreditService = preload("res://src/core/credit_service_035.gd")
+const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
 const PisteFeatures = preload("res://src/core/piste_features.gd")
@@ -1457,6 +1458,7 @@ func admit_guest(skill: int, kind: String = "", family_size: int = 0) -> bool:
 	audience.segments[guest.agenda.kind].tickets += ticket_revenue
 	Progression.on_admission(self, skill, ticket_revenue)
 	if party_mode and guest.has("family"):Parties.expand(self,guest)
+	if guest.has("lodging_id"):HotelRooms.reconcile(self,asset(int(guest.lodging_id)))
 	for person in guests:
 		if int(person.id)==int(guest.id) or int(person.get("party_id",0))==int(guest.id):Access.arrive(self,person)
 	return true
@@ -2481,6 +2483,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
 				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
 				if not Hospitality.valid_building(item): return invalid
+				if item.has("room_operations") and int(item.room_operations.last_service) > (int(data.day)-1)*1440+int(data.minute): return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
 				# These are optional ledger fields. Preserve their absence when

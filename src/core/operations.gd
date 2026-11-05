@@ -144,6 +144,7 @@ static func admit_evening(model: RefCounted) -> bool:
 	if route.is_empty(): return false
 	guest.route = route
 	model.guests.append(guest)
+	if guest.has("lodging_id"):model.HotelRooms.reconcile(model,model.asset(int(guest.lodging_id)))
 	model.guest_id += 1
 	model.total_guests += 1
 	model.report.guests += 1
@@ -529,6 +530,7 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 static func tick(model: RefCounted) -> void:
 	if not active(model): return
 	refresh_duty(model)
+	model.HotelRooms.tick(model)
 	var now := clock(model)
 	if model.operations.scenario != "" and model.minute == 510 and int(model.operations.event_day) != model.day:
 		model.operations.event_day = model.day

@@ -1,0 +1,52 @@
+name: Individual hotel rooms and mobile floorplans QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hotel-rooms-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rooms:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+      XDG_DATA_HOME: /home/runner/skizones-test-hotel-rooms
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile entire project
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p=subprocess.run([os.environ['GODOT_BIN'],'--headless','--editor','--import','--quit'],text=True,capture_output=True,timeout=240)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or 'SCRIPT ERROR' in p.stdout+p.stderr else 0)
+          PY
+      - name: Real family bookings, room changes, expenses and safe roundtrip
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/hotel_room_operations_036.gd
+      - name: Existing hotels, holidays and family migration
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/hotel_holidays.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
+          python3 tools/check_localization.py
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Actual German and English phone touches, responsive room grid and costs
+        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 420x860 --script tests/hotel_room_scene_036.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hotel-room-phone-screenshots
+          path: build/qa/hotel-rooms-*.png
+          retention-days: 90

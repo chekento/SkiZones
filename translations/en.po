@@ -8628,3 +8628,108 @@ msgstr "Unknown historical save format. Original file remains untouched."
 
 msgid "Unbegrenztes Budget · Freies Bauen"
 msgstr "Unlimited budget · Free Build"
+
+msgid "Die Einzelzimmerverwaltung ist bereits aktiv."
+msgstr "Individual room management is already active."
+
+msgid "Einzelzimmerverwaltung aktiviert. Vorhandene Urlaubsgäste behalten ihre Buchung."
+msgstr "Individual room management activated. Existing holiday guests keep their reservations."
+
+msgid "Zimmer nicht gefunden."
+msgstr "Room not found."
+
+msgid "Das Zimmer ist noch belegt. Die Buchung bleibt erhalten."
+msgstr "This room is still occupied. Its reservation is preserved."
+
+msgid "Dieses Zimmer ist bereits sauber."
+msgstr "This room is already clean."
+
+msgid "Zimmer gereinigt. Freigegebene Zimmer sind wieder buchbar."
+msgstr "Room cleaned. Released rooms can now be booked again."
+
+msgid "Zimmersperre aktualisiert."
+msgstr "Room closure updated."
+
+msgid "Ungültige Zimmerposition."
+msgstr "Invalid room position."
+
+msgid "An dieser Position liegt bereits ein Zimmer."
+msgstr "A room already occupies this position."
+
+msgid "Das Zimmer liegt bereits an dieser Position."
+msgstr "This room is already in that position."
+
+msgid "Für den internen Umbau fehlen 250 €."
+msgstr "You need €250 for this internal remodel."
+
+msgid "Zimmer im internen Etagenplan versetzt."
+msgstr "Room moved within the internal floorplan."
+
+msgid "Einzelzimmerverwaltung zuerst aktivieren."
+msgstr "Activate individual room management first."
+
+msgid "Alle freien Zimmer sind bereits sauber."
+msgstr "All unoccupied rooms are already clean."
+
+msgid "Freie Zimmer gereinigt; belegte Zimmer bleiben unverändert."
+msgstr "Unoccupied rooms cleaned; occupied rooms are unchanged."
+
+msgid "Dein Etagenplan"
+msgstr "Your floorplan"
+
+msgid "%d belegt · %d bereit · %d zu reinigen · %d gesperrt"
+msgstr "%d occupied · %d ready · %d to clean · %d closed"
+
+msgid "Aktiviere feste Zimmerbuchungen und echte Zimmerwechsel-Reinigung. Bestehende Gäste werden übernommen; alte Spielstände ändern sich erst mit deiner Wahl."
+msgstr "Activate fixed room reservations and real cleaning between guests. Existing guests are retained; legacy saves change only when you choose to activate."
+
+msgid "Einzelzimmerverwaltung aktivieren"
+msgstr "Activate individual room management"
+
+msgid "Schmutzige und gesperrte Zimmer sind nicht buchbar. Dein aktiver Reinigungsservice bereitet alle 15 Spielminuten Zimmer vor; die Kapazität folgt dem diensthabenden Team."
+msgstr "Dirty and closed rooms cannot be booked. Your active cleaning service prepares rooms every 15 game minutes, according to the capacity of your on-duty team."
+
+msgid "Für %d bestehende Zimmerbuchungen fehlt derzeit ein nutzbares Zimmer. Gäste werden nicht gelöscht; freie Zimmer wieder öffnen und reinigen."
+msgstr "There are no usable rooms for %d existing room reservations. Guests are retained; reopen and clean unoccupied rooms."
+
+msgid "Etage %d"
+msgstr "Floor %d"
+
+msgid "Reinigung nötig"
+msgstr "Needs cleaning"
+
+msgid "Bereit"
+msgstr "Ready"
+
+msgid "Gesperrt"
+msgstr "Closed"
+
+msgid "Zimmer %d · Etage %d · Platz %d"
+msgstr "Room %d · floor %d · position %d"
+
+msgid "Reisegruppe %d"
+msgstr "Travel party %d"
+
+msgid "Gast %d"
+msgstr "Guest %d"
+
+msgid "Zimmer reinigen · 8 €"
+msgstr "Clean room · €8"
+
+msgid "Zimmer freigeben"
+msgstr "Reopen room"
+
+msgid "Zimmer sperren"
+msgstr "Close room"
+
+msgid "Ziel-Etage"
+msgstr "Target floor"
+
+msgid "Platz im Etagenplan"
+msgstr "Floorplan position"
+
+msgid "Internen Zimmerplan ändern · 250 €"
+msgstr "Remodel internal floorplan · €250"
+
+msgid "Der Etagenplan ordnet die vorhandenen Zimmer innerhalb des Hauses. Er baut keine zusätzlichen Betten oder Außenflügel."
+msgstr "The floorplan arranges existing rooms inside the building. It does not add beds or external wings."
