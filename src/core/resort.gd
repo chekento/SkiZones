@@ -779,7 +779,7 @@ func groom_check(id: int) -> Dictionary:
 	if minute > CLOSING - 45:
 		return _result(false, L.text("Bald ist Feierabend; nachts wird automatisch präpariert."))
 	var cost := roundi(piste.length * 1.5)
-	return _result(money >= cost, L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if money >= cost else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
+	return _result(campaign.get("mode", "career") == "free" or money >= cost, L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if money >= cost else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
 
 func groom_piste(id: int) -> Dictionary:
 	if Ops.active(self): return Ops.groom(self, id)
@@ -1705,6 +1705,9 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	motion_tick+=time_divisor if empty_calendar_step else 1
 	_queue_cache.clear()
 	if clock_tick: Ops.tick(self)
+	# A free-builder may load an older save with a small cash balance.
+	# Replenish a finite JSON-safe reserve regardless of daily expenses.
+	if campaign.get("mode", "career") == "free": money = FREE_CASH
 	var movement: float=time_divisor if empty_calendar_step else 1.0
 	for lift in lifts:
 		if lift_running(lift): lift.clock=lift.get("clock",0.0)+movement
@@ -1814,6 +1817,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 		if guest.has("party_id"):guest.party_step=Parties.pace(self,guest)
 	_check_achievements()
 	Progression.refresh(self)
+	if campaign.get("mode", "career") == "free": money = FREE_CASH
 	if not Ops.continuous(self) and minute >= CLOSING and guests.is_empty():
 		_close_day()
 
@@ -1995,7 +1999,7 @@ func _close_day() -> void:
 	if day_finished() or not guests.is_empty():
 		return
 	report.costs = operating_costs()
-	money -= report.costs
+	if campaign.get("mode", "career") != "free": money -= report.costs
 	Progression.finish_day(self)
 	report.closed_at = minute
 	last_report = report.duplicate(true)
