@@ -39,6 +39,16 @@ func run() -> void:
 	var sandbox_snapshot: Dictionary=JSON.parse_string(JSON.stringify(sandbox.snapshot()))
 	var sandbox_loaded := Resort.new()
 	check(sandbox_loaded.restore(sandbox_snapshot).ok and sandbox_loaded.campaign.mode=="free","Free-mode state and large finite balance survive JSON save/restore")
+	var rich := Resort.new()
+	rich.new_game(false,20261105,"sonnenhang")
+	rich.money=999999990.0 # A valid old free save near the schema's cash ceiling.
+	check(rich.take_loan() and rich.money>1000000000.0,"A genuine loan can carry an unlimited free resort beyond the finite save cash ceiling")
+	var live_cash: float=rich.money
+	var rich_snapshot: Dictionary=JSON.parse_string(JSON.stringify(rich.snapshot()))
+	check(float(rich_snapshot.money)<=1000000000.0 and Resort.new().restore(rich_snapshot).ok,"Unlimited free building remains saveable even after real income passes the cash ceiling")
+	check(rich.money==live_cash and rich.loan==150000,"Normalizing the serialized infinity proxy never mutates live cash or debt")
+	rich.campaign.mode="career"
+	check(not Resort.new().restore(JSON.parse_string(JSON.stringify(rich.snapshot()))).ok,"Career cash validation is not relaxed by free-mode serialization")
 	var starter := Resort.new()
 	starter.new_game(true,20261105,"sonnenhang")
 	var career_money: float=starter.money
