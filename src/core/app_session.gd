@@ -7,7 +7,7 @@ var path := "user://app-session.json"
 
 func save(game: Node) -> void:
 	if not game.has_game: return
-	var state := {"slot":SaveStore.active_slot,"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
+	var state := {"slot":SaveStore.active_slot,"free_save_slot":SaveStore.active_free_slot,"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
 	var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null: return
 	file.store_string(JSON.stringify(state,"",true,true));file.flush();file.close()
@@ -22,8 +22,9 @@ func read_state() -> Dictionary:
 	if not value is Dictionary or value.get("version") != 1 or not value.get("map") is String or not value.get("checksum") is String: return {}
 	if not Maps.MAPS.has(value.map): return {}
 	if value.has("slot") and (not Terrain.number(value.slot) or value.slot!=floorf(value.slot) or value.slot<0 or value.slot>4): return {}
+	if value.has("free_save_slot") and (not Terrain.number(value.free_save_slot) or value.free_save_slot!=floorf(value.free_save_slot) or value.free_save_slot<1 or value.free_save_slot>4): return {}
 	if not value.get("paused") is bool or not value.get("running") is bool or not Terrain.number(value.get("speed")): return {}
-	if value.speed != int(value.speed) or int(value.speed) not in [1,4]: return {}
+	if value.speed != int(value.speed) or int(value.speed) not in [1,4,8]: return {}
 	for key in ["accumulator","yaw","zoom","pitch","camera_mode","suspended_at","editing_id","edit_rotation","edit_width","selected_guest","follow_guest"]:
 		if not Terrain.number(value.get(key)): return {}
 	if value.accumulator < 0 or value.accumulator > 1000000 or value.zoom < 48 or value.zoom > maxf(Maps.spec(value.map).bounds.size.x, Maps.spec(value.map).bounds.size.y) * 1.3 or value.pitch < 20 or value.pitch > 90 or value.camera_mode != int(value.camera_mode) or int(value.camera_mode) not in [0,1,2,3]: return {}
@@ -40,6 +41,7 @@ func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true
 	var state := read_state()
 	if state.is_empty(): return false
 	var slot:=SaveStore.slot_from_state(state)
+	if slot == 0: SaveStore.active_free_slot = clampi(int(state.get("free_save_slot",1)),1,4)
 	var save_path:=SaveStore.path_for_map(state.map,slot)
 	if not SaveStore.session_source_matches(state.map, slot, state.checksum): return false
 	if already_loaded:
@@ -48,9 +50,13 @@ func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true
 	SaveStore.active_slot=slot
 	game.preferences.free_play=slot==0
 	if slot>0:game.preferences.career_slot=slot
+	else:game.preferences.free_save_slot=SaveStore.active_free_slot
 	game.passport=game.Passport.new()
 	game.passport.load_from(SaveStore.passport_path())
 	game.has_game = true;game.paused = state.paused;game.speed = int(state.speed)
+	game._last_saved_marker = game._save_state_marker()
+	game._last_saved_at = Time.get_ticks_msec()
+	game._save_failed = false
 	game._accumulator = state.accumulator
 	if rebuild_view: game.view.rebuild()
 	game.view.focus = Terrain.unpack(state.focus).clamp(game.model.terrain.bounds.position+Vector2(20,20),game.model.terrain.bounds.end-Vector2(20,20))
