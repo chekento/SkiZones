@@ -7555,3 +7555,9 @@ msgstr "%d× ▸"
 
 msgid "Aktuell %d× · tippen für 1×, 4× oder 8×"
 msgstr "Current %d× · tap to cycle through 1×, 4× and 8×"
+
+msgid "Unbekanntes historisches Speicherformat. Originaldatei bleibt erhalten."
+msgstr "Unknown historical save format. Original file remains untouched."
+
+msgid "Unbegrenztes Budget · Freies Bauen"
+msgstr "Unlimited budget · Free Build"
