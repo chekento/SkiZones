@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **35 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **36 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.33.1](https://github.com/chekento/SkiZones/releases/tag/v0.33.1)** | 05.11.2026 | Alpine Arcade Contrast Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk) | [Details](docs/releases/0.33.1.md) |
 | **[v0.33.0](https://github.com/chekento/SkiZones/releases/tag/v0.33.0)** | 04.11.2026 | Alpine Weather & Playable Resort Activities | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk) | [Details](docs/releases/0.33.0.md) |
 | **[v0.32.0](https://github.com/chekento/SkiZones/releases/tag/v0.32.0)** | 04.11.2026 | Winter Operations & Curated Radio | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.32.0/SkiZones-0.32.0-android-arm64.apk) | [Details](docs/releases/0.32.0.md) |
 | **[v0.31.0](https://github.com/chekento/SkiZones/releases/tag/v0.31.0)** | 04.11.2026 | Gesamthotfix: Radio, alte Karrieren und künstlerischer Winter | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.31.0/SkiZones-0.31.0-android-arm64.apk) | [Details](docs/releases/0.31.0.md) |
@@ -45,6 +46,40 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.33.1 · Alpine Arcade Contrast Hotfix (05.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.33.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk)** (144.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.33.1/manifest.json) · [Originalnotizen](docs/releases/0.33.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.33.1)
+
+**Android ARM64 Preview · Android versionCode 40**
+
+> **In Vorbereitung.** Diese Notizen gehören zum Release-Kandidaten; eine veröffentlichte APK existiert erst nach bestandenem Godot-/Android-30/36-Releasegate und anschließendem GitHub-Release. **Als Update über die vorhandene App installieren. Nicht deinstallieren und keine App-Daten löschen**, damit die vier Karrieren und alle Resort- und Szenariospielstände erhalten bleiben.
+
+### Bessere Lesbarkeit der ersten echten Minispiele
+
+- Die in **v0.33.0** erstmals freigeschaltete Tic-Tac-Toe-Spielecke besitzt jetzt ein **eigenes, zum Grafikstil passendes Panel**: Titel, Spielanweisung, Brett und Ergebnisse liegen gemeinsam auf einem tatsächlichen Hintergrund.
+- Behebt den dokumentierten Kontrastfehler im hellen Gebäudeinnenraum des **Cinematic**-Themes. Titel- und Hover-Farben werden bei Bedarf automatisch angepasst, statt helle Schrift unlesbar auf hellem Hintergrund zu belassen.
+- Alle zehn Stilpaletten – einschließlich **Cinematic, Monochrom, Neon-Noir, Alpine, Bauhaus** und weiterer Kunststile – behalten ihre jeweilige Formensprache. Zurückhaltende Schatten, präzise Rahmen und Innenabstände vermitteln einen erwachsenen, hochwertigen Alpine-Resort-Look statt kindlicher Spielzeugästhetik.
+- Das Spiel bleibt **freiwillig, offline, touchgesteuert und ohne Echtgeld-Einsätze**. Echte Gewinn-/Remis-/Niederlage-Regeln und die KI sind unverändert.
+- Der Kontrast der Titel-, Anweisungs- und Ergebnis-Texte wird automatisch auf **mindestens 4,5:1** gegenüber dem tatsächlich gezeichneten Panel-Hintergrund geprüft.
+
+### Regressionstests und Bestandsschutz
+
+- Der Regel-/GUI-Test prüft die tatsächliche Spielfläche und Textkontraste **für jeden der zehn Grafikstile**.
+- Der reale Touch-/Bildschirmtest untersucht **Deutsch und Englisch** bei **360×740, 420×860 und 740×360**: echte Fingerbedienung, sichtbarer Neustart, Scrollbereich, Android-Zurück, Pause und unveränderte Wirtschaftsdaten.
+- Weitere Freigabegates: Godot-Build, originale alte Karriere-Spielstände, Android API 30 und 36 inklusive signiertem In-place-APK-Update und konsistenter `versionCode`-Erhöhung **39 → 40**.
+- Die Wetterbalance, sichere Nachtbeschleunigung, Morgenankünfte, Radiotimer, die neuen Rathausziele und der Spielablauf der bereits veröffentlichten **v0.33.0** bleiben erhalten.
+
+### Quellen und Versionsnachweis
+
+- [Fehleranalyse und nächster Spieleausbau · Issue #47](https://github.com/chekento/SkiZones/issues/47)
+- [Entwicklungs-/Freigabe-PR #53](https://github.com/chekento/SkiZones/pull/53)
+- [Zuletzt veröffentlichte Hauptversion v0.33.0](https://github.com/chekento/SkiZones/releases/tag/v0.33.0)
+- [Alle veröffentlichen APKs](https://github.com/chekento/SkiZones/releases)
+
+Ein Quellcode-Tag oder diese Notiz allein belegt **keine** erfolgreiche Veröffentlichung. Erst der existierende GitHub-Releaseeintrag mit signierter ARM64-APK und Manifest ist der offizielle Download.
+
+---
 
 ## v0.33.0 · Alpine Weather & Playable Resort Activities (04.11.2026)
 
