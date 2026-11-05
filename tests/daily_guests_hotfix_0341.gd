@@ -122,5 +122,5 @@ func run() -> void:
 					check(is_equal_approx(resort.money,cash_before),"Failed morning itinerary cannot sell a duplicate day ticket")
 				var morning:Dictionary=JSON.parse_string(JSON.stringify(resort.snapshot()))
 				check(Resort.new().restore(morning).ok,"Hotel sleeper or morning departure saves without corrupting accommodation")
-	print("HOTFIX 0.34.1: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
