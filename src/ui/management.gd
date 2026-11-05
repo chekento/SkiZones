@@ -10,6 +10,7 @@ const Sponsorship = preload("res://src/core/sponsorship.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Chart = preload("res://src/ui/finance_chart.gd")
+const StatusBanner = preload("res://src/ui/achievement_toast.gd")
 
 var game: Node
 var hud: CanvasLayer
@@ -24,6 +25,7 @@ var staff_target := ""
 var staff_page := 0
 var candidate_page := 0
 var selected_achievement_track := 0
+var notification_filter := "all"
 
 func setup(controller: Node, interface: CanvasLayer) -> void:
 	game = controller
@@ -139,10 +141,56 @@ func refresh() -> void:
 	_finances(_page(L.text("Finanzen")))
 	_sponsoring(_page(L.text("Sponsoring")))
 	OperatingPages.add(self)
+	_notifications(_page(L.text("Meldungen")))
 	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
 	for page in tabs.get_children():
 		if page is ScrollContainer:
 			page.set_deferred("scroll_vertical", scroll_positions.get(page.name, 0))
+
+## The user's session notification center: safe to open and filter by type.
+## Only transient UI history is stored here; financial and mission truth remains
+## in the canonical campaign/operations save state.
+func _notification_entries(parent: VBoxContainer) -> void:
+	var messages: Array=hud.achievement_overlay.history
+	var matches := 0
+	for event in messages:
+		var kind: String=str(event.get("kind",""))
+		if notification_filter != "all" and kind != notification_filter and not (notification_filter == "achievement" and kind in ["rank","medal"]): continue
+		matches+=1
+		var title_text: String=str(event.get("title",""))
+		var detail_text: String=str(event.get("detail",""))
+		if int(event.get("reward",0))>0: detail_text+=" · +%d €" % int(event.reward)
+		var item: VBoxContainer=_card(parent,StatusBanner.caption(kind)+"  ·  "+title_text,detail_text)
+		if kind=="music":
+			hud._button(item,L.text("Zum Radio"),func(): hide(); hud.jukebox.open())
+		elif kind=="mission" or kind=="medal":
+			hud._button(item,L.text("Missionsübersicht öffnen"),func(): hud.show_management_page(L.text("Betrieb")))
+		elif kind in ["achievement","rank"]:
+			hud._button(item,L.text("Zu den Erfolgen"),func(): hud.show_management_page(L.text("Erfolge")))
+		elif kind in ["warning","finance"]:
+			hud._button(item,L.text("Finanzen prüfen"),func(): hud.show_management_page(L.text("Finanzen")))
+	if matches == 0:
+		hud._label(parent,L.text("Noch keine Meldungen in dieser Spielsitzung."),17,hud.MUTED,true)
+
+func _notifications(page: VBoxContainer) -> void:
+	_card(page,L.text("Deine Resort-Meldungen"),L.text("Songs, Szenariomissionen, Erfolge und wichtige Betriebswarnungen erscheinen im selben transparenten Banner. Hier kannst du die letzten 40 Meldungen dieser Spielsitzung nach Themen sortieren. Die Erfolgs- und Missionsstände selbst bleiben selbstverständlich im Spielstand erhalten."))
+	var filters := {"all":"Alle","achievement":"Erfolge & Medaillen","mission":"Missionen","music":"Radio","warning":"Warnungen","finance":"Finanzen","repair":"Reparaturen"}
+	var picker := OptionButton.new()
+	picker.custom_minimum_size.y=52
+	for key in filters:
+		picker.add_item(L.text(str(filters[key])))
+		picker.set_item_metadata(picker.item_count-1,key)
+		if str(key)==notification_filter:picker.select(picker.item_count-1)
+	page.add_child(picker)
+	var list_box: VBoxContainer=hud._vbox(page,10)
+	_notification_entries(list_box)
+	picker.item_selected.connect(func(index: int):
+		notification_filter=str(picker.get_item_metadata(index))
+		for child in list_box.get_children():
+			list_box.remove_child(child)
+			child.queue_free()
+		_notification_entries(list_box)
+	)
 
 func _career(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
