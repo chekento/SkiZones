@@ -25,6 +25,7 @@ const Traffic = preload("res://src/core/guest_traffic.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Management = preload("res://src/ui/management.gd")
 const AchievementToast = preload("res://src/ui/achievement_toast.gd")
+const AudioDesign = preload("res://src/core/audio_design.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const WinterFestival = preload("res://src/ui/winter_festival.gd")
 const SeasonalPoster = preload("res://src/ui/seasonal_poster.gd")
@@ -51,6 +52,8 @@ const APRICOT := Color("f1c5a4")
 var game: Node
 var root := Control.new()
 var achievement_overlay := AchievementToast.new()
+var _last_announced_song := ""
+var _last_cash_warning_key := ""
 var winter_festival := WinterFestival.new()
 var seasonal_poster := SeasonalPoster.new()
 var medal_cabinet := MedalCabinet.new()
@@ -1408,12 +1411,55 @@ func money_text(amount: float) -> String:
 		count += 1
 	return output
 
+## Low-noise, truthful events: radio broadcasts never create fake achievements,
+## and non-playing SoundCloud links do not create "now playing" notifications.
+func _announce_radio_track() -> void:
+	if not game.has_game or not is_instance_valid(game.audio): return
+	var audio: Node=game.audio
+	var prefs: RefCounted=game.preferences
+	if not audio.active or not bool(prefs.sound_enabled) or float(prefs.music_volume)<=0.0 or float(prefs.master_volume)<=0.0:
+		_last_announced_song=""
+		return
+	var info: Dictionary=audio.now_playing()
+	var genre: String=str(info.get("genre","off"))
+	if genre=="off" or genre in AudioDesign.EXTERNAL_STATIONS:
+		_last_announced_song=""
+		return
+	var title: String=str(info.get("title","")).strip_edges()
+	if title.is_empty(): return
+	# Only the real running player is allowed to announce a track.
+	if not audio.players.has("music") or not audio.players.music.playing or audio.players.music.stream_paused: return
+	var artist: String=str(info.get("artist","")).strip_edges()
+	var key: String=genre+"|"+title+"|"+artist
+	if key==_last_announced_song:return
+	_last_announced_song=key
+	var station: String=L.text(str(AudioDesign.GENRE_NAMES.get(genre,genre)))
+	achievement_overlay.announce({"kind":"music","title":title,
+		"detail":(artist+" · " if not artist.is_empty() else "")+station,"reward":0})
+
+func _announce_finance_warning(model: RefCounted) -> void:
+	if model.money >= 0.0: return
+	var key: String=str(model.map_id)+"|"+str(model.operations.get("scenario",""))+"|"+str(model.day)
+	if key==_last_cash_warning_key: return
+	_last_cash_warning_key=key
+	achievement_overlay.announce({"kind":"warning",
+		"title":L.text("Resortbudget im Minus"),
+		"detail":L.text("Kontostand: %s € · Kosten, Preise und Finanzierung prüfen.") % money_text(model.money),
+		"reward":0})
+
 func refresh() -> void:
 	var seasonal: bool=AnnualFestival.visible(AnnualFestival.device_now())
 	if winter_group != null: winter_group.visible=seasonal
 	if winter_toolbar_button != null: winter_toolbar_button.visible=seasonal
 	var model: RefCounted = game.model
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
+	var scenario: String = str(model.operations.get("scenario",""))
+	var goals: Array = Ops.evaluate(model) if not scenario.is_empty() else []
+	# The same elegant achievement overlay now carries mission successes,
+	# actual CC0 song changes, medals and relevant resort warnings.
+	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
+		_announce_radio_track()
+		_announce_finance_warning(model)
 	# Styling is synced before displaying queued achievements.
 	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
 	achievement_overlay.visible=show_achievement
@@ -1445,13 +1491,13 @@ func refresh() -> void:
 		speed_cycle_button.tooltip_text = L.text("Aktuell %d× · tippen für 1×, 4× oder 8×") % game.speed
 	_refresh_context_text()
 	if lift_staff.visible: lift_staff.refresh_status()
-	var scenario: String = model.operations.get("scenario", "")
 	if scenario != "":
-		var goals: Array = Ops.evaluate(model)
 		mission_title.text = L.text("SZENARIO · %s · %d / %d Missionen") % [L.text(Maps.spec(model.map_id).name), goals.count(true), goals.size()]
 		var next := goals.find(false)
 		mission_next.text = L.text("Alle Missionen erfüllt · der Betrieb geht weiter.") if next < 0 else L.text("Nächste Mission: ") + L.text(Ops.GOALS[scenario][next])
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and not cinema_mode and scenario != ""
+	# The existing top-center scenario progress card must remain readable.
+	achievement_overlay.set_reserved_top(mission_panel.position.y+mission_panel.size.y+10.0 if mission_panel.visible else 0.0)
 	palette.refresh()
 	if current_tool == "inspect":
 		plan_text.text = L.text("Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht.") if model.is_closing() and Ops.continuous(model) else L.text("Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind.") if model.is_closing() else L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.")
