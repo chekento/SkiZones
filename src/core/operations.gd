@@ -7,6 +7,7 @@ const Foot = preload("res://src/core/foot_network.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
 const ROLES := {
@@ -684,6 +685,9 @@ static func tick(model: RefCounted) -> void:
 
 static func midnight(model: RefCounted) -> void:
 	model.Hospitality.daily(model)
+	# Interest is a real operating expense; principal reduces cash and debt,
+	# not the profit and loss account. Exactly once per closed day.
+	CreditService.service_day(model)
 	Progression.finish_day(model)
 	model.report.closed_at = 1440
 	model.last_report = model.report.duplicate(true)
