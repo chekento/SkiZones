@@ -224,6 +224,8 @@ jobs:
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd
       - name: 0.32 curated CC0 radio and nonrepeating playlists
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_curation_032.gd
+      - name: 0.34 offline radio – eleven new pinned CC0 songs and no SoundCloud
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_genres_034.gd
       - name: 0.32 crew and scenario support feasibility
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-staff-032

@@ -19,7 +19,7 @@ func _init() -> void:
 func run() -> void:
 	var radio := Radio.new()
 	root.add_child(radio)
-	check(Design.GENRES.size() == 18, "Expanded station matrix and off")
+	check(Design.GENRES.size() == 16, "Fifteen real offline stations plus a silent mode")
 	for station in ["alpine","techno","hiphop","punk","classical","meditative"]:
 		var track: AudioStream = radio._music_stream(station)
 		check(track is AudioStreamWAV, station + " has a WAV track")
