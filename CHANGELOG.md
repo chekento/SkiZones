@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **37 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **38 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.34.0](https://github.com/chekento/SkiZones/releases/tag/v0.34.0)** | 05.11.2026 | Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk) | [Details](docs/releases/0.34.0.md) |
 | **[v0.33.2](https://github.com/chekento/SkiZones/releases/tag/v0.33.2)** | 05.11.2026 | SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk) | [Details](docs/releases/0.33.2.md) |
 | **[v0.33.1](https://github.com/chekento/SkiZones/releases/tag/v0.33.1)** | 05.11.2026 | Alpine Arcade Contrast Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.1/SkiZones-0.33.1-android-arm64.apk) | [Details](docs/releases/0.33.1.md) |
 | **[v0.33.0](https://github.com/chekento/SkiZones/releases/tag/v0.33.0)** | 04.11.2026 | Alpine Weather & Playable Resort Activities | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.0/SkiZones-0.33.0-android-arm64.apk) | [Details](docs/releases/0.33.0.md) |
@@ -47,6 +48,28 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.34.0 · Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht (05.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.34.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk)** (167.0 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.34.0/manifest.json) · [Originalnotizen](docs/releases/0.34.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.34.0)
+
+Android ARM64 · Update von 0.33.2 · gleiche Paketkennung `cloud.kosch.skizones` · **versionCode 42**
+
+### Neue Funktionen
+- **1×, 4× und 8× Zeit**: jederzeit auswählbar, auf schmalen Smartphones direkt in der ersten erreichbaren Bedienposition. Der automatische Nachtvorlauf bleibt von der manuellen Wahl getrennt.
+- **Geländekamera beim Liftbau**: Bauansicht und Höhenlinien schalten beim Beginn der Liftplatzierung automatisch ein. Nach Erfolg oder Abbruch wird die vorherige Ansicht wiederhergestellt. Manuelle Kamera- oder Geländewahl hat Vorrang.
+- **Lebendige Schneespuren**: Tatsächlich gehende Gäste hinterlassen Fußabdrücke. Wiederholte Nutzung verdichtet sie über Schnee- und Rillenstadien bis zum ausgetretenen Weg. Begrenztes visuelles GPU-Instancing ohne Änderung der Wegfindung.
+- **Lebendige Alpenwelt**: windbewegte Vegetation, mehr differenzierte Bäume und Landschaftselemente, Animationen mit echten Betriebs-/Besucherzahlen einschließlich Après-Ski und Disco.
+- **PMDD-Perspektive**: stärkere echte räumliche Tiefe durch die 3D-Kamera ohne Abweichung von Terrain-Auswahl oder Gebäudepicking.
+- **Mobile Hochformatansicht**: Baupalette und Inspektor überlagern sich nicht mehr, damit alle Touch-Flächen nutzbar bleiben.
+- **Alpine Radio**: SoundCloud-Playlist-Links entfernt; elf nachvollziehbar dokumentierte lokale CC0-Titel ergänzt und Sender klarer ihren Genres zugeordnet. Rechte- und Quellendokumentation unter `assets/music/cc0/RIGHTS.md` und `docs/RADIO_CURATION_034.md`.
+
+### Integrität und Update
+Die Versionsnummer ist **0.34.0** mit höherem Android-Versionscode 42. Paketkennung, Karriere-Speicherformat und die ab 0.33.2 eingeführten vier unabhängigen freien Spielstände bleiben identisch. Auch die Wiederherstellung prüfsummengültiger Altspielstände und die sichere Rettungsarchivierung bleiben enthalten. Die APK wird erst nach vollständiger CI (Godot-Syntax, alte Spielstände, UI-/Audio-/Welt-Regressionen und Android-Lifecycle auf API 30 und 36) automatisch signiert und mit SHA-256-Prüfsumme veröffentlicht.
+
+Die Schneespuren sind zunächst nur eine lokale, laufzeitbasierte Visualisierung. Ein vollständiges Neuladen des Gebiets beginnt wieder mit unberührtem Schnee; für persistente Schneeverdichtung ist eine gesonderte Spielstandmigration erforderlich.
+
+---
 
 ## v0.33.2 · SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau (05.11.2026)
 
