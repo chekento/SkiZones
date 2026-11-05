@@ -11,6 +11,7 @@ on:
       - 'src/ui/career_slots.gd'
       - 'tests/save_rescue_free_slots_0332.gd'
       - 'tests/free_slots_scene_0332.gd'
+      - 'tests/main_mode_scene.gd'
       - '.github/workflows/save-free-0332.yml'
   workflow_dispatch:
 permissions:
@@ -59,3 +60,7 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-free-ui-0332
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x800 --script tests/free_slots_scene_0332.gd
+      - name: Main-mode menu, four free slots and optional scenarios
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-main-menu-0332
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/main_mode_scene.gd
