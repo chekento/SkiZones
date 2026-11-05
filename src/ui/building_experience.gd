@@ -4,6 +4,7 @@ const FloatingFrame = preload("res://src/ui/floating_window.gd")
 var window := FloatingFrame.new()
 const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
+const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
@@ -141,8 +142,10 @@ func _rebuild() -> void:
 	heading.text = L.asset_name(building)
 	if str(building.kind)=="town_hall":
 		_town_hall(building)
+		_offers(building)
 		_activity(building)
 		return
+	_offers(building)
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
 	if building.kind == "pizzeria": _pizza(building)
 	if building.kind in ["printing_press","newsstand"]: _newspaper(building)
@@ -153,6 +156,34 @@ func _rebuild() -> void:
 	_card(operation, L.text("Dein Betriebsergebnis"), L.text("Umsatz %s € · Kosten %s € · Ergebnis %s €") % [hud.money_text(balance.sales), hud.money_text(balance.costs), hud.money_text(balance.net)])
 	hud._button(operation, L.text("Personal, Status und Reparatur"), func(): close(); hud.lift_staff.open(asset_id), true)
 	hud._label(operation, L.text("Minispiele sind freiwillig. Deine Betriebe arbeiten auch ohne manuelle Schichten weiter. Drei belohnte Schichten pro Gebäude und Tag; danach bleibt freies Üben möglich."), 16, hud.MUTED, true)
+
+
+func _offers(building: Dictionary) -> void:
+	# Preview only: no unshipped sale/inventory effect or changes to legacy
+	# save data. The player sees genuine name-specific baseline services
+	# and transparent future unlocks based on the EXISTING building level.
+	var kind: String = str(building.get("kind",""))
+	var level: int = int(building.get("level",1))
+	var page: VBoxContainer = _page(L.text("Angebote & Ausbau"))
+	var offered: Array = BuildingOffers.active(kind,level)
+	var pending: Array = BuildingOffers.locked(kind,level)
+	_card(page,L.text("Betrieb · Stufe %d") % maxi(1,level),
+		L.text("Grundangebote stehen ab dem Bau bereit. Zusätzliche Speisen, Getränke, Kurse und Ausrüstung erscheinen nach einem Gebäudeausbau. Angezeigte Margen sind Kalkulationswerte je Artikel, keine bereits verbuchten Verkaufserlöse."))
+	var current: VBoxContainer = _card(page,L.text("Bereits verfügbare Angebote"),
+		L.text("%d Angebote und Leistungen für diesen Gebäudetyp.") % offered.size())
+	for offer in offered:
+		var unit_price: float = float(offer.price)
+		var summary: String = L.text("Aktiv · Kategorie: %s") % str(offer.category)
+		if unit_price > 0.0:
+			summary += "\n" + L.text("Kalkulation je Einheit: %.2f € Verkauf · %.2f € Wareneinsatz · %.2f € Deckungsbeitrag vor Personal und Fixkosten.") % [unit_price,float(offer.cost),BuildingOffers.sale_margin(offer)]
+		else:
+			summary += "\n" + L.text("Im Grundbetrieb enthalten; Kosten und Kapazität werden weiterhin vom bestehenden Betriebssystem gesteuert.")
+		_card(current,L.text(str(offer.name)),summary)
+	if not pending.is_empty():
+		var future: VBoxContainer = _card(page,L.text("Weitere Freischaltungen"),
+			L.text("Geplante zusätzliche Inhalte. Stufen oberhalb der derzeit freigegebenen Gebäude-Upgrades werden erst in späteren Updates tatsächlich freischaltbar."))
+		for offer in pending:
+			_card(future,L.text(str(offer.name)),L.text("Benötigt Gebäudestufe %d · Kategorie: %s") % [int(offer.level),str(offer.category)])
 
 func _newspaper(building: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
