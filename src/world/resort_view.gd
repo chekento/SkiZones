@@ -21,6 +21,7 @@ const PisteMesh = preload("res://src/world/piste_mesh.gd")
 const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
+const FootWear = preload("res://src/world/foot_wear.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
@@ -87,6 +88,7 @@ var _snow_seen := -1
 var _piste_meshes: Dictionary = {}
 var _snow_geometry: Dictionary = {}
 var _track_mesh := MeshInstance3D.new()
+var foot_wear := FootWear.new()
 var _riders := MultiMeshInstance3D.new()
 var _cabin_riders := MultiMeshInstance3D.new()
 var _walkers := MultiMeshInstance3D.new()
@@ -170,8 +172,9 @@ void fragment() {
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
 		add_child(node)
+	foot_wear.setup()
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
@@ -710,6 +713,8 @@ func rebuild(progress: RefCounted = null) -> void:
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
+	if progress != null or _terrain_id != model.map_id or _terrain_generation != terrain.generation:
+		foot_wear.reset()
 	if _terrain_id != model.map_id or _terrain_generation != terrain.generation or _portal_signature!=str(model.portal_path):
 		_portal_signature=str(model.portal_path)
 		_terrain_id = model.map_id
@@ -1388,12 +1393,20 @@ func _process(delta: float) -> void:
 			cabin_riding = counts.cabin
 			foot_visitors = counts.foot
 			climbers = counts.hike
+		# Sample actual simulated pedestrian positions only when their
+		# walking leg advances; paused construction and indoor visits leave
+		# no footprints, even at 8x or during accelerated empty nights.
+		if motion_running and guest.phase == "moving" and guest.leg < guest.route.legs.size():
+			var wear_leg: Dictionary = guest.route.legs[guest.leg]
+			if wear_leg.kind == "walk":
+				foot_wear.sample_guest(int(guest.id), position_value, int(model.motion_tick), int(guest.leg), int(guest.get("group_size", 1)))
 		next_positions[guest.id] = position_value
 		if follow_guest == int(guest.id):
 			_follow_position = _follow_position.lerp(position_value, minf(1, delta * 7)) if camera_smoothing and delta > 0 and _follow_position.is_finite() else position_value
 			focus = Vector2(_follow_position.x, _follow_position.z)
 			_update_camera()
 	_guest_positions = next_positions
+	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
 	if _selection.visible:
 		_selection.position = next_positions[selected_guest] + Vector3.UP * 0.2
