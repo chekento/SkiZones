@@ -8030,3 +8030,65 @@ msgstr "ALPINE PARTNERSHIP"
 
 msgid "Fiktiver Markenpartner · benötigt: %s"
 msgstr "Fictional brand partner · requires: %s"
+
+
+# Pizza cost, ingredient and 5-slot editor
+msgid "Rucola"
+msgstr "Arugula"
+
+msgid "Ziegenkäse"
+msgstr "Goat cheese"
+
+msgid "Pesto"
+msgstr "Pesto"
+
+msgid "Chilischoten"
+msgstr "Chili peppers"
+
+msgid "Trüffel"
+msgstr "Truffle"
+
+msgid "Räuchertofu"
+msgstr "Smoked tofu"
+
+msgid "Mindestens drei Pizzen mit zwei bis sechs Zutaten und gültigen Preisen anlegen."
+msgstr "Create at least three pizzas with two to six ingredients and valid prices."
+
+msgid "Für zusätzliche Pizzaplätze ist ein Gebäudeausbau erforderlich."
+msgstr "Upgrade the building to add more pizza slots."
+
+msgid "Diese Zutat wird erst nach einem höheren Gebäudeausbau verfügbar."
+msgstr "This ingredient unlocks at a higher building level."
+
+msgid "Deine Pizzakarte mit Preisen und Zutaten ist aktualisiert."
+msgstr "Your pizza menu, prices and toppings have been updated."
+
+msgid "Eigene Pizzen, Zutaten, Preise und Gewinne · %d von %d Plätzen"
+msgstr "Custom pizzas, ingredients, prices and profits · %d of %d slots"
+
+msgid "Echte Pizzakalkulation"
+msgstr "Actual pizza cost calculation"
+
+msgid "Preis minus Teig, Zutaten und Wareneinsatz ergibt den Deckungsbeitrag je Pizza vor Personal und Gebäudekosten. Nur die wirklich gewählte Pizza wird einem Gast in Rechnung gestellt. Alte Pizzakarten bleiben beim Laden unverändert."
+msgstr "Sale price minus dough, toppings and direct food costs gives each pizza's contribution before payroll and overheads. Only the selected pizza is billed for each guest visit. Legacy menus remain unchanged when loaded."
+
+msgid "Dein Verkaufspreis · €"
+msgstr "Your selling price · €"
+
+msgid "Zutat ab Gebäudestufe %d"
+msgstr "Ingredient unlocks at building level %d"
+
+msgid "Verkauf %.2f € · Zutaten %.2f € · Deckungsbeitrag %.2f € (%.0f %%)"
+msgstr "Sale €%.2f · ingredients €%.2f · contribution €%.2f (%.0f %%)"
+
+msgid "Weiteren Pizza-Platz freischalten"
+msgstr "Add another pizza slot"
+
+msgid "Neue Pizza %d"
+msgstr "New pizza %d"
+
+msgid "Letzten zusätzlichen Pizza-Platz entfernen"
+msgstr "Remove last extra pizza slot"
+
+msgid "Meine Pizzakarte mit Preisen speichern"
+msgstr "Save my priced pizza menu"
