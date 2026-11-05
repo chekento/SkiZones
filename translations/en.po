@@ -7635,3 +7635,200 @@ msgstr "Cableway installation"
 msgid "Reparatur abgeschlossen · Lift wieder betriebsbereit"
 msgstr "Repair complete · lift back in service"
 
+
+# Original Alpine Radio front-panel and 16 station identities
+msgid "ALPENWELLE"
+msgstr "ALPENWELLE"
+
+msgid "BERGFOLK / AKUSTIK"
+msgstr "MOUNTAIN FOLK / ACOUSTIC"
+
+msgid "HÜTTENFOLK"
+msgstr "HÜTTENFOLK"
+
+msgid "TRADITION / GITARREN"
+msgstr "TRADITION / GUITARS"
+
+msgid "NORDIC FROST"
+msgstr "NORDIC FROST"
+
+msgid "NORDISCHE KLÄNGE"
+msgstr "NORDIC MUSIC"
+
+msgid "SUMMIT SUNRISE"
+msgstr "SUMMIT SUNRISE"
+
+msgid "MORGEN / ENTSPANNUNG"
+msgstr "MORNING / RELAXATION"
+
+msgid "FREERIDE PULSE"
+msgstr "FREERIDE PULSE"
+
+msgid "BOARD / SYNTHWAVE"
+msgstr "BOARD / SYNTHWAVE"
+
+msgid "PISTENROCK"
+msgstr "PISTENROCK"
+
+msgid "GITARREN / ACTION"
+msgstr "GUITARS / ACTION"
+
+msgid "POWDER FLOW"
+msgstr "POWDER FLOW"
+
+msgid "HIP-HOP / LO-FI"
+msgstr "HIP-HOP / LO-FI"
+
+msgid "SNOWBEAT"
+msgstr "SNOWBEAT"
+
+msgid "TECHNO / HOUSE"
+msgstr "TECHNO / HOUSE"
+
+msgid "ALPENGLÜHEN"
+msgstr "ALPENGLÜHEN"
+
+msgid "APRÈS-SKI / FUNK"
+msgstr "APRÈS-SKI / FUNK"
+
+msgid "ALPINE CLASSIC"
+msgstr "ALPINE CLASSIC"
+
+msgid "PIANO / ORCHESTER"
+msgstr "PIANO / ORCHESTRA"
+
+msgid "MOUNTAIN CHILL"
+msgstr "MOUNTAIN CHILL"
+
+msgid "AMBIENT / MEDITATION"
+msgstr "AMBIENT / MEDITATION"
+
+msgid "LODGE LO-FI"
+msgstr "LODGE LO-FI"
+
+msgid "KAMIN / BEATS"
+msgstr "FIRESIDE / BEATS"
+
+msgid "GLACIER DREAMS"
+msgstr "GLACIER DREAMS"
+
+msgid "EIS / AMBIENT"
+msgstr "ICE / AMBIENT"
+
+msgid "COSMIC DRIFT"
+msgstr "COSMIC DRIFT"
+
+msgid "SPACE / SYNTH"
+msgstr "SPACE / SYNTH"
+
+msgid "DEEP ATMOSPHERICS"
+msgstr "DEEP ATMOSPHERICS"
+
+msgid "DRONES / SOUNDSCAPES"
+msgstr "DRONES / SOUNDSCAPES"
+
+msgid "HOTEL LOBBY FM"
+msgstr "HOTEL LOBBY FM"
+
+msgid "PIANO / JAZZ LOUNGE"
+msgstr "PIANO / JAZZ LOUNGE"
+
+msgid "Alpine Radio · Sound Control"
+msgstr "Alpine Radio · Sound Control"
+
+msgid "ALPINE RADIO  /  SKIZONES"
+msgstr "ALPINE RADIO  /  SKIZONES"
+
+msgid "OFFLINE · LIVE-SENDEPLAN · 15 SENDER"
+msgstr "OFFLINE · LIVE PROGRAMME · 15 CHANNELS"
+
+msgid "⏻ EIN/AUS"
+msgstr "⏻ POWER"
+
+msgid "Radio sofort einschalten oder ausschalten"
+msgstr "Switch the radio on or off instantly"
+
+msgid "LIVE · JETZT AUF SENDUNG"
+msgstr "LIVE · ON AIR NOW"
+
+msgid "Vorherigen Sender wählen"
+msgstr "Choose previous station"
+
+msgid "Nächsten Sender wählen"
+msgstr "Choose next station"
+
+msgid "⏭ NÄCHSTER TITEL"
+msgstr "⏭ NEXT TRACK"
+
+msgid "Zum nächsten Titel dieses Senders springen"
+msgstr "Skip to the next song on this station"
+
+msgid "ⓘ CREDITS"
+msgstr "ⓘ CREDITS"
+
+msgid "Musik- und Lizenzquellen dieses Senders zeigen"
+msgstr "Show music credits and licence sources for this station"
+
+msgid "DEINE SENDERPRESETS · LOGO ANTIPPEN"
+msgstr "STATION PRESETS · TAP A LOGO"
+
+msgid "MISCHPULT · DIREKT AM RADIO"
+msgstr "MIXER · ON THE RADIO"
+
+msgid "GESAMT"
+msgstr "MASTER"
+
+msgid "MUSIK"
+msgstr "MUSIC"
+
+msgid "UMGEBUNG"
+msgstr "AMBIENCE"
+
+msgid "Hinweis: schrille FX sind deaktiviert. Der Umgebungsregler wird gespeichert; hörbare FX bleiben bis zur sicheren Neuvertonung ausgeschaltet."
+msgstr "Note: harsh sound effects are disabled. Ambience volume is saved; sound effects remain silent until safe recordings are available."
+
+msgid "15 echte Offline-Sender · Titel und Interpreten aus dem lokalen CC0-Archiv. Jede Änderung gilt sofort und bleibt gespeichert. Keine Internet- oder SoundCloud-Wiedergabe."
+msgstr "15 real offline stations · titles and artists come from the local CC0 archive. All changes apply immediately and are saved. No online or SoundCloud playback."
+
+msgid "ZURÜCK ZUM RESORT"
+msgstr "BACK TO RESORT"
+
+msgid "Lautstärke verringern"
+msgstr "Decrease volume"
+
+msgid "Lautstärke erhöhen"
+msgstr "Increase volume"
+
+msgid "RADIO AUS · mit dem Power-Knopf einschalten"
+msgstr "RADIO OFF · press Power to turn it on"
+
+msgid "STUMM · Musik- oder Gesamtlautstärke erhöhen"
+msgstr "MUTED · increase music or master volume"
+
+msgid "♫ Jetzt läuft: "
+msgstr "♫ Now playing: "
+
+msgid "Der Sender wird eingestellt …"
+msgstr "Tuning the station …"
+
+msgid "⏻ EIN"
+msgstr "⏻ ON"
+
+msgid "⏻ AUS"
+msgstr "⏻ OFF"
+
+msgid "ⓘ ZUKLAPPEN"
+msgstr "ⓘ CLOSE"
+
+msgid "Auf diesem Sender ist kein lokaler Titel hinterlegt."
+msgstr "This station has no local tracks on file."
+
+msgid "KANAL %02d / 15"
+msgstr "CHANNEL %02d / 15"
+
+msgid "%d echte Offline-Titel"
+msgstr "%d real offline tracks"
+
+msgid "HÖRBEREICH: "
+msgstr "LISTENING AREA: "
+
