@@ -163,7 +163,7 @@ static func add(office: Control) -> void:
 		var account: Dictionary = Ops.business_balance(model, building)
 		var net: float = float(account.net)
 		hud._label(body, ("▲ +" if net >= 0 else "▼ −") + hud.money_text(absf(net)) + " € · " + L.text("heutiges Betriebsergebnis"), 18, Color("22333d") if net >= 0 else Color("ba3f45"), true)
-		hud._label(body, L.text("Umsatz %s € · Löhne %s € · Infrastrukturanteil %s €") % [hud.money_text(account.sales), hud.money_text(account.wages), hud.money_text(account.overhead)], 15, hud.MUTED, true)
+		hud._label(body, L.text("Umsatz %s € · Löhne %s € · Wareneinsatz %s € · Infrastrukturanteil %s €") % [hud.money_text(account.sales), hud.money_text(account.wages), hud.money_text(account.supplies), hud.money_text(account.overhead)], 15, hud.MUTED, true)
 		hud._button(body, L.text("Betrieb & Gebäudeteam"), func():
 			office.hide()
 			hud.lift_staff.open(int(building.id))

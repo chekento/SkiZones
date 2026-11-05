@@ -6,6 +6,7 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
@@ -138,16 +139,16 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	if item.has("radius"):
 		return {"ok": false, "message": L.text("Mit einer weiteren Gehfläche vergrößern.")}
 	var level: int = item.get("level", 1)
-	if level >= 3:
+	if level >= (5 if item.get("kind", "") in Catalog.BUILDINGS else 3):
 		return {"ok": false, "message": L.text("Maximale Ausbaustufe erreicht.")}
-	var needed := "mastercraft" if level == 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
+	var needed := "mastercraft" if level >= 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
 	if model.campaign.get("mode", "free") != "free" and not has(model, needed):
 		return {"ok": false, "message": L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name)}
 	if item.has("difficulty"):
 		var context: RefCounted = model.Edit.context(model, id)
 		var corridor: Dictionary = context.preview_piste(item.points, model.Snow.piste_width(item) + 4)
 		if not corridor.ok: return corridor
-	var cost := roundi(item.cost * (0.45 if level == 1 else 0.8))
+	var cost := roundi(item.cost * (0.45 if level == 1 else 0.8 + maxf(0, level - 2) * 0.35))
 	return {"ok": model.money >= cost, "message": L.text("Stufe %d · %d €") % L.args([level + 1, cost]), "cost": cost}
 
 static func upgrade(model: RefCounted, id: int) -> Dictionary:
@@ -396,6 +397,9 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		state.abilities[i] = int(state.abilities[i])
 	if state.has("sponsor") and not Sponsorship.valid(state.sponsor,model.day):
 		return false
+	# Optional in the v0.35 migration: old saves without a credit contract
+	# retain the original integer loan and remain readable.
+	if state.has("credit_contract") and not CreditService.valid_contract(state.credit_contract,model.day,model.loan): return false
 	if not state.get("project") is Dictionary or not state.get("notice") is String or state.notice.length() > 500:
 		return false
 	if state.has("notice_key"):

@@ -180,13 +180,15 @@ func _visits() -> void:
 	check(visit >= 0 and not model._checked_itinerary(guest.route.duplicate(true), 0).is_empty(), "The guest itinerary includes an actual door visit and valid walking paths")
 	var money: float = model.money
 	var initial_rewards: float = model.report.rewards
+	var expected_sale: Dictionary = model.BuildingOffers.visit_sale(model.buildings[0],guest)
+	var costs_before: float = model.report.costs
 	guest.leg = visit
 	model._start_leg(guest)
 	check(model.report.services == 0 and model.buildings[0].visits == 0, "A building does not earn service money before a guest visits")
 	var duration: float = guest.duration
 	for i in range(ceili(duration)):
 		model.advance_minute(false)
-	check(model.buildings[0].visits == 1 and model.report.services == 13 and is_equal_approx(model.money - money - (model.report.rewards - initial_rewards), 13.0) and guest.spent, "Completing the restaurant visit charges its actual service once")
+	check(model.buildings[0].visits == 1 and is_equal_approx(float(model.report.services),float(expected_sale.revenue)) and is_equal_approx(model.money - money - (model.report.rewards - initial_rewards) + (model.report.costs - costs_before), float(expected_sale.revenue)) and guest.spent, "Completing the restaurant visit charges its selected product and supplies exactly once")
 	var checked := true
 	for leg in guest.route.legs:
 		if leg.kind == "walk":

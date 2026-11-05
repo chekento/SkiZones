@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#142b35"/><stop offset="1" stop-color="#07141c"/></linearGradient><linearGradient id="bar" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#8ae2bf"/><stop offset="1" stop-color="#176e63"/></linearGradient></defs>
+<rect width="508" height="252" x="2" y="2" rx="34" fill="url(#bg)" stroke="#8ae2bf" stroke-width="4"/>
+<path d="M321 36V219" stroke="#176e63" stroke-width="3" opacity=".7"/>
+<g transform="translate(3 0)"><path d="M36 172 L114 68 L163 128 L210 72 L292 172 Z" fill="none" stroke="#8ae2bf" stroke-width="14" stroke-linejoin="round"/><path d="M94 91L115 68L136 93M191 93L210 72L232 94" fill="none" stroke="#fff" stroke-width="6"/></g>
+<g stroke="url(#bar)" stroke-width="10" stroke-linecap="round" opacity=".88">
+<path d="M344 191v-42"/><path d="M371 191v-78"/><path d="M398 191v-114"/><path d="M425 191v-63"/><path d="M452 191v-91"/><path d="M479 191v-37"/>
+</g>
+<circle cx="348" cy="57" r="10" fill="#8ae2bf"/><circle cx="379" cy="57" r="5" fill="#fff" opacity=".75"/>
+</svg>

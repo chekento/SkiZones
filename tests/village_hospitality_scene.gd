@@ -36,7 +36,9 @@ func run() -> void:
 	await process_frame
 	check(experience.visible and game.paused and not game.simulation_running(), "Building visit pauses the resort clock")
 	check(game.hud.blocks_map(Vector2(5, 5)), "The entire building overlay blocks map construction and camera gestures")
-	check(experience.tabs.get_tab_count() == 3 and experience._recipe_names.size() == 3, "Pizzeria shows three editable recipes, activity and operations tabs")
+	var pizza_pages: Array=[]
+	for index in range(experience.tabs.get_tab_count()): pizza_pages.append(experience.tabs.get_tab_title(index))
+	check(["Meine Pizzakarte","Angebote & Ausbau","Betriebstraining","Betrieb & Team"].all(func(title):return pizza_pages.has(title)) and experience._recipe_names.size() == 3, "Pizzeria preserves three editable recipes and exposes real offers, training and operating tabs")
 	experience._recipe_names[0].text = "KoSch Pizza"
 	experience._start_shift()
 	check(experience.task.mode == "pizza", "Pizzeria activity uses the actual pizza topping mechanic")
@@ -46,7 +48,9 @@ func run() -> void:
 	check(not game.paused, "Leaving a building restores the previous running state")
 	experience.open(int(placed.hotel))
 	await process_frame
-	check(experience.tabs.get_tab_count() == 7, "Hotel exposes management, rooms, chains, modules, arcade, training and staffing")
+	var hotel_pages: Array=[]
+	for index in range(experience.tabs.get_tab_count()): hotel_pages.append(experience.tabs.get_tab_title(index))
+	check(["Hotelverwaltung","Zimmer & Gäste","Hotelketten","Hotelkomplex & Module","Spielecke","Betriebstraining","Betrieb & Team","Angebote & Ausbau"].all(func(title):return hotel_pages.has(title)), "Hotel exposes all named management, guest, chain, module, arcade, training, staffing and offer pages")
 	experience._start_shift()
 	check(experience.task.mode == "hotel_story" and experience.task.scene == "arrival", "Hotel uses a bespoke illustrated scene in the real building window")
 	check(experience.game_box.get_children().any(func(child): return child.get_script() != null and child.get_script().resource_path == "res://src/ui/hotel_story_art.gd"), "Hotel chapter creates its own animated PMDD-style visual tableau")

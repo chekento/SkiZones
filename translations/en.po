@@ -3307,7 +3307,6 @@ msgstr "Hotel ↔ gondola · ski shuttle"
 msgid "SkiZones-Spielbus"
 msgstr "SkiZones shuttle"
 
-
 msgid "Fußwege und Anschlüsse verbinden …"
 msgstr "Connecting footpaths and access routes…"
 
@@ -3745,7 +3744,6 @@ msgstr "Assigned skiers: %d · guideline %d\nSki lanes: %d · traffic: %s"
 
 msgid "Tipp: Breitere oder zusätzliche Abfahrten verteilen die Gäste besser."
 msgstr "Tip: Wider or alternative runs distribute visitors more evenly."
-
 
 msgid "Ferienhütte"
 msgstr "Holiday cabin"
@@ -4277,7 +4275,6 @@ msgstr "Another round"
 
 msgid "Gebäude betreten · Spielen & Verwalten"
 msgstr "Enter building · Play & manage"
-
 
 msgid "Kleine Sprungrampe"
 msgstr "Small jump ramp"
@@ -4902,8 +4899,6 @@ msgstr "Alpine Radio · music and soundscape"
 
 msgid "Bildstil · sechs Looks"
 msgstr "Visual style · six looks"
-
-
 
 msgid "Dieses Gebiet steht nicht zur Verfügung."
 msgstr "This area is not available."
@@ -6080,7 +6075,6 @@ msgstr "✦  ACHIEVEMENT UNLOCKED"
 msgid "+%d €"
 msgstr "+%d €"
 
-
 # Previous-career migration and recovery
 msgid "Älterer Spielstand geladen."
 msgstr "Older saved game loaded."
@@ -6737,7 +6731,6 @@ msgstr "Municipal Budget"
 msgid "Sitzungsprotokoll"
 msgstr "Meeting Minutes"
 
-
 msgid "Dieser Ort hat bereits ein Rathaus."
 msgstr "This town already has a Town Hall."
 
@@ -7026,7 +7019,6 @@ msgstr "Profile: "
 msgid "Personal-ID %d"
 msgstr "Staff ID %d"
 
-
 msgid "Bergrettung · Einsatz"
 msgstr "Mountain rescue · response"
 
@@ -7084,7 +7076,6 @@ msgstr "Attention %d %% · Scenery ↔ Operations"
 msgid "Interaktiver Pistenplan"
 msgstr "Interactive piste map"
 
-
 msgid "Monochrom · Strichlinien"
 msgstr "Monochrome · Line art"
 
@@ -7102,7 +7093,6 @@ msgstr "New Year’s Eve stage"
 
 msgid "Weihnachtsmarkt-Bude"
 msgstr "Christmas market stall"
-
 
 msgid "TAG & ZEIT"
 msgstr "DAY & TIME"
@@ -7555,3 +7545,1080 @@ msgstr "%d× ▸"
 
 msgid "Aktuell %d× · tippen für 1×, 4× oder 8×"
 msgstr "Current %d× · tap to cycle through 1×, 4× and 8×"
+
+# 0.35 consolidated notification banner and in-game activity feed
+msgid "✦  MEISTERSCHAFTSRANG"
+msgstr "✦  MASTERY RANK"
+
+msgid "✦  ACHIEVEMENT FREIGESCHALTET"
+msgstr "✦  ACHIEVEMENT UNLOCKED"
+
+msgid "◆  SZENARIOMEDAILLE"
+msgstr "◆  SCENARIO MEDAL"
+
+msgid "✓  MISSION ABGESCHLOSSEN"
+msgstr "✓  MISSION COMPLETED"
+
+msgid "♫  JETZT IM RADIO"
+msgstr "♫  NOW PLAYING"
+
+msgid "!  RESORT-WARNUNG"
+msgstr "!  RESORT WARNING"
+
+msgid "⚒  WIEDER EINSATZBEREIT"
+msgstr "⚒  BACK IN SERVICE"
+
+msgid "€  RESORT-FINANZEN"
+msgstr "€  RESORT FINANCES"
+
+msgid "◆  RESORT-MELDUNG"
+msgstr "◆  RESORT UPDATE"
+
+msgid "Szenario: %s · Mission %d von %d"
+msgstr "Scenario: %s · mission %d of %d"
+
+msgid "Resortbudget im Minus"
+msgstr "Resort cash balance is negative"
+
+msgid "Kontostand: %s € · Kosten, Preise und Finanzierung prüfen."
+msgstr "Cash balance: €%s · review costs, prices and financing."
+
+msgid "Meldungen"
+msgstr "Notifications"
+
+msgid " · +%d €"
+msgstr " · +€%d"
+
+msgid "Zum Radio"
+msgstr "Open radio"
+
+msgid "Missionsübersicht öffnen"
+msgstr "View scenario missions"
+
+msgid "Zu den Erfolgen"
+msgstr "View achievements"
+
+msgid "Finanzen prüfen"
+msgstr "Review finances"
+
+msgid "Noch keine Meldungen in dieser Spielsitzung."
+msgstr "No notifications in this game session yet."
+
+msgid "Deine Resort-Meldungen"
+msgstr "Your resort notifications"
+
+msgid "Songs, Szenariomissionen, Erfolge und wichtige Betriebswarnungen erscheinen im selben transparenten Banner. Hier kannst du die letzten 40 Meldungen dieser Spielsitzung nach Themen sortieren. Die Erfolgs- und Missionsstände selbst bleiben selbstverständlich im Spielstand erhalten."
+msgstr "Songs, scenario missions, achievements and important operations alerts share the same transparent banner. Filter the last 40 notices from this play session by topic. Achievements and scenario progress remain safely stored in your actual game save."
+
+msgid "Alle"
+msgstr "All"
+
+msgid "Erfolge & Medaillen"
+msgstr "Achievements & medals"
+
+msgid "Warnungen"
+msgstr "Warnings"
+
+msgid "Seilbahnanlage"
+msgstr "Cableway installation"
+
+msgid "Reparatur abgeschlossen · Lift wieder betriebsbereit"
+msgstr "Repair complete · lift back in service"
+
+# Original Alpine Radio front-panel and 16 station identities
+msgid "ALPENWELLE"
+msgstr "ALPENWELLE"
+
+msgid "BERGFOLK / AKUSTIK"
+msgstr "MOUNTAIN FOLK / ACOUSTIC"
+
+msgid "HÜTTENFOLK"
+msgstr "CABIN FOLK"
+
+msgid "TRADITION / GITARREN"
+msgstr "TRADITION / GUITARS"
+
+msgid "NORDIC FROST"
+msgstr "NORDIC FROST"
+
+msgid "NORDISCHE KLÄNGE"
+msgstr "NORDIC MUSIC"
+
+msgid "SUMMIT SUNRISE"
+msgstr "SUMMIT SUNRISE"
+
+msgid "MORGEN / ENTSPANNUNG"
+msgstr "MORNING / RELAXATION"
+
+msgid "FREERIDE PULSE"
+msgstr "FREERIDE PULSE"
+
+msgid "BOARD / SYNTHWAVE"
+msgstr "BOARD / SYNTHWAVE"
+
+msgid "PISTENROCK"
+msgstr "PISTENROCK"
+
+msgid "GITARREN / ACTION"
+msgstr "GUITARS / ACTION"
+
+msgid "POWDER FLOW"
+msgstr "POWDER FLOW"
+
+msgid "HIP-HOP / LO-FI"
+msgstr "HIP-HOP / LO-FI"
+
+msgid "SNOWBEAT"
+msgstr "SNOWBEAT"
+
+msgid "TECHNO / HOUSE"
+msgstr "TECHNO / HOUSE"
+
+msgid "ALPENGLÜHEN"
+msgstr "ALPENGLOW FM"
+
+msgid "APRÈS-SKI / FUNK"
+msgstr "APRÈS-SKI / FUNK"
+
+msgid "ALPINE CLASSIC"
+msgstr "ALPINE CLASSIC"
+
+msgid "PIANO / ORCHESTER"
+msgstr "PIANO / ORCHESTRA"
+
+msgid "MOUNTAIN CHILL"
+msgstr "MOUNTAIN CHILL"
+
+msgid "AMBIENT / MEDITATION"
+msgstr "AMBIENT / MEDITATION"
+
+msgid "LODGE LO-FI"
+msgstr "LODGE LO-FI"
+
+msgid "KAMIN / BEATS"
+msgstr "FIRESIDE / BEATS"
+
+msgid "GLACIER DREAMS"
+msgstr "GLACIER DREAMS"
+
+msgid "EIS / AMBIENT"
+msgstr "ICE / AMBIENT"
+
+msgid "COSMIC DRIFT"
+msgstr "COSMIC DRIFT"
+
+msgid "SPACE / SYNTH"
+msgstr "SPACE / SYNTH"
+
+msgid "DEEP ATMOSPHERICS"
+msgstr "DEEP ATMOSPHERICS"
+
+msgid "DRONES / SOUNDSCAPES"
+msgstr "DRONES / SOUNDSCAPES"
+
+msgid "HOTEL LOBBY FM"
+msgstr "HOTEL LOBBY FM"
+
+msgid "PIANO / JAZZ LOUNGE"
+msgstr "PIANO / JAZZ LOUNGE"
+
+msgid "Alpine Radio · Sound Control"
+msgstr "Alpine Radio · Sound Control"
+
+msgid "ALPINE RADIO  /  SKIZONES"
+msgstr "ALPINE RADIO  /  SKIZONES"
+
+msgid "OFFLINE · LIVE-SENDEPLAN · 15 SENDER"
+msgstr "OFFLINE · LIVE PROGRAMME · 15 CHANNELS"
+
+msgid "⏻ EIN/AUS"
+msgstr "⏻ POWER"
+
+msgid "Radio sofort einschalten oder ausschalten"
+msgstr "Switch the radio on or off instantly"
+
+msgid "LIVE · JETZT AUF SENDUNG"
+msgstr "LIVE · ON AIR NOW"
+
+msgid "Vorherigen Sender wählen"
+msgstr "Choose previous station"
+
+msgid "Nächsten Sender wählen"
+msgstr "Choose next station"
+
+msgid "⏭ NÄCHSTER TITEL"
+msgstr "⏭ NEXT TRACK"
+
+msgid "Zum nächsten Titel dieses Senders springen"
+msgstr "Skip to the next song on this station"
+
+msgid "ⓘ CREDITS"
+msgstr "ⓘ CREDITS"
+
+msgid "Musik- und Lizenzquellen dieses Senders zeigen"
+msgstr "Show music credits and licence sources for this station"
+
+msgid "DEINE SENDERPRESETS · LOGO ANTIPPEN"
+msgstr "STATION PRESETS · TAP A LOGO"
+
+msgid "MISCHPULT · DIREKT AM RADIO"
+msgstr "MIXER · ON THE RADIO"
+
+msgid "GESAMT"
+msgstr "MASTER"
+
+msgid "MUSIK"
+msgstr "MUSIC"
+
+msgid "UMGEBUNG"
+msgstr "AMBIENCE"
+
+msgid "Hinweis: schrille FX sind deaktiviert. Der Umgebungsregler wird gespeichert; hörbare FX bleiben bis zur sicheren Neuvertonung ausgeschaltet."
+msgstr "Note: harsh sound effects are disabled. Ambience volume is saved; sound effects remain silent until safe recordings are available."
+
+msgid "15 echte Offline-Sender · Titel und Interpreten aus dem lokalen CC0-Archiv. Jede Änderung gilt sofort und bleibt gespeichert. Keine Internet- oder SoundCloud-Wiedergabe."
+msgstr "15 real offline stations · titles and artists come from the local CC0 archive. All changes apply immediately and are saved. No online or SoundCloud playback."
+
+msgid "ZURÜCK ZUM RESORT"
+msgstr "BACK TO RESORT"
+
+msgid "Lautstärke verringern"
+msgstr "Decrease volume"
+
+msgid "Lautstärke erhöhen"
+msgstr "Increase volume"
+
+msgid "RADIO AUS · mit dem Power-Knopf einschalten"
+msgstr "RADIO OFF · press Power to turn it on"
+
+msgid "STUMM · Musik- oder Gesamtlautstärke erhöhen"
+msgstr "MUTED · increase music or master volume"
+
+msgid "♫ Jetzt läuft: "
+msgstr "♫ Now playing: "
+
+msgid "Der Sender wird eingestellt …"
+msgstr "Tuning the station …"
+
+msgid "⏻ EIN"
+msgstr "⏻ ON"
+
+msgid "⏻ AUS"
+msgstr "⏻ OFF"
+
+msgid "ⓘ ZUKLAPPEN"
+msgstr "ⓘ CLOSE"
+
+msgid "Auf diesem Sender ist kein lokaler Titel hinterlegt."
+msgstr "This station has no local tracks on file."
+
+msgid "KANAL %02d / 15"
+msgstr "CHANNEL %02d / 15"
+
+msgid "%d echte Offline-Titel"
+msgstr "%d real offline tracks"
+
+msgid "HÖRBEREICH: "
+msgstr "LISTENING AREA: "
+
+# 0.35 building offers, finance and credit contract expansion
+msgid "%d Angebote und Leistungen für diesen Gebäudetyp."
+msgstr "%d offers and services for this building."
+
+msgid "%s € · %d Tage · %.2f %% Jahreszins\nGesamtzins %s € · maximal %.2f € pro Tag\n%s"
+msgstr "€%s · %d days · %.2f %% annual interest\nTotal interest €%s · up to €%.2f per day\n%s"
+
+msgid "Aktiv · Kategorie: %s"
+msgstr "Active · category: %s"
+
+msgid "Aktiver Resortkredit"
+msgstr "Active resort loan"
+
+msgid "Alpenbar-Ausschank"
+msgstr "Alpine bar drinks service"
+
+msgid "Alpenchalet-Übernachtung"
+msgstr "Alpine chalet overnight stay"
+
+msgid "Alpendessert"
+msgstr "Alpine dessert"
+
+msgid "Alpenlimonade"
+msgstr "Alpine lemonade"
+
+msgid "Alpenpension mit Frühstück"
+msgstr "Alpine guesthouse with breakfast"
+
+msgid "Alpenpostkarte"
+msgstr "Alpine postcard"
+
+msgid "Alpenquellwasser"
+msgstr "Alpine spring water"
+
+msgid "Alpenzeitung"
+msgstr "Alpine newspaper"
+
+msgid "Alpine Wanduhr"
+msgstr "Alpine wall clock"
+
+msgid "Alpines Tagesgericht"
+msgstr "Alpine daily special"
+
+msgid "Altkredit vollständig tilgen"
+msgstr "Repay legacy loan in full"
+
+msgid "Anfänger-Snowpark"
+msgstr "Beginner snowpark"
+
+msgid "Anfängliche Stundung in Tagen"
+msgstr "Initial grace period in days"
+
+msgid "Angebote & Ausbau"
+msgstr "Offers & upgrades"
+
+msgid "Apfelgebäck"
+msgstr "Apple pastry"
+
+msgid "Après-Ski-Tanzfläche"
+msgstr "Après-ski dance floor"
+
+msgid "Aus aktueller Liquiditätsreserve tragbar"
+msgstr "Affordable from current cash reserves"
+
+msgid "Ausbaukredit"
+msgstr "Construction loan"
+
+msgid "Aussichtsplattform"
+msgstr "Viewing platform"
+
+msgid "Beheizte Wartehalle"
+msgstr "Heated waiting area"
+
+msgid "Benötigt Gebäudestufe %d · Kategorie: %s"
+msgstr "Requires building level %d · category: %s"
+
+msgid "Bereits verfügbare Angebote"
+msgstr "Currently available offers"
+
+msgid "Berg-Donuts"
+msgstr "Mountain donuts"
+
+msgid "Berg-Mocktail"
+msgstr "Mountain mocktail"
+
+msgid "Bergfitness"
+msgstr "Mountain fitness"
+
+msgid "Bergglocke"
+msgstr "Mountain bell"
+
+msgid "Berghotel-Übernachtung"
+msgstr "Mountain hotel overnight stay"
+
+msgid "Bergsuppe"
+msgstr "Mountain soup"
+
+msgid "Bergwacht und Ersthilfe"
+msgstr "Mountain rescue and first aid"
+
+msgid "Bestehender Kredit aus einer älteren Spielversion"
+msgstr "Existing loan from an earlier game version"
+
+msgid "Betrag, Laufzeit, Rückzahlungsart und maximal 14 Tage Stundung selbst wählen; die Bank kalkuliert den Risikozins."
+msgstr "Choose the amount, term, repayment method and up to 14 days of grace; the bank calculates the risk-based interest rate."
+
+msgid "Betrieb · Stufe %d"
+msgstr "Business · level %d"
+
+msgid "Cappuccino"
+msgstr "Cappuccino"
+
+msgid "Carvingkurs"
+msgstr "Carving lesson"
+
+msgid "Chefmenü"
+msgstr "Chef's menu"
+
+msgid "Churros"
+msgstr "Churros"
+
+msgid "Concierge"
+msgstr "Concierge"
+
+msgid "Design-Handwerk"
+msgstr "Designer crafts"
+
+msgid "Die bisherigen Kreditregeln bleiben erhalten. 450 € pauschale Tageslast; vollständige Tilgung jederzeit möglich."
+msgstr "Legacy loan rules remain: €450 daily flat cost; full repayment is possible at any time."
+
+msgid "Die Kreditobergrenze oder Geldgrenze ist überschritten."
+msgstr "Loan limit or cash balance limit exceeded."
+
+msgid "Dieses fiktive Spielangebot verpflichtet dein Resort zu Raten.\nBetrag: %d € · Laufzeit: %d Tage · Jahreszins: %.2f %%\nGesamtzinsen: %.2f € · Höchste Tagesrate: %.2f €\nDie Auszahlung ist kein Umsatz. Die Raten können dein Konto ins Minus bringen."
+msgstr "This fictional game loan requires repayments.\nAmount: €%d · term: %d days · annual interest: %.2f %%\nTotal interest: €%.2f · maximum daily payment: €%.2f\nBorrowing is not income. Payments can put your balance below zero."
+
+msgid "Elektriker-Fortbildung"
+msgstr "Electrician training"
+
+msgid "Elektrobus"
+msgstr "Electric bus"
+
+msgid "Energiespar-Wärmetechnik"
+msgstr "Energy-efficient heating"
+
+msgid "Ersatzteillager"
+msgstr "Spare parts storage"
+
+msgid "Erste-Hilfe-Kurs"
+msgstr "First aid training"
+
+msgid "Erste-Hilfe-Set"
+msgstr "First aid kit"
+
+msgid "Familien-Beckenzeit"
+msgstr "Family pool session"
+
+msgid "Familientisch"
+msgstr "Family table"
+
+msgid "Familienzimmer"
+msgstr "Family room"
+
+msgid "Farbdruck"
+msgstr "Colour printing"
+
+msgid "Ferienhütten-Übernachtung"
+msgstr "Holiday cabin overnight stay"
+
+msgid "Ferienwohnung"
+msgstr "Holiday apartment"
+
+msgid "Fernrohr"
+msgstr "Telescope"
+
+msgid "Festtag- und Bürgerplanung"
+msgstr "Holiday and community planning"
+
+msgid "Fiktive Spielbank · Kredite sind keine Betriebserlöse. Zinssätze berücksichtigen die gewählte Startstufe; bei fehlender Deckung droht ein negatives Konto. Nach dem Abschluss erscheinen Raten und Restschuld."
+msgstr "Fictional in-game bank · Borrowed funds are not operating income. Interest rates reflect the selected starting difficulty. Insufficient coverage may create negative cash. Payments and remaining debt are shown after signing."
+
+msgid "Finanzierung: sechs Kreditmodelle"
+msgstr "Financing: six loan options"
+
+msgid "Focaccia"
+msgstr "Focaccia"
+
+msgid "Fotopunkt"
+msgstr "Photo spot"
+
+msgid "Freeride und Lawinenkunde"
+msgstr "Freeride and avalanche awareness"
+
+msgid "Freestyle-Event"
+msgstr "Freestyle event"
+
+msgid "Frische Pasta"
+msgstr "Fresh pasta"
+
+msgid "Frischer Kaffee"
+msgstr "Fresh coffee"
+
+msgid "Fruchtsaft"
+msgstr "Fruit juice"
+
+msgid "Frühdiagnose"
+msgstr "Preventive diagnostics"
+
+msgid "Frühstücks-Croissant"
+msgstr "Breakfast croissant"
+
+msgid "Frühstücksbox"
+msgstr "Breakfast box"
+
+msgid "Frühstücksbuffet"
+msgstr "Breakfast buffet"
+
+msgid "Frühstückspaket"
+msgstr "Breakfast package"
+
+msgid "Frühstücksrestaurant"
+msgstr "Breakfast restaurant"
+
+msgid "Frühstücksservice"
+msgstr "Breakfast service"
+
+msgid "Für die vollständige Sondertilgung fehlt das Geld."
+msgstr "Not enough funds for full early repayment."
+
+msgid "Gelato"
+msgstr "Gelato"
+
+msgid "Geplante zusätzliche Inhalte. Stufen oberhalb der derzeit freigegebenen Gebäude-Upgrades werden erst in späteren Updates tatsächlich freischaltbar."
+msgstr "Planned additional content. Levels above the currently available building upgrades will become unlockable in later releases."
+
+msgid "Gipfel-Mocktail"
+msgstr "Summit mocktail"
+
+msgid "Gipfellimonade"
+msgstr "Summit lemonade"
+
+msgid "Grandhotel-Übernachtung"
+msgstr "Grand hotel overnight stay"
+
+msgid "Großes Frühstücksbuffet"
+msgstr "Large breakfast buffet"
+
+msgid "Grundangebote stehen ab dem Bau bereit. Zusätzliche Speisen, Getränke, Kurse und Ausrüstung erscheinen nach einem Gebäudeausbau. Angezeigte Margen sind Kalkulationswerte je Artikel, keine bereits verbuchten Verkaufserlöse."
+msgstr "Core offers are available from construction. Additional meals, drinks, classes and equipment appear as the building is upgraded. Shown margins are unit calculations, not recorded sales."
+
+msgid "Grundbeschneiung"
+msgstr "Basic snowmaking"
+
+msgid "Heiße Schokolade"
+msgstr "Hot chocolate"
+
+msgid "Heißer Apfelsaft"
+msgstr "Hot apple juice"
+
+msgid "Heißer Kräutertee"
+msgstr "Hot herbal tea"
+
+msgid "Hohe Belastung"
+msgstr "High repayment burden"
+
+msgid "Hohes Insolvenz- und Ratenrisiko"
+msgstr "High insolvency and repayment risk"
+
+msgid "Holzschnitzerei"
+msgstr "Wood carving"
+
+msgid "Holzspielzeug"
+msgstr "Wooden toys"
+
+msgid "Hotel-Lounge"
+msgstr "Hotel lounge"
+
+msgid "Im Grundbetrieb enthalten; Kosten und Kapazität werden weiterhin vom bestehenden Betriebssystem gesteuert."
+msgstr "Included in basic operations; costs and capacity remain managed by the existing business system."
+
+msgid "Kaiserschmarrn"
+msgstr "Kaiserschmarrn"
+
+msgid "Kalkulation je Einheit: %.2f € Verkauf · %.2f € Wareneinsatz · %.2f € Deckungsbeitrag vor Personal und Fixkosten."
+msgstr "Per-unit estimate: €%.2f sale · €%.2f direct costs · €%.2f contribution before payroll and overheads."
+
+msgid "Kamin-Ecke"
+msgstr "Fireplace corner"
+
+msgid "Kein gültiges Kreditangebot"
+msgstr "No valid loan offer"
+
+msgid "Kein neuer Kredit offen."
+msgstr "No current loan."
+
+msgid "Kinderskischule"
+msgstr "Children's ski school"
+
+msgid "Kleine Küchenzeile"
+msgstr "Small kitchenette"
+
+msgid "Kostenloser Wärmeunterstand"
+msgstr "Free warming shelter"
+
+msgid "Kräutertee"
+msgstr "Herbal tea"
+
+msgid "Kredit ausgezahlt · %d € · %d Tage. Einzahlungen sind kein Gewinn."
+msgstr "Loan disbursed · €%d · %d days. Borrowing is not profit."
+
+msgid "Kredit getilgt."
+msgstr "Loan repaid."
+
+msgid "Kredit vollständig getilgt; keine künftigen Zinsen."
+msgstr "Loan fully repaid; no future interest."
+
+msgid "Kreditbedingungen prüfen"
+msgstr "Review loan terms"
+
+msgid "Kreditbetrag, Laufzeit oder Rückzahlungsmodus ist ungültig."
+msgstr "Invalid loan amount, term or repayment mode."
+
+msgid "Kreditplan konnte nicht erstellt werden."
+msgstr "Could not generate loan repayment schedule."
+
+msgid "Kreditsumme in €"
+msgstr "Loan amount in €"
+
+msgid "Kreditvertrag bestätigen"
+msgstr "Confirm loan agreement"
+
+msgid "Laufzeit in Betriebstagen"
+msgstr "Term in operating days"
+
+msgid "Lift- und Anlagenreparatur"
+msgstr "Lift and equipment repairs"
+
+msgid "Lift-Evakuierung"
+msgstr "Lift evacuation"
+
+msgid "Live-Abfahrtsanzeige"
+msgstr "Live departure board"
+
+msgid "Live-DJ-Bühne"
+msgstr "Live DJ stage"
+
+msgid "Luxus-Suite"
+msgstr "Luxury suite"
+
+msgid "Massage"
+msgstr "Massage"
+
+msgid "Mitternachts-Snack"
+msgstr "Midnight snack"
+
+msgid "Mobiler Sofortdienst"
+msgstr "Mobile rapid-response service"
+
+msgid "Naturführer"
+msgstr "Nature guide"
+
+msgid "Nicht genügend Geld für Sondertilgung."
+msgstr "Not enough cash for early repayment."
+
+msgid "Nicht genügend Geld."
+msgstr "Not enough money."
+
+msgid "Notfall-Überbrückung"
+msgstr "Emergency bridge loan"
+
+msgid "Panoramasuite"
+msgstr "Panorama suite"
+
+msgid "Pasta des Hauses"
+msgstr "House pasta"
+
+msgid "Pistenkarte"
+msgstr "Piste map"
+
+msgid "Pistenraupen & Technik"
+msgstr "Snow groomers and technology"
+
+msgid "Pistenraupen-Präparierung"
+msgstr "Snow groomer piste preparation"
+
+msgid "Pistenraupen-Winde"
+msgstr "Snow groomer winch"
+
+msgid "Pizza Margherita"
+msgstr "Pizza Margherita"
+
+msgid "Pizza Marinara"
+msgstr "Pizza Marinara"
+
+msgid "Präzisionsdüsen"
+msgstr "Precision snow nozzles"
+
+msgid "Premium-Lounge"
+msgstr "Premium lounge"
+
+msgid "Premium-Wellness"
+msgstr "Premium wellness"
+
+msgid "Premium-Zimmer"
+msgstr "Premium room"
+
+msgid "Radio-Anzeigen"
+msgstr "Radio advertisements"
+
+msgid "Rail-Einweisung"
+msgstr "Rail safety introduction"
+
+msgid "Rathaus und Ortschronik"
+msgstr "Town Hall and local chronicle"
+
+msgid "Räumschild-Upgrade"
+msgstr "Dozer blade upgrade"
+
+msgid "Regenerationsraum"
+msgstr "Recovery room"
+
+msgid "Resort-Beratung"
+msgstr "Resort advisory service"
+
+msgid "Resort-Expansion"
+msgstr "Resort expansion"
+
+msgid "Resort-Zeitung drucken"
+msgstr "Print the resort newspaper"
+
+msgid "Restschuld %s € · %d Raten noch offen · Zinsen bisher %.2f €"
+msgstr "Remaining debt €%s · %d installments left · interest paid €%.2f"
+
+msgid "Restschuld vollständig vorzeitig tilgen"
+msgstr "Repay remaining debt in full early"
+
+msgid "Rettungsschlitten"
+msgstr "Rescue sled"
+
+msgid "Rückzahlungsart: Annuität / lineare Tilgung / endfällig"
+msgstr "Repayment: annuity / constant principal / balloon payment"
+
+msgid "Saisonliquidität"
+msgstr "Seasonal liquidity"
+
+msgid "Salzgebäck"
+msgstr "Savoury snacks"
+
+msgid "Saunaprogramm"
+msgstr "Sauna programme"
+
+msgid "Schneehöhensensor und LED-Licht"
+msgstr "Snow depth sensor and LED lights"
+
+msgid "Schnitzerei"
+msgstr "Wood carving"
+
+msgid "Schoko-Mokka"
+msgstr "Chocolate mocha"
+
+msgid "Schutzhelme"
+msgstr "Protective helmets"
+
+msgid "Schwimmen im Außenpool"
+msgstr "Outdoor pool swimming"
+
+msgid "Sichere Warmluft"
+msgstr "Safe warm-air heating"
+
+msgid "Sicherheitseinweisung"
+msgstr "Safety briefing"
+
+msgid "Ski-Freizeitmagazin"
+msgstr "Ski leisure magazine"
+
+msgid "Ski-Servicewerkstatt"
+msgstr "Ski service workshop"
+
+msgid "Skiausrüstung ausleihen"
+msgstr "Ski equipment rental"
+
+msgid "Skibus-Anbindung"
+msgstr "Ski bus connection"
+
+msgid "Skischrank"
+msgstr "Ski storage cabinet"
+
+msgid "Skischule · Anfängerkurs"
+msgstr "Ski school · beginner lesson"
+
+msgid "Skiständer"
+msgstr "Ski rack"
+
+msgid "Snowblade-Verleih"
+msgstr "Snowblade rental"
+
+msgid "Snowboardkurs"
+msgstr "Snowboarding lesson"
+
+msgid "Snowboardverleih"
+msgstr "Snowboard rental"
+
+msgid "Snowpark-Coach"
+msgstr "Snowpark coach"
+
+msgid "Sonderausgabe"
+msgstr "Special edition"
+
+msgid "Spa-Aufenthalt"
+msgstr "Spa visit"
+
+msgid "Sprungtraining"
+msgstr "Jump training"
+
+msgid "Starterbrücke"
+msgstr "Starter bridge loan"
+
+msgid "Stretching-Kurs"
+msgstr "Stretching class"
+
+msgid "Tagessuppe"
+msgstr "Soup of the day"
+
+msgid "Taschenuhr"
+msgstr "Pocket watch"
+
+msgid "Tee-Set"
+msgstr "Tea set"
+
+msgid "Temperaturautomatik"
+msgstr "Automatic temperature control"
+
+msgid "Terrasse"
+msgstr "Terrace"
+
+msgid "Trainingsberatung"
+msgstr "Fitness coaching"
+
+msgid "Uhrenarmband"
+msgstr "Watch strap"
+
+msgid "Uhrenreparatur"
+msgstr "Watch and clock repairs"
+
+msgid "Unbekannter Kredittyp."
+msgstr "Unknown loan type."
+
+msgid "Verkehrs- und Bauplan"
+msgstr "Transport and construction plan"
+
+msgid "Vernetzte Beschneiung"
+msgstr "Connected snowmaking"
+
+msgid "Waffel"
+msgstr "Waffle"
+
+msgid "Warme Berghütte"
+msgstr "Warm mountain lodge"
+
+msgid "Warmer Kräutertee"
+msgstr "Warm herbal tea"
+
+msgid "Warmer Punsch"
+msgstr "Warm punch"
+
+msgid "Wassersparmodus"
+msgstr "Water-saving mode"
+
+msgid "Weitere Freischaltungen"
+msgstr "Future unlocks"
+
+msgid "Winterketten und Fahrwerk"
+msgstr "Winter tracks and chassis"
+
+msgid "Winterrettung und Lawinenkunde"
+msgstr "Winter rescue and avalanche awareness"
+
+msgid "Wunschfinanzierung"
+msgstr "Custom financing"
+
+msgid "Wunschkredit berechnen und prüfen"
+msgstr "Calculate and review custom loan"
+
+msgid "Wunschkredit frei kalkulieren"
+msgstr "Calculate a custom loan"
+
+msgid "Würziger Alpen-Chai"
+msgstr "Spiced Alpine chai"
+
+msgid "Zimmerservice"
+msgstr "Room service"
+
+msgid "Zuerst den bestehenden Kredit vollständig tilgen."
+msgstr "Repay the existing loan in full first."
+
+msgid "Zusätzliche Sitzbank"
+msgstr "Additional bench"
+
+msgid "Zusätzlicher Shuttle"
+msgstr "Additional shuttle"
+
+# Fictional beverage sponsors and visual sponsor plaque
+msgid "Frostfunke · Bergbrause"
+msgstr "Frostfunke · Mountain Fizz"
+
+msgid "Eine erfundene Alpenlimonaden-Marke. Unterstützt einen echten Punschstand mit Getränkesortiment."
+msgstr "Fictional Alpine soft drink brand supporting an operating punch stand with drinks."
+
+msgid "Bergperle · Quellwasser"
+msgstr "Bergperle · Spring Water"
+
+msgid "Fiktive Quellwasser-Partnerschaft für ein geöffnetes Resortrestaurant."
+msgstr "Fictional spring water partner for an operating resort restaurant."
+
+msgid "KakaoKomet · Winterdrink"
+msgstr "KakaoKomet · Winter Drink"
+
+msgid "Fiktive Kakaomarke mit warmen Getränken am Kakaoladen."
+msgstr "Fictional cocoa brand with hot drinks at the cocoa shop."
+
+msgid "Gipfeltee · Kräuterquelle"
+msgstr "Gipfeltee · Herbal Spring"
+
+msgid "Fiktive Tee-Partnerschaft für ein echtes Alpen-Spa mit Personal."
+msgstr "Fictional tea partnership for a staffed Alpine spa."
+
+msgid "Pistenperle · Schneebar"
+msgstr "Pistenperle · Snow Bar"
+
+msgid "Fiktive alkoholfreie Après-Ski-Marke. Benötigt eine aktive Alpenbar."
+msgstr "Fictional alcohol-free après-ski brand requiring an active Alpine bar."
+
+msgid "Erforderlicher Getränkebetrieb noch nicht gebaut oder geschlossen."
+msgstr "Required drinks business not built yet or closed."
+
+msgid "ALPINE PARTNERSCHAFT"
+msgstr "ALPINE PARTNERSHIP"
+
+msgid "Fiktiver Markenpartner · benötigt: %s"
+msgstr "Fictional brand partner · requires: %s"
+
+# Pizza cost, ingredient and 5-slot editor
+msgid "Rucola"
+msgstr "Arugula"
+
+msgid "Ziegenkäse"
+msgstr "Goat cheese"
+
+msgid "Pesto"
+msgstr "Pesto"
+
+msgid "Chilischoten"
+msgstr "Chili peppers"
+
+msgid "Trüffel"
+msgstr "Truffle"
+
+msgid "Räuchertofu"
+msgstr "Smoked tofu"
+
+msgid "Mindestens drei Pizzen mit zwei bis sechs Zutaten und gültigen Preisen anlegen."
+msgstr "Create at least three pizzas with two to six ingredients and valid prices."
+
+msgid "Für zusätzliche Pizzaplätze ist ein Gebäudeausbau erforderlich."
+msgstr "Upgrade the building to add more pizza slots."
+
+msgid "Diese Zutat wird erst nach einem höheren Gebäudeausbau verfügbar."
+msgstr "This ingredient unlocks at a higher building level."
+
+msgid "Deine Pizzakarte mit Preisen und Zutaten ist aktualisiert."
+msgstr "Your pizza menu, prices and toppings have been updated."
+
+msgid "Eigene Pizzen, Zutaten, Preise und Gewinne · %d von %d Plätzen"
+msgstr "Custom pizzas, ingredients, prices and profits · %d of %d slots"
+
+msgid "Echte Pizzakalkulation"
+msgstr "Actual pizza cost calculation"
+
+msgid "Preis minus Teig, Zutaten und Wareneinsatz ergibt den Deckungsbeitrag je Pizza vor Personal und Gebäudekosten. Nur die wirklich gewählte Pizza wird einem Gast in Rechnung gestellt. Alte Pizzakarten bleiben beim Laden unverändert."
+msgstr "Sale price minus dough, toppings and direct food costs gives each pizza's contribution before payroll and overheads. Only the selected pizza is billed for each guest visit. Legacy menus remain unchanged when loaded."
+
+msgid "Dein Verkaufspreis · €"
+msgstr "Your selling price · €"
+
+msgid "Zutat ab Gebäudestufe %d"
+msgstr "Ingredient unlocks at building level %d"
+
+msgid "Verkauf %.2f € · Zutaten %.2f € · Deckungsbeitrag %.2f € (%.0f %%)"
+msgstr "Sale €%.2f · ingredients €%.2f · contribution €%.2f (%.0f %%)"
+
+msgid "Weiteren Pizza-Platz freischalten"
+msgstr "Add another pizza slot"
+
+msgid "Neue Pizza %d"
+msgstr "New pizza %d"
+
+msgid "Letzten zusätzlichen Pizza-Platz entfernen"
+msgstr "Remove last extra pizza slot"
+
+msgid "Meine Pizzakarte mit Preisen speichern"
+msgstr "Save my priced pizza menu"
+
+
+msgid "Speisen, Getränke und Souvenirs werden nach echten Besuchen verkauft. Wareneinsatz wird einmal je Verkauf abgebucht. Kurse, Ausrüstung und kostenlose Grunddienste folgen ihren bestehenden Betriebsregeln."
+msgstr "Food, drinks and souvenirs are sold after actual visits. Supply costs are charged once per sale. Lessons, equipment and free basic services follow their existing operating rules."
+
+msgid "Verkauft: %d · Umsatz %.2f € · Wareneinsatz %.2f €"
+msgstr "Sold: %d · revenue €%.2f · supplies €%.2f"
+
+msgid "Route bauen"
+msgstr "Build route"
+
+msgid "Live-Statistik"
+msgstr "Live statistics"
+
+msgid "Setze den ersten Routenpunkt am Hang."
+msgstr "Place the first route point on the slope."
+
+msgid "Start: %.0f m · nächster Punkt bergab"
+msgstr "Start: %.0f m · place the next point downhill"
+
+msgid "%d Punkte · %.0f m Strecke · %.0f m Höhenverlust"
+msgstr "%d points · %.0f m length · %.0f m descent"
+
+msgid "REAKTION · FÜNF ECHTE STARTRUNDEN"
+msgstr "REACTION · FIVE REAL START ROUNDS"
+
+msgid "Warte auf LOS und tippe dann. Zu frühes Tippen zählt als Fehlstart. Ohne Einsatz oder Geldprämie."
+msgstr "Wait for GO, then tap. Tapping early counts as a false start. No stakes or cash rewards."
+
+msgid "Reaktion starten"
+msgstr "Start reaction game"
+
+msgid "WARTEN …"
+msgstr "WAIT …"
+
+msgid "Runde %d von 5 · erst bei LOS tippen"
+msgstr "Round %d of 5 · tap only on GO"
+
+msgid "Fehlstart · 1500 ms"
+msgstr "False start · 1500 ms"
+
+msgid "Deine Reaktion: %.0f ms"
+msgstr "Your reaction: %.0f ms"
+
+msgid "Neue fünf Runden"
+msgstr "New five rounds"
+
+msgid "Nächste Startrunde"
+msgstr "Next start round"
+
+msgid "Fertig · Median %.0f ms · beste Runde %.0f ms"
+msgstr "Finished · median %.0f ms · best round %.0f ms"
+
+msgid "%d von 5 Runden abgeschlossen"
+msgstr "%d of 5 rounds complete"
+
+msgid "Startrunde wiederholen"
+msgstr "Repeat start round"
+
+msgid "LOS · JETZT TIPPEN"
+msgstr "GO · TAP NOW"
+
+msgid "Umsatz %s € · Löhne %s € · Wareneinsatz %s € · Infrastrukturanteil %s €"
+msgstr "Revenue €%s · wages €%s · supplies €%s · infrastructure €%s"
+
+msgid "Gebäude können bis Stufe 5 ausgebaut werden. Jeder Ausbau kostet Kapital und erhöht die laufenden Kosten."
+msgstr "Buildings can be upgraded to level 5. Each upgrade requires capital and increases operating costs."
+
+msgid "ALPINE RADIO"
+msgstr "ALPINE RADIO"
+
+msgid "15 SENDER · OFFLINE"
+msgstr "15 STATIONS · OFFLINE"
+
+msgid "Speisen"
+msgstr "Food"
+
+msgid "Getränke"
+msgstr "Drinks"
+
+msgid "Souvenirs & Waren"
+msgstr "Souvenirs & goods"
+
+msgid "Ausstattung"
+msgstr "Equipment"
+
+msgid "Kurse & Training"
+msgstr "Courses & training"
+
+msgid "Verleih"
+msgstr "Rental"
+
+msgid "Veranstaltungen"
+msgstr "Events"
+
+msgid "Übernachtung"
+msgstr "Accommodation"
+
+msgid "Rettung"
+msgstr "Rescue"

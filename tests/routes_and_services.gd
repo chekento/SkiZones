@@ -72,6 +72,8 @@ func _actual_visits() -> void:
 	check(not model._checked_itinerary(trip.duplicate(true),0).is_empty(),"The service itinerary contains a valid door visit and a complete real route home")
 	var money: float=model.money
 	var earned_before: float=model.report.rewards
+	var expected_sale: Dictionary=model.BuildingOffers.visit_sale(food,guest)
+	var costs_before: float=model.report.costs
 	guest.route=trip;guest.leg=0;model._start_leg(guest)
 	var walked:=false
 	for minute in range(180):
@@ -79,7 +81,7 @@ func _actual_visits() -> void:
 		if food.visits>0: break
 		model.advance_minute(false)
 	check(walked and food.visits==1,"An unforced simulated guest physically walks to the door and completes the visit")
-	check(is_equal_approx(model.money-money-(model.report.rewards-earned_before),13.0) and model.report.services==13 and food.revenue==13,"Only the completed restaurant visit earns its actual fee once")
+	check(is_equal_approx(model.money-money-(model.report.rewards-earned_before)+(model.report.costs-costs_before),float(expected_sale.revenue)) and is_equal_approx(float(model.report.services),float(expected_sale.revenue)) and is_equal_approx(float(food.revenue),float(expected_sale.revenue)),"Only the completed restaurant visit earns its selected item fee, less real supplies, once")
 	check(guest.needs.hunger<=15 and guest.needs.energy>90,"Eating restores the guest's actual hunger and energy")
 	check(visit_id(model.service_route(guest))!=int(food.id),"A completed visit is not immediately booked again")
 	guest.needs.hunger=85;guest.age+=60
@@ -141,7 +143,7 @@ func _migration() -> void:
 		preserved=preserved and guest.id==old.guests[index].id and guest.sport==old.guests[index].sport and guest.elapsed==old.guests[index].elapsed and Needs.valid(guest)
 	check(preserved,"Migration preserves identities, sports, progress, funds and clock while initialising valid needs")
 	var copy:=Resort.new()
-	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==16,"Needs, service history and real itineraries survive a format 16 JSON roundtrip")
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.snapshot().version==17,"Needs, service history and real itineraries survive a format 17 JSON roundtrip")
 	for minute in range(80): model.advance_minute(false);copy.advance_minute(false)
 	check(model.money==copy.money and model.total_rides==copy.total_rides and model.guests.size()==copy.guests.size(),"Need-based visits continue deterministically after saving")
 	var damaged:=model.snapshot()
