@@ -4,6 +4,14 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **3
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
+## In Entwicklung · v0.35.0 / Android-Build 44
+
+**Lokal zusammengeführt und geprüft; noch kein APK-Download.**
+
+Voll bedienbares Radio mit 15 Logo-Presets, gemeinsame Musik-/Missions-/Erfolgsmeldungen, beständige Schneepfade, 33 Gebäudekataloge mit 167 Angeboten, echte Produktverkäufe und Wareneinsatz, fünf Gebäude-Ausbaustufen, eigene Pizzapreise und weitere Rezeptplätze, 6+1 tatsächlich abgerechnete Kredite, Live-Pistenstatistik ab dem ersten Punkt, ein echtes Reaktionsspiel und optimierte Gelände-/Liftberechnung. Der Besucher-/Hotelmorgen-Hotfix 0.34.1 bleibt enthalten.
+
+[Ausführliche Kandidatennotizen](docs/releases/0.35.0.md) · [Vollständiger Anforderungsabgleich und Prüfgrenzen](docs/qa/035-integration.md). Der öffentliche Upload und die Veröffentlichung nach bestandenen Android-Prüfungen wurden freigegeben. Die APK wird erst nach dem vollständigen Release-Gate bereitgestellt.
+
 ## Versionen und Downloads
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |

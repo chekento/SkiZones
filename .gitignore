@@ -7,3 +7,6 @@ android/build/
 android/.build_version
 *.tmp
 __pycache__/
+
+# Godot-generated importer metadata; sources are imported by every CI build.
+*.import

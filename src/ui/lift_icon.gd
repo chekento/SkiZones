@@ -35,7 +35,7 @@ func _draw() -> void:
 	draw_line(Vector2(21, 8), Vector2(21, 25), Color("b6d2d6"), 2, true)
 	if spec.family == "drag":
 		draw_line(Vector2(21, 25), Vector2(21, 43), color, 2.5, true)
-		draw_ellipse()
+		_draw_cable_ellipse()
 	elif spec.family == "carpet":
 		draw_line(Vector2(4, 47), Vector2(39, 24), color, 8, true)
 	elif spec.family == "gondola":
@@ -52,7 +52,7 @@ func _draw() -> void:
 			draw_line(Vector2(x, 36), Vector2(x, 44), Color("8fc2d3"), maxf(1, width / spec.seats - 1), true)
 		draw_string(ThemeDB.fallback_font, Vector2(10, 67), str(spec.seats) + "er", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, color)
 
-func draw_ellipse() -> void:
+func _draw_cable_ellipse() -> void:
 	var points := PackedVector2Array()
 	for index in range(25):
 		var angle := float(index) / 24 * TAU

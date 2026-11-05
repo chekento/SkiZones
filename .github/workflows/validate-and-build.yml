@@ -169,6 +169,10 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 600 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/style_asset_festival_scene_032.gd
       - name: Cinematic director planning and saved attention
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/cinematic_director_032.gd
+      - name: Exact ground-plane sampling, edges and terrain rebuilds
+        run: python3 tools/run_godot_test.py --timeout 60 -- "$GODOT_BIN" --language de --headless --script tests/ground_surface_sampling_032.gd
+      - name: Audit actual Braunlage return routes across three skiing abilities
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tools/audit_scenario_routes.gd -- --map=braunlage
       - name: Interactive piste map and cinematic camera on real phone layouts
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
       - name: 0.32 direct compile of career, recruitment and panel dependency graph
@@ -195,6 +199,20 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/weather_atmosphere_scene_033.gd
       - name: 0.33 quiet-night pedestrian fast-forward and bounded dawn interest
         run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
+      - name: Integrated 0.35 loans, products, notifications and persistent snow
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-035-release
+        run: |
+          for test in building_offers_loans_035 credit_contracts_035 retail_sales_035 status_banner_035 footwear_persistence_035 ground_surface_sampling_032; do
+            python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd" || exit 1
+          done
+      - name: Integrated 0.35 radio hardware and live building interface
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-035-release-ui
+        run: |
+          for test in radio_hardware_035 status_banner_audio_scene_035 expansion_ui_035; do
+            xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script "tests/$test.gd" || exit 1
+          done
       - name: Scene, touch and rendered animation tests
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/scene.gd
       - name: Rendered remodeling, profiles and bounded visual updates
