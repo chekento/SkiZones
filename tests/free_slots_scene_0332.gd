@@ -44,5 +44,5 @@ func run() -> void:
 	await process_frame
 	for path in [free_path,free_path+".bak",Saves.index_path(0,2),Saves.passport_path(0,2),"user://app-session.json","user://display.cfg"]:
 		if FileAccess.file_exists(path): DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-	print("FREE-SLOTS-SCENE-0332: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
