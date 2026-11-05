@@ -13,6 +13,7 @@ func run() -> void:
 	await process_frame
 	game.start_game(true)
 	game.paused=true
+	game.view.set_process(false)
 	var hud:CanvasLayer=game.hud
 	hud.hide_menu()
 	var banner=hud.achievement_overlay
@@ -24,6 +25,12 @@ func run() -> void:
 	game.preferences.music_genre="alpine"
 	game.audio.sync()
 	await process_frame
+	# Keep the real audio player running, but own the HUD refresh schedule.
+	# Initial automatic refreshes may already have announced this same song.
+	game.set_process(false)
+	banner.clear_all()
+	banner.history.clear()
+	hud._last_announced_song=""
 	var playing:Dictionary=game.audio.now_playing()
 	hud._announce_radio_track()
 	check(str(playing.genre)=="alpine" and not str(playing.title).is_empty(),"Radio reports actual Alpine track")
