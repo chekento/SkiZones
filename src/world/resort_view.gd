@@ -91,6 +91,7 @@ var _piste_meshes: Dictionary = {}
 var _snow_geometry: Dictionary = {}
 var _track_mesh := MeshInstance3D.new()
 var foot_wear := FootWear.new()
+var _foot_wear_model: RefCounted = null
 var _riders := MultiMeshInstance3D.new()
 var _cabin_riders := MultiMeshInstance3D.new()
 var _walkers := MultiMeshInstance3D.new()
@@ -715,8 +716,12 @@ func rebuild(progress: RefCounted = null) -> void:
 	terrain = model.terrain
 	surface_picker.reset()
 	piste_furniture.clear()
-	if progress != null or _terrain_id != model.map_id or _terrain_generation != terrain.generation:
+	# The same map may be loaded from a different career/free slot. Never
+	# reuse the previous resort's trails, even when map and terrain match.
+	if progress != null or _foot_wear_model != model or _terrain_id != model.map_id or _terrain_generation != terrain.generation:
 		foot_wear.reset()
+		foot_wear.import_state(model.foot_wear_cells)
+		_foot_wear_model = model
 	if _terrain_id != model.map_id or _terrain_generation != terrain.generation or _portal_signature!=str(model.portal_path):
 		_portal_signature=str(model.portal_path)
 		_terrain_id = model.map_id

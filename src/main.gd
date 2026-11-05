@@ -207,6 +207,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 		# The previous loaded resort may have the same revision counter.
 		# Explicitly rebuild new free/career games instead of showing stale mesh.
 		view._seen_revision = -1
+		view.foot_wear.reset()
 		view.rebuild()
 	if not Ops.active(model): Ops.enable(model)
 	if model.map_id in Geo.IDS and model.operations.get("completed",false):
@@ -464,6 +465,9 @@ func _save_state_marker() -> String:
 
 func save_game() -> bool:
 	if has_game:
+		# Freeze only the bounded visible snow-wear state alongside the same
+		# checksum-protected resort snapshot. Old versions remain readable.
+		if view.model == model: model.foot_wear_cells = view.foot_wear.export_state()
 		passport.record(model)
 		if not passport.save_to(SaveStore.passport_path()):
 			_save_failed = true
