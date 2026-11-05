@@ -57,6 +57,10 @@ jobs:
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/radio_live_033.gd
       - name: Prepare visual renderer
         run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Live radio song notifications and mobile status history
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-status-audio-ui-035
+        run: xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x800 --script tests/status_banner_audio_scene_035.gd
       - name: Render legacy achievement banner regression
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-achievement-scene-035
