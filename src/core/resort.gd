@@ -959,8 +959,11 @@ func _routing_graph(skill: int, consider_queues: bool = false) -> Dictionary:
 		# Buckets keep geometry/path caches useful during busy dispatches. Budget
 		# decisions below still use the current, unrounded expected wait.
 		var waiting := int(queue_size(lift.id) / 8) * 8
-		signature += "%d:%d/" % [lift.id, waiting]
-		waits[int(lift.id)] = waiting * fleet_layout(lift).interval / Fleet.seats(lift)
+		var used: int = mini(8, int(lift.get("boarded", 0)) / 16)
+		signature += "%d:%d:%d/" % [lift.id, waiting, used]
+		# Also rotate traffic across underused connected old lifts:
+		# the queue remains dominant, boarding history is a bounded nudge.
+		waits[int(lift.id)] = waiting * fleet_layout(lift).interval / Fleet.seats(lift) + used * 2.0
 	if signature != _choice_signature:
 		_choice_signature = signature
 		_choice_graphs.clear()
@@ -1660,7 +1663,9 @@ func arrival_capacity_factor() -> float:
 	for lift in lifts:
 		if lift_open(lift):
 			worst_wait = maxf(worst_wait, queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) / Fleet.TIME_SCALE)
-	return clampf(1.0 / (1.0 + maxf(0, worst_wait - 2.0) * 0.23), 0.35, 1.0)
+	# Once existing lift queues become excessive, slow new admissions
+	# significantly rather than multiplying the jam in the screenshots.
+	return clampf(1.0 / (1.0 + maxf(0, worst_wait - 2.0) * 0.23), 0.12, 1.0)
 
 func enable_runtime_rules() -> void:
 	if time_divisor==24:
