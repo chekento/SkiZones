@@ -35,7 +35,7 @@ func run() -> void:
 	check(Progression.access_message(sandbox,"gondola",true)=="","Free-play gondolas are never research locked")
 	sandbox.money=0.0 # older free-play slot with empty wallet
 	sandbox.advance_minute(false)
-	check(sandbox.money==Resort.FREE_CASH,"Legacy free-build saves regain unlimited budget during gameplay")
+	check(sandbox.money>=Resort.FREE_CASH and sandbox.money<=1000000000.0,"Legacy free-build saves regain a safe unlimited cash reserve while earned rewards still count")
 	var sandbox_snapshot: Dictionary=JSON.parse_string(JSON.stringify(sandbox.snapshot()))
 	var sandbox_loaded := Resort.new()
 	check(sandbox_loaded.restore(sandbox_snapshot).ok and sandbox_loaded.campaign.mode=="free","Free-mode state and large finite balance survive JSON save/restore")
