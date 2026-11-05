@@ -36,7 +36,7 @@ func _init() -> void:
 		model.advance_minute(false)
 		if guest.phase=="leaving":break
 	check(guest.phase=="leaving" and Vector2(model.guest_position(guest).x,model.guest_position(guest).z).distance_to(gate)<0.01,"Departure reaches the outside edge before removing the guest")
-	model=Resort.new();model.new_game(false);model.enable_runtime_rules();model.money=3000000
+	model=Resort.new();model.new_game(false);model.campaign.mode="career";model.enable_runtime_rules();model.money=3000000
 	var bottom:=Vector2(-210,150);var top:=Vector2(-270,-200)
 	var preview:=model.preview_lift("chair2",bottom,top)
 	check(preview.ok and not preview.get("foot_connection",{}).is_empty() and preview.message.contains("Fußweg zur Talstation"),"The lift preview quotes its actual access path and cost")
