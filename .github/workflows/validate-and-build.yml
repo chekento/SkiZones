@@ -185,6 +185,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-arcade-033
         run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/arcade_mobile_scene_033.gd
+      - name: 0.34 portrait inspector and build palette never overlap
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-portrait-hud-034
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/portrait_hud_034.gd
       - name: 0.33 rare weather, no consecutive storms and stable lift wind safety
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/weather_distribution_033.gd
       - name: 0.33 five animated weather looks, no overlay and mobile particle budget
@@ -220,6 +224,8 @@ jobs:
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/lifts_and_plazas.gd
       - name: 0.32 curated CC0 radio and nonrepeating playlists
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_curation_032.gd
+      - name: 0.34 offline radio – eleven new pinned CC0 songs and no SoundCloud
+        run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_genres_034.gd
       - name: 0.32 crew and scenario support feasibility
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-staff-032

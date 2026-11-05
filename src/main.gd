@@ -48,6 +48,12 @@ var _drag_has_moved := false
 var snap_target: Dictionary = {}
 var paused := false
 var speed := 1
+var _lift_camera_auto := false
+var _lift_camera_previous := 0
+var _lift_camera_previous_pitch := 34.0
+var _lift_slopes_previous := false
+var _lift_camera_manual := false
+var _lift_slopes_manual := false
 var _last_saved_marker := ""
 var _last_saved_at := 0
 var _save_failed := false
@@ -480,10 +486,54 @@ func toggle_pause() -> void:
 	paused = not paused
 	hud.refresh()
 
+## The internal fourfold movement baseline is independent of the player's
+## selectable 1x/4x/8x clock rate. Clear any queued old-rate catch-up when
+## downshifting, including after an Android resume or an empty-night skip.
 func set_speed(value: int) -> void:
+	if value not in [1, 4, 8]: return
 	speed = value
 	paused = false
+	_accumulator = fmod(maxf(0.0, _accumulator), 1.0)
 	hud.refresh()
+
+func cycle_speed() -> void:
+	var choices := [1, 4, 8]
+	set_speed(choices[(choices.find(speed) + 1) % choices.size()])
+
+func note_manual_camera_change() -> void:
+	if _lift_camera_auto: _lift_camera_manual = true
+
+func note_manual_slopes_change() -> void:
+	if _lift_camera_auto: _lift_slopes_manual = true
+
+## Lift planning is a temporary terrain-assisted camera mode, not a
+## permanent preference. Individual manual changes take precedence.
+func _begin_lift_camera() -> void:
+	if _lift_camera_auto: return
+	_lift_camera_auto = true
+	_lift_camera_manual = false
+	_lift_slopes_manual = false
+	_lift_camera_previous = view.camera_mode
+	_lift_camera_previous_pitch = view.pitch_degrees
+	_lift_slopes_previous = view.slopes_visible
+	view.set_camera_mode(2)
+	if not view.slopes_visible: view.toggle_slopes()
+	hud._sync_camera_controls()
+	hud.slopes_button.modulate = hud.ACCENT if view.slopes_visible else Color.WHITE
+	hud._apply_panel_visibility()
+
+func _end_lift_camera() -> void:
+	if not _lift_camera_auto: return
+	_lift_camera_auto = false
+	if not _lift_camera_manual:
+		view.set_camera_mode(_lift_camera_previous)
+		if _lift_camera_previous != 3:
+			view.set_camera_pitch(_lift_camera_previous_pitch)
+	if not _lift_slopes_manual and view.slopes_visible != _lift_slopes_previous:
+		view.toggle_slopes()
+	hud._sync_camera_controls()
+	hud.slopes_button.modulate = hud.ACCENT if view.slopes_visible else Color.WHITE
+	hud._apply_panel_visibility()
 
 func next_day() -> void:
 	if model.next_day():
@@ -509,7 +559,9 @@ func set_tool(value: String) -> void:
 		return
 	editing_id = -1
 	edit_rotation = 0
+	if tool == "lift" and value != "lift": _end_lift_camera()
 	tool = "piste" if value in ["blue", "red", "black"] else value
+	if tool == "lift": _begin_lift_camera()
 	points.clear()
 	undone_points.clear()
 	selected_waypoint = -1
@@ -759,6 +811,7 @@ func confirm_plan() -> void:
 		selected_waypoint = -1
 		snap_target = {}
 		editing_id = -1
+		if tool == "lift": _end_lift_camera()
 		tool = "inspect"
 		hud.show_context("inspect", edited if edited != -1 else created_id)
 	hud.toast(result.message)
@@ -933,7 +986,9 @@ func _input(event: InputEvent) -> void:
 				KEY_G: set_tool("building")
 				KEY_F1: hud.show_help()
 				KEY_M: hud.show_management()
-				KEY_C: view.set_camera_mode((view.camera_mode + 1) % view.CAMERA_MODES.size())
+				KEY_C:
+					note_manual_camera_change()
+					view.set_camera_mode((view.camera_mode + 1) % view.CAMERA_MODES.size())
 				KEY_TAB: hud.set_map_focus(not hud.map_focus)
 				KEY_S:
 					if event.ctrl_pressed:
