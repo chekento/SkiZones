@@ -34,7 +34,9 @@ static func new_state(model: RefCounted, free_build: bool = false) -> Dictionary
 	return {"version": 1, "mode": "free" if free_build else "career", "xp": float(model.total_rides + model.total_guests * 2), "xp_awarded": 0, "points": 6, "rank": 1, "mastery_rank": 1, "sponsor": {}, "research": [], "project": {}, "contracts": [], "offers": [], "accepted_today": [], "completed": 0, "turnover": float(model.total_guests * model.ticket_price), "happy": 0, "abilities": [0, 0, 0], "history": [], "profit": 0.0, "finalized_day": 0, "season_reward_day": 0, "notice": "Willkommen in deiner ersten Wintersaison.", "notice_key": "Willkommen in deiner ersten Wintersaison.", "notice_args": []}
 
 static func has(model: RefCounted, id: String) -> bool:
-	return model.campaign.get("mode", "career") == "free" or model.campaign.get("research", []).has(id)
+	# Free building skips access/research gates, but does not gain every
+	# career-only economic bonus: prices and operating reports stay honest.
+	return model.campaign.get("research", []).has(id)
 
 const NOTICES := {
 	"Willkommen in deiner ersten Wintersaison.": [],
