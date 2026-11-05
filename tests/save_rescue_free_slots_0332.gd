@@ -73,5 +73,5 @@ func run() -> void:
 		check(result.ok and int(loaded_old.money)==int(state.money) and loaded_old.day==state.day and loaded_old.pistes.size()==state.pistes.size(), "Old money, calendar and pistes remain intact")
 		check(FileAccess.get_sha256(rescue_path)==original_checksum and FileAccess.file_exists(str(result.get("archive",""))), "Recovery archives the original and never modifies the source")
 	remove_file(rescue_path)
-	print("SAVE-RESCUE-0332: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
