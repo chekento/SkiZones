@@ -14,7 +14,7 @@ func run()->void:
 	radio._load_cc0_library()
 	var all_ids: Dictionary={}
 	for station in Design.GENRES + Design.CONTEXT_STATIONS:
-		if station=="off" or station in Design.EXTERNAL_STATIONS:continue
+		if station=="off":continue
 		var credits: Array=radio.track_credits(station)
 		check(credits.size()>=10,station+" provides at least ten offline tracks")
 		var local_ids: Dictionary={}
@@ -38,9 +38,9 @@ func run()->void:
 		for item in radio.track_credits(pair[1]):right_ids[str(item.id)]=true
 		var overlap: int=left.filter(func(item):return right_ids.has(str(item.id))).size()
 		check(overlap<=int(pair[2]),str(pair[0])+" has a recognizably distinct programme from "+str(pair[1]))
-	check(all_ids.size()>=72,"Existing 72 uniquely documented CC0 assets are preserved")
+	check(all_ids.size()>=87,"All 87 individually documented CC0 recordings are referenced")
 	check(radio.station_track_count("folk_alpine")>=10 and radio.station_track_count("folk_swedish")>=10,"Alpine and Nordic acoustic tracks reach 10 each")
-	check(radio.station_track_count("erg0sphere")==0 and radio.station_track_count("ska_album")==0,"External albums cannot silently stream or appear bundled")
+	check(Design.EXTERNAL_STATIONS.is_empty() and radio.station_track_count("erg0sphere")==0 and radio.station_track_count("ska_album")==0,"No third-party SoundCloud station can be tuned, streamed or bundled")
 	radio.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
