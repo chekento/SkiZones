@@ -319,7 +319,9 @@ func _town_hall(_building: Dictionary) -> void:
 	hud._label(bulletin,L.text("Unsere Bauakten werden lokal aus dem Spiel gelesen; sie brauchen keinen GitHub-Login, keine Netzwerkverbindung und verändern keine bestehenden Spielstände."),15,ink,true)
 	hud._button(bulletin,L.text("Offizielles GitHub-Changelog öffnen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/blob/main/CHANGELOG.md"))
 	hud._button(bulletin,L.text("Veröffentlichte APKs auf GitHub ansehen"),func(): OS.shell_open("https://github.com/chekento/SkiZones/releases"))
-	hud._label(bulletin,L.text("Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-func _pizza(building: Dictionary) -> void:
+	hud._label(bulletin,L.text("Als Nächstes: stabile Android-APK und sichere Spielstände, weniger Dauersturm, ruhiger Nacht-Zeitraffer, echte Touch-Minispiele, verlässliche Szenarien und ein erwachsenes Alpine-Resort-Design."),15,ink,true)
+
+func _pizza(building: Dictionary) -> void:
 	var page := _page(L.text("Meine Pizzakarte"))
 	_recipes = Hospitality.menu(building)
 	_recipe_names.clear()
