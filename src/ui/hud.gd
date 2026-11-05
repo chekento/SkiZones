@@ -1412,7 +1412,7 @@ func money_text(amount: float) -> String:
 	return output
 
 ## Low-noise, truthful events: radio broadcasts never create fake achievements,
-## and non-playing SoundCloud links do not create "now playing" notifications.
+## and external SoundCloud links never produce fake track notifications.
 func _announce_radio_track() -> void:
 	if not game.has_game or not is_instance_valid(game.audio): return
 	var audio: Node=game.audio
