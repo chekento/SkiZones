@@ -11,6 +11,7 @@ const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const FootWear = preload("res://src/world/foot_wear.gd")
 const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
@@ -2274,7 +2275,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	# A malformed or duplicated wear payload is rejected before touching the world.
 	# Older save versions simply start with fresh snow.
 	var wear: Variant = data.get("foot_wear", []) if data.version >= 17 else []
-	if not preload("res://src/world/foot_wear.gd").valid_state(wear): return invalid
+	if not FootWear.valid_state(wear): return invalid
 	foot_wear_cells = wear.duplicate(true)
 	var area: Variant = data.get("map_id", "sonnenhang")
 	if not area is String or not Maps.MAPS.has(area):
