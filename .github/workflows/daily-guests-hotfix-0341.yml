@@ -57,5 +57,5 @@ jobs:
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/weather_distribution_033.gd
       - name: 0.33.2/0.34 career recovery and free slots
         env:
-          XDG_DATA_HOME: ${{ runner.temp }}/skizones-save-0341
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-0341
         run: python3 tools/run_godot_test.py --timeout 320 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
