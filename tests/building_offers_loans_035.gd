@@ -1,6 +1,7 @@
 extends SceneTree
 ## 0.35 unit-only regression – does not modify existing live save formats.
 const Catalog = preload("res://src/core/catalog.gd")
+const Hospitality = preload("res://src/core/hospitality.gd")
 const Offers = preload("res://src/core/building_offers_035.gd")
 const Loans = preload("res://src/core/loan_options_035.gd")
 var passed := 0
@@ -40,6 +41,27 @@ func run() -> void:
 		check(Offers.active(kind,1).any(func(item): return str(item.category)=="drink"),"Beverage service exists on level 1 in "+kind)
 	var price := Offers.price_report("schmarrn",4)
 	check(float(price.sample_turnover)>float(price.sample_cost) and int(price.products)>0,"Sale mix has explicit cost and margin instead of pure bonus")
+	var classic: Array = Hospitality.DEFAULT_PIZZAS.duplicate(true)
+	check(Hospitality.valid_menu(classic),"Old three-pizza menus still validate without price fields")
+	var edited: Array = classic.duplicate(true)
+	for recipe in edited: recipe["price"]=18
+	check(Hospitality.valid_menu(edited),"User-priced pizza menu is valid and save-compatible")
+	var gourmet: Dictionary = {"name":"Premium Alpine","toppings":["tomato","cheese","truffle"],"price":24}
+	var pizza: Dictionary = Hospitality.pizza_unit(gourmet)
+	check(float(pizza.margin) > 0.0 and absf(float(pizza.cost)-(1.90+0.55+1.10+3.50))<0.03,"Ingredient unit cost is derived from actual chosen toppings")
+	check(float(pizza.price) == float(pizza.cost)+float(pizza.margin),"Pizza price equals direct costs plus margin")
+	edited[0]=gourmet
+	var building: Dictionary = {"kind":"pizzeria","level":3,"pizza_menu":edited,"visits":0}
+	var sale: Dictionary = Hospitality.pizza_sale(building,{"id":3,"group_size":2})
+	check(float(sale.revenue)==48.0 and float(sale.cost)==2.0*float(pizza.cost),"Pizza purchase books actual two-person revenue and ingredient costs")
+	check(Hospitality.valid_menu(edited),"Extra gourmet topping validates in upgraded pizzeria")
+	var unfair: Array = edited.duplicate(true)
+	unfair[0].price=4
+	check(not Hospitality.valid_menu(unfair),"Menu rejects below-cost or out-of-range price")
+	var extra: Array = edited.duplicate(true)
+	extra.append({"name":"Cheese Delight","toppings":["tomato","cheese"],"price":14})
+	check(Hospitality.valid_menu(extra) and extra.size()==4,"Four individual recipes can be saved on upgraded buildings")
+	check(not Hospitality.valid_menu(extra.slice(0,2)),"Two recipe menus remain invalid")
 	check(Loans.FIXED.size()==6,"There are exactly six named finance choices")
 	check(Loans.REPAYMENT_MODES.size()==3,"All three repayment modes are modelled")
 	for loan in Loans.FIXED:
