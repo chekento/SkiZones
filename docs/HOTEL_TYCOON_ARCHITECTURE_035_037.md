@@ -84,9 +84,9 @@ Lobby, Standardzimmer, Familienzimmer, Premiumsuite, Treppe/Aufzug, Ski-Trockenr
 - Datengetriebene Knotenbeispiele:
   - `H001`: Bau-Tool für echte Hotelmodule freigeben.
   - `H011`: zusätzliche Zimmerklasse zulassen.
-  - `H031`: erste Housekeeping-Station (neue Schicht-/Zeitmechanik, nicht nur Text).
-  - `H046`: Frühstücksschicht und Buffet-Kapazität.
-  - `H085`: Energiekosten je Modul aus tatsächlicher Last anzeigen.
+  - `H031`: Zimmerstatus frei/belegt/schmutzig sichtbar und in der Belegungslogik wirksam.
+  - `H041`: Frühstücksraum mit tatsächlicher Kapazität und Warteschlangenwirkung.
+  - `H077`: Energiezähler je Modul aus tatsächlicher Last und Betriebszeit berechnen.
   - `H100`: Luxus-Resort-Komplettausbau mit sichtbaren Modul-/Theme-Klassen.
 - Jede Freischaltung hat `requires`, `money`, `research_points`, `days`, `effect_id` und optional `asset_variant`; **keinen Knoten ohne implementierten Effekt als spielbar anbieten**.
 - Topologische Prüfung: 100 einzigartige IDs, nur gültige Vorgänger, keine Zyklen, jedes H001–H100 prinzipiell erreichbar; getrennte Savebereiche für Freischaltungen und per-Hotel ausgebaute Module.
