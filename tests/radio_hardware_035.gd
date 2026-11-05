@@ -88,6 +88,24 @@ func run() -> void:
 	radio.open()
 	check(radio.face.station_id=="techno" and radio.enabled.button_pressed,"Reopening restores selected sender and power with no confirmation button")
 	check(JSON.stringify(game.model.snapshot())==after,"Radio choices do not mutate career files or resort cash")
+	# The complete radio belongs to a scrollable window on small phones.
+	# The frame, close action and active art may never be outside a safe viewport.
+	DirAccess.make_dir_recursive_absolute("res://build/qa")
+	for resolution in [Vector2i(360,740),Vector2i(420,860),Vector2i(740,360)]:
+		root.content_scale_size=Vector2i.ZERO
+		root.size=resolution
+		await process_frame
+		await process_frame
+		radio.window._fit()
+		await process_frame
+		var window_rect:Rect2=radio.window.get_global_rect()
+		check(window_rect.position.x>=0 and window_rect.position.y>=0 and window_rect.end.x<=float(resolution.x)+1 and window_rect.end.y<=float(resolution.y)+1,
+			"Radio hardware frame stays on-screen at "+str(resolution))
+		check(radio.window.close_button.is_visible_in_tree() and radio.window.size.x>200 and radio.window.size.y>250,
+			"Compact radio retains reachable close action and scrollable controls at "+str(resolution))
+		var screenshot:String="res://build/qa/radio-035-%dx%d.png" % [resolution.x,resolution.y]
+		var capture:Error=root.get_texture().get_image().save_png(screenshot)
+		check(capture==OK,"Radio UI visual QA screenshot saved: "+str(resolution))
 	game.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
