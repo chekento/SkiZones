@@ -15,8 +15,12 @@ Format: 22,050 Hz mono 16-bit PCM WAV; the Godot radio player sets forward-loop 
 
 **Production-quality limitation:** These are deliberately composed, multitrack **synthesized** loop beds, not live accordion, guitar, orchestral recordings or broadcast-ready mastered songs. The next production pass should feature longer arrangements, transitions, nonrepetitive variants, and separately verified original or licensed recordings before external redistribution.
 
-## Real offline radio — 72-track CC0 library
+## Real offline radio – 87 recordings, 15 selectable winter stations
 
-The separate CC0 folder contains 72 actual third-party musical recordings, 12 per station. All are played as complete OGG tracks with the existing dual-player crossfade. For provenance, see [music/cc0/RIGHTS.md](cc0/RIGHTS.md) and [music/cc0/library.json](cc0/library.json).
+The separate CC0 folder contains **87 unique third-party OGG tracks** (including eleven new source-checked additions in the 0.34 development branch) and **15 selectable, offline radio programmes** plus the contextual Hotel Lobby FM programme. Tracks have individual CC0 source links and pinned Git blob SHA-1 checksums, and are never fetched from the internet when SkiZones runs. Programme slots may reuse an authorized recording; `library.json` is the authoritative station lineup, with exact measured stream lengths in `durations.json`.
 
-Original 8-bar synthesized WAV loops in this folder are **fallbacks**, not the normal soundtrack when the complete 72-track library is present. No provider integration, ad SDK, paid credit or live stream is needed. The 72 files add about 86.8 MB to the app's music resources.
+The new playlists are grouped more tightly by feel: authentic acoustic **mountain-lodge** atmospheres (not mislabeled regional folk), **Freeride** synth/board beats, **PistenRock** guitars, **Powder Flow** hip-hop/lo-fi, **SnowBeat** techno/house, **Alpenglühen FM** après-ski house/funk, and quieter classical, ambient, winter/sunrise, lo-fi, Nordic and hotel-lounge streams.
+
+**No SoundCloud album stations, browser-open buttons or embed assets** are shipped by the revised radio. Old preferences pointing to ERG0SPHERE Journey or Ska'radise Lost are migrated to the actual offline stations Cosmic Drift and Alpenglühen FM; career data, sound opt-out and immediate tuner settings are not reset. The owner-provided albums were never bundled into earlier versions.
+
+For individual licenses, metadata and source hashes see [CC0 music rights](cc0/RIGHTS.md) and [machine-readable catalog](cc0/library.json). The original six short synthesized WAV loops above remain optional offline fallback beds rather than the main radio schedule. Track-level rights and technical checks have been performed; subjective musical quality and mix balance require separate listening checks before the final APK is signed.

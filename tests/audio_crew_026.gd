@@ -19,7 +19,7 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Design.GENRES.size()==18 and Design.genre_valid("unknown")=="off","Seventeen selectable programmes including two own albums, plus off")
+	check(Design.GENRES.size()==16 and Design.genre_valid("unknown")=="off","Fifteen offline music programmes and a true off setting")
 	check(not Design.license_policy("suno") and not Design.license_policy("soundcloud") and not Design.license_policy("cc0") and Design.license_policy("cc0",true),"External providers remain disabled without explicit rights")
 	var audio:=Audio.new()
 	for genre in ["alpine","techno","hiphop","punk","classical","meditative","freeride","wind","crowd","machinery"]:

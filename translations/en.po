@@ -7330,3 +7330,172 @@ msgstr "0.32 APK published November 4 and GitHub download banner updated; contin
 
 msgid "Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
 msgstr "Selected published milestones through 0.32.0 · oldest first; find the latest APK on GitHub."
+
+msgid "AlpenWelle FM · Bergfolk & Akustik"
+msgstr "AlpenWelle FM · Mountain Folk & Acoustic"
+
+msgid "HüttenFolk · Alpine Akustik"
+msgstr "Lodge Folk · Alpine Acoustic"
+
+msgid "Nordic Frost · Nordische Klangfarben"
+msgstr "Nordic Frost · Northern Tones"
+
+msgid "Summit Sunrise · Sanfter Bergmorgen"
+msgstr "Summit Sunrise · Gentle Mountain Morning"
+
+msgid "Freeride Pulse · Board Beats & Synth"
+msgstr "Freeride Pulse · Board Beats & Synth"
+
+msgid "PistenRock · Gitarren & Board Beats"
+msgstr "Piste Rock · Guitars & Board Beats"
+
+msgid "Powder Flow · Hip-Hop & Lo-Fi"
+msgstr "Powder Flow · Hip-Hop & Lo-Fi"
+
+msgid "SnowBeat Radio · Techno & House"
+msgstr "SnowBeat Radio · Techno & House"
+
+msgid "Alpenglühen FM · Après-Ski House & Funk"
+msgstr "Alpenglow FM · Après-Ski House & Funk"
+
+msgid "Alpine Classic · Piano & Orchester"
+msgstr "Alpine Classic · Piano & Orchestra"
+
+msgid "Mountain Chill · Sanfte Klangflächen"
+msgstr "Mountain Chill · Gentle Soundscapes"
+
+msgid "Lodge Lo-Fi · Kamin & Beats"
+msgstr "Lodge Lo-Fi · Fireplace & Beats"
+
+msgid "Glacier Dreams · Eis & Ambient"
+msgstr "Glacier Dreams · Ice & Ambient"
+
+msgid "Cosmic Drift · Space & Synth"
+msgstr "Cosmic Drift · Space & Synth"
+
+msgid "Deep Atmospherics · Drones & Soundscapes"
+msgstr "Deep Atmospherics · Drones & Soundscapes"
+
+msgid "Hotel Lobby FM · Piano & Jazz Lounge"
+msgstr "Hotel Lobby FM · Piano & Jazz Lounge"
+
+msgid "Berghütten, akustische Gitarren und warme Winterinstrumente."
+msgstr "Mountain lodges, acoustic guitars and warm winter instruments."
+
+msgid "Ruhige Saiten und akustische Hüttenabende; keine echten regionalen Volksmusikaufnahmen."
+msgstr "Gentle strings and acoustic evenings in the lodge; not authentic regional folk recordings."
+
+msgid "Nordisch-kühle Akustikstimmung; traditionelle Aufnahmen sind noch nicht lizenziert."
+msgstr "Cool Nordic acoustic atmosphere; traditional recordings are not yet licensed."
+
+msgid "Goldenes Morgenlicht, sanftes Piano und entspannte Gitarren."
+msgstr "Golden morning light, gentle piano and relaxed guitars."
+
+msgid "Sportlicher Synthwave und treibende Beats für Ski und Snowboard."
+msgstr "Sporty synthwave and driving beats for skiing and snowboarding."
+
+msgid "Gitarren, Rock und schnelle Actionbeats; keine reine Punkband-Rotation."
+msgstr "Guitars, rock and fast action beats; not an exclusive punk-band lineup."
+
+msgid "Instrumentale Hip-Hop-Grooves und entspannte Lo-Fi-Beats."
+msgstr "Instrumental hip-hop grooves and relaxed lo-fi beats."
+
+msgid "Elektronischer Gipfelpuls aus Techno, House und Dance."
+msgstr "Electronic summit pulse of techno, house and dance."
+
+msgid "Tanzbarer Après-Ski-Mix aus House, Funk und grooviger Elektronik."
+msgstr "Danceable après-ski mix of house, funk and groovy electronic music."
+
+msgid "Klavier, Orchesterklänge und ruhige Winterklassik."
+msgstr "Piano, orchestral music and calm winter classics."
+
+msgid "Ruhige Ambientflächen, Glocken und meditative Musik."
+msgstr "Gentle ambient soundscapes, bells and meditative music."
+
+msgid "Warme Lo-Fi-Beats für Kamin, Lounge und Schneepause."
+msgstr "Warm lo-fi beats for fireplaces, lounges and snow breaks."
+
+msgid "Eisige, weite Ambientlandschaften ohne hektische Beats."
+msgstr "Icy, wide ambient landscapes without hectic beats."
+
+msgid "Synthetische Raumfahrtstimmung von verträumt bis treibend."
+msgstr "Synthetic space atmosphere, from dreamy to driving."
+
+msgid "Tiefe Drones und lange sphärische Stücke; Laufzeiten variieren."
+msgstr "Deep drones and extended atmospheric pieces; durations vary."
+
+msgid "Offline-Radio mit dokumentierten CC0-Quellen. Keine externen Playlists, Konten oder Streamingdienste."
+msgstr "Offline radio with documented CC0 sources. No external playlists, accounts or streaming services."
+
+msgid "Akustische Winterstimmung; traditionelle Regionalaufnahmen noch nicht bestätigt."
+msgstr "Acoustic winter atmosphere; authentic regional recordings not yet verified."
+
+msgid "Gitarren, Rock und Board-Beats. Reine Punkband-Aufnahmen sind noch nicht vollständig vorhanden."
+msgstr "Guitars, rock and board beats. Pure punk-band recordings are not yet fully available."
+
+msgid "Tiefe, sphärische Klänge; tatsächliche Laufzeiten variieren."
+msgstr "Deep atmospheric sounds; actual track lengths vary."
+
+msgid "Space-Ambient und Synthwave – sanfte Weiten mit einzelnen treibenden Tracks."
+msgstr "Space ambient and synthwave – wide calm soundscapes with occasional driving tracks."
+
+msgid "Akustische Gitarren und warme Hüttenklänge für jeden Skitag."
+msgstr "Acoustic guitars and warm lodge tunes for every ski day."
+
+msgid "HüttenFolk: ehrliche Akustik statt verkleideter Volksmusik."
+msgstr "Lodge Folk: honest acoustic music, not mislabeled traditional folk."
+
+msgid "Nordic Frost: kühle Akustik für weite Winterlandschaften."
+msgstr "Nordic Frost: cool acoustics for wide winter landscapes."
+
+msgid "Summit Sunrise: der erste Sonnenstrahl über dem Berg."
+msgstr "Summit Sunrise: first sunlight above the mountain."
+
+msgid "Freeride Pulse: treibende Synthbeats für Ski und Board."
+msgstr "Freeride Pulse: driving synth beats for skis and boards."
+
+msgid "PistenRock: Gitarren, Rock und Energie für den Snowpark."
+msgstr "Piste Rock: guitars, rock and snowpark energy."
+
+msgid "Powder Flow: Hip-Hop und Lo-Fi für die nächste Park Line."
+msgstr "Powder Flow: hip-hop and lo-fi for the next park line."
+
+msgid "SnowBeat Radio: Techno und House direkt vom Gipfel."
+msgstr "SnowBeat Radio: techno and house straight from the summit."
+
+msgid "Alpenglühen FM: House und Funk für die Après-Ski-Nacht."
+msgstr "Alpenglow FM: house and funk for the après-ski night."
+
+msgid "Alpine Classic: Piano und Orchester über dem Tal."
+msgstr "Alpine Classic: piano and orchestra above the valley."
+
+msgid "Mountain Chill: ruhige Klangflächen ohne Hektik."
+msgstr "Mountain Chill: peaceful soundscapes without the rush."
+
+msgid "Lodge Lo-Fi: entspannte Beats am warmen Kamin."
+msgstr "Lodge Lo-Fi: relaxed beats by the warm fireplace."
+
+msgid "Glacier Dreams: eisige Klangflächen und weite Stille."
+msgstr "Glacier Dreams: icy soundscapes and wide open silence."
+
+msgid "Cosmic Drift: Synthwave und Space-Ambient am Sternenhimmel."
+msgstr "Cosmic Drift: synthwave and space ambient beneath the stars."
+
+msgid "Deep Atmospherics: Drones und sphärische Bergnächte."
+msgstr "Deep Atmospherics: drones and atmospheric mountain nights."
+
+msgid "Hotel Lobby FM: Piano und Jazz nur in der Hotellounge."
+msgstr "Hotel Lobby FM: piano and jazz in the hotel lounge only."
+
+# v0.34 – accessible manual speed selection
+msgid "Tempo umschalten: 1× → 4× → 8× → 1×"
+msgstr "Switch speed: 1× → 4× → 8× → 1×"
+
+msgid "Spieltempo %d× – jederzeit direkt umschalten"
+msgstr "Game speed %d× – change at any time"
+
+msgid "%d× ▸"
+msgstr "%d× ▸"
+
+msgid "Aktuell %d× · tippen für 1×, 4× oder 8×"
+msgstr "Current %d× · tap to cycle through 1×, 4× and 8×"
