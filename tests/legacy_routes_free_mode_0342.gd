@@ -69,6 +69,16 @@ func run() -> void:
 	var connected: bool=graph.edges[old_node].any(func(edge):return edge.kind=="walk" and str(edge.to)==new_node)
 	check(connected,"Older 4.9m-rounded piste endpoints receive a real walk connection")
 	check(graph.edges[new_node].any(func(edge):return edge.kind=="walk" and str(edge.to)==old_node),"Legacy connector can be walked in both directions")
+	if not connected:
+		print("RESULT: %d passed; %d failed" % [passed,failed]);quit(1);return
+	var joining_edge: Dictionary=graph.edges[old_node].filter(func(edge):return edge.kind=="walk" and str(edge.to)==new_node)[0]
+	check(starter.Foot.valid_walk(starter.pedestrian_layout(),joining_edge.points,starter.buildings),"Legacy connector is valid under the exact saved pedestrian safety rules")
+	var near_route: Dictionary={}
+	for route in starter.routes_for(2):
+		if int(route.target)==int(near_miss.id):near_route=route;break
+	check(not near_route.is_empty(),"A rounded old piste is an actual usable route without drawing a new piste")
+	if not near_route.is_empty():
+		check(not starter._checked_itinerary(near_route,2).is_empty(),"The full route to the reconnected old piste survives strict route validation")
 	check(Traffic.lane_count({"width":20.0})==4,"Standard 20m ski slopes support four overtaking lanes")
 	check(Traffic.lane_count({"width":36.0})==8,"Broad 36m slopes support eight independent snow lanes")
 	# Read unwrapped pre-checksum JSON without replacing or rewriting the original.

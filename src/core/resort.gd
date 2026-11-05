@@ -1052,7 +1052,7 @@ func _geometry_graph(skill: int) -> Dictionary:
 				for other in docks.get(cell + Vector2i(x, y), []):
 					var distance: float = point.distance_to(Terrain.unpack(nodes[other]))
 					var both_ends: bool = (key.ends_with("s") or key.ends_with("e")) and (str(other).ends_with("s") or str(other).ends_with("e"))
-					if distance <= (5.5 if both_ends else 2.0):
+					if distance <= (5.5 if both_ends else 2.0) and (distance <= 2.0 or Foot.valid_walk(pedestrian_layout(),[nodes[key],nodes[other]],buildings)):
 						_walk_link(nodes, edges, key, other, distance)
 		if not docks.has(cell):
 			docks[cell] = []

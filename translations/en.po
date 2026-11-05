@@ -8628,3 +8628,66 @@ msgstr "Unknown historical save format. Original file remains untouched."
 
 msgid "Unbegrenztes Budget · Freies Bauen"
 msgstr "Unlimited budget · Free Build"
+
+msgid "Spielbare Winterwelt und Wetter"
+msgstr "Playable winter world and weather"
+
+msgid "Neue Touch-Minispiele, klarere Wetterlagen und eine ruhigere Nacht ergänzten das Resortleben."
+msgstr "New touch minigames, clearer weather and quieter nights expanded resort life."
+
+msgid "Lesbare Alpine Arcade"
+msgstr "Readable Alpine Arcade"
+
+msgid "Der Arcade-Hotfix erhöhte Kontraste und machte die Spieltafeln auf kleinen Bildschirmen besser bedienbar."
+msgstr "The arcade hotfix improved contrast and made game boards easier to use on small screens."
+
+msgid "Alte Bauakten und vier freie Speicherplätze"
+msgstr "Old construction records and four free-build save slots"
+
+msgid "Der Sicherungsdienst erhielt vier freie Speicherplätze, eine deutlichere Speicheranzeige und die geschützte Wiederherstellung alter Resorts."
+msgstr "The save service gained four free-build slots, a clearer save indicator and protected restoration of old resorts."
+
+msgid "Alpenwelt, Offline-Radio und direkte Bauansicht"
+msgstr "Alpine world, offline radio and direct building view"
+
+msgid "Neue freie Musik, persistente Schneespuren im laufenden Resort und die direkte Ansicht fertig gebauter Anlagen verbesserten den Winteralltag."
+msgstr "New free music, persistent snow trails during resort play and direct views of completed structures improved the winter routine."
+
+msgid "Neue Tagesgäste und gestaffelte Hotelmorgen"
+msgstr "New day visitors and staggered hotel mornings"
+
+msgid "Der Tageswechsel lässt wieder echte Besucher anreisen. Hotelgäste starten verteilt zwischen sieben und neun Uhr; Familien bleiben zusammen."
+msgstr "Real visitors arrive again after a new day begins. Hotel guests leave between seven and nine; families stay together."
+
+msgid "0.35+ · Stabilität und freie Resorts"
+msgstr "0.35+ · stability and free resorts"
+
+msgid "Umgesetzt und in Prüfung · dringende Fehler zuerst"
+msgstr "Implemented and under review · urgent fixes first"
+
+msgid "Alte Originalspielstände und freie Speicherplätze erhalten; jede APK mit echten Android-30/36-Installationen und unveränderter Signatur prüfen"
+msgstr "Preserve original legacy saves and free-build slots; test every APK with real Android 30/36 installations and the same signing identity"
+
+msgid "Freies Bauen mit unbegrenztem Budget und ohne Forschungssperren; alte Pisten und Lifte mit sicheren Anschlüssen weiter nutzen"
+msgstr "Free building with an unlimited budget and no research gates; keep using old pistes and lifts with safe connections"
+
+msgid "Zimmerbetrieb, Touch-Spiele und Advent"
+msgstr "Room operations, touch games and Advent"
+
+msgid "Teilweise umgesetzt · aktiv im Ausbau"
+msgstr "Partly implemented · actively expanding"
+
+msgid "Tic-Tac-Toe und Reaktionsspiel sind spielbar; Kochspiele und weitere echte Touch-Minispiele weiter ausbauen"
+msgstr "Tic-Tac-Toe and the reaction game are playable; keep expanding cooking games and other real touch minigames"
+
+msgid "Feste Zimmerbuchungen, Reinigung und mobiler Etagenplan sind in Entwicklung geprüft; Bettenbeziehen und Zimmeraufräumen weiter ausarbeiten"
+msgstr "Fixed room bookings, cleaning and the mobile floorplan are tested in development; keep developing bed-making and room tidying"
+
+msgid "Betriebs- und KI-Tiefe mit echten Routen"
+msgstr "Deeper operations and AI with actual routes"
+
+msgid "Radio-Hardware, echte Warenkosten, eigene Pizzen und Kredite sind integriert; Betriebsfolgen und die Resortzeitung weiter verknüpfen"
+msgstr "Radio hardware, actual supply costs, custom pizzas and loans are integrated; further connect operational consequences and the resort newspaper"
+
+msgid "Festtage, Kunststile und belastbare Qualität"
+msgstr "Festivals, art styles and dependable quality"
