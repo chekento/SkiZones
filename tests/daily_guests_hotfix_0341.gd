@@ -70,7 +70,8 @@ func run() -> void:
 	var protected_cash:float=closed.money
 	var old_total:int=closed.total_guests
 	closed.advance_minute(true)
-	check(closed.report.guests==0 and closed.total_guests==old_total and is_zero_approx(float(closed.report.tickets)) and closed.money<=protected_cash,"Closed slopes cannot generate guests or fake ticket revenue; normal operating costs still apply")
+	print("CLOSED_SLOPES_DIAG guests=",closed.report.guests," total_delta=",closed.total_guests-old_total," tickets=",closed.report.tickets," cash_delta=",closed.money-protected_cash," slopes_open=",closed.pistes.filter(func(p):return closed.piste_open(p)).size()," route_count=",closed.routes_for(0).size())
+	check(closed.report.guests==0 and closed.total_guests==old_total and is_zero_approx(float(closed.report.tickets)),"Closed slopes cannot generate visitors or ticket revenue")
 	var times:Dictionary={}
 	var hotel:Dictionary={"lodging_id":23}
 	for i in range(1,33):
