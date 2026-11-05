@@ -32,6 +32,8 @@ var _piste_links: RefCounted
 const MINUTES_PER_SECOND := 0.5
 const TRANSPORT_SCALE := 30.0
 const MAX_GUESTS := 360
+# Finite JSON-safe visual balance for unlimited sandbox mode.
+const FREE_CASH := 999000000.0
 const OPENING := 480
 const CLOSING := 1080
 
@@ -141,6 +143,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	last_report.clear()
 	rng.seed = game_seed + Maps.MAPS.keys().find(map_id) * 7919
 	campaign = Progression.new_state(self, not starter)
+	if campaign.mode == "free": money = FREE_CASH
 	_reset_report()
 	_invalidate()
 	if map_id in Geo.IDS:
@@ -255,6 +258,8 @@ func _result(ok: bool, message: String, extra: Dictionary = {}) -> Dictionary:
 	return value
 
 func _spend(cost: float) -> bool:
+	# Sandbox purchases are free. Do not store INF in JSON savegames.
+	if campaign.get("mode", "career") == "free": return true
 	if cost > money:
 		return false
 	money -= cost
