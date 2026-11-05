@@ -1,6 +1,6 @@
 extends Control
 ## SkiZones Alpine Radio 0.35: all real controls live ON the radio hardware.
-## No hidden "Apply" step, duplicate checkbox sheet or simulated fake player.
+## No redundant confirmation step, duplicate checkbox sheet or simulated fake player.
 ## Invisible legacy inputs remain wired for old UI/save regression fixtures.
 const L = preload("res://src/core/i18n.gd")
 const Design = preload("res://src/core/audio_design.gd")
