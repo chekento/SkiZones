@@ -7387,3 +7387,606 @@ msgstr "Start free-build resort"
 
 msgid "Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert."
 msgstr "Resort and career restored; the original save remains archived."
+
+
+# 0.35 building offers, finance and credit contract expansion
+msgid "%d Angebote und Leistungen für diesen Gebäudetyp."
+msgstr "%d offers and services for this building."
+
+msgid "%s € · %d Tage · %.2f %% Jahreszins\nGesamtzins %s € · maximal %.2f € pro Tag\n%s"
+msgstr "€%s · %d days · %.2f %% annual interest\nTotal interest €%s · up to €%.2f per day\n%s"
+
+msgid "Aktiv · Kategorie: %s"
+msgstr "Active · category: %s"
+
+msgid "Aktiver Resortkredit"
+msgstr "Active resort loan"
+
+msgid "Alpenbar-Ausschank"
+msgstr "Alpine bar drinks service"
+
+msgid "Alpenchalet-Übernachtung"
+msgstr "Alpine chalet overnight stay"
+
+msgid "Alpendessert"
+msgstr "Alpine dessert"
+
+msgid "Alpenlimonade"
+msgstr "Alpine lemonade"
+
+msgid "Alpenpension mit Frühstück"
+msgstr "Alpine guesthouse with breakfast"
+
+msgid "Alpenpostkarte"
+msgstr "Alpine postcard"
+
+msgid "Alpenquellwasser"
+msgstr "Alpine spring water"
+
+msgid "Alpenzeitung"
+msgstr "Alpine newspaper"
+
+msgid "Alpine Wanduhr"
+msgstr "Alpine wall clock"
+
+msgid "Alpines Tagesgericht"
+msgstr "Alpine daily special"
+
+msgid "Altkredit vollständig tilgen"
+msgstr "Repay legacy loan in full"
+
+msgid "Anfänger-Snowpark"
+msgstr "Beginner snowpark"
+
+msgid "Anfängliche Stundung in Tagen"
+msgstr "Initial grace period in days"
+
+msgid "Angebote & Ausbau"
+msgstr "Offers & upgrades"
+
+msgid "Apfelgebäck"
+msgstr "Apple pastry"
+
+msgid "Après-Ski-Tanzfläche"
+msgstr "Après-ski dance floor"
+
+msgid "Aus aktueller Liquiditätsreserve tragbar"
+msgstr "Affordable from current cash reserves"
+
+msgid "Ausbaukredit"
+msgstr "Construction loan"
+
+msgid "Aussichtsplattform"
+msgstr "Viewing platform"
+
+msgid "Beheizte Wartehalle"
+msgstr "Heated waiting area"
+
+msgid "Benötigt Gebäudestufe %d · Kategorie: %s"
+msgstr "Requires building level %d · category: %s"
+
+msgid "Bereits verfügbare Angebote"
+msgstr "Currently available offers"
+
+msgid "Berg-Donuts"
+msgstr "Mountain donuts"
+
+msgid "Berg-Mocktail"
+msgstr "Mountain mocktail"
+
+msgid "Bergfitness"
+msgstr "Mountain fitness"
+
+msgid "Bergglocke"
+msgstr "Mountain bell"
+
+msgid "Berghotel-Übernachtung"
+msgstr "Mountain hotel overnight stay"
+
+msgid "Bergsuppe"
+msgstr "Mountain soup"
+
+msgid "Bergwacht und Ersthilfe"
+msgstr "Mountain rescue and first aid"
+
+msgid "Bestehender Kredit aus einer älteren Spielversion"
+msgstr "Existing loan from an earlier game version"
+
+msgid "Betrag, Laufzeit, Rückzahlungsart und maximal 14 Tage Stundung selbst wählen; die Bank kalkuliert den Risikozins."
+msgstr "Choose the amount, term, repayment method and up to 14 days of grace; the bank calculates the risk-based interest rate."
+
+msgid "Betrieb · Stufe %d"
+msgstr "Business · level %d"
+
+msgid "Cappuccino"
+msgstr "Cappuccino"
+
+msgid "Carvingkurs"
+msgstr "Carving lesson"
+
+msgid "Chefmenü"
+msgstr "Chef's menu"
+
+msgid "Churros"
+msgstr "Churros"
+
+msgid "Concierge"
+msgstr "Concierge"
+
+msgid "Design-Handwerk"
+msgstr "Designer crafts"
+
+msgid "Die bisherigen Kreditregeln bleiben erhalten. 450 € pauschale Tageslast; vollständige Tilgung jederzeit möglich."
+msgstr "Legacy loan rules remain: €450 daily flat cost; full repayment is possible at any time."
+
+msgid "Die Kreditobergrenze oder Geldgrenze ist überschritten."
+msgstr "Loan limit or cash balance limit exceeded."
+
+msgid "Dieses fiktive Spielangebot verpflichtet dein Resort zu Raten.\nBetrag: %d € · Laufzeit: %d Tage · Jahreszins: %.2f %%\nGesamtzinsen: %.2f € · Höchste Tagesrate: %.2f €\nDie Auszahlung ist kein Umsatz. Die Raten können dein Konto ins Minus bringen."
+msgstr "This fictional game loan requires repayments.\nAmount: €%d · term: %d days · annual interest: %.2f %%\nTotal interest: €%.2f · maximum daily payment: €%.2f\nBorrowing is not income. Payments can put your balance below zero."
+
+msgid "Elektriker-Fortbildung"
+msgstr "Electrician training"
+
+msgid "Elektrobus"
+msgstr "Electric bus"
+
+msgid "Energiespar-Wärmetechnik"
+msgstr "Energy-efficient heating"
+
+msgid "Ersatzteillager"
+msgstr "Spare parts storage"
+
+msgid "Erste-Hilfe-Kurs"
+msgstr "First aid training"
+
+msgid "Erste-Hilfe-Set"
+msgstr "First aid kit"
+
+msgid "Familien-Beckenzeit"
+msgstr "Family pool session"
+
+msgid "Familientisch"
+msgstr "Family table"
+
+msgid "Familienzimmer"
+msgstr "Family room"
+
+msgid "Farbdruck"
+msgstr "Colour printing"
+
+msgid "Ferienhütten-Übernachtung"
+msgstr "Holiday cabin overnight stay"
+
+msgid "Ferienwohnung"
+msgstr "Holiday apartment"
+
+msgid "Fernrohr"
+msgstr "Telescope"
+
+msgid "Festtag- und Bürgerplanung"
+msgstr "Holiday and community planning"
+
+msgid "Fiktive Spielbank · Kredite sind keine Betriebserlöse. Zinssätze berücksichtigen die gewählte Startstufe; bei fehlender Deckung droht ein negatives Konto. Nach dem Abschluss erscheinen Raten und Restschuld."
+msgstr "Fictional in-game bank · Borrowed funds are not operating income. Interest rates reflect the selected starting difficulty. Insufficient coverage may create negative cash. Payments and remaining debt are shown after signing."
+
+msgid "Finanzierung: sechs Kreditmodelle"
+msgstr "Financing: six loan options"
+
+msgid "Focaccia"
+msgstr "Focaccia"
+
+msgid "Fotopunkt"
+msgstr "Photo spot"
+
+msgid "Freeride und Lawinenkunde"
+msgstr "Freeride and avalanche awareness"
+
+msgid "Freestyle-Event"
+msgstr "Freestyle event"
+
+msgid "Frische Pasta"
+msgstr "Fresh pasta"
+
+msgid "Frischer Kaffee"
+msgstr "Fresh coffee"
+
+msgid "Fruchtsaft"
+msgstr "Fruit juice"
+
+msgid "Frühdiagnose"
+msgstr "Preventive diagnostics"
+
+msgid "Frühstücks-Croissant"
+msgstr "Breakfast croissant"
+
+msgid "Frühstücksbox"
+msgstr "Breakfast box"
+
+msgid "Frühstücksbuffet"
+msgstr "Breakfast buffet"
+
+msgid "Frühstückspaket"
+msgstr "Breakfast package"
+
+msgid "Frühstücksrestaurant"
+msgstr "Breakfast restaurant"
+
+msgid "Frühstücksservice"
+msgstr "Breakfast service"
+
+msgid "Für die vollständige Sondertilgung fehlt das Geld."
+msgstr "Not enough funds for full early repayment."
+
+msgid "Gelato"
+msgstr "Gelato"
+
+msgid "Geplante zusätzliche Inhalte. Stufen oberhalb der derzeit freigegebenen Gebäude-Upgrades werden erst in späteren Updates tatsächlich freischaltbar."
+msgstr "Planned additional content. Levels above the currently available building upgrades will become unlockable in later releases."
+
+msgid "Gipfel-Mocktail"
+msgstr "Summit mocktail"
+
+msgid "Gipfellimonade"
+msgstr "Summit lemonade"
+
+msgid "Grandhotel-Übernachtung"
+msgstr "Grand hotel overnight stay"
+
+msgid "Großes Frühstücksbuffet"
+msgstr "Large breakfast buffet"
+
+msgid "Grundangebote stehen ab dem Bau bereit. Zusätzliche Speisen, Getränke, Kurse und Ausrüstung erscheinen nach einem Gebäudeausbau. Angezeigte Margen sind Kalkulationswerte je Artikel, keine bereits verbuchten Verkaufserlöse."
+msgstr "Core offers are available from construction. Additional meals, drinks, classes and equipment appear as the building is upgraded. Shown margins are unit calculations, not recorded sales."
+
+msgid "Grundbeschneiung"
+msgstr "Basic snowmaking"
+
+msgid "Heiße Schokolade"
+msgstr "Hot chocolate"
+
+msgid "Heißer Apfelsaft"
+msgstr "Hot apple juice"
+
+msgid "Heißer Kräutertee"
+msgstr "Hot herbal tea"
+
+msgid "Hohe Belastung"
+msgstr "High repayment burden"
+
+msgid "Hohes Insolvenz- und Ratenrisiko"
+msgstr "High insolvency and repayment risk"
+
+msgid "Holzschnitzerei"
+msgstr "Wood carving"
+
+msgid "Holzspielzeug"
+msgstr "Wooden toys"
+
+msgid "Hotel-Lounge"
+msgstr "Hotel lounge"
+
+msgid "Im Grundbetrieb enthalten; Kosten und Kapazität werden weiterhin vom bestehenden Betriebssystem gesteuert."
+msgstr "Included in basic operations; costs and capacity remain managed by the existing business system."
+
+msgid "Kaiserschmarrn"
+msgstr "Kaiserschmarrn"
+
+msgid "Kalkulation je Einheit: %.2f € Verkauf · %.2f € Wareneinsatz · %.2f € Deckungsbeitrag vor Personal und Fixkosten."
+msgstr "Per-unit estimate: €%.2f sale · €%.2f direct costs · €%.2f contribution before payroll and overheads."
+
+msgid "Kamin-Ecke"
+msgstr "Fireplace corner"
+
+msgid "Kein gültiges Kreditangebot"
+msgstr "No valid loan offer"
+
+msgid "Kein neuer Kredit offen."
+msgstr "No current loan."
+
+msgid "Kinderskischule"
+msgstr "Children's ski school"
+
+msgid "Kleine Küchenzeile"
+msgstr "Small kitchenette"
+
+msgid "Kostenloser Wärmeunterstand"
+msgstr "Free warming shelter"
+
+msgid "Kräutertee"
+msgstr "Herbal tea"
+
+msgid "Kredit ausgezahlt · %d € · %d Tage. Einzahlungen sind kein Gewinn."
+msgstr "Loan disbursed · €%d · %d days. Borrowing is not profit."
+
+msgid "Kredit getilgt."
+msgstr "Loan repaid."
+
+msgid "Kredit vollständig getilgt; keine künftigen Zinsen."
+msgstr "Loan fully repaid; no future interest."
+
+msgid "Kreditbedingungen prüfen"
+msgstr "Review loan terms"
+
+msgid "Kreditbetrag, Laufzeit oder Rückzahlungsmodus ist ungültig."
+msgstr "Invalid loan amount, term or repayment mode."
+
+msgid "Kreditplan konnte nicht erstellt werden."
+msgstr "Could not generate loan repayment schedule."
+
+msgid "Kreditsumme in €"
+msgstr "Loan amount in €"
+
+msgid "Kreditvertrag bestätigen"
+msgstr "Confirm loan agreement"
+
+msgid "Laufzeit in Betriebstagen"
+msgstr "Term in operating days"
+
+msgid "Lift- und Anlagenreparatur"
+msgstr "Lift and equipment repairs"
+
+msgid "Lift-Evakuierung"
+msgstr "Lift evacuation"
+
+msgid "Live-Abfahrtsanzeige"
+msgstr "Live departure board"
+
+msgid "Live-DJ-Bühne"
+msgstr "Live DJ stage"
+
+msgid "Luxus-Suite"
+msgstr "Luxury suite"
+
+msgid "Massage"
+msgstr "Massage"
+
+msgid "Mitternachts-Snack"
+msgstr "Midnight snack"
+
+msgid "Mobiler Sofortdienst"
+msgstr "Mobile rapid-response service"
+
+msgid "Naturführer"
+msgstr "Nature guide"
+
+msgid "Nicht genügend Geld für Sondertilgung."
+msgstr "Not enough cash for early repayment."
+
+msgid "Nicht genügend Geld."
+msgstr "Not enough money."
+
+msgid "Notfall-Überbrückung"
+msgstr "Emergency bridge loan"
+
+msgid "Panoramasuite"
+msgstr "Panorama suite"
+
+msgid "Pasta des Hauses"
+msgstr "House pasta"
+
+msgid "Pistenkarte"
+msgstr "Piste map"
+
+msgid "Pistenraupen & Technik"
+msgstr "Snow groomers and technology"
+
+msgid "Pistenraupen-Präparierung"
+msgstr "Snow groomer piste preparation"
+
+msgid "Pistenraupen-Winde"
+msgstr "Snow groomer winch"
+
+msgid "Pizza Margherita"
+msgstr "Pizza Margherita"
+
+msgid "Pizza Marinara"
+msgstr "Pizza Marinara"
+
+msgid "Präzisionsdüsen"
+msgstr "Precision snow nozzles"
+
+msgid "Premium-Lounge"
+msgstr "Premium lounge"
+
+msgid "Premium-Wellness"
+msgstr "Premium wellness"
+
+msgid "Premium-Zimmer"
+msgstr "Premium room"
+
+msgid "Radio-Anzeigen"
+msgstr "Radio advertisements"
+
+msgid "Rail-Einweisung"
+msgstr "Rail safety introduction"
+
+msgid "Rathaus und Ortschronik"
+msgstr "Town Hall and local chronicle"
+
+msgid "Räumschild-Upgrade"
+msgstr "Dozer blade upgrade"
+
+msgid "Regenerationsraum"
+msgstr "Recovery room"
+
+msgid "Resort-Beratung"
+msgstr "Resort advisory service"
+
+msgid "Resort-Expansion"
+msgstr "Resort expansion"
+
+msgid "Resort-Zeitung drucken"
+msgstr "Print the resort newspaper"
+
+msgid "Restschuld %s € · %d Raten noch offen · Zinsen bisher %.2f €"
+msgstr "Remaining debt €%s · %d installments left · interest paid €%.2f"
+
+msgid "Restschuld vollständig vorzeitig tilgen"
+msgstr "Repay remaining debt in full early"
+
+msgid "Rettungsschlitten"
+msgstr "Rescue sled"
+
+msgid "Rückzahlungsart: Annuität / lineare Tilgung / endfällig"
+msgstr "Repayment: annuity / constant principal / balloon payment"
+
+msgid "Saisonliquidität"
+msgstr "Seasonal liquidity"
+
+msgid "Salzgebäck"
+msgstr "Savoury snacks"
+
+msgid "Saunaprogramm"
+msgstr "Sauna programme"
+
+msgid "Schneehöhensensor und LED-Licht"
+msgstr "Snow depth sensor and LED lights"
+
+msgid "Schnitzerei"
+msgstr "Wood carving"
+
+msgid "Schoko-Mokka"
+msgstr "Chocolate mocha"
+
+msgid "Schutzhelme"
+msgstr "Protective helmets"
+
+msgid "Schwimmen im Außenpool"
+msgstr "Outdoor pool swimming"
+
+msgid "Sichere Warmluft"
+msgstr "Safe warm-air heating"
+
+msgid "Sicherheitseinweisung"
+msgstr "Safety briefing"
+
+msgid "Ski-Freizeitmagazin"
+msgstr "Ski leisure magazine"
+
+msgid "Ski-Servicewerkstatt"
+msgstr "Ski service workshop"
+
+msgid "Skiausrüstung ausleihen"
+msgstr "Ski equipment rental"
+
+msgid "Skibus-Anbindung"
+msgstr "Ski bus connection"
+
+msgid "Skischrank"
+msgstr "Ski storage cabinet"
+
+msgid "Skischule · Anfängerkurs"
+msgstr "Ski school · beginner lesson"
+
+msgid "Skiständer"
+msgstr "Ski rack"
+
+msgid "Snowblade-Verleih"
+msgstr "Snowblade rental"
+
+msgid "Snowboardkurs"
+msgstr "Snowboarding lesson"
+
+msgid "Snowboardverleih"
+msgstr "Snowboard rental"
+
+msgid "Snowpark-Coach"
+msgstr "Snowpark coach"
+
+msgid "Sonderausgabe"
+msgstr "Special edition"
+
+msgid "Spa-Aufenthalt"
+msgstr "Spa visit"
+
+msgid "Sprungtraining"
+msgstr "Jump training"
+
+msgid "Starterbrücke"
+msgstr "Starter bridge loan"
+
+msgid "Stretching-Kurs"
+msgstr "Stretching class"
+
+msgid "Tagessuppe"
+msgstr "Soup of the day"
+
+msgid "Taschenuhr"
+msgstr "Pocket watch"
+
+msgid "Tee-Set"
+msgstr "Tea set"
+
+msgid "Temperaturautomatik"
+msgstr "Automatic temperature control"
+
+msgid "Terrasse"
+msgstr "Terrace"
+
+msgid "Trainingsberatung"
+msgstr "Fitness coaching"
+
+msgid "Uhrenarmband"
+msgstr "Watch strap"
+
+msgid "Uhrenreparatur"
+msgstr "Watch and clock repairs"
+
+msgid "Unbekannter Kredittyp."
+msgstr "Unknown loan type."
+
+msgid "Verkehrs- und Bauplan"
+msgstr "Transport and construction plan"
+
+msgid "Vernetzte Beschneiung"
+msgstr "Connected snowmaking"
+
+msgid "Waffel"
+msgstr "Waffle"
+
+msgid "Warme Berghütte"
+msgstr "Warm mountain lodge"
+
+msgid "Warmer Kräutertee"
+msgstr "Warm herbal tea"
+
+msgid "Warmer Punsch"
+msgstr "Warm punch"
+
+msgid "Wassersparmodus"
+msgstr "Water-saving mode"
+
+msgid "Weitere Freischaltungen"
+msgstr "Future unlocks"
+
+msgid "Winterketten und Fahrwerk"
+msgstr "Winter tracks and chassis"
+
+msgid "Winterrettung und Lawinenkunde"
+msgstr "Winter rescue and avalanche awareness"
+
+msgid "Wunschfinanzierung"
+msgstr "Custom financing"
+
+msgid "Wunschkredit berechnen und prüfen"
+msgstr "Calculate and review custom loan"
+
+msgid "Wunschkredit frei kalkulieren"
+msgstr "Calculate a custom loan"
+
+msgid "Würziger Alpen-Chai"
+msgstr "Spiced Alpine chai"
+
+msgid "Zimmerservice"
+msgstr "Room service"
+
+msgid "Zuerst den bestehenden Kredit vollständig tilgen."
+msgstr "Repay the existing loan in full first."
+
+msgid "Zusätzliche Sitzbank"
+msgstr "Additional bench"
+
+msgid "Zusätzlicher Shuttle"
+msgstr "Additional shuttle"
+
