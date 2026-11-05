@@ -1490,12 +1490,22 @@ func _finish_leg(guest: Dictionary) -> void:
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
+			var pizza_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else {}
 			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
-			var revenue: float = base_revenue * (1.0 if Hospitality.lodging(str(building.kind)) else 1.0 + (building.get("level", 1) - 1) * 0.35) * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
+			if not pizza_sale.is_empty():
+				# Opt-in per-recipe prices: actual gross menu sale replaces the old
+				# flat 15-€ shop tariff rather than stacking a second income source.
+				base_revenue = float(pizza_sale.revenue)
+			var level_multiplier: float = 1.0 if Hospitality.lodging(str(building.kind)) or not pizza_sale.is_empty() else 1.0 + (building.get("level", 1) - 1) * 0.35
+			var revenue: float = base_revenue * level_multiplier * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
 			money += revenue
+			if not pizza_sale.is_empty():
+				# Inventory costing happens exactly once per actual customer visit.
+				# Revenue stays gross, ingredient purchase is a recorded operating cost.
+				Ops._charge(self,float(pizza_sale.cost),"building:%d" % int(building.id))
 			report.services += revenue
 			campaign.turnover += revenue
 			Needs.complete(guest,building.kind)
