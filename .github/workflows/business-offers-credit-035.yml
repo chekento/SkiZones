@@ -35,6 +35,8 @@ jobs:
           PY
       - name: Verify all building unlocks, economic quotes and 6+1 loan schemes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/building_offers_loans_035.gd
+      - name: Actual credit cashflows, safe save/load and old 150k loans
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/credit_contracts_035.gd
       - name: No regression to original hotel and pizza systems
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality.gd
       - name: Old career data still restored
