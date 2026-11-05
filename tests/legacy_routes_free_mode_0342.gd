@@ -110,6 +110,38 @@ func run() -> void:
 		var result: Dictionary=Saves.load_game(resumed,raw_path)
 		check(result.ok and resumed.day==int(old.day) and is_equal_approx(resumed.money,87500.0),"Old raw resort opens without losing budget or day")
 		check(FileAccess.get_sha256(raw_path)==sha,"Rescue never edits the source of a pre-checksum save")
+		# A pre-career resort restores as free play. Its menu/slot classifier
+		# must agree before and after saving it in the current format.
+		var original_path: String=Saves.legacy_path("sonnenhang")
+		var old_file := FileAccess.open(original_path,FileAccess.WRITE)
+		old_file.store_string(raw);old_file.close()
+		var original_sha: String=FileAccess.get_sha256(original_path)
+		check(Saves.migrate_legacy() and Saves.has_readable_save("sonnenhang",0,1),"A real pre-career filename migrates to the first free slot, matching the restored mode")
+		check(not Saves.summary(1).get("occupied",false),"The same original is not incorrectly presented as a damaged career")
+		var free_path: String=Saves.path_for_map("sonnenhang",0,1)
+		var free_copy := Resort.new()
+		var loaded_free: Dictionary=Saves.load_game(free_copy,free_path)
+		check(loaded_free.ok and free_copy.campaign.mode=="free" and Saves.save_game(free_copy,free_path).ok and Saves.has_readable_save("sonnenhang",0,1),"The migrated original remains discoverable after its first modern save")
+		check(FileAccess.get_sha256(original_path)==original_sha,"Slot migration and resaving preserve the exact original file")
+		# Earlier installers could already have copied this free resort to
+		# career 1; recover that copy without overwriting any occupied slot.
+		for cleanup in [free_path,free_path+".bak",original_path]:
+			if FileAccess.file_exists(cleanup):DirAccess.remove_absolute(ProjectSettings.globalize_path(cleanup))
+		var mistaken_path: String=Saves.path_for_map("sonnenhang",1)
+		var mistaken := FileAccess.open(mistaken_path,FileAccess.WRITE)
+		mistaken.store_string(raw);mistaken.close()
+		var mistaken_sha: String=FileAccess.get_sha256(mistaken_path)
+		check(Saves.migrate_legacy() and Saves.has_readable_save("sonnenhang",0,1),"A previously misplaced free resort is rescued from career 1 even without its pre-slot original")
+		check(FileAccess.get_sha256(mistaken_path)==mistaken_sha,"Repairing a misplaced slot keeps its source bytes intact")
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(free_path))
+		check(Saves.save_game(sandbox_loaded,free_path).ok,"An existing modern free resort is present before repeated migration")
+		var current_free_sha: String=FileAccess.get_sha256(free_path)
+		var old_backup := FileAccess.open(mistaken_path+".bak",FileAccess.WRITE)
+		old_backup.store_string(raw);old_backup.close()
+		check(Saves.migrate_legacy() and FileAccess.get_sha256(free_path)==current_free_sha and not FileAccess.file_exists(free_path+".bak"),"Repeated slot repair cannot alter an occupied free resort or inject an unrelated backup")
+		for cleanup in [free_path,free_path+".bak",mistaken_path,mistaken_path+".bak"]:
+			if FileAccess.file_exists(cleanup):DirAccess.remove_absolute(ProjectSettings.globalize_path(cleanup))
+
 		var modern: Dictionary=old.duplicate(true)
 		modern.version=16
 		var modern_path: String="user://skizones-test-unsigned-v16-0342.json"
