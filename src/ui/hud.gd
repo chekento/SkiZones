@@ -98,6 +98,7 @@ var rotate_building_button: Button
 var plan_overlay := PlanOverlay.new()
 var pause_button: Button
 var speed_buttons: Array = []
+var speed_cycle_button: Button
 var lift_choice := OptionButton.new()
 var building_choice := OptionButton.new()
 var continue_button: Button
@@ -142,6 +143,7 @@ var menu_panel: PanelContainer
 var tools_panel: PanelContainer
 var inspector_panel: PanelContainer
 var inspector_collapsed := false
+var _portrait_inspector_initialized := false
 var inspector_toggle_button: Button
 var plan_panel: PanelContainer
 var slope_legend: PanelContainer
@@ -388,6 +390,12 @@ func _update_responsive_layout(available_width: float) -> void:
 	compact_layout = available_width < 1160.0
 	var very_narrow: bool = available_width < 830.0
 	var micro: bool = available_width < 600.0
+	# On the first narrow portrait layout, open the construction palette
+	# instead of drawing an empty resort inspector over its touch targets.
+	# Subsequent asset selection or an explicit Info tap opens the inspector.
+	if not _portrait_inspector_initialized and available_width < 620.0 and root.size.y > root.size.x:
+		_portrait_inspector_initialized = true
+		if current_tool == "inspect" and selected_id == -1: inspector_collapsed = true
 	# Header density follows the real screen width, including stretched canvases.
 	var physical_width: float=available_width*float(get_window().size.x)/maxf(1,get_viewport().get_visible_rect().size.x)
 	_header_micro=physical_width<600
@@ -414,6 +422,11 @@ func _update_responsive_layout(available_width: float) -> void:
 	for shortcut in ultra_camera_buttons:
 		if is_instance_valid(shortcut):
 			shortcut.visible = not very_narrow and (shortcut != winter_toolbar_button or AnnualFestival.visible(AnnualFestival.device_now()))
+	# On phones the old 1x/4x buttons disappeared entirely at <830 px.
+	# Keep the explicit 1x/4x/8x cycle as the first, reachable HUD action.
+	if is_instance_valid(speed_cycle_button):
+		speed_cycle_button.visible = very_narrow
+		speed_cycle_button.custom_minimum_size = Vector2(76, 44)
 	if is_instance_valid(menu_panel):
 		menu_panel.offset_left = 12 if very_narrow else 50
 		menu_panel.offset_right = minf(610.0,available_width-12.0)
@@ -753,9 +766,17 @@ func _build_camera_bar() -> void:
 	map_focus_button = _button(box, L.text("Mehr Karte"), func(): set_map_focus(not map_focus))
 	map_focus_button.custom_minimum_size.y = 40
 	pause_button = _button(box, L.text("Pause"), game.toggle_pause)
-	for speed in [1, 4]:
-		var speed_button := _button(box, "%d×" % speed, func(): game.set_speed(speed))
-		speed_button.tooltip_text = L.text("Kürzerer Skitag · gemütlicher Abend · Tempo im Menü einstellbar") if speed == 1 else L.text("Zeitraffer · vierfaches Tempo für Bau und Entwicklung")
+	speed_cycle_button = _button(box, "1× ▸", game.cycle_speed)
+	speed_cycle_button.tooltip_text = L.text("Tempo umschalten: 1× → 4× → 8× → 1×")
+	speed_cycle_button.visible = false
+	# The order is deliberate: on narrow Android screens time and pause must
+	# remain on-screen even when lower-priority weather, radio or tools overflow.
+	box.move_child(speed_cycle_button, 0)
+	box.move_child(pause_button, 1)
+	for rate in [1, 4, 8]:
+		var chosen: int = rate
+		var speed_button := _button(box, "%d×" % rate, func(): game.set_speed(chosen))
+		speed_button.tooltip_text = L.text("Spieltempo %d× – jederzeit direkt umschalten") % rate
 		speed_buttons.append(speed_button)
 		ultra_camera_buttons.append(speed_button)
 	for item in [["−", func(): game.view.change_zoom(1.16)], ["+", func(): game.view.change_zoom(0.86)], [L.text("Tal"), func(): game.view.home()]]:
@@ -791,6 +812,7 @@ func _build_camera_dialog() -> void:
 	for mode in game.view.CAMERA_MODES:
 		camera_choice.add_item(L.text(mode))
 	camera_choice.item_selected.connect(func(index: int):
+		game.note_manual_camera_change()
 		game.view.set_camera_mode(index)
 		_sync_camera_controls()
 	)
@@ -801,6 +823,7 @@ func _build_camera_dialog() -> void:
 	pitch_slider.max_value = 80
 	pitch_slider.step = 1
 	pitch_slider.value_changed.connect(func(value: float):
+		game.note_manual_camera_change()
 		game.view.set_camera_pitch(value)
 		_sync_camera_controls()
 	)
@@ -947,6 +970,7 @@ func _build_slope_legend() -> void:
 	slope_legend.hide()
 
 func toggle_slopes() -> void:
+	game.note_manual_slopes_change()
 	game.view.toggle_slopes()
 	slopes_button.modulate = ACCENT if game.view.slopes_visible else Color.WHITE
 	_apply_panel_visibility()
@@ -968,8 +992,13 @@ func _apply_panel_visibility() -> void:
 	for panel in map_panels:
 		if panel.get_parent() == root:
 			panel.visible = show_game
-	tools_panel.visible = show_game and not map_focus
-	inspector_panel.visible = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	var narrow_portrait: bool = root.size.x < 620.0 and root.size.y > root.size.x
+	var wants_inspector: bool = show_game and not map_focus and current_tool == "inspect" and not inspector_collapsed
+	# Only one wide touch drawer may occupy the narrow map at a time.
+	# Selecting a finished building intentionally opens its inspector; pressing
+	# "Info ausblenden" restores the palette without changing construction data.
+	inspector_panel.visible = wants_inspector
+	tools_panel.visible = show_game and not map_focus and not (narrow_portrait and wants_inspector)
 	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
 	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
 	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
@@ -1410,7 +1439,10 @@ func refresh() -> void:
 	_update_save_status()
 	pause_button.text = L.text("Weiter") if game.paused else L.text("Pause")
 	for i in range(speed_buttons.size()):
-		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4][i] else Color.WHITE
+		speed_buttons[i].modulate = ACCENT if game.speed == [1, 4, 8][i] else Color.WHITE
+	if is_instance_valid(speed_cycle_button):
+		speed_cycle_button.text = "%d× ▸" % game.speed
+		speed_cycle_button.tooltip_text = L.text("Aktuell %d× · tippen für 1×, 4× oder 8×") % game.speed
 	_refresh_context_text()
 	if lift_staff.visible: lift_staff.refresh_status()
 	var scenario: String = model.operations.get("scenario", "")
