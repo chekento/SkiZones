@@ -4,7 +4,14 @@ const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
-const TOPPINGS := {"tomato":"Tomate", "cheese":"Käse", "mushroom":"Pilze", "pepper":"Paprika", "olive":"Oliven", "ham":"Schinken", "salami":"Salami", "pineapple":"Ananas", "spinach":"Spinat", "onion":"Zwiebeln"}
+const TOPPINGS := {"tomato":"Tomate", "cheese":"Käse", "mushroom":"Pilze", "pepper":"Paprika", "olive":"Oliven", "ham":"Schinken", "salami":"Salami", "pineapple":"Ananas", "spinach":"Spinat", "onion":"Zwiebeln", "arugula":"Rucola", "goat_cheese":"Ziegenkäse", "pesto":"Pesto", "chili":"Chilischoten", "truffle":"Trüffel", "tofu":"Räuchertofu"}
+## At 0.35 all existing ingredients remain usable by prior saves and level-1 stores.
+## Newly added gourmet toppings unlock only at level 2 or 3.
+const PIZZA_TOPPING_LEVEL := {"arugula":2,"pesto":2,"chili":2,"goat_cheese":3,"truffle":3,"tofu":3}
+const PIZZA_TOPPING_COST := {"tomato":0.55,"cheese":1.10,"mushroom":0.90,"pepper":0.60,"olive":0.85,"ham":1.70,"salami":1.75,"pineapple":0.65,"spinach":0.65,"onion":0.40,"arugula":1.00,"goat_cheese":1.95,"pesto":1.10,"chili":0.85,"truffle":3.50,"tofu":1.40}
+const PIZZA_BASE_COST := 1.90
+const PIZZA_MIN_PRICE := 8
+const PIZZA_MAX_PRICE := 36
 const DEFAULT_PIZZAS := [{"name":"Margherita", "toppings":["tomato", "cheese"]}, {"name":"Alpengarten", "toppings":["tomato", "cheese", "mushroom", "pepper"]}, {"name":"Gipfelpizza", "toppings":["tomato", "cheese", "ham", "onion"]}]
 const HOTEL_DEFAULTS := {"price":0, "family_share":30, "premium_share":20, "comfort":1, "breakfast":true, "auto_clean":true, "cleanliness":100.0, "rating":3.5, "marketing":0, "chain":"", "nights":0, "last_review_day":0}
 
@@ -19,21 +26,51 @@ static func config(building: Dictionary) -> Dictionary:
 static func menu(building: Dictionary) -> Array:
 	return building.get("pizza_menu", DEFAULT_PIZZAS).duplicate(true)
 
+static func pizza_capacity(building: Dictionary) -> int:
+	return clampi(3+int(building.get("level",1))-1,3,5)
+
+static func pizza_unit(recipe: Dictionary) -> Dictionary:
+	var cost: float = PIZZA_BASE_COST
+	for key in recipe.get("toppings",[]):
+		cost += float(PIZZA_TOPPING_COST.get(str(key),0.0))
+	cost = snappedf(cost,0.01)
+	var price: float = float(recipe.get("price",15))
+	return {"price":price,"cost":cost,"margin":snappedf(price-cost,0.01),"margin_ratio":(price-cost)/maxf(1.0,price)}
+
+static func pizza_sale(building: Dictionary, guest: Dictionary) -> Dictionary:
+	var recipes: Array = menu(building)
+	if recipes.is_empty() or not recipes.all(func(x): return x is Dictionary and x.has("price")): return {}
+	# One real selected recipe per service visit. Guests may arrive as a group.
+	var index: int = posmod(int(guest.get("id",0))+int(building.get("visits",0)),recipes.size())
+	var chosen: Dictionary = recipes[index]
+	var unit: Dictionary = pizza_unit(chosen)
+	var count: int = maxi(1,int(guest.get("group_size",1)))
+	return {"recipe":str(chosen.name),"quantity":count,"revenue":float(unit.price)*count,"cost":float(unit.cost)*count}
+
 static func set_menu(model: RefCounted, id: int, recipes: Array) -> Dictionary:
 	var building: Dictionary = model.asset(id)
-	if building.get("kind", "") != "pizzeria" or not valid_menu(recipes): return model._result(false, L.text("Genau drei Pizzen mit Namen und zwei bis sechs verschiedenen Zutaten anlegen."))
+	if building.get("kind", "") != "pizzeria" or not valid_menu(recipes):
+		return model._result(false, L.text("Mindestens drei Pizzen mit zwei bis sechs Zutaten und gültigen Preisen anlegen."))
+	if recipes.size() > pizza_capacity(building):
+		return model._result(false, L.text("Für zusätzliche Pizzaplätze ist ein Gebäudeausbau erforderlich."))
+	for recipe in recipes:
+		for ingredient in recipe.toppings:
+			if int(PIZZA_TOPPING_LEVEL.get(str(ingredient),1)) > int(building.get("level",1)):
+				return model._result(false, L.text("Diese Zutat wird erst nach einem höheren Gebäudeausbau verfügbar."))
 	building.pizza_menu = recipes.duplicate(true)
-	return model._result(true, L.text("Deine drei Pizzen stehen jetzt auf der Karte."))
+	return model._result(true, L.text("Deine Pizzakarte mit Preisen und Zutaten ist aktualisiert."))
 
 static func valid_menu(recipes: Variant) -> bool:
-	if not recipes is Array or recipes.size() != 3: return false
+	if not recipes is Array or recipes.size() < 3 or recipes.size() > 5: return false
 	for recipe in recipes:
 		if not recipe is Dictionary or not recipe.get("name") is String or recipe.name.strip_edges().is_empty() or recipe.name.length() > 32: return false
 		if not recipe.get("toppings") is Array or recipe.toppings.size() < 2 or recipe.toppings.size() > 6: return false
+		if recipe.has("price") and (not Terrain.number(recipe.price) or float(recipe.price)<PIZZA_MIN_PRICE or float(recipe.price)>PIZZA_MAX_PRICE or float(recipe.price)!=floorf(float(recipe.price))): return false
 		var seen := {}
 		for topping in recipe.toppings:
 			if not topping is String or not TOPPINGS.has(topping) or seen.has(topping): return false
 			seen[topping] = true
+		if recipe.has("price") and float(pizza_unit(recipe).margin)<1.0: return false
 	return true
 
 static func configure(model: RefCounted, id: int, changes: Dictionary) -> Dictionary:
@@ -175,7 +212,7 @@ static func service_multiplier(model: RefCounted, building: Dictionary) -> float
 	var activity: Dictionary = building.get("activity", {})
 	var bonus: float = float(activity.get("bonus", 0)) / 100.0 if int(activity.get("day", 0)) == int(model.day) else 0.0
 	var menu_bonus := 0.0
-	if building.kind == "pizzeria" and building.has("pizza_menu"):
+	if building.kind == "pizzeria" and building.has("pizza_menu") and pizza_sale(building, {"id":0, "group_size":1}).is_empty():
 		var unique := {}
 		for pizza in menu(building):
 			for topping in pizza.toppings: unique[topping] = true
