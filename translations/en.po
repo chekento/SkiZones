@@ -7629,3 +7629,9 @@ msgstr "Achievements & medals"
 msgid "Warnungen"
 msgstr "Warnings"
 
+msgid "Seilbahnanlage"
+msgstr "Cableway installation"
+
+msgid "Reparatur abgeschlossen · Lift wieder betriebsbereit"
+msgstr "Repair complete · lift back in service"
+
