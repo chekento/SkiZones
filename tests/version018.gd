@@ -89,6 +89,7 @@ func _food(kind: String) -> void:
 	check(model.admit_guest(0),kind+" has an actual admitted visitor")
 	var guest: Dictionary=model.guests[-1]
 	guest.needs={"hunger":90.0,"warmth":12.0,"energy":40.0,"joy":70.0,"rental":false,"lesson":false};guest.service_history={}
+	var expected_sale: Dictionary=model.Hospitality.pizza_sale(food,guest) if kind=="pizzeria" else model.BuildingOffers.visit_sale(food,guest)
 	var trip:=model.service_route(guest)
 	check(trip.get("legs",[]).any(func(leg):return leg.kind=="visit" and int(leg.id)==int(food.id)),kind+" attracts a hungry cold guest through the real route graph")
 	if not trip.is_empty():
@@ -96,7 +97,8 @@ func _food(kind: String) -> void:
 		for i in range(350):
 			model.advance_minute(false)
 			if food.get("visits",0)>0:break
-	check(food.get("visits",0)==1 and food.get("revenue",0)==Catalog.BUILDINGS[kind].income,kind+" earns only its actual completed visit fee")
+	check(food.get("visits",0)==1 and is_equal_approx(float(food.get("revenue",0)),float(expected_sale.revenue)),kind+" charges exactly the selected completed-visit product without a second flat fee")
+	check(is_equal_approx(float(model.operations.cost_centres.get("supplies:%d" % int(food.id),0)),float(expected_sale.cost)),kind+" records the actual ingredients once, separately from payroll")
 	check(guest.needs.hunger<90 and guest.needs.warmth>12,kind+" really fulfils hunger and warmth needs")
 	var copy:=Resort.new()
 	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok and copy.buildings.any(func(b):return b.kind==kind),kind+" and its staff and guest visits survive save format 16")
