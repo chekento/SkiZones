@@ -7990,3 +7990,43 @@ msgstr "Additional bench"
 msgid "Zusätzlicher Shuttle"
 msgstr "Additional shuttle"
 
+
+# Fictional beverage sponsors and visual sponsor plaque
+msgid "Frostfunke · Bergbrause"
+msgstr "Frostfunke · Mountain Fizz"
+
+msgid "Eine erfundene Alpenlimonaden-Marke. Unterstützt einen echten Punschstand mit Getränkesortiment."
+msgstr "Fictional Alpine soft drink brand supporting an operating punch stand with drinks."
+
+msgid "Bergperle · Quellwasser"
+msgstr "Bergperle · Spring Water"
+
+msgid "Fiktive Quellwasser-Partnerschaft für ein geöffnetes Resortrestaurant."
+msgstr "Fictional spring water partner for an operating resort restaurant."
+
+msgid "KakaoKomet · Winterdrink"
+msgstr "KakaoKomet · Winter Drink"
+
+msgid "Fiktive Kakaomarke mit warmen Getränken am Kakaoladen."
+msgstr "Fictional cocoa brand with hot drinks at the cocoa shop."
+
+msgid "Gipfeltee · Kräuterquelle"
+msgstr "Gipfeltee · Herbal Spring"
+
+msgid "Fiktive Tee-Partnerschaft für ein echtes Alpen-Spa mit Personal."
+msgstr "Fictional tea partnership for a staffed Alpine spa."
+
+msgid "Pistenperle · Schneebar"
+msgstr "Pistenperle · Snow Bar"
+
+msgid "Fiktive alkoholfreie Après-Ski-Marke. Benötigt eine aktive Alpenbar."
+msgstr "Fictional alcohol-free après-ski brand requiring an active Alpine bar."
+
+msgid "Erforderlicher Getränkebetrieb noch nicht gebaut oder geschlossen."
+msgstr "Required drinks business not built yet or closed."
+
+msgid "ALPINE PARTNERSCHAFT"
+msgstr "ALPINE PARTNERSHIP"
+
+msgid "Fiktiver Markenpartner · benötigt: %s"
+msgstr "Fictional brand partner · requires: %s"
