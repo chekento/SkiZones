@@ -303,6 +303,16 @@ func _sponsoring(page: VBoxContainer) -> void:
 		var overview := _card(page,L.text(offer.name), L.text(offer.detail) + "\n" +
 			L.text("%s €/Tag für %d Tage · ab %d %% Ruf und %d Lift(en)") % L.args([
 				hud.money_text(float(offer.daily)),Sponsorship.CONTRACT_DAYS,int(offer.rep),int(offer.lifts)]))
+		# Sponsor brand art is a small theme-compatible on-screen emblem,
+		# never an externally licensed logo or a claim of real partnership.
+		var insignia := PanelContainer.new()
+		insignia.custom_minimum_size.y = 42
+		insignia.add_theme_stylebox_override("panel",hud._style(Color(str(offer.get("mark_color","486780"))),8,10))
+		overview.add_child(insignia)
+		hud._label(insignia,str(offer.get("symbol","◆"))+"  "+L.text("ALPINE PARTNERSCHAFT"),17,Color("ffffff"),true)
+		if offer.has("business"):
+			var business_name: String = str(model.Catalog.BUILDINGS[str(offer.business)].name)
+			hud._label(overview,L.text("Fiktiver Markenpartner · benötigt: %s") % L.args(L.text(business_name)),14,hud.MUTED,true)
 		var eligibility: Dictionary = Sponsorship.check(model,id)
 		_action(overview,L.text("Sponsorvertrag abschließen"),func(): return Sponsorship.sign(model,id),eligibility.ok)
 		if not eligibility.ok: hud._label(overview,eligibility.message,14,hud.MUTED,true)
