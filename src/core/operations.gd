@@ -64,7 +64,7 @@ const GOAL_TIPS := {
 }
 
 static func initial() -> Dictionary:
-	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true, "pending_arrivals": 0}
+	return {"enabled": false, "continuous": false, "staff": [], "next_staff": 1, "vehicles": [], "next_vehicle": 1, "repairs": [], "incidents": [], "next_incident": 1, "parts": 2, "delivery_at": -1, "history": [], "goals": [], "goal_notices": [], "completed": false, "repairs_done": 0, "groomed": 0, "rescued": 0, "scenario": "", "scenario_day": 1, "payroll": 0.0, "cost_centres": {}, "event_day": 0, "event": "", "room_price": 165, "auto_groom": true, "pending_arrivals": 0}
 
 static func group_size(model: RefCounted) -> int:
 	if model.map_id not in Geo.IDS: return 1
@@ -746,6 +746,18 @@ static func evaluate(model: RefCounted) -> Array:
 		"filzmoos": values = [staffed, rescue_ready, model.operations.groomed >= 3, model.total_guests >= 100 and max_wait(model) < 12, profitable >= 2]
 		"kitzbuehel": values = [model.operations.repairs_done > 0, staffed, model.operations.parts >= 2, model.total_guests >= 200 and max_wait(model) < 15, model.total_guests >= 300 and profitable >= 1]
 		_: values = [rescue_ready and workshop_ready, model.operations.vehicles.size() >= 3 and model.operations.groomed >= 3, evening_ready, staffed, profitable >= 3]
+	# Notify each real milestone exactly once per scenario save, even if a
+	# staffing or queue condition becomes false and true again later.
+	# All older saves seed the notice ledger from their already-true goals.
+	var notified: Array = model.operations.get("goal_notices", [])
+	for i in range(values.size()):
+		if bool(values[i]) and not notified.has(i):
+			notified.append(i)
+			model.recent_unlocks.append({"kind":"mission",
+				"title":str(GOALS[scenario][i]),
+				"detail":L.text("Szenario: %s · Mission %d von %d") % [L.text(str(Geo.map_spec(scenario).name)),i+1,values.size()],
+				"reward":0})
+	model.operations.goal_notices = notified
 	model.operations.goals = values
 	if not model.operations.completed and values.all(func(v): return v):
 		model.operations.completed = true
@@ -762,6 +774,13 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	# Legacy releases have no banked morning interest. Migrate it to zero,
 	# with strict bounds before admitting anybody to an existing career.
 	if not state.has("pending_arrivals"): state["pending_arrivals"] = 0
+	# Older career/scenario snapshots carry goals but not a notification
+	# ledger. Their completed goals should never be reannounced on loading.
+	if not state.has("goal_notices"):
+		state["goal_notices"] = []
+		if state.get("goals") is Array:
+			for i in range((state.goals as Array).size()):
+				if state.goals[i] == true: state.goal_notices.append(i)
 	var defaults := initial()
 	for key in defaults:
 		if not state.has(key) or typeof(state[key]) != typeof(defaults[key]) and not (defaults[key] is float and Terrain.number(state[key])) and not (defaults[key] is int and Terrain.number(state[key])): return false
@@ -809,6 +828,13 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		for key in ["day", "tickets", "services", "costs", "guests", "rides", "investments", "departures", "satisfaction", "rewards"]:
 			if not Terrain.number(row.get(key)) or row[key] < 0: return false
 	if state.goals.size() > 5 or not state.goals.all(func(v): return v is bool): return false
+	if state.goal_notices.size() > 5: return false
+	var notified_once: Dictionary={}
+	for idx in state.goal_notices:
+		if not (idx is int or idx is float) or float(idx) != floorf(float(idx)) or int(idx) < 0 or int(idx) >= 5 or notified_once.has(int(idx)): return false
+		notified_once[int(idx)]=true
+	# Stable integer IDs after JSON decoding.
+	state.goal_notices=state.goal_notices.map(func(idx): return int(idx))
 	# JSON numbers are floats in Godot. Canonical integers keep a migrated
 	# populated save bit-for-bit deterministic after the next snapshot.
 	for key in defaults:
