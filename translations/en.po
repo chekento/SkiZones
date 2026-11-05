@@ -7644,7 +7644,7 @@ msgid "BERGFOLK / AKUSTIK"
 msgstr "MOUNTAIN FOLK / ACOUSTIC"
 
 msgid "HÜTTENFOLK"
-msgstr "HÜTTENFOLK"
+msgstr "CABIN FOLK"
 
 msgid "TRADITION / GITARREN"
 msgstr "TRADITION / GUITARS"
@@ -7686,7 +7686,7 @@ msgid "TECHNO / HOUSE"
 msgstr "TECHNO / HOUSE"
 
 msgid "ALPENGLÜHEN"
-msgstr "ALPENGLÜHEN"
+msgstr "ALPENGLOW FM"
 
 msgid "APRÈS-SKI / FUNK"
 msgstr "APRÈS-SKI / FUNK"
