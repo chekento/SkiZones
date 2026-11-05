@@ -7330,3 +7330,16 @@ msgstr "0.32 APK published November 4 and GitHub download banner updated; contin
 
 msgid "Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
 msgstr "Selected published milestones through 0.32.0 · oldest first; find the latest APK on GitHub."
+
+# v0.34 – accessible manual speed selection
+msgid "Tempo umschalten: 1× → 4× → 8× → 1×"
+msgstr "Switch speed: 1× → 4× → 8× → 1×"
+
+msgid "Spieltempo %d× – jederzeit direkt umschalten"
+msgstr "Game speed %d× – change at any time"
+
+msgid "%d× ▸"
+msgstr "%d× ▸"
+
+msgid "Aktuell %d× · tippen für 1×, 4× oder 8×"
+msgstr "Current %d× · tap to cycle through 1×, 4× and 8×"
