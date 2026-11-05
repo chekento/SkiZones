@@ -1028,11 +1028,16 @@ func _geometry_graph(skill: int) -> Dictionary:
 	for key in piste_nodes:
 		var point := Terrain.unpack(nodes[key])
 		var cell := Vector2i(floori(point.x / 2), floori(point.y / 2))
-		for x in range(-1, 2):
-			for y in range(-1, 2):
+		# Old savegames often contain a lift/piste junction whose separately
+		# rounded endpoints differ by a few metres. Previously the exact 2 m
+		# graph threshold left both assets permanently unused. Bridge only
+		# nearby *endpoints*, with a real walking segment, never a teleport.
+		for x in range(-3, 4):
+			for y in range(-3, 4):
 				for other in docks.get(cell + Vector2i(x, y), []):
-					var distance := point.distance_to(Terrain.unpack(nodes[other]))
-					if distance <= 2:
+					var distance: float = point.distance_to(Terrain.unpack(nodes[other]))
+					var both_ends: bool = (key.ends_with("s") or key.ends_with("e")) and (str(other).ends_with("s") or str(other).ends_with("e"))
+					if distance <= (5.5 if both_ends else 2.0):
 						_walk_link(nodes, edges, key, other, distance)
 		if not docks.has(cell):
 			docks[cell] = []
@@ -1223,6 +1228,10 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var piste := asset(route.target)
 		weight *= 1.4 if piste.get("difficulty", -1) == route_skill else 1.0
 		weight *= Traffic.route_pressure(self, piste, piste_load)
+		# Prefer forgotten but connected old ski runs. Avoid a fixed monopoly
+		# for the newest piste when older pistes remain fully serviceable.
+		var least_used: float = maxf(0.0, float(piste.get("rides", 0)))
+		weight *= 1.0 + 1.1 / (1.0 + least_used / 16.0)
 		choices.append({"route": route, "weight": weight})
 		total += weight
 	if choices.is_empty():
