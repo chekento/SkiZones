@@ -425,6 +425,14 @@ func select_free_slot(free_slot: int, fresh: bool = false) -> void:
 			start_game(false)
 			save_game()
 
+func select_free_area(free_slot: int, area: String) -> void:
+	if free_slot < 1 or free_slot > 4 or area not in Maps.FANTASY_MAPS: return
+	if not SaveStore.has_any_save(area, 0, free_slot): return
+	if has_game and not save_game(): return
+	_select_save_context(0, free_slot)
+	hud.career_slots.hide()
+	await enter_area(area)
+
 func main_game_area() -> String:
 	if has_game and model.map_id in Maps.FANTASY_MAPS: return model.map_id
 	if passport.data.last_map in Maps.FANTASY_MAPS and SaveStore.has_readable_save(passport.data.last_map):
