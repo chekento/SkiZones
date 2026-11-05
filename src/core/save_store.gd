@@ -270,23 +270,30 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
 				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2),"message":L.text("Älterer Spielstand geladen.") if candidate in sources.slice(2) else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
-	# An invalid transient visitor must not make an otherwise valid mountain,
-	# construction history, mission progress and finances inaccessible. Both
-	# complete saves are tried first; never bypass an envelope checksum failure.
+	# First retain the exact old geometry and active guests even when modern
+	# construction clearances have changed. This opt-in recovery never trusts
+	# unchecked bytes: the envelope checksum and model validation still apply.
+	# Any recovered original is archived BEFORE the loaded model is changed.
 	for original in verified:
-		var world: Dictionary = original.data.duplicate(true)
-		if not world.get("guests") is Array or world.guests.is_empty(): continue
-		world.guests = []
-		world.itineraries = []
-		world.parties = []
-		var check_model: RefCounted = model.get_script().new()
-		check_model.load_progress = progress
-		if progress != null: progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
-		if not check_model.restore(world.duplicate(true)).ok: continue
-		var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
-		if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK:
-			return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
-		if model.restore(world).ok:
-			return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.")}
+		for recovery in range(3):
+			var world: Dictionary = original.data.duplicate(true)
+			var legacy_geometry: bool = recovery >= 1
+			var reset_visitors: bool = recovery != 1
+			if reset_visitors:
+				if not world.get("guests") is Array or world.guests.is_empty():
+					if not legacy_geometry: continue
+				else:
+					world.guests = []
+					world.itineraries = []
+					world.parties = []
+			var checked: RefCounted = model.get_script().new()
+			checked.load_progress = progress
+			if progress != null: progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
+			if not checked.restore(world.duplicate(true),legacy_geometry).ok: continue
+			var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+			if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK:
+				return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
+			if model.restore(world,legacy_geometry).ok:
+				return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.") if reset_visitors else L.text("Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert.")}
 	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten.")}
 
