@@ -1,0 +1,41 @@
+name: 0.35 food, building unlock and credit QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: business-offers-035-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  business-unlocks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile Godot project
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          p = subprocess.run([os.environ['GODOT_BIN'], '--headless', '--editor', '--import', '--quit'], capture_output=True, text=True, timeout=180)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or 'SCRIPT ERROR' in p.stdout+p.stderr else 0)
+          PY
+      - name: Verify all building unlocks, economic quotes and 6+1 loan schemes
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/building_offers_loans_035.gd
+      - name: No regression to original hotel and pizza systems
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/village_hospitality.gd
+      - name: Old career data still restored
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_rescue_free_slots_0332.gd
