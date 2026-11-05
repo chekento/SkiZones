@@ -6,6 +6,7 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
+const CreditService = preload("res://src/core/credit_service_035.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
 const RESEARCH := {
@@ -396,6 +397,9 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		state.abilities[i] = int(state.abilities[i])
 	if state.has("sponsor") and not Sponsorship.valid(state.sponsor,model.day):
 		return false
+	# Optional in the v0.35 migration: old saves without a credit contract
+	# retain the original integer loan and remain readable.
+	if state.has("credit_contract") and not CreditService.valid_contract(state.credit_contract,model.day,model.loan): return false
 	if not state.get("project") is Dictionary or not state.get("notice") is String or state.notice.length() > 500:
 		return false
 	if state.has("notice_key"):
