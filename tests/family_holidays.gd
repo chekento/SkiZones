@@ -82,7 +82,11 @@ func run() -> void:
 	check(not copy.restore(forged).ok, "A sleeper claiming a different hotel from their actual visit is rejected")
 	if model.day == 1: Ops.midnight(model)
 	check(model.guests.map(func(g): return int(g.id)) == identities and model.total_guests == arrivals, "Midnight retains the original family without new check-ins")
-	model.minute = 480
+	# Hotfix 0.34.1: each family picks one stable 07:00–08:59
+	# departure slot; 08:59 guarantees the lift network is open.
+	var slots: Array=family.map(func(person): return Lodging.morning_departure_minute(person,model.day))
+	check(slots.all(func(value): return int(value)==int(slots[0])),"Family shares one staggered hotel departure window")
+	model.minute = 539
 	model._duty_cache.clear()
 	Ops.refresh_duty(model)
 	for person in family: Lodging.wake(model, person)

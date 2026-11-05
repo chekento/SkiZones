@@ -1704,7 +1704,11 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 				snow_revision += 1
 				changed_open = true
 			var was_open := piste_open(piste)
-			piste.snow = maxf(0.0, piste.snow - maxf(weather().temperature, 0.0) * 0.018)
+			# At +4°C the former 0.018 coefficient melted more than 100 snow
+			# units per 24h day, silently closing every piste after one thaw.
+			# Keep warm-weather pressure but in a realistic, playable range:
+			# ~10.4 snow units per 24h at +4°C, still requiring snow management.
+			piste.snow = maxf(0.0, piste.snow - maxf(weather().temperature, 0.0) * 0.0018)
 			if weather().temperature <= -1:
 				for building in buildings:
 					if building.enabled and building.kind == "snowmaker":
@@ -1723,6 +1727,14 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			for i in range(arrivals_count):
 				var intent := Agenda.sample(self)
 				if intent != "": admit_guest(int(Agenda.TYPES[intent].comfort), intent)
+		# A 24-hour resort must receive a first real guest on a new
+		# skiable day even when the fractional random demand rolls zero all
+		# morning. This is a capped single admission, not a fake counter:
+		# no reachable slope / missing crew / full resort => no visitors.
+		if arrivals and Ops.continuous(self) and minute >= OPENING and minute < OPENING + 135 and minute % 15 == 0 and int(report.guests) == 0 and guests.size() < MAX_GUESTS:
+			var first_intent: String = Agenda.sample(self)
+			if first_intent != "":
+				admit_guest(int(Agenda.TYPES[first_intent].comfort), first_intent)
 		# The evening is alive until 22:00, but no continuous 00–02h
 		# influx should interrupt the quiet-night calendar acceleration.
 		if arrivals and Ops.continuous(self) and minute >= 1020 and minute < DayRhythm.QUIET_FROM and minute % 5 == 0:

@@ -91,6 +91,14 @@ static func night_route(model: RefCounted, guest: Dictionary, source: String) ->
 	if legs.is_empty(): return {}
 	return {"target": 0, "origin": graph.nodes[source], "legs": legs}
 
+## Each hotel party gets a stable, evenly distributed 07:00–08:59 departure
+## time on every day. Every member of one family shares the same clock.
+## No new fields are needed in the original 0.19–0.34 save format.
+static func morning_departure_minute(guest: Dictionary, day: int) -> int:
+	var party: int = int(guest.get("party_id", guest.get("guardian_id", guest.get("id", 1))))
+	var room: int = int(guest.get("lodging_id", 0))
+	return 420 + posmod(party * 53 + room * 17 + day * 31, 120)
+
 static func start_sleep(model: RefCounted, guest: Dictionary) -> void:
 	var current := Ops.clock(model)
 	var morning: int = ((int(model.day) - 1) if int(model.minute) < 420 else int(model.day)) * 1440 + 420
@@ -105,6 +113,9 @@ static func start_sleep(model: RefCounted, guest: Dictionary) -> void:
 static func wake(model: RefCounted, guest: Dictionary) -> void:
 	if guest.phase != "waiting" or guest.get("waiting_reason", "") != "hotel": return
 	if Ops.clock(model) < int(guest.get("hotel_sleep_until", 0)): return
+	# Preexisting snapshots may have a 07:00 wake timestamp. Respect it,
+	# then spread actual departures across the whole 07:00–09:00 window.
+	if Ops.clock(model) < (int(model.day) - 1) * 1440 + morning_departure_minute(guest, int(model.day)): return
 	var guardian: Dictionary = {}
 	if guest.has("guardian_id"):
 		guardian = model.Parties.actor(model, int(guest.guardian_id))
@@ -129,7 +140,6 @@ static func wake(model: RefCounted, guest: Dictionary) -> void:
 		model.Access.depart(model, guest)
 		return
 	guest.erase("evening")
-	Hospitality.renew_day_ticket(model, guest)
 	var source := "d%d" % int(guest.lodging_id)
 	var route: Dictionary
 	if not guardian.is_empty():
@@ -142,8 +152,12 @@ static func wake(model: RefCounted, guest: Dictionary) -> void:
 		guest.phase = "waiting"
 		guest.waiting_reason = "hotel"
 		guest.waiting_node = source
-		guest.hotel_sleep_until = Ops.clock(model) + 60
+		# Early ski lifts typically start at 08:00. Retry soon, but never
+		# teleport a guest or repeatedly sell tickets while routes are shut.
+		guest.hotel_sleep_until = Ops.clock(model) + 10
 		return
+	# Real exit from the accommodation: only now is a fresh day ticket due.
+	Hospitality.renew_day_ticket(model, guest)
 	guest.route = route
 	guest.leg = 0
 	model._start_leg(guest)
