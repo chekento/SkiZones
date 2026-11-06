@@ -325,7 +325,7 @@ func _research(page: VBoxContainer) -> void:
 			var spec: Dictionary=Progression.RESEARCH[id]
 			var done: bool=Progression.has(model,id)
 			var active: bool=not state.project.is_empty() and str(state.project.id)==id
-			var tile:=_card(flow,("✓ " if done else "◉ " if active else "◇ ")+L.text(str(spec.name)))
+			var tile:=_card(flow,("✓ " if done else "◉ " if active else "◇ ")+L.text(str(spec.name)),"")
 			tile.custom_minimum_size.x=245
 			var need: Array=[]
 			for prerequisite in spec.requires:
