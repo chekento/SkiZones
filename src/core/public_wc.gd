@@ -69,6 +69,8 @@ static func action(model: RefCounted,id: int,command: String) -> Dictionary:
 			cost=int(info.empty_cost)
 		"winterize":
 			if bool(s.winterized):return model._result(false,L.text("Frostschutz ist bereits installiert."))
+			if model.campaign.get("mode","career")!="free" and not model.Progression.has(model,"wc_winter"):
+				return model._result(false,L.text("Forschung Frostsichere Entsorgung ist erforderlich."))
 			cost=int(info.winter_cost)
 		_:return model._result(false,L.text("Unbekannte Toilettenaktion."))
 	if not model.Ops._expense(model,cost,"sanitation:%d"%id):
