@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **42 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **43 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.37.0](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** | 06.11.2026 | feste Pistenplanung und sichtbare Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk) | [Details](docs/releases/0.37.0.md) |
 | **[v0.36.0](https://github.com/chekento/SkiZones/releases/tag/v0.36.0)** | 06.11.2026 | Hotelzimmer und Etagenplan | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.36.0/SkiZones-0.36.0-android-arm64.apk) | [Details](docs/releases/0.36.0.md) |
 | **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
 | **[v0.35.0](https://github.com/chekento/SkiZones/releases/tag/v0.35.0)** | 05.11.2026 | Radio, echte Verkäufe und beständige Schneewege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk) | [Details](docs/releases/0.35.0.md) |
@@ -52,6 +53,30 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.37.0 · feste Pistenplanung und sichtbare Wege (06.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.37.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.37.0/manifest.json) · [Originalnotizen](docs/releases/0.37.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.37.0)
+
+**Version:** 0.37.0 · Android versionCode **47** in beiden Profilen · Paketkennung `cloud.kosch.skizones` und Signaturkette bleiben erhalten.
+
+- Pistenplanung mit festem Höhenprofil und gleichzeitigen Live-Werten ohne Scrollen oder zusätzliche Route-/Statistikreiter: Länge, Breite, Auf-/Abstieg, mittlere/maximale Neigung in Prozent und Grad, ausgewählter Abschnitt, Kosten sowie Bau- und Anschlussstatus. Undo/Redo, Punktbearbeitung, Glätten, Verlaufsvorschlag und Richtungswechsel bleiben verfügbar.
+- Pistenbauaktion nach Ende einer Planung wieder erreichbar, auch bei geöffnetem Anlageninspektor auf einem Smartphone.
+- Wege mit Finger oder Maus frei zeichnen; nach dem Loslassen entstehen vereinfachte bearbeitbare Wegpunkte. Die tatsächliche Steigungs-, Hindernis- und Anschlussprüfung bleibt erhalten. Zwei Finger bewegen die Karte und verwerfen einen noch nicht abgeschlossenen Zeichenstrich.
+- Vier sichtbare Wegbeläge mit eigener Kalkulation: Schnee, Kies, Holz und Pflaster. Alle verwenden den gleichen acht Meter breiten tatsächlich navigierbaren Korridor. Alte Wege ohne Belagsfeld bleiben ladbar; Android-Sitzungen behalten den gewählten Belag und Zeichenmodus.
+- Einzelne Sohlenabdrücke und zusammenhängende, abgerundete Schneepfade statt angesammelter rechteckiger Farbflächen. Die Darstellung folgt auch auf Stations- und Aufenthaltsplätzen der sichtbaren Oberfläche. Bestehende gespeicherte Abnutzung bleibt erhalten; der Aufbau erfolgt in kleinen Arbeitsschritten über mehrere Bilder.
+- Mehr Fels-, Heide- und Schattenvariation, weniger überstrahlte Schneeflächen und dunklere Vegetation. Keine Veränderung der Geländegeometrie oder Positionen alter Anlagen.
+- Lesbarer fester Wege-/Plätzekatalog in Hoch- und Querformat. Die vollständige Bestandsaufnahme für 0.29–0.36 steht im [Anforderungsabgleich](docs/qa/029-036-requirements-audit.md); der [lokale Prüfbericht](docs/qa/planning-paths-after-036.md) grenzt die Android-Freigabe ab.
+
+Diese Fassung enthält **keinen** fertigen Toilet Tycoon, keine 100 Hotel-/WC-Forschungen, keinen vollständigen äußeren Hotelbau und keine neue lückenlose Rundwegprüfung aller Realpisten. Diese älteren Aufträge bleiben offen. Downloadbanner und Rathauschronik werden erst nach einer tatsächlich veröffentlichten Version angepasst.
+
+### Prüfbelege und Freigabe
+
+Der vorangehende Stand `3c058145d14d6b18b6e96d35cde7de924070a410` bestand alle 23 PR-Workflows einschließlich [Godot, Original-Saves, Android API 30/36, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42220932742). Die neuen Pistenprüfungen ergänzen den tatsächlichen erfolgreichen Bauabschluss, die wieder erreichbare Bauaktion, die Screen-to-Terrain-Punktverschiebung sowie kontrollierte Mittel-/Maximal-/Abschnittswerte in Prozent und Grad bei Gefälle, waagerechtem Verlauf und Gegenanstieg.
+
+Für den dadurch geänderten HEAD müssen alle CI-Gates erneut bestehen. Ein PR-Build ist kein öffentlicher Release; die Veröffentlichung erfolgt ausschließlich nach vollständiger grüner Hauptzweig-Pipeline. Die APK muss zusammen mit Manifest und SHA256 tatsächlich als offizielles Releaseasset vorhanden sein, bevor Downloadanzeigen umgestellt werden.
+
+---
 
 ## v0.36.0 · Hotelzimmer und Etagenplan (06.11.2026)
 
