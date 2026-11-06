@@ -33,7 +33,18 @@ func _motion(relative: Vector2) -> void:
 		_turn(direction)
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_dragging = true
+			_origin = event.position
+			_distance = 0.0
+			_moved = false
+			grab_focus()
+		elif _dragging:
+			if not _moved: _turn(1 if event.position.x >= size.x * 0.5 else -1)
+			_dragging = false
+		accept_event()
+	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			_turn(1)
 			accept_event()
