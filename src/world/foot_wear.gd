@@ -4,9 +4,11 @@ extends Node3D
 ## and finally a broad trodden path. Never changes routing, collisions,
 ## economy or guest movement. Bounded CPU work / GPU-instanced rendering.
 const Surfaces = preload("res://src/world/walk_surfaces.gd")
+const Terrain = preload("res://src/core/terrain.gd")
 const CELL := 2.0
 const MAX_CELLS := 6000
 const MAX_VISIBLE := 1800
+const PATH_BUCKET := 32.0
 const COLOURS := [
 	Color(0.55, 0.67, 0.73, 0.54),
 	Color(0.69, 0.76, 0.80, 0.59),
@@ -16,6 +18,7 @@ const COLOURS := [
 const WIDTHS := [0.34, 0.90, 1.32, 2.15]
 const LENGTHS := [0.63, 1.55, 1.98, 2.35]
 var _cells: Dictionary = {}
+var _path_buckets: Dictionary = {}
 var _last: Dictionary = {}
 var _layers: Array[MultiMeshInstance3D] = []
 var _trail: MeshInstance3D
@@ -114,6 +117,34 @@ func reset() -> void:
 	for layer in _layers:
 		layer.multimesh.visible_instance_count = 0
 
+## Explicitly prepared paths and station foot connections take precedence over
+## accumulated footprints. The lookup is spatially bucketed, not O(all links)
+## for every moving skier/guest. Historical wear stays in the saved archive.
+func cover_layout(layout: Dictionary) -> void:
+	_path_buckets.clear()
+	for link in layout.get("links", []):
+		var points: Array = link.get("points", [])
+		var radius: float = maxf(1.0, float(link.get("width", 7.0)) * 0.5) + 0.7
+		for index in range(1, points.size()):
+			var a: Vector2 = Terrain.unpack(points[index - 1])
+			var b: Vector2 = Terrain.unpack(points[index])
+			var segment := {"a":a,"b":b,"radius":radius}
+			var low: Vector2 = a.min(b) - Vector2.ONE * radius
+			var high: Vector2 = a.max(b) + Vector2.ONE * radius
+			for x in range(floori(low.x / PATH_BUCKET), floori(high.x / PATH_BUCKET) + 1):
+				for y in range(floori(low.y / PATH_BUCKET), floori(high.y / PATH_BUCKET) + 1):
+					var key := Vector2i(x,y)
+					if not _path_buckets.has(key): _path_buckets[key] = []
+					_path_buckets[key].append(segment)
+	_dirty = true
+
+func covered_by_path(at: Vector2) -> bool:
+	var bucket := Vector2i(floori(at.x / PATH_BUCKET), floori(at.y / PATH_BUCKET))
+	for segment in _path_buckets.get(bucket, []):
+		if at.distance_to(Geometry2D.get_closest_point_to_segment(at, segment.a, segment.b)) <= float(segment.radius):
+			return true
+	return false
+
 func sample_guest(id: int, world: Vector3, tick: int, leg: int, people: int = 1) -> void:
 	if not world.is_finite(): return
 	var at := Vector2(world.x, world.z)
@@ -124,7 +155,7 @@ func sample_guest(id: int, world: Vector3, tick: int, leg: int, people: int = 1)
 	var from: Vector2 = before.point
 	var distance: float = from.distance_to(at)
 	# Ignore standing in place and teleport-like jumps after a new route.
-	if distance < 0.85 or distance > 48.0: return
+	if distance < 0.85 or distance > 48.0 or covered_by_path(at) or covered_by_path(from): return
 	var direction: Vector2 = (at - from) / distance
 	var steps := mini(30, maxi(1, ceili(distance / CELL)))
 	var last_key := Vector2i(1000000, 1000000)
@@ -133,6 +164,7 @@ func sample_guest(id: int, world: Vector3, tick: int, leg: int, people: int = 1)
 		var key := Vector2i(floori(point.x / CELL), floori(point.y / CELL))
 		if key == last_key: continue
 		last_key = key
+		if covered_by_path(point): continue
 		if not _cells.has(key) and _cells.size() >= MAX_CELLS: continue
 		var old: Dictionary = _cells.get(key, {"hits": 0, "direction": direction})
 		var old_stage := wear_stage(int(old.hits))
@@ -166,7 +198,7 @@ func update_visuals(view: Node3D, delta: float) -> void:
 	var cap := 540 if view.quality_tier == 0 else 1100 if view.quality_tier == 1 else MAX_VISIBLE
 	for key in _cells:
 		var point := (Vector2(key) + Vector2.ONE * 0.5) * CELL
-		if point.distance_to(view.focus) > radius: continue
+		if point.distance_to(view.focus) > radius or covered_by_path(point): continue
 		var data: Dictionary = _cells[key]
 		var level := wear_stage(int(data.hits))
 		if counts[level] >= cap * (2 if level == 0 else 1): continue
