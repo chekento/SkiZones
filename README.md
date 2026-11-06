@@ -33,7 +33,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**0.33.0 · Android-VersionCode 39:** [Gemeinsamer Releasekandidat · PR #52](https://github.com/chekento/SkiZones/pull/52). Radio-Hotfix mit sofort gespeicherten Einstellungen und fortlaufenden Offline-Sendern, direkter Anlagenansicht nach Bauabschluss, seltenere Stürme, sicherer Nacht-Zeitraffer, Morgenankünfte, spielbares Tic-Tac-Toe und aktualisierter Rathausplan. **Welche APK bereits freigegeben ist, zeigt ausschließlich der Downloadblock oben.** [Detaillierte Änderungen](docs/releases/0.33.0.md).
+**0.36.0 · Android-VersionCode 46:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.36.0) mit festen Hotelzimmern für echte Gäste/Familien, Reinigung nach Checkout und speicherbarem mobilem Etagenplan. Enthält sämtliche Stabilitätskorrekturen aus 0.35.1. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42202871422) bestanden. [Detaillierte Änderungen](docs/releases/0.36.0.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
@@ -41,7 +41,8 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | [0.30.0](docs/releases/0.30.0.md) | Alte Karrieren, erweiterte Radiosender, Hotellobby, Künstlerkanäle und mobile Bedienung | Veröffentlicht · Android 11/16 bestanden |
 | [0.31.0](docs/releases/0.31.0.md) | Gesamthotfix einschließlich Zeitung, Radiowerbung, drei neuen Kunststilen und November-Plakaten | **Veröffentlicht · Android 11/16 bestanden** |
 | [0.32.0](docs/releases/0.32.0.md) | Fünf Startbudgets, Bewerbermarkt, Missionshilfen, Original-Wortmarke, zehn Grafikstile und interaktiver Pistenplan | Veröffentlicht · Android 11/16 bestanden |
-| [0.33.0](docs/releases/0.33.0.md) | Sofort gespeichertes Radio, laufende Sender, Bauabschluss-Inspektor, Wetter, Nächte, Spielecke und Rathausplan | Releasekandidat · Freigabe siehe Downloadblock |
+| [0.33.0](docs/releases/0.33.0.md) | Sofort gespeichertes Radio, laufende Sender, Bauabschluss-Inspektor, Wetter, Nächte, Spielecke und Rathausplan | Veröffentlicht · siehe Versionsarchiv |
+| [0.36.0](docs/releases/0.36.0.md) | Feste Hotelbuchungen, reale Zimmerreinigung und mobiler Etagenplan; vollständiger 0.35.1-Hotfix enthalten | Veröffentlicht · Android API 30/36 bestanden |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
