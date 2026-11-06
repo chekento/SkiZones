@@ -1,5 +1,5 @@
 extends SceneTree
-## Hotel Simulator, restroom manager and research tree compatibility.
+## Hotel Simulator is independent of public Dixi/WC infrastructure.
 const Resort=preload("res://src/core/resort.gd")
 const Simulator=preload("res://src/core/hotel_simulator.gd")
 const Rooms=preload("res://src/core/hotel_rooms.gd")
@@ -27,9 +27,9 @@ func run() -> void:
 	check(JSON.stringify(model.snapshot())==before and preview.rooms.ready>0,"Inspecting simulator cannot change existing hotel saves")
 	check(not Simulator.valid({"kind":"kiosk","sanitation":{"version":1}}),"Non-hotel cannot forge sanitary service state")
 	var started:Dictionary=Simulator.begin(model,int(hotel.id))
-	check(started.ok and hotel.has("room_operations") and hotel.has("sanitation"),"Interactive shift activates real bookings and restroom service without changing guests")
-	check(not Simulator.sanitation_action(model,int(hotel.id),"activate").ok,"Sanitation activation idempotent")
-	check(Progression.BRANCHES.size()==4 and Progression.branch_for("sanitation").id=="hospitality","Sanitation research belongs to hotel development tree")
+	check(started.ok and hotel.has("room_operations") and not hotel.has("sanitation"),"Hotel shift only starts bookings; no public WC module attached")
+	check(not hotel.has("wc_public"),"Hotel never acquires public toilet state")
+	check(Progression.BRANCHES.size()==5 and Progression.branch_for("sanitation").id=="sanitation","Public sanitation research is a separate branch")
 	for stage in range(5):
 		var scene:Dictionary=Simulator.situation(model,hotel,stage)
 		check(scene.choices.size()==3 and not str(scene.prompt).is_empty(),"Real stage %d has actionable decisions" % stage)
@@ -44,18 +44,17 @@ func run() -> void:
 			var snapshot_partial:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
 			var restored_partial:=Resort.new()
 			check(restored_partial.restore(snapshot_partial).ok and int(restored_partial.asset(int(hotel.id)).activity.hotel_shift.steps)==2,"Half-finished hotel shift survives checksum-compatible save restore")
-	check(Simulator.overview(model,hotel).shift_done and hotel.sanitation.extra_units==1,"Completed shift persists and restroom capacity grows in free build")
+	check(Simulator.overview(model,hotel).shift_done and not hotel.has("sanitation"),"Completed hotel shift has no public sanitation dependency")
 	check(not Simulator.choose(model,started,0).ok and not Simulator.begin(model,int(hotel.id)).ok,"Shift cannot be rewarded twice in the same resort day")
 	var state:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
 	var restored:=Resort.new()
-	check(restored.restore(state).ok and Simulator.overview(restored,restored.asset(int(hotel.id))).shift_done,"Save/restore preserves hotel state, restrooms and shift progress")
+	check(restored.restore(state).ok and Simulator.overview(restored,restored.asset(int(hotel.id))).shift_done,"Save/restore preserves hotel state and shift progress")
 	var invalid:Dictionary=state.duplicate(true)
 	for b in invalid.buildings:
 		if int(b.id)==int(hotel.id):b.sanitation.extra_units=900;break
 	var fresh:=Resort.new()
 	check(not fresh.restore(invalid).ok,"Corrupted restroom capacity is rejected before save restore")
 	model.day+=1
-	Simulator.daily(model,hotel)
-	check(float(hotel.sanitation.hygiene)<100.0 and not Simulator.overview(model,hotel).shift_done,"Next day has actual restroom wear and new hotel shift")
+	check(not Simulator.overview(model,hotel).shift_done and not hotel.has("sanitation"),"New hotel shift starts next day without creating WC modules")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
