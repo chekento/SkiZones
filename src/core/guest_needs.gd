@@ -159,11 +159,16 @@ static func complete(guest: Dictionary, kind: String) -> void:
 			state[key]=clampf(state[key] + (-amount if key=="hunger" else amount),0,100)
 		if kind=="rental":state.rental=false
 		if kind=="school":state.lesson=false
-		if kind.begins_with("wc_") or kind in INDOOR_WCS:
+		if kind.begins_with("wc_"):
 			state.bladder=0.0
 			state.bowel=0.0
-		# Drinks accelerate toilet demand without treating every meal as a drink.
-		elif kind in ["bar","cocoa","kiosk","disco"]:
+		elif kind in INDOOR_WCS and (float(state.get("bladder",0))>=55 or float(state.get("bowel",0))>=75):
+			# Use the included toilet if actually needed; meals/drinks never
+			# reset an untroubled bladder just by visiting a building.
+			state.bladder=0.0
+			state.bowel=0.0
+		# Drinks increase urinary pressure AFTER any needed toilet visit.
+		if kind in ["bar","cocoa","kiosk","disco"]:
 			state.bladder=minf(100.0,float(state.get("bladder",0))+ (16.0 if kind=="bar" else 12.0))
 	aggregate_family(guest)
 	guest.service_history[kind]=guest.age
