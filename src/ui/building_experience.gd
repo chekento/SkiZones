@@ -163,6 +163,7 @@ func _rebuild() -> void:
 		return
 	if PublicWC.is_public(str(building.kind)):
 		_public_wc(building)
+		_activity(building)
 		_restore_page(previous_page)
 		return
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
