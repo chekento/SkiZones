@@ -33,7 +33,11 @@ func run() -> void:
 	var recovered:Dictionary=Manager.repair("sonnenhang",4)
 	check(recovered.ok and recovered.changed and FileAccess.get_sha256(dest)==original_dest_hash,"Repair reconstructs primary from full-valid backup without inventing guests")
 	var history:DirAccess=DirAccess.open("user://save-recovery")
-	check(history!=null and history.get_files().any(func(name):return name.contains("career_4_sonnenhang") and name.ends_with(".before-repair")),"Original corrupt bytes preserved before repair")
+	var preserved:=false
+	if history!=null:
+		for filename in history.get_files():
+			if filename.contains("career_4_sonnenhang") and filename.ends_with(".before-repair"):preserved=true
+	check(preserved,"Original corrupt bytes preserved before repair")
 	check(not Manager.copy("sonnenhang",3,0).ok,"Cross-mode copying cannot relabel career into sandbox")
 	check(DirAccess.copy_absolute(ProjectSettings.globalize_path(from),ProjectSettings.globalize_path(from+".bak"))==OK,"Verified previous-generation backup created")
 	var corrupted:=FileAccess.open(from,FileAccess.WRITE)
