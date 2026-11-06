@@ -86,8 +86,25 @@ func check_piste_lifecycle() -> void:
 	game._move_waypoint(destination)
 	game._end_waypoint_drag()
 	check(game.points != old_points and palette.live_stats.text != before and game.model.money == balance,"A dragged planning point refreshes actual statistics without charging construction")
-	game.points = [[245,-130],[305,0],[200,205]]
+	var raw_route: Array = [[245,-130],[305,0],[200,205]]
+	game.points = raw_route.duplicate(true)
 	game._update_plan()
+	# Direct coordinates near a station bypass the anchor preparation used by
+	# the model's public construction API. Confirm must preserve that rejection.
+	var rejected_points: Array = game.points.duplicate(true)
+	var original_count: int = game.model.pistes.size()
+	check(not game.last_plan_check.get("ok",false),"The unprepared station-end fixture is rejected by the actual safety rules")
+	game.confirm_plan()
+	check(game.points==rejected_points and game.model.pistes.size()==original_count and game.model.money==balance,"Confirming an invalid piste preserves its editable points, assets and cash")
+	# Public model callers prepare station ends by default. Feed the exact
+	# resulting geometry to the controller, which deliberately does not move
+	# an already edited/snapped endpoint behind the player's back.
+	var prepared: Dictionary = game.model.preview_piste(raw_route,game.chosen_piste_width(),true)
+	check(prepared.get("ok",false),"Public construction preview prepares safe station ends for the fixture")
+	game.points = prepared.get("points",raw_route).duplicate(true)
+	game._update_plan()
+	if not game.last_plan_check.get("ok",false):
+		print("PISTE_LIFECYCLE_DIAGNOSTIC raw=",raw_route," prepared=",prepared," controller=",game.last_plan_check)
 	check(game.last_plan_check.get("ok",false),"The actual piste controller accepts the known valid new route")
 	var count: int = game.model.pistes.size()
 	var created_id: int = game.model.next_id
