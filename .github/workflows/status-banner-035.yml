@@ -8,6 +8,7 @@ on:
       - 'src/core/operations.gd'
       - 'translations/en.po'
       - 'tests/status_banner_035.gd'
+      - 'tests/status_banner_audio_scene_035.gd'
       - 'tests/radio_hardware_035.gd'
       - 'src/ui/radio_face.gd'
       - 'src/ui/jukebox.gd'

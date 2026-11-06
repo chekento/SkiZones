@@ -13,7 +13,10 @@ func run() -> void:
 	await process_frame
 	game.start_game(true)
 	game.paused=true
+	# Own frame ordering before any deferred main-loop audio/HUD update.
+	game.set_process(false)
 	game.view.set_process(false)
+	game.audio.clock_source=func(): return 1793822400.345
 	var hud:CanvasLayer=game.hud
 	hud.hide_menu()
 	var banner=hud.achievement_overlay
@@ -23,11 +26,13 @@ func run() -> void:
 	game.preferences.master_volume=1.0
 	game.preferences.music_volume=0.65
 	game.preferences.music_genre="alpine"
+	# Exercise the real foreground lifecycle path. SceneTree.process_frame is
+	# emitted before Node._process, so awaiting it alone does not activate audio.
+	game._process(0.0)
 	game.audio.sync()
 	await process_frame
-	# Keep the real audio player running, but own the HUD refresh schedule.
-	# Initial automatic refreshes may already have announced this same song.
-	game.set_process(false)
+	check(game.audio.active and game.audio.players.music.playing and not game.audio.players.music.stream_paused, "Foreground main-loop activation starts the actual unpaused radio player")
+	# Ignore any earlier automatic announcement; subsequent refreshes are explicit.
 	banner.clear_all()
 	banner.history.clear()
 	hud._last_announced_song=""
