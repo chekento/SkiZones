@@ -51,6 +51,42 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
+## Recover from an intact backup without losing the malformed original.
+## The source must pass the full Resort.restore validator, not just a checksum.
+static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
+	var paths: Array=sources(id,slot,free_slot)
+	if paths.is_empty():return {"ok":false,"message":L.text("Ungültiger Spielstand.")}
+	var target: String=Saves.path_for_map(id,slot,free_slot)
+	var existing: Dictionary=Saves._read(target) if FileAccess.file_exists(target) else {"ok":false}
+	var probe_script: Script=load("res://src/core/resort.gd")
+	if correct_mode(existing,id,slot):
+		var current: RefCounted=probe_script.new()
+		if current.restore(existing.data.duplicate(true)).ok:
+			return {"ok":true,"changed":false,"message":L.text("Hauptspielstand vollständig ladbar. Keine Reparatur nötig.")}
+	for candidate in paths:
+		if candidate==target or not FileAccess.file_exists(candidate):continue
+		var read: Dictionary=Saves._read(candidate)
+		if not correct_mode(read,id,slot):continue
+		var check: RefCounted=probe_script.new()
+		if not check.restore(read.data.duplicate(true)).ok:continue
+		var staged: String=target+".rescue.tmp"
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(candidate),ProjectSettings.globalize_path(staged))!=OK:
+			return {"ok":false,"message":L.text("Rettungskopie konnte nicht geschrieben werden.")}
+		if FileAccess.get_sha256(staged)!=FileAccess.get_sha256(candidate):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(staged))
+			return {"ok":false,"message":L.text("Rettungskopie ist beschädigt; Original bleibt bestehen.")}
+		if FileAccess.file_exists(target):
+			var folder: String="user://save-recovery"
+			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK:
+				return {"ok":false,"message":L.text("Original konnte nicht gesichert werden.")}
+			var safe: String=folder+"/"+target.get_file()+"-%d-%d.before-repair" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+			if DirAccess.copy_absolute(ProjectSettings.globalize_path(target),ProjectSettings.globalize_path(safe))!=OK or FileAccess.get_sha256(target)!=FileAccess.get_sha256(safe):
+				return {"ok":false,"message":L.text("Original konnte nicht gesichert werden.")}
+		if DirAccess.rename_absolute(ProjectSettings.globalize_path(staged),ProjectSettings.globalize_path(target))!=OK:
+			return {"ok":false,"message":L.text("Rettung konnte nicht aktiviert werden. Sicherung bleibt erhalten.")}
+		return {"ok":true,"changed":true,"message":L.text("Spielstand aus geprüfter Sicherung wiederhergestellt. Original wurde archiviert.")}
+	return {"ok":false,"message":L.text("Keine vollständig ladbare Sicherung gefunden. Dateien bleiben unverändert.")}
+
 static func copy(id: String,from_slot: int,to_slot: int,from_free: int = 1,to_free: int = 1) -> Dictionary:
 	var originals: Array=sources(id,from_slot,from_free)
 	var targets: Array=sources(id,to_slot,to_free)
