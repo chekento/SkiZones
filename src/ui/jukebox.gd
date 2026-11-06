@@ -145,12 +145,10 @@ func setup(owner_hud: CanvasLayer) -> void:
 	)
 	skip_button.icon=load("res://assets/radio/controls/skip.svg")
 	skip_button.expand_icon=true
-	skip_button.icon_max_width=34
 	skip_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	skip_button.tooltip_text=L.text("Zum nächsten Titel dieses Senders springen")
 	credits_button=_radio_button(transport,L.text("CREDITS"),_toggle_credits)
 	credits_button.icon=load("res://assets/radio/controls/info.svg")
-	credits_button.icon_max_width=32
 	credits_button.tooltip_text=L.text("Musik- und Lizenzquellen dieses Senders zeigen")
 	var bank: PanelContainer=_panel(radio,Color("132d39"))
 	var bank_stack: VBoxContainer=hud._vbox(bank,8)
