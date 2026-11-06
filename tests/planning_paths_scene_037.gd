@@ -25,6 +25,82 @@ func drag(index: int, at: Vector2, relative: Vector2) -> void:
 	var event := InputEventScreenDrag.new()
 	event.index=index; event.position=at; event.relative=relative
 	game._input(event)
+
+class GradeBench extends "res://src/core/mountain.gd":
+	var flat := false
+	var counter_rise := false
+	func height(point: Vector2) -> float:
+		if flat: return 200.0
+		return 200.0 - 0.2 * point.y if not counter_rise or point.y <= 100.0 else 180.0 + 0.1 * (point.y - 100.0)
+
+func check_grade_numbers() -> void:
+	var palette: Control = game.hud.palette
+	for mode in ["downhill", "flat", "counter-rise"]:
+		var terrain := GradeBench.new()
+		terrain.flat = mode == "flat"
+		terrain.counter_rise = mode == "counter-rise"
+		var path: Array = [[0,0],[0,100],[0,150]] if terrain.counter_rise else [[0,0],[0,100]]
+		var analysis: Dictionary = terrain.analyse(path)
+		# Known elevations: 200 -> 180 -> 185; horizontal lengths: 100 + 50.
+		# Keep the invalid flat route's real analysis: a safety rejection must
+		# still display finite numbers, rather than making up a valid piste.
+		var average := 0.0 if terrain.flat else 10.0 if terrain.counter_rise else 20.0
+		var maximum := 0.0 if terrain.flat else 20.0
+		var segment := -10.0 if terrain.counter_rise else average
+		game.points = path.duplicate(true)
+		game.selected_waypoint = path.size()-1
+		game.last_plan_check = analysis
+		palette.route_profile.update_profile(analysis)
+		palette.refresh(true)
+		var text: String = palette.live_stats.text
+		check(is_equal_approx(float(analysis.average),average) and is_equal_approx(float(analysis.grade),maximum),"Controlled "+mode+" terrain has independently known average and maximum")
+		check(text.contains("%.1f %% / %.1f°" % [average,rad_to_deg(atan(average/100.0))]),"Displayed "+mode+" mean uses horizontal grade and correct degrees")
+		check(text.contains("%.1f %% / %.1f°" % [maximum,rad_to_deg(atan(maximum/100.0))]),"Displayed "+mode+" maximum is not replaced by its mean")
+		check(text.contains("%.1f %% / %.1f°" % [segment,rad_to_deg(atan(segment/100.0))]) and not text.to_lower().contains("nan") and not text.to_lower().contains("inf"),"Selected "+mode+" section retains its sign and finite degree conversion")
+	game.selected_waypoint = -1
+	game.clear_plan()
+
+func check_piste_lifecycle() -> void:
+	game.clear_plan()
+	game.set_tool("piste")
+	await settle()
+	var palette: Control = game.hud.palette
+	check(game.points.is_empty() and not palette.live_stats.visible,"New piste starts with its create action, before any point")
+	game.points = [[245,-130]]
+	game._update_plan()
+	check(palette.live_stats.is_visible_in_tree() and not palette.route_profile.visible,"The first piste point immediately displays start statistics")
+	game.points.append([305,0])
+	game._update_plan()
+	check(palette.route_profile.is_visible_in_tree(),"The second piste point opens the fixed elevation profile")
+	# Exercise real screen-to-terrain waypoint dragging; planning never spends money.
+	game.view.focus = Vector2(290,0)
+	game.view.zoom = 500
+	game.view.set_camera_mode(3)
+	game.view._update_camera()
+	var balance: float = game.model.money
+	var old_points: Array = game.points.duplicate(true)
+	var before: String = palette.live_stats.text
+	var from: Vector2 = game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[1])))
+	var destination: Vector2 = game.view.camera.unproject_position(game.view.surface_position(Vector2(345,40)))
+	game._begin_waypoint_drag(1,from)
+	game._move_waypoint(destination)
+	game._end_waypoint_drag()
+	check(game.points != old_points and palette.live_stats.text != before and game.model.money == balance,"A dragged planning point refreshes actual statistics without charging construction")
+	game.points = [[245,-130],[305,0],[200,205]]
+	game._update_plan()
+	check(game.last_plan_check.get("ok",false),"The actual piste controller accepts the known valid new route")
+	var count: int = game.model.pistes.size()
+	var created_id: int = game.model.next_id
+	if game.last_plan_check.get("ok",false):
+		game.confirm_plan()
+	await settle()
+	check(game.model.pistes.size()==count+1 and not game.model.asset(created_id).is_empty(),"confirm_plan builds an actual new piste instead of only clearing its preview")
+	check(game.points.is_empty() and not palette.live_stats.visible and (game.hud.tool_buttons.piste.is_visible_in_tree() or game.hud.piste_quick_button.is_visible_in_tree()),"Successful piste completion restores a reachable create-piste action")
+	if game.model.pistes.size()==count+1: game.model.demolish(created_id)
+	game.clear_plan()
+	game.set_tool("piste")
+	check_grade_numbers()
+
 func run() -> void:
 	game=load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -62,6 +138,9 @@ func run() -> void:
 			await settle()
 			var create: Button=game.hud.tool_buttons.piste
 			check((create.is_visible_in_tree() or hud.piste_quick_button.is_visible_in_tree()) and not palette.live_stats.visible,"Leaving planning restores a visible create-piste action")
+	root.size=Vector2i(1280,800)
+	game.apply_language("de")
+	await check_piste_lifecycle()
 	# The idle path catalogue is fixed as well, including a short landscape phone.
 	for resolution in [Vector2i(360,740),Vector2i(740,360)]:
 		root.size=resolution; game.clear_plan()
