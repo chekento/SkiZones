@@ -13,6 +13,7 @@ const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
+const PublicWC = preload("res://src/core/public_wc.gd")
 var _hotel_floor := 0
 var _selected_room := 1
 var hotel_shift: Dictionary = {}
@@ -158,6 +159,10 @@ func _rebuild() -> void:
 		_town_hall(building)
 		_offers(building)
 		_activity(building)
+		_restore_page(previous_page)
+		return
+	if PublicWC.is_public(str(building.kind)):
+		_public_wc(building)
 		_restore_page(previous_page)
 		return
 	if Hospitality.lodging(str(building.kind)): _hotel(building)
@@ -490,6 +495,45 @@ func _room_management(page: VBoxContainer, building: Dictionary) -> void:
 	var slot_input := _spin(detail,L.text("Platz im Etagenplan"),int(selected.slot)+1,1,36,1)
 	_action(detail,L.text("Internen Zimmerplan ändern · 250 €"),func():return HotelRooms.move_room(model,asset_id,_selected_room,int(floor_input.value)-1,int(slot_input.value)-1)).name="move_selected_room"
 	hud._label(detail,L.text("Der Etagenplan ordnet die vorhandenen Zimmer innerhalb des Hauses. Er baut keine zusätzlichen Betten oder Außenflügel."),17,hud.MUTED,true)
+
+func _public_wc(building: Dictionary) -> void:
+	# No hotel reference: independent public sanitation, including Dixi units.
+	var model: RefCounted=hud.game.model
+	var info: Dictionary=PublicWC.status(model,building)
+	var page: VBoxContainer=_page(L.text("Öffentliche Toiletten"))
+	var head:=_card(page,L.text("WC-MANAGER · MOBIL & ÖFFENTLICH"),
+		L.text("Eigenständige Dixi-, Container- und Sanitärhäuser. Toiletten in Hotels und Restaurants sind bereits inklusive."))
+	head.name="public_wc_manager"
+	hud._label(head,L.text("PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d") % [int(info.capacity),int(info.waiting),int(info.visits)],21,hud.TEAL,true)
+	hud._label(head,L.text("HYGIENE  %.0f %%  ·  TANK  %.0f %%") % [float(info.hygiene),float(info.fill)],20,hud.INK,true)
+	var h:=ProgressBar.new()
+	h.name="public_wc_hygiene"
+	h.show_percentage=false
+	h.max_value=100.0;h.value=float(info.hygiene);h.custom_minimum_size.y=23
+	head.add_child(h)
+	var tank:=ProgressBar.new()
+	tank.name="public_wc_tank"
+	tank.show_percentage=false
+	tank.max_value=100.0;tank.value=float(info.fill);tank.custom_minimum_size.y=23
+	head.add_child(tank)
+	hud._label(head,L.text("BETRIEB  %s") % (L.text("Bereit") if info.ready else L.text("Reinigung oder Entleerung nötig")),17,hud.TEAL,true)
+	var actions:=_card(page,L.text("SERVICE & ENTSORGUNG"))
+	var clean:Button=_action(actions,L.text("Reinigen · %s €") % hud.money_text(info.clean_cost),func():return PublicWC.action(model,asset_id,"clean"))
+	clean.name="public_wc_clean";clean.disabled=float(info.hygiene)>=99.95
+	var empty:Button=_action(actions,L.text("Tank entleeren · %s €") % hud.money_text(info.empty_cost),func():return PublicWC.action(model,asset_id,"empty"))
+	empty.name="public_wc_empty";empty.disabled=float(info.fill)<=0.01
+	var winter:Button=_action(actions,L.text("Frostschutz einbauen · %s €") % hud.money_text(info.winter_cost),func():return PublicWC.action(model,asset_id,"winterize"))
+	winter.name="public_wc_winterize"
+	var allow_winter:bool=model.campaign.get("mode","career")=="free" or model.Progression.has(model,"wc_winter")
+	winter.disabled=bool(info.winterized) or not allow_winter
+	if not allow_winter:
+		hud._label(actions,L.text("Forschung: Frostsichere Entsorgung."),15,hud.ACCENT,true)
+	var growth:=_card(page,L.text("AUSBAU & PERSONAL"))
+	var upgrade:Dictionary=model.upgrade_check(asset_id)
+	var button:Button=_action(growth,L.text("Kapazität ausbauen · %s €") % hud.money_text(upgrade.get("cost",0)),func():return model.upgrade_asset(asset_id))
+	button.name="public_wc_upgrade";button.disabled=not upgrade.ok
+	hud._button(growth,L.text("Zusatzpersonal und Team"),func():close();hud.lift_staff.open(asset_id),true)
+	hud._label(growth,L.text("Reinigung, Tankfüllstand, Kälte und reale Toilettengäste bestimmen den Betrieb. Für Hotel- und Restaurant-Toiletten entstehen keine separaten WC-Gebäude."),15,hud.MUTED,true)
 
 func _hotel_simulator(building: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
