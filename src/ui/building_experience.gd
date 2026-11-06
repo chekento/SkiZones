@@ -11,6 +11,9 @@ const Activities = preload("res://src/core/building_activities.gd")
 const ReactionGame = preload("res://src/ui/reaction_game.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
+const HotelRooms = preload("res://src/core/hotel_rooms.gd")
+var _hotel_floor := 0
+var _selected_room := 1
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
@@ -109,11 +112,14 @@ func _card(parent: Node, title: String, description: String = "") -> VBoxContain
 	return body
 
 func _action(parent: Node, label_text: String, action: Callable) -> Button:
-	return hud._button(parent, label_text, func():
+	var button: Button = hud._button(parent, label_text, func():
 		var result: Dictionary = action.call()
 		hud.toast(L.text(str(result.get("message", ""))))
 		_rebuild()
 	, true)
+	button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	return button
 
 func _spin(parent: Node, label_text: String, value: int, low: int, high: int, step_value: int = 5) -> SpinBox:
 	hud._label(parent, label_text, 17, hud.INK)
@@ -420,6 +426,67 @@ func _pizza(building: Dictionary) -> void:
 		if result.ok: _rebuild()
 	)
 
+func _room_management(page: VBoxContainer, building: Dictionary) -> void:
+	var model: RefCounted=hud.game.model
+	var state := HotelRooms.view(model,building)
+	var summary := _card(page,L.text("Dein Etagenplan"),L.text("%d belegt · %d bereit · %d zu reinigen · %d gesperrt") % [state.occupied,state.ready,state.dirty,state.closed])
+	if not state.enabled:
+		hud._label(summary,L.text("Aktiviere feste Zimmerbuchungen und echte Zimmerwechsel-Reinigung. Bestehende Gäste werden übernommen; alte Spielstände ändern sich erst mit deiner Wahl."),17,hud.MUTED,true)
+		_action(summary,L.text("Einzelzimmerverwaltung aktivieren"),func():return HotelRooms.enable(model,asset_id)).name="enable_room_operations"
+		return
+	hud._label(summary,L.text("Schmutzige und gesperrte Zimmer sind nicht buchbar. Dein aktiver Reinigungsservice bereitet alle 15 Spielminuten Zimmer vor; die Kapazität folgt dem diensthabenden Team."),17,hud.MUTED,true)
+	if int(state.unassigned)>0:
+		hud._label(summary,L.text("Für %d bestehende Zimmerbuchungen fehlt derzeit ein nutzbares Zimmer. Gäste werden nicht gelöscht; freie Zimmer wieder öffnen und reinigen.") % int(state.unassigned),17,hud.INK,true)
+	var floors: Array=[]
+	for room in state.rooms:
+		if not floors.has(int(room.floor)):floors.append(int(room.floor))
+	floors.sort()
+	if not floors.has(_hotel_floor):_hotel_floor=int(floors[0])
+	var selector := OptionButton.new()
+	selector.name="hotel_floor_selector"
+	selector.custom_minimum_size.y=48
+	summary.add_child(selector)
+	for floor_number in floors:selector.add_item(L.text("Etage %d") % (int(floor_number)+1),int(floor_number))
+	selector.select(floors.find(_hotel_floor))
+	selector.item_selected.connect(func(index):_hotel_floor=selector.get_item_id(index);_rebuild())
+	var rooms: Array=state.rooms.filter(func(room):return int(room.floor)==_hotel_floor)
+	rooms.sort_custom(func(a,b):return int(a.slot)<int(b.slot))
+	if not rooms.any(func(room):return int(room.id)==_selected_room):_selected_room=int(rooms[0].id)
+	var grid := GridContainer.new()
+	grid.name="hotel_room_grid"
+	grid.add_theme_constant_override("h_separation",8)
+	grid.add_theme_constant_override("v_separation",8)
+	page.add_child(grid)
+	var resize_grid := func():grid.columns=clampi(floori((page.size.x+8)/104.0),1,6)
+	page.resized.connect(resize_grid)
+	resize_grid.call()
+	var selected: Dictionary={}
+	for room in rooms:
+		var room_id: int=int(room.id)
+		var status: String=L.text("Belegt") if room.reservation!="" else L.text("Gesperrt") if room.closed else L.text("Reinigung nötig") if not room.clean else L.text("Bereit")
+		var button: Button = hud._button(grid,L.text("Zimmer %d\n%s") % [room_id,status],func():_selected_room=room_id;_rebuild())
+		button.name="hotel_room_%d" % room_id
+		button.custom_minimum_size=Vector2(96,76)
+		button.clip_text=true
+		button.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		button.tooltip_text=L.text("Zimmer %d · Etage %d · Platz %d") % [room_id,int(room.floor)+1,int(room.slot)+1]+" · "+status
+		button.add_theme_font_size_override("font_size",14)
+		button.add_theme_stylebox_override("normal",hud._style(Color("bbdccb") if room.reservation!="" else Color("e4ded0") if room.clean else Color("efd2ad"),9,7))
+		if room_id==_selected_room:selected=room
+	var detail := _card(page,L.text("Zimmer %d · Etage %d · Platz %d") % [_selected_room,int(selected.floor)+1,int(selected.slot)+1])
+	if selected.reservation!="":
+		var owner: String=str(selected.reservation)
+		hud._label(detail,(L.text("Reisegruppe %d") if owner.begins_with("party:") else L.text("Gast %d")) % int(owner.get_slice(":",1)),18,hud.TEAL,true)
+		hud._label(detail,L.text("Das Zimmer ist noch belegt. Die Buchung bleibt erhalten."),17,hud.MUTED,true)
+		return
+	_action(detail,L.text("Zimmer reinigen · 8 €"),func():return HotelRooms.clean_room(model,asset_id,_selected_room)).name="clean_selected_room"
+	(detail.get_node("clean_selected_room") as Button).disabled=bool(selected.clean)
+	_action(detail,L.text("Zimmer freigeben") if selected.closed else L.text("Zimmer sperren"),func():return HotelRooms.set_closed(model,asset_id,_selected_room,not bool(selected.closed))).name="close_selected_room"
+	var floor_input := _spin(detail,L.text("Ziel-Etage"),int(selected.floor)+1,1,20,1)
+	var slot_input := _spin(detail,L.text("Platz im Etagenplan"),int(selected.slot)+1,1,36,1)
+	_action(detail,L.text("Internen Zimmerplan ändern · 250 €"),func():return HotelRooms.move_room(model,asset_id,_selected_room,int(floor_input.value)-1,int(slot_input.value)-1)).name="move_selected_room"
+	hud._label(detail,L.text("Der Etagenplan ordnet die vorhandenen Zimmer innerhalb des Hauses. Er baut keine zusätzlichen Betten oder Außenflügel."),17,hud.MUTED,true)
+
 func _hotel(building: Dictionary) -> void:
 	var model: RefCounted = hud.game.model
 	var settings := Hospitality.config(building)
@@ -437,17 +504,10 @@ func _hotel(building: Dictionary) -> void:
 	_action(forecast, L.text("Hoteleinstellungen übernehmen"), func(): return Hospitality.configure(model, asset_id, {"price":int(price.value), "family_share":int(family.value), "premium_share":int(premium.value), "breakfast":breakfast.button_pressed, "auto_clean":cleaning.button_pressed, "marketing":int(marketing.value)}))
 	var comfort := _card(page, L.text("Zimmerkomfort · Stufe %d / 5") % int(settings.comfort))
 	_action(comfort, L.text("Komfort ausbauen · %s €") % hud.money_text(1600 * int(model.Catalog.LODGING[building.kind].rooms) * int(settings.comfort)), func(): return Hospitality.upgrade(model, asset_id)).disabled = int(settings.comfort) >= 5
-	_action(comfort, L.text("Alle Zimmer reinigen · %s €") % hud.money_text(8 * int(dashboard.capacity)), func(): return Hospitality.housekeeping(model, asset_id))
+	var cleaning_cost: int=HotelRooms.cleaning_quote(model,building) if building.has("room_operations") else 8*int(dashboard.capacity)
+	_action(comfort, L.text("Alle Zimmer reinigen · %s €") % hud.money_text(cleaning_cost), func(): return Hospitality.housekeeping(model, asset_id)).disabled=cleaning_cost==0
 	var room_page := _page(L.text("Zimmer & Gäste"))
-	var grid := GridContainer.new()
-	grid.columns = 6
-	room_page.add_child(grid)
-	for index in range(int(dashboard.capacity)):
-		var room := PanelContainer.new()
-		room.custom_minimum_size = Vector2(98, 68)
-		grid.add_child(room)
-		room.add_theme_stylebox_override("panel", hud._style(Color("bbdccb") if index < int(dashboard.occupied) else Color("e4ded0"), 9, 7))
-		hud._label(room, L.text("Zimmer %d\n%s") % [index + 1, L.text("Belegt") if index < int(dashboard.occupied) else L.text("Frei")], 15, hud.INK)
+	_room_management(room_page,building)
 	var residents := _card(room_page, L.text("Aktuelle Übernachtungsgäste"))
 	for guest in model.guests:
 		if int(guest.get("lodging_id", 0)) != asset_id or guest.phase == "leaving": continue

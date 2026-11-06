@@ -4,6 +4,7 @@ const L = preload("res://src/core/i18n.gd")
 const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Rooms = preload("res://src/core/hotel_rooms.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TOPPINGS := {"tomato":"Tomate", "cheese":"Käse", "mushroom":"Pilze", "pepper":"Paprika", "olive":"Oliven", "ham":"Schinken", "salami":"Salami", "pineapple":"Ananas", "spinach":"Spinat", "onion":"Zwiebeln", "arugula":"Rucola", "goat_cheese":"Ziegenkäse", "pesto":"Pesto", "chili":"Chilischoten", "truffle":"Trüffel", "tofu":"Räuchertofu"}
 ## At 0.35 all existing ingredients remain usable by prior saves and level-1 stores.
@@ -106,7 +107,7 @@ static func valid_hotel(value: Variant) -> bool:
 	return Terrain.number(value.cleanliness) and value.cleanliness >= 0 and value.cleanliness <= 100 and Terrain.number(value.rating) and value.rating >= 1 and value.rating <= 5
 
 static func valid_building(building: Dictionary) -> bool:
-	if not BuildingOffers.valid_sales(building): return false
+	if not BuildingOffers.valid_sales(building) or not Rooms.valid(building): return false
 	if building.has("hotel") and (not lodging(str(building.kind)) or not valid_hotel(building.hotel)): return false
 	if building.has("pizza_menu") and (building.kind != "pizzeria" or not valid_menu(building.pizza_menu)): return false
 	if building.has("activity"):
@@ -174,6 +175,7 @@ static func upgrade(model: RefCounted, id: int) -> Dictionary:
 static func housekeeping(model: RefCounted, id: int) -> Dictionary:
 	var building: Dictionary = model.asset(id)
 	if not lodging(str(building.get("kind", ""))): return model._result(false, L.text("Eine eigene Unterkunft wählen."))
+	if building.has("room_operations"):return Rooms.clean_all(model,id)
 	var cost: float = 8.0 * model.Lodging.room_count(building)
 	if not model.Ops._expense(model, cost, "building:%d" % id): return model._result(false, L.text("Das Budget reicht für die Zimmerreinigung noch nicht."))
 	var settings := config(building)

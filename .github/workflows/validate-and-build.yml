@@ -220,6 +220,12 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/weather_atmosphere_scene_033.gd
       - name: 0.33 quiet-night pedestrian fast-forward and bounded dawn interest
         run: python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
+      - name: 0.36 real hotel reservations, cleaning and mobile floorplan
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-036-hotel-rooms
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/hotel_room_operations_036.gd
+          xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 420x860 --script tests/hotel_room_scene_036.gd
       - name: Integrated 0.35 loans, products, notifications and persistent snow
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-035-release
