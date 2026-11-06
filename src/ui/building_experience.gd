@@ -496,17 +496,16 @@ func _hotel_simulator(building: Dictionary) -> void:
 	var summary: Dictionary=HotelSimulator.overview(model,building)
 	var account: Dictionary=summary.economy
 	var rooms: Dictionary=summary.rooms
-	var toilets: Dictionary=summary.toilets
 	var page: VBoxContainer=_page(L.text("Hotel-Simulator"))
 	var hero := _card(page,L.text("HOTEL SIMULATOR · DEIN BETRIEB"),
-		L.text("Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Sanitär und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."))
+		L.text("Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Gästeservice und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."))
 	hero.name="hotel_simulator_overview"
 	hud._label(hero,L.text("Belegung %d/%d · frei %d · Reinigung %d · Bewertung %.1f ★") % [int(account.occupied),int(account.capacity),int(rooms.ready),int(rooms.dirty),float(summary.rating)],18,hud.TEAL,true)
-	hud._label(hero,L.text("Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag · WC-Hygiene %.0f %%") % [hud.money_text(account.forecast),hud.money_text(account.cost),float(toilets.hygiene)],17,hud.INK,true)
+	hud._label(hero,L.text("Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag") % [hud.money_text(account.forecast),hud.money_text(account.cost)],17,hud.INK,true)
 	var status := _card(page,L.text("Deine heutige Hotelschicht"))
 	if bool(summary.shift_done):
 		hud._label(status,L.text("Schicht für heute abgeschlossen · %d Punkte. Morgen gibt es neue Aufgaben.") % int(summary.last_score),19,hud.TEAL,true)
-		hud._label(status,L.text("Bis dahin kannst du weiterhin Zimmer verwalten, Toiletten reinigen, Preise ändern und Module anbauen."),16,hud.MUTED,true)
+		hud._label(status,L.text("Bis dahin kannst du weiterhin Zimmer verwalten, Preise ändern und Hotelmodule ausbauen."),16,hud.MUTED,true)
 		return
 	if hotel_shift.is_empty() or int(hotel_shift.get("id",-1))!=int(building.id) or int(hotel_shift.get("day",-1))!=int(model.day):
 		hud._label(status,L.text("Ein vollständiger Arbeitstag verbindet fünf operative Entscheidungen. Jede Entscheidung wirkt sofort; du kannst den Ablauf nicht durch Schließen zurücksetzen."),17,hud.MUTED,true)
@@ -541,41 +540,12 @@ func _hotel_simulator(building: Dictionary) -> void:
 		button.custom_minimum_size.y=60
 	hud._label(status,L.text("Die echte Buchungs- und Zimmerbelegung bleibt geschützt. Für Ausgaben muss Budget vorhanden sein."),14,hud.MUTED,true)
 
-func _hotel_toilets(building: Dictionary) -> void:
-	var model: RefCounted=hud.game.model
-	var page: VBoxContainer=_page(L.text("Sanitär & WCs"))
-	var info: Dictionary=HotelSimulator.sanitary_status(model,building)
-	var body := _card(page,L.text("Toilettenmanager · erster Ausbauzweig"),
-		L.text("Der Sanitärdienst hat eigene WC-Kapazität und einen Hygienezustand. Die Nachfrage richtet sich nach tatsächlich belegten Zimmern und Tagesbesuchen."))
-	body.name="hotel_toilet_overview"
-	hud._label(body,L.text("WC-Einheiten %d · Bedarf %d · Kapazität %d · rechnerische Warteschlange %d") % [int(info.units),int(info.demand),int(info.capacity),int(info.waiting)],18,hud.INK,true)
-	var hygiene:=ProgressBar.new()
-	hygiene.name="hotel_toilet_hygiene"
-	hygiene.max_value=100.0
-	hygiene.value=float(info.hygiene)
-	hygiene.custom_minimum_size.y=26
-	body.add_child(hygiene)
-	hud._label(body,L.text("Hygiene %.0f %% · Verschleiß durch tatsächliche Nutzung am nächsten Betriebstag") % float(info.hygiene),17,hud.TEAL,true)
-	if not info.enabled:
-		_action(body,L.text("Sanitärbetrieb aktivieren"),func():return HotelSimulator.sanitation_action(model,asset_id,"activate")).name="hotel_toilet_activate"
-	else:
-		var clean:Button=_action(body,L.text("Toiletten reinigen · %s €") % hud.money_text(info.clean_cost),func():return HotelSimulator.sanitation_action(model,asset_id,"clean"))
-		clean.name="hotel_toilet_clean"
-		clean.disabled=float(info.hygiene)>=99.99
-		var unlock: bool=model.campaign.get("mode","career")=="free" or model.Progression.has(model,"sanitation")
-		var expand:Button=_action(body,L.text("Eine WC-Einheit ergänzen · %s €") % hud.money_text(info.expand_cost),func():return HotelSimulator.sanitation_action(model,asset_id,"expand"))
-		expand.name="hotel_toilet_expand"
-		expand.disabled=not unlock or int(info.extra_units)>=HotelSimulator.MAX_EXTRA_WCS
-		if not unlock:
-			hud._label(body,L.text("Entwicklungszweig Gäste & Hotelentwicklung → Sanitärtechnik erforschen, um zusätzliche WCs zu bauen."),16,hud.ACCENT,true)
-		hud._label(body,L.text("Hygiene unter 75 %% oder zu geringe Kapazität verschlechtert die Hotel-Sauberkeitsbewertung. Einheiten werden im bestehenden Hotel ausgebaut, ohne alte Gebäude zu versetzen."),15,hud.MUTED,true)
-
 func _hotel(building: Dictionary) -> void:
 	var model: RefCounted = hud.game.model
 	var settings := Hospitality.config(building)
 	var dashboard := Hospitality.dashboard(model, building)
 	_hotel_simulator(building)
-	_hotel_toilets(building)
+	# Hotel/restaurants have built-in toilets; public WCs use their own manager.
 	var page := _page(L.text("Hotelverwaltung"))
 	hud._label(page,L.text("HOTEL LOBBY FM · Lounge-Musik während der Hotelverwaltung"),16,hud.TEAL,true)
 	_card(page, L.text("Deine Gäste bleiben länger"), L.text("%d / %d Zimmer belegt · %.0f %% Auslastung\nBewertung %.1f / 5 · Sauberkeit %.0f %%\nGeplante Kosten %s €/Tag · Kostendeckung ab %d belegten Zimmern") % [int(dashboard.occupied), int(dashboard.capacity), float(dashboard.occupancy) * 100.0, float(settings.rating), float(settings.cleanliness), hud.money_text(dashboard.cost), int(dashboard.break_even)])
