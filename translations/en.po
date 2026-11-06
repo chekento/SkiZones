@@ -9342,3 +9342,30 @@ msgstr "+ Hire · €180  |  "
 
 msgid "BESUCHE  %d  ·  PLÄTZE  %d/%d\nUMSATZ  %s €\nKOSTEN  %s €\nERGEBNIS  %s €"
 msgstr "VISITS  %d  ·  CAPACITY  %d/%d\nSALES  €%s\nCOSTS  €%s\nPROFIT  €%s"
+
+msgid "Hauptspielstand vollständig ladbar. Keine Reparatur nötig."
+msgstr "Main save is fully loadable. No repair needed."
+
+msgid "Rettungskopie konnte nicht geschrieben werden."
+msgstr "Could not write recovery copy."
+
+msgid "Rettungskopie ist beschädigt; Original bleibt bestehen."
+msgstr "Recovery copy is damaged; original is preserved."
+
+msgid "Original konnte nicht gesichert werden."
+msgstr "Could not back up the original."
+
+msgid "Rettung konnte nicht aktiviert werden. Sicherung bleibt erhalten."
+msgstr "Could not activate the recovered save. Backup is preserved."
+
+msgid "Spielstand aus geprüfter Sicherung wiederhergestellt. Original wurde archiviert."
+msgstr "Save restored from verified backup. Original was archived."
+
+msgid "Keine vollständig ladbare Sicherung gefunden. Dateien bleiben unverändert."
+msgstr "No fully loadable backup found. Files remain unchanged."
+
+msgid "Backup retten"
+msgstr "Restore backup"
+
+msgid "Aktives Resort: zuerst einen anderen Spielstand laden."
+msgstr "Active resort: load another save first."
