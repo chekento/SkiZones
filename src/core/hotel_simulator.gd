@@ -8,8 +8,8 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const L = preload("res://src/core/i18n.gd")
 const MAX_EXTRA_WCS := 8
-const STAGES := ["reception","housekeeping","breakfast","sanitation","revenue"]
-const TITLES := ["Rezeption & Buchungen","Housekeeping & Zimmer","Frühstück & Gästeservice","Toiletten & Hygiene","Zimmerpreise & Ertrag"]
+const STAGES := ["reception","housekeeping","breakfast","guest_service","revenue"]
+const TITLES := ["Rezeption & Buchungen","Housekeeping & Zimmer","Frühstück & Gästeservice","Gästekomfort & Service","Zimmerpreise & Ertrag"]
 
 static func _hotel(building: Dictionary) -> bool:
 	return Catalog.LODGING.has(str(building.get("kind","")))
@@ -90,9 +90,8 @@ static func begin(model: RefCounted, id: int) -> Dictionary:
 	if not building.has("room_operations"):
 		var started: Dictionary=Rooms.enable(model,id)
 		if not started.ok:return started
-	if not building.has("sanitation"):
-		var created: Dictionary=sanitation_action(model,id,"activate")
-		if not created.ok:return created
+	# Hotels and restaurants include their own toilets. Public portable WC
+	# management is an independent building system, not a hotel upgrade.
 	var activity: Dictionary=building.get("activity",{"day":0,"plays":0,"best":0,"bonus":0,"rounds":0}).duplicate(true)
 	var saved: Dictionary=activity.get("hotel_shift",{})
 	if int(saved.get("day",-1))==model.day and int(saved.get("steps",0))<5:
@@ -107,7 +106,6 @@ static func situation(model: RefCounted, building: Dictionary, step: int) -> Dic
 	var settings: Dictionary=model.Hospitality.config(building)
 	var rooms: Dictionary=stats.rooms
 	var account: Dictionary=stats.economy
-	var sanitary: Dictionary=stats.toilets
 	var stage := clampi(step,0,4)
 	var result := {"name":TITLES[stage],"stage":STAGES[stage],"prompt":"","choices":[],"description":""}
 	match stage:
@@ -124,9 +122,9 @@ static func situation(model: RefCounted, building: Dictionary, step: int) -> Dic
 			result.description=L.text("Frühstück: %s · Sauberkeit %.0f %%") % [L.text("aktiv") if settings.breakfast else L.text("aus"),float(settings.cleanliness)]
 			result.choices=[L.text("Frühstück und warmen Empfang anbieten"),L.text("Frühstücksangebot deaktivieren"),L.text("Servicequalitätsschulung · 85 €")]
 		3:
-			result.prompt=L.text("Die Sanitäranlagen müssen Gästeansturm und Hygiene standhalten.")
-			result.description=L.text("%d WCs · Nachfrage %d · Kapazität %d · Hygiene %.0f %%") % [int(sanitary.units),int(sanitary.demand),int(sanitary.capacity),float(sanitary.hygiene)]
-			result.choices=[L.text("WCs reinigen · Kosten nach Kapazität"),L.text("Sanitärkapazität ausbauen"),L.text("Sanitärdienst aussetzen")]
+			result.prompt=L.text("Wie verbesserst du heute den Komfort deiner Hotelgäste?")
+			result.description=L.text("Zimmerkomfort %d/5 · Bewertung %.1f ★ · Sauberkeit %.0f %%") % [int(settings.comfort),float(settings.rating),float(settings.cleanliness)]
+			result.choices=[L.text("Gästezufriedenheit prüfen"),L.text("Zimmerkomfort aufwerten"),L.text("Service- und Empfangsschulung · 85 €")]
 		4:
 			result.prompt=L.text("Der Tagesabschluss: Welche Zimmerpreisstrategie wählst du?")
 			result.description=L.text("%d/%d Zimmer · aktueller Preis %.0f € · Prognose %.0f €/Tag") % [int(account.occupied),int(account.capacity),float(account.price),float(account.forecast)]
@@ -197,22 +195,21 @@ static func choose(model: RefCounted, session: Dictionary, option: int) -> Dicti
 				gained=22
 				message=L.text("Team geschult: Hotelhygiene und Gästebewertung steigen.")
 		3:
-			var sanitary: Dictionary=sanitary_status(model,building)
-			if option==0 and float(sanitary.hygiene)<99.99:
-				result=sanitation_action(model,int(building.id),"clean")
-				if not result.ok:return result
-				gained=25
-				message=str(result.message)
-			elif option==0:
+			if option==0:
 				gained=12
-				message=L.text("Die Sanitäranlagen sind bereits vollständig gereinigt.")
+				message=L.text("Zimmerkomfort, Gästezufriedenheit und Serviceleistungen wurden geprüft.")
 			elif option==1:
-				result=sanitation_action(model,int(building.id),"expand")
+				result=model.Hospitality.upgrade(model,int(building.id))
 				if not result.ok:return result
 				gained=25
 				message=str(result.message)
 			else:
-				message=L.text("Hygiene bleibt unverändert. Bei hoher Belastung sinkt sie weiter.")
+				if not model.Ops._expense(model,85,"building:%d"%int(building.id)):
+					return {"ok":false,"message":L.text("Für die Serviceschulung reichen 85 € nicht.")}
+				hotel.rating=minf(5.0,float(hotel.rating)+0.04)
+				building.hotel=hotel
+				gained=20
+				message=L.text("Empfang geschult: Gästebewertung verbessert.")
 		4:
 			var current: int=roundi(model.Hospitality.room_price(model,building))
 			var target := current
