@@ -50,7 +50,7 @@ static func check(model: RefCounted, id: int, kind: String, fraction: float, lat
 			var outbound: Vector2=(Terrain.unpack(piste.points[waypoint+1])-at).normalized()
 			if inbound.dot(outbound)<0.85: return model._result(false,L.text("Module mit Abstand zu engen Kurven platzieren."))
 	var cost: int = COSTS[KINDS.find(kind)] if index<0 else 120
-	if model.money<cost: return model._result(false,L.text("Das Budget reicht für dieses Modul noch nicht."),{"cost":cost})
+	if not model.can_afford(cost): return model._result(false,L.text("Das Budget reicht für dieses Modul noch nicht."),{"cost":cost})
 	return model._result(true,L.text("Freie Durchfahrt bleibt erhalten. Geübte Gäste nutzen das Modul auf ihrer Linie."),{"cost":cost})
 
 static func install(model: RefCounted, id: int, kind: String, fraction: float, lateral: float, index: int = -1) -> Dictionary:

@@ -35,6 +35,8 @@ var _piste_links: RefCounted
 const MINUTES_PER_SECOND := 0.5
 const TRANSPORT_SCALE := 30.0
 const MAX_GUESTS := 360
+# Finite JSON-safe visual balance for unlimited sandbox mode.
+const FREE_CASH := 999000000.0
 const OPENING := 480
 const CLOSING := 1080
 
@@ -43,6 +45,7 @@ var terrain := Mountain.new()
 var snow_revision := 0
 
 var money := 400000.0
+var _seeding_starter := false
 var day := 1
 var minute := OPENING
 var time_divisor := 1
@@ -147,6 +150,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	last_report.clear()
 	rng.seed = game_seed + Maps.MAPS.keys().find(map_id) * 7919
 	campaign = Progression.new_state(self, not starter)
+	if campaign.mode == "free": money = FREE_CASH
 	_reset_report()
 	_invalidate()
 	if map_id in Geo.IDS:
@@ -159,6 +163,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		# The destination includes its advertised infrastructure. Research still
 		# gates further construction after the initial package has been seeded.
 		campaign.mode = "free"
+		_seeding_starter = true
 		var start := Maps.spec(map_id)
 		var bottom := Terrain.unpack(start.start_bottom)
 		var top := Terrain.unpack(start.start_top)
@@ -175,6 +180,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 		var service: String = ["lodge", "shelter", "restaurant", "lodge", "kiosk", "school", "hotel", "lodge"][Maps.MAPS.keys().find(map_id)]
 		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
+		_seeding_starter = false
 		campaign.mode = "career"
 	if include_civic: TownHall.ensure_new_town(self)
 	Progression.begin_day(self)
@@ -260,7 +266,12 @@ func _result(ok: bool, message: String, extra: Dictionary = {}) -> Dictionary:
 	value.merge(extra)
 	return value
 
+func can_afford(cost: float) -> bool:
+	return campaign.get("mode", "career") == "free" and not _seeding_starter or money >= cost
+
 func _spend(cost: float) -> bool:
+	# Sandbox purchases are free. Do not store INF in JSON savegames.
+	if campaign.get("mode", "career") == "free" and not _seeding_starter: return true
 	if cost > money:
 		return false
 	money -= cost
@@ -780,7 +791,7 @@ func groom_check(id: int) -> Dictionary:
 	if minute > CLOSING - 45:
 		return _result(false, L.text("Bald ist Feierabend; nachts wird automatisch präpariert."))
 	var cost := roundi(piste.length * 1.5)
-	return _result(money >= cost, L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if money >= cost else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
+	return _result(can_afford(cost), L.text("45 Spielminuten geschlossen · %d €") % L.args(cost) if can_afford(cost) else L.text("Das Budget reicht für die Präparierung noch nicht."), {"cost": cost})
 
 func groom_piste(id: int) -> Dictionary:
 	if Ops.active(self): return Ops.groom(self, id)
@@ -960,8 +971,11 @@ func _routing_graph(skill: int, consider_queues: bool = false) -> Dictionary:
 		# Buckets keep geometry/path caches useful during busy dispatches. Budget
 		# decisions below still use the current, unrounded expected wait.
 		var waiting := int(queue_size(lift.id) / 8) * 8
-		signature += "%d:%d/" % [lift.id, waiting]
-		waits[int(lift.id)] = waiting * fleet_layout(lift).interval / Fleet.seats(lift)
+		var used: int = mini(8, int(lift.get("boarded", 0)) / 16)
+		signature += "%d:%d:%d/" % [lift.id, waiting, used]
+		# Also rotate traffic across underused connected old lifts:
+		# the queue remains dominant, boarding history is a bounded nudge.
+		waits[int(lift.id)] = waiting * fleet_layout(lift).interval / Fleet.seats(lift) + used * 2.0
 	if signature != _choice_signature:
 		_choice_signature = signature
 		_choice_graphs.clear()
@@ -1029,11 +1043,16 @@ func _geometry_graph(skill: int) -> Dictionary:
 	for key in piste_nodes:
 		var point := Terrain.unpack(nodes[key])
 		var cell := Vector2i(floori(point.x / 2), floori(point.y / 2))
-		for x in range(-1, 2):
-			for y in range(-1, 2):
+		# Old savegames often contain a lift/piste junction whose separately
+		# rounded endpoints differ by a few metres. Previously the exact 2 m
+		# graph threshold left both assets permanently unused. Bridge only
+		# nearby *endpoints*, with a real walking segment, never a teleport.
+		for x in range(-3, 4):
+			for y in range(-3, 4):
 				for other in docks.get(cell + Vector2i(x, y), []):
-					var distance := point.distance_to(Terrain.unpack(nodes[other]))
-					if distance <= 2:
+					var distance: float = point.distance_to(Terrain.unpack(nodes[other]))
+					var both_ends: bool = (key.ends_with("s") or key.ends_with("e")) and (str(other).ends_with("s") or str(other).ends_with("e"))
+					if distance <= (5.5 if both_ends else 2.0) and (distance <= 2.0 or Foot.valid_walk(pedestrian_layout(),[nodes[key],nodes[other]],buildings)):
 						_walk_link(nodes, edges, key, other, distance)
 		if not docks.has(cell):
 			docks[cell] = []
@@ -1224,6 +1243,10 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var piste := asset(route.target)
 		weight *= 1.4 if piste.get("difficulty", -1) == route_skill else 1.0
 		weight *= Traffic.route_pressure(self, piste, piste_load)
+		# Prefer forgotten but connected old ski runs. Avoid a fixed monopoly
+		# for the newest piste when older pistes remain fully serviceable.
+		var least_used: float = maxf(0.0, float(piste.get("rides", 0)))
+		weight *= 1.0 + 1.1 / (1.0 + least_used / 16.0)
 		choices.append({"route": route, "weight": weight})
 		total += weight
 	if choices.is_empty():
@@ -1663,7 +1686,9 @@ func arrival_capacity_factor() -> float:
 	for lift in lifts:
 		if lift_open(lift):
 			worst_wait = maxf(worst_wait, queue_size(lift.id) * fleet_layout(lift).interval / Fleet.seats(lift) / Fleet.TIME_SCALE)
-	return clampf(1.0 / (1.0 + maxf(0, worst_wait - 2.0) * 0.23), 0.35, 1.0)
+	# Once existing lift queues become excessive, slow new admissions
+	# significantly rather than multiplying the jam in the screenshots.
+	return clampf(1.0 / (1.0 + maxf(0, worst_wait - 2.0) * 0.23), 0.12, 1.0)
 
 func enable_runtime_rules() -> void:
 	if time_divisor==24:
@@ -1708,6 +1733,9 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	motion_tick+=time_divisor if empty_calendar_step else 1
 	_queue_cache.clear()
 	if clock_tick: Ops.tick(self)
+	# A free-builder may load an older save with a small cash balance.
+	# Replenish a finite JSON-safe reserve regardless of daily expenses.
+	if campaign.get("mode", "career") == "free" and money < 100000.0: money = FREE_CASH
 	var movement: float=time_divisor if empty_calendar_step else 1.0
 	for lift in lifts:
 		if lift_running(lift): lift.clock=lift.get("clock",0.0)+movement
@@ -1817,6 +1845,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 		if guest.has("party_id"):guest.party_step=Parties.pace(self,guest)
 	_check_achievements()
 	Progression.refresh(self)
+	if campaign.get("mode", "career") == "free" and money < 100000.0: money = FREE_CASH
 	if not Ops.continuous(self) and minute >= CLOSING and guests.is_empty():
 		_close_day()
 
@@ -1998,7 +2027,7 @@ func _close_day() -> void:
 	if day_finished() or not guests.is_empty():
 		return
 	report.costs = operating_costs()
-	money -= report.costs
+	if campaign.get("mode", "career") != "free": money -= report.costs
 	Progression.finish_day(self)
 	report.closed_at = minute
 	last_report = report.duplicate(true)
@@ -2204,7 +2233,11 @@ func snapshot() -> Dictionary:
 			copy.erase("ride_manifest")
 			copy.erase("boarding_remaining")
 		visitor_data.append(copy)
-	return {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	# Infinity is a free-play budget, not a JSON number. Actual receipts can
+	# pass the historical cash ceiling; serialize a valid finite proxy without
+	# mutating live money, debt or the real operating ledger.
+	var saved_money: float = minf(money,1000000000.0) if campaign.get("mode","career")=="free" else money
+	return {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": saved_money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:

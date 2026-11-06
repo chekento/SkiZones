@@ -1468,8 +1468,9 @@ func refresh() -> void:
 	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
-	labels.money.text=money_text(model.money)+" €"
-	labels.money.tooltip_text=L.text("BUDGET")+": "+money_text(model.money)+" €"
+	var sandbox: bool = model.campaign.get("mode", "career") == "free"
+	labels.money.text="∞" if sandbox else money_text(model.money)+" €"
+	labels.money.tooltip_text=L.text("Unbegrenztes Budget · Freies Bauen") if sandbox else L.text("BUDGET")+": "+money_text(model.money)+" €"
 	var operating: float=float(model.report.get("tickets",0))+float(model.report.get("services",0))-float(model.report.get("costs",0))
 	header_details.money.text=L.text("Heute: %s €") % money_text(operating)
 	header_details.guests.text=L.text("%d warten") % model.queue_size()

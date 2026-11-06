@@ -21,7 +21,7 @@ func area(polygon: PackedVector2Array) -> float:
 
 func run() -> void:
 	var model := Resort.new()
-	model.new_game(false)
+	model.new_game(false); model.campaign.mode="career"
 	model.money = 2000000
 	check(model.build_lift("chair", Vector2(200, 235), Vector2(200, -230)).ok and model.build_piste([[200, -200], [200, 200]]).ok, "An operating main run has no pre-existing intermediate vertices")
 	var main: Dictionary = model.pistes[0]

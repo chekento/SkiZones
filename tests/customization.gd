@@ -13,7 +13,7 @@ func check(value: bool, title: String) -> void:
 	if value: passed += 1; print("PASS ", title)
 	else: failed += 1; push_error("FAIL " + title)
 func _init() -> void:
-	var model := Resort.new(); model.new_game(false); model.money = 3000000
+	var model := Resort.new(); model.new_game(false); model.campaign.mode="career"; model.money = 3000000
 	model.build_plaza("plaza", Vector2(340,300))
 	check(model.build_building("lodge", Vector2(400,290)).ok, "A normal attached lodge is available for remodeling")
 	var building: Dictionary = model.buildings[-1]
@@ -41,7 +41,7 @@ func _init() -> void:
 		var broken := model.snapshot()
 		broken.buildings[0][field] = {"rotation": 9, "color": "oops", "width": 300}[field]
 		check(not copy.restore(broken).ok, "Corrupt saved customization is rejected: " + field)
-	model.new_game(false); model.money = 3000000
+	model.new_game(false); model.campaign.mode="career"; model.money = 3000000
 	model.build_piste(BLUE); model.build_piste([BLUE[4],BLUE[7]])
 	var piste: Dictionary = model.pistes[0]
 	var branch: Dictionary = model.pistes[1]
@@ -54,7 +54,7 @@ func _init() -> void:
 	check(not model.preview_change(piste.id,removed,0,20).ok and model.snapshot() == before, "Deleting a shared junction cannot silently detach the neighboring piste")
 	model.money=0;before=model.snapshot()
 	check(not model.change_asset(piste.id,piste.points,"Zu teuer","",0,24).ok and model.snapshot() == before, "An unaffordable remodel is rejected before any asset or visitor mutation")
-	model.new_game(false); model.money = 3000000
+	model.new_game(false); model.campaign.mode="career"; model.money = 3000000
 	model.build_piste([[245,-130],[275,-30],[255,95],[200,205]])
 	piste = model.pistes[0]
 	Snow.touch(model.terrain,piste,{"id": 17,"ability": 1,"loops": 0},0.2,0.4)
@@ -63,7 +63,7 @@ func _init() -> void:
 	check(model.change_asset(piste.id,piste.points,"Breite Waldabfahrt","",0,30).ok and Snow.piste_width(piste) == 30 and piste.rides == runs and Snow.roughness(piste) > 0, "Piste widening preserves its number, statistics and resampled snow history")
 	check(model.operating_costs() > old_costs and not model.preview_change(piste.id,piste.points,0,60).ok, "Wider pistes have higher upkeep and cannot exceed the allowed width")
 	check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "A resized piste retains a valid saved snow surface")
-	model.new_game(false); model.money = 3000000
+	model.new_game(false); model.campaign.mode="career"; model.money = 3000000
 	model.build_lift("chair", Vector2(200,205),Vector2(245,-130))
 	var lift: Dictionary = model.lifts[0]
 	check(model.change_asset(lift.id,[[205,205],[250,-130]],"Waldbahn","a47baa").ok and lift.id == 1 and lift.bottom == [205,205], "Lift stations can be replanned while preserving the lift identity")

@@ -39,35 +39,40 @@ const HISTORY: Array = [
 	{"version":"0.27.0","date":"04.11.2026","topic":"Nahtlose Alpine-Radio-Klangwelt (erste Iteration)","story":"Die Musik durfte sanfter von Titel zu Titel reisen; gleichzeitig wurde die unerwünschte grelle FX-Klangquelle stillgelegt."},
 	{"version":"0.30.0","date":"04.11.2026","topic":"Alte Karrieren, Radio und mobile Bedienung","story":"Die Gemeinde sicherte ihre alten Bauakten: frühere Karrieren und Sicherungen wurden wieder lesbar. Neue Radiosender, Hotellobby-Musik und bessere mobile Bedienung ergänzten den am 4. November veröffentlichten Hotfix."},
 	{"version":"0.31.0","date":"04.11.2026","topic":"Winterkunst, Zeitung und Radiowerbung","story":"Die veröffentlichte APK führte neue künstlerische Winterstile, eine lebendigere Resortzeitung und Hinweise auf die Radiosender ein."},
-	{"version":"0.32.0","date":"04.11.2026","topic":"Winterbetrieb und sichere Karrieren","story":"Der veröffentlichte Android-Build brachte fünf Karriere-Startstufen, Bewerbermarkt, Missionsverbesserungen und das originale breite SkiZones-Schriftlogo. Alte Spielstände und Android-Updates bestanden die Freigabetests."}
+	{"version":"0.32.0","date":"04.11.2026","topic":"Winterbetrieb und sichere Karrieren","story":"Der veröffentlichte Android-Build brachte fünf Karriere-Startstufen, Bewerbermarkt, Missionsverbesserungen und das originale breite SkiZones-Schriftlogo. Alte Spielstände und Android-Updates bestanden die Freigabetests."},
+	{"version":"0.33.0","date":"04.11.2026","topic":"Spielbare Winterwelt und Wetter","story":"Neue Touch-Minispiele, klarere Wetterlagen und eine ruhigere Nacht ergänzten das Resortleben."},
+	{"version":"0.33.1","date":"05.11.2026","topic":"Lesbare Alpine Arcade","story":"Der Arcade-Hotfix erhöhte Kontraste und machte die Spieltafeln auf kleinen Bildschirmen besser bedienbar."},
+	{"version":"0.33.2","date":"05.11.2026","topic":"Alte Bauakten und vier freie Speicherplätze","story":"Der Sicherungsdienst erhielt vier freie Speicherplätze, eine deutlichere Speicheranzeige und die geschützte Wiederherstellung alter Resorts."},
+	{"version":"0.34.0","date":"05.11.2026","topic":"Alpenwelt, Offline-Radio und direkte Bauansicht","story":"Neue freie Musik, persistente Schneespuren im laufenden Resort und die direkte Ansicht fertig gebauter Anlagen verbesserten den Winteralltag."},
+	{"version":"0.34.1","date":"05.11.2026","topic":"Neue Tagesgäste und gestaffelte Hotelmorgen","story":"Der Tageswechsel lässt wieder echte Besucher anreisen. Hotelgäste starten verteilt zwischen sieben und neun Uhr; Familien bleiben zusammen."}
 ]
 const DEVELOPMENT_NOTICE := "Die Chronik dokumentiert ausgewählte veröffentlichte Etappen. Der Bauplan ist eine Vorschau, kein Release-Nachweis; die neueste APK steht bei GitHub-Releases."
 const ROADMAP: Array = [
-	{"from":"04.11.2026","to":"17.11.2026","phase":"I · Release, Nacht und Wetter","target":"0.32 veröffentlicht / 0.33-Grundlagen","status":"0.32 veröffentlicht · Rest in Arbeit","deliverables":[
-		"0.32-APK am 04.11. veröffentlicht und GitHub-Downloadbanner aktualisiert; In-App-Update weiterhin mit echten Installationen prüfen",
+	{"from":"04.11.2026","to":"17.11.2026","phase":"I · Release, Nacht und Wetter","target":"0.35+ · Stabilität und freie Resorts","status":"Umgesetzt und in Prüfung · dringende Fehler zuerst","deliverables":[
+		"Alte Originalspielstände und freie Speicherplätze erhalten; jede APK mit echten Android-30/36-Installationen und unveränderter Signatur prüfen",
 		"Seltenere, angekündigte Stürme statt gleichverteilter Wettertage; Windgrenzen und Liftsicherheit bleiben unverändert",
 		"Sonne, Schneefall, Nebel und Sturm grafisch klarer unterscheiden, mit schonender Effektstärke für Android",
 		"Abendruhe im Dorf: Gäste gehen zum Hotel, zur Bar oder nach Hause; kein ewiger Nachtverkehr, der den Zeitraffer blockiert",
 		"Aufgestaute Nacht-Nachfrage am nächsten Morgen kontrolliert verteilen, ohne Besucher- oder Umsatzverdopplung",
-		"Mobile Bedienfelder, HUD und breites SkiZones-Schriftlogo auf kleinen Displays auf Kollisionen prüfen"],
+		"Freies Bauen mit unbegrenztem Budget und ohne Forschungssperren; alte Pisten und Lifte mit sicheren Anschlüssen weiter nutzen"],
 		"acceptance":"Öffentliche APK und Updatepfad nachgewiesen; 10 sichere Nächte, Wetter-/Sturmstatistik, Save-Migration und Android-30/36-Prüfungen"},
-	{"from":"18.11.2026","to":"02.12.2026","phase":"II · Spielerisches Winterdorf und Advent","target":"0.33 / 0.34 – erste spielbare Ausbauten","status":"Geplant · stufenweise","deliverables":[
-		"Echte Touch-Minispiele statt Textquiz: Tic-Tac-Toe und ein kurzes Reaktions- oder Slalomspiel zuerst freischalten",
+	{"from":"18.11.2026","to":"02.12.2026","phase":"II · Spielerisches Winterdorf und Advent","target":"Zimmerbetrieb, Touch-Spiele und Advent","status":"Teilweise umgesetzt · aktiv im Ausbau","deliverables":[
+		"Tic-Tac-Toe und Reaktionsspiel sind spielbar; Kochspiele und weitere echte Touch-Minispiele weiter ausbauen",
 		"Bar und Restaurants erhalten kleine grafische Barkeeper- und Kochspiele; Donut Ring Toss am Süßwarenstand als Prototyp",
-		"Hotel, Gästehaus und Chalet erhalten unterschiedliche kurze Spiele rund ums Bettenbeziehen und Zimmeraufräumen",
+		"Feste Zimmerbuchungen, Reinigung und mobiler Etagenplan sind in Entwicklung geprüft; Bettenbeziehen und Zimmeraufräumen weiter ausarbeiten",
 		"Premium-Alpine- und Après-Ski-Design statt kindlicher Optik; Stil-Assets einschließlich Monochrom-Strichlinien konsequent unterscheiden",
 		"Adventskalender ab 1. Dezember prüfen; November-Werbekästen und winterliche Ortsdekoration ohne Pistenkollision",
 		"Neue Gäste-, Bau- und Gebäudeinteraktionen über klare Touch-Menüs erreichbar halten"],
 		"acceptance":"Mindestens ein vollständig spielbares Touch-Minispiel mit KI/Regeln und Touch-Test; Advent-Datumswechsel, barrierearme Mobile-Ansicht und keine Save-Regression"},
-	{"from":"03.12.2026","to":"17.12.2026","phase":"III · Resortleben, Betriebe und Szenarien","target":"0.34+ – Betriebs- und KI-Tiefe","status":"Geplant · Qualität vor Umfang","deliverables":[
+	{"from":"03.12.2026","to":"17.12.2026","phase":"III · Resortleben, Betriebe und Szenarien","target":"Betriebs- und KI-Tiefe mit echten Routen","status":"Geplant · Qualität vor Umfang","deliverables":[
 		"Hotellerie, Gastronomie, Nightlife und Personal stärker vernetzen: reale Kapazitäten, Öffnungszeiten und Gästewege",
 		"Familien und Wintersportler bewegen sich ohne Pistenstau; Anreise, Bus-Shuttles, Liftstationen und Dorfwege besser abstimmen",
 		"Szenariomissionen in Braunlage, Filzmoos, Kitzbühel und Seiser Alm auf erreichbare Ziele und komplette Fahrwege prüfen",
 		"Fünf Karriere-Startstufen, Kosten, Gehälter, Wartung und Besucherzufriedenheit über mehrere Winter neu balancieren",
 		"Billard-Prototyp für die Bar und spielerische Hotelaufgaben ausbauen; Schach und Blackjack ohne Echtgeld bleiben spätere Module",
-		"Radio-Sender mit lizenzierter Offline-Musik, besserer Genre-Unterscheidung und einer lebendigeren, thematisch gestalteten Zeitung"],
+		"Radio-Hardware, echte Warenkosten, eigene Pizzen und Kredite sind integriert; Betriebsfolgen und die Resortzeitung weiter verknüpfen"],
 		"acceptance":"Reproduzierbare Szenario-Missions- und Routenchecks, 10 stabile Betriebstage, realistische Umsätze sowie geprüfte Musiklizenzen"},
-	{"from":"18.12.2026","to":"04.01.2027","phase":"IV · Festtagsresort und Qualitätswinter","target":"0.35+ – festliche Tests und Feinschliff","status":"Geplant · abhängig von Tests","deliverables":[
+	{"from":"18.12.2026","to":"04.01.2027","phase":"IV · Festtagsresort und Qualitätswinter","target":"Festtage, Kunststile und belastbare Qualität","status":"Geplant · abhängig von Tests","deliverables":[
 		"Weihnachts- und Silvesterbetrieb mit Festgebäuden, Besucherschüben, Familien und stimmungsvollen Abendangeboten ausarbeiten",
 		"Wetter- und Grafikeffekte sowie unterschiedliche Modelle für jeden Kunststil auf Mittelklasse-Android-Geräten optimieren",
 		"Seilbahnen, Gondel-Zwischenstationen, Schneephysik, NPC-Routen und flüssige Kamera- sowie Pistenbau-Gesten final nachprüfen",

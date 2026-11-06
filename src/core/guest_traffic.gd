@@ -6,8 +6,8 @@ const Motion = preload("res://src/core/ski_motion.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 # Use the actual piste width: broad snow corridors support parallel tracks.
 # The 0.21 three-lane cap made long, visible columns in popular resorts.
-const MAX_LANES := 6
-const LANE_METRES := 4.5
+const MAX_LANES := 8
+const LANE_METRES := 4.0
 const EDGE_BUFFER_METRES := 1.2
 const HEADWAY_METRES := 2.4
 const MIN_OVERTAKE_GAIN_METRES := 0.55

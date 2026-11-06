@@ -34,6 +34,8 @@ func run() -> void:
 	var balance: float = game.model.money
 	game.clear_plan()
 	check(game.editing_id == -1 and Terrain.unpack(item.point).is_equal_approx(Vector2(400,290)) and game.model.money == balance, "Canceling a remodeling plan leaves the old structure and budget unchanged")
+	# Charge assertions belong to career mode; the fixture starts in free build.
+	game.model.campaign.mode = "career"
 	game.begin_edit(item.id,"Bergblick","4a998f",1,20);game.points=[[405,300]];game._update_plan()
 	check(not game.hud.confirm_button.disabled and game.hud.confirm_button.text.begins_with("Übernehmen"), "The actual plan shows an enabled remodeling confirmation and its fee")
 	var fee: float = game.last_plan_check.cost
@@ -41,6 +43,16 @@ func run() -> void:
 	game.confirm_plan();game.confirm_plan()
 	var paid: float = balance - game.model.money + (game.model.report.rewards - rewards_before)
 	check(item.rotation == 1 and item.color == "4a998f" and item.point == [405,300] and is_equal_approx(paid,fee) and game.editing_id == -1, "Repeated confirmation applies and charges a remodel exactly once, excluding separately booked achievements")
+	# Keep the same real editor and duplicate-confirm path in free build:
+	# a quoted remodel fee must not reduce the sandbox balance.
+	game.model.campaign.mode = "free"
+	check(game.begin_edit(item.id,"Bergblick Frei","408080",1,20), "The free-build editor accepts an existing building remodel")
+	game.points = [[405,300]]; game._update_plan()
+	var free_balance: float = game.model.money
+	var free_rewards: float = game.model.report.rewards
+	game.confirm_plan(); game.confirm_plan()
+	var free_paid: float = free_balance - game.model.money + (game.model.report.rewards - free_rewards)
+	check(item.name == "Bergblick Frei" and item.color == "408080" and item.point == [405,300] and is_zero_approx(free_paid) and game.editing_id == -1, "Free-build remodeling applies once without charging the budget or duplicating rewards")
 	game.view.rebuild()
 	var rendered := false
 	for mesh in game.view._occluders:

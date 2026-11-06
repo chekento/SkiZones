@@ -10,7 +10,7 @@ func check(value: bool, title: String) -> void:
 	else: failed += 1; push_error("FAIL " + title)
 func _init() -> void:
 	var m := Resort.new()
-	m.new_game(false)
+	m.new_game(false); m.campaign.mode="career"
 	var points := [[0, -200], [0, 100]]
 	var narrow := m.preview_piste(points, 14)
 	var wide := m.preview_piste(points, 36)

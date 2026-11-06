@@ -44,7 +44,7 @@ static func hire_candidate(model: RefCounted, id: String, target: String, shift:
 		if item.id==id:chosen=item;break
 	if chosen.is_empty():return model._result(false,"Bewerbung nicht gefunden.")
 	if not chosen.available:return model._result(false,str(chosen.reason))
-	if model.money<float(chosen.fee):return model._result(false,"Budget für die Einstellung reicht nicht.")
+	if not model.can_afford(float(chosen.fee)):return model._result(false,"Budget für die Einstellung reicht nicht.")
 	var result: Dictionary=Ops.hire(model,str(chosen.role),target,shift)
 	if not result.ok:return result
 	var staff: Dictionary=model.operations.staff[-1]

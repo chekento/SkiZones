@@ -48,7 +48,7 @@ static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> boo
 		var read: Dictionary = _read(old_path)
 		# Unknown content is protected until explicitly inspected, not overwritten.
 		if not read.ok: return true
-		if str(read.data.get("map_id", "sonnenhang")) == id and (not read.data.get("campaign") is Dictionary or _free_data(read.data) == (selected == 0)):
+		if str(read.data.get("map_id", "sonnenhang")) == id and (_free_data(read.data) == (selected == 0)):
 			return true
 	return false
 
@@ -67,9 +67,10 @@ static func saved_resorts(slot: int = -1, free_slot: int = -1) -> Array:
 		for source in sources:
 			if not FileAccess.file_exists(source): continue
 			var read: Dictionary = _read(source)
-			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id or not read.data.get("campaign") is Dictionary: continue
+			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id: continue
 			if _free_data(read.data) != (selected == 0): continue
-			var progress: Dictionary = read.data.campaign
+			# Pre-career originals use the same free mode as the model loader.
+			var progress: Dictionary = read.data.campaign if read.data.get("campaign") is Dictionary else {}
 			var modified: int = FileAccess.get_modified_time(source)
 			entry = {"occupied": true, "map": id, "day": read.data.get("day", 1), "money": read.data.get("money", 0), "rank": progress.get("rank", 1), "saved_at": modified, "source": source, "damaged": false}
 			# The loader uses primary, backup, then pre-slot originals in this order.
@@ -115,7 +116,9 @@ static func index_path(slot: int, free_slot: int = -1) -> String:
 	return "user://career_%d_index.json" % slot
 
 static func _free_data(data: Dictionary) -> bool:
-	return data.get("campaign") is Dictionary and data.campaign.get("mode")=="free"
+	# Match Progression.restore: a pre-career resort has no campaign and
+	# restores with all former construction access as free play.
+	return data.get("campaign") == null or data.get("campaign") is Dictionary and data.campaign.get("mode")=="free"
 
 static func slot_from_state(state: Dictionary) -> int:
 	if state.has("slot"): return clampi(int(state.slot),0,4)
@@ -157,6 +160,19 @@ static func migrate_legacy() -> bool:
 				if suffix==".bak": target+=".bak"
 				else: continue
 			if not FileAccess.file_exists(target) and DirAccess.copy_absolute(ProjectSettings.globalize_path(old),ProjectSettings.globalize_path(target))!=OK: return false
+	# Earlier migrations could put a pre-career/free resort in career 1.
+	# Recover readable misplaced sources into an empty first free slot only;
+	# never move/delete the source or overwrite an existing free resort.
+	for id in Maps.FANTASY_MAPS:
+		var free_target: String=path_for_map(id,0,1)
+		if FileAccess.file_exists(free_target):continue
+		for suffix in ["", ".bak"]:
+			var misplaced: String=path_for_map(id,1)+suffix
+			var target: String=free_target+suffix
+			if not FileAccess.file_exists(misplaced) or FileAccess.file_exists(target):continue
+			var read := _read(misplaced)
+			if read.ok and _free_data(read.data):
+				if DirAccess.copy_absolute(ProjectSettings.globalize_path(misplaced),ProjectSettings.globalize_path(target))!=OK:return false
 	var old_passport := "user://skizones_passport.json"
 	if FileAccess.file_exists(old_passport) and not FileAccess.file_exists(passport_path(1)):
 		if DirAccess.copy_absolute(ProjectSettings.globalize_path(old_passport),ProjectSettings.globalize_path(passport_path(1)))!=OK: return false
@@ -232,7 +248,17 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 	if parser.parse(file.get_as_text()) != OK:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
 	var parsed: Variant = parser.data
-	if not parsed is Dictionary or parsed.get("format") != "SkiZones" or not parsed.get("payload") is String or not parsed.get("checksum") is String:
+	if not parsed is Dictionary:
+		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
+	# Historical unwrapped JSON is accepted ONLY for known pre-checksum
+	# schemas. Never waive checksum verification for a modern envelope.
+	# Resort.restore still validates every numeric range and asset before use.
+	if not parsed.has("format") and not parsed.has("checksum") and not parsed.has("payload"):
+		var version: Variant = parsed.get("version")
+		if (version is int or version is float) and float(version) == floorf(float(version)) and version >= 1 and version <= 6 and parsed.get("pistes") is Array and parsed.get("lifts") is Array and parsed.get("buildings") is Array and parsed.get("guests") is Array:
+			return {"ok": true, "data": parsed, "legacy_raw": true}
+		return {"ok": false, "message": L.text("Unbekanntes historisches Speicherformat. Originaldatei bleibt erhalten.")}
+	if parsed.get("format") != "SkiZones" or not parsed.get("payload") is String or not parsed.get("checksum") is String:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
 	if progress != null: progress.report(7.0, L.text("Prüfsumme kontrollieren …"))
 	if parsed.payload.sha256_text() != parsed.checksum:
@@ -264,12 +290,12 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
-			if candidate in sources.slice(2) and (not read.data.get("campaign") is Dictionary or _free_data(read.data) != expected_free):
+			if candidate in sources.slice(2) and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
-				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2),"message":L.text("Älterer Spielstand geladen.") if candidate in sources.slice(2) else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Älterer Spielstand geladen.") if candidate in sources.slice(2) else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
 	# unchecked bytes: the envelope checksum and model validation still apply.

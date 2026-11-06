@@ -34,7 +34,7 @@ func _init() -> void:
 		queues_safe = queues_safe and Foot.contains(model.pedestrian_layout(), Vector2(point.x, point.z))
 	check(queues_safe, "All 360 queue slots stay outside the lift footprint")
 	check(not model.preview_plaza("plaza", Terrain.unpack(lift.bottom)).ok, "A manually placed plaza cannot be centered inside lift machinery")
-	model.new_game(false); model.money = 1000000
+	model.new_game(false); model.campaign.mode="career"; model.money = 1000000
 	var money: float = model.money
 	check(model.build_plaza("path", Vector2(260, 300)).ok and model.build_plaza("plaza", Vector2(340, 300)).ok, "Walking areas can be built independently and chained")
 	check(model.walk_areas.size() == 2 and model.money < money, "Independent walking areas have actual construction costs")
