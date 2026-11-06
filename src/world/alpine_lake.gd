@@ -18,10 +18,10 @@ static func _vertex(tool: SurfaceTool, at: Vector3, uv: Vector2, color: Color) -
 	tool.add_vertex(at)
 
 static func _triangle(tool: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, au: Vector2, bu: Vector2, cu: Vector2, color: Color) -> void:
-	# A clockwise XZ winding faces upward, keeping the water visible from above.
+	# The source winding yields an upward-facing 3D normal for the water.
 	_vertex(tool,a,au,color)
-	_vertex(tool,c,cu,color)
 	_vertex(tool,b,bu,color)
+	_vertex(tool,c,cu,color)
 
 static func _disc() -> ArrayMesh:
 	var tool := SurfaceTool.new()
