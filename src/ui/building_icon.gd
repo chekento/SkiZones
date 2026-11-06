@@ -39,6 +39,9 @@ func _draw() -> void:
 	var scale_value := minf(size.x/120,size.y/90)
 	draw_set_transform(Vector2((size.x-120*scale_value)/2,(size.y-90*scale_value)/2),0,Vector2.ONE*scale_value)
 	var color := Color(Catalog.BUILDINGS.get(kind,{"color":"9bb8b4"}).color)
+	if kind.begins_with("wc_"):
+		_public_wc_icon(color)
+		return
 	if _special_preview(color): return
 	var lodging := Catalog.LODGING.has(kind)
 	var floors := 3 if kind=="grand_hotel" else 2 if kind in ["hotel","guesthouse","apartment"] else 1
@@ -97,6 +100,24 @@ func _draw() -> void:
 		draw_line(at+Vector2(0,-6),at+Vector2(0,4),Color("fff7e8"),2,true)
 		draw_circle(at+Vector2(0,7),1.2,Color("fff7e8"))
 
+func _public_wc_icon(color:Color) -> void:
+	var index:int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+	var count:int=index+1
+	var w:float=35.0+index*12.0
+	var h:float=45.0+index*5.0
+	var x:float=(120.0-w)*0.5
+	var y:float=73.0-h
+	draw_rect(Rect2(x+5,74,w+12,4),Color("a9bcc0"))
+	draw_rect(Rect2(x,y,w,h),color)
+	draw_rect(Rect2(x-2,y-5,w+4,5),Color("f2f8fa"))
+	for i in range(count):
+		var doorw:float=w/float(count)
+		var doorx:float=x+i*doorw
+		draw_rect(Rect2(doorx+2,y+9,doorw-4,h-10),color.darkened(0.16))
+		draw_rect(Rect2(doorx+doorw*0.3,y+18,doorw*0.4,3),Color("f0f8fa"))
+		draw_rect(Rect2(doorx+doorw-7,y+37,2,3),Color("edf5f3"))
+	draw_rect(Rect2(x,y+5,w,3),Color("d5f1fb"))
+	if index==0:draw_rect(Rect2(x+3,y+1,w-6,3),Color("2079ab"))
 func draw_ellipse_shadow() -> void:
 	draw_style_box(_shadow(),Rect2(9,70,104,13))
 
