@@ -35,6 +35,15 @@ func run() -> void:
 		check(scene.choices.size()==3 and not str(scene.prompt).is_empty(),"Real stage %d has actionable decisions" % stage)
 		var result:Dictionary=Simulator.choose(model,started,1 if stage in [1,3] else 0)
 		check(result.ok and int(started.step)==stage+1,"Stage %d commits one real decision" % stage)
+		if stage==1:
+			var resumed:Dictionary=Simulator.begin(model,int(hotel.id))
+			check(resumed.ok and int(resumed.step)==2 and int(resumed.score)==int(started.score),"Closing and reopening resumes saved shift at the correct stage")
+			var stale:Dictionary=started.duplicate(true)
+			stale.step=1
+			check(not Simulator.choose(model,stale,0).ok,"Stale copied shift cannot replay a paid decision")
+			var snapshot_partial:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
+			var restored_partial:=Resort.new()
+			check(restored_partial.restore(snapshot_partial).ok and int(restored_partial.asset(int(hotel.id)).activity.hotel_shift.steps)==2,"Half-finished hotel shift survives checksum-compatible save restore")
 	check(Simulator.overview(model,hotel).shift_done and hotel.sanitation.extra_units==1,"Completed shift persists and restroom capacity grows in free build")
 	check(not Simulator.choose(model,started,0).ok and not Simulator.begin(model,int(hotel.id)).ok,"Shift cannot be rewarded twice in the same resort day")
 	var state:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
