@@ -15,6 +15,7 @@ const EDGE := 3.2
 var edge := EDGE
 var visual_style := "alpine"
 var festival_season := ""
+var _tint: Dictionary = {}
 const MAX_CELLS := 90000
 
 func _primitive(shape: Dictionary, low: Vector2, high: Vector2) -> void:
@@ -64,6 +65,7 @@ func start(layout: Dictionary, wear: bool = false) -> void:
 	corners.clear()
 	_layout = layout
 	_wear = wear
+	_tint = Styles.detail_tints(visual_style)
 	_phase = 0
 	_cursor = 0
 	_keys.clear()
@@ -144,7 +146,7 @@ func _add_cell(view: Node3D, cell: Vector2i) -> void:
 			for vertex in [clipped[0],clipped[index],clipped[index+1]]:
 				var bank := clampf(float(vertex.d)/edge,0,1)
 				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.095+sin(bank*PI)*0.018)
-				var tint: Dictionary = Styles.detail_tints(visual_style)
+				var tint: Dictionary = _tint
 				var color := Color(tint.snow).lerp(Color(tint.wood),vertex.tone*0.22)
 				if vertex.surface != "snow": color = Color(Design.SURFACES[vertex.surface].color).lerp(Color(tint.stone),0.20)
 				if visual_style == "monochrome": color = Color("eeeeee") if vertex.surface == "snow" else Color("bcbcbc")
