@@ -20,7 +20,8 @@ const ROLES := {
 	"snow": {"name": "Schneemeister", "wage": 23.0},
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
-	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0}
+	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
+	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
