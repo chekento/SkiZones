@@ -19,21 +19,19 @@ func run() -> void:
 	game.hud.hide_menu()
 	game.set_tool("piste")
 	var palette: Control=game.hud.palette
-	check(palette.planning_page==0 and palette.route_tab.visible,"Piste builder begins on Route with a fixed reachable header")
+	check(not palette.live_stats.visible and not palette.scroll.visible,"Piste builder begins with the fixed create button and no catalogue scrolling")
 	game.points=[[0,0]]
 	game._update_plan()
-	check(palette.planning_page==1 and palette.live_stats.text.contains("m"),"First route point automatically opens actual start-height statistics")
+	check(palette.live_stats.visible and palette.live_stats.text.contains("m"),"First route point automatically opens actual start-height statistics")
 	game.points=[[0,0],[200,205]]
 	game._update_plan()
 	var before: String=palette.live_stats.text
 	game.points=[[0,0],[100,100]]
 	game._update_plan()
 	check(palette.live_stats.text!=before,"Moving route points immediately updates distance and descent")
-	palette.route_tab.pressed.emit()
-	game._update_plan()
-	check(palette.planning_page==0,"User can return to Route without an automatic refresh stealing the tab")
+	check(palette.route_profile.get_parent()==palette.fixed and not palette.scroll.visible,"Full live profile shares the fixed statistics panel without tabs or scrolling")
 	game.clear_plan()
-	check(palette.planning_page==0 and game.points.is_empty(),"Finishing or cancelling resets the next route to the construction page")
+	check(not palette.live_stats.visible and game.points.is_empty(),"Finishing or cancelling resets the next route to the construction page")
 	var lodge: Dictionary=game.model.buildings.filter(func(b):return b.kind=="lodge")[0]
 	game.model.campaign.rank=5
 	game.hud.experience.open(int(lodge.id))

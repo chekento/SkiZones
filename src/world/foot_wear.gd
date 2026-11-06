@@ -1,8 +1,9 @@
 extends Node3D
 ## Visual-only snow wear derived from REAL walking guests. Repeated passage
 ## gradually changes distinct footprints into compressed snow, an icy groove,
-## and finally a broad trodden path. Never changes routing, collisions, saves,
+## and finally a broad trodden path. Never changes routing, collisions,
 ## economy or guest movement. Bounded CPU work / GPU-instanced rendering.
+const Surfaces = preload("res://src/world/walk_surfaces.gd")
 const CELL := 2.0
 const MAX_CELLS := 6000
 const MAX_VISIBLE := 1800
@@ -17,6 +18,8 @@ const LENGTHS := [0.63, 1.55, 1.98, 2.35]
 var _cells: Dictionary = {}
 var _last: Dictionary = {}
 var _layers: Array[MultiMeshInstance3D] = []
+var _trail: MeshInstance3D
+var _trail_builder: RefCounted
 var _dirty := true
 var _refresh := 0.0
 var _last_focus := Vector2.INF
@@ -72,13 +75,9 @@ func setup() -> void:
 	for level in range(4):
 		var plane := PlaneMesh.new()
 		plane.size = Vector2.ONE
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color.WHITE
-		mat.vertex_color_use_as_albedo = true
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		plane.material = mat
+		var boot := ShaderMaterial.new()
+		boot.shader = preload("res://src/shaders/footprint.gdshader")
+		plane.material = boot
 		var multi := MultiMesh.new()
 		multi.transform_format = MultiMesh.TRANSFORM_3D
 		multi.use_colors = true
@@ -91,12 +90,27 @@ func setup() -> void:
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(node)
 		_layers.append(node)
+	_trail = MeshInstance3D.new()
+	_trail.name = "packed_snow_paths"
+	_trail.material_override = mat_for_trails()
+	_trail.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_trail)
+
+func mat_for_trails() -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.vertex_color_use_as_albedo = true
+	mat.vertex_color_is_srgb = true
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.roughness = 0.98
+	return mat
 
 func reset() -> void:
 	_cells.clear()
 	_last.clear()
 	_dirty = true
 	_last_focus = Vector2.INF
+	_trail_builder = null
+	if is_instance_valid(_trail): _trail.mesh = null
 	for layer in _layers:
 		layer.multimesh.visible_instance_count = 0
 
@@ -123,12 +137,22 @@ func sample_guest(id: int, world: Vector3, tick: int, leg: int, people: int = 1)
 		var old: Dictionary = _cells.get(key, {"hits": 0, "direction": direction})
 		var old_stage := wear_stage(int(old.hits))
 		old.hits = mini(1000, int(old.hits) + clampi(people, 1, 6))
-		old.direction = Vector2(old.direction).lerp(direction, 0.17).normalized()
+		var aligned := direction if Vector2(old.direction).dot(direction) >= 0 else -direction
+		old.direction = Vector2(old.direction).lerp(aligned, 0.17).normalized()
 		_cells[key] = old
 		if int(old.hits) <= 6 or old_stage != wear_stage(int(old.hits)): _dirty = true
 
+func invalidate_surface() -> void:
+	_dirty = true
+	_trail_builder = null
+
 func update_visuals(view: Node3D, delta: float) -> void:
 	if _layers.is_empty(): return
+	if _trail_builder != null:
+		if _trail_builder.advance(view):
+			_trail.mesh = _trail_builder.result()
+			_trail_builder = null
+		else: return
 	_refresh += maxf(0, delta)
 	if _refresh < 1.0: return
 	_refresh = 0
@@ -136,6 +160,8 @@ func update_visuals(view: Node3D, delta: float) -> void:
 	_last_focus = view.focus
 	_dirty = false
 	var counts := [0, 0, 0, 0]
+	var worn: Dictionary = {}
+	var layout := {"areas":[], "links":[]}
 	var radius: float = clampf(view.zoom * 1.4, 180.0, 1100.0)
 	var cap := 540 if view.quality_tier == 0 else 1100 if view.quality_tier == 1 else MAX_VISIBLE
 	for key in _cells:
@@ -144,6 +170,12 @@ func update_visuals(view: Node3D, delta: float) -> void:
 		var data: Dictionary = _cells[key]
 		var level := wear_stage(int(data.hits))
 		if counts[level] >= cap * (2 if level == 0 else 1): continue
+		if level > 0:
+			if worn.size() >= cap: continue
+			var width: float = [0.34, 0.60, 0.92, 1.28][level]
+			worn[key] = width
+			layout.areas.append({"center":point,"radius":width})
+			continue
 		var direction: Vector2 = data.direction
 		var bearing := atan2(direction.x, direction.y)
 		var many := 2 if level == 0 else 1
@@ -151,11 +183,22 @@ func update_visuals(view: Node3D, delta: float) -> void:
 			var offset := Vector2.ZERO
 			if level == 0:
 				offset = direction.orthogonal() * (0.22 if side_index == 0 else -0.22) + direction * (0.30 if side_index == 0 else -0.30)
-			var pos: Vector3 = view.ground_position(point + offset, 0.12 + level * 0.025)
+			var pos: Vector3 = view.surface_position(point + offset) + Vector3.UP * 0.055
 			var basis := Basis(Vector3.UP, bearing).scaled(Vector3(WIDTHS[level], 1, LENGTHS[level]))
 			var multi: MultiMesh = _layers[level].multimesh
 			multi.set_instance_transform(counts[level], Transform3D(basis, pos))
 			multi.set_instance_color(counts[level], COLOURS[level])
 			counts[level] += 1
+	for key in worn:
+		for offset in [Vector2i.RIGHT, Vector2i.DOWN, Vector2i(1,1), Vector2i(-1,1)]:
+			var next: Vector2i = key + offset
+			if not worn.has(next): continue
+			# Neighbour connections create rounded, continuous curves and junctions;
+			# crossings inherit actual foot traffic rather than rectangular splats.
+			layout.links.append({"points":[[(key.x+0.5)*CELL,(key.y+0.5)*CELL],[(next.x+0.5)*CELL,(next.y+0.5)*CELL]],"width":minf(worn[key],worn[next])*2})
+	if worn.is_empty(): _trail.mesh = null
+	else:
+		_trail_builder = Surfaces.new()
+		_trail_builder.start(layout,true)
 	for level in range(4):
 		_layers[level].multimesh.visible_instance_count = counts[level]

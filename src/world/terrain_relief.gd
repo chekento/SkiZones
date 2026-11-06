@@ -6,7 +6,8 @@ static func material() -> ShaderMaterial:
 	shader.code = """
 shader_type spatial;
 uniform bool contours = true;
-uniform float relief_strength = 0.22;
+uniform float albedo_gain = 0.84;
+uniform float relief_strength = 0.30;
 uniform vec3 contour_color : source_color = vec3(0.31, 0.45, 0.49);
 varying vec3 ground_world;
 varying vec3 ground_normal;
@@ -34,7 +35,7 @@ void fragment() {
   ink *= smoothstep(0.012,0.10,slope);
   snow = mix(snow, contour_color, ink);
  }
- ALBEDO = snow;
+ ALBEDO = snow * albedo_gain;
  ROUGHNESS = 0.96;
  SPECULAR = 0.10;
 }

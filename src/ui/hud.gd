@@ -153,6 +153,8 @@ var slope_legend: PanelContainer
 var management := Management.new()
 var atlas := Atlas.new()
 var palette := Palette.new()
+var tools_overview: VBoxContainer
+var piste_quick_button: Button
 var selected_guest := -1
 var guest_face := GuestFace.new()
 var building_browser := BuildingBrowser.new()
@@ -484,8 +486,9 @@ func _update_responsive_layout(available_width: float) -> void:
 			confirm_button.text = action_name
 		if not compact_layout and not confirm_button.tooltip_text.is_empty() and confirm_button.text == action_name:
 			confirm_button.text = confirm_button.tooltip_text
+	_layout_construction()
 	if labels.has("status"):
-		labels.status.visible = true
+		labels.status.visible = current_tool not in ["piste", "walkway"]
 		labels.status.custom_minimum_size.x = 120 if compact_layout else 170
 
 func _style(color: Color, radius: int = 16, padding: int = 18, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
@@ -645,13 +648,22 @@ func _build_tools() -> void:
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	palette.setup(self)
+	piste_quick_button = _button(root,L.text("Piste +"),func(): game.set_tool("piste"),true)
+	piste_quick_button.z_index = 20
+	piste_quick_button.anchor_top = 1
+	piste_quick_button.anchor_bottom = 1
+	piste_quick_button.offset_left = 12
+	piste_quick_button.offset_right = 124
+	piste_quick_button.offset_top = -64
+	piste_quick_button.offset_bottom = -14
+	tools_overview = _vbox(box, 6)
 	var overview = piste_map_mini
 	overview.game = game
-	box.add_child(overview)
+	tools_overview.add_child(overview)
 	overview.expand_requested.connect(show_piste_map)
-	_label(box, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED, true)
+	_label(tools_overview, L.text("Pistenplan: tippen oder vergrößern"), 12, MUTED, true)
 	var navigation := HBoxContainer.new()
-	box.add_child(navigation)
+	tools_overview.add_child(navigation)
 	_button(navigation, L.text("Übersicht"), func(): game.view.overview()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_button(navigation, L.text("Hilfe"), show_help).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
@@ -717,6 +729,10 @@ func _build_plan_bar() -> void:
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
 	smooth_route_button = _button(piste_controls, L.text("Kurven glätten"), game.smooth_route)
+	palette.reverse_button.reparent(piste_controls)
+	palette.reverse_button.text = "↕"
+	palette.reverse_button.tooltip_text = L.text("Richtung umkehren")
+	palette.reverse_button.custom_minimum_size.x = 40
 	waypoint_choice.custom_minimum_size = Vector2(142, 42)
 	waypoint_choice.item_selected.connect(func(index): game.select_waypoint(index))
 	piste_controls.add_child(waypoint_choice)
@@ -1002,20 +1018,63 @@ func _apply_panel_visibility() -> void:
 	# "Info ausblenden" restores the palette without changing construction data.
 	inspector_panel.visible = wants_inspector
 	tools_panel.visible = show_game and not map_focus and not (narrow_portrait and wants_inspector)
+	piste_quick_button.visible = show_game and current_tool == "inspect" and not tools_panel.visible
 	inspector_toggle_button.visible = show_game and not map_focus and current_tool == "inspect"
 	inspector_toggle_button.text = L.text("Info anzeigen") if inspector_collapsed else L.text("Info ausblenden")
-	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and game.model.operations.get("scenario", "") != ""
+	mission_panel.visible = Maps.SCENARIOS_ENABLED and show_game and current_tool == "inspect" and game.model.operations.get("scenario", "") != ""
 	var center_narrow: bool = root.size.x < 940.0
 	mission_panel.offset_left = 24 if map_focus or center_narrow else 340
 	mission_panel.offset_right = -24 if map_focus or center_narrow else -328
 	# Keep a pending plan and its confirmation available in the wider map view.
-	plan_panel.visible = show_game and (current_tool != "inspect" or (selected_id == -1 and (not map_focus or game.model.minute >= game.model.CLOSING)))
+	plan_panel.visible = show_game and (current_tool != "inspect" or (selected_id == -1 and game.model.minute >= game.model.CLOSING))
 	slope_legend.visible = show_game and game.view.slopes_visible
 	slope_legend.offset_left = 24 if map_focus or center_narrow else 340
 	slope_legend.offset_right = -24 if map_focus or center_narrow else -328
 	slope_legend.offset_top = 256 if mission_panel.visible else 176
 	slope_legend.offset_bottom = 326 if mission_panel.visible else 246
+	_layout_construction()
 	style_framing.queue_redraw()
+
+func _layout_construction() -> void:
+	if not is_instance_valid(plan_panel) or not is_instance_valid(tools_overview): return
+	var building: bool = current_tool in ["piste", "walkway"]
+	var portrait: bool = root.size.x < 620 and root.size.y > root.size.x
+	var short: bool = root.size.y < 540
+	tools_overview.visible = not building and root.size.y >= 700 and root.size.x >= 830
+	tools_panel.offset_top = 104 if short else 112 if building else 170
+	tools_panel.offset_bottom = -244 if portrait and building else -12
+	tools_panel.offset_left = 12 if building else 24
+	tools_panel.offset_right = minf(316,maxf(200,root.size.x*0.58 if portrait else root.size.x*0.40)) if building else minf(316,maxf(184,root.size.x*0.37))
+	if portrait and current_tool == "inspect" and palette.category in ["pistes", "paths"]:
+		tools_panel.offset_left = 12
+		tools_panel.offset_right = root.size.x-12
+		tools_panel.offset_bottom = minf(root.size.y-12,tools_panel.offset_top+420)-root.size.y
+	tools_panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"),12,10 if building else 18))
+	camera_bar.visible = not menu.visible and not cinema_mode and not building and not (short and tools_panel.visible)
+	if not building:
+		plan_panel.add_theme_stylebox_override("panel", _style(Color("fffaf2")))
+		plan_text.add_theme_font_size_override("font_size",18)
+		plan_text.max_lines_visible = -1
+		return
+	plan_panel.offset_left = 12 if portrait or map_focus else tools_panel.offset_right+12
+	plan_panel.offset_right = -12
+	plan_panel.offset_top = (-190 if portrait else -140) if current_tool == "walkway" else -222 if portrait else -180 if short else -224
+	plan_panel.offset_bottom = -12
+	plan_panel.add_theme_stylebox_override("panel", _style(Color("fffaf2"),12,8))
+	plan_text.add_theme_font_size_override("font_size",13 if compact_layout else 16)
+	plan_text.max_lines_visible = 3 if portrait else 2
+	plan_text.tooltip_text = plan_text.text
+	for child in piste_controls.get_children():
+		if child is Label and child != piste_width_total: child.visible = not compact_layout
+	waypoint_choice.visible = not compact_layout and current_tool == "piste" and not game.points.is_empty()
+	suggest_route_button.text = L.text("Sanfter") if compact_layout else L.text("Verlauf verbessern")
+	smooth_route_button.text = L.text("Glätten") if compact_layout else L.text("Kurven glätten")
+	piste_width_choice.custom_minimum_size.x = 80 if compact_layout else 110
+	if compact_layout: piste_width_total.hide()
+	for button in [confirm_button,undo_button,redo_button,delete_point_button,clear_button,suggest_route_button,smooth_route_button,palette.reverse_button]:
+		button.custom_minimum_size.y = 42 if compact_layout else 50
+		button.add_theme_font_size_override("font_size",14 if compact_layout else 18)
+	labels.status.visible = false
 
 func _build_missions() -> void:
 	mission_panel = _panel(root, 340, 170, -328, 248, 1)
@@ -1360,6 +1419,7 @@ func _refresh_context_text() -> void:
 			var seat_text := L.text("1 Zugplatz je Teller") if item.kind == "drag" else (L.text("%d %s je Fahrzeug") % L.args([load.seats, L.text("Platz") if load.seats == 1 else L.text("Plätze")]))
 			text_value += L.text("%s\n%d Fahrzeuge im Umlauf\n%.1f m/s · %.1f Min. Fahrt\n%d Gäste pro Stunde\n\n%d warten · ca. %.1f Min. Wartezeit\n%d fahren gerade mit\n%.0f %% mittlere Auslastung\n%d Beförderungen\n\n%s") % L.args([seat_text, load.carriers, model.lift_speed(item) / 60, item.length / model.lift_speed(item), model.lift_capacity(item), load.queue, load.wait, load.riders, load.fill * 100, item.boarded, model.lift_status(item)])
 		elif item.get("kind", "") == "walkway":
+			text_value += L.text(preload("res://src/core/walkway_design.gd").SURFACES[item.get("surface","snow")].name) + "\n"
 			text_value += L.text("%.0f m Fußweg · 8 m breit\nDie sichtbare Verbindung führt direkt zu Lift, Piste oder Platz.") % L.args(item.length)
 		elif item.has("radius"):
 			text_value += L.text("Ø %.0f m · Begehbare Fläche\nPisten und Gebäude können hier anschließen.\nLifttechnik und Zugspuren bleiben gesperrt.") % L.args((item.radius * 2))
@@ -1496,10 +1556,11 @@ func refresh() -> void:
 		mission_title.text = L.text("SZENARIO · %s · %d / %d Missionen") % [L.text(Maps.spec(model.map_id).name), goals.count(true), goals.size()]
 		var next := goals.find(false)
 		mission_next.text = L.text("Alle Missionen erfüllt · der Betrieb geht weiter.") if next < 0 else L.text("Nächste Mission: ") + L.text(Ops.GOALS[scenario][next])
-	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and not cinema_mode and scenario != ""
+	mission_panel.visible = Maps.SCENARIOS_ENABLED and not menu.visible and not cinema_mode and current_tool == "inspect" and scenario != ""
 	# The existing top-center scenario progress card must remain readable.
 	achievement_overlay.set_reserved_top(mission_panel.position.y+mission_panel.size.y+10.0 if mission_panel.visible else 0.0)
 	palette.refresh()
+	_layout_construction()
 	if current_tool == "inspect":
 		plan_text.text = L.text("Liftbetrieb beendet. Abendgäste und Nachtarbeit laufen weiter; die Abrechnung erfolgt automatisch um Mitternacht.") if model.is_closing() and Ops.continuous(model) else L.text("Letzte Abfahrten und Rückwege laufen weiter. Der Tagesbericht folgt, sobald alle Gäste im Tal sind.") if model.is_closing() else L.text("Dein Berg. Dein Resort. Wähle links ein Bauwerkzeug oder tippe eine Anlage an.")
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
@@ -1544,6 +1605,7 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	smooth_route_button.disabled = point_count < 3
 	clear_button.visible = current_tool != "inspect"
 	palette.refresh()
+	_layout_construction()
 	if current_tool == "inspect" and game.model.day_finished():
 		confirm_button.visible = true
 		confirm_button.disabled = false

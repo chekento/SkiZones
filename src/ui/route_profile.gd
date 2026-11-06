@@ -4,6 +4,7 @@ const L = preload("res://src/core/i18n.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const COLORS := [Color("71baf0"), Color("f28c99"), Color("bec8d5")]
 var analysis: Dictionary = {}
+var compact := false
 
 func _init() -> void:
 	custom_minimum_size = Vector2(0,224)
@@ -18,6 +19,9 @@ func _text(at: Vector2, text: String, color: Color, font_size: int = 13) -> void
 	draw_string(ThemeDB.fallback_font, at, text, HORIZONTAL_ALIGNMENT_LEFT, size.x - at.x, font_size, color)
 
 func _draw() -> void:
+	if compact:
+		_draw_compact()
+		return
 	var muted := Color("5d7679")
 	var samples: Array = analysis.get("profile", [])
 	_text(Vector2(2, 18), L.text("HÖHENPROFIL · BERG → TAL"), Color("367d73"), 13)
@@ -56,3 +60,23 @@ func _draw() -> void:
 	_text(Vector2(size.x - length_width - 4, 182), length_text, muted, 11)
 	if analysis.get("uphill",0) > 0.2:
 		_text(Vector2(2,207),L.text("↑ %.1f m · %s") % L.args([analysis.uphill,L.text("%.0f m stapfen") % L.args(analysis.get("hike_meters",0)) if analysis.get("hike_meters",0) > 0.5 else L.text("mit Schwung")]),Color("b8754f"),12)
+
+func _draw_compact() -> void:
+	var samples: Array = analysis.get("profile", [])
+	if samples.size() < 2: return
+	var top: float = samples[0].height
+	var bottom: float = top
+	for sample in samples:
+		top = maxf(top,sample.height)
+		bottom = minf(bottom,sample.height)
+	var chart := Rect2(2,18,maxf(1,size.x-4),maxf(1,size.y-36))
+	draw_rect(chart,Color("e1eceb"))
+	for index in range(1,samples.size()):
+		var a: Dictionary = samples[index-1]
+		var b: Dictionary = samples[index]
+		var start := chart.position+Vector2(a.distance/maxf(analysis.horizontal,1)*chart.size.x,(top-a.height)/maxf(top-bottom,1)*chart.size.y)
+		var end := chart.position+Vector2(b.distance/maxf(analysis.horizontal,1)*chart.size.x,(top-b.height)/maxf(top-bottom,1)*chart.size.y)
+		draw_line(start,end,Color("b8754f") if b.grade < -0.5 else COLORS[Mountain.difficulty_for_grade(b.grade)],2.5,true)
+	_text(Vector2(2,13),L.text("Höhenprofil · %.0f–%.0f m") % [bottom,top],Color("367d73"),12)
+	if size.y < 75: return
+	_text(Vector2(2,size.y-2),L.text("Blau · Rot · Schwarz · ↑ Braun"),Color("5d7679"),11)

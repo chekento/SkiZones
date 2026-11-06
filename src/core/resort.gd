@@ -616,7 +616,9 @@ func snap_walkway(point: Vector2, radius: float = 28, ignore_id: int = -1) -> Di
 			best = {"point": at, "id": 0, "label": L.text("Dorfpromenade")}
 	return best
 
-func preview_walkway(points: Array) -> Dictionary:
+func preview_walkway(points: Array, surface: String = "snow") -> Dictionary:
+	const Design = preload("res://src/core/walkway_design.gd")
+	if not Design.SURFACES.has(surface): return _result(false,L.text("Unbekannter Wegbelag."))
 	if points.size() < 2: return _result(false,L.text("Start und Ziel des Fußwegs an Lift, Piste, Gebäude oder Platz setzen."))
 	if points.size() > 64: return _result(false,L.text("Höchstens 64 Planungspunkte für einen Fußweg."))
 	var prepared: Array = []
@@ -646,14 +648,14 @@ func preview_walkway(points: Array) -> Dictionary:
 	if not attached: return _result(false,L.text("Mindestens ein Ende an einen vorhandenen Weg, Liftzugang oder Platz anschließen."))
 	var length := terrain.polyline_length(prepared)
 	if length < 4 or length > 1600: return _result(false,L.text("Ein Fußweg benötigt 4–1.600 m Länge."))
-	return _result(true,L.text("Fußweg · %.0f m · 8 m breit · am Wegenetz angeschlossen") % L.args(length),{"points":prepared,"length":length,"width":8.0,"walkway":true,"cost":roundi(180+length*18)})
+	return _result(true,L.text("Fußweg · %.0f m · 8 m breit · am Wegenetz angeschlossen") % L.args(length),{"points":prepared,"length":length,"width":8.0,"walkway":true,"surface":surface,"cost":roundi(180+length*Design.SURFACES[surface].per_m)})
 
-func build_walkway(points: Array) -> Dictionary:
+func build_walkway(points: Array, surface: String = "snow") -> Dictionary:
 	if walk_areas.size() >= 80: return _result(false,L.text("Maximal 80 Wege und zusätzliche Gehflächen."))
-	var check := preview_walkway(points)
+	var check := preview_walkway(points, surface)
 	if not check.ok: return check
 	if not _spend(check.cost): return _result(false,L.text("Das Budget reicht für diesen Fußweg noch nicht."))
-	walk_areas.append({"id":next_id,"kind":"walkway","point":check.points[0],"points":check.points,"radius":4.0,"length":check.length,"cost":check.cost,"enabled":true,"name":"Fußweg %d" % next_id})
+	walk_areas.append({"id":next_id,"kind":"walkway","point":check.points[0],"points":check.points,"radius":4.0,"length":check.length,"cost":check.cost,"enabled":true,"name":"Fußweg %d" % next_id,"surface":surface})
 	next_id += 1
 	_invalidate()
 	return _result(true,L.text("Fußweg gebaut. Gäste nutzen dieselbe sichtbare Verbindung zu Liften und Pisten."))
@@ -2411,6 +2413,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				if not item.get("kind") is String or not Catalog.PLAZAS.has(item.kind) or not terrain.contains(Terrain.unpack(item.get("point"))) or not Terrain.number(item.get("radius")) or item.radius != Catalog.PLAZAS[item.kind].radius:
 					return invalid
 				if item.kind == "walkway":
+					if not item.get("surface", "snow") is String or not preload("res://src/core/walkway_design.gd").SURFACES.has(item.get("surface", "snow")): return invalid
 					if not item.get("points") is Array or item.points.size() < 2 or item.points.size() > 64: return invalid
 					for point in item.points:
 						if not terrain.contains(Terrain.unpack(point)): return invalid

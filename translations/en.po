@@ -8796,3 +8796,72 @@ msgstr "Radio hardware, actual supply costs, custom pizzas and loans are integra
 
 msgid "Festtage, Kunststile und belastbare Qualität"
 msgstr "Festivals, art styles and dependable quality"
+
+msgid "Zeichnung zu dicht. Den Weg in kürzere Abschnitte teilen."
+msgstr "Drawing too complex. Split the path into shorter sections."
+
+msgid "Schneeweg"
+msgstr "Snow path"
+
+msgid "Kiesweg"
+msgstr "Gravel path"
+
+msgid "Holzsteg"
+msgstr "Timber path"
+
+msgid "Pflasterweg"
+msgstr "Paved path"
+
+msgid "Unbekannter Wegbelag."
+msgstr "Unknown path surface."
+
+msgid "Piste +"
+msgstr "Piste +"
+
+msgid "Sanfter"
+msgstr "Gentler"
+
+msgid "Glätten"
+msgstr "Smooth"
+
+msgid "Höhenprofil · %.0f–%.0f m"
+msgstr "Elevation · %.0f–%.0f m"
+
+msgid "Blau · Rot · Schwarz · ↑ Braun"
+msgstr "Blue · Red · Black · ↑ Brown"
+
+msgid "Freihand zeichnen"
+msgstr "Freehand drawing"
+
+msgid "Wegpunkte setzen"
+msgstr "Place waypoints"
+
+msgid "Tippen setzt Punkte. Ziehen zeichnet den Weg; zwei Finger bewegen die Karte."
+msgstr "Tap to place points. Drag to draw a path; two fingers move the map."
+
+msgid "PLAN IN ARBEIT · %d Punkte"
+msgstr "PLAN IN PROGRESS · %d points"
+
+msgid "Bauprüfung: gültig"
+msgstr "Build check: valid"
+
+msgid "Bauprüfung: Verlauf ändern"
+msgstr "Build check: adjust route"
+
+msgid "Anschluss: Einstieg %s · Tal %s"
+msgstr "Access: start %s · valley %s"
+
+msgid "Ziehen zeichnet · Punkte sind verschiebbar"
+msgstr "Drag to draw · waypoints can be moved"
+
+msgid "%s · %.0f m · %.0f m breit\n↓ %.0f m · ↑ %.1f m\nØ %.1f %% / %.1f°\nMax. %.1f %% / %.1f°\nAbschnitt %d: %.1f %% / %.1f°\nBau: %s €"
+msgstr "%s · %.0f m · %.0f m wide\n↓ %.0f m · ↑ %.1f m\nAvg. %.1f %% / %.1f°\nMax. %.1f %% / %.1f°\nSection %d: %.1f %% / %.1f°\nBuild: %s €"
+
+msgid "Freihand"
+msgstr "Freehand"
+
+msgid "Wegpunkte"
+msgstr "Waypoints"
+
+msgid "%s · %.0f m\n8 m breit · Bau: %s €"
+msgstr "%s · %.0f m\n8 m wide · Build: %s €"

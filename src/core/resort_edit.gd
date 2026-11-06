@@ -47,7 +47,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 		check = candidate.preview_piste(points, width + (int(item.get("level", 1)) - 1) * 4, prepare_ends)
 		original = item.points
 	elif item.get("kind", "") == "walkway":
-		check = candidate.preview_walkway(points)
+		check = candidate.preview_walkway(points, item.get("surface", "snow"))
 		original = item.points
 	elif item.has("bottom"):
 		if points.size() != 2: return invalid

@@ -4,6 +4,7 @@ const Catalog = preload("res://src/core/catalog.gd")
 const RouteProfile = preload("res://src/ui/route_profile.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const BuildingIcon = preload("res://src/ui/building_icon.gd")
+const Design = preload("res://src/core/walkway_design.gd")
 const LiftIcon = preload("res://src/ui/lift_icon.gd")
 var hud: CanvasLayer
 var game: Node
@@ -18,23 +19,27 @@ var suggest_button: Button
 var reverse_button: Button
 var site_button: Button
 var browser_button: Button
-var planning_bar := HBoxContainer.new()
-var route_tab: Button
-var stats_tab: Button
 var live_stats: Label
-var planning_page := 0
-var _previous_points := 0
+var fixed := VBoxContainer.new()
+var path_cards := GridContainer.new()
+var path_options := VBoxContainer.new()
+var surface_choice := OptionButton.new()
+var draw_mode: Button
+var category_bar: GridContainer
+var category_choice := OptionButton.new()
+var scroll: ScrollContainer
+var headings: Array = []
 
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
 	game = hud.game
 	add_theme_constant_override("separation", 9)
-	hud._label(self, L.text("BAUKATALOG"), 13, hud.TEAL)
-	hud._label(self, L.text("Dein nächster Ausbau"), 20)
+	headings.append(hud._label(self, L.text("BAUKATALOG"), 13, hud.TEAL))
 	hud.tool_buttons.inspect = hud._button(self, L.text("Resort ansehen"), func(): game.clear_plan())
 	# Two columns give every category a comfortable finger target on phones.
 	# A horizontal four-button row squeezed important names below legibility.
 	var bar := GridContainer.new()
+	category_bar = bar
 	bar.columns = 2
 	bar.add_theme_constant_override("h_separation", 7)
 	bar.add_theme_constant_override("v_separation", 7)
@@ -46,20 +51,40 @@ func setup(interface: CanvasLayer) -> void:
 		button.add_theme_font_size_override("font_size", 16)
 		button.custom_minimum_size.y = 54
 		categories[key] = button
-	add_child(planning_bar)
-	planning_bar.add_theme_constant_override("separation", 6)
-	route_tab = hud._button(planning_bar, L.text("Route bauen"), func(): _select_planning_page(0))
-	stats_tab = hud._button(planning_bar, L.text("Live-Statistik"), func(): _select_planning_page(1))
-	for tab in [route_tab, stats_tab]:
-		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tab.add_theme_font_size_override("font_size", 14)
-	live_stats = hud._label(self, "", 14, hud.TEAL, true)
+	add_child(category_choice)
+	category_choice.custom_minimum_size.y = 44
+	for key in categories: category_choice.add_item(categories[key].text)
+	category_choice.item_selected.connect(func(index): select_category(categories.keys()[index]))
 	guidance = hud._label(self, "", 14, hud.MUTED, true)
-	guidance.custom_minimum_size.y = 54
+	guidance.custom_minimum_size.y = 0
+	guidance.add_theme_font_size_override("font_size", 13)
 	guidance.tooltip_text = L.text("Wähle zuerst eine Anlage und platziere sie anschließend direkt auf dem Berg.")
 	hud.tool_buttons.lift = categories.lifts
 	hud.tool_buttons.building = categories.village
-	var scroll := DragScroll.new()
+	add_child(fixed)
+	fixed.add_theme_constant_override("separation", 6)
+	live_stats = hud._label(fixed, "", 14, hud.TEAL, true)
+	fixed.add_child(route_profile)
+	fixed.add_child(path_options)
+	path_options.add_theme_constant_override("separation", 6)
+	surface_choice.custom_minimum_size.y = 44
+	for spec in Design.SURFACES.values(): surface_choice.add_item(L.text(spec.name))
+	surface_choice.item_selected.connect(func(index):
+		game.walkway_surface = Design.SURFACES.keys()[index]
+		game._update_plan()
+	)
+	path_options.add_child(surface_choice)
+	draw_mode = hud._button(path_options, L.text("Freihand"), func():
+		game.walkway_freehand = not game.walkway_freehand
+		refresh(true)
+	)
+	draw_mode.toggle_mode = true
+	draw_mode.add_theme_font_size_override("font_size",14)
+	fixed.add_child(path_cards)
+	path_cards.columns = 2
+	path_cards.add_theme_constant_override("h_separation", 6)
+	path_cards.add_theme_constant_override("v_separation", 6)
+	scroll = DragScroll.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(scroll)
@@ -67,7 +92,17 @@ func setup(interface: CanvasLayer) -> void:
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	browser_button=hud._button(content,L.text("Gebäudekatalog mit Vorschau öffnen"),func(): hud.building_browser.open(),true)
 	_make_cards()
-	content.add_child(route_profile)
+	for card in cards:
+		if card.type == "piste":
+			card.button.reparent(fixed)
+			card.button.custom_minimum_size.y = 94
+		elif card.type == "plaza":
+			card.button.reparent(path_cards)
+			card.button.custom_minimum_size = Vector2(0,64)
+			card.button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			card.detail.hide()
+			card.status.hide()
+			card.heading.add_theme_font_size_override("font_size",14)
 	suggest_button=hud._button(content,L.text("Sanften Verlauf vorschlagen"),game.suggest_route,true)
 	suggest_button.tooltip_text=L.text("Sucht einen sanfteren Verlauf zwischen deinen Punkten. Bauen wird separat bestätigt.")
 	reverse_button=hud._button(content,L.text("Richtung umkehren"),game.reverse_route)
@@ -155,37 +190,61 @@ func select_category(value: String, from_tool: bool = false) -> void:
 	refresh(true)
 	if value=="village" and not from_tool: hud.building_browser.open()
 
-func _select_planning_page(value: int) -> void:
-	planning_page = value
-	refresh(true)
-
 func _update_planning() -> void:
 	var count: int = game.points.size()
-	if game.tool == "piste":
-		if count > 0 and _previous_points == 0: planning_page = 1
-		elif count == 0: planning_page = 0
-	_previous_points = count
-	planning_bar.visible = category == "pistes"
-	live_stats.visible = planning_bar.visible and planning_page == 1
-	if live_stats.visible:
-		var analysis: Dictionary = route_profile.analysis
-		if count < 1:
-			live_stats.text = L.text("Setze den ersten Routenpunkt am Hang.")
-		elif count == 1:
-			live_stats.text = L.text("Start: %.0f m · nächster Punkt bergab") % game.model.terrain.height(game.model.Terrain.unpack(game.points[0]))
+	var active: bool = game.tool in ["piste", "walkway"] and count > 0
+	var short: bool = hud.root.size.y < 540
+	var analysis: Dictionary = route_profile.analysis
+	for heading in headings: heading.visible = not active and not short
+	category_bar.visible = not active and not short
+	category_choice.visible = not active and short
+	category_choice.select(categories.keys().find(category))
+	for card in cards:
+		if card.type == "plaza": card.button.custom_minimum_size.y = 54 if short else 64
+	hud.tool_buttons.inspect.visible = not active and category not in ["paths", "pistes"]
+	live_stats.visible = active
+	route_profile.visible = active and game.tool == "piste" and count > 1
+	route_profile.compact = true
+	route_profile.custom_minimum_size.y = 52 if short else 104
+	live_stats.add_theme_font_size_override("font_size", 12 if short else 14)
+	if active and game.tool == "piste":
+		var start: float = game.model.terrain.height(game.model.Terrain.unpack(game.points[0]))
+		if count == 1:
+			live_stats.text = L.text("Start: %.0f m · nächster Punkt bergab") % start
 		else:
-			live_stats.text = L.text("%d Punkte · %.0f m Strecke · %.0f m Höhenverlust") % [count,float(analysis.get("length",0)),float(analysis.get("drop",0))]
-	for tab in [route_tab, stats_tab]:
-		tab.modulate = Color.WHITE if (tab == route_tab) == (planning_page == 0) else Color("819c9f")
+			var grade: float = analysis.get("grade", 0)
+			var average: float = analysis.get("average", 0)
+			var sections: Array = analysis.get("segments", [])
+			var segment: int = clampi(game.selected_waypoint - 1 if game.selected_waypoint > 0 else sections.size() - 1, 0, maxi(0,sections.size()-1))
+			var section_points: Array = analysis.get("points",game.points)
+			var slope := 0.0
+			if not sections.is_empty() and segment+1 < section_points.size():
+				var distance: float = game.model.Terrain.unpack(section_points[segment]).distance_to(game.model.Terrain.unpack(section_points[segment+1]))
+				slope = sections[segment].drop / maxf(distance,0.001) * 100.0
+			live_stats.text = L.text("%s · %.0f m · %.0f m breit\n↓ %.0f m · ↑ %.1f m\nØ %.1f %% / %.1f°\nMax. %.1f %% / %.1f°\nAbschnitt %d: %.1f %% / %.1f°\nBau: %s €") % [L.text(game.model.Terrain.PISTE_NAMES[int(analysis.get("difficulty",0))]), float(analysis.get("length",0)), float(analysis.get("width",game.chosen_piste_width())), float(analysis.get("drop",0)), float(analysis.get("uphill",0)), average, rad_to_deg(atan(average/100.0)), grade, rad_to_deg(atan(grade/100.0)), segment+1, slope, rad_to_deg(atan(slope/100.0)), hud.money_text(analysis.get("cost",0))]
+	elif active and game.tool == "walkway":
+		live_stats.text = L.text("%s · %.0f m\n8 m breit · Bau: %s €") % [L.text(Design.SURFACES[game.walkway_surface].name),float(analysis.get("length",0)),hud.money_text(analysis.get("cost",0))]
+	path_cards.visible = category == "paths" and game.points.is_empty() and game.tool != "walkway"
+	path_options.visible = category == "paths" and game.tool == "walkway" and game.editing_id == -1
+	surface_choice.select(Design.SURFACES.keys().find(game.walkway_surface))
+	draw_mode.text = L.text("Freihand") if game.walkway_freehand else L.text("Wegpunkte")
+	draw_mode.set_pressed_no_signal(game.walkway_freehand)
+	draw_mode.tooltip_text = L.text("Tippen setzt Punkte. Ziehen zeichnet den Weg; zwei Finger bewegen die Karte.")
+	scroll.visible = category in ["lifts", "village"]
 
 func refresh(force: bool = false) -> void:
 	_update_planning()
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category+str(planning_page), game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode + str(game.last_plan_check.get("message","")) + game.walkway_surface, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
 	if not game.points.is_empty():
-		guidance.text = L.text("PLAN IN ARBEIT · %d Punkte. Ziehen zum Verschieben; Bauen oder Abbrechen bestätigt deine Entscheidung.") % game.points.size()
+		guidance.text = L.text("PLAN IN ARBEIT · %d Punkte") % game.points.size()
+		if game.tool == "piste":
+			var check: Dictionary = game.last_plan_check
+			guidance.text += "\n" + (L.text("Bauprüfung: gültig") if check.get("ok",false) else L.text("Bauprüfung: Verlauf ändern"))
+			if check.has("connections"): guidance.text += "\n" + L.text("Anschluss: Einstieg %s · Tal %s") % ["✓" if check.connections.entry else "–", "✓" if check.connections.exit else "–"]
+		elif game.tool == "walkway": guidance.text += "\n" + L.text("Ziehen zeichnet · Punkte sind verschiebbar")
 	elif game.tool != "inspect":
 		guidance.text = L.text("BAUMODUS · Setze die nächsten Punkte direkt am Hang.")
 	else:
@@ -196,10 +255,9 @@ func refresh(force: bool = false) -> void:
 			"paths": L.text("1 · Wege & Plätze wählen  2 · Verbinden  3 · Bauen")
 		}.get(category, "")
 	browser_button.visible=category=="village"
-	route_profile.visible = category == "pistes" and planning_page == 1
-	suggest_button.visible=(category == "pistes" and game.tool == "piste") or (category == "paths" and game.tool == "walkway")
+	suggest_button.visible = false # The fixed plan bar already exposes the same action.
 	suggest_button.text=L.text("Begehbaren Weg vorschlagen") if game.tool == "walkway" else L.text("Sanften Verlauf vorschlagen")
-	reverse_button.visible=category == "pistes" and game.tool == "piste"
+	reverse_button.visible = category == "pistes" and game.tool == "piste"
 	site_button.visible=category == "village" and game.tool == "building" and game.points.size() == 1
 	site_button.disabled=game.points.size() != 1
 	suggest_button.disabled=game.points.size()<2
@@ -210,7 +268,7 @@ func refresh(force: bool = false) -> void:
 		categories[key].add_theme_stylebox_override("normal", hud._style(Color("c9e2d8") if key == category else Color("e1eeea"), 7, 7))
 	for card in cards:
 		var active_category: String = {"piste": "pistes", "lift": "lifts", "building": "village", "plaza": "paths"}[card.type]
-		card.button.visible = category == active_category and (category != "pistes" or planning_page == 0)
+		card.button.visible = category == active_category and (category != "pistes" or game.points.is_empty())
 		var locked: String = "" if card.type in ["piste", "plaza"] else game.model.build_access_message(card.key, card.type == "lift")
 		var affordable: bool = game.model.money >= card.cost
 		card.button.disabled = locked != "" or not affordable or not game.points.is_empty()
@@ -222,4 +280,5 @@ func refresh(force: bool = false) -> void:
 			var choice: OptionButton = hud.lift_choice if card.type == "lift" else hud.building_choice
 			var index: int = (Catalog.LIFTS.keys() if card.type == "lift" else Catalog.BUILDINGS.keys()).find(card.key)
 			choice.set_item_disabled(index, card.button.disabled)
+	hud._layout_construction()
 
