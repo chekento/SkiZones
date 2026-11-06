@@ -1,12 +1,15 @@
 extends PanelContainer
 const L=preload("res://src/core/i18n.gd")
 const Saves=preload("res://src/core/save_store.gd")
+const SaveManager=preload("res://src/core/save_management_038.gd")
 const Maps=preload("res://src/core/maps.gd")
 const DragScroll=preload("res://src/ui/drag_scroll.gd")
 const StartTiers=preload("res://src/core/start_tiers.gd")
 var hud: CanvasLayer
 var cards: GridContainer
 var confirmation:=ConfirmationDialog.new()
+var archive_confirmation:=ConfirmationDialog.new()
+var pending_archive: Dictionary={}
 var pending_slot:=1
 var free_mode := false
 var tier_panel: PanelContainer
@@ -18,8 +21,10 @@ var close_button: Button
 func setup(interface: CanvasLayer) -> void:
 	hud=interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	offset_left=48;offset_right=-48;offset_top=110;offset_bottom=-28
-	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),18,22))
+	offset_left=0;offset_right=0;offset_top=0;offset_bottom=0
+	z_index=55
+	mouse_filter=Control.MOUSE_FILTER_STOP
+	add_theme_stylebox_override("panel",hud._style(Color("fffaf2"),0,24))
 	var body: VBoxContainer=hud._vbox(self,12)
 	var row:=HBoxContainer.new();body.add_child(row)
 	heading_label=hud._label(row,L.text("DEINE VIER KARRIEREN"),26,hud.ACCENT)
@@ -56,7 +61,70 @@ func setup(interface: CanvasLayer) -> void:
 		if free_mode: hud.game.select_free_slot(pending_slot,true)
 		else: hud.game.select_career_slot(pending_slot,true,starting_tier.selected)
 	)
+	add_child(archive_confirmation)
+	archive_confirmation.title=L.text("Resort sicher archivieren?")
+	archive_confirmation.ok_button_text=L.text("Archivieren und aus Platz entfernen")
+	archive_confirmation.dialog_text=L.text("Original und Sicherung werden vor dem Entfernen vollständig kopiert und überprüft.")
+	archive_confirmation.confirmed.connect(_archive_confirmed)
 	hide()
+func _archive_confirmed() -> void:
+	if pending_archive.is_empty():return
+	var slot:int=int(pending_archive.slot)
+	var free:int=int(pending_archive.free_slot)
+	var map_id:String=str(pending_archive.map)
+	pending_archive.clear()
+	# A loaded resort must never be deleted and then silently auto-saved
+	# back into the just-archived slot. Change the active career first.
+	if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free) and hud.game.model.map_id==map_id:
+		hud.toast(L.text("Aktives Resort: vor dem Archivieren einen anderen Spielstand laden."))
+		return
+	var result:Dictionary=SaveManager.archive(map_id,slot,free)
+	hud.toast(L.text(str(result.message)))
+	if result.ok: refresh()
+
+func _request_archive(map_id:String,slot:int,free:int) -> void:
+	pending_archive={"map":map_id,"slot":slot,"free_slot":free}
+	archive_confirmation.popup_centered(Vector2i(620,220))
+
+func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1) -> void:
+	var section:=HBoxContainer.new()
+	section.name="save_manager_actions"
+	parent.add_child(section)
+	var diagnostic:=hud._label(parent,"",14,hud.TEAL,true)
+	diagnostic.name="save_diagnostics"
+	var check:=hud._button(section,L.text("Prüfen & retten"),func():
+		var report:Dictionary=SaveManager.inspect(map_id,slot,free_slot)
+		if not report.ok:
+			diagnostic.text=L.text("Keine Datei gefunden.")
+		else:
+			diagnostic.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [report.files.size(),int(report.verified),int(report.loadable),int(report.recoverable)]
+			if bool(report.damaged):diagnostic.text+=" · "+L.text("Prüfung fehlgeschlagen: Originaldateien erhalten.")
+	)
+	check.name="check_save_038"
+	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var target:=OptionButton.new()
+	target.name="copy_target"
+	target.custom_minimum_size=Vector2(95,46)
+	section.add_child(target)
+	for n in range(1,5):
+		if n==(free_slot if slot==0 else slot):continue
+		target.add_item(L.text("Platz %d") % n,n)
+	var copy:=hud._button(section,L.text("Kopieren"),func():
+		var dst:int=target.get_selected_id()
+		var result:Dictionary=SaveManager.copy(map_id,slot,slot if slot==0 else dst,free_slot,dst if slot==0 else 1)
+		hud.toast(L.text(str(result.message)))
+		if result.ok:refresh()
+	)
+	copy.name="copy_save_038"
+	var remove:=hud._button(section,L.text("Archivieren"),func():_request_archive(map_id,slot,free_slot))
+	remove.name="archive_save_038"
+	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
+	for button in [check,copy,remove]:
+		button.add_theme_font_size_override("font_size",14)
+		button.custom_minimum_size.y=46
+		button.clip_text=true
+		button.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+
 func open() -> void:
 	free_mode = false
 	hud.game._clear_input();_fit();refresh();show()
@@ -79,12 +147,14 @@ func _refresh_free_cards() -> void:
 			var damaged: bool = bool(summary.get("damaged", false))
 			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),16,hud.INK,true)
 			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
+			_management_actions(body,str(summary.map),0,free_slot)
 			var entries: Array = Saves.saved_resorts(0,free_slot)
 			if entries.size() > 1:
 				for entry in entries:
 					if entry.map == summary.map: continue
 					var area: String = str(entry.map)
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + L.text("Resort fortsetzen"),func():hud.game.select_free_area(free_slot,area))
+					_management_actions(body,area,0,free_slot)
 			hud._button(body,L.text("Diesen freien Platz neu beginnen"),func():
 				pending_slot=free_slot
 				confirmation.popup_centered(Vector2i(620,230))
@@ -114,6 +184,7 @@ func refresh() -> void:
 			var damaged: bool = summary.get("damaged", false)
 			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),17,hud.INK,true)
 			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
+			_management_actions(body,str(summary.map),slot)
 			# Do not hide another old mountain behind a single last-map index.
 			var entries: Array = Saves.saved_resorts(slot)
 			if entries.size() > 1:
@@ -123,6 +194,7 @@ func refresh() -> void:
 					var area: String = str(entry.map)
 					var subtitle: String = L.text("Spielstand prüfen") if entry.damaged else L.text("Resort fortsetzen")
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + subtitle,func():hud.game.select_career_area(slot,area))
+					_management_actions(body,area,slot)
 			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;confirmation.popup_centered(Vector2i(620,230)))
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
@@ -137,10 +209,10 @@ func _fit() -> void:
 	var w: float = minf(get_viewport_rect().size.x, get_tree().root.size.x)
 	var narrow: bool = w < 1050.0
 	cards.columns = 1 if narrow else 2
-	offset_left = 10 if narrow else 48
-	offset_right = -10 if narrow else -48
-	offset_top = 76 if w < 650.0 else 110
-	offset_bottom = -10 if narrow else -28
+	offset_left = 0
+	offset_right = 0
+	offset_top = 0
+	offset_bottom = 0
 	if is_instance_valid(heading_label):
 		heading_label.add_theme_font_size_override("font_size",18 if w<650 else 22 if narrow else 26)
 	if is_instance_valid(close_button):
