@@ -8865,3 +8865,45 @@ msgstr "Waypoints"
 
 msgid "%s · %.0f m\n8 m breit · Bau: %s €"
 msgstr "%s · %.0f m\n8 m wide · Build: %s €"
+
+msgid "SCAN / WÄHLE SENDER"
+msgstr "SCAN / CHOOSE STATION"
+
+msgid "RADIO AUS"
+msgstr "RADIO OFF"
+
+msgid "Radio sofort ein- oder ausschalten"
+msgstr "Turn radio on or off immediately"
+
+msgid "Vorheriger Sender"
+msgstr "Previous station"
+
+msgid "Sendersuchrad drehen, wischen oder anklicken"
+msgstr "Rotate, swipe, or tap the tuning wheel"
+
+msgid "Nächster Sender"
+msgstr "Next station"
+
+msgid "NÄCHSTER TITEL"
+msgstr "NEXT TRACK"
+
+msgid "CREDITS"
+msgstr "CREDITS"
+
+msgid "Radio ausschalten"
+msgstr "Turn radio off"
+
+msgid "Radio einschalten"
+msgstr "Turn radio on"
+
+msgid "ZUKLAPPEN"
+msgstr "COLLAPSE"
+
+msgid "Alpine Lake"
+msgstr "Alpine Lake"
+
+msgid "Water"
+msgstr "Water"
+
+msgid "Shoreline"
+msgstr "Shoreline"
