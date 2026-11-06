@@ -26,9 +26,13 @@ func skier(id: int, elapsed: float, phase: String = "moving") -> Dictionary:
 
 func run() -> void:
 	var model := FakeResort.new()
-	check(Traffic.lane_count(model.piste) == 4, "A normal piste supports four physical ski lanes instead of a three-lane traffic jam")
+	check(Traffic.lane_count(model.piste) == 5, "A normal 21m piste supports five safe real-metre passing corridors")
 	model.piste.width = 30.0
-	check(Traffic.lane_count(model.piste) == 6, "Wide upgraded ski runs offer six safe independent ski lanes")
+	check(Traffic.lane_count(model.piste) == 7, "Wide upgraded pistes keep seven real-metre passing corridors")
+	model.piste.width = 10.0
+	check(Traffic.lane_count(model.piste) == 2, "Narrow 10m pistes support two distinct safe passing corridors")
+	model.piste.width = 9.0
+	check(Traffic.lane_count(model.piste) == 1, "A truly narrow piste never fabricates unsafe passing width")
 	model.piste.width = 21.0
 	var leader := skier(0, 21.0)
 	var following := skier(4, 20.0)
