@@ -58,5 +58,12 @@ func run() -> void:
 	model.day+=1
 	WC.daily(model,bathroom)
 	check(float(WC.status(model,bathroom).hygiene)<100 and WC.status(model,bathroom).winterized,"Frost-protected Dixi retains independent daily maintenance")
+	WC.visit(model,bathroom,50)
+	var hired:Dictionary=model.Ops.hire(model,"sanitation","building:%d" % int(bathroom.id),"day")
+	check(hired.ok,"Optional public WC maintenance staff can be hired without hotel roles")
+	model.day+=1
+	WC.daily(model,bathroom)
+	var maintained:Dictionary=WC.status(model,bathroom)
+	check(float(maintained.fill)<1.0 and float(maintained.hygiene)>99.0,"Optional WC worker performs actual paid tank and cleaning service on the next day")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
