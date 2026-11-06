@@ -16,6 +16,7 @@ const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
+const PublicWC = preload("res://src/core/public_wc.gd")
 const Access=preload("res://src/core/resort_access.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
 const Agenda = preload("res://src/core/guest_agenda.gd")
@@ -1542,6 +1543,10 @@ func _finish_leg(guest: Dictionary) -> void:
 			report.services += revenue
 			campaign.turnover += revenue
 			Needs.complete(guest,building.kind)
+			# Actual completed restroom visits fill the tank and create cleaning
+			# demand; hotels/restaurants retain their included indoor WCs.
+			if PublicWC.is_public(str(building.kind)):
+				PublicWC.visit(self,building,int(guest.get("group_size",1)))
 			Agenda.record_service(self, guest, building.kind, revenue)
 			guest.spending = float(guest.get("spending", guest.get("ticket_paid", 0))) + revenue
 	if guest.has("party_id") and leg.kind=="ski" and int(leg.id)==int(guest.route.target):
