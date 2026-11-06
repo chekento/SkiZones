@@ -2,6 +2,7 @@ extends Control
 ## Alpine Radio's true hardware display. Dynamic station, song and artist
 ## share the lit tuner with the logo; no empty decorative fake screen.
 const Branding = preload("res://src/core/radio_branding.gd")
+const L = preload("res://src/core/i18n.gd")
 var frequency := 1
 var active := false
 var signal_level := 0.4
@@ -55,7 +56,7 @@ func _draw() -> void:
 	var label_color := Color("dcffeb") if active else Color("99b0b2")
 	var station_name := str(spec.short) if spec.has("short") else station_id.to_upper()
 	draw_string(font,Vector2(text_x,screen.position.y+23),station_name,HORIZONTAL_ALIGNMENT_LEFT,max_w,12,lit)
-	var song := track_title if not track_title.is_empty() else ("SCAN / WÄHLE SENDER" if active else "RADIO AUS")
+	var song := track_title if not track_title.is_empty() else (L.text("SCAN / WÄHLE SENDER") if active else L.text("RADIO AUS"))
 	draw_string(font,Vector2(text_x,screen.position.y+52),song.substr(0,54),HORIZONTAL_ALIGNMENT_LEFT,max_w,20 if not compact else 15,label_color)
 	draw_string(font,Vector2(text_x,screen.position.y+74),artist_name.substr(0,65),HORIZONTAL_ALIGNMENT_LEFT,max_w,13,Color("a8ccd0"))
 	var count := 21 if compact else 48
