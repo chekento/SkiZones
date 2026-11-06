@@ -39,6 +39,8 @@ static func building_size(building: Dictionary) -> Vector2:
 	return Vector2(size.y, size.x) if int(building.get("rotation", 0)) % 2 == 1 else size
 
 static func base_building_size(building: Dictionary) -> Vector2:
+	if str(building.kind).begins_with("wc_"):
+		return {"wc_dixi":Vector2(8,8),"wc_cabin":Vector2(12,10),"wc_module":Vector2(18,13),"wc_house":Vector2(24,19),"wc_luxury":Vector2(32,24)}.get(building.kind,Vector2(8,8))
 	if building.kind == "town_hall": return Vector2(34, 26)
 	if building.kind == "pool": return Vector2(32, 42)
 	if building.kind == "cabin": return Vector2(16, 14)
