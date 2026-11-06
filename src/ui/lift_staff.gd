@@ -266,7 +266,7 @@ func _building_people(parent: Node, item: Dictionary) -> void:
 func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 	var model: RefCounted=hud.game.model
 	if not Ops.ROLES.has(role) or not Ops.SHIFTS.has(shift):return model._result(false,L.text("Diese Personalzuweisung ist nicht möglich."))
-	var count:=model.operations.staff.filter(func(p):return p.assignment==target and p.role==role and p.shift==shift).size()
+	var count: int=model.operations.staff.filter(func(p):return p.assignment==target and p.role==role and p.shift==shift).size()
 	var required:=0
 	if target.begins_with("station:"):
 		for row in Ops.line_station_team(model,model.asset(lift_id)):
