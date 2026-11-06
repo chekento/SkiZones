@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **40 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **41 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | SkiZones v0.35.1 – Stabilitäts-Hotfix (Kandidat) | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
 | **[v0.35.0](https://github.com/chekento/SkiZones/releases/tag/v0.35.0)** | 05.11.2026 | Radio, echte Verkäufe und beständige Schneewege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk) | [Details](docs/releases/0.35.0.md) |
 | **[v0.34.1](https://github.com/chekento/SkiZones/releases/tag/v0.34.1)** | 05.11.2026 | Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk) | [Details](docs/releases/0.34.1.md) |
 | **[v0.34.0](https://github.com/chekento/SkiZones/releases/tag/v0.34.0)** | 05.11.2026 | Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk) | [Details](docs/releases/0.34.0.md) |
@@ -50,6 +51,46 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.35.1 · SkiZones v0.35.1 – Stabilitäts-Hotfix (Kandidat) (06.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.35.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.35.1/manifest.json) · [Originalnotizen](docs/releases/0.35.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.35.1)
+
+> Nur nach erfolgreichen GitHub- und Android-Prüfungen als ausgeliefert markieren.
+
+**Version:** 0.35.1 · Android `versionCode 45` · unveränderte Paketkennung und Signaturkette.
+
+### Korrekturen
+
+- **Mehr Bewegung auf überfüllten Abfahrten:** vier sichere parallele Bewegungskorridore bereits bei 20 m Pistenbreite, bis zu acht auf breiten 36-m-Pisten. Individuelles Überholen und die bewährten Kollisionsabstände bleiben erhalten.
+- **Nutzung alter Pisten und Lifte:** fast deckungsgleiche ältere Streckenenden werden bei maximal 5,5 m Abstand über echte kurze Gehwege verbunden. Die Routenwahl berücksichtigt den Durchsatz bestehender Liftanlagen und bevorzugt nach Möglichkeit wenig benutzte, tatsächlich offene Pisten, ohne Wetter-, Schnee- oder Personalregeln zu umgehen.
+- **Staulimit:** bei hohen tatsächlichen Liftwartezeiten reduziert sich die Nachfrage stärker. Kein Erfinden von Besuchern oder Ticketbuchungen.
+- **Freies Bauen:** alle Bau- und Ausbaufreigaben ohne Forschungswartezeit, Kosten nicht abgezogen, stets ausreichender, endlicher JSON-kompatibler Budgetvorrat, „∞“ im HUD. Die vier freien Speicherplätze und bestehende Karriere-Saves bleiben getrennt.
+- **Alt-Spielstände:** zusätzlich Erkennung von ungekapselten JSON-Spielständen mit Versionsnummer 1–6; aktuelle Spielstände bleiben prüfsummenpflichtig. Die Wiederherstellung und das bisherige geometrische Rettungsverfahren bleiben erhalten. Originaldateien werden niemals verändert, wenn alte Pisten/Lifte nicht direkt wiederherstellbar sind.
+
+### Qualitätsgrenzen
+
+- Echte historische Originalspeicherstände aller denkbaren frühen Versionen liegen nicht vollständig als automatisierte Fixtures vor. Deshalb keine Garantie für jede beliebige Datei ohne konkrete Format- und Datenprüfung.
+- Ein Betrieb, der tatsächlich nicht erreichbar/abgeschaltet ist, wird nicht per Teleport erreichbar gemacht.
+- Basiert auf der zusammengeführten 0.35.0 und erhält Radio, Kreditwesen, Warenwirtschaft und Schneewege. Android-VersionCode 45 vermeidet eine Kollision mit 0.35.0 (44).
+- Release erst nach grünem Godot, Traffic, Pistenrouting, Save-Recovery, Tagesgästen, Android 30/36, Updateinstallation und überprüfter signierter APK/Manifest/SHA256.
+
+Arbeit: [Issue #79](https://github.com/chekento/SkiZones/issues/79).
+
+### Zusätzliche Absicherung
+
+- Kostenlose Bauaktionen funktionieren auch im pausierten alten freien Resort mit 0 € vor dem ersten Tick: Pistenmodule, Ausbauten und Hotelverbindungen. Reale Betriebskosten und Warenverkäufe bleiben exakt verbucht; nötige freie Liquidität wird vor der Aktion bereitgestellt.
+- Die ursprünglichen Karriere-Startkosten bleiben erhalten; vorübergehende Forschungsfreigaben beim Aufbau des Starterresorts setzen die Karrierefinanzen nicht außer Kraft.
+- Unveränderte Originalfassungen 0.1.1 und 0.6.0 erzeugen echte Save-Dateien mit je 18 aktiven Gästen. 16 Prüfungen bestätigen Laden, Budget/Kalender, Erhalt der Gäste, gültiges erneutes Speichern und tatsächliche weitere Abfahrten. Die etablierte Korrektur der Stationsabstände bei Dateien vor Schema 6 bleibt erhalten.
+- Tatsächlicher 240-Besucher-Test: individuelle Anreise, Liftbeförderung, vier benutzte Schneespuren, erfolgreiche Abfahrten und vollständige Heimkehr ohne dauerhaft eingefrorene Restgruppe. Begrenzte Liftkapazität und Wartezeit bleiben reale Betriebsfaktoren.
+- Alle acht Originalkarrieren aus 0.19 bestehen die 48 Wiederherstellungsprüfungen. Keine Originaldatei wird beim Laden überschrieben.
+
+- Auch sehr große freie Resorts bleiben speicherbar, wenn tatsächliche Einnahmen oder ein Kredit die historische Geldgrenze überschreiten. Nur der gespeicherte endliche Stellvertreter des unendlichen Budgets wird begrenzt; Live-Geld, Schulden und Betriebsberichte werden beim Speichern nicht verändert. Karriere-Geldgrenzen bleiben streng. Der Grenzfall wurde mit einer tatsächlichen Kreditaufnahme reproduziert und korrigiert.
+- Zusätzlich 16 unveränderte Originalfassungen von 0.1.1 bis 0.16.0 ausgeführt: je 18 aktive Gäste, insgesamt 128 erfolgreiche Wiederherstellungsprüfungen. Geld, Kalender und Gäste bleiben erhalten; die alten Abfahrten werden weiter gefahren und Originaldateien bleiben unverändert. Der Generator unterstützt alle 16 Tags; `SKIZONES_VERIFY_RELEASES` erlaubt dieselbe ausführliche lokale Prüfung. Der Hauptworkflow prüft weiterhin die ursprünglichen Grenzfälle 0.1.1/0.6.0 sowie sämtliche acht Karrieren aus 0.19/0.27.
+
+- Früheste Spielstände ohne Karrierefeld werden in derselben Spielart eingeordnet, die der eigentliche Modelllader wiederherstellt: freies Bauen. Sie bleiben nach dem ersten erneuten Speichern sichtbar und ladbar. Bereits früher fälschlich nach Karriere 1 kopierte freie Resorts werden in einen leeren ersten freien Platz kopiert; bestehende freie Resorts und sämtliche Originaldateien bleiben unangetastet.
+
+---
 
 ## v0.35.0 · Radio, echte Verkäufe und beständige Schneewege (05.11.2026)
 
