@@ -238,6 +238,29 @@ func run() -> void:
 		await process_frame
 	print("WEAR_MESH_USEC ",Time.get_ticks_usec()-wear_started)
 	check(snow._trail.mesh!=null and snow._trail.mesh.get_surface_count()>0,"Repeated traffic forms an actual continuous trail mesh")
+	# 0.38 hides historical wear on actual built paths, without erasing it.
+	# The original sole cell is on the station connection built above.
+	var old_sole := Vector2(247,217)
+	check(snow.covered_by_path(old_sole) and snow._layers[0].multimesh.visible_instance_count==0,"Historical station soles are hidden on the actual prepared path")
+	check(snow.export_state().any(func(row): return row[0]==123 and row[1]==108 and row[2]==1),"Hiding an old sole never removes it from the serialized wear archive")
+	# Find an actual uncovered nearby snow cell within the camera's render
+	# radius, rather than weakening the exact two-sole assertion.
+	var natural_key := Vector2i.ZERO
+	var natural_found := false
+	for x in range(95,115):
+		for y in range(95,115):
+			var point := (Vector2(x,y)+Vector2.ONE*0.5)*Wear.CELL
+			if game.model.terrain.contains(point) and not snow.covered_by_path(point):
+				natural_key=Vector2i(x,y); natural_found=true; break
+		if natural_found: break
+	check(natural_found,"An uncovered natural snow cell exists beside the actual station paths")
+	if natural_found:
+		rows.append([natural_key.x,natural_key.y,1,1.0,0.0])
+		check(snow.import_state(rows),"Covered historical and uncovered natural soles import together")
+		snow.update_visuals(game.view,1.1)
+		while snow._trail_builder != null:
+			snow.update_visuals(game.view,0)
+			await process_frame
 	check(snow._layers[0].multimesh.visible_instance_count==2 and snow._layers[3].multimesh.visible_instance_count==0,"Separate boot soles replace rectangular accumulated splats")
 	var above := true
 	if snow._trail.mesh != null:
