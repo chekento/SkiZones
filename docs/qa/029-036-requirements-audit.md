@@ -41,9 +41,9 @@ Die 1.000 Erfolge, 500 Ränge, linearen Hotelketten und Grundfunktionen der vier
 | Crew, Busse und lebendiger Ort, #10/#25 | Teilweise | Bestehende Arbeits-/Besucherwege und Darstellungen. Kein vollständiges individuelles Mitarbeiterwohn-/Pendelsystem und keine lückenlose originalgetreue Bus-/Straßen-/POI-Simulation aller vier Orte. |
 | Echte Festhandlungen und begehbare Welt, #21 | Langfristig offen | Kalender und Dekoration vorhanden; freie Avatar-Erkundung, begehbare zusammenhängende Innenräume, Geschenkeübergaben und vollständige Fest-NPC-Handlungen fehlen. Dieser Umfang war ausdrücklich langfristig geplant. |
 
-## Aktueller Arbeitszweig nach 0.36
+## Nach 0.36 veröffentlicht: 0.37.0
 
-`fix/037-planning-paths-landscape` ist als Kandidat **0.37.0 / Android versionCode 47** vorbereitet und adressiert den aktuellen Nutzerbericht:
+**[0.37.0 / Android versionCode 47](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** wurde am 6. November 2026 veröffentlicht und adressiert den Nutzerbericht:
 
 - Feste Pistenwerte und Höhenprofil ohne Route-/Statistikreiter oder Scrollcontainer; Neigung in Prozent und Grad, ausgewählter/letzter Abschnitt, Länge, Breite, Auf-/Abstieg, Kosten und Anschlussstatus.
 - Nach Ende der Planung wieder eine erreichbare Pistenbauaktion; fertige Anlagen bleiben über den Inspektor bedienbar.
@@ -52,7 +52,7 @@ Die 1.000 Erfolge, 500 Ränge, linearen Hotelketten und Grundfunktionen der vier
 - Echte Sohlenformen und zusammenhängende abgerundete Schneepfade, die auch auf Stations-/Platzflächen auf deren sichtbarer Oberfläche liegen. Bestehende gespeicherte Abnutzungszellen bleiben lesbar.
 - Mehr Fels-/Heide-/Schattierungsvariation und dunklere Vegetation; keine Änderung der Geländephysik oder gespeicherter Anlagenpositionen.
 
-**Dieser Abschnitt beschreibt Entwicklungsarbeit, keine neue öffentliche APK.** Modell-, echte Render-/Touch- und Kompatibilitätsprüfungen werden separat protokolliert. Android-30/36-Releasefreigabe ist damit nicht ersetzt.
+Die [Hauptzweig-Pipeline 42253046515](https://github.com/chekento/SkiZones/actions/runs/42253046515) bestand einschließlich Android API 30/36. APK, Manifest und SHA256 sind vorhanden; die heruntergeladene APK wurde gegen Manifest, SHA256-Datei und ZIP-Integrität geprüft. Der [Prüfbericht](planning-paths-after-036.md) trennt den historischen lokalen Vorlauf von dieser Freigabe. Die Tabellen zu 0.29–0.36 bleiben ein historischer Abgleich dieser Versionen; neue Funktionen ändern diese Vergangenheit nicht.
 
 ## Quellen im Repository
 

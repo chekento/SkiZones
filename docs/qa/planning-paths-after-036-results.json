@@ -78,7 +78,21 @@
   ],
   "total_passed": 384,
   "total_failed": 0,
-  "android_api_30_36": "pending CI",
+  "android_api_30_36": "passed official main CI",
   "physical_android_device": "not tested",
-  "render_exit_resource_warnings": true
+  "render_exit_resource_warnings": true,
+  "public_release": {
+    "version": "0.37.0",
+    "tag": "v0.37.0",
+    "commit": "1d731922c5cdb6313b874369e75f5ac51499df78",
+    "run_id": 42253046515,
+    "android_activity_surface_checks": {
+      "30": 24,
+      "36": 25
+    },
+    "piste_ci_assertions": 90,
+    "apk_sha256": "3623fabe2ab7112e55b0d124e609939b39bdd4da75675db884ef931675c3b695",
+    "apk_size_bytes": 175360875,
+    "public_download_sha_and_zip_verified": true
+  }
 }

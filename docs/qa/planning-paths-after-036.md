@@ -1,6 +1,6 @@
 # Pistenplanung, Wege und Schneepfade nach 0.36
 
-Stand: 6. November 2026. Basis `ebb193d` / veröffentlichte 0.36.0. Arbeitskandidat **0.37.0**, Android **versionCode 47** in beiden Profilen. Kein öffentlicher neuer APK-Release.
+Stand: 6. November 2026. Basis `ebb193d` / veröffentlichte 0.36.0. **0.37.0**, Android **versionCode 47** in beiden Profilen, ist seit 6. November 2026 veröffentlicht. Die untenstehenden 14 Reihen dokumentieren den historischen lokalen Vorlauf.
 
 ## Ergebnis der lokalen Prüfung
 
@@ -43,9 +43,15 @@ Die neuen Tests sind Teil des vollständigen Build-/Android-Workflows. Der [masc
 
 ![Zusammenhängende Schneepfade auf dem Stationsplatz](../screenshots/snow-paths-after-036.png)
 
+## Nachgewiesene Android-Veröffentlichung
+
+Die [vollständige Hauptzweig-Pipeline](https://github.com/chekento/SkiZones/actions/runs/42253046515) für `1d731922c5cdb6313b874369e75f5ac51499df78` ist erfolgreich abgeschlossen. API 30 bestand 24 echte Activity-/Surface-Fälle, API 36 bestand 25, einschließlich Signaturwechsel-Abweisung und Updatekontinuität. Die erweiterte Pistenreihe bestand dort 90 Prüfungen; die historischen 68 oben werden nicht als neuer lokaler Lauf umgeschrieben.
+
+[Veröffentlichte APK und Begleitdateien](https://github.com/chekento/SkiZones/releases/tag/v0.37.0): 175.360.875 Bytes, SHA256 `3623fabe2ab7112e55b0d124e609939b39bdd4da75675db884ef931675c3b695`. Der öffentliche Download wurde vollständig gelesen, gegen Manifest und SHA256-Datei verglichen und als ZIP geprüft. Paket `cloud.kosch.skizones`, ARM64, Code 47; Signaturkontinuität zur 0.36 ist im Manifest bestätigt.
+
 ## Grenzen dieser Freigabe
 
-- Die vollständige **Android API 30/36-, Signatur- und In-place-Updateprüfung** läuft separat im GitHub-Workflow. Hier wird keine neue veröffentlichte oder auf einem physischen Android-Gerät geprüfte APK behauptet.
+- Die Android-Emulatorfreigabe ist oben belegt. Ein Test auf einem physischen Android-Gerät ist weiterhin nicht belegt.
 - Der lokale GUI-Prozess meldet beim Beenden verbliebene Canvas-/Text-/Texture-Ressourcen. Die Tests enden mit vollständiger Erfolgssumme und ohne Script-/Shaderfehler; diese Meldungen sind dennoch kein Beleg für einen fehlerfreien Android-Lifecycle.
 - Der zusätzliche Lastversuch mit bis zu 1.800 sichtbaren verdichteten Zellen motiviert den in Arbeitsschritte aufgeteilten Meshaufbau. Ein 2,5-ms-Arbeitsbudget ist ein Planungsziel, keine harte Echtzeit- oder Android-FPS-Garantie; einzelne Geometrie-/Commitoperationen können darüber liegen.
 - Der Schneeweg ist visuell, keine neue Navigationsabkürzung. Alle vier gebauten Beläge teilen denselben acht Meter breiten begehbaren Korridor. Neue Wirtschaftswerte sind Baukosten, keine behauptete komplette Material-/Wartungssimulation.
