@@ -30,6 +30,16 @@ func run() -> void:
 	if not OS.get_environment("XDG_DATA_HOME").contains("skizones-test"):
 		push_error("Require isolated skizones-test XDG_DATA_HOME")
 		quit(1);return
+	var paved := Wear.new()
+	paved.cover_layout({"links":[{"points":[[0.0,0.0],[20.0,0.0]],"width":8.0}],"areas":[]})
+	check(paved.covered_by_path(Vector2(8,0)) and not paved.covered_by_path(Vector2(8,7)), "Path-coverage lookup distinguishes built walkway corridors from natural snow")
+	for step in range(30):
+		paved.sample_guest(44,Vector3(3.0 if step%2==0 else 4.5,0,0),step,0)
+	check(paved.export_state().is_empty(), "Footprints do not accumulate across a prepared path")
+	paved.cover_layout({"links":[],"areas":[]})
+	for step in range(30,60):
+		paved.sample_guest(44,Vector3(3.0 if step%2==0 else 4.5,0,0),step,0)
+	check(not paved.export_state().is_empty(), "Natural snow can accumulate footprints after its built path is removed")
 	var wear := Wear.new()
 	for i in range(45):
 		wear.sample_guest(12,Vector3(0.1 if i%2==0 else 1.6,0,0.1),i,0)
