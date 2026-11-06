@@ -9372,3 +9372,177 @@ msgstr "Active resort: load another save first."
 
 msgid "Die Hotelschicht wurde bereits verändert. Bitte erneut öffnen."
 msgstr "The hotel shift has already changed. Reopen it to resume."
+
+msgid "Eine öffentliche WC-Anlage auswählen."
+msgstr "Select a public restroom facility."
+
+msgid "Die öffentlichen Toiletten sind bereits sauber."
+msgstr "The public restrooms are already clean."
+
+msgid "Der Fäkalientank ist bereits leer."
+msgstr "The waste tank is already empty."
+
+msgid "Frostschutz ist bereits installiert."
+msgstr "Frost protection is already installed."
+
+msgid "Forschung Frostsichere Entsorgung ist erforderlich."
+msgstr "Research Frost-Proof Waste Management first."
+
+msgid "Unbekannte Toilettenaktion."
+msgstr "Unknown restroom action."
+
+msgid "Das Budget reicht für diesen WC-Service nicht."
+msgstr "Not enough money for this restroom service."
+
+msgid "Öffentlicher Toilettenservice ausgeführt · %d €."
+msgstr "Public restroom serviced · €%d."
+
+msgid "Dixi-Toilette · Blau"
+msgstr "Portable Toilet · Blue"
+
+msgid "Günstiges mobiles WC für Liftplätze, Pistenränder und den Winterbetrieb. Tankentleerung und Reinigung sind separat."
+msgstr "Inexpensive portable restroom for lift queues, slope edges and winter operations. Tank disposal and cleaning are separate."
+
+msgid "Winter-WC-Kabine"
+msgstr "Winter Restroom Cabin"
+
+msgid "Zwei robuste WC-Kabinen mit mehr Kapazität und günstiger Wartung."
+msgstr "Two robust toilet stalls with greater capacity and affordable maintenance."
+
+msgid "Sanitär-Container"
+msgstr "Restroom Container"
+
+msgid "Vier zugängliche Toiletten mit Ver- und Entsorgungsservice."
+msgstr "Four accessible restroom stalls with water and waste servicing."
+
+msgid "Alpines WC-Haus"
+msgstr "Alpine Restroom House"
+
+msgid "Beheizbares Sanitärhaus mit hoher Besucherleistung."
+msgstr "Heatable restroom house with high visitor throughput."
+
+msgid "Luxus-Sanitärzentrum"
+msgstr "Luxury Restroom Centre"
+
+msgid "Großes Premium-WC mit besonders viel Kapazität, Service und Komfort."
+msgstr "Large premium restroom facility with extensive capacity, service and comfort."
+
+msgid "Sanitär & Infrastruktur"
+msgstr "Sanitation & Infrastructure"
+
+msgid "Öffentliche Sanitär-Container freischalten. Hotels und Restaurants haben bereits eigene Toiletten."
+msgstr "Unlock public restroom containers. Hotels and restaurants already include their own toilets."
+
+msgid "Mobile WC-Logistik"
+msgstr "Mobile Restroom Logistics"
+
+msgid "Winter-WC-Kabinen mit zwei Plätzen freischalten."
+msgstr "Unlock winter restroom cabins with two stalls."
+
+msgid "Frostsichere Entsorgung"
+msgstr "Frost-Proof Waste Management"
+
+msgid "Winterisolierung für öffentliche Toiletten aktivieren."
+msgstr "Unlock winter insulation for public restrooms."
+
+msgid "Sanitärhygiene"
+msgstr "Sanitary Hygiene"
+
+msgid "Alpine WC-Häuser mit acht Plätzen freischalten."
+msgstr "Unlock alpine restroom houses with eight stalls."
+
+msgid "Premium-Sanitärversorgung"
+msgstr "Premium Restroom Services"
+
+msgid "Luxus-Sanitärzentrum mit höherer Kapazität freischalten."
+msgstr "Unlock high-capacity luxury restroom facilities."
+
+msgid "Gästekomfort und Hotellerie"
+msgstr "Guest comfort and hospitality"
+
+msgid "Öffentliche Sanitäranlagen"
+msgstr "Public Sanitation"
+
+msgid "Dixi-Toiletten, Entsorgung, Frostschutz und Komfort"
+msgstr "Portable restrooms, waste disposal, frost protection and comfort"
+
+msgid "Gästekomfort & Service"
+msgstr "Guest Comfort & Service"
+
+msgid "Wie verbesserst du heute den Komfort deiner Hotelgäste?"
+msgstr "How will you improve hotel guest comfort today?"
+
+msgid "Zimmerkomfort %d/5 · Bewertung %.1f ★ · Sauberkeit %.0f %%"
+msgstr "Room comfort %d/5 · rating %.1f ★ · cleanliness %.0f %%"
+
+msgid "Gästezufriedenheit prüfen"
+msgstr "Review guest satisfaction"
+
+msgid "Zimmerkomfort aufwerten"
+msgstr "Upgrade room comfort"
+
+msgid "Service- und Empfangsschulung · 85 €"
+msgstr "Service and reception training · €85"
+
+msgid "Zimmerkomfort, Gästezufriedenheit und Serviceleistungen wurden geprüft."
+msgstr "Room comfort, satisfaction and guest services have been reviewed."
+
+msgid "Empfang geschult: Gästebewertung verbessert."
+msgstr "Reception team trained: guest rating improved."
+
+msgid "Öffentliche Toiletten"
+msgstr "Public Restrooms"
+
+msgid "WC-MANAGER · MOBIL & ÖFFENTLICH"
+msgstr "RESTROOM MANAGER · PORTABLE & PUBLIC"
+
+msgid "Eigenständige Dixi-, Container- und Sanitärhäuser. Toiletten in Hotels und Restaurants sind bereits inklusive."
+msgstr "Independent portable restrooms, containers and sanitation houses. Hotels and restaurants already include their own toilets."
+
+msgid "PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d"
+msgstr "STALLS  %d  ·  WAITING  %d  ·  VISITS  %d"
+
+msgid "HYGIENE  %.0f %%  ·  TANK  %.0f %%"
+msgstr "HYGIENE  %.0f %%  ·  TANK  %.0f %%"
+
+msgid "BETRIEB  %s"
+msgstr "STATUS  %s"
+
+msgid "Reinigung oder Entleerung nötig"
+msgstr "Cleaning or tank emptying required"
+
+msgid "SERVICE & ENTSORGUNG"
+msgstr "SERVICE & WASTE DISPOSAL"
+
+msgid "Reinigen · %s €"
+msgstr "Clean · €%s"
+
+msgid "Tank entleeren · %s €"
+msgstr "Empty tank · €%s"
+
+msgid "Frostschutz einbauen · %s €"
+msgstr "Install frost protection · €%s"
+
+msgid "Forschung: Frostsichere Entsorgung."
+msgstr "Research: Frost-Proof Waste Management."
+
+msgid "AUSBAU & PERSONAL"
+msgstr "UPGRADES & STAFF"
+
+msgid "Kapazität ausbauen · %s €"
+msgstr "Expand capacity · €%s"
+
+msgid "Zusatzpersonal und Team"
+msgstr "Optional staff & team"
+
+msgid "Reinigung, Tankfüllstand, Kälte und reale Toilettengäste bestimmen den Betrieb. Für Hotel- und Restaurant-Toiletten entstehen keine separaten WC-Gebäude."
+msgstr "Cleanliness, tank level, cold weather and real visitors determine operations. Hotel and restaurant toilets require no separate buildings."
+
+msgid "Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Gästeservice und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."
+msgstr "Five real management stages: reception, housekeeping, breakfast, guest service and rates. Your decisions affect real rooms, guests, prices, cleanliness and operating finances."
+
+msgid "Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag"
+msgstr "Revenue forecast €%s/day · planned costs €%s/day"
+
+msgid "Bis dahin kannst du weiterhin Zimmer verwalten, Preise ändern und Hotelmodule ausbauen."
+msgstr "Meanwhile you can still manage rooms, change rates and upgrade hotel modules."
