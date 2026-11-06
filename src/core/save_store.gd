@@ -48,7 +48,7 @@ static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> boo
 		var read: Dictionary = _read(old_path)
 		# Unknown content is protected until explicitly inspected, not overwritten.
 		if not read.ok: return true
-		if str(read.data.get("map_id", "sonnenhang")) == id and (not read.data.get("campaign") is Dictionary or _free_data(read.data) == (selected == 0)):
+		if str(read.data.get("map_id", "sonnenhang")) == id and (_free_data(read.data) == (selected == 0)):
 			return true
 	return false
 
@@ -69,8 +69,8 @@ static func saved_resorts(slot: int = -1, free_slot: int = -1) -> Array:
 			var read: Dictionary = _read(source)
 			if not read.ok or str(read.data.get("map_id", "sonnenhang")) != id: continue
 			if _free_data(read.data) != (selected == 0): continue
-			# A genuine pre-campaign game belongs to the original career slot.
-			var progress: Dictionary = read.data.get("campaign", {})
+			# Pre-career originals use the same free mode as the model loader.
+			var progress: Dictionary = read.data.campaign if read.data.get("campaign") is Dictionary else {}
 			var modified: int = FileAccess.get_modified_time(source)
 			entry = {"occupied": true, "map": id, "day": read.data.get("day", 1), "money": read.data.get("money", 0), "rank": progress.get("rank", 1), "saved_at": modified, "source": source, "damaged": false}
 			# The loader uses primary, backup, then pre-slot originals in this order.
@@ -116,7 +116,9 @@ static func index_path(slot: int, free_slot: int = -1) -> String:
 	return "user://career_%d_index.json" % slot
 
 static func _free_data(data: Dictionary) -> bool:
-	return data.get("campaign") is Dictionary and data.campaign.get("mode")=="free"
+	# Match Progression.restore: a pre-career resort has no campaign and
+	# restores with all former construction access as free play.
+	return data.get("campaign") == null or data.get("campaign") is Dictionary and data.campaign.get("mode")=="free"
 
 static func slot_from_state(state: Dictionary) -> int:
 	if state.has("slot"): return clampi(int(state.slot),0,4)
@@ -158,6 +160,19 @@ static func migrate_legacy() -> bool:
 				if suffix==".bak": target+=".bak"
 				else: continue
 			if not FileAccess.file_exists(target) and DirAccess.copy_absolute(ProjectSettings.globalize_path(old),ProjectSettings.globalize_path(target))!=OK: return false
+	# Earlier migrations could put a pre-career/free resort in career 1.
+	# Recover readable misplaced sources into an empty first free slot only;
+	# never move/delete the source or overwrite an existing free resort.
+	for id in Maps.FANTASY_MAPS:
+		var free_target: String=path_for_map(id,0,1)
+		if FileAccess.file_exists(free_target):continue
+		for suffix in ["", ".bak"]:
+			var misplaced: String=path_for_map(id,1)+suffix
+			var target: String=free_target+suffix
+			if not FileAccess.file_exists(misplaced) or FileAccess.file_exists(target):continue
+			var read := _read(misplaced)
+			if read.ok and _free_data(read.data):
+				if DirAccess.copy_absolute(ProjectSettings.globalize_path(misplaced),ProjectSettings.globalize_path(target))!=OK:return false
 	var old_passport := "user://skizones_passport.json"
 	if FileAccess.file_exists(old_passport) and not FileAccess.file_exists(passport_path(1)):
 		if DirAccess.copy_absolute(ProjectSettings.globalize_path(old_passport),ProjectSettings.globalize_path(passport_path(1)))!=OK: return false

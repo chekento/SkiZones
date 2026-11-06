@@ -18,7 +18,9 @@ func geometry(data: Dictionary) -> Array:
 func run() -> void:
 	var folder := OS.get_environment("SKIZONES_EARLY_FIXTURES")
 	if folder.is_empty(): quit(1); return
-	for release in ["0.1.1","0.6.0"]:
+	var releases: PackedStringArray=OS.get_environment("SKIZONES_VERIFY_RELEASES").split(",",false)
+	if releases.is_empty(): releases=PackedStringArray(["0.1.1","0.6.0"])
+	for release in releases:
 		var path := folder.path_join(release+".json")
 		var original := FileAccess.get_sha256(path)
 		var read := Saves._read(path)

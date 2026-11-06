@@ -1,21 +1,15 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **39 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **41 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
-
-## In Entwicklung · v0.35.0 / Android-Build 44
-
-**Lokal zusammengeführt und geprüft; noch kein APK-Download.**
-
-Voll bedienbares Radio mit 15 Logo-Presets, gemeinsame Musik-/Missions-/Erfolgsmeldungen, beständige Schneepfade, 33 Gebäudekataloge mit 167 Angeboten, echte Produktverkäufe und Wareneinsatz, fünf Gebäude-Ausbaustufen, eigene Pizzapreise und weitere Rezeptplätze, 6+1 tatsächlich abgerechnete Kredite, Live-Pistenstatistik ab dem ersten Punkt, ein echtes Reaktionsspiel und optimierte Gelände-/Liftberechnung. Der Besucher-/Hotelmorgen-Hotfix 0.34.1 bleibt enthalten.
-
-[Ausführliche Kandidatennotizen](docs/releases/0.35.0.md) · [Vollständiger Anforderungsabgleich und Prüfgrenzen](docs/qa/035-integration.md). Der öffentliche Upload und die Veröffentlichung nach bestandenen Android-Prüfungen wurden freigegeben. Die APK wird erst nach dem vollständigen Release-Gate bereitgestellt.
 
 ## Versionen und Downloads
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | SkiZones 0.35.1 – Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
+| **[v0.35.0](https://github.com/chekento/SkiZones/releases/tag/v0.35.0)** | 05.11.2026 | Radio, echte Verkäufe und beständige Schneewege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk) | [Details](docs/releases/0.35.0.md) |
 | **[v0.34.1](https://github.com/chekento/SkiZones/releases/tag/v0.34.1)** | 05.11.2026 | Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk) | [Details](docs/releases/0.34.1.md) |
 | **[v0.34.0](https://github.com/chekento/SkiZones/releases/tag/v0.34.0)** | 05.11.2026 | Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk) | [Details](docs/releases/0.34.0.md) |
 | **[v0.33.2](https://github.com/chekento/SkiZones/releases/tag/v0.33.2)** | 05.11.2026 | SkiZones v0.33.2 — Rettung alter Spielstände und Freier Aufbau | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.33.2/SkiZones-0.33.2-android-arm64.apk) | [Details](docs/releases/0.33.2.md) |
@@ -57,6 +51,72 @@ Voll bedienbares Radio mit 15 Logo-Presets, gemeinsame Musik-/Missions-/Erfolgsm
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.35.1 · SkiZones 0.35.1 – Stabilitäts-Hotfix (06.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.35.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.35.1/manifest.json) · [Originalnotizen](docs/releases/0.35.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.35.1)
+
+> Veröffentlicht am 06.11.2026 nach [vollständig erfolgreicher Freigabe einschließlich Android API 30/36](https://github.com/chekento/SkiZones/actions/runs/42174385630). [ARM64-APK, Manifest und SHA-256](https://github.com/chekento/SkiZones/releases/tag/v0.35.1) sind verfügbar.
+
+**Version:** 0.35.1 · Android `versionCode 45` · unveränderte Paketkennung und Signaturkette.
+
+### Korrekturen
+
+- **Mehr Bewegung auf überfüllten Abfahrten:** vier sichere parallele Bewegungskorridore bereits bei 20 m Pistenbreite, bis zu acht auf breiten 36-m-Pisten. Individuelles Überholen und die bewährten Kollisionsabstände bleiben erhalten.
+- **Nutzung alter Pisten und Lifte:** fast deckungsgleiche ältere Streckenenden werden bei maximal 5,5 m Abstand über echte kurze Gehwege verbunden. Die Routenwahl berücksichtigt den Durchsatz bestehender Liftanlagen und bevorzugt nach Möglichkeit wenig benutzte, tatsächlich offene Pisten, ohne Wetter-, Schnee- oder Personalregeln zu umgehen.
+- **Staulimit:** bei hohen tatsächlichen Liftwartezeiten reduziert sich die Nachfrage stärker. Kein Erfinden von Besuchern oder Ticketbuchungen.
+- **Freies Bauen:** alle Bau- und Ausbaufreigaben ohne Forschungswartezeit, Kosten nicht abgezogen, stets ausreichender, endlicher JSON-kompatibler Budgetvorrat, „∞“ im HUD. Die vier freien Speicherplätze und bestehende Karriere-Saves bleiben getrennt.
+- **Alt-Spielstände:** zusätzlich Erkennung von ungekapselten JSON-Spielständen mit Versionsnummer 1–6; aktuelle Spielstände bleiben prüfsummenpflichtig. Die Wiederherstellung und das bisherige geometrische Rettungsverfahren bleiben erhalten. Originaldateien werden niemals verändert, wenn alte Pisten/Lifte nicht direkt wiederherstellbar sind.
+
+### Qualitätsgrenzen
+
+- Echte historische Originalspeicherstände aller denkbaren frühen Versionen liegen nicht vollständig als automatisierte Fixtures vor. Deshalb keine Garantie für jede beliebige Datei ohne konkrete Format- und Datenprüfung.
+- Ein Betrieb, der tatsächlich nicht erreichbar/abgeschaltet ist, wird nicht per Teleport erreichbar gemacht.
+- Basiert auf der zusammengeführten 0.35.0 und erhält Radio, Kreditwesen, Warenwirtschaft und Schneewege. Android-VersionCode 45 vermeidet eine Kollision mit 0.35.0 (44).
+- Release erst nach grünem Godot, Traffic, Pistenrouting, Save-Recovery, Tagesgästen, Android 30/36, Updateinstallation und überprüfter signierter APK/Manifest/SHA256.
+
+Arbeit: [Issue #79](https://github.com/chekento/SkiZones/issues/79).
+
+### Zusätzliche Absicherung
+
+- Kostenlose Bauaktionen funktionieren auch im pausierten alten freien Resort mit 0 € vor dem ersten Tick: Pistenmodule, Ausbauten und Hotelverbindungen. Reale Betriebskosten und Warenverkäufe bleiben exakt verbucht; nötige freie Liquidität wird vor der Aktion bereitgestellt.
+- Die ursprünglichen Karriere-Startkosten bleiben erhalten; vorübergehende Forschungsfreigaben beim Aufbau des Starterresorts setzen die Karrierefinanzen nicht außer Kraft.
+- Unveränderte Originalfassungen 0.1.1 und 0.6.0 erzeugen echte Save-Dateien mit je 18 aktiven Gästen. 16 Prüfungen bestätigen Laden, Budget/Kalender, Erhalt der Gäste, gültiges erneutes Speichern und tatsächliche weitere Abfahrten. Die etablierte Korrektur der Stationsabstände bei Dateien vor Schema 6 bleibt erhalten.
+- Tatsächlicher 240-Besucher-Test: individuelle Anreise, Liftbeförderung, vier benutzte Schneespuren, erfolgreiche Abfahrten und vollständige Heimkehr ohne dauerhaft eingefrorene Restgruppe. Begrenzte Liftkapazität und Wartezeit bleiben reale Betriebsfaktoren.
+- Alle acht Originalkarrieren aus 0.19 bestehen die 48 Wiederherstellungsprüfungen. Keine Originaldatei wird beim Laden überschrieben.
+
+- Auch sehr große freie Resorts bleiben speicherbar, wenn tatsächliche Einnahmen oder ein Kredit die historische Geldgrenze überschreiten. Nur der gespeicherte endliche Stellvertreter des unendlichen Budgets wird begrenzt; Live-Geld, Schulden und Betriebsberichte werden beim Speichern nicht verändert. Karriere-Geldgrenzen bleiben streng. Der Grenzfall wurde mit einer tatsächlichen Kreditaufnahme reproduziert und korrigiert.
+- Zusätzlich 16 unveränderte Originalfassungen von 0.1.1 bis 0.16.0 ausgeführt: je 18 aktive Gäste, insgesamt 128 erfolgreiche Wiederherstellungsprüfungen. Geld, Kalender und Gäste bleiben erhalten; die alten Abfahrten werden weiter gefahren und Originaldateien bleiben unverändert. Der Generator unterstützt alle 16 Tags; `SKIZONES_VERIFY_RELEASES` erlaubt dieselbe ausführliche lokale Prüfung. Der Hauptworkflow prüft weiterhin die ursprünglichen Grenzfälle 0.1.1/0.6.0 sowie sämtliche acht Karrieren aus 0.19/0.27.
+
+- Früheste Spielstände ohne Karrierefeld werden in derselben Spielart eingeordnet, die der eigentliche Modelllader wiederherstellt: freies Bauen. Sie bleiben nach dem ersten erneuten Speichern sichtbar und ladbar. Bereits früher fälschlich nach Karriere 1 kopierte freie Resorts werden in einen leeren ersten freien Platz kopiert; bestehende freie Resorts und sämtliche Originaldateien bleiben unangetastet.
+
+---
+
+## v0.35.0 · Radio, echte Verkäufe und beständige Schneewege (05.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.35.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.35.0/manifest.json) · [Originalnotizen](docs/releases/0.35.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.35.0)
+
+**Integrierter Arbeitsstand, noch keine veröffentlichte APK.** Android ARM64 · versionCode 44 · unveränderte Paketkennung `cloud.kosch.skizones`.
+
+- Besucher-Hotfix 0.34.1 übernommen: wieder tägliche Anreisen und gestaffelter Hotelaufbruch 07:00–08:59, mit gemeinsamem Familienstart und erneuter Wegprüfung bei Störungen.
+- Radio als vollständig bedienbares Gerät: Ein/Aus, Sender vor/zurück, 15 Logo-Presets, nächster Titel, Quellen und drei sofort gespeicherte Lautstärkekanäle. 16 eigene Senderlogos einschließlich Hotel Lobby FM. Keine separate Checkbox-Leiste. Bestehende echte Offline-Programme bleiben synchron; SoundCloud bleibt entfernt.
+- Gemeinsame transparente Meldungen für wirklich laufende Songs, einzelne Szenariomissionen, Erfolge und Finanzwarnungen. Meldungschronik im Resortbüro, mit Navigation zur passenden Funktion.
+- 33 Gebäudekataloge mit 167 namentlich passenden Angeboten und Ausbauhinweisen. Gebäude sind jetzt tatsächlich bis Stufe 5 ausbaubar; Forschung, Baukosten und höhere Betriebskosten bleiben erforderlich. Lifte und Pisten behalten ihre bisherigen drei Stufen.
+- Echte abgeschlossene Besuche in Gastronomie und Souvenirläden verbuchen genau einen gewählten Artikel pro Person, Bruttoumsatz und einmaligen Wareneinsatz. Der Wareneinsatz ist im Betriebsergebnis separat von Löhnen sichtbar. Verkaufszähler werden gespeichert und beim Laden validiert.
+- Eigene Pizzen: alte Namen und Zutaten bleiben erhalten, optionale Preise, Zutatenkalkulation und bis zu fünf Rezeptplätze nach Ausbau. Auch alte Karten verursachen reale Zutatenkosten. Sehr hohe Preise senken die Kaufbereitschaft. Kein zusätzlicher pauschaler Verkauf auf dieselbe Pizza.
+- Sechs feste Kredite und ein interaktiv konfigurierbares Darlehen. Annuität, konstante Tilgung, endfällige Zahlung, Stundung, Vorschau und vollständige vorzeitige Rückzahlung. Kapitalzufluss und Tilgung sind kein Umsatz; Zinsen werden genau einmal pro Fälligkeit als Aufwand gebucht. Altkredite bleiben kompatibel.
+- Beim ersten Pistenpunkt öffnet sich automatisch eine Live-Statistik mit Starthöhe, Länge, Gefälle und Höhenprofil. Die Kopfzeile bleibt erreichbar; manuelle Tabwahl wird respektiert und die nächste Planung startet wieder in „Route bauen“.
+- Zusätzliches echtes Reaktionsspiel: fünf Start-/Tipp-Runden, Fehlstarts, Median und Bestzeit. In Hütten, Bars, Disco und Hotel-Spielecken erreichbar. Ohne Geldgewinn; eine unsichtbare Runde wird beim Tabwechsel angehalten.
+- Fußspuren und verdichtete Schneepfade bleiben im atomaren v17-Spielstand erhalten. Alte Versionen werden weiterhin gelesen. Neue Resorts beginnen ohne fremde Schneespuren.
+- Genauere, vorberechnete Geländeabfragen und einmalige Liftzustandsberechnung pro Bild. Reale Szenarien setzen ihre Startgebäude mit denselben Abständen schneller; keine Veränderung der importierten Pisten.
+
+### Prüfstatus und Umfang
+
+Die zusätzliche 0.35-Suite ist in den vollständigen APK-Workflow eingebunden. Dieser Stand benötigt vor Veröffentlichung weiterhin die signierte Android-APK, API-30/36-Appwechsel-/Upgrade-Prüfungen und die originalen 0.19/0.27-Karrierefixtures. Lokale Prüfergebnisse und die vollständige Anforderungszuordnung stehen in `docs/qa/035-integration.md`.
+
+Der Angebotskatalog ersetzt noch keine vollständigen Kurs-, Rettungsfahrzeug-, Warenlager-, Zimmer- oder Toilettensimulatoren. Vollständiger freier Hotelgrundriss, 100 Hotel- und 100 Sanitärforschungen, sämtliche 750 Theme-/Saisonkombinationen und durchgängige Anschlüsse jeder importierten Realpiste sind noch nicht fertig. Sie werden hier nicht als geliefert dargestellt.
+
+---
 
 ## v0.34.1 · Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche (05.11.2026)
 

@@ -6,7 +6,7 @@ func _init() -> void: call_deferred("run")
 func run() -> void:
 	var folder := OS.get_environment("SKIZONES_EARLY_FIXTURES")
 	var release := OS.get_environment("SKIZONES_FIXTURE_RELEASE")
-	if folder.is_empty() or release not in ["0.1.1","0.6.0"]:
+	if folder.is_empty() or release not in ["0.1.1","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0","0.7.0","0.8.0","0.9.0","0.10.0","0.11.0","0.12.0","0.13.0","0.14.0","0.15.0","0.16.0"]:
 		quit(1)
 		return
 	DirAccess.make_dir_recursive_absolute(folder)
