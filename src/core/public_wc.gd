@@ -50,9 +50,18 @@ static func daily(model: RefCounted,building: Dictionary) -> void:
 	var s: Dictionary=building.wc_public
 	var delta: int=maxi(0,int(model.day)-int(s.last_day))
 	if delta==0:return
-	s.hygiene=clampf(float(s.hygiene)-float(mini(delta,10))*(0.75 if s.winterized else 2.0),0.0,100.0)
+	var freezing:float=5.0 if not s.winterized and float(model.weather().temperature)<-8.0 else 0.0
+	s.hygiene=clampf(float(s.hygiene)-float(mini(delta,10))*((0.75 if s.winterized else 2.0)+freezing),0.0,100.0)
 	s.last_day=int(model.day)
 	building.wc_public=s
+	# Optional WC-service staff perform actual paid maintenance overnight.
+	# Without a worker, players may still clean or empty the unit manually.
+	var assigned:int=0
+	for person in model.operations.staff:
+		if str(person.get("assignment",""))=="building:%d" % int(building.id) and str(person.get("role",""))=="sanitation":assigned+=1
+	if assigned>0:
+		if float(s.fill)>=60.0:action(model,int(building.id),"empty")
+		if float(s.hygiene)<=75.0:action(model,int(building.id),"clean")
 
 static func action(model: RefCounted,id: int,command: String) -> Dictionary:
 	var item: Dictionary=model.asset(id)
