@@ -187,7 +187,6 @@ static func housekeeping(model: RefCounted, id: int) -> Dictionary:
 static func daily(model: RefCounted) -> void:
 	for building in model.buildings:
 		if not lodging(str(building.kind)) or not building.enabled: continue
-		HotelSimulator.daily(model,building)
 		var settings := config(building)
 		if int(settings.last_review_day) >= int(model.day): continue
 		var used: int = model.Lodging.rooms_used(model, int(building.id))
@@ -196,10 +195,6 @@ static func daily(model: RefCounted) -> void:
 		# Use the planned daily team here; on-duty queries at 24:00 are empty.
 		var cleaning_team: bool = not model.Ops.active(model) or model.Ops.building_team(model, building).all(func(row): return int(row.missing) == 0)
 		settings.cleanliness = clampf(float(settings.cleanliness) - ratio * 16.0 + (22.0 if settings.auto_clean and cleaning_team else 0.0), 0, 100)
-		if building.has("sanitation"):
-			var wc: Dictionary = HotelSimulator.sanitary_status(model,building)
-			settings.cleanliness = maxf(0.0,settings.cleanliness - maxf(0.0,75.0-float(wc.hygiene))*0.12)
-			if int(wc.waiting)>0:settings.cleanliness = maxf(0.0,settings.cleanliness - minf(5.0,float(wc.waiting)*0.2))
 		if used > 0:
 			var value: float = clampf(2.2 + int(settings.comfort) * 0.32 + float(settings.cleanliness) * 0.015 + (0.2 if settings.breakfast else 0.0) - maxf(0, room_price(model, building) / float(Catalog.LODGING[building.kind].price) - 1.25) * 0.8, 1, 5)
 			settings.rating = snappedf(lerpf(float(settings.rating), value, 0.2), 0.01)
