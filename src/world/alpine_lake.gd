@@ -2,6 +2,7 @@ extends RefCounted
 ## Purely visual alpine water: shoreline follows the existing terrain.
 ## No collision, resort coordinates, navigation or save schema changes.
 const Styles = preload("res://src/core/visual_styles.gd")
+const Calendar = preload("res://src/core/annual_festival.gd")
 const CENTER := Vector2(-260.0, 255.0)
 const X_RADIUS := 53.0
 const Z_RADIUS := 32.86
@@ -109,5 +110,12 @@ static func apply_style(root: Node3D, id: String) -> void:
 	elif id == "neon_noir":
 		deep = Color("245276")
 		shallow = Color("83d4e9")
+	var season: String = Calendar.season(Calendar.device_now())
+	if season in ["advent","christmas"]:
+		deep = deep.lerp(Color("176c68"),0.23)
+		shallow = shallow.lerp(Color("f4ecd5"),0.24)
+	elif season in ["new_year_eve","new_year"]:
+		deep = deep.lerp(Color("223a90"),0.24)
+		shallow = shallow.lerp(Color("c3ecff"),0.32)
 	water.material_override.set_shader_parameter("deep_color",deep)
 	water.material_override.set_shader_parameter("edge_color",shallow)
