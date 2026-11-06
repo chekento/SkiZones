@@ -90,7 +90,7 @@ static func layout(mountain: RefCounted, lifts: Array, buildings: Array, walk_ar
 						var point := a.lerp(at, float(j) / segments)
 						if j < segments: areas.append(_area(next, point, point, 4, false, area.id, "walkway"))
 						var previous_point := a.lerp(at, float(j - 1) / segments)
-						fixed.append({"from": previous, "to": next, "points": [Terrain.pack(previous_point), Terrain.pack(point)], "width": 8.0, "manual": true, "closed": not area.enabled})
+						fixed.append({"from": previous, "to": next, "points": [Terrain.pack(previous_point), Terrain.pack(point)], "width": 8.0, "manual": true, "surface":area.get("surface", "snow"), "closed": not area.enabled})
 						previous = next
 		else: areas.append(_area("w%d" % area.id,Terrain.unpack(area.point),Terrain.unpack(area.point),area.radius,dense,area.id,"plaza"))
 	for piste in pistes:

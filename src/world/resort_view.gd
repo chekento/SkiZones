@@ -320,9 +320,14 @@ func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Co
 	var wind_ripple := sin(point.x * 0.027 + point.y * 0.017) * cos(point.y * 0.039 - point.x * 0.013)
 	var rock_band := sin(height_value * 0.043 + point.x * 0.012 + wind_ripple * 1.2)
 	var cliff := smoothstep(26.0, 72.0, grade)
-	snow = snow.lerp(Color("8f9fae"), cliff * (0.23 + 0.28 * smoothstep(-0.2, 0.7, rock_band)))
-	var sheltered := (1.0 - smoothstep(15.0, 250.0, relative_height)) * (1.0 - cliff)
-	snow = snow.lerp(Color("d4e9f1"), sheltered * 0.12)
+	snow = snow.lerp(Color("8f9fae"), cliff * (0.34 + 0.36 * smoothstep(-0.2, 0.7, rock_band)))
+	var sheltered := (1.0 - smoothstep(15.0, 370.0, relative_height)) * (1.0 - cliff)
+	# Broad wind-scoured heath and rock patches break the blank white lowlands.
+	# Only visual colour changes: never flatten routes or move saved assets.
+	var heath := sin(point.x*0.009+cos(point.y*0.006)*1.5)*cos(point.y*0.011-point.x*0.004)
+	var exposed := smoothstep(0.20,0.78,heath)*sheltered
+	snow = snow.lerp(Color("a8b5a2"),exposed*0.64)
+	snow = snow.lerp(Color("b6cfdf"),sheltered*0.18)
 	var powder := 0.024 * (0.5 + 0.5 * sin(point.x * 0.053 + point.y * 0.029 + wind_ripple))
 	snow = snow.lerp(Color("ffffff"), powder * (1.0 - cliff))
 	if grade > 38:
@@ -789,6 +794,7 @@ func rebuild(progress: RefCounted = null) -> void:
 		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
 		await get_tree().process_frame
 	_build_foot_areas()
+	foot_wear.invalidate_surface()
 	var title_positions: Array[Vector2] = []
 	var junctions: Dictionary = {}
 	for piste in model.pistes:
@@ -878,6 +884,10 @@ func rebuild(progress: RefCounted = null) -> void:
 func _build_foot_areas() -> void:
 	var mesh: ArrayMesh=WalkSurfaces.new().build(self)
 	foot_mesh=_baked(asset_root,mesh,Vector3.ZERO)
+	if visual_style != "monochrome":
+		var path_material := ShaderMaterial.new()
+		path_material.shader = preload("res://src/shaders/walk_surfaces.gdshader")
+		foot_mesh.material_override = path_material
 	if mesh.get_surface_count()>0: surface_picker.add_mesh("plazas",mesh)
 	foot_mesh.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_build_village_details()
@@ -1897,6 +1907,7 @@ func set_visual_style(id: String) -> void:
 	if visual_style == chosen:
 		return
 	visual_style = chosen
+	_relief.set_shader_parameter("albedo_gain",1.0 if chosen == "monochrome" else 0.84)
 	_atmosphere_tick = ""
 	if not is_instance_valid(terrain_instance):
 		return

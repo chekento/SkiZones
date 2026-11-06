@@ -2,12 +2,13 @@ extends RefCounted
 ## Small, atomic UI checkpoint bound to the exact independently verified resort save.
 const SaveStore = preload("res://src/core/save_store.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Design = preload("res://src/core/walkway_design.gd")
 const Maps = preload("res://src/core/maps.gd")
 var path := "user://app-session.json"
 
 func save(game: Node) -> void:
 	if not game.has_game: return
-	var state := {"slot":SaveStore.active_slot,"free_save_slot":SaveStore.active_free_slot,"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
+	var state := {"slot":SaveStore.active_slot,"free_save_slot":SaveStore.active_free_slot,"map":game.model.map_id,"checksum":FileAccess.get_sha256(SaveStore.path_for_map(game.model.map_id)),"paused":game.paused,"speed":game.speed,"accumulator":game._accumulator,"focus":Terrain.pack(game.view.focus),"yaw":game.view.yaw,"zoom":game.view.zoom,"pitch":game.view.pitch_degrees,"camera_mode":game.view.camera_mode,"tool":game.tool,"plaza_kind":game.plaza_kind,"walkway_surface":game.walkway_surface,"walkway_freehand":game.walkway_freehand,"points":game.points.duplicate(true),"editing_id":game.editing_id,"edit_title":game.edit_title,"edit_color":game.edit_color,"edit_rotation":game.edit_rotation,"edit_width":game.edit_width,"plan_width":game.plan_width,"selected_guest":game.view.selected_guest,"follow_guest":game.view.follow_guest,"suspended_at":Time.get_unix_time_from_system() if game._app_background else 0.0,"running":game._background_running if game._app_background else false,"version":1}
 	var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null: return
 	file.store_string(JSON.stringify(state,"",true,true));file.flush();file.close()
@@ -35,6 +36,8 @@ func read_state() -> Dictionary:
 		if not value.get(key) is String or value[key].length() > 120: return {}
 	if value.tool not in ["inspect","piste","lift","building","plaza","walkway"]: return {}
 	if not Terrain.number(value.get("plan_width", 20)) or value.get("plan_width", 20) < 14 or value.get("plan_width", 20) > 36: return {}
+	if value.has("walkway_surface") and (not value.walkway_surface is String or not Design.SURFACES.has(value.walkway_surface)): return {}
+	if value.has("walkway_freehand") and not value.walkway_freehand is bool: return {}
 	return value
 
 func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true) -> bool:
@@ -65,6 +68,8 @@ func restore(game: Node, already_loaded: bool = false, rebuild_view: bool = true
 	game.hud.hide_menu();game.hud.atlas.hide();game.set_tool(state.tool)
 	game.plan_width = state.get("plan_width", 20)
 	game.plaza_kind = state.plaza_kind
+	game.walkway_surface = state.get("walkway_surface", "snow")
+	game.walkway_freehand = state.get("walkway_freehand", true)
 	if state.editing_id >= 0:
 		if not game.begin_edit(int(state.editing_id),state.edit_title,state.edit_color,int(state.edit_rotation),state.edit_width):
 			game.set_tool("inspect")

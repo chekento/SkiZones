@@ -35,6 +35,14 @@ var view := ResortView.new()
 var hud := ResortHUD.new()
 var tool := "inspect"
 var plaza_kind := "plaza"
+const WalkwayDesign = preload("res://src/core/walkway_design.gd")
+var walkway_surface := "snow"
+var walkway_freehand := true
+var _stroke: Array = []
+var _stroke_original: Array = []
+var _stroke_active := false
+var _stroke_drawn := false
+var _stroke_too_long := false
 var _committing := false
 var _plan_dirty := false
 var points: Array = []
@@ -181,7 +189,7 @@ func _process(delta: float) -> void:
 		hud.refresh()
 
 func simulation_running() -> bool:
-	return has_game and not _app_background and not paused and points.is_empty() and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
+	return has_game and not _app_background and not paused and points.is_empty() and not _stroke_drawn and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
 
 func start_cinematic_tour() -> void:
 	if not has_game or hud.menu.visible or not points.is_empty() or hud.loading.visible: return
@@ -683,7 +691,7 @@ func _plan_check() -> Dictionary:
 		var access: String = model.build_access_message(hud.lift_kind() if tool == "lift" else hud.building_kind(), tool == "lift")
 		if access != "":
 			return {"ok": false, "message": access, "cost": 0}
-	if tool == "walkway": return model.preview_walkway(points)
+	if tool == "walkway": return model.preview_walkway(points, walkway_surface)
 	if tool == "piste":
 		return model.preview_piste(points, plan_width, false)
 	if tool == "lift" and points.size() == 2:
@@ -793,7 +801,7 @@ func confirm_plan() -> void:
 	if editing_id != -1:
 		result = model.change_asset(editing_id, points, edit_title, edit_color, edit_rotation, edit_width, false)
 	elif tool == "walkway":
-		result = model.build_walkway(points)
+		result = model.build_walkway(points, walkway_surface)
 	elif tool == "plaza":
 		result = model.build_plaza(plaza_kind, Terrain.unpack(points[0]))
 	elif tool == "piste":
@@ -864,7 +872,63 @@ func _map_tap(position_value: Vector2) -> void:
 	selected_waypoint = -1
 	_update_plan()
 
+func _begin_stroke(screen: Vector2) -> void:
+	if tool != "walkway" or not walkway_freehand or editing_id != -1: return
+	var at := view.map_point(screen)
+	if not model.terrain.contains(at): return
+	_stroke_original = points.duplicate(true)
+	_stroke = [Terrain.pack(_snap_point(at, screen))]
+	_stroke_active = true
+	_stroke_drawn = false
+	_stroke_too_long = false
+
+func _move_stroke(screen: Vector2) -> void:
+	if not _stroke_active or hud.blocks_map(screen): return
+	var at := view.map_point(screen)
+	if not model.terrain.contains(at): return
+	if Terrain.unpack(_stroke[-1]).distance_to(at) < 2: return
+	if _stroke.size() >= 512:
+		_stroke_too_long = true
+		return
+	_stroke.append(Terrain.pack(at))
+	_stroke_drawn = true
+	# No repeated graph searches while a finger is moving. The actual obstacle,
+	# slope and connection checks run once when this stroke becomes waypoints.
+	view.preview(_stroke, Color("75cdc7"), "", {"walkway":true,"width":8.0,"points":_stroke})
+
+func _end_stroke(screen: Vector2, canceled: bool = false) -> void:
+	if not _stroke_active: return
+	canceled = canceled or hud.blocks_map(screen)
+	var drawn := _stroke_drawn
+	if not canceled and drawn: _move_stroke(screen)
+	if not canceled and drawn and not _stroke_too_long:
+		var end := view.map_point(screen)
+		if model.terrain.contains(end) and not hud.blocks_map(screen):
+			_stroke[-1] = Terrain.pack(_snap_point(end, screen))
+		var combined := _stroke_original.duplicate(true)
+		if not combined.is_empty() and Terrain.unpack(combined[-1]).distance_to(Terrain.unpack(_stroke[0])) < 2:
+			combined.pop_back()
+		combined.append_array(_stroke)
+		var generated := WalkwayDesign.waypoints(combined)
+		if not generated.is_empty():
+			points = generated
+			undone_points.clear()
+			selected_waypoint = -1
+		else: hud.toast(L.text("Zeichnung zu dicht. Den Weg in kürzere Abschnitte teilen."))
+	if _stroke_too_long and not canceled: hud.toast(L.text("Zeichnung zu dicht. Den Weg in kürzere Abschnitte teilen."))
+	_stroke_active = false
+	_stroke_drawn = false
+	_stroke_too_long = false
+	_stroke.clear()
+	_stroke_original.clear()
+	_update_plan()
+
 func _clear_input() -> void:
+	_stroke_too_long = false
+	_stroke_active = false
+	_stroke_drawn = false
+	_stroke.clear()
+	_stroke_original.clear()
 	if _drag_waypoint >= 0:
 		_end_waypoint_drag(true)
 	_mouse_down = false
@@ -900,11 +964,16 @@ func _input(event: InputEvent) -> void:
 				_mouse_down = true
 				_mouse_origin = event.position
 				_mouse_dragged = event.button_index == MOUSE_BUTTON_MIDDLE
+				if handle < 0 and event.button_index == MOUSE_BUTTON_LEFT: _begin_stroke(event.position)
 			elif _mouse_down:
 				_mouse_down = false
 				if _drag_waypoint >= 0:
 					_move_waypoint(event.position)
 					_end_waypoint_drag()
+				elif _stroke_active:
+					var drawn := _stroke_drawn
+					_end_stroke(event.position)
+					if not drawn and not _mouse_dragged and not hud.blocks_map(event.position): _map_tap(event.position)
 				elif not _mouse_dragged and not hud.blocks_map(event.position):
 					_map_tap(event.position)
 		elif not hud.blocks_map(event.position) and event.pressed:
@@ -919,6 +988,8 @@ func _input(event: InputEvent) -> void:
 			_mouse_dragged = true
 		if _drag_waypoint >= 0:
 			_move_waypoint(event.position)
+		elif _stroke_active and _mouse_dragged:
+			_move_stroke(event.position)
 		elif _mouse_dragged:
 			view.pan(event.relative)
 	elif event is InputEventMagnifyGesture and not hud.blocks_map(event.position):
@@ -1008,6 +1079,7 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 		_touches[event.index] = event.position
 		_touch_origins[event.index] = event.position
 		if _touches.size() > 1:
+			if _stroke_active: _end_stroke(event.position, true)
 			if _drag_waypoint >= 0:
 				_end_waypoint_drag(true)
 			_gesture_used = true
@@ -1016,8 +1088,13 @@ func _touch_event(event: InputEventScreenTouch) -> void:
 			if handle >= 0:
 				_begin_waypoint_drag(handle, event.position)
 				_drag_screen_offset = event.position - view.camera.unproject_position(view.surface_position(Terrain.unpack(points[handle])))
+			if handle < 0: _begin_stroke(event.position)
 	elif _touches.has(event.index):
-		if _drag_waypoint >= 0:
+		if _stroke_active:
+			var drawn := _stroke_drawn
+			_end_stroke(event.position, event.canceled)
+			if not drawn and not event.canceled and not _touch_dragged and not hud.blocks_map(event.position): _map_tap(event.position)
+		elif _drag_waypoint >= 0:
 			# Android can send the final coordinate only with ACTION_UP, after
 			# the last motion packet. Commit that coordinate before ending the drag.
 			if not event.canceled: _move_waypoint(event.position)
@@ -1046,7 +1123,8 @@ func _touch_drag(event: InputEventScreenDrag) -> void:
 		if event.position.distance_to(_touch_origins[event.index]) > 8:
 			_touch_dragged = true
 		if _touch_dragged:
-			view.pan(event.relative)
+			if _stroke_active: _move_stroke(event.position)
+			else: view.pan(event.relative)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:

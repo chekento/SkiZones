@@ -96,7 +96,7 @@ func build(view: Node3D) -> void:
 	for reserve in view._extra_clearings: _disk(blocked,reserve.point,reserve.radius)
 	clearing = blocked
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
-	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
+	var foliage_tint: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.46)
 	var rock_tint: Color = Color(style.rock).lerp(Color.WHITE, 0.55)
 	var chunks: Dictionary = {}
 	var rocks: Array = []
@@ -123,7 +123,7 @@ func build(view: Node3D) -> void:
 		node.multimesh = view._multimesh(variants[key.z].far, entries.size())
 		for i in range(entries.size()):
 			node.multimesh.set_instance_transform(i, entries[i].transform)
-			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.72) * foliage_tint)
+			node.multimesh.set_instance_color(i, entries[i].color * Color(Maps.spec(map_id).trees).lerp(Color.WHITE, 0.52) * foliage_tint)
 		root.add_child(node)
 		groups.append({"node": node, "center": (Vector2(key.x,key.y) + Vector2.ONE * 0.5) * CHUNK, "detail": false, "species": key.z, "base_tints": entries.map(func(entry): return entry.color)})
 	if not groups.is_empty():
@@ -142,8 +142,8 @@ func apply_style(view: Node3D) -> void:
 	# candidates, changing their transforms or touching terrain geometry.
 	_choose_meshes(view)
 	var style: Dictionary = VisualStyles.palette(view.visual_style)
-	var foliage: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.62)
-	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.72)
+	var foliage: Color = Color(style.get("foliage", style.ambient)).lerp(Color.WHITE, 0.46)
+	var tree_base: Color = Color(Maps.spec(view.model.map_id).trees).lerp(Color.WHITE, 0.52)
 	for group in groups:
 		var mesh: MultiMesh = group.node.multimesh
 		mesh.mesh = variants[group.species].near if group.detail else variants[group.species].far

@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-06",
+  "base_commit": "ebb193df259ab43ecd5a2f1ae38a9d2a99645666",
+  "candidate_version": "0.37.0",
+  "android_version_code": 47,
+  "godot": "4.5.2.stable.official.6ce3de25a",
+  "suites": [
+    {
+      "script": "tests/piste_planning.gd",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "script": "tests/paths_and_momentum.gd",
+      "passed": 41,
+      "failed": 0
+    },
+    {
+      "script": "tests/footwear_pacing_camera_034.gd",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "script": "tests/footwear_persistence_035.gd",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "script": "tests/ground_surface_sampling_032.gd",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "script": "tests/living_alpine_034.gd",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "script": "tests/legacy_routes_free_mode_0342.gd",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "script": "tests/save_rescue_free_slots_0332.gd",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "script": "tests/hotel_room_operations_036.gd",
+      "passed": 28,
+      "failed": 0
+    },
+    {
+      "script": "tests/walkway_design_037.gd",
+      "passed": 33,
+      "failed": 0
+    },
+    {
+      "script": "tests/snow_paths_geometry_037.gd",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "script": "tests/expansion_ui_035.gd",
+      "passed": 28,
+      "failed": 0
+    },
+    {
+      "script": "tests/build_input_scene.gd",
+      "passed": 37,
+      "failed": 0
+    },
+    {
+      "script": "tests/planning_paths_scene_037.gd",
+      "passed": 68,
+      "failed": 0
+    }
+  ],
+  "total_passed": 384,
+  "total_failed": 0,
+  "android_api_30_36": "pending CI",
+  "physical_android_device": "not tested",
+  "render_exit_resource_warnings": true
+}
