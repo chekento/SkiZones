@@ -87,12 +87,12 @@ func _request_archive(map_id:String,slot:int,free:int) -> void:
 	archive_confirmation.popup_centered(Vector2i(620,220))
 
 func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1) -> void:
-	var section:=HBoxContainer.new()
+	var section:=HFlowContainer.new()
 	section.name="save_manager_actions"
 	parent.add_child(section)
-	var diagnostic:=hud._label(parent,"",14,hud.TEAL,true)
+	var diagnostic: Label=hud._label(parent,"",14,hud.TEAL,true)
 	diagnostic.name="save_diagnostics"
-	var check:=hud._button(section,L.text("Prüfen & retten"),func():
+	var check: Button=hud._button(section,L.text("Prüfen & retten"),func():
 		var report:Dictionary=SaveManager.inspect(map_id,slot,free_slot)
 		if not report.ok:
 			diagnostic.text=L.text("Keine Datei gefunden.")
@@ -109,14 +109,14 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	for n in range(1,5):
 		if n==(free_slot if slot==0 else slot):continue
 		target.add_item(L.text("Platz %d") % n,n)
-	var copy:=hud._button(section,L.text("Kopieren"),func():
+	var copy: Button=hud._button(section,L.text("Kopieren"),func():
 		var dst:int=target.get_selected_id()
 		var result:Dictionary=SaveManager.copy(map_id,slot,slot if slot==0 else dst,free_slot,dst if slot==0 else 1)
 		hud.toast(L.text(str(result.message)))
 		if result.ok:refresh()
 	)
 	copy.name="copy_save_038"
-	var remove:=hud._button(section,L.text("Archivieren"),func():_request_archive(map_id,slot,free_slot))
+	var remove: Button=hud._button(section,L.text("Archivieren"),func():_request_archive(map_id,slot,free_slot))
 	remove.name="archive_save_038"
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
 	for button in [check,copy,remove]:
