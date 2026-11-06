@@ -25,6 +25,8 @@ on:
       - 'tests/public_wc_038.gd'
       - 'tests/public_wc_flow_038.gd'
       - 'tests/ui_building_career_038.gd'
+      - 'tests/asset_menu_scene.gd'
+      - 'tests/career_slots_scene.gd'
       - '.github/workflows/hotel-career-038.yml'
   workflow_dispatch:
 permissions:
@@ -71,3 +73,11 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 330 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/ui_building_career_038.gd
+      - name: Real mandatory staffing, workshop actions and bilingual asset operation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-assets-038
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
+      - name: Actual career continuation, management protection and restart confirmation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-careers-038
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/career_slots_scene.gd
