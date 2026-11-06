@@ -9546,3 +9546,6 @@ msgstr "Revenue forecast €%s/day · planned costs €%s/day"
 
 msgid "Bis dahin kannst du weiterhin Zimmer verwalten, Preise ändern und Hotelmodule ausbauen."
 msgstr "Meanwhile you can still manage rooms, change rates and upgrade hotel modules."
+
+msgid "WC-Service & Entsorgung"
+msgstr "Restroom Servicing & Waste Disposal"
