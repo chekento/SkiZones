@@ -173,6 +173,10 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	if level >= (5 if item.get("kind", "") in Catalog.BUILDINGS else 3):
 		return {"ok": false, "message": L.text("Maximale Ausbaustufe erreicht.")}
 	var needed := "mastercraft" if level >= 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
+	# Public sanitation develops through its own tree. The generic building
+	# rule would require hotel mastery to expand a portable Dixi toilet.
+	if model.PublicWC.is_public(str(item.get("kind",""))):
+		needed=["wc_logistics","sanitation","wc_hygiene","wc_comfort"][level-1]
 	if model.campaign.get("mode", "free") != "free" and not has(model, needed):
 		return {"ok": false, "message": L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name)}
 	if item.has("difficulty"):

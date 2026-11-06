@@ -29,6 +29,8 @@ var hud: CanvasLayer
 var asset_id := -1
 var tabs := TabContainer.new()
 var heading: Label
+var tagline: Label
+var primary_actions := HBoxContainer.new()
 var session: Dictionary = {}
 var game_box: VBoxContainer
 var task: Dictionary = {}
@@ -57,7 +59,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 	window.close_requested.connect(close)
 	var body: VBoxContainer=window.body
 	heading=window.title
-	hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
+	tagline=hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
+	primary_actions.name="building_primary_actions"
+	primary_actions.add_theme_constant_override("separation",8)
+	body.add_child(primary_actions)
+	primary_actions.hide()
 	tabs.add_theme_stylebox_override("panel", hud._style(Color("f6f2e8"), 10, 10))
 	tabs.add_theme_stylebox_override("tab_selected", hud._style(Color("bddccd"), 10, 12))
 	tabs.add_theme_stylebox_override("tab_unselected", hud._style(Color("e2e8db"), 10, 12))
@@ -146,6 +152,11 @@ func _check(parent: Node, label_text: String, value: bool) -> CheckButton:
 	return field
 
 func _rebuild() -> void:
+	for child in primary_actions.get_children():
+		primary_actions.remove_child(child)
+		child.queue_free()
+	primary_actions.hide()
+	tagline.show()
 	var previous_page: String = tabs.get_tab_title(tabs.current_tab) if tabs.get_tab_count()>0 and tabs.current_tab>=0 else ""
 	for child in tabs.get_children():
 		tabs.remove_child(child)
@@ -501,28 +512,32 @@ func _public_wc(building: Dictionary) -> void:
 	# No hotel reference: independent public sanitation, including Dixi units.
 	var model: RefCounted=hud.game.model
 	var info: Dictionary=PublicWC.status(model,building)
+	tagline.hide()
+	primary_actions.show()
+	var clean:Button=_action(primary_actions,L.text("Reinigen · %s €") % hud.money_text(info.clean_cost),func():return PublicWC.action(model,asset_id,"clean"))
+	clean.name="public_wc_clean";clean.disabled=float(info.hygiene)>=99.95
+	var empty:Button=_action(primary_actions,L.text("Entleeren · %s €") % hud.money_text(info.empty_cost),func():return PublicWC.action(model,asset_id,"empty"))
+	empty.name="public_wc_empty";empty.disabled=float(info.fill)<=0.01
 	var page: VBoxContainer=_page(L.text("Öffentliche Toiletten"))
-	var head:=_card(page,L.text("WC-MANAGER · MOBIL & ÖFFENTLICH"),
-		L.text("Eigenständige Dixi-, Container- und Sanitärhäuser. Toiletten in Hotels und Restaurants sind bereits inklusive."))
+	var head:=_card(page,L.text("WC-BETRIEB"))
 	head.name="public_wc_manager"
-	hud._label(head,L.text("PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d") % [int(info.capacity),int(info.waiting),int(info.visits)],21,hud.TEAL,true)
 	hud._label(head,L.text("HYGIENE  %.0f %%  ·  TANK  %.0f %%") % [float(info.hygiene),float(info.fill)],20,hud.INK,true)
+	hud._label(head,L.text("PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d") % [int(info.capacity),int(info.waiting),int(info.visits)],21,hud.TEAL,true)
+	hud._label(head,L.text("VORGEMERKT  %d  ·  TANKVOLUMEN  %.0f Nutzungen") % [int(info.reserved),float(info.volume)],16,hud.MUTED,true)
 	var h:=ProgressBar.new()
 	h.name="public_wc_hygiene"
+	h.add_theme_stylebox_override("fill",hud._style(hud.TEAL,6,0))
 	h.show_percentage=false
 	h.max_value=100.0;h.value=float(info.hygiene);h.custom_minimum_size.y=23
 	head.add_child(h)
 	var tank:=ProgressBar.new()
 	tank.name="public_wc_tank"
+	tank.add_theme_stylebox_override("fill",hud._style(hud.ACCENT,6,0))
 	tank.show_percentage=false
 	tank.max_value=100.0;tank.value=float(info.fill);tank.custom_minimum_size.y=23
 	head.add_child(tank)
 	hud._label(head,L.text("BETRIEB  %s") % (L.text("Bereit") if info.ready else L.text("Reinigung oder Entleerung nötig")),17,hud.TEAL,true)
 	var actions:=_card(page,L.text("SERVICE & ENTSORGUNG"))
-	var clean:Button=_action(actions,L.text("Reinigen · %s €") % hud.money_text(info.clean_cost),func():return PublicWC.action(model,asset_id,"clean"))
-	clean.name="public_wc_clean";clean.disabled=float(info.hygiene)>=99.95
-	var empty:Button=_action(actions,L.text("Tank entleeren · %s €") % hud.money_text(info.empty_cost),func():return PublicWC.action(model,asset_id,"empty"))
-	empty.name="public_wc_empty";empty.disabled=float(info.fill)<=0.01
 	var winter:Button=_action(actions,L.text("Frostschutz einbauen · %s €") % hud.money_text(info.winter_cost),func():return PublicWC.action(model,asset_id,"winterize"))
 	winter.name="public_wc_winterize"
 	var allow_winter:bool=model.campaign.get("mode","career")=="free" or model.Progression.has(model,"wc_winter")
@@ -530,6 +545,7 @@ func _public_wc(building: Dictionary) -> void:
 	if not allow_winter:
 		hud._label(actions,L.text("Forschung: Frostsichere Entsorgung."),15,hud.ACCENT,true)
 	var growth:=_card(page,L.text("AUSBAU & PERSONAL"))
+	hud._label(growth,L.text("Ausbau: mehr Kabinen; ab Stufe 3 zusätzlicher Tankpuffer, ab Stufe 4 weniger Hygieneverschleiß, ab Stufe 5 günstigere Servicerunden."),15,hud.MUTED,true)
 	var upgrade:Dictionary=model.upgrade_check(asset_id)
 	var button:Button=_action(growth,L.text("Kapazität ausbauen · %s €") % hud.money_text(upgrade.get("cost",0)),func():return model.upgrade_asset(asset_id))
 	button.name="public_wc_upgrade";button.disabled=not upgrade.ok

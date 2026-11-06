@@ -18,6 +18,14 @@ Stand: 6. November 2026 · Korrektur der ursprünglichen Abstimmung vom 5. Novem
 
 **Grundsystem 0.38 in Bearbeitung (nicht freigegeben):** fünf öffentliche Bauobjekte (`wc_dixi`, `wc_cabin`, `wc_module`, `wc_house`, `wc_luxury`); eigenes `src/core/public_wc.gd` mit Hygiene, Tank, Reinigung, Entleerung, täglicher Alterung, Frostschutz; eigenständiges WC-Betriebsfenster, WC-Servicepersonal als Option, zusätzliche Forschungsprojekte und WC-Gästebedürfnisse. Bestehende Hotel- und Restaurant-WCs bleiben enthalten, keine neue `wc_public`-Eigenschaft an den Gebäuden. Die neuen Dateien erhalten eigenständige Simulationstests.
 
+### Tatsächlicher Betrieb und Ausbau
+
+- Eine Familie kann auch eine einzelne Dixi-Kabine nutzen: die Gruppe durchläuft mehrere aufeinanderfolgende Nutzungen. Reale Kabinen begrenzen gleichzeitig bediente Besucher. Ankommende Gäste warten nach Ankunftszeit; laufende Nutzungen werden nicht unterbrochen. Die optionale Ankunftszeit wird validiert gespeichert; ältere Gäste ohne dieses Feld bleiben lesbar.
+- Bereits anreisende Reservierungen zählen für Tank, Hygiene und die auf 18 echte Spielminuten begrenzte Warteschlange. Die Reiseplanung berücksichtigt Wartezeit und Rückweg. Wartende erhalten keine vorzeitigen Komforteffekte. Hotels und Restaurants bleiben als Alternative mit inkludierten Toiletten erreichbar.
+- Die WC-Ausbaustufen verwenden ausschließlich `wc_logistics`, `sanitation`, `wc_hygiene` und `wc_comfort`. Sie verlangen keine Hotellerie oder Alpine Meisterklasse.
+- Jede Ausbaustufe erhöht die tatsächlich routbare Kabinenzahl. Ab Stufe 3 entsteht zusätzlich 30 % Tankpuffer, ab Stufe 4 sinkt Hygieneverschleiß pro Besuch um 35 %, ab Stufe 5 sinken Servicekosten um 20 % und täglicher Hygieneverschleiß um 25 %. Neue unbenutzte Anlagen altern ab dem Bautag. Die Anzeige verwendet dieselben Größen wie Simulation und Kalkulation.
+- `tests/public_wc_flow_038.gd` prüft echte Anreise, Kabinenbelegung, Gruppenbesuche, Tankverbrauch und Save/Load einer aktiven Warteschlange sowohl mit historischer Uhr als auch mit 24 Bewegungsschritten pro Spielminute. Das ist keine vollständige saisonale Asset- oder Langzeitbalance-Abnahme.
+
 **Noch nicht vollständig verwirklicht und nicht behaupten:** alle 100 Technik-Freischaltungen; umfassende Balancing-/KI-Personalautomatisierung; sichtbare Wald-/Pistenrand-Notdurft mit gelben Spuren und deren zuverlässiges Verblassen; umfassende manuelle Android-Interaktions-, Performance- und saisonale Asset-Prüfung über alle Themes. Diese Punkte sind keine Freigabebehauptungen und bleiben konkret überprüfbare Features.
 
 **Spielstandschutz:** Vorhandene Originale nicht überschreiben. Pflichtprüfungen: 0.19 und 0.27 Altsaves, 0.36/0.37 Hotelzustände, freie Spielstände, Sanitärzustände, vollständige Korruptionsprüfung und Android-Upgrade ohne Datenverlust.

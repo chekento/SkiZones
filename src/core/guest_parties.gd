@@ -27,6 +27,8 @@ static func care_guest(model: RefCounted,guest: Dictionary) -> Dictionary:
 		copy.needs.hunger=maxf(copy.needs.hunger,person.needs.hunger)
 		copy.needs.warmth=minf(copy.needs.warmth,person.needs.warmth)
 		copy.needs.energy=minf(copy.needs.energy,person.needs.energy)
+		for field in Needs.BATHROOM_FIELDS:
+			copy.needs[field]=maxf(float(copy.needs.get(field,0)),float(person.needs.get(field,0)))
 	return copy
 static func expand(model: RefCounted,root: Dictionary,node: String="base") -> void:
 	if not root.has("family") or root.has("party_id") or model.guests.size()+root.family.size()-1>model.MAX_GUESTS:return

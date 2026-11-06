@@ -578,6 +578,7 @@ func build_building(kind: String, point: Vector2, rotation_value: int = 0) -> Di
 	buildings.append({"id": next_id, "kind": kind, "point": Terrain.pack(point), "cost": check.cost, "enabled": true, "level": 1, "upgrade_total": 0.0, "name": Catalog.BUILDINGS[kind].name, "visits": 0, "revenue": 0.0})
 	next_id += 1
 	buildings[-1].rotation = rotation_value
+	PublicWC.initialize(self,buildings[-1])
 	_invalidate()
 	return _result(true, L.text("%s gebaut.") % L.args(Catalog.BUILDINGS[kind].name))
 
@@ -1317,6 +1318,7 @@ func service_load(id: int, excluding: int = -1) -> int:
 	return count
 
 func service_capacity(building: Dictionary) -> int:
+	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
 	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
 
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
@@ -1335,13 +1337,18 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if utility <= 0: continue
 		var load := service_load(int(building.id),int(guest.id))
 		var capacity := service_capacity(building)
-		if load + int(guest.get("group_size", 1)) > capacity: continue
+		var restroom: bool=PublicWC.is_public(str(building.kind))
+		var reservation: Dictionary=PublicWC.reservation(self,building,guest) if restroom else {}
+		if restroom:
+			if not reservation.ok:continue
+		elif load + int(guest.get("group_size", 1)) > capacity: continue
 		var door_key := "d%d" % building.id
 		var outbound := _shortest(graph,source,door_key)
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
 		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
+		if restroom:visit_minutes=(float(reservation.minutes)+float(reservation.wait))*time_divisor
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
 			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
@@ -1470,13 +1477,16 @@ func _start_leg(guest: Dictionary) -> void:
 	guest.elapsed = 0.0
 	guest.wait = 0
 	if guest.has("party_id"):guest.party_step=1.0
-	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits", "traffic_lane", "traffic_lateral", "traffic_step"]:
+	for key in ["waiting_node","waiting_reason","waiting_since","ride_car","ride_seat","ride_departure","queue_since","wc_queue_since","ski_motion","walk_ranges", "boarding_remaining", "ride_manifest", "visit_kind", "visit_benefits", "traffic_lane", "traffic_lateral", "traffic_step"]:
 		guest.erase(key)
 	_queue_cache.clear()
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	guest.duration = leg.minutes
 	if leg.kind == "visit" and Needs.SERVICES.has(asset(int(leg.id)).get("kind", "")):
 		guest.visit_kind = asset(int(leg.id)).kind
+		if PublicWC.is_public(str(guest.visit_kind)):
+			guest.duration=PublicWC.visit_minutes(asset(int(leg.id)),int(guest.get("group_size",1)))*time_divisor
+			guest.wc_queue_since=movement_clock()
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		if leg.get("motion_version",0) >= 2:
@@ -1806,9 +1816,10 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 	if empty_calendar_step and not DayRhythm.indoors_only(self): movement=1.0
 	var departures: Array = []
 	var traffic := Traffic.steps(self) if terrain_generation >= 2 else {}
+	var restroom_steps: Dictionary=PublicWC.steps(self)
 	for guest in guests.duplicate():
 		if clock_tick: guest.age += 1
-		Needs.advance(guest,weather().temperature,clock_tick)
+		Needs.advance(guest,weather().temperature,clock_tick,bool(restroom_steps.get(int(guest.id),true)))
 		if clock_tick: Agenda.advance(guest)
 		if guest.get("incident", -1) >= 0: continue
 		if guest.phase == "leaving":
@@ -1833,7 +1844,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			if leg.kind == "lift":
 				guest.elapsed = maxf(0, asset(leg.id).get("clock", 0.0) - guest.get("ride_departure", 0.0))
 			else:
-				guest.elapsed += movement * Parties.pace(self,guest) * (traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0)
+				guest.elapsed += movement * Parties.pace(self,guest) * (traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0) * (1.0 if restroom_steps.get(int(guest.id),true) else 0.0)
 			if leg.kind == "ski":
 				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])),1.0/time_divisor)
 				snow_revision += 1
@@ -2645,6 +2656,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 		if visitor.phase == "queue" and route.legs[int(visitor.leg)].kind != "lift":
 			return invalid
 		if visitor.has("pacing_runs") and (not Terrain.number(visitor.pacing_runs) or visitor.pacing_runs!=floorf(visitor.pacing_runs) or visitor.pacing_runs<0 or visitor.pacing_runs>=time_divisor): return invalid
+		if visitor.has("wc_queue_since") and (not Terrain.number(visitor.wc_queue_since) or visitor.wc_queue_since<0 or visitor.wc_queue_since>movement_clock()): return invalid
 		if visitor.has("ski_motion") and not Motion.valid_profile(visitor.ski_motion): return invalid
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.id = int(copy.id);copy.ability = int(copy.ability)

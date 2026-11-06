@@ -9518,7 +9518,7 @@ msgid "Reinigen · %s €"
 msgstr "Clean · €%s"
 
 msgid "Tank entleeren · %s €"
-msgstr "Empty tank · €%s"
+msgstr "Empty tank · %s €"
 
 msgid "Frostschutz einbauen · %s €"
 msgstr "Install frost protection · €%s"
@@ -9606,3 +9606,15 @@ msgstr "Improved Hygiene Equipment"
 
 msgid "Optimierte Wartungsabläufe"
 msgstr "Optimized Servicing Operations"
+
+msgid "VORGEMERKT  %d  ·  TANKVOLUMEN  %.0f Nutzungen"
+msgstr "RESERVED  %d  ·  TANK CAPACITY  %.0f uses"
+
+msgid "Ausbau: mehr Kabinen; ab Stufe 3 zusätzlicher Tankpuffer, ab Stufe 4 weniger Hygieneverschleiß, ab Stufe 5 günstigere Servicerunden."
+msgstr "Upgrades: more stalls; extra tank reserve from level 3, less hygiene wear from level 4, lower maintenance costs from level 5."
+
+msgid "Entleeren · %s €"
+msgstr "Empty tank · %s €"
+
+msgid "WC-BETRIEB"
+msgstr "RESTROOM OPERATIONS"

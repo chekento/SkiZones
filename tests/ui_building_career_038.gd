@@ -53,18 +53,43 @@ func run() -> void:
 	await settle()
 	check(game.hud.experience.visible and not crew.visible,"Hotel simulator entry really opens the room/hygiene management interface")
 	game.hud.experience.close()
+	var bathroom:Dictionary={}
+	for z in range(160,420,24):
+		for x in range(70,430,24):
+			if game.model.build_building("wc_dixi",Vector2(x,z)).ok:bathroom=game.model.buildings[-1];break
+		if not bathroom.is_empty():break
+	check(not bathroom.is_empty(),"Standalone public WC can be built alongside the hotel")
 	root.content_scale_mode=Window.CONTENT_SCALE_MODE_DISABLED
 	root.content_scale_size=Vector2i.ZERO
-	for viewport in [Vector2i(1440,900),Vector2i(420,860),Vector2i(740,360)]:
-		root.size=viewport
-		await settle()
-		game.hud.career_slots.open()
-		await settle()
-		var career:Control=game.hud.career_slots
-		var rect:Rect2=career.get_global_rect()
-		check(rect.position.x>=-1 and rect.position.y>=-1 and rect.end.x<=float(viewport.x)+1 and rect.end.y<=float(viewport.y)+1,"Career manager is full-screen, with no exposed main-menu band at "+str(viewport))
-		check(career.visible and career.cards.get_child_count()==4,"Career manager still shows four separated career cards")
-		career.hide()
+	for language in ["de","en"]:
+		game.preferences.language=language
+		game.hud.L.configure(language)
+		for viewport in [Vector2i(1440,900),Vector2i(360,740),Vector2i(420,860),Vector2i(740,360)]:
+			root.size=viewport
+			await settle()
+			game.hud.career_slots.open()
+			await settle()
+			var career:Control=game.hud.career_slots
+			var rect:Rect2=career.get_global_rect()
+			check(rect.position.x>=-1 and rect.position.y>=-1 and rect.end.x<=float(viewport.x)+1 and rect.end.y<=float(viewport.y)+1,"Career manager is full-screen, with no exposed main-menu band at "+str(viewport))
+			check(career.visible and career.cards.get_child_count()==4,"Career manager still shows four separated career cards")
+			career.hide()
+			if not bathroom.is_empty():
+				game.hud.experience.open(int(bathroom.id))
+				await settle()
+				var manager:Control=game.hud.experience.find_child("public_wc_manager",true,false)
+				check(manager!=null and manager.is_visible_in_tree(),"Independent public WC dashboard opens at "+str(viewport))
+				var clean:Button=game.hud.experience.find_child("public_wc_clean",true,false)
+				var empty:Button=game.hud.experience.find_child("public_wc_empty",true,false)
+				check(clean!=null and empty!=null and clean.disabled and empty.disabled,"New clean empty cabin exposes accurate disabled maintenance actions")
+				if clean!=null and empty!=null:
+					check(clean.text.begins_with("Clean" if language=="en" else "Reinigen"),"Primary service labels use the selected interface language")
+					var toolbar:Control=game.hud.experience.primary_actions
+					check(clean.get_parent()==toolbar and empty.get_parent()==toolbar and toolbar.get_global_rect().end.y<=float(viewport.y) and clean.get_global_rect().position.y>=0,"Primary WC service actions remain fixed above scrolling pages")
+				await RenderingServer.frame_post_draw
+				DirAccess.make_dir_recursive_absolute("res://build/qa")
+				root.get_texture().get_image().save_png("res://build/qa/public-wc-038-%s-%dx%d.png" % [language,viewport.x,viewport.y])
+				game.hud.experience.close()
 	game.queue_free()
 	await settle()
 	print("RESULT: %d passed; %d failed" % [passed,failed])

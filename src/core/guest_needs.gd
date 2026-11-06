@@ -82,13 +82,14 @@ static func valid(guest: Dictionary) -> bool:
 			if field not in FIELDS or not Terrain.number(guest.visit_benefits[field]) or guest.visit_benefits[field] < 0 or guest.visit_benefits[field] > maxf(0, SERVICES[guest.visit_kind][field]) + 0.001: return false
 	return true
 
-static func advance(guest: Dictionary, temperature: float, natural: bool = true) -> void:
+static func advance(guest: Dictionary, temperature: float, natural: bool = true, service_active: bool = true) -> void:
 	ensure(guest,temperature)
 	# Hotel residents rest safely indoors; needs recover when they wake.
 	if guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel": return
 	var kind := ""
 	if guest.phase!="leaving" and guest.leg<guest.route.legs.size(): kind=guest.route.legs[guest.leg].kind
 	if guest.phase=="waiting": kind=""
+	if not service_active:kind=""
 	if not natural and kind!="visit": return
 	var dose: Dictionary = {}
 	if kind == "visit" and not guest.route.legs[guest.leg].get("pause_only",false) and SERVICES.has(guest.get("visit_kind", "")):
