@@ -51,7 +51,7 @@ func run() -> void:
 	check(restored.restore(state).ok and Simulator.overview(restored,restored.asset(int(hotel.id))).shift_done,"Save/restore preserves hotel state and shift progress")
 	var invalid:Dictionary=state.duplicate(true)
 	for b in invalid.buildings:
-		if int(b.id)==int(hotel.id):b.sanitation.extra_units=900;break
+		if int(b.id)==int(hotel.id):b.sanitation={"version":1,"extra_units":900,"hygiene":88.0,"last_day":1,"serviced":1};break
 	var fresh:=Resort.new()
 	check(not fresh.restore(invalid).ok,"Corrupted restroom capacity is rejected before save restore")
 	model.day+=1
