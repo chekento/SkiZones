@@ -5,6 +5,12 @@ const Lines=preload("res://src/world/line_art.gd")
 const Styles=preload("res://src/core/visual_styles.gd")
 const Catalog=preload("res://src/core/catalog.gd")
 static func dimensions(kind: String,level: int=1) -> Vector3:
+	if kind.begins_with("wc_"):
+		var index:int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+		var widths:Array=[6.4,11.0,17.0,23.0,30.0]
+		var depths:Array=[6.8,9.0,12.0,17.0,22.0]
+		var heights:Array=[9.5,10.5,11.0,13.0,16.0]
+		return Vector3(widths[maxi(0,index)],heights[maxi(0,index)],depths[maxi(0,index)])
 	var big: bool=kind in ["hotel","grand_hotel","guesthouse"]
 	var wide: bool=kind in ["maintenance","repair_office"]
 	var width:=44.0 if kind=="grand_hotel" else 16.0 if kind=="cabin" else 35.0 if kind=="hotel" else 29.0 if wide else 22.0
@@ -13,6 +19,15 @@ static func dimensions(kind: String,level: int=1) -> Vector3:
 	return Vector3(width,floors*8.0+3.0,depth)
 static func building(kind: String,level: int,accent: Color,style: String) -> ArrayMesh:
 	style=Styles.valid(style)
+	if kind.begins_with("wc_"):
+		if style=="monochrome":
+			var drawing:=Lines.new()
+			var size_value:Vector3=dimensions(kind,level)
+			drawing.box(Vector3(0,size_value.y*0.5,0),size_value)
+			drawing.box(Vector3(0,size_value.y*0.42,size_value.z*0.5),Vector3(minf(4,size_value.x*0.45),size_value.y*0.67,0.3))
+			drawing.line(Vector3(-2,size_value.y*0.8,size_value.z*0.5+0.4),Vector3(2,size_value.y*0.8,size_value.z*0.5+0.4))
+			return drawing.finish()
+		return Art.new().public_toilet(kind,level,accent,style)
 	if style=="alpine": return Art.new().chalet(kind,level,accent)
 	var s:=dimensions(kind,level)
 	var w:=s.x;var h:=s.y;var d:=s.z
