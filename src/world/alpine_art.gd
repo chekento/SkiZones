@@ -680,7 +680,71 @@ func town_hall(accent: Color) -> ArrayMesh:
 		box(Vector3(0,0.32+i*0.25,13.8+i*.65),Vector3(12.5-i*1.0,0.5,1.1),Color("d8d7cf"))
 	return finish()
 
+## Readable public-sanitation silhouettes from a single blue Dixi to a
+## luxury toilet centre. These are not hotel meshes and no save geometry changes.
+func public_toilet(kind: String, level: int, accent: Color, style: String="alpine") -> ArrayMesh:
+	var index: int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+	if index<0:return finish()
+	var widths: Array=[6.4,11.0,17.0,23.0,30.0]
+	var depths: Array=[6.8,9.0,12.0,17.0,22.0]
+	var heights: Array=[9.5,10.5,11.0,13.0,16.0]
+	var door_counts: Array=[1,2,3,4,5]
+	var w:float=widths[index]
+	var d:float=depths[index]
+	var h:float=heights[index]
+	var pale:bool=style in ["pastel","crisp","piste_map"]
+	var saturated:bool=style in ["comic","neon_noir","aurora_ink"]
+	var body_color:Color=Color("238ac1") if index==0 else accent
+	if pale:body_color=body_color.lightened(0.23)
+	if saturated:body_color=body_color.darkened(0.16)
+	var trim:Color=Color("f4fafb") if style!="neon_noir" else Color("75eef7")
+	var base:Color=Color("b8c5c5")
+	soft_box(Vector3(0,0.5,0),Vector3(w+0.8,1.0,d+0.8),base,Vector3.ZERO,0.25)
+	soft_box(Vector3(0,h*0.5+0.4,0),Vector3(w,h,d),body_color,Vector3.ZERO,0.58 if index<2 else 0.24)
+	soft_box(Vector3(0,h+0.6,0),Vector3(w+0.5,1.3,d+0.5),trim,Vector3.ZERO,0.28)
+	if index>=3:
+		roof(w+1,d+0.8,h+1.2)
+	else:
+		soft_box(Vector3(0,h+1.15,0),Vector3(w+0.8,0.55,d+0.8),body_color.lightened(0.15),Vector3.ZERO,0.18)
+	for door in range(door_counts[index]):
+		var px:float=(-w*0.5+(door+0.5)*w/float(door_counts[index]))
+		var doorw:float=minf(4.2,w/float(door_counts[index])-0.6)
+		soft_box(Vector3(px,4.4,d*0.5+0.17),Vector3(doorw,7.0,0.25),body_color.darkened(0.17))
+		box(Vector3(px+doorw*0.30,4.4,d*0.5+0.39),Vector3(0.35,0.55,0.25),Color("e6d5b0"))
+		box(Vector3(px,h-1.8,d*0.5+0.42),Vector3(doorw*0.55,0.55,0.12),trim)
+		# WC pictogram: unambiguous blue/white sign on every cabin door.
+		box(Vector3(px,6.3,d*0.5+0.48),Vector3(1.55,1.65,0.12),trim)
+		box(Vector3(px,6.65,d*0.5+0.58),Vector3(0.25,0.75,0.12),body_color)
+		box(Vector3(px,6.02,d*0.5+0.58),Vector3(0.85,0.18,0.12),body_color)
+	for corner in [-1,1]:
+		box(Vector3(corner*(w*0.5-0.75),h-1.8,d*0.5+0.18),Vector3(0.45,2.0,0.28),trim)
+	if index==0:
+		# Ventilated blue portable toilet, bright white roof and side handles.
+		box(Vector3(0,h-0.8,-d*0.5-0.15),Vector3(w*0.65,0.4,0.22),Color("d5e5e9"))
+		soft_box(Vector3(w*0.5+0.14,3.5,0),Vector3(0.33,2.0,2.1),body_color.lightened(0.32))
+	if index>=2:
+		for x in [-w*0.38,w*0.38]:
+			box(Vector3(x,h-2.2,-d*0.5-0.2),Vector3(2.4,1.1,0.3),trim)
+	if index==4:
+		# Luxury centre with accessible front canopy, distinct from a hotel.
+		soft_box(Vector3(0,h-1.5,d*0.5+2.0),Vector3(w*0.80,0.65,4.2),trim)
+		for x in [-w*0.3,w*0.3]:
+			box(Vector3(x,(h-1.5)*0.5,d*0.5+3.1),Vector3(0.6,h-1.5,0.6),trim)
+	if style in ["neon_noir","aurora_ink"]:
+		for x in [-w*0.47,w*0.47]:
+			box(Vector3(x,h*0.5,d*0.5+0.55),Vector3(0.18,h*0.8,0.26),Color("4ef2e6"))
+	if style=="bauhaus":
+		box(Vector3(0,h+1.6,-d*0.35),Vector3(w*0.6,1.0,d*0.3),Color("e7b54c"))
+	# Seasonal lights from November to New Year, independent of game saves.
+	var month:int=int(Time.get_datetime_dict_from_system().get("month",0))
+	if month in [11,12,1]:
+		for i in range(7):
+			var x:float=(float(i)/6.0-0.5)*w*0.86
+			sphere(Vector3(x,h+1.2,d*0.5+0.4),0.24,Color("e8c86c") if i%2==0 else Color("9ce1d9"))
+	return finish()
+
 func chalet(kind: String, level: int, accent: Color) -> ArrayMesh:
+	if kind.begins_with("wc_"):return public_toilet(kind,level,accent)
 	if kind == "town_hall": return town_hall(accent)
 	if kind == "pool": return outdoor_pool(accent)
 	if kind == "snowmaker":
