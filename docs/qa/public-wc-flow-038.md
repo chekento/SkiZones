@@ -29,6 +29,12 @@ Gerenderte WC-/Karriereansichten: **1440×900, 360×740, 420×860 und 740×360**
 
 Die Warteschlangenprüfung verwendet tatsächliche gebaute Anlagen, zugelassene Gäste, vollständige validierte Reisepläne und normale Simulationstakte; keine ersetzten Routing-/Savefunktionen. Für den isolierten Warteschlangentest wird die Starterhütte geschlossen, damit Gäste nicht stattdessen deren enthaltene Toilette wählen. Eine aktive Warteschlange wird als JSON gespeichert, wiederhergestellt und ihre Bedienreihenfolge verglichen. Negative Ankunftszeiten werden abgewiesen.
 
+## Nachlauf: ältere Anlagen-Menüprüfung
+
+Der vollständige [CI-Lauf 42307902671](https://github.com/chekento/SkiZones/actions/runs/42307902671) bestand die neuen Fachprüfungen, endete aber vor Android am alten Anlagen-Menütest: Dieser suchte weiterhin nach „Alle Schichten besetzen“, während die 0.38-Oberfläche zur klaren Trennung von Pflicht- und Zusatzkräften „Pflichtstellen besetzen“ anzeigt. Der Produktionscallback war vorhanden. Der Test greift nun über die stabile Widget-ID `fill_required_building_team` zu und prüft zusätzlich, dass der tatsächliche Pflichtpersonal-Button sichtbar und aktiviert ist. Dafür wird der normale Seitenwechsel des TabContainers abgewartet. Der englische Betriebstitel wird am tatsächlichen Reiter geprüft, statt ihn unter normalen Beschriftungen zu suchen.
+
+Der vollständige Anlagen-Menütest besteht lokal **46 Prüfungen / 0 Fehler**, einschließlich unveränderter Kosten-, Rollen-, Werkstatt-, Teilebestellungs-, Betriebswechsel-, Größen- und Updateübergabeprüfungen. Die Hotel-Schaltfläche nennt jetzt „Zimmer & Betrieb“, um den unabhängigen öffentlichen WC-Manager nicht mit dem Hotelmodus zu vermischen. Die englische Quellabdeckung steigt auf 3078 Nachrichten. Die obenstehenden 287 Ergebnisse bleiben der historische lokale Vorlauf. Der korrigierte Commit muss die vollständige CI einschließlich Android erneut bestehen; der fehlgeschlagene Vorlauf wird nicht als Android-Nachweis übernommen.
+
 3077 DE-/EN-Nachrichten, Platzhalter und Quellabdeckung geprüft. Beide bearbeiteten Workflow-Dateien sind als YAML lesbar; `git diff --check` ohne Befund. Der gerenderte GUI-Prozess meldet beim Beenden verbliebene Canvas-/Text-/Texture-Ressourcen; die Prüfung enthält keine Scriptfehler. Dies ersetzt keine Android-Lifecycle-Prüfung.
 
 ## Freigabe

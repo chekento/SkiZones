@@ -108,7 +108,7 @@ func rebuild() -> void:
 	var design:=_card(_page(L.text("Gestalten")),L.asset_name(item))
 	hud._label(design,L.text("AUSBAUSTUFE  %d  ·  STATUS  %s") % [int(item.get("level",1)),L.text("Geöffnet") if item.enabled else L.text("Geschlossen")],18,hud.TEAL,true)
 	if model.Hospitality.lodging(str(item.get("kind",""))):
-		hud._button(design,L.text("Hotel-Simulator · Zimmer & WCs"),func():hide();hud.experience.open(lift_id),true).name="open_hotel_simulator"
+		hud._button(design,L.text("Hotel-Simulator · Zimmer & Betrieb"),func():hide();hud.experience.open(lift_id),true).name="open_hotel_simulator"
 	elif Catalog.BUILDINGS.has(item.get("kind","")):
 		hud._button(design,L.text("Gebäude betreten · Spiele & Betrieb"),func():hide();hud.experience.open(lift_id),true)
 	var upgrade: Dictionary=model.upgrade_check(lift_id)
@@ -248,7 +248,7 @@ func _building_people(parent: Node, item: Dictionary) -> void:
 	if rows.is_empty():
 		_card(parent,L.text("Keine Pflichtstellen"),L.text("Dieses Gebäude läuft ohne Mindestpersonal. Freiwillige Verstärkung ist möglich."))
 	else:
-		_button(parent,L.text("Pflichtstellen besetzen · %d Personen · %d €") % [missing,missing*180],func():return Ops.fill_building(model,lift_id),missing>0 and model.money>=missing*180)
+		_button(parent,L.text("Pflichtstellen besetzen · %d Personen · %d €") % [missing,missing*180],func():return Ops.fill_building(model,lift_id),missing>0 and model.money>=missing*180).name="fill_required_building_team"
 	_grid(parent)
 	var shown: Array=[]
 	for row in rows:

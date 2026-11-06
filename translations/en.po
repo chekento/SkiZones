@@ -9618,3 +9618,6 @@ msgstr "Empty tank · %s €"
 
 msgid "WC-BETRIEB"
 msgstr "RESTROOM OPERATIONS"
+
+msgid "Hotel-Simulator · Zimmer & Betrieb"
+msgstr "Hotel Simulator · Rooms & Operations"

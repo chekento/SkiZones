@@ -19,6 +19,16 @@ func texts(node: Node) -> String:
 	var result: String=node.text+"\n" if node is Label or node is Button else ""
 	for child in node.get_children():result+=texts(child)
 	return result
+func hire_required(menu:Control) -> bool:
+	# TabContainer applies page visibility on the next frame. Check the real
+	# displayed action before activating it, rather than bypassing that state.
+	await process_frame
+	await process_frame
+	var hire:Button=menu.find_child("fill_required_building_team",true,false) as Button
+	check(hire!=null and hire.is_visible_in_tree() and not hire.disabled and hire.text.begins_with("Pflichtstellen besetzen"),"A visible enabled action explicitly fills mandatory building positions")
+	if hire==null:return false
+	hire.pressed.emit()
+	return true
 func capture(name_value: String) -> void:
 	for frame in range(4):await process_frame
 	if DisplayServer.get_name()=="headless":return
@@ -74,7 +84,7 @@ func run() -> void:
 	game.hud.lift_staff_button.pressed.emit();menu=game.hud.lift_staff
 	check(button(menu,"Von dieser Werkstatt reparieren").disabled,"The workshop explains that its own missing team prevents repair")
 	menu.tabs.current_tab=1;budget=game.model.money
-	button(menu,"Alle Schichten besetzen").pressed.emit()
+	if not await hire_required(menu):quit(1);return
 	check(Ops.building_staffed(game.model,workshop) and game.model.money==budget-360,"The workshop's own button hires its technician and electrician")
 	menu.tabs.current_tab=0
 	budget=game.model.money;var parts: int=game.model.operations.parts
@@ -92,7 +102,7 @@ func run() -> void:
 		game.hud.show_context("inspect",int(food.id));game.hud.lift_staff_button.pressed.emit();menu=game.hud.lift_staff
 		check(texts(menu).contains("Plätze belegt") and texts(menu).contains("Besuchserlöse"),kind+" shows its real occupancy and visit revenue")
 		menu.tabs.current_tab=1
-		button(menu,"Alle Schichten besetzen").pressed.emit()
+		if not await hire_required(menu):quit(1);return
 		check(Ops.building_open(game.model,food),kind+" can hire its actual catering team directly")
 		menu.tabs.current_tab=0;button(menu,"Schließen").pressed.emit()
 		check(not food.enabled and not Ops.building_open(game.model,food),kind+" closes through its own operating action")
@@ -109,7 +119,7 @@ func run() -> void:
 		var expected_columns: int=3 if screen.x>=1440 else 1
 		check(root.get_visible_rect().encloses(menu.get_global_rect()) and menu.stations.columns==expected_columns,"The building dialog and staff columns adapt to actual screen "+str(screen))
 	game.apply_language("en");game.hud.lift_staff.open(int(game.model.buildings[-1].id));menu=game.hud.lift_staff
-	check(texts(menu).contains("BUILDING & TEAM") and texts(menu).contains("Operations") and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
+	check(texts(menu).contains("BUILDING & TEAM") and menu.tabs.get_tab_title(0)=="Operations" and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
 	menu.hide();game.paused=true
 	# This exercises the same strict handoff used on Android, with only the OS opener injected.
 	# Simulate an installed 0.18 build: 0.19 cannot be an update to itself.
