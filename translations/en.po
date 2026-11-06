@@ -9369,3 +9369,6 @@ msgstr "Restore backup"
 
 msgid "Aktives Resort: zuerst einen anderen Spielstand laden."
 msgstr "Active resort: load another save first."
+
+msgid "Die Hotelschicht wurde bereits verändert. Bitte erneut öffnen."
+msgstr "The hotel shift has already changed. Reopen it to resume."
