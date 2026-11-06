@@ -12,6 +12,7 @@ const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersp
 const RESEARCH := {
 	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."},
 	"service": {"name": "Gästekomfort", "cost": 24000, "points": 4, "days": 1, "requires": [], "effect": "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."},
+	"sanitation": {"name": "Sanitärtechnik", "cost": 14000, "points": 2, "days": 1, "requires": ["service"], "effect": "Hotel-WCs erweitern: mehr Kapazität, kürzere Warteschlangen und planbarer Hygienedienst."},
 	"meteo": {"name": "Bergwetterstation", "cost": 12000, "points": 2, "days": 1, "requires": [], "effect": "Eine verlässliche Wettervorschau für die nächsten sechs Betriebstage."},
 	"lifttech": {"name": "Fördertechnik", "cost": 36000, "points": 5, "days": 2, "requires": [], "effect": "Lifte auf Stufe 2 ausbauen: mehr Kapazität und kürzere Fahrzeiten."},
 	"hospitality": {"name": "Alpine Hotellerie", "cost": 48000, "points": 6, "days": 2, "requires": ["service"], "effect": "Berghotels werden verfügbar. Sie steigern Nachfrage, Komfort und Erlöse."},
@@ -20,6 +21,29 @@ const RESEARCH := {
 	"marketing": {"name": "Destinationsmarketing", "cost": 35000, "points": 5, "days": 2, "requires": ["service"], "effect": "15 % mehr Nachfrage. Gute Pisten und kurze Wartezeiten bleiben entscheidend."},
 	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "8er-Sessel werden verfügbar; Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
 }
+## These are branching, save-compatible research trees. All completed projects
+## keep their existing IDs, costs, durations and valid prerequisites.
+const BRANCHES := [
+	{"id":"snow", "name":"Schnee & Gelände", "icon":"❄", "description":"Pistenpräparierung und Bergwetter", "nodes":["snowcraft","efficient_snow","meteo"]},
+	{"id":"transport", "name":"Lifte & Mobilität", "icon":"🚠", "description":"Förderleistung und Seilbahn-Technologie", "nodes":["lifttech","gondola","mastercraft"]},
+	{"id":"hospitality", "name":"Gäste & Hotelentwicklung", "icon":"⌂", "description":"Gästekomfort, Sanitärtechnik und Hotellerie", "nodes":["service","sanitation","hospitality"]},
+	{"id":"destination", "name":"Destination & Vermarktung", "icon":"★", "description":"Reichweite, Gästegruppen und Nachfrage", "nodes":["marketing"]}
+]
+
+static func branch_for(id: String) -> Dictionary:
+	for branch in BRANCHES:
+		if branch.nodes.has(id):return branch
+	return {}
+
+static func branch_progress(model: RefCounted, branch_id: String) -> Dictionary:
+	for branch in BRANCHES:
+		if str(branch.id)!=branch_id:continue
+		var finished:=0
+		for id in branch.nodes:
+			if has(model,str(id)):finished+=1
+		return {"total":branch.nodes.size(),"done":finished,"fraction":float(finished)/maxf(1,branch.nodes.size())}
+	return {"total":0,"done":0,"fraction":0.0}
+
 const CONTRACTS := {
 	"visitors": {"name": "Der Berg ruft", "text": "Begrüße neue Tagesgäste.", "base": 80, "per_rank": 30, "money": 9000},
 	"rides": {"name": "Spuren im Schnee", "text": "Ermögliche zusätzliche Abfahrten.", "base": 60, "per_rank": 40, "money": 11000},
