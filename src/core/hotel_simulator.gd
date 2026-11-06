@@ -80,7 +80,7 @@ static func overview(model: RefCounted, building: Dictionary) -> Dictionary:
 	var accounting: Dictionary=model.Hospitality.dashboard(model,building)
 	var toilets: Dictionary=sanitary_status(model,building)
 	var work: Dictionary=building.get("activity",{}).get("hotel_shift",{})
-	return {"rooms":room,"economy":accounting,"toilets":toilets,"shift_done":int(work.get("day",-1))==model.day,
+	return {"rooms":room,"economy":accounting,"toilets":toilets,"shift_done":int(work.get("day",-1))==model.day and int(work.get("steps",0))>=5,
 		"last_score":int(work.get("score",0)),"rating":float(model.Hospitality.config(building).rating)}
 
 static func begin(model: RefCounted, id: int) -> Dictionary:
@@ -93,6 +93,13 @@ static func begin(model: RefCounted, id: int) -> Dictionary:
 	if not building.has("sanitation"):
 		var created: Dictionary=sanitation_action(model,id,"activate")
 		if not created.ok:return created
+	var activity: Dictionary=building.get("activity",{"day":0,"plays":0,"best":0,"bonus":0,"rounds":0}).duplicate(true)
+	var saved: Dictionary=activity.get("hotel_shift",{})
+	if int(saved.get("day",-1))==model.day and int(saved.get("steps",0))<5:
+		return {"ok":true,"id":id,"day":model.day,"step":int(saved.get("steps",0)),
+			"score":int(saved.get("score",0)),"actions":saved.get("actions",[]).duplicate()}
+	activity.hotel_shift={"day":int(model.day),"score":0,"steps":0,"actions":[]}
+	building.activity=activity
 	return {"ok":true,"id":id,"day":model.day,"step":0,"score":0,"actions":[]}
 
 static func situation(model: RefCounted, building: Dictionary, step: int) -> Dictionary:
@@ -132,6 +139,9 @@ static func choose(model: RefCounted, session: Dictionary, option: int) -> Dicti
 	var building: Dictionary=model.asset(int(session.id))
 	if not _hotel(building):return {"ok":false,"message":L.text("Das Hotel ist nicht mehr verfügbar.")}
 	if overview(model,building).shift_done:return {"ok":false,"message":L.text("Diese Hotelschicht wurde bereits abgerechnet.")}
+	var stored: Dictionary=building.get("activity",{}).get("hotel_shift",{})
+	if int(stored.get("day",-1))!=model.day or int(stored.get("steps",-1))!=int(session.step) or int(stored.get("score",-1))!=int(session.score):
+		return {"ok":false,"message":L.text("Die Hotelschicht wurde bereits verändert. Bitte erneut öffnen.")}
 	var stage: int=int(session.step)
 	var gained := 0
 	var message := ""
@@ -219,10 +229,10 @@ static func choose(model: RefCounted, session: Dictionary, option: int) -> Dicti
 	session.step=stage+1
 	session.actions.append(option)
 	var finished: bool=int(session.step)>=5
+	var activity: Dictionary=building.get("activity",{"day":0,"plays":0,"best":0,"bonus":0,"rounds":0}).duplicate(true)
+	activity.hotel_shift={"day":int(model.day),"score":int(session.score),"steps":int(session.step),"actions":session.actions.duplicate()}
+	building.activity=activity
 	if finished:
-		var activity: Dictionary=building.get("activity",{"day":0,"plays":0,"best":0,"bonus":0,"rounds":0}).duplicate(true)
-		activity.hotel_shift={"day":int(model.day),"score":int(session.score),"steps":5}
-		building.activity=activity
 		model.campaign.xp+=float(session.score)*0.25
 		message+="\n"+(L.text("Schicht abgeschlossen · %d / 125 Punkte · echte Betriebsentscheidungen gespeichert.") % int(session.score))
 	return {"ok":true,"finished":finished,"score":gained,"total":int(session.score),"message":message}
@@ -242,7 +252,12 @@ static func valid_shift(building: Dictionary) -> bool:
 	if not building.has("activity"):return true
 	var value: Variant=building.activity.get("hotel_shift",{})
 	if value=={}:return true
-	if not _hotel(building) or not value is Dictionary or value.size()!=3:return false
+	if not _hotel(building) or not value is Dictionary or value.size() not in [3,4]:return false
 	for key in ["day","score","steps"]:
 		if not Terrain.number(value.get(key)) or value[key]!=floorf(float(value[key])):return false
-	return value.day>=1 and value.day<=100000 and value.score>=0 and value.score<=125 and value.steps==5
+	if value.day<1 or value.day>100000 or value.score<0 or value.score>125 or value.steps<0 or value.steps>5:return false
+	if not value.has("actions"):return value.steps==5
+	if not value.actions is Array or value.actions.size()!=int(value.steps):return false
+	for choice in value.actions:
+		if not Terrain.number(choice) or choice!=floorf(float(choice)) or int(choice)<0 or int(choice)>2:return false
+	return true
