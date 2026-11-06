@@ -9549,3 +9549,60 @@ msgstr "Meanwhile you can still manage rooms, change rates and upgrade hotel mod
 
 msgid "WC-Service & Entsorgung"
 msgstr "Restroom Servicing & Waste Disposal"
+
+msgid "Dixi-Service-Runde"
+msgstr "Portable WC Service Round"
+
+msgid "Kabinen-Servicerunde"
+msgstr "Cabin Service Round"
+
+msgid "WC-Haus-Service"
+msgstr "Restroom House Service"
+
+msgid "Prüfe mobile Toiletten: Tank, Reinigung, Papier und Frostschutz."
+msgstr "Check portable toilets: tank, cleaning, paper and frost protection."
+
+msgid "Tank leeren"
+msgstr "Empty waste tank"
+
+msgid "Desinfizieren"
+msgstr "Disinfect"
+
+msgid "Papier auffüllen"
+msgstr "Restock toilet paper"
+
+msgid "Frostschutz prüfen"
+msgstr "Check frost protection"
+
+msgid "Ordne den richtigen Wartungsauftrag den Winter-Kabinen zu."
+msgstr "Assign the right maintenance task to the winter restrooms."
+
+msgid "Container-Sanitärdienst"
+msgstr "Container Restroom Service"
+
+msgid "Organisiere die Servicerunde für die öffentlichen Container."
+msgstr "Organize service rounds for public restroom containers."
+
+msgid "Prüfe Hygiene, Entsorgung und Winterbetrieb des Sanitärhauses."
+msgstr "Check sanitation-house hygiene, waste disposal and winter operations."
+
+msgid "Premium-Sanitärservice"
+msgstr "Premium Restroom Service"
+
+msgid "Leite die Wartungs- und Qualitätskontrolle des Luxus-Sanitärzentrums."
+msgstr "Manage the luxury restroom facility's service and quality checks."
+
+msgid "Öffentliche Toilettennutzung"
+msgstr "Public Restroom Access"
+
+msgid "Mehr WC-Kapazität"
+msgstr "Additional Restroom Capacity"
+
+msgid "Größerer Entsorgungstank"
+msgstr "Larger Waste Tank"
+
+msgid "Verbesserte Hygieneausstattung"
+msgstr "Improved Hygiene Equipment"
+
+msgid "Optimierte Wartungsabläufe"
+msgstr "Optimized Servicing Operations"
