@@ -19,6 +19,12 @@ const LIFTS := {
 }
 
 const BUILDINGS := {
+	# Independent PUBLIC toilets; hotels and restaurants already include internal WCs.
+	"wc_dixi": {"name":"Dixi-Toilette · Blau","cost":850,"upkeep":15,"income":0.0,"appeal":2,"color":"278fc6","description":"Günstiges mobiles WC für Liftplätze, Pistenränder und den Winterbetrieb. Tankentleerung und Reinigung sind separat."},
+	"wc_cabin": {"name":"Winter-WC-Kabine","cost":2600,"upkeep":28,"income":0.0,"appeal":3,"color":"3d91b2","description":"Zwei robuste WC-Kabinen mit mehr Kapazität und günstiger Wartung."},
+	"wc_module": {"name":"Sanitär-Container","cost":9800,"upkeep":80,"income":0.0,"appeal":5,"color":"6ba8bc","description":"Vier zugängliche Toiletten mit Ver- und Entsorgungsservice."},
+	"wc_house": {"name":"Alpines WC-Haus","cost":24500,"upkeep":180,"income":0.0,"appeal":7,"color":"a9bdc2","description":"Beheizbares Sanitärhaus mit hoher Besucherleistung."},
+	"wc_luxury": {"name":"Luxus-Sanitärzentrum","cost":65000,"upkeep":420,"income":0.0,"appeal":11,"color":"99b3b7","description":"Großes Premium-WC mit besonders viel Kapazität, Service und Komfort."},
 	"cocoa": {"name":"Kakaoladen","cost":11500,"upkeep":90,"income":6.0,"appeal":5,"color":"a3775e","description":"Heiße Schokolade wärmt kalte Gäste. Ein günstiger Einstieg mit kurzen Pausen und Gastronomiepersonal."},
 	"schmarrn": {"name":"Kaiserschmarrn-Laden","cost":17500,"upkeep":155,"income":9.0,"appeal":7,"color":"d9ab62","description":"Warmer Kaiserschmarrn stillt den Hunger und bietet Familien Platz für eine gemeinsame Pause."},
 	"pizzeria": {"name":"Pizzeria","cost":26500,"upkeep":240,"income":15.0,"appeal":8,"color":"b9694e","description":"Sättigende Pizza und längere Mittagspausen. Benötigt Gastronomiepersonal und einen erreichbaren Eingang."},
@@ -73,6 +79,7 @@ const WEATHER := [
 
 const FOOD_KINDS = ["kiosk", "cocoa", "schmarrn", "pizzeria", "restaurant", "lodge", "hotel"]
 static func building_group(kind: String) -> String:
+	if kind.begins_with("wc_"): return "Sanitär & Infrastruktur"
 	if LODGING.has(kind): return "Unterkünfte & Hotels"
 	if kind in FOOD_KINDS or kind == "shelter": return "Verpflegung & Wärme"
 	if kind in ["repair_office", "maintenance", "snowmaker", "first_aid"]: return "Betrieb & Sicherheit"
