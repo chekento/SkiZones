@@ -691,14 +691,15 @@ func _build_inspector() -> void:
 	guest_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(guest_face)
 	guest_face.hide()
+	content.add_child(inspector_actions)
+	inspector_actions.add_theme_constant_override("separation", 8)
+	# Primary actions now remain ahead of the descriptive stats in the scroll area.
 	content.add_child(inspector_text)
 	inspector_text.bbcode_enabled = true
 	inspector_text.fit_content = true
 	inspector_text.scroll_active = false
 	inspector_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inspector_text.add_theme_font_size_override("normal_font_size", 17)
-	content.add_child(inspector_actions)
-	inspector_actions.add_theme_constant_override("separation", 10)
 
 func _build_plan_bar() -> void:
 	var panel := _panel(root, 340, -156, -24, -24, 1, 1)
@@ -1424,8 +1425,8 @@ func _refresh_context_text() -> void:
 		elif item.has("radius"):
 			text_value += L.text("Ø %.0f m · Begehbare Fläche\nPisten und Gebäude können hier anschließen.\nLifttechnik und Zugspuren bleiben gesperrt.") % L.args((item.radius * 2))
 		else:
-			text_value += L.text("%s\n\nBetrieb: %d €/Tag\n%d tatsächliche Besuche\nServiceerlöse: %s €") % L.args([Catalog.BUILDINGS[item.kind].description, Catalog.BUILDINGS[item.kind].upkeep, item.get("visits", 0), money_text(item.get("revenue", 0))])
-			if model.Needs.SERVICES.has(item.kind): text_value += L.text("\n\nBesuche unterwegs / vor Ort: %d / %d Plätze\nGäste wählen dieses Gebäude nach Bedarf und Erreichbarkeit.") % L.args([model.service_load(int(item.id)),model.service_capacity(item)])
+			var balance: Dictionary = Ops.business_balance(model,item)
+			text_value += L.text("BESUCHE  %d  ·  PLÄTZE  %d/%d\nUMSATZ  %s €\nKOSTEN  %s €\nERGEBNIS  %s €") % L.args([int(item.get("visits",0)),model.service_load(int(item.id)) if model.Needs.SERVICES.has(item.kind) else 0, model.service_capacity(item) if model.Needs.SERVICES.has(item.kind) else 0,money_text(balance.sales),money_text(balance.costs),money_text(balance.net)])
 		inspector_text.text = text_value
 	elif current_tool == "inspect":
 		var piste_word := L.text("Piste") if model.pistes.size() == 1 else L.text("Pisten")
