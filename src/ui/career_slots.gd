@@ -102,6 +102,15 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var rescue: Button=hud._button(section,L.text("Backup retten"),func():
+		if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==map_id:
+			hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
+			return
+		var result:Dictionary=SaveManager.repair(map_id,slot,free_slot)
+		hud.toast(L.text(str(result.message)))
+		if result.ok:refresh()
+	)
+	rescue.name="rescue_save_038"
 	var target:=OptionButton.new()
 	target.name="copy_target"
 	target.custom_minimum_size=Vector2(95,46)
@@ -119,7 +128,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	var remove: Button=hud._button(section,L.text("Archivieren"),func():_request_archive(map_id,slot,free_slot))
 	remove.name="archive_save_038"
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
-	for button in [check,copy,remove]:
+	for button in [check,rescue,copy,remove]:
 		button.add_theme_font_size_override("font_size",14)
 		button.custom_minimum_size.y=46
 		button.clip_text=true
