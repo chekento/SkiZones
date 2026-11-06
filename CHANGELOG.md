@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **41 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **42 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.36.0](https://github.com/chekento/SkiZones/releases/tag/v0.36.0)** | 06.11.2026 | Hotelzimmer und Etagenplan | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.36.0/SkiZones-0.36.0-android-arm64.apk) | [Details](docs/releases/0.36.0.md) |
 | **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
 | **[v0.35.0](https://github.com/chekento/SkiZones/releases/tag/v0.35.0)** | 05.11.2026 | Radio, echte Verkäufe und beständige Schneewege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk) | [Details](docs/releases/0.35.0.md) |
 | **[v0.34.1](https://github.com/chekento/SkiZones/releases/tag/v0.34.1)** | 05.11.2026 | Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk) | [Details](docs/releases/0.34.1.md) |
@@ -51,6 +52,43 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.36.0 · Hotelzimmer und Etagenplan (06.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.36.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.36.0/SkiZones-0.36.0-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.36.0/SkiZones-0.36.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.36.0/manifest.json) · [Originalnotizen](docs/releases/0.36.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.36.0)
+
+**Version:** 0.36.0 · Android `versionCode 46` in beiden Profilen · Paket `cloud.kosch.skizones`.
+
+### Neu in der Hotelverwaltung
+
+- Optionale Zimmerverwaltung für bestehende Hotels: feste Buchungen für tatsächliche Einzelgäste und Familien. Belegte Zimmer sind vor Sperrung, Verschieben und Reinigung geschützt.
+- Nach dem Auschecken werden Zimmer schmutzig und bleiben bis zur tatsächlichen Reinigung nicht buchbar.
+- Manuelle Reinigung kostet 8 € je tatsächlich schmutzigem, freiem Zimmer. Die automatische Reinigung arbeitet alle 15 Spielminuten mit der real diensthabenden Besetzung bzw. dem bestehenden Reinigungsvertrag.
+- Der interne Etagenplan speichert Positionen und Sperrungen. Versetzen kostet 250 €; zusätzliche Kapazität entsteht ausschließlich durch den bestehenden Gebäudeausbau.
+- Deutsche und englische Touch-Oberfläche für Hoch- und Querformat. Das Lesen der Zimmerseite aktiviert die optionale Verwaltung nicht und verändert alte Spielstände nicht.
+- Enthält den vollständigen veröffentlichten 0.35.1-Stabilitätsstand: Alt-Save-Rettung, vier freie Slots, freies Bauen mit unbegrenztem Budget, Nutzung alter Pisten/Lifte, mehr Bewegungsspuren und bisherige Radio-/Wirtschaftsfunktionen.
+
+### Belegte Prüfungen
+
+Auf dem integrierten Spielcode `05647d08a954fdc43219aba2bf85ef9c5eb2f660` bestanden alle 22 PR-Workflows:
+
+- [Hotelzimmer-QA](https://github.com/chekento/SkiZones/actions/runs/42189271622): 28 Zimmer-Modellprüfungen, 14 bestehende Hotel- und 17 Familientests sowie 39 tatsächlich gerenderte Touch-/Layoutprüfungen auf 360×740, 420×860 und 740×360 in Deutsch und Englisch.
+- [Vollständige Build- und Android-QA](https://github.com/chekento/SkiZones/actions/runs/42189271783): Godot 4.5.2, historische Originalspielstände einschließlich 0.19/0.27, vier Speicherplätze, Free-Play, Signaturkontinuität zur öffentlichen 0.35.1 sowie Android API 30/36 mit Prozesswiederherstellung und In-place-Update aller vier Karrieren.
+- Falsche Signatur und beschädigte Update-Datei werden auf beiden Android-Versionen zurückgewiesen. Die bestehende Prüfung auf Engine-/Rendererfehler bleibt erhalten.
+- Der frühere API-36-Audiostartfehler trat in dieser vollständigen Prüfung nicht erneut auf. Daraus wird keine allgemeine Behebung aller Android-Audioprobleme abgeleitet.
+- Beide neuen Hoteltests sind zusätzlich feste Gates im vollständigen Android-Build-Workflow. Originaldateien werden beim Laden nicht gelöscht oder überschrieben.
+
+Die Veröffentlichung erfolgt ausschließlich über den anschließenden grünen Hauptzweig-Workflow. Ein PR-Build ist kein öffentlicher APK-Release. Downloadbanner und Katalog dürfen erst auf tatsächlich vorhandene offizielle Releaseassets zeigen.
+
+### Grenzen
+
+- Noch keine freie äußere 3D-Hotelarchitektur und keine 100 Hotelforschungen; weitere Hotel-/Toiletten-Ausbaustufen folgen separat.
+- Historische Original-Fälle werden konkret geprüft. Keine pauschale Garantie für jede beliebige beschädigte oder unbekannte alte Save-Datei.
+- Alte Release-Links bleiben gültig. Keine Rathaus-Chronik vor einer tatsächlich veröffentlichten Fassung.
+
+Umsetzung: [PR #81](https://github.com/chekento/SkiZones/pull/81).
+
+---
 
 ## v0.35.1 · Stabilitäts-Hotfix (06.11.2026)
 
