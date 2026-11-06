@@ -12,7 +12,11 @@ const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersp
 const RESEARCH := {
 	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."},
 	"service": {"name": "Gästekomfort", "cost": 24000, "points": 4, "days": 1, "requires": [], "effect": "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."},
-	"sanitation": {"name": "Sanitärtechnik", "cost": 14000, "points": 2, "days": 1, "requires": ["service"], "effect": "Hotel-WCs erweitern: mehr Kapazität, kürzere Warteschlangen und planbarer Hygienedienst."},
+	"sanitation": {"name": "Sanitärtechnik", "cost": 14000, "points": 2, "days": 1, "requires": ["service"], "effect": "Öffentliche Sanitär-Container freischalten. Hotels und Restaurants haben bereits eigene Toiletten."},
+	"wc_logistics": {"name":"Mobile WC-Logistik","cost":3200,"points":1,"days":1,"requires":[],"effect":"Winter-WC-Kabinen mit zwei Plätzen freischalten."},
+	"wc_winter": {"name":"Frostsichere Entsorgung","cost":8500,"points":2,"days":1,"requires":["wc_logistics"],"effect":"Winterisolierung für öffentliche Toiletten aktivieren."},
+	"wc_hygiene": {"name":"Sanitärhygiene","cost":26000,"points":4,"days":2,"requires":["sanitation"],"effect":"Alpine WC-Häuser mit acht Plätzen freischalten."},
+	"wc_comfort": {"name":"Premium-Sanitärversorgung","cost":49000,"points":6,"days":2,"requires":["wc_hygiene","wc_winter"],"effect":"Luxus-Sanitärzentrum mit höherer Kapazität freischalten."},
 	"meteo": {"name": "Bergwetterstation", "cost": 12000, "points": 2, "days": 1, "requires": [], "effect": "Eine verlässliche Wettervorschau für die nächsten sechs Betriebstage."},
 	"lifttech": {"name": "Fördertechnik", "cost": 36000, "points": 5, "days": 2, "requires": [], "effect": "Lifte auf Stufe 2 ausbauen: mehr Kapazität und kürzere Fahrzeiten."},
 	"hospitality": {"name": "Alpine Hotellerie", "cost": 48000, "points": 6, "days": 2, "requires": ["service"], "effect": "Berghotels werden verfügbar. Sie steigern Nachfrage, Komfort und Erlöse."},
@@ -26,7 +30,8 @@ const RESEARCH := {
 const BRANCHES := [
 	{"id":"snow", "name":"Schnee & Gelände", "icon":"❄", "description":"Pistenpräparierung und Bergwetter", "nodes":["snowcraft","efficient_snow","meteo"]},
 	{"id":"transport", "name":"Lifte & Mobilität", "icon":"🚠", "description":"Förderleistung und Seilbahn-Technologie", "nodes":["lifttech","gondola","mastercraft"]},
-	{"id":"hospitality", "name":"Gäste & Hotelentwicklung", "icon":"⌂", "description":"Gästekomfort, Sanitärtechnik und Hotellerie", "nodes":["service","sanitation","hospitality"]},
+	{"id":"hospitality", "name":"Gäste & Hotelentwicklung", "icon":"⌂", "description":"Gästekomfort und Hotellerie", "nodes":["service","hospitality"]},
+	{"id":"sanitation", "name":"Öffentliche Sanitäranlagen", "icon":"🚻", "description":"Dixi-Toiletten, Entsorgung, Frostschutz und Komfort", "nodes":["wc_logistics","sanitation","wc_winter","wc_hygiene","wc_comfort"]},
 	{"id":"destination", "name":"Destination & Vermarktung", "icon":"★", "description":"Reichweite, Gästegruppen und Nachfrage", "nodes":["marketing"]}
 ]
 
@@ -127,7 +132,7 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:
-		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality"}.get(kind, "")
+		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality", "wc_cabin":"wc_logistics", "wc_module":"sanitation", "wc_house":"wc_hygiene", "wc_luxury":"wc_comfort"}.get(kind, "")
 	return L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name) if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
