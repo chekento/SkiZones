@@ -8,7 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
-| **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | SkiZones 0.35.1 – Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
+| **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
 | **[v0.35.0](https://github.com/chekento/SkiZones/releases/tag/v0.35.0)** | 05.11.2026 | Radio, echte Verkäufe und beständige Schneewege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.0/SkiZones-0.35.0-android-arm64.apk) | [Details](docs/releases/0.35.0.md) |
 | **[v0.34.1](https://github.com/chekento/SkiZones/releases/tag/v0.34.1)** | 05.11.2026 | Hotfix: echte Tagesgäste und gestaffelte Hotelaufbrüche | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.1/SkiZones-0.34.1-android-arm64.apk) | [Details](docs/releases/0.34.1.md) |
 | **[v0.34.0](https://github.com/chekento/SkiZones/releases/tag/v0.34.0)** | 05.11.2026 | Lebendige Alpenwelt, CC0-Radio und intuitive Bauansicht | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.34.0/SkiZones-0.34.0-android-arm64.apk) | [Details](docs/releases/0.34.0.md) |
@@ -52,7 +52,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 ## Ausführliches Änderungsprotokoll
 
-## v0.35.1 · SkiZones 0.35.1 – Stabilitäts-Hotfix (06.11.2026)
+## v0.35.1 · Stabilitäts-Hotfix (06.11.2026)
 
 **Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.35.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk)** (167.2 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.35.1/manifest.json) · [Originalnotizen](docs/releases/0.35.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.35.1)
 
