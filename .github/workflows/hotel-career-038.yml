@@ -13,6 +13,7 @@ on:
       - 'src/core/progression.gd'
       - 'tests/save_management_038.gd'
       - 'tests/hotel_simulator_038.gd'
+      - 'tests/ui_building_career_038.gd'
       - '.github/workflows/hotel-career-038.yml'
   workflow_dispatch:
 permissions:
@@ -48,3 +49,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-manager-038
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_management_038.gd
+      - name: Prepare virtual display for actual responsive UI
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Real hotel, staff and fullscreen careers on desktop and mobile
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 330 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/ui_building_career_038.gd
