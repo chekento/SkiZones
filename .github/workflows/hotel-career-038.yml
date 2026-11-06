@@ -2,6 +2,15 @@ name: 0.38 Hotel, Staffing and Safe Save Manager QA
 on:
   pull_request:
     paths:
+      - 'src/core/public_wc.gd'
+      - 'src/core/guest_needs.gd'
+      - 'src/core/catalog.gd'
+      - 'src/core/operations.gd'
+      - 'src/core/hospitality.gd'
+      - 'src/world/alpine_art.gd'
+      - 'src/world/style_assets.gd'
+      - 'src/ui/building_icon.gd'
+      - 'src/ui/building_browser.gd'
       - 'src/core/hotel_simulator.gd'
       - 'src/core/hotel_rooms.gd'
       - 'src/core/save_management_038.gd'
@@ -13,6 +22,7 @@ on:
       - 'src/core/progression.gd'
       - 'tests/save_management_038.gd'
       - 'tests/hotel_simulator_038.gd'
+      - 'tests/public_wc_038.gd'
       - 'tests/ui_building_career_038.gd'
       - '.github/workflows/hotel-career-038.yml'
   workflow_dispatch:
@@ -43,8 +53,10 @@ jobs:
         run: |
           "$GODOT_BIN" --headless --editor --import --quit
           python3 tools/check_localization.py
-      - name: Hotel Simulator, Sanitation and Research
+      - name: Hotel Simulator, now without a public WC manager
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/hotel_simulator_038.gd
+      - name: Independent public Dixi manager and guest hygiene regression
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/public_wc_038.gd
       - name: Isolated historical-save copy, corruption and archive
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-manager-038
