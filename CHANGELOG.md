@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **46 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **47 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
 | **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Lesbare Spielstände und wirksame Reparatur | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
 | **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
@@ -56,6 +57,30 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.39.0 · Spielstände, sichere Reparatur und Vollbildverwaltung (07.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.39.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk)** (167.3 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.39.0/manifest.json) · [Originalnotizen](docs/releases/0.39.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.39.0)
+
+### Schwerpunkt: vorhandene Spielstände weiterhin benutzen
+
+- Vier Karriereplätze und vier freie Resorts behalten ihre gespeicherten Anlagen, Budgets und Fortschritte. „Fortsetzen“ bzw. „Neues Resort starten“ bleiben die primären Aktionen. **Prüfen**, **Reparieren**, **Kopieren** und **Löschen & sichern** liegen im bedarfsgesteuerten **Verwalten**-Untermenü.
+- Der Spielstand- und Missionsmanager deckt den gesamten Bildschirm einschließlich der seitlichen sicheren Displaybereiche ab; die dahinterliegende Skipiste bleibt verborgen. Beide Overlays behalten die App-Theme-Farben.
+- Der Missionsmodus verwendet jetzt dieselbe checksumgesicherte Prüfung und nichtdestruktive Wiederherstellung wie Karriere und Freies Bauen. Historische `skizones_<id>.json`-Szenario-Dateien und zugehörige Sicherungen bleiben lesbar, auch wenn der freie Modus ausgewählt ist.
+- Die Wiederherstellungsprüfung gibt einen konkreten Fehlerbereich aus (Anlagen, Hotel, Berichte, Betrieb, Gäste oder Gruppen), wenn ein Checksum-valides Archiv trotzdem nicht geladen werden kann. Ein fehlgeschlagenes Laden darf keinen neuen leeren Spielstand über eine vorhandene Datei schreiben.
+- Beim Neuinitialisieren eines belegten Karriere- oder freien Speicherplatzes archiviert das Programm zuerst **sämtliche** betroffenen Dateien und verifiziert die Kopien per SHA-256. Bei unvollständiger Sicherung wird keine Originaldatei entfernt.
+- Checksumvalide, aber semantisch nicht direkt ladbare Daten werden nur mittels validierter historischer Geometrie und gegebenenfalls zurückgesetzter *vorübergehender* Gästedaten versucht zu retten. Bauwerke, Geld, Erfahrung und dauerhaftes Resort werden niemals spekulativ ersetzt. Jede Reparatur muss normal erneut ladbar sein und bewahrt die ursprüngliche Datei.
+
+### Originalversionen und Android-Prüfungen
+
+- Die historische Kompatibilitätsmatrix erzeugt und lädt eigenständige Dateien mit den **Original-Releasecodes v0.1.1–v0.38.2**, über 46 festgelegte öffentliche Versionen.
+- Zusätzliche Tests erzeugen in den ursprünglichen Versionen 0.27.0, 0.30.0, 0.32.0, 0.33.2, 0.35.1, 0.37.0, 0.38.1 und 0.38.2 echte freie Anlagen in zwei Speicherplätzen plus Braunlage-Mission. Hauptdatei und alte `.bak` werden mit dem aktuellen Code geprüft und repariert.
+- Testisolierte Backups bleiben vor und nach jedem Reparaturversuch bytegenau erhalten. Keine Tests greifen auf echte Spielerdateien zu.
+- Android `versionCode=51` und `versionName=0.39.0` werden in beiden APK-Profilen verwendet; Paketkennung `cloud.kosch.skizones` und bestehende Signaturkette bleiben unverändert.
+
+**Freigaberegel:** Erst nach vollständigem Godot-Import, historischen Kompatibilitätstests, gerenderter GUI-Prüfung und Android-Update-/Resume-Gates veröffentlichen. Ein grüner Quellcodetest allein ist kein Nachweis, dass jeder möglicherweise beschädigte individuelle Spielstand wiederherstellbar ist. Originale bleiben deshalb auch bei einem nicht reparierbaren Fall bestehen.
+
+---
 
 ## v0.38.2 · Lesbare Spielstände und wirksame Reparatur (07.11.2026)
 
