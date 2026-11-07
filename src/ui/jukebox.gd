@@ -129,16 +129,19 @@ func setup(owner_hud: CanvasLayer) -> void:
 	station_left=_icon_button(tuning,"previous",func(): _step_station(-1),"Vorheriger Sender")
 	station_left.tooltip_text=L.text("Vorherigen Sender wählen")
 	station_left.custom_minimum_size.x=62
+	station_left.add_theme_stylebox_override("normal",hud._style(Color("bde4e0"),12,8))
 	dial.size_flags_horizontal=Control.SIZE_SHRINK_CENTER
 	dial.tuned.connect(_step_station)
 	dial.tooltip_text=L.text("Sendersuchrad drehen, wischen oder anklicken")
 	tuning.add_child(dial)
 	station_counter=_label(tuning,"",15,Color("dce9e2"))
 	station_counter.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	station_counter.add_theme_font_size_override("font_size",16)
 	station_counter.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	station_right=_icon_button(tuning,"next",func(): _step_station(1),"Nächster Sender")
 	station_right.tooltip_text=L.text("Nächsten Sender wählen")
 	station_right.custom_minimum_size.x=62
+	station_right.add_theme_stylebox_override("normal",hud._style(Color("bde4e0"),12,8))
 	station_info=_label(radio,"",14,Color("a7c9ce"))
 	station_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var transport := HFlowContainer.new()
@@ -151,10 +154,13 @@ func setup(owner_hud: CanvasLayer) -> void:
 	)
 	skip_button.icon=load("res://assets/radio/controls/skip.svg")
 	skip_button.expand_icon=true
-	skip_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	# A real transport key, not an enormous full-width pale strip.
+	skip_button.custom_minimum_size=Vector2(238,58)
+	skip_button.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
 	skip_button.tooltip_text=L.text("Zum nächsten Titel dieses Senders springen")
 	credits_button=_radio_button(transport,L.text("CREDITS"),_toggle_credits)
 	credits_button.icon=load("res://assets/radio/controls/info.svg")
+	credits_button.custom_minimum_size=Vector2(130,58)
 	credits_button.tooltip_text=L.text("Musik- und Lizenzquellen dieses Senders zeigen")
 	var bank: PanelContainer=_panel(radio,Color("132d39"))
 	var bank_stack: VBoxContainer=hud._vbox(bank,8)
