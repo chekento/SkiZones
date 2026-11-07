@@ -182,31 +182,47 @@ static func migrate_legacy() -> bool:
 		file.store_string("1");file.close()
 	return true
 
+## Archive every existing member byte-for-byte before removing a single original.
+## A successful filesystem copy is not sufficient evidence of integrity.
+## Failure leaves all source files in place; a partially populated archive
+## may be inspected later but is never treated as a completed deletion.
+static func _archive_slot_files(folder: String, paths: Array) -> bool:
+	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK: return false
+	var originals: Array = []
+	var checksums: Dictionary = {}
+	for path in paths:
+		if not FileAccess.file_exists(path): continue
+		var source_hash: String = FileAccess.get_sha256(path)
+		if source_hash.is_empty(): return false
+		var archived: String = folder + "/" + path.get_file()
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(archived)) != OK: return false
+		if not FileAccess.file_exists(archived) or FileAccess.get_sha256(archived) != source_hash: return false
+		originals.append(path)
+		checksums[path] = source_hash
+	# Verify the entire archive again BEFORE the first destructive operation.
+	for path in originals:
+		var archive_path: String = folder + "/" + path.get_file()
+		if not FileAccess.file_exists(path) or FileAccess.get_sha256(path) != str(checksums[path]): return false
+		if not FileAccess.file_exists(archive_path) or FileAccess.get_sha256(archive_path) != str(checksums[path]): return false
+	for path in originals:
+		if DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) != OK: return false
+	return true
+
 static func archive_free_slot(free_slot: int) -> bool:
 	if free_slot < 1 or free_slot > 4: return false
 	var folder := "user://free-archives/slot-%d-%d-%d" % [free_slot,Time.get_unix_time_from_system(),Time.get_ticks_usec()]
-	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK: return false
 	var paths: Array = [passport_path(0, free_slot), passport_path(0, free_slot) + ".bak", index_path(0, free_slot)]
 	for id in Maps.FANTASY_MAPS:
 		var path := path_for_map(id, 0, free_slot)
 		paths.append_array([path, path + ".bak"])
-	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder + "/" + path.get_file())) != OK: return false
-	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) != OK: return false
-	return true
+	return _archive_slot_files(folder, paths)
 
 static func archive_slot(slot: int) -> bool:
 	if slot < 1 or slot > 4: return false
 	var folder := "user://career-archives/slot-%d-%d-%d" % [slot,Time.get_unix_time_from_system(),Time.get_ticks_usec()]
-	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK: return false
-	var paths: Array=[passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
+	var paths: Array = [passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
 	for id in Maps.FANTASY_MAPS: paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
-	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder+"/"+path.get_file()))!=OK: return false
-	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK: return false
-	return true
+	return _archive_slot_files(folder, paths)
 
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
 	var payload := JSON.stringify(model.snapshot(),"",true,true)
