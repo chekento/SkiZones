@@ -44,6 +44,8 @@ func run() -> void:
 		"Valid same-mountain backup still restores the existing career")
 	var free:=Resort.new()
 	free.new_game(false,20261107,"sonnenhang")
+	# The starter flag controls scenery, not the free-play game mode.
+	free.campaign.mode="free"
 	var unsafe:String=Saves.path_for_map("sonnenhang",4)
 	check(Saves.save_game(free,unsafe).ok,"Fixture: full valid free build written under a career filename")
 	loaded=Resort.new();loaded.new_game(true,20261107,"sonnenhang")
