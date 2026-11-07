@@ -690,6 +690,8 @@ func _build_tools() -> void:
 	lift_choice.selected = Catalog.LIFTS.keys().find("drag")
 	for kind in Catalog.BUILDINGS:
 		building_choice.add_item(L.text(Catalog.BUILDINGS[kind].name))
+		if not Catalog.purchasable(kind):
+			building_choice.set_item_disabled(building_choice.item_count-1,true)
 	building_choice.selected = Catalog.BUILDINGS.keys().find("lodge")
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1561,17 +1563,18 @@ func refresh() -> void:
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	var scenario: String = str(model.operations.get("scenario",""))
 	var goals: Array = Ops.evaluate(model) if not scenario.is_empty() else []
+	var notification_blocked:bool=experience.visible or lift_staff.visible or management.visible or career_slots.visible
 	# The same elegant achievement overlay now carries mission successes,
 	# actual CC0 song changes, medals and relevant resort warnings.
-	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
+	if game.has_game and not notification_blocked and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
 		_announce_radio_track()
 		_announce_finance_warning(model)
 	# Styling is synced before displaying queued achievements.
-	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
+	var show_achievement: bool=not notification_blocked and not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
 	achievement_overlay.visible=show_achievement
 	achievement_overlay.set_process(show_achievement)
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
-	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
+	if game.has_game and not notification_blocked and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
 	var sandbox: bool = model.campaign.get("mode", "career") == "free"

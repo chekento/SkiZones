@@ -49,8 +49,8 @@ func _init() -> void:
 	check(connected,"An upper extension has a real short pedestrian connection from the existing summit")
 	var order:=Catalog.building_order()
 	check(order.has("kiosk") and order.find("kiosk")<order.find("cocoa") and order.find("cocoa")<order.find("hotel") and order.find("pizzeria")<order.find("repair_office"),"Affordable food services precede larger hospitality and repair investments")
-	var complete:=order.size()==Catalog.BUILDINGS.size()
-	for kind in Catalog.BUILDINGS:complete=complete and order.count(kind)==1
+	var complete:=order.size()==Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind))).size()
+	for kind in Catalog.BUILDINGS:complete=complete and order.count(kind)==int(Catalog.purchasable(kind))
 	check(complete,"The price-sorted village catalog contains every service exactly once, including new businesses")
 	var sorted:=true
 	for i in range(1,order.size()):sorted=sorted and Catalog.BUILDINGS[order[i-1]].cost<=Catalog.BUILDINGS[order[i]].cost

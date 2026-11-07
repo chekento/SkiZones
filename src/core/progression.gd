@@ -9,7 +9,8 @@ const Sponsorship = preload("res://src/core/sponsorship.gd")
 const CreditService = preload("res://src/core/credit_service_035.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
 const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersportzentrum", "Alpine Destination"]
-const RESEARCH := {
+const WCDevelopment=preload("res://src/core/wc_development.gd")
+const BASE_RESEARCH := {
 	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."},
 	"service": {"name": "Gästekomfort", "cost": 24000, "points": 4, "days": 1, "requires": [], "effect": "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."},
 	"sanitation": {"name": "Sanitärtechnik", "cost": 14000, "points": 2, "days": 1, "requires": ["service"], "effect": "Öffentliche Sanitär-Container freischalten. Hotels und Restaurants haben bereits eigene Toiletten."},
@@ -25,15 +26,28 @@ const RESEARCH := {
 	"marketing": {"name": "Destinationsmarketing", "cost": 35000, "points": 5, "days": 2, "requires": ["service"], "effect": "15 % mehr Nachfrage. Gute Pisten und kurze Wartezeiten bleiben entscheidend."},
 	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "8er-Sessel werden verfügbar; Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
 }
+static var RESEARCH:Dictionary=_research_catalog()
+static func _research_catalog() -> Dictionary:
+	var result:Dictionary=BASE_RESEARCH.duplicate(true)
+	result.merge(WCDevelopment.PROJECTS,true)
+	return result
+
 ## These are branching, save-compatible research trees. All completed projects
 ## keep their existing IDs, costs, durations and valid prerequisites.
-const BRANCHES := [
+const BASE_BRANCHES := [
 	{"id":"snow", "name":"Schnee & Gelände", "icon":"❄", "description":"Pistenpräparierung und Bergwetter", "nodes":["snowcraft","efficient_snow","meteo"]},
 	{"id":"transport", "name":"Lifte & Mobilität", "icon":"🚠", "description":"Förderleistung und Seilbahn-Technologie", "nodes":["lifttech","gondola","mastercraft"]},
 	{"id":"hospitality", "name":"Gäste & Hotelentwicklung", "icon":"⌂", "description":"Gästekomfort und Hotellerie", "nodes":["service","hospitality"]},
-	{"id":"sanitation", "name":"Öffentliche Sanitäranlagen", "icon":"🚻", "description":"Dixi-Toiletten, Entsorgung, Frostschutz und Komfort", "nodes":["wc_logistics","sanitation","wc_winter","wc_hygiene","wc_comfort"]},
+	{"id":"sanitation", "name":"Öffentliche Sanitäranlagen", "icon":"🚻", "description":"Portable Toilet, Ausbau und 100 wirksame Entwicklungen", "nodes":["wc_logistics","sanitation","wc_winter","wc_hygiene","wc_comfort"]},
 	{"id":"destination", "name":"Destination & Vermarktung", "icon":"★", "description":"Reichweite, Gästegruppen und Nachfrage", "nodes":["marketing"]}
 ]
+
+static var BRANCHES:Array=_research_branches()
+static func _research_branches() -> Array:
+	var result:Array=BASE_BRANCHES.duplicate(true)
+	for branch in result:
+		if branch.id=="sanitation":branch.nodes=WCDevelopment.PROJECTS.keys()
+	return result
 
 static func branch_for(id: String) -> Dictionary:
 	for branch in BRANCHES:
@@ -122,6 +136,7 @@ static func weather_for_day(seed_value: int, day_number: int) -> int:
 	return 4 # Thaw: 8%; snowmaking and grooming still matter.
 
 static func access_message(model: RefCounted, kind: String, is_lift: bool) -> String:
+	if not is_lift and not Catalog.purchasable(kind):return L.text("Diese Ausbaustufe entsteht durch Ausbau einer Portable Toilet.")
 	if model.campaign.get("mode", "free") == "free":
 		return ""
 	var needed := ""
@@ -183,7 +198,11 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 		var context: RefCounted = model.Edit.context(model, id)
 		var corridor: Dictionary = context.preview_piste(item.points, model.Snow.piste_width(item) + 4)
 		if not corridor.ok: return corridor
+	if str(item.get("kind",""))=="wc_dixi":
+		var site:Dictionary=model.Edit.context(model,id).preview_building(item.kind,Terrain.unpack(item.point),int(item.get("rotation",0)),level+1)
+		if not site.ok:return site
 	var cost := roundi(item.cost * (0.45 if level == 1 else 0.8 + maxf(0, level - 2) * 0.35))
+	if str(item.get("kind",""))=="wc_dixi":cost=roundi([1750,7200,14700,40500][level-1]*float(WCDevelopment.modifiers(model.campaign.research).construction))
 	return {"ok": model.campaign.get("mode", "career") == "free" or model.money >= cost, "message": L.text("Stufe %d · %d €") % L.args([level + 1, cost]), "cost": cost}
 
 static func upgrade(model: RefCounted, id: int) -> Dictionary:

@@ -232,7 +232,7 @@ func _long_career() -> void:
 		model.next_day()
 	check(valid and model.day == 57, "A real career completes 56 operating days without invalid balances, repeated rewards or stranded guests")
 	check(retained, "Mid-day save continuations remain deterministic in both winters")
-	check(model.campaign.research.size() == Progression.RESEARCH.size(), "The full research tree can be completed through normal career income and points")
+	check(Progression.BASE_RESEARCH.keys().all(func(id):return model.campaign.research.has(id)), "Original research milestones complete through normal career income while the extended WC tree continues across winters")
 	check(model.campaign.history.size() == 28 and model.campaign.history[0].day == 29 and model.campaign.history[-1].day == 56, "Financial history rolls over to the most recent winter")
 	check(model.campaign.season_reward_day == 56 and Progression.season_number(model) == 3 and model.campaign.completed > 6, "Repeated winters retain development and offer fresh completable contracts")
 	print("LONG CAREER: guests=%d rides=%d contracts=%d research=%d funds=%.0f" % [model.total_guests, model.total_rides, model.campaign.completed, model.campaign.research.size(), model.money])

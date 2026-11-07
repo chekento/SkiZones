@@ -1,39 +1,37 @@
-# SkiZones – Eigenständiger öffentlicher Toilettenmanager (Dixi-Mod)
+# Portable Toilet – eigenständige öffentliche Toilettenentwicklung
 
-Stand: 6. November 2026 · Korrektur der ursprünglichen Abstimmung vom 5. November 2026
+Stand: 7. November 2026. Verbindliche Präzisierung des Nutzerauftrags; Umsetzung im Kandidaten **0.39.0**. Die frühere Bezeichnung im Dateinamen bleibt zur Link-Kompatibilität erhalten.
 
-## Verbindliche Anforderungen aus der bisherigen Projektbesprechung
+## Ein Kaufobjekt, fünf Ausbaustufen
 
-**Kein Hotelmodul.** Hotels und Restaurants haben bereits eingebaute, regulär genutzte Toiletten. Diese sind im Besuch/Komfort enthalten. Die neue WC-Verwaltung gilt **ausschließlich für öffentliche Sanitäranlagen**. Historische `sanitation`-Keys aus Vorabständen bleiben für die Datenmigration lesbar, werden aber nicht länger durch den Hotel-Simulator aktiviert oder verwaltet.
+Im sichtbaren Baukatalog und in der Baupalette wird ausschließlich **Portable Toilet** als kleines Startmodell angeboten. Die vier größeren ehemaligen Einzelkaufobjekte sind keine neuen Kaufmöglichkeiten mehr. Ihre internen IDs bleiben für alte Spielstände erhalten. Vorhandene Gebäude, Personalzuordnungen, Gästeziele und Wartungszustände werden nicht entfernt.
 
-- Start mit einer günstigen, blauen, einzeln platzierbaren Dixi-Kabine und anderen mobilen WCs.
-- Stufenweise vom Dixi-WC zu Container, alpinem WC-Haus und Luxus-Sanitärzentrum. Mindestens **fünf unverwechselbare, echte Assets** (nicht einfach ein Gebäudesymbol mit anderer Farbe) – auch in sämtlichen Theme-Varianten und mit saisonaler Winter-/Weihnachts-/Silvesteroptik.
-- Eigenständige öffentliche WC-Anlagen mit tatsächlichen Servicebesuchen, Belegung/Kapazität, Tankfüllstand, Entleerung, Hygiene, Reinigung, Frost-/Winterisolierung und Unterhaltungskosten.
-- Gäste haben wesentlich häufigeren **Harndrang** als **Stuhlgang**. Getränke steigern den Harndrang; Restaurants und Hotels stellen ihre bereits vorhandenen Toiletten bereit.
-- Bei Unterversorgung suchen Gäste gegebenenfalls Wald/Pistenrand auf. Dabei entstehen **sichtbare, zeitlich verfallende gelbe Spuren im Schnee**. Dies muss als echte Szene und Animation implementiert und getestet werden – nicht nur eine textliche Statistik.
-- Eigenständiger Technologie-/Forschungszweig mit **Zielumfang 100 echten Freischaltungen**. Jede Freischaltung benötigt wirtschaftliche oder spielerische Wirkung, nicht bloß eine dekorative Karte. Forschung, Baustufen, Servicequalität, Winterfestigkeit und Kosten müssen ausgewogen bleiben.
-- Preis-, Material-, Personalkosten, Versorgungshäufigkeit, Hygiene, Auslastung und Upgrade-Folgekosten in die bestehende Betriebsrechnung integrieren. Mobile Toiletten dürfen günstig sein, jedoch nicht langfristig durch ein einzelnes kostenloses WC den gesamten Berg versorgen.
+| Stufe | Gestalt | Kabinenplätze | Tankvolumen | Grundbetrieb pro Tag | Ausbaukosten zur nächsten Stufe |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 | Kleine blaue Portable Toilet | 1 | 18 Nutzungen | 15 € | 1.750 € |
+| 2 | Winterkabinen | 2 | 34 Nutzungen | 28 € | 7.200 € |
+| 3 | Sanitärmodul | 4 | 72 Nutzungen | 80 € | 14.700 € |
+| 4 | Alpines Sanitärhaus | 8 | 150 Nutzungen | 180 € | 40.500 € |
+| 5 | Premium-Sanitärzentrum | 16 | 340 Nutzungen | 420 € | Endstufe |
 
-## Implementierungsstand in PR #83
+Startpreis: 850 €. Kosten sind Grundwerte vor Forschung; Personal, Reinigung, Entleerung und die bestehenden allgemeinen Gebäudeanteile werden zusätzlich bilanziert. Ausbau behält die Gebäude-ID und den Zustand. Tatsächliche Meshes, belegte Fläche und Eingangsposition wachsen zusammen. Die vollständige Standort-/Zugangsprüfung findet vor der Bezahlung statt; bei Platzmangel wird nicht ausgebaut und nichts berechnet. Freier Aufbau benötigt keine Forschung und kein begrenztes Budget, berücksichtigt aber weiterhin freie Bauflächen.
 
-**Grundsystem 0.38 in Bearbeitung (nicht freigegeben):** fünf öffentliche Bauobjekte (`wc_dixi`, `wc_cabin`, `wc_module`, `wc_house`, `wc_luxury`); eigenes `src/core/public_wc.gd` mit Hygiene, Tank, Reinigung, Entleerung, täglicher Alterung, Frostschutz; eigenständiges WC-Betriebsfenster, WC-Servicepersonal als Option, zusätzliche Forschungsprojekte und WC-Gästebedürfnisse. Bestehende Hotel- und Restaurant-WCs bleiben enthalten, keine neue `wc_public`-Eigenschaft an den Gebäuden. Die neuen Dateien erhalten eigenständige Simulationstests.
+Materialien und Silhouetten entwickeln sich von Kunststoff über Metall und Holz bis zum Premiumgebäude mit Vordach und begrüntem Dach. Alle zehn Grafikstile verwenden die jeweilige Ausbaustufe; Monochrom erhält eigene Liniengeometrie mit Türen, Dach und Vordach.
 
-### Tatsächlicher Betrieb und Ausbau
+## Eigener Entwicklungsbaum mit 100 wirksamen Projekten
 
-- Eine Familie kann auch eine einzelne Dixi-Kabine nutzen: die Gruppe durchläuft mehrere aufeinanderfolgende Nutzungen. Reale Kabinen begrenzen gleichzeitig bediente Besucher. Ankommende Gäste warten nach Ankunftszeit; laufende Nutzungen werden nicht unterbrochen. Die optionale Ankunftszeit wird validiert gespeichert; ältere Gäste ohne dieses Feld bleiben lesbar.
-- Bereits anreisende Reservierungen zählen für Tank, Hygiene und die auf 18 echte Spielminuten begrenzte Warteschlange. Die Reiseplanung berücksichtigt Wartezeit und Rückweg. Wartende erhalten keine vorzeitigen Komforteffekte. Hotels und Restaurants bleiben als Alternative mit inkludierten Toiletten erreichbar.
-- Die WC-Ausbaustufen verwenden ausschließlich `wc_logistics`, `sanitation`, `wc_hygiene` und `wc_comfort`. Sie verlangen keine Hotellerie oder Alpine Meisterklasse.
-- Jede Ausbaustufe erhöht die tatsächlich routbare Kabinenzahl. Ab Stufe 3 entsteht zusätzlich 30 % Tankpuffer, ab Stufe 4 sinkt Hygieneverschleiß pro Besuch um 35 %, ab Stufe 5 sinken Servicekosten um 20 % und täglicher Hygieneverschleiß um 25 %. Neue unbenutzte Anlagen altern ab dem Bautag. Die Anzeige verwendet dieselben Größen wie Simulation und Kalkulation.
-- `tests/public_wc_flow_038.gd` prüft echte Anreise, Kabinenbelegung, Gruppenbesuche, Tankverbrauch und Save/Load einer aktiven Warteschlange sowohl mit historischer Uhr als auch mit 24 Bewegungsschritten pro Spielminute. Das ist keine vollständige saisonale Asset- oder Langzeitbalance-Abnahme.
+Zehn Zweige mit je zehn Projekten: Ausbau/Architektur, Tankvolumen, Hygieneverbrauch, Wartungslogistik, Haltbarkeit, Besucherfluss, Reinigung, Entsorgung, Betriebsressourcen und Frostschutz. Projekte haben Geld-/Punktekosten, Dauer und echte Voraussetzungen. Die fünf bekannten IDs `wc_logistics`, `sanitation`, `wc_winter`, `wc_hygiene` und `wc_comfort` bleiben gültig. Der öffentliche Zweig benötigt keine Hotel-Meisterklasse.
 
-**Noch nicht vollständig verwirklicht und nicht behaupten:** alle 100 Technik-Freischaltungen; umfassende Balancing-/KI-Personalautomatisierung; sichtbare Wald-/Pistenrand-Notdurft mit gelben Spuren und deren zuverlässiges Verblassen; umfassende manuelle Android-Interaktions-, Performance- und saisonale Asset-Prüfung über alle Themes. Diese Punkte sind keine Freigabebehauptungen und bleiben konkret überprüfbare Features.
+Die fünf Bauformen werden einzeln ausgebaut; Forschungen verbessern die vorhandenen öffentlichen Anlagen dieses Resorts. Fortschritt und laufendes Projekt werden im bestehenden Karrierezustand gespeichert. Die Effekte verändern tatsächliche Tankkapazität, Hygienealterung, Belegungszeit, Servicekosten, Tagesbetrieb, Frostbelastung/Isolierung oder die geprüften Ausbauangebote. Keine Bonuswirkung wird allein durch den freien Baumodus erfunden.
 
-**Spielstandschutz:** Vorhandene Originale nicht überschreiben. Pflichtprüfungen: 0.19 und 0.27 Altsaves, 0.36/0.37 Hotelzustände, freie Spielstände, Sanitärzustände, vollständige Korruptionsprüfung und Android-Upgrade ohne Datenverlust.
+Bedienung direkt an der Anlage: Reinigung, Entleerung, Ausbau und Entwicklungsbaum stehen oberhalb der scrollenden Seiten. Die kompakte Stufenübersicht zeigt alle fünf Formen. Im Baum lassen sich die zehn Zweige auswählen; Voraussetzungen, Kosten und Status stehen an jedem Projekt. Erfolge überdecken die Verwaltung nicht und werden nach dem Schließen weiter angezeigt.
 
-## Freigabekriterien
+## Getrennt von Hotels und Restaurants
 
-1. Öffentliche WCs lassen sich real bauen, korrekt an Wege anbinden und werden von Gästen gezielt aufgesucht; Hotels/Restaurants benutzen weiter ihre internen Toiletten.
-2. Aktionen ändern tatsächliches Budget, Tank, Hygiene und Verfügbarkeit; ungültige Forschungs- und Serviceaktionen werden zuverlässig verhindert.
-3. Unterschiedliche WC-Größen und Grafikstile sind sichtbar, ohne Baugeometrie oder alte Speicherstände zu beschädigen.
-4. Gästezustände überleben Save/Load; ältere Spielstände können ohne WC-Felder geladen werden.
-5. Kein Android-Release vor erfolgreich abgeschlossenen QA-/Build-Checks; erst danach Version und Download-Banner aktualisieren.
+Hotels und Restaurants benutzen weiterhin ihre integrierten Toiletten. Der öffentliche Manager ist kein Hotelmodul. Die bisherigen realen WC-Besuche, Familiennutzung in Durchgängen, endliche Kabinenkapazität, Ankunftswarteschlangen und Sanitärmitarbeiter samt Abwesenheit bleiben aktiv.
+
+## Prüfstand und verbleibende Aufgaben
+
+Siehe [0.39-Prüfbericht](qa/039-portable-toilet.md). Die Modell-/UI-/Original-Save-Prüfungen werden um Kaufbeschränkung, alle 100 Entwicklungen, echte Ausbauknöpfe, größere Kollisionsflächen, alte Einzelanlagen und sämtliche Stufen-Meshes erweitert. Veröffentlichung setzt vollständige CI und Android API 30/36 voraus.
+
+Weiter offen: sichtbare Notdurft an Wald-/Pistenrändern mit verfallenden gelben Spuren; weitergehende individuelle Servicefahrzeuge und Personalautomatisierung; repräsentatives Mehrwinter-Balancing aller Karten/Startprofile; vollständige manuelle Android-Performance- und Saisonabnahme. Diese Punkte werden nicht durch die Zahl der Forschungsprojekte als erledigt gezählt.
