@@ -10089,3 +10089,141 @@ msgstr "%d / 100 developed · %d RP"
 
 msgid "Zusätzlichen Hygieneverschleiß bei starkem Frost und Kosten der Winterisolierung um weitere 5 % senken."
 msgstr "Reduce additional hygiene wear in severe frost and winter insulation costs by another 5%."
+
+msgid "WINTERWUNDER"
+msgstr "WINTER WONDER"
+
+msgid "Der Advent kommt ins Bergdorf"
+msgstr "Advent is coming to the mountain village"
+
+msgid "01. DEZ"
+msgstr "DEC 01"
+
+msgid "24 Türchen · 24 Überraschungen"
+msgstr "24 doors · 24 surprises"
+
+msgid "ADVENT AM BERG"
+msgstr "ADVENT IN THE MOUNTAINS"
+
+msgid "Schneeglanz und Vorfreude"
+msgstr "Sparkling snow and festive anticipation"
+
+msgid "01.–24. DEZ"
+msgstr "DEC 01–24"
+
+msgid "Entdecke den SkiZones-Adventskalender"
+msgstr "Discover the SkiZones advent calendar"
+
+msgid "FESTLICHE PISTEN"
+msgstr "FESTIVE SLOPES"
+
+msgid "Dein Winter. Dein Resort."
+msgstr "Your winter. Your resort."
+
+msgid "AB 01. DEZ"
+msgstr "FROM DEC 01"
+
+msgid "Feiere den Dezember in SkiZones"
+msgstr "Celebrate December in SkiZones"
+
+msgid "24 WINTERMOMENTE"
+msgstr "24 WINTER MOMENTS"
+
+msgid "Der Adventskalender ist geöffnet"
+msgstr "The advent calendar is open"
+
+msgid "Jeden Tag ein neues Türchen"
+msgstr "Open a new door every day"
+
+msgid "ALPENLICHTER"
+msgstr "ALPINE LIGHTS"
+
+msgid "Ein Dorf voller Weihnachtszauber"
+msgstr "A village filled with Christmas magic"
+
+msgid "DEZEMBER"
+msgstr "DECEMBER"
+
+msgid "Erkunde die festlich geschmückten Hütten"
+msgstr "Explore the festively decorated lodges"
+
+msgid "WINTERFEST"
+msgstr "WINTER FESTIVAL"
+
+msgid "Pulverschnee und Lichterglanz"
+msgstr "Powder snow and sparkling lights"
+
+msgid "Advent in deinem Skiresort"
+msgstr "Advent at your ski resort"
+
+msgid "FROHE WEIHNACHTEN"
+msgstr "MERRY CHRISTMAS"
+
+msgid "Feiertage zwischen den Gipfeln"
+msgstr "Holidays among the peaks"
+
+msgid "25.–30. DEZ"
+msgstr "DEC 25–30"
+
+msgid "Lichter, Schnee und Bergmagie"
+msgstr "Lights, snow and mountain magic"
+
+msgid "WINTERLICHT"
+msgstr "WINTERLIGHT"
+
+msgid "Das ganze Dorf feiert mit"
+msgstr "The whole village joins the celebrations"
+
+msgid "Weihnachtliche Momente in SkiZones"
+msgstr "Christmas moments in SkiZones"
+
+msgid "SILVESTER AM BERG"
+msgstr "NEW YEAR'S EVE IN THE MOUNTAINS"
+
+msgid "Die längste Nacht des Winters"
+msgstr "The longest night of winter"
+
+msgid "31. DEZ"
+msgstr "DEC 31"
+
+msgid "Countdown · Musik · Feuerwerk"
+msgstr "Countdown · music · fireworks"
+
+msgid "GIPFELGLANZ"
+msgstr "SUMMIT SPARKLE"
+
+msgid "Gemeinsam ins neue Jahr"
+msgstr "Ring in the new year together"
+
+msgid "Silvesterparty im SkiZones-Resort"
+msgstr "New Year's Eve party at the SkiZones resort"
+
+msgid "FROHES NEUES JAHR"
+msgstr "HAPPY NEW YEAR"
+
+msgid "Ein frischer Start am Berg"
+msgstr "A fresh start in the mountains"
+
+msgid "01. JAN"
+msgstr "JAN 01"
+
+msgid "Neue Saison · neue Abenteuer"
+msgstr "New season · new adventures"
+
+msgid "NEUJAHRSGLANZ"
+msgstr "NEW YEAR SPARKLE"
+
+msgid "Willkommen im neuen Bergjahr"
+msgstr "Welcome to a new year in the mountains"
+
+msgid "Schnee, Sonne und neue Pläne"
+msgstr "Snow, sunshine and new plans"
+
+msgid "SKIZONES · BERGFESTE"
+msgstr "SKIZONES · MOUNTAIN FESTIVALS"
+
+msgid "Dein Winter am Berg"
+msgstr "Your winter in the mountains"
+
+msgid "Ad and headline"
+msgstr "Advertisement and headline"
