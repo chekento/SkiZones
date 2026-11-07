@@ -1173,10 +1173,10 @@ func _build_menu() -> void:
 	menu_logo=_brand_logo(box,Vector2(0,148))
 	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
 	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
-	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
+	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere oder freier Aufbau · alte Spielstände behalten")
 	continue_button = _button(play, L.text("Fortsetzen"), game.continue_main_game, true)
-	_button(play, L.text("Karriere · vier Spielstände"), game.show_career_slots)
-	_button(play, L.text("Freier Aufbau · vier Spielstände"), game.start_free_play)
+	_button(play, L.text("Karriere · Laden & Verwalten"), game.show_career_slots)
+	_button(play, L.text("Freier Aufbau · Laden & Verwalten"), game.start_free_play)
 	var manage := _menu_group(box, "02  ·  RESORT & BERGWELT", "Dein Betrieb und deine acht Skiberge")
 	_button(manage, L.text("Bergpass · alle Gebiete"), func():
 		hide_menu()
@@ -1219,6 +1219,7 @@ func _build_menu() -> void:
 	for item in panel.find_children("*", "Button", true, false):
 		var menu_button: Button = item as Button
 		menu_button.clip_text = true
+		menu_button.custom_minimum_size.y = maxf(menu_button.custom_minimum_size.y,48.0)
 		menu_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		menu_button.tooltip_text = menu_button.text
 
