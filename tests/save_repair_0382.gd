@@ -96,10 +96,24 @@ func run() -> void:
 	check(Manager.inspect("sonnenhang",3).loadable>=1,"Inspection discovers old archived copies even when the current primary has a bad checksum")
 	var rescued_from_archive:Dictionary=Manager.repair("sonnenhang",3)
 	check(rescued_from_archive.ok and rescued_from_archive.changed and FileAccess.get_sha256(path)==FileAccess.get_sha256(recovered_file),"Archived copy restores into occupied slot without changing original archive")
+	# Recent saves MUST have a checksum envelope; modern v17 raw JSON
+	# must never bypass corruption checks even when its shape looks valid.
 	var raw_file:FileAccess=FileAccess.open(path,FileAccess.WRITE)
 	raw_file.store_string(JSON.stringify(data))
 	raw_file.close()
-	check(Saves._read(path).ok and Saves.load_game(Resort.new(),path).ok,"Versioned unwrapped historic snapshots pass full restore validation")
+	check(not Saves._read(path).ok,"Unsigned modern v17 JSON is rejected rather than bypassing its checksum")
+	# Truly old files predating checksums still load and preserve their
+	# contents. They are opened read-only and never silently rewritten.
+	var pre_checksum:RefCounted=Resort.new()
+	pre_checksum.new_game(false,20261107)
+	var legacy_data:Dictionary=pre_checksum.snapshot()
+	legacy_data.version=1
+	legacy_data.erase("campaign")
+	raw_file=FileAccess.open(path,FileAccess.WRITE)
+	raw_file.store_string(JSON.stringify(legacy_data))
+	raw_file.close()
+	var old_sha:String=FileAccess.get_sha256(path)
+	check(Saves._read(path).ok and Saves.load_game(Resort.new(),path).ok and FileAccess.get_sha256(path)==old_sha,"Genuine unwrapped v1 resort fully restores without changing its original bytes")
 
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
