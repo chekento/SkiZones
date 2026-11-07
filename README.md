@@ -33,7 +33,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**0.36.0 · Android-VersionCode 46:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.36.0) mit festen Hotelzimmern für echte Gäste/Familien, Reinigung nach Checkout und speicherbarem mobilem Etagenplan. Enthält sämtliche Stabilitätskorrekturen aus 0.35.1. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42202871422) bestanden. [Detaillierte Änderungen](docs/releases/0.36.0.md).
+**0.38.0 · Android-VersionCode 48:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.0) mit übersichtlicheren Gebäude-Kennzahlen, Hotel-Betriebssimulator, eigenständigem öffentlichem Dixi-/WC-Manager und vollflächiger Speicherverwaltung. Dazu überarbeitete Alpenwelt, Pistenverkehr und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42334186612) bestanden. [Detaillierte Änderungen und offene Anforderungen](docs/releases/0.38.0.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
@@ -43,6 +43,8 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | [0.32.0](docs/releases/0.32.0.md) | Fünf Startbudgets, Bewerbermarkt, Missionshilfen, Original-Wortmarke, zehn Grafikstile und interaktiver Pistenplan | Veröffentlicht · Android 11/16 bestanden |
 | [0.33.0](docs/releases/0.33.0.md) | Sofort gespeichertes Radio, laufende Sender, Bauabschluss-Inspektor, Wetter, Nächte, Spielecke und Rathausplan | Veröffentlicht · siehe Versionsarchiv |
 | [0.36.0](docs/releases/0.36.0.md) | Feste Hotelbuchungen, reale Zimmerreinigung und mobiler Etagenplan; vollständiger 0.35.1-Hotfix enthalten | Veröffentlicht · Android API 30/36 bestanden |
+| [0.37.0](docs/releases/0.37.0.md) | Feste Live-Pistenplanung, frei gezeichnete Wege mit vier gespeicherten Belägen und durchgehende Schneespuren | Veröffentlicht · Android API 30/36 bestanden |
+| [0.38.0](docs/releases/0.38.0.md) | Hotelbetrieb, eigenständige öffentliche WCs mit Familien-Warteschlangen, Speicherverwaltung, Alpenwelt und Touch-Radio | Veröffentlicht · Android API 30/36 bestanden |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
