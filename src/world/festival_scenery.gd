@@ -184,6 +184,7 @@ func _build_posters(view: Node3D, date: Dictionary) -> void:
 		var board:=MeshInstance3D.new()
 		board.name="seasonal_campaign_%d"%index
 		board.set_meta("festival_kind","poster")
+		board.set_meta("festival_clearance",10.0)
 		board.set_meta("campaign_motif",str(item.motif))
 		board.mesh=mesh
 		board.position=view.terrain.world(at,0.25)
