@@ -6,7 +6,7 @@ const Styles=preload("res://src/core/visual_styles.gd")
 const Catalog=preload("res://src/core/catalog.gd")
 static func dimensions(kind: String,level: int=1) -> Vector3:
 	if kind.begins_with("wc_"):
-		var index:int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+		var index:int=preload("res://src/core/wc_development.gd").visual_index(kind,level)
 		var widths:Array=[6.4,11.0,17.0,23.0,30.0]
 		var depths:Array=[6.8,9.0,12.0,17.0,22.0]
 		var heights:Array=[9.5,10.5,11.0,13.0,16.0]
@@ -24,8 +24,15 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 			var drawing:=Lines.new()
 			var size_value:Vector3=dimensions(kind,level)
 			drawing.box(Vector3(0,size_value.y*0.5,0),size_value)
-			drawing.box(Vector3(0,size_value.y*0.42,size_value.z*0.5),Vector3(minf(4,size_value.x*0.45),size_value.y*0.67,0.3))
-			drawing.line(Vector3(-2,size_value.y*0.8,size_value.z*0.5+0.4),Vector3(2,size_value.y*0.8,size_value.z*0.5+0.4))
+			var stage:int=preload("res://src/core/wc_development.gd").visual_index(kind,level)
+			var doors:int=stage+1
+			for door in range(doors):
+				var x:float=(float(door)+0.5)/doors*size_value.x-size_value.x*0.5
+				drawing.box(Vector3(x,size_value.y*0.3,size_value.z*0.5),Vector3(minf(3.8,size_value.x/doors-0.5),size_value.y*0.55,0.3))
+			if stage==3:drawing.roof(size_value.x+1,size_value.z+0.8,size_value.y)
+			if stage==4:
+				drawing.box(Vector3(0,size_value.y-2,size_value.z*0.5+1.5),Vector3(size_value.x*0.8,0.6,3.0))
+				for side in [-1,1]:drawing.line(Vector3(side*size_value.x*0.3,0,size_value.z*0.5+2.6),Vector3(side*size_value.x*0.3,size_value.y-2,size_value.z*0.5+2.6))
 			return drawing.finish()
 		return Art.new().public_toilet(kind,level,accent,style)
 	if style=="alpine": return Art.new().chalet(kind,level,accent)

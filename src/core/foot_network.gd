@@ -40,7 +40,8 @@ static func building_size(building: Dictionary) -> Vector2:
 
 static func base_building_size(building: Dictionary) -> Vector2:
 	if str(building.kind).begins_with("wc_"):
-		return {"wc_dixi":Vector2(8,8),"wc_cabin":Vector2(12,10),"wc_module":Vector2(18,13),"wc_house":Vector2(24,19),"wc_luxury":Vector2(32,24)}.get(building.kind,Vector2(8,8))
+		var development:Script=preload("res://src/core/wc_development.gd")
+		return Terrain.unpack(development.STAGES[development.visual_index(str(building.kind),int(building.get("level",1)))].footprint)
 	if building.kind == "town_hall": return Vector2(34, 26)
 	if building.kind == "pool": return Vector2(32, 42)
 	if building.kind == "cabin": return Vector2(16, 14)
@@ -309,8 +310,8 @@ static func valid_walk(layout_value: Dictionary, points: Array, buildings: Array
 				return false
 	return true
 
-static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
-	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value}
+static func connection(mountain: RefCounted, layout_value: Dictionary, buildings: Array, kind: String, point: Vector2, rotation_value: int = 0, level: int = 1) -> Dictionary:
+	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value,"level":level}
 	var entrance := forecourt(proposed)
 	var nearest: Dictionary = {}
 	var distance := INF
@@ -374,7 +375,7 @@ static func boarding_point(lift: Dictionary, top: bool) -> Vector2:
 	return Fleet.station_point(lift, top) + direction * (machine_radius(lift) + 7) * (1 if top else -1)
 
 static func obstacles(buildings: Array, lifts: Array) -> Array:
-	var fingerprint := [buildings.map(func(building): return [building.kind, building.point, building.get("rotation", 0)]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
+	var fingerprint := [buildings.map(func(building): return [building.kind, building.point, building.get("rotation", 0),building.get("level",1)]), lifts.map(func(lift): return [lift.kind, lift.bottom, lift.top])].hash()
 	_cache_mutex.lock()
 	var cached: Array = _obstacle_cache.get(fingerprint, [])
 	var known := _obstacle_cache.has(fingerprint)
