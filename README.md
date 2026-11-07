@@ -33,7 +33,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**0.38.0 · Android-VersionCode 48:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.0) mit übersichtlicheren Gebäude-Kennzahlen, Hotel-Betriebssimulator, eigenständigem öffentlichem Dixi-/WC-Manager und vollflächiger Speicherverwaltung. Dazu überarbeitete Alpenwelt, Pistenverkehr und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42334186612) bestanden. [Detaillierte Änderungen und offene Anforderungen](docs/releases/0.38.0.md).
+**0.38.1 · Android-VersionCode 49:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.1). Der automatische öffentliche WC-Service respektiert Personalabwesenheit; Hygienealterung bleibt aktiv, Kosten entstehen nur bei tatsächlicher Wartung. Enthält den vollständigen 0.38.0-Stand mit Hotelbetrieb, eigenständigem WC-Manager, Speicherverwaltung, Alpenwelt und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42360334472) bestanden. [Änderungen und Prüfgrenzen](docs/releases/0.38.1.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
@@ -45,6 +45,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | [0.36.0](docs/releases/0.36.0.md) | Feste Hotelbuchungen, reale Zimmerreinigung und mobiler Etagenplan; vollständiger 0.35.1-Hotfix enthalten | Veröffentlicht · Android API 30/36 bestanden |
 | [0.37.0](docs/releases/0.37.0.md) | Feste Live-Pistenplanung, frei gezeichnete Wege mit vier gespeicherten Belägen und durchgehende Schneespuren | Veröffentlicht · Android API 30/36 bestanden |
 | [0.38.0](docs/releases/0.38.0.md) | Hotelbetrieb, eigenständige öffentliche WCs mit Familien-Warteschlangen, Speicherverwaltung, Alpenwelt und Touch-Radio | Veröffentlicht · Android API 30/36 bestanden |
+| [0.38.1](docs/releases/0.38.1.md) | Öffentlicher WC-Service berücksichtigt Personalabwesenheit und berechnet nur tatsächliche Wartung | Veröffentlicht · Android API 30/36 bestanden |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
