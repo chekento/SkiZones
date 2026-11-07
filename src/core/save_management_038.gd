@@ -6,16 +6,18 @@ const Saves=preload("res://src/core/save_store.gd")
 const Maps=preload("res://src/core/maps.gd")
 
 static func sources(id: String, slot: int, free_slot: int = 1) -> Array:
-	if id not in Maps.FANTASY_MAPS or slot<0 or slot>4 or (slot==0 and (free_slot<1 or free_slot>4)):return []
+	if id not in Maps.MAPS or slot<0 or slot>4 or (slot==0 and (free_slot<1 or free_slot>4)):return []
 	var path: String=Saves.path_for_map(id,slot,free_slot)
 	var result: Array=[path,path+".bak"]
-	if slot==1 or (slot==0 and free_slot==1):
+	if id in Maps.FANTASY_MAPS and (slot==1 or (slot==0 and free_slot==1)):
 		result.append(Saves.legacy_path(id))
 		result.append(Saves.legacy_path(id)+".bak")
 	return result
 
 static func correct_mode(read: Dictionary,id: String,slot: int) -> bool:
-	return read.ok and str(read.data.get("map_id","sonnenhang"))==id and Saves._free_data(read.data)==(slot==0)
+	if not read.ok or str(read.data.get("map_id","sonnenhang"))!=id:return false
+	# Mission saves are map-scoped, not part of the four career/free slots.
+	return id not in Maps.FANTASY_MAPS or Saves._free_data(read.data)==(slot==0)
 
 static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var list: Array=[]
@@ -31,14 +33,16 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		if source!=owned and source!=owned+".bak" and not valid:continue
 		var normal:=false
 		var salvage:=false
+		var detail: String=str(read.get("message",""))
 		if valid:
 			good+=1
 			var probe: Dictionary = Saves.probe_restore(read.data,model_script)
 			normal=bool(probe.ok and probe.get("exact",false))
 			salvage=bool(probe.ok and not probe.get("exact",false))
+			if not probe.ok:detail=str(probe.get("message",L.text("Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel.")))
 		if normal:exact+=1
 		elif salvage:recovery+=1
-		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":str(read.get("message",""))})
+		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":detail})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
 ## Prefer intact backups, then normalize a recoverable checksum-verified source.
