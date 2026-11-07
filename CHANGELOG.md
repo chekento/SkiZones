@@ -72,9 +72,9 @@ Diese Fassung enthält **keinen** fertigen Toilet Tycoon, keine 100 Hotel-/WC-Fo
 
 ### Prüfbelege und Freigabe
 
-Der vorangehende Stand `3c058145d14d6b18b6e96d35cde7de924070a410` bestand alle 23 PR-Workflows einschließlich [Godot, Original-Saves, Android API 30/36, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42220932742). Die neuen Pistenprüfungen ergänzen den tatsächlichen erfolgreichen Bauabschluss, die wieder erreichbare Bauaktion, die Screen-to-Terrain-Punktverschiebung sowie kontrollierte Mittel-/Maximal-/Abschnittswerte in Prozent und Grad bei Gefälle, waagerechtem Verlauf und Gegenanstieg.
+Die [Hauptzweig-Pipeline 42253046515](https://github.com/chekento/SkiZones/actions/runs/42253046515) für `1d731922c5cdb6313b874369e75f5ac51499df78` bestand einschließlich Godot, Originalspielständen, Signaturkontinuität, In-place-Updates und Android API 30/36. Die Pistenreihe umfasst 90 Prüfungen einschließlich tatsächlichem Bauabschluss, wieder erreichbarer Bauaktion, Screen-to-Terrain-Verschiebung und kontrollierten Steigungswerten. Android API 30 bestand 24 und API 36 bestand 25 echte Activity-/Surface-Fälle.
 
-Für den dadurch geänderten HEAD müssen alle CI-Gates erneut bestehen. Ein PR-Build ist kein öffentlicher Release; die Veröffentlichung erfolgt ausschließlich nach vollständiger grüner Hauptzweig-Pipeline. Die APK muss zusammen mit Manifest und SHA256 tatsächlich als offizielles Releaseasset vorhanden sein, bevor Downloadanzeigen umgestellt werden.
+[0.37.0 ist veröffentlicht](https://github.com/chekento/SkiZones/releases/tag/v0.37.0), mit APK, Manifest und SHA256. Der vollständige öffentliche Download wurde gegen beide Prüfsummenangaben und als ZIP geprüft: 175.360.875 Bytes, SHA256 `3623fabe2ab7112e55b0d124e609939b39bdd4da75675db884ef931675c3b695`. Ein Test auf einem physischen Android-Gerät ist damit nicht behauptet.
 
 ---
 
