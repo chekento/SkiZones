@@ -201,7 +201,16 @@ func setup(controller: Node) -> void:
 	theme.set_stylebox("normal","LineEdit",_style(Color("edf3ec"),10,10))
 	theme.set_stylebox("focus","LineEdit",_style(Color("edf3ec"),10,10,TEAL))
 	theme.set_color("title_color","Window",INK)
-	theme.set_stylebox("embedded_border","Window",_style(Color("fffaf2"),12,14))
+	for window_kind in ["Window","AcceptDialog","ConfirmationDialog"]:
+		for state in ["close_icon_normal_color","close_icon_pressed_color","close_icon_hover_color"]:
+			theme.set_color(state,window_kind,INK)
+	var window_border:=_style(Color("fffaf2"),12,14)
+	window_border.expand_margin_top=34
+	theme.set_stylebox("embedded_border","Window",window_border)
+	theme.set_constant("title_height","Window",34)
+	for dialog_kind in ["AcceptDialog","ConfirmationDialog"]:
+		theme.set_constant("buttons_min_width",dialog_kind,140)
+		theme.set_constant("buttons_min_height",dialog_kind,50)
 	theme.set_stylebox("panel","AcceptDialog",_style(Color("fffaf2"),12,14))
 	for kind in ["CheckButton","CheckBox"]:
 		theme.set_color("font_color",kind,INK)
@@ -213,7 +222,12 @@ func setup(controller: Node) -> void:
 		theme.set_stylebox("pressed", kind, _style(Color("c2ded3"), 9, 10))
 		theme.set_stylebox("disabled", kind, _style(Color("edf2ed"), 9, 10))
 		theme.set_stylebox("focus", kind, _style(Color(0, 0, 0, 0), 9, 10, TEAL))
+	for kind in ["Button", "OptionButton", "CheckButton", "CheckBox", "MenuButton"]:
+		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:
+			theme.set_color(state,kind,INK)
+		theme.set_color("font_disabled_color",kind,Color("596f70"))
 	root.theme = theme
+	get_tree().node_added.connect(_style_added_dialog)
 	plan_overlay.game = game
 	root.add_child(plan_overlay)
 	_build_header()
@@ -547,7 +561,7 @@ func _label(parent: Node, text_value: String, font_size: int = 18, color: Color 
 func _button(parent: Node, text_value: String, callback: Callable, primary: bool = false) -> Button:
 	var button := Button.new()
 	button.text = L.text(text_value)
-	button.custom_minimum_size.y = 50
+	button.custom_minimum_size = Vector2(56,50)
 	if parent == inspector_actions:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.pressed.connect(func():
@@ -565,6 +579,38 @@ func _button(parent: Node, text_value: String, callback: Callable, primary: bool
 		button.add_theme_color_override("font_pressed_color", Color("16323d"))
 	parent.add_child(button)
 	return button
+
+# Window dialogs use their own theme context. Apply the complete readable
+# button states explicitly, including keyboard/controller focus.
+func _style_added_dialog(node: Node) -> void:
+	if is_inside_tree() and node is AcceptDialog and is_ancestor_of(node):
+		style_dialog(node)
+		node.about_to_popup.connect(func():style_dialog(node))
+
+func style_dialog(dialog: AcceptDialog) -> void:
+	dialog.theme=root.theme
+	var bounds:Vector2=get_viewport().get_visible_rect().size
+	var label:Label=dialog.get_label()
+	label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x=minf(560,maxf(180,bounds.x-72))
+	label.add_theme_color_override("font_color",INK)
+	label.add_theme_font_size_override("font_size",17)
+	var buttons:Array=[dialog.get_ok_button()]
+	if dialog is ConfirmationDialog:
+		buttons.append(dialog.get_cancel_button())
+		dialog.cancel_button_text=L.text("Abbrechen")
+	for button in buttons:
+		button.custom_minimum_size=Vector2(140,50)
+		button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		button.add_theme_font_size_override("font_size",16)
+		for state in ["font_color","font_hover_color","font_pressed_color","font_focus_color","font_hover_pressed_color"]:
+			button.add_theme_color_override(state,INK)
+		button.add_theme_color_override("font_disabled_color",Color("596f70"))
+
+func present_dialog(dialog: AcceptDialog, desired: Vector2i = Vector2i(620,240)) -> void:
+	style_dialog(dialog)
+	var bounds:Vector2=get_viewport().get_visible_rect().size
+	dialog.popup_centered(Vector2i(mini(desired.x,maxi(240,int(bounds.x)-24)),mini(desired.y,maxi(180,int(bounds.y)-24))))
 
 func _vbox(parent: Node, gap: int = 12) -> VBoxContainer:
 	var box := VBoxContainer.new()
@@ -1164,17 +1210,14 @@ func _build_menu() -> void:
 		_button(scenarios_group,L.text("Szenarien · vier echte Skigebiete"),func(): scenarios.open())
 		_label(scenarios_group,L.text("Zusatzmodus – dein Hauptspiel und deine vier Karriereplätze bleiben unverändert."),14,MUTED,true)
 	updates_button = _button(service, L.text("Updates · Spielstände behalten"), func(): update_dialog.open())
-	_button(service, L.text("Community & Feedback"), func(): community.popup_centered(Vector2i(760, 520)))
-	_button(service, L.text("Impressum & Datenquellen"), func(): credits.popup_centered(Vector2i(840, 560)))
+	_button(service, L.text("Community & Feedback"), func(): present_dialog(community,Vector2i(760,520)))
+	_button(service, L.text("Impressum & Datenquellen"), func(): present_dialog(credits,Vector2i(840,560)))
 	_label(box, L.text("Ski Resort Tycoon  /  Version %s\nEine eigenständige Spielwelt von KoSch") % L.args(ProjectSettings.get_setting("application/config/version")), 13, MUTED, true)
-	# The menu contains a few long translated button labels. Their intrinsic
-	# text widths must never force the whole portrait panel past the screen.
-	# Ellipsis applies only when the available width is actually insufficient;
-	# the full labels remain available through tooltips.
+	# Wrap long menu captions within the available width on phones.
 	for item in panel.find_children("*", "Button", true, false):
 		var menu_button: Button = item as Button
 		menu_button.clip_text = true
-		menu_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		menu_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		menu_button.tooltip_text = menu_button.text
 
 
@@ -1187,7 +1230,9 @@ func _build_dialogs() -> void:
 	help_dialog.ok_button_text = L.text("Zurück zum Berg")
 	help_dialog.get_label().hide()
 	var help := RichTextLabel.new()
-	help.custom_minimum_size = Vector2(760, 480)
+	help.custom_minimum_size = Vector2(0,0)
+	help.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	help.size_flags_vertical=Control.SIZE_EXPAND_FILL
 	help.bbcode_enabled = true
 	help.add_theme_font_size_override("normal_font_size", 18)
 	help.text = L.text("[b]BEOBACHTEN[/b]\nBei 1× dauert eine Spielstunde etwa zwölf Minuten. Die Tage sind sechsmal länger, die Bewegung entspricht dem bisherigen 4×-Tempo. 4× beschleunigt weiterhin den gesamten Betrieb. Leere Nächte werden automatisch bis zum Morgen vorgespult.\nTippe einen Gast an und wähle ‚Diesem Gast folgen‘. Ziehen löst die Kamera. Mit + kannst du sehr nah heranzoomen.\n\n[b]BAUEN[/b]\nIm Baukatalog Pisten, Lifte oder Dorfangebote wählen. Gesperrte und zu teure Anlagen sind nicht auswählbar; die Voraussetzung steht direkt dabei. ‚Abfahrt planen‘ wählen, Wegpunkte vom Berg ins Tal setzen und mit Bauen bestätigen. Die Farbe folgt automatisch dem steilsten Teilstück der tatsächlichen Route; Serpentinen können milder sein als die direkte Abfahrt. Das Höhenprofil zeigt Höhenverlust und Gefälle. Nummerierte Planungspunkte lassen sich mit Finger oder Maus verschieben. Antippen wählt einen Punkt zum Löschen aus. Kleine Kreise markieren Anschlüsse bestehender Pisten. Starte oder beende dort eine neue Verbindung; Farbe, Kosten und Höhenprofil passen sich sofort an. Runde Schilder erhalten automatisch Farbe und Pistennummer. Spielgrenzen: Blau bis 30 %, Rot bis 55 %, Schwarz bis 110 %. Beim Lift erst Talstation, dann Bergstation setzen.\n\n[b]VERBINDUNGEN[/b]\nBeide Liftstationen erhalten begehbare Stationsplätze. Pisten starten und enden auf diesen Plätzen, mit Abstand zur Lifttechnik. Kleine Anschlusskreise zeigen die Andockpunkte. Zwischen Pisten sind weiterhin direkte Verbindungen an Wegpunkten möglich. Angeschlossene Gebäude erweitern den Fußgängerbereich um Vorplätze und sichtbare Wege. Gäste gehen dort zu anderen Liften oder zu den Gebäudeeingängen. Gäste brauchen einen vollständigen geeigneten Rundweg vom Talzugang und zurück. Auch innere Wegpunkte sind Anschlüsse: Baue eine rote oder schwarze Abkürzung zwischen den Kehren einer blauen Piste. Anfänger bleiben auf Blau, Geübte können Rot und Profis auch Schwarz nehmen. Gäste fahren nur die nötigen Teilstücke der verbundenen Pisten. Alle Pisten teilen die tatsächliche Förderkapazität eines Lifts.\n\n[b]LIFTARTEN UND GÄSTE[/b]\nTeller-Schlepplifte sind langsamer und auf 700 m begrenzt. Einer-, Zweier- und Vierersessel sind eigenständige Anlagen; der Sechser braucht Fördertechnik, der Achter die Alpine Meisterklasse. Gondeln fassen acht Gäste.\nSkifahrer, Snowboarder und Snowblader haben eigene Ausrüstung, Fahrhaltungen und Spuren. Die Sportart steht im persönlichen Gastprofil. Jeder mitfahrende Gast erhält einen konkreten Fahrzeug- und Sitzplatz. Am Schlepplift bleiben die Ski am Boden. Die sichtbare Schlange folgt der Ankunft am Lift. Wartezeit und tatsächliche Auslastung stehen am Platz und im Anlageninspektor.\nGebäude werden tatsächlich besucht. Gäste gehen zum Eingang und pausieren im Gebäude; Serviceerlöse entstehen nach dem Besuch.\n\n[b]SCHNEE[/b]\nJeder Gast zieht eigene Linien. Ski verdichten Spuren und schieben Schnee auf; Unebenheiten beeinflussen spätere Fahrten. Kaufe Pistenraupen in einer Garage und stelle Fahrer ein. Präpariere leere Pisten einzeln oder automatisch in der Nacht. Die Dauer folgt der Streckenlänge; Schicht, Energie und Verschleiß bestimmen die Einsatzbereitschaft.\n\n[b]NEUE GEBIETE[/b]\nDer Bergpass unter ‚Gebiete‘ zeigt acht Fantasiegebiete und ihre Freischaltziele. Sterne, Gäste und Aufträge zählen über deine Resorts hinweg. Beim Gebietswechsel wird gespeichert; jedes Resort behält seinen eigenen Spielstand. Die kleine Gebietskarte navigiert direkt zum angetippten Ort. ‚Übersicht‘ zeigt das gesamte Gebiet, ‚Tal‘ den Einstieg.\n\n[b]KARRIERE[/b]\nIm Resort-Büro pausiert der Betrieb. Dort warten Aufträge, Forschung, Ausbau und Finanzen. Ein Winter hat 28 Betriebstage; dein Resort bleibt über mehrere Winter bestehen. Wetter, Wind, Schnee und Preise beeinflussen den Betrieb.\n\n[b]KAMERA UND GELÄNDE[/b]\nUnter ‚Kamera‘ zwischen Resort, Panorama, Bauansicht und senkrechter Draufsicht wählen; der Blickwinkel ist einstellbar. ‚Gelände‘ zeigt Höhenlinien alle 20 m, Höhenangaben alle 100 m und Pfeile bergab. Flächenfarben zeigen die Hangneigung, die Pistenfarbe dagegen das Gefälle deiner Route.\n\n[b]BEDIENUNG[/b]\nTippen setzt Punkte oder wählt Anlagen und Gäste aus. Ziehen an einer nummerierten Markierung verschiebt diesen Planungspunkt; Ziehen auf freier Karte bewegt die Ansicht; zwei Finger bewegen und zoomen. Drehe zwei Finger gegeneinander, um die Kamera um den berührten Bergpunkt zu drehen. Verschieben, Drehen und Zoomen lassen sich kombinieren. Am PC: Mausrad zoomt, Q/E dreht, C wechselt die Perspektive, B plant eine Piste, M öffnet das Büro, Tab vergrößert die Karte, Leertaste pausiert, Strg+S speichert. App-Pause und Tageswechsel sichern dein Resort.\n\nGodot Engine · godotengine.org/license")
@@ -1195,7 +1240,7 @@ func _build_dialogs() -> void:
 	help_dialog.add_child(help)
 
 func show_help() -> void:
-	help_dialog.popup_centered(Vector2i(800, 630))
+	present_dialog(help_dialog,Vector2i(800,630))
 
 func show_menu() -> void:
 	piste_map_window.hide()
@@ -1641,9 +1686,12 @@ func _build_community() -> void:
 	community.title = L.text("Community & Feedback")
 	community.ok_button_text = L.text("Zurück")
 	community.get_label().hide()
-	var box := _vbox(community, 10)
-	box.custom_minimum_size = Vector2(660, 335)
-	_label(box, L.text("SkiZones-Community auf KoSchpendium"), 25, TEAL)
+	var scroll:=DragScroll.new()
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	community.add_child(scroll)
+	var box := _vbox(scroll, 10)
+	box.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	_label(box, L.text("SkiZones-Community auf KoSchpendium"), 22, TEAL,true)
 	_label(box, L.text("Tausche dich mit Spielern aus, teile dein Resort und hilf uns, SkiZones zu verbessern."), 17, MUTED, true)
 	_button(box, L.text("Discord · Community-Forum"), func(): _open_community_url(COMMUNITY_DISCORD), true)
 	_button(box, L.text("Fehler melden · GitHub"), func(): _open_community_url(COMMUNITY_BUG))
@@ -1657,7 +1705,7 @@ func _build_credits() -> void:
 	credits.ok_button_text = L.text("Zurück")
 	credits.get_label().hide()
 	var content := RichTextLabel.new()
-	content.custom_minimum_size = Vector2(780, 440)
+	content.custom_minimum_size = Vector2.ZERO
 	content.bbcode_enabled = true
 	content.add_theme_font_size_override("normal_font_size", 18)
 	content.text = "[b]SkiZones · KoSch / Kolja Werner Schumann[/b]\nhttps://kosch.cloud\nhttps://github.com/chekento/SkiZones\n\n" + L.text("Eigenständige Managementsimulation. Szenarioprobleme sind erfunden; es besteht keine Verbindung zu den genannten Skigebietsbetreibern.") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/Geodata.txt") + "\n\n" + FileAccess.get_file_as_string("res://assets/licenses/SoundCloud_en.txt" if L.language=="en" else "res://assets/licenses/SoundCloud.txt")

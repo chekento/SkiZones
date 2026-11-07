@@ -90,7 +90,7 @@ func _demolish() -> void:
 	dialog.dialog_text=L.text("Beim Abbau erhältst du 25 % der Investition zurück.")
 	add_child(dialog)
 	dialog.confirmed.connect(func():hud.game.demolish_asset(lift_id);hide();dialog.queue_free())
-	dialog.canceled.connect(dialog.queue_free);dialog.popup_centered(Vector2i(500,190))
+	dialog.canceled.connect(dialog.queue_free);hud.present_dialog(dialog,Vector2i(500,220))
 func rebuild() -> void:
 	var previous:=tabs.current_tab
 	for child in tabs.get_children():tabs.remove_child(child);child.queue_free()

@@ -301,25 +301,32 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	# unchecked bytes: the envelope checksum and model validation still apply.
 	# Any recovered original is archived BEFORE the loaded model is changed.
 	for original in verified:
-		for recovery in range(3):
-			var world: Dictionary = original.data.duplicate(true)
-			var legacy_geometry: bool = recovery >= 1
-			var reset_visitors: bool = recovery != 1
-			if reset_visitors:
-				if not world.get("guests") is Array or world.guests.is_empty():
-					if not legacy_geometry: continue
-				else:
-					world.guests = []
-					world.itineraries = []
-					world.parties = []
-			var checked: RefCounted = model.get_script().new()
-			checked.load_progress = progress
-			if progress != null: progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
-			if not checked.restore(world.duplicate(true),legacy_geometry).ok: continue
-			var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK:
-				return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
-			if model.restore(world,legacy_geometry).ok:
-				return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.") if reset_visitors else L.text("Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert.")}
+		var checked: Dictionary = probe_restore(original.data, model.get_script(), true, progress)
+		if not checked.ok: continue
+		var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(original.path) != FileAccess.get_sha256(archive):
+			return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
+		if model.restore(checked.model.snapshot()).ok:
+			return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.") if checked.reset_visitors else L.text("Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert.")}
+
 	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten.")}
 
+
+# Shared semantic validation for inspect, repair and load. The caller must
+# verify the original checksum first. Only transient visitor data may reset;
+# permanent assets, budget and progression still pass the full validator.
+static func probe_restore(data: Dictionary, model_script: Script, recovery_only: bool = false, progress: RefCounted = null) -> Dictionary:
+	# Preserve active guests with historical construction before resetting them.
+	for attempt in ([2, 1, 3] if recovery_only else [0, 2, 1, 3]):
+		var world: Dictionary = data.duplicate(true)
+		var reset_visitors: bool = attempt in [1, 3]
+		var old_geometry: bool = attempt >= 2
+		if reset_visitors:
+			if not world.get("guests") is Array or world.guests.is_empty(): continue
+			world.guests=[];world.itineraries=[];world.parties=[]
+		var probe: RefCounted = model_script.new()
+		probe.load_progress=progress
+		if progress!=null:progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
+		if probe.restore(world,old_geometry).ok:
+			return {"ok":true,"exact":attempt==0,"model":probe,"reset_visitors":reset_visitors,"legacy_geometry":old_geometry}
+	return {"ok":false}

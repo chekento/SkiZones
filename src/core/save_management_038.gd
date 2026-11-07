@@ -33,26 +33,16 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		var salvage:=false
 		if valid:
 			good+=1
-			var probe: RefCounted=model_script.new()
-			normal=bool(probe.restore(read.data.duplicate(true)).ok)
-			if not normal:
-				for attempt in range(2):
-					var data: Dictionary=read.data.duplicate(true)
-					if attempt==1:
-						data.guests=[]
-						data.itineraries=[]
-						data.parties=[]
-					var fallback: RefCounted=model_script.new()
-					if fallback.restore(data,true).ok:
-						salvage=true
-						break
+			var probe: Dictionary = Saves.probe_restore(read.data,model_script)
+			normal=bool(probe.ok and probe.get("exact",false))
+			salvage=bool(probe.ok and not probe.get("exact",false))
 		if normal:exact+=1
 		elif salvage:recovery+=1
-		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage})
+		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":str(read.get("message",""))})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
-## Recover from an intact backup without losing the malformed original.
-## The source must pass the full Resort.restore validator, not just a checksum.
+## Prefer intact backups, then normalize a recoverable checksum-verified source.
+## Every replacement must pass a complete normal restore before activation.
 static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var paths: Array=sources(id,slot,free_slot)
 	if paths.is_empty():return {"ok":false,"message":L.text("Ungültiger Spielstand.")}
@@ -85,6 +75,33 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		if DirAccess.rename_absolute(ProjectSettings.globalize_path(staged),ProjectSettings.globalize_path(target))!=OK:
 			return {"ok":false,"message":L.text("Rettung konnte nicht aktiviert werden. Sicherung bleibt erhalten.")}
 		return {"ok":true,"changed":true,"message":L.text("Spielstand aus geprüfter Sicherung wiederhergestellt. Original wurde archiviert.")}
+	# Without an intact backup, recover the checksum-verified world itself.
+	# Stage a normalized save, re-read it and prove a normal load BEFORE
+	# archiving/replacing anything. Unknown/corrupt bytes are never guessed.
+	for candidate in paths:
+		if not FileAccess.file_exists(candidate):continue
+		var read:Dictionary=Saves._read(candidate)
+		if not correct_mode(read,id,slot):continue
+		var recovered:Dictionary=Saves.probe_restore(read.data,probe_script,true)
+		if not recovered.ok:continue
+		var staged:String=target+".repair-%d.tmp" % Time.get_ticks_usec()
+		var written:Dictionary=Saves.save_game(recovered.model,staged)
+		if not written.ok:return written
+		var verified:Dictionary=Saves._read(staged)
+		var native:RefCounted=probe_script.new()
+		if not correct_mode(verified,id,slot) or not native.restore(verified.data).ok:
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(staged))
+			return {"ok":false,"message":L.text("Reparaturprüfung fehlgeschlagen. Originaldateien bleiben unverändert.")}
+		var archive:String="user://save-recovery"
+		if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(archive))!=OK:
+			return {"ok":false,"message":L.text("Original konnte nicht gesichert werden.")}
+		var original_path:String=target if FileAccess.file_exists(target) else candidate
+		archive+="/"+original_path.get_file()+"-%d-%d.before-repair" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(original_path),ProjectSettings.globalize_path(archive))!=OK or FileAccess.get_sha256(original_path)!=FileAccess.get_sha256(archive):
+			return {"ok":false,"message":L.text("Original konnte nicht gesichert werden.")}
+		if DirAccess.rename_absolute(ProjectSettings.globalize_path(staged),ProjectSettings.globalize_path(target))!=OK:
+			return {"ok":false,"message":L.text("Rettung konnte nicht aktiviert werden. Sicherung bleibt erhalten.")}
+		return {"ok":true,"changed":true,"archive":archive,"reset_visitors":recovered.reset_visitors,"message":L.text("Spielstand repariert und geprüft. Das unveränderte Original wurde gesichert.")}
 	return {"ok":false,"message":L.text("Keine vollständig ladbare Sicherung gefunden. Dateien bleiben unverändert.")}
 
 static func copy(id: String,from_slot: int,to_slot: int,from_free: int = 1,to_free: int = 1) -> Dictionary:

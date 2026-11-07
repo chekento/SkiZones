@@ -9621,3 +9621,33 @@ msgstr "RESTROOM OPERATIONS"
 
 msgid "Hotel-Simulator · Zimmer & Betrieb"
 msgstr "Hotel Simulator · Rooms & Operations"
+
+msgid "Löschen & sichern"
+msgstr "Delete & back up"
+
+msgid "Tag"
+msgstr "Day"
+
+msgid "Sterne"
+msgstr "Stars"
+
+msgid "Guthaben"
+msgstr "Balance"
+
+msgid "Prüfen"
+msgstr "Check"
+
+msgid "Reparieren"
+msgstr "Repair"
+
+msgid "Kopie nach"
+msgstr "Copy to"
+
+msgid "Kopie erstellen"
+msgstr "Create copy"
+
+msgid "Reparaturprüfung fehlgeschlagen. Originaldateien bleiben unverändert."
+msgstr "Repair verification failed. Original files remain unchanged."
+
+msgid "Spielstand repariert und geprüft. Das unveränderte Original wurde gesichert."
+msgstr "Save repaired and verified. The unmodified original was backed up."
