@@ -6,11 +6,12 @@ var style_override := ""
 var _style_seen := ""
 var _style_hud: CanvasLayer
 const Catalog = preload("res://src/core/catalog.gd")
+var level:=1
 var kind := "cabin"
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size=Vector2(100,82)
+	if custom_minimum_size==Vector2.ZERO:custom_minimum_size=Vector2(100,82)
 	var ancestor: Node=get_parent()
 	while ancestor!=null:
 		if ancestor is CanvasLayer and ancestor.get("game")!=null:
@@ -29,11 +30,11 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	var style: String=current_style()
-	if style!="alpine":
-		var key: String=style+"/"+kind
+	if style!="alpine" or kind.begins_with("wc_"):
+		var key: String=style+"/"+kind+"/"+str(level)
 		if not theme_meshes.has(key):
 			if theme_meshes.size()>320:theme_meshes.clear()
-			theme_meshes[key]=Assets.building(kind,1,Color(Catalog.BUILDINGS.get(kind,{"color":"999999"}).color),style)
+			theme_meshes[key]=Assets.building(kind,level,Color(Catalog.BUILDINGS.get(kind,{"color":"999999"}).color),style)
 		IconArt.paint(self,theme_meshes[key],Rect2(Vector2(5,4),size-Vector2(10,8)))
 		return
 	var scale_value := minf(size.x/120,size.y/90)
@@ -101,7 +102,7 @@ func _draw() -> void:
 		draw_circle(at+Vector2(0,7),1.2,Color("fff7e8"))
 
 func _public_wc_icon(color:Color) -> void:
-	var index:int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+	var index:int=preload("res://src/core/wc_development.gd").visual_index(kind,level)
 	var count:int=index+1
 	var w:float=35.0+index*12.0
 	var h:float=45.0+index*5.0

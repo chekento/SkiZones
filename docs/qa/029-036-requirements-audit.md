@@ -62,6 +62,12 @@ Der neue Nutzerbericht zum Lademenü wird im [0.38.2-Prüfbericht](0382-save-rep
 
 Weiterhin offen bleiben insbesondere die vollständigen Hotel-/WC-Forschungsbäume und Simulatorvertiefungen, freie äußere Hotelarchitektur, sämtliche realen Szenario-Rundwege, die komplette Theme-/Saisonmatrix sowie durchgängig genregetreue längere Musikprogramme. Die 0.37-Landschafts-, Weg- und Pistenplaneränderungen sind bereits ausgeliefert; weitere visuelle Verfeinerung bleibt ein eigener Auftrag. Dieser Speicher-/UI-Fix markiert diese größeren Aufgaben nicht als abgeschlossen.
 
+## Präzisierung und Kandidat 0.39: ein WC-Kaufmodell
+
+Der Nutzer hat den Auftrag am 7. November präzisiert: **nur Portable Toilet als kleinstes Kaufobjekt**, größere Formen durch Ausbau derselben Anlage. Der [0.39-Prüfbericht](039-portable-toilet.md) dokumentiert diese Umstellung samt 100 wirksamen Entwicklungsprojekten, veränderten Assets und Kompatibilität der vier alten Einzeltypen. Dieser Umfang ist im neuen Kandidaten umgesetzt und lokal geprüft; sein öffentlicher Freigabestatus hängt von CI/Android ab. Die 100 WC-Projekte werden daher nicht weiter als fehlender Code geführt, bleiben aber bis zur Veröffentlichung Kandidatenumfang.
+
+Mehrwinter-Balancing, sichtbare gelbe Notdurftspuren, weitergehende individuelle WC-Servicefahrzeuge und der große Hotelarchitektur-/Forschungsumfang bleiben offen. Die frühere Tabelle beschreibt weiterhin den tatsächlichen Stand der öffentlichen 0.36 und wird nicht rückwirkend umgeschrieben.
+
 ## Quellen im Repository
 
 - [Veröffentlichte Versionshistorie](../../CHANGELOG.md) und `docs/releases/0.30.0.md` bis `0.36.0.md`.

@@ -9651,3 +9651,441 @@ msgstr "Repair verification failed. Original files remain unchanged."
 
 msgid "Spielstand repariert und geprüft. Das unveränderte Original wurde gesichert."
 msgstr "Save repaired and verified. The unmodified original was backed up."
+
+msgid "Standardisierte Fundamente"
+msgstr "Standardized foundations"
+
+msgid "Modulare Anschlussraster"
+msgstr "Modular connection grids"
+
+msgid "Wiederverwendbare Bauteile"
+msgstr "Reusable components"
+
+msgid "Verdichtete Bauabläufe"
+msgstr "Streamlined construction"
+
+msgid "Vorgefertigte Premiumflächen"
+msgstr "Prefabricated premium surfaces"
+
+msgid "Belüfteter Vorratstank"
+msgstr "Ventilated holding tank"
+
+msgid "Verstärkte Tankwände"
+msgstr "Reinforced tank walls"
+
+msgid "Sedimentfreier Ablauf"
+msgstr "Sediment-free drain"
+
+msgid "Kaskadierte Speicher"
+msgstr "Cascaded storage"
+
+msgid "Doppelte Sammelkammer"
+msgstr "Dual collection chamber"
+
+msgid "Optimierte Tankgeometrie"
+msgstr "Optimized tank geometry"
+
+msgid "Getrennte Rücklaufkammer"
+msgstr "Separate return chamber"
+
+msgid "Kompakte Speichermodule"
+msgstr "Compact storage modules"
+
+msgid "Überlaufsicherer Puffer"
+msgstr "Overflow-safe buffer"
+
+msgid "Maximiertes Nutzvolumen"
+msgstr "Maximized usable volume"
+
+msgid "Abwaschbare Türflächen"
+msgstr "Washable door surfaces"
+
+msgid "Berührungsarme Griffe"
+msgstr "Low-contact handles"
+
+msgid "Versiegelte Sitzflächen"
+msgstr "Sealed seat surfaces"
+
+msgid "Fugenarme Innenwände"
+msgstr "Seamless interior walls"
+
+msgid "Geschützte Papierhalter"
+msgstr "Protected paper holders"
+
+msgid "Glatter Bodenabschluss"
+msgstr "Smooth floor joints"
+
+msgid "Spritzgeschützte Armaturen"
+msgstr "Splash-proof fittings"
+
+msgid "Hygienische Ablageflächen"
+msgstr "Hygienic shelves"
+
+msgid "Nahtlose Innenauskleidung"
+msgstr "Seamless interior lining"
+
+msgid "Verschleißfeste Hygieneflächen"
+msgstr "Wear-resistant hygiene surfaces"
+
+msgid "Service-Werkzeugset"
+msgstr "Maintenance tool kit"
+
+msgid "Gebündelte Wartungswege"
+msgstr "Combined service routes"
+
+msgid "Mobile Servicestation"
+msgstr "Mobile maintenance station"
+
+msgid "Sortierte Ersatzteilsätze"
+msgstr "Sorted spare-part kits"
+
+msgid "Digitale Wartungslisten"
+msgstr "Digital maintenance lists"
+
+msgid "Geteilte Servicefahrten"
+msgstr "Shared service trips"
+
+msgid "Planbare Einsatzfenster"
+msgstr "Scheduled service windows"
+
+msgid "Zentrale Wartungslogistik"
+msgstr "Central maintenance logistics"
+
+msgid "Bedarfsgerechte Servicerunden"
+msgstr "Demand-based service rounds"
+
+msgid "Koordinierte Premiumwartung"
+msgstr "Coordinated premium maintenance"
+
+msgid "Dichte Türabschlüsse"
+msgstr "Tight door seals"
+
+msgid "Geschützte Entlüftung"
+msgstr "Protected ventilation"
+
+msgid "Robuste Bodendichtung"
+msgstr "Durable floor seal"
+
+msgid "Abgedeckte Fugen"
+msgstr "Covered joints"
+
+msgid "Schneefeste Dachkanten"
+msgstr "Snow-resistant roof edges"
+
+msgid "Windgeschützte Eingänge"
+msgstr "Wind-protected entrances"
+
+msgid "Beständige Innenverkleidung"
+msgstr "Durable interior panels"
+
+msgid "Feuchtesichere Wandmodule"
+msgstr "Moisture-proof wall modules"
+
+msgid "Langlebige Schutzbeschichtung"
+msgstr "Long-life protective coating"
+
+msgid "Alpine Dauerabdichtung"
+msgstr "Alpine weatherproofing"
+
+msgid "Eindeutige Belegungsanzeige"
+msgstr "Clear occupancy indicator"
+
+msgid "Lesbare Kabinenschilder"
+msgstr "Readable cabin signs"
+
+msgid "Leichtgängige Verriegelung"
+msgstr "Smooth door locks"
+
+msgid "Griffbereite Ausstattung"
+msgstr "Easy-reach supplies"
+
+msgid "Getrennte Zu- und Abgänge"
+msgstr "Separate entry and exit"
+
+msgid "Übersichtliche Waschnischen"
+msgstr "Clear wash areas"
+
+msgid "Wartefreie Ausgangszone"
+msgstr "Unobstructed exit zone"
+
+msgid "Schnelle Kabinenfreigabe"
+msgstr "Quick cabin release"
+
+msgid "Optimierter Kabinengrundriss"
+msgstr "Optimized cabin layout"
+
+msgid "Durchgehender Besucherfluss"
+msgstr "Continuous visitor flow"
+
+msgid "Dosierte Reinigungsmittel"
+msgstr "Metered cleaning products"
+
+msgid "Vorsortierte Reinigungssätze"
+msgstr "Presorted cleaning kits"
+
+msgid "Breite Reinigungskanten"
+msgstr "Wide cleaning edges"
+
+msgid "Leicht erreichbare Ecken"
+msgstr "Easy-reach corners"
+
+msgid "Modulare Bürstensysteme"
+msgstr "Modular brush systems"
+
+msgid "Sparsame Spülreinigung"
+msgstr "Water-saving rinse"
+
+msgid "Schnell trocknende Flächen"
+msgstr "Quick-drying surfaces"
+
+msgid "Wiederbefüllbare Servicepacks"
+msgstr "Refillable service packs"
+
+msgid "Standardisierte Reinigungsfolge"
+msgstr "Standard cleaning sequence"
+
+msgid "Effiziente Komplettreinigung"
+msgstr "Efficient complete cleaning"
+
+msgid "Schneller Tankanschluss"
+msgstr "Quick tank connection"
+
+msgid "Dichte Schlauchkupplungen"
+msgstr "Sealed hose couplings"
+
+msgid "Geschützte Entnahmestutzen"
+msgstr "Protected extraction ports"
+
+msgid "Restarme Absaugführung"
+msgstr "Low-residue suction route"
+
+msgid "Standardisierte Sammeladapter"
+msgstr "Standard collection adapters"
+
+msgid "Kurze Entsorgungswege"
+msgstr "Short disposal routes"
+
+msgid "Gebündelte Tankabfuhr"
+msgstr "Combined tank collection"
+
+msgid "Druckoptimierte Absaugung"
+msgstr "Pressure-optimized extraction"
+
+msgid "Rückstandsarme Tankentleerung"
+msgstr "Low-residue tank emptying"
+
+msgid "Effiziente Entsorgungszentrale"
+msgstr "Efficient disposal hub"
+
+msgid "Sparsame Verbrauchsartikel"
+msgstr "Efficient consumables"
+
+msgid "Langlebige Türbeschläge"
+msgstr "Long-life door fittings"
+
+msgid "Robuste Lüftungsgitter"
+msgstr "Durable ventilation grilles"
+
+msgid "Wartungsarme Dachmodule"
+msgstr "Low-maintenance roof modules"
+
+msgid "Bedarfsgerechte Beleuchtung"
+msgstr "Demand-based lighting"
+
+msgid "Effiziente Betriebsplanung"
+msgstr "Efficient operations planning"
+
+msgid "Gemeinsame Ersatzteilhaltung"
+msgstr "Shared spare-part inventory"
+
+msgid "Langlebige Sanitärbauteile"
+msgstr "Long-life sanitary components"
+
+msgid "Optimierter Materialkreislauf"
+msgstr "Optimized material cycle"
+
+msgid "Ressourcenschonender Dauerbetrieb"
+msgstr "Resource-saving continuous operation"
+
+msgid "Gedämmte Tankabdeckung"
+msgstr "Insulated tank cover"
+
+msgid "Geschützte Leitungsführung"
+msgstr "Protected pipe routing"
+
+msgid "Doppelte Bodenisolierung"
+msgstr "Double floor insulation"
+
+msgid "Wärmegedämmte Fugen"
+msgstr "Insulated joints"
+
+msgid "Isolierte Entsorgungsventile"
+msgstr "Insulated disposal valves"
+
+msgid "Geschützte Außenanschlüsse"
+msgstr "Protected exterior connections"
+
+msgid "Kältearme Entlüftung"
+msgstr "Cold-resistant ventilation"
+
+msgid "Winddichter Tankraum"
+msgstr "Windproof tank compartment"
+
+msgid "Thermisch getrennte Bodenplatte"
+msgstr "Thermally separated floor slab"
+
+msgid "Alpines Frostschutzsystem"
+msgstr "Alpine frost protection"
+
+msgid "Ausbauen · %s €"
+msgstr "Expand · %s €"
+
+msgid "Entwicklungsbaum"
+msgstr "Development tree"
+
+msgid "STUFE %d / 5 · %s"
+msgstr "STAGE %d / 5 · %s"
+
+msgid "WC-Betrieb: %s €/Tag"
+msgstr "Restroom operation: %s €/day"
+
+msgid "Eine Portable Toilet wächst durch fünf sichtbare Ausbaustufen. Größere Gebäude brauchen mehr freien Platz; der Ausbau prüft Standort und Zugang vor der Zahlung."
+msgstr "One Portable Toilet grows through five visible stages. Larger facilities need more space; expansion checks the site and entrance before payment."
+
+msgid "Entwicklung"
+msgstr "Development"
+
+msgid "PORTABLE TOILET · ENTWICKLUNG"
+msgstr "PORTABLE TOILET · DEVELOPMENT"
+
+msgid "%d / 100 entwickelt · %d Forschungspunkte"
+msgstr "%d / 100 developed · %d research points"
+
+msgid "Freier Aufbau: Alle Ausbaustufen sind ohne Forschung verfügbar. Erforschte Betriebsverbesserungen wirken zusätzlich."
+msgstr "Free build: All building stages are available without research. Researched operating improvements provide additional benefits."
+
+msgid "Stufe %d"
+msgstr "Stage %d"
+
+msgid "%d Plätze"
+msgstr "%d places"
+
+msgid "Forschungszweig"
+msgstr "Research branch"
+
+msgid "100 Entwicklungen in zehn Zweigen. Ausbau, Tank, Hygiene, Wartung, Besucherfluss und Winterbetrieb wirken direkt auf deine Toiletten."
+msgstr "100 developments in ten branches. Expansion, tanks, hygiene, maintenance, visitor flow and winter operation directly affect your toilets."
+
+msgid "Entwicklungsbaum öffnen"
+msgstr "Open development tree"
+
+msgid "Zuerst eine Portable Toilet bauen."
+msgstr "Build a Portable Toilet first."
+
+msgid "%s · Stufe %d / %d"
+msgstr "%s · Stage %d / %d"
+
+msgid "Portable Toilet"
+msgstr "Portable Toilet"
+
+msgid "Winterkabinen"
+msgstr "Winter cabins"
+
+msgid "Sanitärmodul"
+msgstr "Sanitation module"
+
+msgid "Alpines Sanitärhaus"
+msgstr "Alpine restroom"
+
+msgid "Premium-Sanitärzentrum"
+msgstr "Premium restroom center"
+
+msgid "Ausbau & Architektur"
+msgstr "Expansion & architecture"
+
+msgid "Tank & Kapazität"
+msgstr "Tank & capacity"
+
+msgid "Hygiene & Oberflächen"
+msgstr "Hygiene & surfaces"
+
+msgid "Wartung & Einsatzplanung"
+msgstr "Maintenance & scheduling"
+
+msgid "Haltbarkeit & Schutz"
+msgstr "Durability & protection"
+
+msgid "Besucherfluss"
+msgstr "Visitor flow"
+
+msgid "Reinigungsverfahren"
+msgstr "Cleaning methods"
+
+msgid "Entsorgungsverfahren"
+msgstr "Waste disposal methods"
+
+msgid "Betrieb & Ressourcen"
+msgstr "Operation & resources"
+
+msgid "Frost & Winterbetrieb"
+msgstr "Frost & winter operation"
+
+msgid "Ausbau auf Stufe 2 mit zwei Kabinen freischalten."
+msgstr "Unlock expansion to stage 2 with two cabins."
+
+msgid "Ausbau auf Stufe 3 zum Sanitärmodul freischalten."
+msgstr "Unlock expansion to a stage 3 sanitation module."
+
+msgid "Ausbau auf Stufe 4 zum alpinen Sanitärhaus freischalten."
+msgstr "Unlock expansion to a stage 4 alpine restroom."
+
+msgid "Ausbau auf Stufe 5 zum Premium-Sanitärzentrum freischalten."
+msgstr "Unlock expansion to a stage 5 premium restroom center."
+
+msgid "Ausbaukosten öffentlicher Toiletten um weitere 3 % senken."
+msgstr "Reduce public toilet expansion costs by another 3%."
+
+msgid "Tankvolumen um weitere 4 % der Grundkapazität erhöhen."
+msgstr "Increase tank volume by another 4% of base capacity."
+
+msgid "Hygieneverbrauch pro Besuch um weitere 2,5 % senken."
+msgstr "Reduce hygiene wear per visit by another 2.5%."
+
+msgid "Reinigungs- und Entsorgungsservice um weitere 2 % vergünstigen."
+msgstr "Reduce cleaning and disposal service costs by another 2%."
+
+msgid "Täglichen Hygieneverschleiß um weitere 3 % senken."
+msgstr "Reduce daily hygiene wear by another 3%."
+
+msgid "Kabinennutzungszeit um weitere 2 % verkürzen."
+msgstr "Reduce cabin usage time by another 2%."
+
+msgid "Kosten jeder Reinigung um weitere 3 % senken."
+msgstr "Reduce the cost of each cleaning by another 3%."
+
+msgid "Kosten jeder Tankentleerung um weitere 3 % senken."
+msgstr "Reduce the cost of each tank emptying by another 3%."
+
+msgid "Tägliche WC-Betriebskosten um weitere 2,5 % senken."
+msgstr "Reduce daily restroom operating costs by another 2.5%."
+
+msgid "Zusätzlichen Hygieneverschleiß bei starkem Frost um weitere 5 % senken."
+msgstr "Reduce additional hygiene wear in severe frost by another 5%."
+
+msgid "Portable Toilet, Ausbau und 100 wirksame Entwicklungen"
+msgstr "Portable Toilet, expansion and 100 effective developments"
+
+msgid "Diese Ausbaustufe entsteht durch Ausbau einer Portable Toilet."
+msgstr "This stage is obtained by expanding a Portable Toilet."
+
+msgid "Eine kleine mobile Toilette. Durch Ausbau und Forschung wächst sie bis zum Premium-Sanitärzentrum. Reinigung und Entsorgung bleiben Teil des Betriebs."
+msgstr "A small portable toilet. Expansion and research develop it into a premium restroom center. Cleaning and waste disposal remain part of operations."
+
+msgid "Voll ausgebaut"
+msgstr "Fully expanded"
+
+msgid "%d / 100 entwickelt · %d FP"
+msgstr "%d / 100 developed · %d RP"
+
+msgid "Zusätzlichen Hygieneverschleiß bei starkem Frost und Kosten der Winterisolierung um weitere 5 % senken."
+msgstr "Reduce additional hygiene wear in severe frost and winter insulation costs by another 5%."

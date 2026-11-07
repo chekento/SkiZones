@@ -64,7 +64,7 @@ func run() -> void:
 	var browser: Control=game.hud.building_browser
 	browser.open()
 	await process_frame
-	check(browser.visible and browser.cards.size()==game.model.Catalog.BUILDINGS.size() and not game.simulation_running(),"The full-screen catalog covers every available village building")
+	check(browser.visible and browser.cards.size()==game.model.Catalog.building_order().size() and not game.simulation_running(),"The full-screen catalog covers every available village building")
 	check(game.hud.blocks_map(browser.window.get_global_rect().get_center()),"The catalog frame captures map input")
 	await capture("landscape-023-catalog")
 	browser.search.text="Ferienhütte"
