@@ -61,8 +61,8 @@ func run() -> void:
 			and left.position.x>=0 and right.end.x<=width+1 and channel.end.x<=width+1,
 			"Forward, backward, readout and close controls stay within viewport: "+str(resolution))
 		var same_mixer:=true
-		for channel in ["master","music","ambient"]:
-			var meter:ProgressBar=radio.volume_meters[channel]
+		for mixer_id in ["master","music","ambient"]:
+			var meter:ProgressBar=radio.volume_meters[mixer_id]
 			var buttons:Array=meter.get_parent().get_children().filter(func(child):return child is Button)
 			same_mixer=same_mixer and buttons.size()==2
 			if buttons.size()==2:
