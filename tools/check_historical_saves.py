@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The normal career fixture continues to cover every pinned release.
 MODE_RELEASES = {
     "0.27.0", "0.30.0", "0.32.0", "0.33.2",
-    "0.35.1", "0.37.0", "0.38.1",
+    "0.35.1", "0.37.0", "0.38.1", "0.38.2",
 }
 
 
