@@ -2401,7 +2401,9 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	for key in ["pistes", "lifts", "buildings", "guests", "achievements"]:
 		if not data.get(key) is Array:
 			return invalid
-	if data.pistes.size() > 1024 or data.lifts.size() > 160 or data.buildings.size() > 60 or data.guests.size() > MAX_GUESTS:
+	# The old cap of 60 buildings rejected legitimate large free-build resorts.
+	# Bound memory by the 64 MiB envelope and conservative per-object limits.
+	if data.pistes.size() > 2048 or data.lifts.size() > 512 or data.buildings.size() > 512 or data.guests.size() > MAX_GUESTS:
 		return invalid
 	for piste in data.pistes:
 		if not piste is Dictionary: return invalid
@@ -2417,7 +2419,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 
 	if data.version < 6:
 		data.walk_areas = []
-	if not data.get("walk_areas") is Array or data.walk_areas.size() > 80:
+	if not data.get("walk_areas") is Array or data.walk_areas.size() > 512:
 		return invalid
 	var used_ids: Array = []
 	var piste_numbers: Array = []
