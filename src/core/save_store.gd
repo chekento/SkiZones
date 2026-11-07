@@ -240,16 +240,32 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
-		if _read(path).ok:
-			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK:
+		var old_read: Dictionary = _read(path)
+		# A checksum alone does not prove the previous *world* can be loaded.
+		# Never replace the last good .bak with a checksum-valid but
+		# semantically broken model (unsupported buildings, bad geometry, etc.).
+		var old_loadable: bool = false
+		if old_read.ok and model.get_script() is Script:
+			var old_model: RefCounted = model.get_script().new()
+			old_loadable = bool(old_model.restore(old_read.data.duplicate(true)).ok)
+		if old_loadable:
+			# Copy to a temporary sibling and validate bytes before the atomic
+			# backup rename, so interrupted copies cannot truncate a good .bak.
+			var staged_backup: String = absolute + ".bak.stage-%d" % Time.get_ticks_usec()
+			if DirAccess.copy_absolute(absolute, staged_backup) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(staged_backup):
+				DirAccess.remove_absolute(staged_backup)
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			if DirAccess.rename_absolute(staged_backup, absolute + ".bak") != OK:
+				DirAccess.remove_absolute(staged_backup)
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
+			# A malformed OR checksum-valid-but-unloadable previous primary
+			# becomes an immutable archive. In particular, preserve the .bak.
 			var rescue_dir := "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(archive):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
