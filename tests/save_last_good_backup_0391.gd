@@ -63,5 +63,33 @@ func run() -> void:
 	check(FileAccess.get_sha256(path+".bak")==before,"Valid previous primary safely becomes new backup")
 	var intact:=Resort.new()
 	check(Saves.load_game(intact,path+".bak").ok and intact.day==3,"Backup after rotation is a semantically playable resort")
+	# The same shared save writer is used for two free slots and real missions.
+	# Keep every previous-good backup when a corrupt-yet-checksummed save is
+	# encountered, regardless of mode or historical file naming.
+	for item in [
+		{"id":"sonnenhang","slot":0,"free":1,"name":"free slot 1"},
+		{"id":"sonnenhang","slot":0,"free":2,"name":"free slot 2"},
+		{"id":"braunlage","slot":1,"free":1,"name":"Braunlage mission"}
+	]:
+		var name:String=str(item.name)
+		var source:String=Saves.path_for_map(str(item.id),int(item.slot),int(item.free))
+		for target in [source,source+".bak"]:
+			if FileAccess.file_exists(target):DirAccess.remove_absolute(ProjectSettings.globalize_path(target))
+		var instance:=Resort.new()
+		instance.new_game(item.slot!=0,20261107,str(item.id))
+		check(Saves.save_game(instance,source).ok,name+" first original save")
+		instance.day=3
+		check(Saves.save_game(instance,source).ok and FileAccess.file_exists(source+".bak"),name+" previous backup created")
+		var previous_good:String=FileAccess.get_sha256(source+".bak")
+		var bad:Dictionary=instance.snapshot().duplicate(true)
+		bad.day=0
+		write_envelope(source,bad)
+		var content:Dictionary=Saves._read(source)
+		var rejected:=Resort.new()
+		check(content.ok and not rejected.restore(content.data.duplicate(true)).ok,name+" corrupted world still has correct checksum")
+		check(Saves.save_game(instance,source).ok,name+" current world saves despite bad prior primary")
+		check(previous_good==FileAccess.get_sha256(source+".bak"),name+" retains last-good .bak byte-for-byte")
+		var round_trip:=Resort.new()
+		check(Saves.load_game(round_trip,source).ok and round_trip.day==3,name+" saved world remains playable")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
