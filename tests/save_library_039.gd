@@ -41,6 +41,8 @@ func run() -> void:
 	check(DirAccess.copy_absolute(ProjectSettings.globalize_path(scenario),ProjectSettings.globalize_path(legacy))==OK,"Historical scenario path preserved")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(scenario))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(scenario+".bak"))
+	Saves.active_slot=0
+	check(Saves.has_any_save(id) and Saves.has_readable_save(id),"Historical mission remains discoverable even while free mode is active")
 	check(Saves.load_game(Resort.new(),scenario).ok,"Historical mission filename remains loadable without moving original")
 	check(Manager.inspect(id,1).loadable==1,"Historical mission filename is available to manual inspection")
 	check(not FileAccess.file_exists(career) and not FileAccess.file_exists(sandbox),"Mission recovery does not create or overwrite unrelated careers or free slots")
