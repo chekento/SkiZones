@@ -9693,3 +9693,12 @@ msgstr " · visitors"
 
 msgid " · Gruppen"
 msgstr " · parties"
+
+msgid "Portable Toilet"
+msgstr "Portable toilet"
+
+msgid "AUS"
+msgstr "OFF"
+
+msgid "EIN"
+msgstr "ON"
