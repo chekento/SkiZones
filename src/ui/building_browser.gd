@@ -124,7 +124,7 @@ func _refresh(force: bool = false) -> void:
 	choose.disabled=reason!="" or model.money<spec.cost or not hud.game.points.is_empty()
 
 func _choose() -> void:
-	hud.building_choice.select(Catalog.BUILDINGS.keys().find(selected_kind))
+	hud.building_choice.select(Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind))).find(selected_kind))
 	hud.game.set_tool("building")
 	if window.fullscreen: hide()
 	else: _refresh(true)

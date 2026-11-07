@@ -692,9 +692,12 @@ func _build_tools() -> void:
 	for kind in Catalog.LIFTS:
 		lift_choice.add_item(L.text(Catalog.LIFTS[kind].name))
 	lift_choice.selected = Catalog.LIFTS.keys().find("drag")
+	# Historical WC type IDs stay registered for OLD saves, but do not
+	# appear as separate products anywhere in the new-build selector.
 	for kind in Catalog.BUILDINGS:
+		if not Catalog.purchasable(str(kind)):continue
 		building_choice.add_item(L.text(Catalog.BUILDINGS[kind].name))
-	building_choice.selected = Catalog.BUILDINGS.keys().find("lodge")
+	building_choice.selected = Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind))).find("lodge")
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	palette.setup(self)
@@ -1175,10 +1178,10 @@ func _build_menu() -> void:
 	menu_logo=_brand_logo(box,Vector2(0,148))
 	_label(box, L.text("Dein Skigebiet, deine Geschichten."), 19, ACCENT)
 	_label(box, L.text("Plane clever, gestalte die Berge und begleite deine Gäste durch lebendige Wintertage."), 16, MUTED, true)
-	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere fortsetzen oder ganz frei bauen")
+	var play := _menu_group(box, "01  ·  HAUPTSPIEL", "Karriere oder freier Aufbau · alte Spielstände behalten")
 	continue_button = _button(play, L.text("Fortsetzen"), game.continue_main_game, true)
-	_button(play, L.text("Karriere · vier Spielstände"), game.show_career_slots)
-	_button(play, L.text("Freier Aufbau · vier Spielstände"), game.start_free_play)
+	_button(play, L.text("Karriere · Laden & Verwalten"), game.show_career_slots)
+	_button(play, L.text("Freier Aufbau · Laden & Verwalten"), game.start_free_play)
 	var manage := _menu_group(box, "02  ·  RESORT & BERGWELT", "Dein Betrieb und deine acht Skiberge")
 	_button(manage, L.text("Bergpass · alle Gebiete"), func():
 		hide_menu()
@@ -1221,6 +1224,7 @@ func _build_menu() -> void:
 	for item in panel.find_children("*", "Button", true, false):
 		var menu_button: Button = item as Button
 		menu_button.clip_text = true
+		menu_button.custom_minimum_size.y = maxf(menu_button.custom_minimum_size.y,48.0)
 		menu_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		menu_button.tooltip_text = menu_button.text
 
@@ -1290,7 +1294,8 @@ func lift_kind() -> String:
 	return Catalog.LIFTS.keys()[lift_choice.selected]
 
 func building_kind() -> String:
-	return Catalog.BUILDINGS.keys()[building_choice.selected]
+	var offers:Array=Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind)))
+	return str(offers[clampi(building_choice.selected,0,offers.size()-1)])
 
 func show_atlas() -> void:
 	camera_dialog.hide()
@@ -1565,17 +1570,18 @@ func refresh() -> void:
 	if cinema_mode: cinema_title.text=L.text("Kamerafahrt · ")+L.text(game.view.tour.label())+L.text(" · Tag %d") % model.day
 	var scenario: String = str(model.operations.get("scenario",""))
 	var goals: Array = Ops.evaluate(model) if not scenario.is_empty() else []
+	var notification_blocked:bool=experience.visible or lift_staff.visible or management.visible or career_slots.visible
 	# The same elegant achievement overlay now carries mission successes,
 	# actual CC0 song changes, medals and relevant resort warnings.
-	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
+	if game.has_game and not notification_blocked and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
 		_announce_radio_track()
 		_announce_finance_warning(model)
 	# Styling is synced before displaying queued achievements.
-	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
+	var show_achievement: bool=not notification_blocked and not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
 	achievement_overlay.visible=show_achievement
 	achievement_overlay.set_process(show_achievement)
 	achievement_overlay.set_visual_style(game.preferences.visual_style)
-	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
+	if game.has_game and not notification_blocked and not menu.visible and not cinema_mode and not piste_map_window.visible and not model.recent_unlocks.is_empty():
 		for index in range(mini(3,model.recent_unlocks.size())):
 			achievement_overlay.announce(model.recent_unlocks.pop_front())
 	var sandbox: bool = model.campaign.get("mode", "career") == "free"
@@ -1678,7 +1684,7 @@ func show_report() -> void:
 
 
 func show_seasonal_poster() -> void:
-	seasonal_poster.open(game.preferences.visual_style)
+	seasonal_poster.open(game.preferences.visual_style,game.view.festival_scene.selected_poster)
 
 func _open_community_url(address: String) -> void:
 	# Only open the external destination following an explicit player action.

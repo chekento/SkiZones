@@ -14,6 +14,9 @@ const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
+const WCDevelopment=preload("res://src/core/wc_development.gd")
+const BuildingIcon=preload("res://src/ui/building_icon.gd")
+var _wc_research_group:=0
 var _hotel_floor := 0
 var _selected_room := 1
 var hotel_shift: Dictionary = {}
@@ -30,7 +33,7 @@ var asset_id := -1
 var tabs := TabContainer.new()
 var heading: Label
 var tagline: Label
-var primary_actions := HBoxContainer.new()
+var primary_actions := GridContainer.new()
 var session: Dictionary = {}
 var game_box: VBoxContainer
 var task: Dictionary = {}
@@ -61,6 +64,9 @@ func setup(owner_hud: CanvasLayer) -> void:
 	heading=window.title
 	tagline=hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
 	primary_actions.name="building_primary_actions"
+	primary_actions.columns=2
+	primary_actions.add_theme_constant_override("h_separation",8)
+	primary_actions.add_theme_constant_override("v_separation",8)
 	primary_actions.add_theme_constant_override("separation",8)
 	body.add_child(primary_actions)
 	primary_actions.hide()
@@ -92,6 +98,7 @@ func open(id: int) -> void:
 	_rebuild()
 	show()
 	window._fit()
+	hud.refresh()
 
 func close() -> void:
 	if visible: hud.game.paused = was_paused
@@ -509,7 +516,7 @@ func _room_management(page: VBoxContainer, building: Dictionary) -> void:
 	hud._label(detail,L.text("Der Etagenplan ordnet die vorhandenen Zimmer innerhalb des Hauses. Er baut keine zusätzlichen Betten oder Außenflügel."),17,hud.MUTED,true)
 
 func _public_wc(building: Dictionary) -> void:
-	# No hotel reference: independent public sanitation, including Dixi units.
+	# Independent public sanitation with one purchasable start model.
 	var model: RefCounted=hud.game.model
 	var info: Dictionary=PublicWC.status(model,building)
 	tagline.hide()
@@ -518,9 +525,15 @@ func _public_wc(building: Dictionary) -> void:
 	clean.name="public_wc_clean";clean.disabled=float(info.hygiene)>=99.95
 	var empty:Button=_action(primary_actions,L.text("Entleeren · %s €") % hud.money_text(info.empty_cost),func():return PublicWC.action(model,asset_id,"empty"))
 	empty.name="public_wc_empty";empty.disabled=float(info.fill)<=0.01
+	var upgrade:Dictionary=model.upgrade_check(asset_id)
+	var expand:Button=_action(primary_actions,(L.text("Ausbauen · %s €") % hud.money_text(upgrade.cost)) if upgrade.has("cost") else L.text("Voll ausgebaut") if int(building.get("level",1))>=5 else L.text("Ausbauen"),func():return model.upgrade_asset(asset_id))
+	expand.name="public_wc_upgrade";expand.disabled=not upgrade.ok;expand.tooltip_text=str(upgrade.message)
+	hud._button(primary_actions,L.text("Entwicklungsbaum"),show_wc_development,true).name="public_wc_development_open"
 	var page: VBoxContainer=_page(L.text("Öffentliche Toiletten"))
 	var head:=_card(page,L.text("WC-BETRIEB"))
 	head.name="public_wc_manager"
+	hud._label(head,L.text("STUFE %d / 5 · %s") % [int(building.get("level",1)),L.text(str(WCDevelopment.STAGES[WCDevelopment.visual_index(str(building.kind),int(building.get("level",1)))].name))],18,hud.TEAL,true)
+	hud._label(head,L.text("WC-Betrieb: %s €/Tag") % hud.money_text(info.upkeep),16,hud.MUTED,true)
 	hud._label(head,L.text("HYGIENE  %.0f %%  ·  TANK  %.0f %%") % [float(info.hygiene),float(info.fill)],20,hud.INK,true)
 	hud._label(head,L.text("PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d") % [int(info.capacity),int(info.waiting),int(info.visits)],21,hud.TEAL,true)
 	hud._label(head,L.text("VORGEMERKT  %d  ·  TANKVOLUMEN  %.0f Nutzungen") % [int(info.reserved),float(info.volume)],16,hud.MUTED,true)
@@ -545,12 +558,65 @@ func _public_wc(building: Dictionary) -> void:
 	if not allow_winter:
 		hud._label(actions,L.text("Forschung: Frostsichere Entsorgung."),15,hud.ACCENT,true)
 	var growth:=_card(page,L.text("AUSBAU & PERSONAL"))
-	hud._label(growth,L.text("Ausbau: mehr Kabinen; ab Stufe 3 zusätzlicher Tankpuffer, ab Stufe 4 weniger Hygieneverschleiß, ab Stufe 5 günstigere Servicerunden."),15,hud.MUTED,true)
-	var upgrade:Dictionary=model.upgrade_check(asset_id)
-	var button:Button=_action(growth,L.text("Kapazität ausbauen · %s €") % hud.money_text(upgrade.get("cost",0)),func():return model.upgrade_asset(asset_id))
-	button.name="public_wc_upgrade";button.disabled=not upgrade.ok
+	hud._label(growth,str(upgrade.message),16,hud.TEAL,true)
+	hud._label(growth,L.text("Eine Portable Toilet wächst durch fünf sichtbare Ausbaustufen. Größere Gebäude brauchen mehr freien Platz; der Ausbau prüft Standort und Zugang vor der Zahlung."),15,hud.MUTED,true)
 	hud._button(growth,L.text("Zusatzpersonal und Team"),func():close();hud.lift_staff.open(asset_id),true)
 	hud._label(growth,L.text("Reinigung, Tankfüllstand, Kälte und reale Toilettengäste bestimmen den Betrieb. Für Hotel- und Restaurant-Toiletten entstehen keine separaten WC-Gebäude."),15,hud.MUTED,true)
+	_wc_development(building)
+
+func show_wc_development() -> void:
+	for index in range(tabs.get_tab_count()):
+		if tabs.get_tab_title(index)==L.text("Entwicklung"):tabs.current_tab=index;return
+
+func _wc_development(building:Dictionary) -> void:
+	var model:RefCounted=hud.game.model
+	var page:VBoxContainer=_page(L.text("Entwicklung"))
+	page.name="wc_development_tree"
+	var head:VBoxContainer=_card(page,L.text("Entwicklungsbaum"))
+	var done:int=0
+	for id in WCDevelopment.PROJECTS:
+		if model.Progression.has(model,id):done+=1
+	hud._label(head,L.text("%d / 100 entwickelt · %d FP") % [done,int(model.campaign.points)],18,hud.TEAL,true)
+	if not model.campaign.project.is_empty():
+		hud._label(head,L.text("In Arbeit: ")+L.text(str(model.Progression.RESEARCH[model.campaign.project.id].name)),16,hud.INK,true)
+		hud._label(head,L.text("Fertig an Tag %d") % int(model.campaign.project.due_day),15,hud.MUTED,true)
+	if model.campaign.mode=="free":hud._label(head,L.text("Freier Aufbau: Alle Ausbaustufen sind ohne Forschung verfügbar. Erforschte Betriebsverbesserungen wirken zusätzlich."),15,hud.MUTED,true)
+	var stages:=GridContainer.new();stages.columns=5
+	stages.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	stages.add_theme_constant_override("h_separation",6);stages.add_theme_constant_override("v_separation",6)
+	head.add_child(stages)
+	for index in range(5):
+		var tile:=PanelContainer.new();tile.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		tile.add_theme_stylebox_override("panel",hud._style(Color("d1e5de") if int(building.get("level",1))==index+1 else Color("fffaf2"),8,3))
+		stages.add_child(tile)
+		var content:VBoxContainer=hud._vbox(tile,3)
+		var icon:=BuildingIcon.new();icon.kind="wc_dixi";icon.level=index+1;icon.custom_minimum_size=Vector2(34,34)
+		content.add_child(icon)
+		hud._label(content,str(index+1),14,hud.INK,true)
+		tile.tooltip_text=L.text(str(WCDevelopment.STAGES[index].name))+" · "+(L.text("%d Plätze") % int(WCDevelopment.STAGES[index].places))
+	hud._label(page,L.text("Forschungszweig"),16,hud.INK,true)
+	var choice:=OptionButton.new();choice.name="wc_research_group";choice.fit_to_longest_item=false
+	choice.custom_minimum_size.y=48;choice.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	for group in WCDevelopment.GROUPS:choice.add_item(L.text(str(group.name)))
+	choice.select(_wc_research_group);page.add_child(choice)
+	choice.item_selected.connect(func(index:int):_wc_research_group=index;_rebuild();show_wc_development())
+	var group:Dictionary=WCDevelopment.GROUPS[_wc_research_group]
+	for index in range(group.nodes.size()):
+		var id:String=str(group.nodes[index]);var spec:Dictionary=WCDevelopment.PROJECTS[id]
+		if index>0 and spec.requires.has(str(group.nodes[index-1])):hud._label(page,"↓",20,hud.TEAL)
+		var complete:bool=model.Progression.has(model,id)
+		var active:bool=not model.campaign.project.is_empty() and model.campaign.project.id==id
+		var card:VBoxContainer=_card(page,("✓ " if complete else "◉ " if active else "◇ ")+L.text(str(spec.name)))
+		card.name="wc_project_"+id
+		hud._label(card,L.text(str(spec.effect)),15,hud.INK,true)
+		var requirements:Array=[]
+		for required in spec.requires:requirements.append(("✓ " if model.Progression.has(model,str(required)) else "◇ ")+L.text(str(model.Progression.RESEARCH[required].name)))
+		if not requirements.is_empty():hud._label(card,L.text("Benötigt: %s") % ", ".join(requirements),14,hud.MUTED,true)
+		hud._label(card,L.text("%s € · %d FP · %d Tage") % [hud.money_text(spec.cost),int(spec.points),int(spec.days)],15,hud.TEAL,true)
+		var check:Dictionary=model.Progression.research_check(model,id)
+		var button:Button=_action(card,L.text("Abgeschlossen") if complete else L.text("In Arbeit") if active else L.text("Forschung starten"),func():return model.start_research(id))
+		button.name="wc_research_"+id;button.disabled=not check.ok
+		if not complete and not active and not check.ok:hud._label(card,str(check.message),14,hud.MUTED,true)
 
 func _hotel_simulator(building: Dictionary) -> void:
 	var model: RefCounted=hud.game.model

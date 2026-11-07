@@ -84,12 +84,12 @@ func run() -> void:
 	for level in range(1,6):
 		item.level=level
 		var info:Dictionary=WC.status(model,item)
-		check(int(info.units)==level and model.service_capacity(item)==level,"Displayed and routable physical cabins agree at level %d" % level)
+		check(int(info.units)==int(pow(2,level-1)) and model.service_capacity(item)==int(pow(2,level-1)),"Displayed and routable physical cabins agree at level %d" % level)
 		check(float(info.volume)>previous_volume,"Each expansion adds real finite tank capacity at level %d" % level)
 		previous_volume=float(info.volume)
-		if level==3:check(is_equal_approx(float(info.volume),70.2),"Level-three tank upgrade adds its actual 30-percent buffer")
+		if level==3:check(is_equal_approx(float(info.volume),72.0),"Level-three module has its actual 72-use tank")
 		if level==4:check(float(info.hygiene_use)<0.65,"Level-four equipment reduces hygiene consumed per use")
-		if level==5:check(int(info.clean_cost)==32 and is_equal_approx(float(info.service_factor),0.8),"Level-five maintenance is actually discounted by twenty percent")
+		if level==5:check(int(info.clean_cost)==76 and is_equal_approx(float(info.service_factor),0.8),"Level-five maintenance is actually discounted by twenty percent")
 	item.level=1
 	var guest:Dictionary={"id":55,"group_size":7}
 	check(not WC.reservation(model,item,guest).ok,"Bookings exceeding eighteen real service minutes are rejected")

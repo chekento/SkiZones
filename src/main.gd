@@ -1512,7 +1512,11 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 	return true
 
 func _catalog_index(kind: String, lift: bool) -> int:
-	return hud.Catalog.LIFTS.keys().find(kind) if lift else hud.Catalog.BUILDINGS.keys().find(kind)
+	if lift:return hud.Catalog.LIFTS.keys().find(kind)
+	# Retired toilet IDs remain valid existing buildings, but only the base
+	# Portable Toilet may be placed in new games.
+	var candidate:String="wc_dixi" if kind in ["wc_cabin","wc_module","wc_house","wc_luxury"] else kind
+	return hud.Catalog.BUILDINGS.keys().filter(func(item):return hud.Catalog.purchasable(str(item))).find(candidate)
 
 
 
