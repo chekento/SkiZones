@@ -24,6 +24,12 @@ static func path_for_map(id: String, slot: int = -1, free_slot: int = -1) -> Str
 ## archive still owns its resort and must not be hidden behind unlock gates.
 ## Actual model validation always happens in load_game before the scene is used.
 static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
+	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+		# Scenario files were once stored under the common pre-slot prefix.
+		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
+			var read:Dictionary=_read(source)
+			if read.ok and str(read.data.get("map_id","sonnenhang"))==id:return true
+		return false
 	var selected: int = active_slot if slot < 0 else slot
 	for source in [path_for_map(id, selected, free_slot),path_for_map(id, selected, free_slot)+".bak"]:
 		var read: Dictionary = _read(source)
@@ -39,6 +45,10 @@ static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -
 # Existence is not the same as readability. A corrupt or newer-format save
 # must NEVER silently become an empty new resort.
 static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
+	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
+			if FileAccess.file_exists(source):return true
+		return false
 	var selected: int = active_slot if slot < 0 else slot
 	var path: String = path_for_map(id, selected, free_slot)
 	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"): return true
@@ -190,8 +200,12 @@ static func archive_free_slot(free_slot: int) -> bool:
 	for id in Maps.FANTASY_MAPS:
 		var path := path_for_map(id, 0, free_slot)
 		paths.append_array([path, path + ".bak"])
+	# Complete and SHA-256-verify every archive file before removing ANY source.
+	# A partial or interrupted archive must never erase the last original.
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder + "/" + path.get_file())) != OK: return false
+		if not FileAccess.file_exists(path):continue
+		var copy_path:String=folder+"/"+path.get_file()
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(copy_path))!=OK or FileAccess.get_sha256(path)!=FileAccess.get_sha256(copy_path):return false
 	for path in paths:
 		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) != OK: return false
 	return true
@@ -202,10 +216,13 @@ static func archive_slot(slot: int) -> bool:
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK: return false
 	var paths: Array=[passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
 	for id in Maps.FANTASY_MAPS: paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
+	# Same two-phase, checksum-verified preservation for career restarts.
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder+"/"+path.get_file()))!=OK: return false
+		if not FileAccess.file_exists(path):continue
+		var copy_path:String=folder+"/"+path.get_file()
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(copy_path))!=OK or FileAccess.get_sha256(path)!=FileAccess.get_sha256(copy_path):return false
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK: return false
+		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK:return false
 	return true
 
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
@@ -278,19 +295,25 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	# career into slot 2–4, or a free-play career into a paid slot.
 	var legacy_id := ""
 	var expected_free := false
+	var legacy_scenario := false
 	if path.begins_with("user://career_1_") and path.ends_with(".json"):
 		legacy_id = path.trim_prefix("user://career_1_").trim_suffix(".json")
 	elif path.begins_with("user://free_") and path.ends_with(".json"):
 		legacy_id = path.trim_prefix("user://free_").trim_suffix(".json")
 		expected_free = true
-	if Maps.FANTASY_MAPS.has(legacy_id):
+	if path.begins_with("user://scenario_") and path.ends_with(".json"):
+		# Old scenario files may predate career/free mode metadata entirely.
+		legacy_id=path.trim_prefix("user://scenario_").trim_suffix(".json")
+		legacy_scenario=true
+	if Maps.MAPS.has(legacy_id):
 		sources.append(legacy_path(legacy_id))
 		sources.append(legacy_path(legacy_id)+".bak")
 	for candidate in sources:
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
-			if candidate in sources.slice(2) and (_free_data(read.data) != expected_free):
+			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
+			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
@@ -317,6 +340,7 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 # permanent assets, budget and progression still pass the full validator.
 static func probe_restore(data: Dictionary, model_script: Script, recovery_only: bool = false, progress: RefCounted = null) -> Dictionary:
 	# Preserve active guests with historical construction before resetting them.
+	var first_error: String=""
 	for attempt in ([2, 1, 3] if recovery_only else [0, 2, 1, 3]):
 		var world: Dictionary = data.duplicate(true)
 		var reset_visitors: bool = attempt in [1, 3]
@@ -327,6 +351,8 @@ static func probe_restore(data: Dictionary, model_script: Script, recovery_only:
 		var probe: RefCounted = model_script.new()
 		probe.load_progress=progress
 		if progress!=null:progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
-		if probe.restore(world,old_geometry).ok:
+		var result:Dictionary=probe.restore(world,old_geometry)
+		if result.ok:
 			return {"ok":true,"exact":attempt==0,"model":probe,"reset_visitors":reset_visitors,"legacy_geometry":old_geometry}
-	return {"ok":false}
+		if first_error.is_empty():first_error=str(result.get("message",L.text("Unbekannter Validierungsfehler")))
+	return {"ok":false,"message":first_error}

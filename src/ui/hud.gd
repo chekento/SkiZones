@@ -250,7 +250,10 @@ func setup(controller: Node) -> void:
 	audience.setup(self)
 	root.add_child(update_dialog)
 	update_dialog.setup(self)
-	root.add_child(career_slots)
+	# Full-screen libraries must not inherit the root HUD's mobile safe-area
+	# margins: otherwise a live strip of the ski slope remains visible.
+	add_child(career_slots)
+	career_slots.theme = theme
 	career_slots.setup(self)
 	root.add_child(atlas)
 	atlas.setup(self)
@@ -274,7 +277,8 @@ func setup(controller: Node) -> void:
 	root.add_child(medal_cabinet)
 	medal_cabinet.setup(self)
 	if Maps.SCENARIOS_ENABLED:
-		root.add_child(scenarios)
+		add_child(scenarios)
+		scenarios.theme = theme
 		scenarios.setup(self)
 	else:
 		# Avoid building real-world cards while starting a normal career.

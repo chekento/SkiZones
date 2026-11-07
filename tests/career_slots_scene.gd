@@ -38,6 +38,12 @@ func run() -> void:
 	var first: Array=buttons(game.hud.career_slots.cards.get_child(0))
 	check(not first.is_empty() and first[0].text=="Diese Karriere fortsetzen","Populated slots make continuation the primary action")
 	var populated_card:Node=game.hud.career_slots.cards.get_child(0)
+	var submenu:PanelContainer=populated_card.find_child("save_manager_submenu",true,false) as PanelContainer
+	var toggle:Button=populated_card.find_child("toggle_save_manager",true,false) as Button
+	check(submenu!=null and toggle!=null and not submenu.visible,"Save management is collapsed by default, not scattered across the slot card")
+	check(game.hud.career_slots.get_parent()==game.hud and game.hud.career_slots.get_global_rect().size==root.get_visible_rect().size,"Save selector fills viewport instead of inheriting padded HUD safe area")
+	if toggle!=null:toggle.pressed.emit()
+	check(submenu!=null and submenu.visible,"Explicit Manage action reveals recovery, copy and archive controls")
 	check(populated_card.find_child("check_save_038",true,false)!=null and populated_card.find_child("rescue_save_038",true,false)!=null and populated_card.find_child("copy_save_038",true,false)!=null and populated_card.find_child("archive_save_038",true,false)!=null,"Populated careers expose diagnostics, backup rescue, copy and archive in addition to continuation")
 	first[0].pressed.emit()
 	for frame in range(120):

@@ -60,6 +60,12 @@ func run() -> void:
 			career.open();await settle()
 			check(career.heading_label.is_visible_in_tree() and career.heading_label.size.x>=150 and career.close_button.text==game.hud.L.text("Zurück"),"Career heading and labelled Back action remain visible")
 			var card:Control=career.cards.get_child(0)
+			# v0.39 intentionally hides destructive/recovery actions inside Manage.
+			var manage:Button=card.find_child("toggle_save_manager",true,false)
+			check(manage!=null,"Save management remains reachable via explicit submenu")
+			if manage!=null:
+				manage.pressed.emit()
+				await settle()
 			var grid:GridContainer=card.find_child("save_manager_actions",true,false)
 			var visible_labels:=true
 			for action in grid.get_children():

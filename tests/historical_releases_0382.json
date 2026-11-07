@@ -178,5 +178,9 @@
   {
     "tag": "v0.38.1",
     "commit": "67820092b5de9af83cd4c2b07d69c1dc7af1aa8d"
+  },
+  {
+    "tag": "v0.38.2",
+    "commit": "fe3c32684edf63a12d09b25f386cea4904d68c59"
   }
 ]

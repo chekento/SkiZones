@@ -9651,3 +9651,45 @@ msgstr "Repair verification failed. Original files remain unchanged."
 
 msgid "Spielstand repariert und geprüft. Das unveränderte Original wurde gesichert."
 msgstr "Save repaired and verified. The unmodified original was backed up."
+
+msgid "Unbekannter Validierungsfehler"
+msgstr "Unknown validation error"
+
+msgid "Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel."
+msgstr "File is readable, but the saved world state is incompatible."
+
+msgid "Verwalten  ▾"
+msgstr "Manage  ▾"
+
+msgid "Prüfen, reparieren, kopieren oder sicher archivieren"
+msgstr "Check, repair, copy or archive safely"
+
+msgid "SPIELSTANDVERWALTUNG"
+msgstr "SAVE MANAGEMENT"
+
+msgid "Spielstand verwalten  ▾"
+msgstr "Manage save  ▾"
+
+msgid "Spielstand reparieren"
+msgstr "Repair save"
+
+msgid "Aktives Szenario: zuerst ein anderes Gebiet öffnen."
+msgstr "Active scenario: first open another area."
+
+msgid " · Anlagen"
+msgstr " · assets"
+
+msgid " · Hotel"
+msgstr " · hotel"
+
+msgid " · Berichte"
+msgstr " · reports"
+
+msgid " · Betrieb"
+msgstr " · operations"
+
+msgid " · Gäste"
+msgstr " · visitors"
+
+msgid " · Gruppen"
+msgstr " · parties"
