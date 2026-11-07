@@ -18,11 +18,11 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 </details>
 
 <!-- APK-DOWNLOAD:START -->
-[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk)
+[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk)
 
-**Aktueller Download: v0.38.1 · Android ARM64 · Preview**
+**Aktueller Download: v0.38.2 · Android ARM64 · Preview**
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.38.1) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
 
 ![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
 
@@ -33,7 +33,9 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**0.38.1 · Android-VersionCode 49:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.1). Der automatische öffentliche WC-Service respektiert Personalabwesenheit; Hygienealterung bleibt aktiv, Kosten entstehen nur bei tatsächlicher Wartung. Enthält den vollständigen 0.38.0-Stand mit Hotelbetrieb, eigenständigem WC-Manager, Speicherverwaltung, Alpenwelt und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42360334472) bestanden. [Änderungen und Prüfgrenzen](docs/releases/0.38.1.md).
+**0.38.2 · Android-VersionCode 50:** [Spielstand-Reparatur als ARM64-APK](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) · **[APK direkt herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk)**. Verbesserte Prüfung und Reparatur alter Speicherstände, deutlich lesbareres Lade-/Speichermenü sowie 45 erfolgreich getestete historische Release-Spielstände. Die [vollständige Android-/Emulator-Prüfung einschließlich Signaturkontinuität](https://github.com/chekento/SkiZones/actions/runs/42372211243) und die [gesonderte Freigabeprüfung der installierbaren APK](https://github.com/chekento/SkiZones/actions/runs/42384836193) sind erfolgreich. **Wichtig: Als Update installieren, vorher nicht deinstallieren oder App-Daten löschen.** Drei gemeldete individuelle Problemspielstände konnten ohne Originaldateien noch nicht getestet werden. [Versionshinweise](docs/releases/0.38.2.md).
+
+**Vorversion 0.38.1 · Android-VersionCode 49:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.1). Der automatische öffentliche WC-Service respektiert Personalabwesenheit; Hygienealterung bleibt aktiv, Kosten entstehen nur bei tatsächlicher Wartung. Enthält den vollständigen 0.38.0-Stand mit Hotelbetrieb, eigenständigem WC-Manager, Speicherverwaltung, Alpenwelt und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42360334472) bestanden. [Änderungen und Prüfgrenzen](docs/releases/0.38.1.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
@@ -46,6 +48,7 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 | [0.37.0](docs/releases/0.37.0.md) | Feste Live-Pistenplanung, frei gezeichnete Wege mit vier gespeicherten Belägen und durchgehende Schneespuren | Veröffentlicht · Android API 30/36 bestanden |
 | [0.38.0](docs/releases/0.38.0.md) | Hotelbetrieb, eigenständige öffentliche WCs mit Familien-Warteschlangen, Speicherverwaltung, Alpenwelt und Touch-Radio | Veröffentlicht · Android API 30/36 bestanden |
 | [0.38.1](docs/releases/0.38.1.md) | Öffentlicher WC-Service berücksichtigt Personalabwesenheit und berechnet nur tatsächliche Wartung | Veröffentlicht · Android API 30/36 bestanden |
+| [0.38.2](docs/releases/0.38.2.md) | Reparatur echter historischer Karrieren, lesbares Lademenü und geprüfte Android-Updatefähigkeit | Veröffentlicht · Android API 30/36 bestanden |
 
 Versionsnummern im Quellcode und Release-Notizen allein bedeuten keine veröffentlichte APK. Der Download wird erst nach einem erfolgreichen Release aktualisiert.
 
@@ -165,12 +168,13 @@ GitHub Discussions ist zusätzlich vorbereitet und kann nach Aktivierung unter *
 ## Versionshistorie und APK-Archiv
 
 <!-- VERSION-ARCHIVE:START -->
-Für **45 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
+Für **46 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
 
 **[Vollständiges, detailliertes Changelog](CHANGELOG.md)** · [GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Altspielstände prüfen und reparieren, besseres Lademenü | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
 | **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
 | **[v0.37.0](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** | 06.11.2026 | feste Pistenplanung und sichtbare Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk) | [Details](docs/releases/0.37.0.md) |
