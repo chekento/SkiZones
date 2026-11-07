@@ -153,7 +153,7 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 		if Ops.active(model):_parts(parent)
 		return
 	var visits:=_card(parent,L.text("Besuche & Betriebskosten"),L.text(Catalog.BUILDINGS[item.kind].description))
-	hud._label(visits,L.text("%d €/Tag · %d Besuche · %s € Besuchserlöse") % [int(Catalog.BUILDINGS[item.kind].upkeep),int(item.get("visits",0)),hud.money_text(item.get("revenue",0))],17,hud.TEAL,true)
+	hud._label(visits,L.text("%d €/Tag · %d Besuche · %s € Besuchserlöse") % [int(hud.game.model.PublicWC.specification(item,hud.game.model).upkeep) if hud.game.model.PublicWC.is_public(str(item.kind)) else int(Catalog.BUILDINGS[item.kind].upkeep),int(item.get("visits",0)),hud.money_text(item.get("revenue",0))],17,hud.TEAL,true)
 	if model.Needs.SERVICES.has(item.kind):hud._label(visits,L.text("%d / %d Plätze belegt") % [model.service_load(lift_id),model.service_capacity(item)],16,hud.MUTED)
 	if not Ops.active(model):return
 	if item.kind=="repair_office":

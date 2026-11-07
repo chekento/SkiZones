@@ -53,6 +53,7 @@ static func day_suffix(days: int) -> String:
 static func asset_name(item: Dictionary) -> String:
 	var title: String=item.get("name","")
 	if item.get("custom_name",false): return title
+	if item.get("kind")=="wc_dixi":return text("Portable Toilet")
 	if item.has("difficulty"):
 		var original: String=["Blaue Piste","Rote Piste","Schwarze Piste"][int(item.difficulty)]
 		if title == "%s %d" % [original,int(item.number)]: return "%s %d" % [text(original),int(item.number)]

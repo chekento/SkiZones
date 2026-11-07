@@ -15,9 +15,15 @@ void fragment() {
 	} else if (UV2.x > 0.5) {
 		detail = 0.92 + 0.08 * sin(world_at.x * 19.0) * cos(world_at.z * 17.0);
 	} else {
-		detail = 0.97 + 0.03 * sin(world_at.x * 2.4 + world_at.z * 1.7);
+		// Packed snow: two low-relief pressed tracks and microscopic snow grain.
+		// Snow no longer fades to featureless white at the path's edge.
+		float packed = sin(world_at.x * 0.72 + world_at.z * 0.41);
+		float grain = sin(world_at.x * 7.4) * sin(world_at.z * 8.1);
+		detail = 0.92 + 0.045 * packed + 0.026 * grain;
+		float rim = 1.0 - smoothstep(0.06, 0.26, UV2.y);
+		detail *= mix(1.0, 0.80, rim);
 	}
-	ALBEDO = tone * mix(1.0, detail, UV2.y);
+	ALBEDO = tone * mix(1.0, detail, UV2.y + (1.0 - UV2.y) * 0.52);
 	ROUGHNESS = 0.94;
 	SPECULAR = 0.1;
 }
