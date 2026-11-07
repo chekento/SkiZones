@@ -10299,4 +10299,6 @@ msgstr " · visitors"
 
 msgid " · Gruppen"
 msgstr " · parties"
-\nmsgid "Anlagen"\nmsgstr "Assets"\n
+
+msgid "Anlagen"
+msgstr "Assets"
