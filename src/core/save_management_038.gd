@@ -9,7 +9,7 @@ static func sources(id: String, slot: int, free_slot: int = 1) -> Array:
 	if id not in Maps.MAPS or slot<0 or slot>4 or (slot==0 and (free_slot<1 or free_slot>4)):return []
 	var path: String=Saves.path_for_map(id,slot,free_slot)
 	var result: Array=[path,path+".bak"]
-	if id in Maps.FANTASY_MAPS and (slot==1 or (slot==0 and free_slot==1)):
+	if id not in Maps.FANTASY_MAPS or (slot==1 or (slot==0 and free_slot==1)):
 		result.append(Saves.legacy_path(id))
 		result.append(Saves.legacy_path(id)+".bak")
 	return result
