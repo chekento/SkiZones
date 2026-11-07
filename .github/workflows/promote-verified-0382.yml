@@ -1,0 +1,110 @@
+name: Publish verified 0.38.2 save-recovery APK
+
+on:
+  push:
+    branches: [hotfix/0382-promote-verified]
+    paths:
+      - '.github/workflows/promote-verified-0382.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: skizones-publish-0382
+  cancel-in-progress: false
+
+jobs:
+  publish-verified-hotfix:
+    name: Promote pretested Android save hotfix
+    if: github.repository == 'chekento/SkiZones'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out current main, never the promoter branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Enforce successful original QA and unchanged application sources
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          verified=b05069f86900c17ae85384a763b100f3e73d7e4e
+          run=42372211243
+          test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" --jq '.status')" = completed
+          test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" --jq '.conclusion')" = success
+          test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" --jq '.head_sha')" = "$verified"
+          git fetch --no-tags origin "$verified"
+          git merge-base --is-ancestor "$verified" HEAD
+          git diff --quiet "$verified" HEAD -- src scenes tests tools assets project.godot export_presets.cfg .github/workflows/validate-and-build.yml
+          grep -qx 'config/version="0.38.2"' project.godot
+          grep -qx 'version/name="0.38.2"' export_presets.cfg
+          grep -qx 'version/code=50' export_presets.cfg
+          grep -qx 'package/unique_name="cloud.kosch.skizones"' export_presets.cfg
+          echo "Original completed Android+emulator+historical QA applies byte-for-byte to the current application code."
+      - name: Retrieve immutable passing CI artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/release build/previous
+          gh run download 42372211243 --repo "$GITHUB_REPOSITORY" --name SkiZones-Android-release --dir build/release
+          gh release download v0.38.1 --repo "$GITHUB_REPOSITORY" --pattern 'SkiZones-0.38.1-android-arm64.apk' --dir build/previous
+      - name: Independently verify version, integrity and signature continuity
+        run: |
+          set -euo pipefail
+          cd build/release
+          sha256sum -c SkiZones-0.38.2-android-arm64.apk.sha256
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          manifest=json.loads(Path("manifest.json").read_text())
+          apk=Path("SkiZones-0.38.2-android-arm64.apk")
+          assert manifest["app"] == "SkiZones"
+          assert manifest["version"] == "0.38.2"
+          assert manifest["version_code"] == 50
+          assert manifest["package"] == "cloud.kosch.skizones"
+          assert manifest["architecture"] == "arm64-v8a"
+          assert manifest["file_name"] == apk.name
+          assert manifest["size_bytes"] == apk.stat().st_size
+          assert manifest["sha256"] == hashlib.sha256(apk.read_bytes()).hexdigest()
+          print("Release manifest and SHA-256 verified.")
+          PY
+          cd ../..
+          signer="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
+          test -x "$signer"
+          "$signer" verify --verbose build/release/SkiZones-0.38.2-android-arm64.apk
+          "$signer" verify --verbose build/previous/SkiZones-0.38.1-android-arm64.apk
+          new_cert="$("$signer" verify --print-certs build/release/SkiZones-0.38.2-android-arm64.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          old_cert="$("$signer" verify --print-certs build/previous/SkiZones-0.38.1-android-arm64.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          test -n "$new_cert" && test "$new_cert" = "$old_cert"
+          unzip -t build/release/SkiZones-0.38.2-android-arm64.apk | tail -1
+          echo "Previously-installed APK signer matches the verified 0.38.2 APK."
+      - name: Publish only this validated 0.38.2 artifact, without replacing releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin main
+          if ! git diff --quiet HEAD FETCH_HEAD -- src scenes tests tools assets project.godot export_presets.cfg .github/workflows/validate-and-build.yml; then
+            echo "::error::The application has moved since the signature verification."
+            exit 1
+          fi
+          if gh release view v0.38.2 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v0.38.2 already public; leave the immutable release untouched."
+            exit 0
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path("docs/releases/0.38.2.md").read_text()
+          source=source.replace(
+              "Dieser Stand ist bis zum erfolgreichen Main-Releaseworkflow ein Releasekandidat.",
+              "Dieser Stand wurde unverändert aus einem vollständig erfolgreichen GitHub-CI-Lauf einschließlich Android API 30/36 und historischen Spielständen übernommen."
+          )
+          source += "\n\nPrüfnachweis: https://github.com/chekento/SkiZones/actions/runs/42372211243 (alle Jobs erfolgreich, Android-Installation/Update und historische Spielstände geprüft). Die drei individuell gemeldeten Original-Spielstände liegen weiterhin nicht zum Nachtest vor.\n"
+          Path("build/notes-0.38.2.md").write_text(source)
+          PY
+          gh release create v0.38.2             build/release/SkiZones-0.38.2-android-arm64.apk             build/release/SkiZones-0.38.2-android-arm64.apk.sha256             build/release/manifest.json             --repo "$GITHUB_REPOSITORY"             --target "$(git rev-parse HEAD)"             --title 'SkiZones 0.38.2 · Spielstand-Reparatur · Android Preview'             --notes-file build/notes-0.38.2.md             --prerelease --latest=false
+          gh release view v0.38.2 --repo "$GITHUB_REPOSITORY"
