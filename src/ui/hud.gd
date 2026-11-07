@@ -1677,7 +1677,7 @@ func show_report() -> void:
 
 
 func show_seasonal_poster() -> void:
-	seasonal_poster.open(game.preferences.visual_style)
+	seasonal_poster.open(game.preferences.visual_style,game.view.festival_scene.selected_poster)
 
 func _open_community_url(address: String) -> void:
 	# Only open the external destination following an explicit player action.
