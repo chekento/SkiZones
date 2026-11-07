@@ -5,6 +5,8 @@ const Maps = preload("res://src/core/maps.gd")
 const Ops = preload("res://src/core/operations.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Minimap = preload("res://src/ui/minimap.gd")
+const Saves = preload("res://src/core/save_store.gd")
+const SaveManager = preload("res://src/core/save_management_038.gd")
 var hud: CanvasLayer
 var grid: GridContainer
 var title_label: Label
@@ -14,10 +16,10 @@ var previews: Array = []
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	offset_left = 38
-	offset_right = -38
-	offset_top = 34
-	offset_bottom = -34
+	offset_left = 0
+	offset_right = 0
+	offset_top = 0
+	offset_bottom = 0
 	add_theme_stylebox_override("panel", hud._style(Color("fffaf2"), 18, 22))
 	var body: VBoxContainer = hud._vbox(self, 12)
 	var header := HBoxContainer.new()
@@ -76,6 +78,31 @@ func setup(interface: CanvasLayer) -> void:
 			hud.game.enter_area(id,["relaxed","normal","expert"][difficulty.selected])
 			hide()
 		, true)
+		if Saves.has_any_save(id):
+			var drawer:=PanelContainer.new()
+			drawer.add_theme_stylebox_override("panel",hud._style(Color("ffffff"),8,12))
+			hud._button(card,L.text("Spielstand verwalten  ▾"),func():drawer.visible=not drawer.visible)
+			card.add_child(drawer)
+			var actions:VBoxContainer=hud._vbox(drawer,8)
+			var report:Label=hud._label(actions,"",14,hud.TEAL,true)
+			report.hide()
+			hud._button(actions,L.text("Spielstand prüfen"),func():
+				var result:Dictionary=SaveManager.inspect(id,1)
+				report.show()
+				report.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [result.files.size(),int(result.verified),int(result.loadable),int(result.recoverable)]
+				if result.damaged:
+					for entry in result.files:
+						if str(entry.message)!="":report.text+="\\n"+str(entry.name)+": "+str(entry.message)
+			)
+			hud._button(actions,L.text("Spielstand reparieren"),func():
+				if hud.game.has_game and hud.game.model.map_id==id:
+					hud.toast(L.text("Aktives Szenario: zuerst ein anderes Gebiet öffnen."))
+					return
+				var fixed:Dictionary=SaveManager.repair(id,1)
+				hud.toast(str(fixed.message))
+				if fixed.ok:report.hide()
+			)
+			drawer.hide()
 	hud._label(body, "© OpenStreetMap contributors · ODbL 1.0 · Mapzen Terrain Tiles", 13, hud.MUTED, true)
 	resized.connect(_fit_grid)
 	_fit_grid()
@@ -86,10 +113,12 @@ func _fit_grid() -> void:
 	var available: float=minf(get_viewport_rect().size.x,get_tree().root.size.x)
 	var compact: bool=available<1060.0
 	grid.columns=1 if compact else 2
-	offset_left=10 if compact else 48
-	offset_right=-10 if compact else -48
-	offset_top=72 if available<650.0 else 116
-	offset_bottom=-10 if compact else -28
+	# The background must be opaque across the entire viewport, including
+	# the mobile safe-area band; content padding lives inside the panel.
+	offset_left=0
+	offset_right=0
+	offset_top=0
+	offset_bottom=0
 	if is_instance_valid(title_label):
 		title_label.add_theme_font_size_override("font_size",18 if available<650.0 else 24 if compact else 27)
 	if is_instance_valid(close_button):
