@@ -20,7 +20,7 @@ const LIFTS := {
 
 const BUILDINGS := {
 	# Independent PUBLIC toilets; hotels and restaurants already include internal WCs.
-	"wc_dixi": {"name":"Dixi-Toilette · Blau","cost":850,"upkeep":15,"income":0.0,"appeal":2,"color":"278fc6","description":"Günstiges mobiles WC für Liftplätze, Pistenränder und den Winterbetrieb. Tankentleerung und Reinigung sind separat."},
+	"wc_dixi": {"name":"Portable Toilet","cost":850,"upkeep":15,"income":0.0,"appeal":2,"color":"278fc6","description":"Günstiges mobiles WC für Liftplätze, Pistenränder und den Winterbetrieb. Tankentleerung und Reinigung sind separat."},
 	"wc_cabin": {"name":"Winter-WC-Kabine","cost":2600,"upkeep":28,"income":0.0,"appeal":3,"color":"3d91b2","description":"Zwei robuste WC-Kabinen mit mehr Kapazität und günstiger Wartung."},
 	"wc_module": {"name":"Sanitär-Container","cost":9800,"upkeep":80,"income":0.0,"appeal":5,"color":"6ba8bc","description":"Vier zugängliche Toiletten mit Ver- und Entsorgungsservice."},
 	"wc_house": {"name":"Alpines WC-Haus","cost":24500,"upkeep":180,"income":0.0,"appeal":7,"color":"a9bdc2","description":"Beheizbares Sanitärhaus mit hoher Besucherleistung."},
@@ -86,7 +86,9 @@ static func building_group(kind: String) -> String:
 	if kind in ["rental", "school", "bus", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand", "town_hall"]: return "Service & Anreise"
 	return "Freizeit & Erholung"
 static func building_order() -> Array:
-	var result := BUILDINGS.keys()
+	# Former sanitation tiers remain in BUILDINGS for historical saves only.
+	# New players buy one Portable Toilet and expand its level in-place.
+	var result := BUILDINGS.keys().filter(func(kind): return kind not in ["wc_cabin", "wc_module", "wc_house", "wc_luxury"])
 	result.sort_custom(func(a, b): return BUILDINGS[a].cost < BUILDINGS[b].cost if BUILDINGS[a].cost != BUILDINGS[b].cost else a < b)
 	return result
 
