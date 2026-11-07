@@ -283,7 +283,11 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	elif path.begins_with("user://free_") and path.ends_with(".json"):
 		legacy_id = path.trim_prefix("user://free_").trim_suffix(".json")
 		expected_free = true
-	if Maps.FANTASY_MAPS.has(legacy_id):
+	if path.begins_with("user://scenario_") and path.ends_with(".json"):
+		# Early scenario saves used the same pre-slot naming scheme as resorts.
+		# These are strictly read-only fallbacks and are never migrated in-place.
+		legacy_id=path.trim_prefix("user://scenario_").trim_suffix(".json")
+	if Maps.MAPS.has(legacy_id):
 		sources.append(legacy_path(legacy_id))
 		sources.append(legacy_path(legacy_id)+".bak")
 	for candidate in sources:
@@ -317,6 +321,7 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 # permanent assets, budget and progression still pass the full validator.
 static func probe_restore(data: Dictionary, model_script: Script, recovery_only: bool = false, progress: RefCounted = null) -> Dictionary:
 	# Preserve active guests with historical construction before resetting them.
+	var first_error: String=""
 	for attempt in ([2, 1, 3] if recovery_only else [0, 2, 1, 3]):
 		var world: Dictionary = data.duplicate(true)
 		var reset_visitors: bool = attempt in [1, 3]
@@ -327,6 +332,8 @@ static func probe_restore(data: Dictionary, model_script: Script, recovery_only:
 		var probe: RefCounted = model_script.new()
 		probe.load_progress=progress
 		if progress!=null:progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
-		if probe.restore(world,old_geometry).ok:
+		var result:Dictionary=probe.restore(world,old_geometry)
+		if result.ok:
 			return {"ok":true,"exact":attempt==0,"model":probe,"reset_visitors":reset_visitors,"legacy_geometry":old_geometry}
-	return {"ok":false}
+		if first_error.is_empty():first_error=str(result.get("message",L.text("Unbekannter Validierungsfehler")))
+	return {"ok":false,"message":first_error}
