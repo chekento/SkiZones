@@ -190,8 +190,12 @@ static func archive_free_slot(free_slot: int) -> bool:
 	for id in Maps.FANTASY_MAPS:
 		var path := path_for_map(id, 0, free_slot)
 		paths.append_array([path, path + ".bak"])
+	# Complete and SHA-256-verify every archive file before removing ANY source.
+	# A partial or interrupted archive must never erase the last original.
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder + "/" + path.get_file())) != OK: return false
+		if not FileAccess.file_exists(path):continue
+		var copy_path:String=folder+"/"+path.get_file()
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(copy_path))!=OK or FileAccess.get_sha256(path)!=FileAccess.get_sha256(copy_path):return false
 	for path in paths:
 		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) != OK: return false
 	return true
@@ -202,10 +206,13 @@ static func archive_slot(slot: int) -> bool:
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK: return false
 	var paths: Array=[passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
 	for id in Maps.FANTASY_MAPS: paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
+	# Same two-phase, checksum-verified preservation for career restarts.
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(folder+"/"+path.get_file()))!=OK: return false
+		if not FileAccess.file_exists(path):continue
+		var copy_path:String=folder+"/"+path.get_file()
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(copy_path))!=OK or FileAccess.get_sha256(path)!=FileAccess.get_sha256(copy_path):return false
 	for path in paths:
-		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK: return false
+		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK:return false
 	return true
 
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
