@@ -273,6 +273,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-slot-safety-039
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_slot_ownership_039.gd
+      - name: 0.39 verify complete career and free-play archives before deletion
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-archive-integrity-039
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/archive_slot_integrity_039.gd
       - name: 0.38.2 readable save actions and focused dialogs on phones
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-readable-0382
