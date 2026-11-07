@@ -54,8 +54,12 @@ func run() -> void:
 			horizontal_fits=horizontal_fits and rect.position.x>=-1 and rect.end.x<=width+1
 			horizontal_fits=horizontal_fits and button.custom_minimum_size.y>=68.0
 		check(horizontal_fits,"All station logos fit the available width and retain touch targets: "+str(resolution))
-		check(radio.station_left.is_visible_in_tree() and radio.station_right.is_visible_in_tree() and radio.window.close_button.is_visible_in_tree(),
-			"Forward, backward and close controls remain reachable: "+str(resolution))
+		var left:Rect2=radio.station_left.get_global_rect()
+		var right:Rect2=radio.station_right.get_global_rect()
+		var channel:Rect2=radio.station_counter.get_global_rect()
+		check(radio.station_left.is_visible_in_tree() and radio.station_right.is_visible_in_tree() and radio.window.close_button.is_visible_in_tree()
+			and left.position.x>=0 and right.end.x<=width+1 and channel.end.x<=width+1,
+			"Forward, backward, readout and close controls stay within viewport: "+str(resolution))
 		var same_mixer:=true
 		for channel in ["master","music","ambient"]:
 			var meter:ProgressBar=radio.volume_meters[channel]
