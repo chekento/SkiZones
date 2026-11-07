@@ -277,6 +277,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-0391-backup-guard
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_last_good_backup_0391.gd
+      - name: Restore large historical career and sandbox worlds with seventy buildings
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-large-resorts-0391
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/large_historical_resorts_0391.gd
       - name: Prevent cross-map and career/free file ownership errors
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-slot-safety-039
