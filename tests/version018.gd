@@ -49,9 +49,15 @@ func _init() -> void:
 	check(connected,"An upper extension has a real short pedestrian connection from the existing summit")
 	var order:=Catalog.building_order()
 	check(order.has("kiosk") and order.find("kiosk")<order.find("cocoa") and order.find("cocoa")<order.find("hotel") and order.find("pizzeria")<order.find("repair_office"),"Affordable food services precede larger hospitality and repair investments")
-	var complete:=order.size()==Catalog.BUILDINGS.size()
-	for kind in Catalog.BUILDINGS:complete=complete and order.count(kind)==1
-	check(complete,"The price-sorted village catalog contains every service exactly once, including new businesses")
+	# The four obsolete WC building kinds remain in BUILDINGS only for
+	# loading existing careers. New players buy one Portable Toilet and
+	# reach the old visual designs through upgrades of that single asset.
+	var retired_wc: Array=["wc_cabin","wc_module","wc_house","wc_luxury"]
+	var complete:=order.size()==Catalog.BUILDINGS.size()-retired_wc.size()
+	for kind in Catalog.BUILDINGS:
+		complete=complete and order.count(kind)==(0 if kind in retired_wc else 1)
+	check(complete,"The village catalog contains every purchasable service once and hides obsolete individual toilet tiers")
+	check(order.count("wc_dixi")==1 and retired_wc.all(func(kind):return Catalog.BUILDINGS.has(kind) and not order.has(kind)),"Portable Toilet is the only buyable WC; all four legacy WC kinds stay loadable")
 	var sorted:=true
 	for i in range(1,order.size()):sorted=sorted and Catalog.BUILDINGS[order[i-1]].cost<=Catalog.BUILDINGS[order[i]].cost
 	check(sorted,"Village prices are consistently ascending")
