@@ -791,8 +791,8 @@ func rebuild(progress: RefCounted = null) -> void:
 	if progress != null:
 		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
 		await get_tree().process_frame
-	_build_foot_areas()
-	foot_wear.invalidate_surface()
+	# Walkways are composited after the piste meshes, so crossings follow
+	# the finished slope rather than disappearing below piste snow.
 	var title_positions: Array[Vector2] = []
 	var junctions: Dictionary = {}
 	for piste in model.pistes:
@@ -854,6 +854,8 @@ func rebuild(progress: RefCounted = null) -> void:
 			title_positions.append(start)
 			var marker:=_label(asset_root,L.format_message("%d · %s",[piste.number,["BLAU","ROT","SCHWARZ"][piste.difficulty]]),terrain.world(start,24),color)
 			marker.set_meta("piste_id",int(piste.id))
+	_build_foot_areas()
+	foot_wear.invalidate_surface()
 	var lift_done := 0
 	for lift in model.lifts:
 		if progress != null:
