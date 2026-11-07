@@ -240,16 +240,30 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
-		if _read(path).ok:
-			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK:
+		var old_read: Dictionary = _read(path)
+		# A correct checksum does not prove that the saved resort loads.
+		# Protect the last semantic-good .bak even if the primary is signed
+		# correctly but contains incompatible permanent construction data.
+		var old_loadable: bool = false
+		if old_read.ok and model.get_script() is Script:
+			var old_model: RefCounted = model.get_script().new()
+			old_loadable = bool(old_model.restore(old_read.data.duplicate(true)).ok)
+		if old_loadable:
+			var staged_backup: String = absolute + ".bak.stage-%d" % Time.get_ticks_usec()
+			if DirAccess.copy_absolute(absolute, staged_backup) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(staged_backup):
+				DirAccess.remove_absolute(staged_backup)
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			if DirAccess.rename_absolute(staged_backup, absolute + ".bak") != OK:
+				DirAccess.remove_absolute(staged_backup)
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
+			# Preserve both a malformed and a checksum-valid but un-loadable
+			# original byte-for-byte; never rotate it into the last-good backup.
 			var rescue_dir := "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(archive):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
@@ -326,6 +340,10 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
+			# Slot ownership is determined by the selected file, not by stale
+			# archive/index metadata. Never load another mode or mountain.
+			if not expected.is_empty() and (str(read.data.get("map_id","sonnenhang"))!=str(expected.map) or _free_data(read.data)!=bool(expected.free)):
+				continue
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
 			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
