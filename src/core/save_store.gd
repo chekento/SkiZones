@@ -24,6 +24,12 @@ static func path_for_map(id: String, slot: int = -1, free_slot: int = -1) -> Str
 ## archive still owns its resort and must not be hidden behind unlock gates.
 ## Actual model validation always happens in load_game before the scene is used.
 static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
+	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+		# Scenario files were once stored under the common pre-slot prefix.
+		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
+			var read:Dictionary=_read(source)
+			if read.ok and str(read.data.get("map_id","sonnenhang"))==id:return true
+		return false
 	var selected: int = active_slot if slot < 0 else slot
 	for source in [path_for_map(id, selected, free_slot),path_for_map(id, selected, free_slot)+".bak"]:
 		var read: Dictionary = _read(source)
@@ -39,6 +45,10 @@ static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -
 # Existence is not the same as readability. A corrupt or newer-format save
 # must NEVER silently become an empty new resort.
 static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
+	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
+			if FileAccess.file_exists(source):return true
+		return false
 	var selected: int = active_slot if slot < 0 else slot
 	var path: String = path_for_map(id, selected, free_slot)
 	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"): return true
@@ -285,15 +295,16 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	# career into slot 2–4, or a free-play career into a paid slot.
 	var legacy_id := ""
 	var expected_free := false
+	var legacy_scenario := false
 	if path.begins_with("user://career_1_") and path.ends_with(".json"):
 		legacy_id = path.trim_prefix("user://career_1_").trim_suffix(".json")
 	elif path.begins_with("user://free_") and path.ends_with(".json"):
 		legacy_id = path.trim_prefix("user://free_").trim_suffix(".json")
 		expected_free = true
 	if path.begins_with("user://scenario_") and path.ends_with(".json"):
-		# Early scenario saves used the same pre-slot naming scheme as resorts.
-		# These are strictly read-only fallbacks and are never migrated in-place.
+		# Old scenario files may predate career/free mode metadata entirely.
 		legacy_id=path.trim_prefix("user://scenario_").trim_suffix(".json")
+		legacy_scenario=true
 	if Maps.MAPS.has(legacy_id):
 		sources.append(legacy_path(legacy_id))
 		sources.append(legacy_path(legacy_id)+".bak")
@@ -301,7 +312,8 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
-			if candidate in sources.slice(2) and (_free_data(read.data) != expected_free):
+			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
+			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
