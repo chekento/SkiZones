@@ -17,6 +17,14 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Real free-build and four-map mission modes existed by 0.27. These versions
+# sample structural transitions without making the full 0.1–0.38 matrix slower.
+# The normal career fixture continues to cover every pinned release.
+MODE_RELEASES = {
+    "0.27.0", "0.30.0", "0.32.0", "0.33.2",
+    "0.35.1", "0.37.0", "0.38.1",
+}
+
 
 def main():
     parser = argparse.ArgumentParser(__doc__)
@@ -58,9 +66,25 @@ def main():
             with tarfile.open(fileobj=io.BytesIO(archive)) as source:
                 source.extractall(original, filter="data")
             execute([args.godot, "--headless", "--path", str(original), "--language", "de", "--script", str(ROOT / "tests/generate_release_save_0382.gd")], original, version + "-generate.log")
+            if version in MODE_RELEASES:
+                # Execute the *original* model/serializer before discarding this
+                # historical checkout, including actual .bak generations.
+                execute(
+                    [args.godot, "--headless", "--path", str(original), "--language", "de",
+                     "--script", str(ROOT / "tests/generate_historical_modes_039.gd")],
+                    original, version + "-modes-generate.log",
+                )
         env["SKIZONES_VERIFY_RELEASES"] = version
         execute([args.godot, "--headless", "--path", str(ROOT), "--language", "de", "--script", "tests/released_save_compat_0382.gd"], ROOT, version + "-restore.log")
-        results.append(dict(entry, sha256=hashlib.sha256((output / (version + ".json")).read_bytes()).hexdigest(), passed=True))
+        if version in MODE_RELEASES:
+            # Real filename layout, two independent free slots, both backups,
+            # scenario load and actual non-destructive repair in the CURRENT game.
+            execute(
+                [args.godot, "--headless", "--path", str(ROOT), "--language", "de",
+                 "--script", "tests/verify_historical_modes_039.gd"],
+                ROOT, version + "-modes-restore.log",
+            )
+        results.append(dict(entry, sha256=hashlib.sha256((output / (version + ".json")).read_bytes()).hexdigest(), modes_tested=version in MODE_RELEASES, passed=True))
         (output / f"results-{args.partition}.json").write_text(json.dumps(results, indent=2) + "\n")
         print(f"PASS {version}: original generation and seven restoration checks", flush=True)
     print(f"RESULT: {len(results)} original releases passed; 0 failed", flush=True)
