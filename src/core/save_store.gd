@@ -267,13 +267,12 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 	var parsed: Variant = parser.data
 	if not parsed is Dictionary:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
-	# Some early APKs wrote an unwrapped versioned snapshot. Do not reject
-	# such historical files solely because the envelope is absent. Every field
-	# is still validated by Resort.restore before a model or a repair is used.
+	# Only pre-checksum APKs used unwrapped JSON (schema versions 1–6).
+	# Current schemas (7–17) must always carry their verified envelope.
 	# An envelope with a missing/incorrect checksum is NEVER treated as raw.
 	if not parsed.has("format") and not parsed.has("checksum") and not parsed.has("payload"):
 		var version: Variant = parsed.get("version")
-		if (version is int or version is float) and float(version) == floorf(float(version)) and version >= 1 and version <= 17 and parsed.get("pistes") is Array and parsed.get("lifts") is Array and parsed.get("buildings") is Array and parsed.get("guests") is Array and parsed.get("map_id", "sonnenhang") is String and parsed.get("money") != null and parsed.get("day") != null:
+		if (version is int or version is float) and float(version) == floorf(float(version)) and version >= 1 and version <= 6 and parsed.get("pistes") is Array and parsed.get("lifts") is Array and parsed.get("buildings") is Array and parsed.get("guests") is Array and parsed.get("map_id", "sonnenhang") is String and parsed.get("money") != null and parsed.get("day") != null:
 			return {"ok": true, "data": parsed, "legacy_raw": true}
 		return {"ok": false, "message": L.text("Unbekanntes historisches Speicherformat. Originaldatei bleibt erhalten.")}
 	if parsed.get("format") != "SkiZones" or not parsed.get("payload") is String or not parsed.get("checksum") is String:
