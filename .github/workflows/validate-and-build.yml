@@ -277,6 +277,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-readable-0382
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/readable_controls_0382.gd
+      - name: 0.39 responsive Alpine Radio and visible controls
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-radio-ui-039
+        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/radio_responsive_039.gd
       - name: 0.39 winter billboards and visible snow-piste transitions
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-seasonal-paths-039
