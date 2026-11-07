@@ -1,0 +1,182 @@
+[
+  {
+    "tag": "v0.1.1",
+    "commit": "53ca86f25990bac2df6d148f5c20756826fed152"
+  },
+  {
+    "tag": "v0.2.0",
+    "commit": "d77292f572a7d4a9a36c3814303af053a2b4b7a6"
+  },
+  {
+    "tag": "v0.3.0",
+    "commit": "e8c8bf2575e38e26911ba69b3669bd3a5d830fcc"
+  },
+  {
+    "tag": "v0.4.0",
+    "commit": "cc360c5304058b9060c434fa86f1063b567bde69"
+  },
+  {
+    "tag": "v0.5.0",
+    "commit": "1e4758331247cbe98827a8f6d62a8be1e3544a70"
+  },
+  {
+    "tag": "v0.6.0",
+    "commit": "88ddd0f9c2634a1c02bd6e076404c85876e270d4"
+  },
+  {
+    "tag": "v0.7.0",
+    "commit": "8b7dbca4ddf9686d022eaa52d25adb01155bc3c7"
+  },
+  {
+    "tag": "v0.8.0",
+    "commit": "4ff3f9f81c002bd10b0e6292cdb6541ffcb2eeb7"
+  },
+  {
+    "tag": "v0.9.0",
+    "commit": "89363375df2fa2d106b84f5ae0801a9526b70f34"
+  },
+  {
+    "tag": "v0.10.0",
+    "commit": "07dbf0d1f52ed4dfb5ebe2ede168e94f7ef8f70e"
+  },
+  {
+    "tag": "v0.11.0",
+    "commit": "500190986df4a021bfbf10ed4136fe675ba42677"
+  },
+  {
+    "tag": "v0.12.0",
+    "commit": "e17ce99d5538a1d1100ccb3a251c21a5826ae1dd"
+  },
+  {
+    "tag": "v0.13.0",
+    "commit": "5800b9295cdf4ef6102c09aa34ef5cf82d833fcb"
+  },
+  {
+    "tag": "v0.14.0",
+    "commit": "74711436623c81bc96dec0aa1b1727273a0a4f2d"
+  },
+  {
+    "tag": "v0.14.1",
+    "commit": "00d32ea9522d0c732b30d4da7d2eead808d3281c"
+  },
+  {
+    "tag": "v0.14.2",
+    "commit": "9bb8260bcee9e0a7e3928a4b0d214328881dc987"
+  },
+  {
+    "tag": "v0.14.3",
+    "commit": "75f57a7562e46ea81910a66b9343ccaf4e7880a2"
+  },
+  {
+    "tag": "v0.15.0",
+    "commit": "86e97baf0284e9001988ed57de4b90a180e15d17"
+  },
+  {
+    "tag": "v0.16.0",
+    "commit": "162e4ade91e653db6bd55f44f91421a5bd2e5015"
+  },
+  {
+    "tag": "v0.17.0",
+    "commit": "0494168070ccb92b1ffee65dfbc21f2cfd844b6c"
+  },
+  {
+    "tag": "v0.18.0",
+    "commit": "b98a2c22bd09cb018803d04cfafbb09c51387e9b"
+  },
+  {
+    "tag": "v0.19.0",
+    "commit": "b074d3c2558b6511bea354a98a74629549fe0e85"
+  },
+  {
+    "tag": "v0.20.0",
+    "commit": "f820f5359f6c08b63d44cb9acfb428f5e62f0df2"
+  },
+  {
+    "tag": "v0.20.2",
+    "commit": "19401581009b4409b0dbf8bd301db2e87b4a1a56"
+  },
+  {
+    "tag": "v0.21.0",
+    "commit": "9b9fee222f1901fc2859fe5bd0af12928daedd7f"
+  },
+  {
+    "tag": "v0.22.0",
+    "commit": "ed1a55983a83f29aee8481cad76ded7ae46bb4ff"
+  },
+  {
+    "tag": "v0.23.0",
+    "commit": "bde45ac7151efb4383e76843b403a9071bffd4ce"
+  },
+  {
+    "tag": "v0.24.0",
+    "commit": "7ccb46e6eb78a0ff50e21b6e2c6f006c1c4fcc7c"
+  },
+  {
+    "tag": "v0.25.0",
+    "commit": "57f7304f39f2084778049aea33784c426226af66"
+  },
+  {
+    "tag": "v0.26.0",
+    "commit": "d53ac7e2e860858c354e7d9e88e21b399df168cf"
+  },
+  {
+    "tag": "v0.27.0",
+    "commit": "8847bd5aabadbe390960294df653a22e198d28fb"
+  },
+  {
+    "tag": "v0.30.0",
+    "commit": "b8da3fc7529a14f7bb70e04c5bae3a14819c034a"
+  },
+  {
+    "tag": "v0.31.0",
+    "commit": "84ca7a28cef965f3e0dbd09badaa20b5fe0335ce"
+  },
+  {
+    "tag": "v0.32.0",
+    "commit": "4d3d93bd7b0b9a0e2c499cc569c389601747026d"
+  },
+  {
+    "tag": "v0.33.0",
+    "commit": "84587935976415516e25298d6abe2aacce144a07"
+  },
+  {
+    "tag": "v0.33.1",
+    "commit": "dbbdea3843df386564a48d4261b8f85f1d6ece45"
+  },
+  {
+    "tag": "v0.33.2",
+    "commit": "7311c0907f3004a0c6da9f1b69dd205b354751d8"
+  },
+  {
+    "tag": "v0.34.0",
+    "commit": "d1f59891be08c67e244ff5c4cf86a0d57c1b7bc2"
+  },
+  {
+    "tag": "v0.34.1",
+    "commit": "b3a3f29c85561644791468b1e919c3b38163da12"
+  },
+  {
+    "tag": "v0.35.0",
+    "commit": "d0b630b0a5a7ed44ce9ef0897bdf096df028b3da"
+  },
+  {
+    "tag": "v0.35.1",
+    "commit": "de3e7b85d07b327d73ff278428476bb4b5a331a1"
+  },
+  {
+    "tag": "v0.36.0",
+    "commit": "24026cba95ea677fc0a7fbfe7f44f4b93caac103"
+  },
+  {
+    "tag": "v0.37.0",
+    "commit": "1d731922c5cdb6313b874369e75f5ac51499df78"
+  },
+  {
+    "tag": "v0.38.0",
+    "commit": "08c6720cd14f80e54f4b6c583607813d00a49281"
+  },
+  {
+    "tag": "v0.38.1",
+    "commit": "67820092b5de9af83cd4c2b07d69c1dc7af1aa8d"
+  }
+]

@@ -120,6 +120,38 @@ jobs:
           path: /home/runner/legacy019-careers/*.json
           retention-days: 90
 
+  historical-saves:
+    name: Original release saves (${{ matrix.partition }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [0, 1, 2]
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Generate and restore all pinned historical releases
+        run: python3 tools/check_historical_saves.py --partition ${{ matrix.partition }} --partitions 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-release-save-QA-${{ matrix.partition }}
+          path: build/historical-saves/*
+          retention-days: 90
+
   godot:
     permissions:
       contents: read
@@ -233,6 +265,14 @@ jobs:
           for test in hotel_simulator_038 public_wc_038 public_wc_flow_038 save_management_038; do
             python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd" || exit 1
           done
+      - name: 0.38.2 repairable primary, historical geometry and original preservation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-repair-0382
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_repair_0382.gd
+      - name: 0.38.2 readable save actions and focused dialogs on phones
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-readable-0382
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/readable_controls_0382.gd
       - name: 0.38 building actions, hotel entry, staff and fullscreen mobile careers
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
@@ -565,7 +605,7 @@ jobs:
 
   publish:
     name: Publish APK download
-    needs: [godot, android-lifecycle, career-recovery]
+    needs: [godot, android-lifecycle, career-recovery, historical-saves]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 5

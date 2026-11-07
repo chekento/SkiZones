@@ -42,6 +42,7 @@ const FREE_CASH := 999000000.0
 const OPENING := 480
 const CLOSING := 1080
 
+var compatibility_geometry := false
 var map_id := "sonnenhang"
 var terrain := Mountain.new()
 var snow_revision := 0
@@ -121,6 +122,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 	_duty_cache.clear()
 	_operating_signature = ""
 	legacy_foot = false
+	compatibility_geometry = false
 	map_id = area_id if Maps.MAPS.has(area_id) else "sonnenhang"
 	terrain_generation = 2
 	terrain = Mountain.new(map_id, terrain_generation)
@@ -2257,7 +2259,10 @@ func snapshot() -> Dictionary:
 	# pass the historical cash ceiling; serialize a valid finite proxy without
 	# mutating live money, debt or the real operating ledger.
 	var saved_money: float = minf(money,1000000000.0) if campaign.get("mode","career")=="free" else money
-	return {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": saved_money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	var data: Dictionary = {"version":17,"foot_wear":foot_wear_cells.duplicate(true),"portal_path":portal_path.duplicate(true),"parties":parties.duplicate(true),"audience":audience.duplicate(true),"time_divisor":time_divisor,"clock_fraction":clock_fraction,"motion_tick":motion_tick,"party_mode":party_mode,"edge_entries":edge_entries,"journey_scale":Terrain.journey_clock_scale(terrain),"operations":operations.duplicate(true),"terrain_generation":terrain_generation,"legacy_foot":legacy_foot, "map_id": map_id, "campaign": campaign.duplicate(true), "money": saved_money, "day": day, "minute": minute, "reputation": reputation, "ticket_price": ticket_price, "weather_index": weather_index, "loan": loan, "total_guests": total_guests, "total_rides": total_rides, "next_id": next_id, "guest_id": guest_id, "pistes": pistes.duplicate(true), "lifts": lifts.duplicate(true), "buildings": buildings.duplicate(true), "walk_areas": walk_areas.duplicate(true), "guests": visitor_data, "itineraries": itineraries, "achievements": achievements.duplicate(), "report": report.duplicate(true), "last_report": last_report.duplicate(true), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+
+	if compatibility_geometry: data.compatibility_geometry = true
+	return data
 
 func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
@@ -2333,7 +2338,7 @@ func restore(data: Dictionary, legacy_geometry: bool = false) -> Dictionary:
 	var check: Dictionary = candidate._restore_checked(data, legacy_geometry)
 	if not check.ok:
 		return check
-	for key in ["map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path", "foot_wear_cells"]:
+	for key in ["compatibility_geometry", "map_id", "terrain", "terrain_generation", "legacy_foot", "money", "day", "minute", "reputation", "ticket_price", "weather_index", "loan", "total_guests", "total_rides", "next_id", "guest_id", "pistes", "lifts", "buildings", "walk_areas", "guests", "achievements", "report", "last_report", "campaign", "operations", "audience", "time_divisor", "clock_fraction", "clock_steps", "motion_tick", "party_mode", "edge_entries", "parties", "portal_path", "foot_wear_cells"]:
 		set(key, candidate.get(key))
 	snow_revision += 1
 	rng.seed = candidate.rng.seed
@@ -2354,6 +2359,9 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var invalid := _result(false, L.text("Der Spielstand ist unvollständig oder beschädigt."))
 	if not Terrain.number(data.get("version")) or data.version != floorf(data.version) or data.version < 1 or data.version > 17:
 		return _result(false, L.text("Diese Spielstand-Version wird nicht unterstützt."))
+	if data.has("compatibility_geometry") and not data.compatibility_geometry is bool: return invalid
+	compatibility_geometry = legacy_geometry or bool(data.get("compatibility_geometry", false))
+	legacy_geometry = compatibility_geometry
 	# A malformed or duplicated wear payload is rejected before touching the world.
 	# Older save versions simply start with fresh snow.
 	var wear: Variant = data.get("foot_wear", []) if data.version >= 17 else []

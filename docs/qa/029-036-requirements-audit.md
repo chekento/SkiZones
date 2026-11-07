@@ -54,6 +54,14 @@ Die 1.000 Erfolge, 500 Ränge, linearen Hotelketten und Grundfunktionen der vier
 
 Die [Hauptzweig-Pipeline 42253046515](https://github.com/chekento/SkiZones/actions/runs/42253046515) bestand einschließlich Android API 30/36. APK, Manifest und SHA256 sind vorhanden; die heruntergeladene APK wurde gegen Manifest, SHA256-Datei und ZIP-Integrität geprüft. Der [Prüfbericht](planning-paths-after-036.md) trennt den historischen lokalen Vorlauf von dieser Freigabe. Die Tabellen zu 0.29–0.36 bleiben ein historischer Abgleich dieser Versionen; neue Funktionen ändern diese Vergangenheit nicht.
 
+## Aktueller Folgeauftrag: 0.38.2 in Vorbereitung
+
+Öffentliche Basis ist inzwischen **0.38.1**. Die grundlegende Hotel-/Dixi-Verwaltung aus 0.38 und der Abwesenheitsfix aus 0.38.1 ändern nicht die offenen Zielumfänge der obigen historischen Tabelle.
+
+Der neue Nutzerbericht zum Lademenü wird im [0.38.2-Prüfbericht](0382-save-repair.md) gesondert verfolgt: lesbare Verwaltungsaktionen und Bestätigungen, vier freie Speicherplätze, tatsächliche Reparatur eines als rettbar erkannten Originals sowie Original-Save-Tests für sämtliche 45 öffentlichen Release-Tags. Die drei konkreten Problemdateien fehlen noch; ihre individuelle Reparatur wird nicht als erledigt ausgewiesen.
+
+Weiterhin offen bleiben insbesondere die vollständigen Hotel-/WC-Forschungsbäume und Simulatorvertiefungen, freie äußere Hotelarchitektur, sämtliche realen Szenario-Rundwege, die komplette Theme-/Saisonmatrix sowie durchgängig genregetreue längere Musikprogramme. Die 0.37-Landschafts-, Weg- und Pistenplaneränderungen sind bereits ausgeliefert; weitere visuelle Verfeinerung bleibt ein eigener Auftrag. Dieser Speicher-/UI-Fix markiert diese größeren Aufgaben nicht als abgeschlossen.
+
 ## Quellen im Repository
 
 - [Veröffentlichte Versionshistorie](../../CHANGELOG.md) und `docs/releases/0.30.0.md` bis `0.36.0.md`.

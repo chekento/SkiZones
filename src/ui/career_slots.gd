@@ -18,6 +18,7 @@ var starting_tier:=OptionButton.new()
 var tier_details:=Label.new()
 var heading_label: Label
 var close_button: Button
+var action_grids: Array[GridContainer] = []
 func setup(interface: CanvasLayer) -> void:
 	hud=interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -28,8 +29,7 @@ func setup(interface: CanvasLayer) -> void:
 	var body: VBoxContainer=hud._vbox(self,12)
 	var row:=HBoxContainer.new();body.add_child(row)
 	heading_label=hud._label(row,L.text("DEINE VIER KARRIEREN"),26,hud.ACCENT)
-	heading_label.clip_text=true
-	heading_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+	heading_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	heading_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	close_button=hud._button(row,L.text("Zurück"),hide)
 	intro_label=hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
@@ -63,7 +63,8 @@ func setup(interface: CanvasLayer) -> void:
 	)
 	add_child(archive_confirmation)
 	archive_confirmation.title=L.text("Resort sicher archivieren?")
-	archive_confirmation.ok_button_text=L.text("Archivieren und aus Platz entfernen")
+	archive_confirmation.ok_button_text=L.text("Löschen & sichern")
+	archive_confirmation.cancel_button_text=L.text("Abbrechen")
 	archive_confirmation.dialog_text=L.text("Original und Sicherung werden vor dem Entfernen vollständig kopiert und überprüft.")
 	archive_confirmation.confirmed.connect(_archive_confirmed)
 	hide()
@@ -84,15 +85,40 @@ func _archive_confirmed() -> void:
 
 func _request_archive(map_id:String,slot:int,free:int) -> void:
 	pending_archive={"map":map_id,"slot":slot,"free_slot":free}
-	archive_confirmation.popup_centered(Vector2i(620,220))
+	hud.present_dialog(archive_confirmation,Vector2i(620,240))
+
+func _slot_summary(parent: VBoxContainer, summary: Dictionary, damaged: bool) -> void:
+	if damaged:
+		hud._label(parent,L.text("Spielstand vorhanden – Wiederherstellung prüfen"),16,hud.ACCENT,true)
+		return
+	hud._label(parent,L.text(Maps.spec(summary.map).name),18,hud.INK,true)
+	var stats:=HBoxContainer.new()
+	stats.add_theme_constant_override("separation",8)
+	parent.add_child(stats)
+	for entry in [[L.text("Tag"),str(int(summary.day))],[L.text("Sterne"),str(int(summary.rank))],[L.text("Guthaben"),"∞" if free_mode else hud.money_text(summary.money)+" €"]]:
+		var tile:=PanelContainer.new()
+		tile.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		tile.add_theme_stylebox_override("panel",hud._style(Color("edf3f0"),8,8))
+		stats.add_child(tile)
+		var column:VBoxContainer=hud._vbox(tile,2)
+		hud._label(column,str(entry[0]),13,hud.MUTED,true)
+		hud._label(column,str(entry[1]),14 if entry[0]==L.text("Guthaben") else 16,hud.INK,true)
 
 func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1) -> void:
-	var section:=HFlowContainer.new()
+	var section:=GridContainer.new()
+	section.columns=2
+	section.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	section.add_theme_constant_override("h_separation",8)
+	section.add_theme_constant_override("v_separation",8)
+	action_grids.append(section)
 	section.name="save_manager_actions"
+	section.resized.connect(_fit_actions)
 	parent.add_child(section)
 	var diagnostic: Label=hud._label(parent,"",14,hud.TEAL,true)
 	diagnostic.name="save_diagnostics"
-	var check: Button=hud._button(section,L.text("Prüfen & retten"),func():
+	diagnostic.hide()
+	var check: Button=hud._button(section,L.text("Prüfen"),func():
+		diagnostic.show()
 		var report:Dictionary=SaveManager.inspect(map_id,slot,free_slot)
 		if not report.ok:
 			diagnostic.text=L.text("Keine Datei gefunden.")
@@ -102,7 +128,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	var rescue: Button=hud._button(section,L.text("Backup retten"),func():
+	var rescue: Button=hud._button(section,L.text("Reparieren"),func():
 		if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==map_id:
 			hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
 			return
@@ -111,28 +137,36 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 		if result.ok:refresh()
 	)
 	rescue.name="rescue_save_038"
+	var destination:=HBoxContainer.new()
+	destination.add_theme_constant_override("separation",10)
+	parent.add_child(destination)
+	hud._label(destination,L.text("Kopie nach"),16,hud.MUTED)
 	var target:=OptionButton.new()
 	target.name="copy_target"
-	target.custom_minimum_size=Vector2(95,46)
-	section.add_child(target)
+	target.custom_minimum_size=Vector2(140,48)
+	target.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	destination.add_child(target)
 	for n in range(1,5):
 		if n==(free_slot if slot==0 else slot):continue
 		target.add_item(L.text("Platz %d") % n,n)
-	var copy: Button=hud._button(section,L.text("Kopieren"),func():
+	var copy: Button=hud._button(section,L.text("Kopie erstellen"),func():
 		var dst:int=target.get_selected_id()
 		var result:Dictionary=SaveManager.copy(map_id,slot,slot if slot==0 else dst,free_slot,dst if slot==0 else 1)
 		hud.toast(L.text(str(result.message)))
 		if result.ok:refresh()
 	)
 	copy.name="copy_save_038"
-	var remove: Button=hud._button(section,L.text("Archivieren"),func():_request_archive(map_id,slot,free_slot))
+	var remove: Button=hud._button(section,L.text("Löschen & sichern"),func():_request_archive(map_id,slot,free_slot))
 	remove.name="archive_save_038"
+	remove.add_theme_stylebox_override("normal",hud._style(Color("f4d5cc"),9,10))
+	remove.add_theme_stylebox_override("hover",hud._style(Color("edbcb0"),9,10))
+	remove.add_theme_stylebox_override("pressed",hud._style(Color("e9ad9e"),9,10))
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
 	for button in [check,rescue,copy,remove]:
-		button.add_theme_font_size_override("font_size",14)
-		button.custom_minimum_size.y=46
-		button.clip_text=true
-		button.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		button.add_theme_font_size_override("font_size",16)
+		button.custom_minimum_size=Vector2(144,50)
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 
 func open() -> void:
 	free_mode = false
@@ -148,13 +182,13 @@ func _refresh_free_cards() -> void:
 		var summary: Dictionary = Saves.free_summary(free_slot)
 		var panel := PanelContainer.new()
 		panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		panel.add_theme_stylebox_override("panel", hud._style(Color("edf3ec"),12,16))
+		panel.add_theme_stylebox_override("panel", hud._style(Color("ffffff"),12,16))
 		cards.add_child(panel)
 		var body: VBoxContainer = hud._vbox(panel,8)
 		hud._label(body,L.text("Freier Aufbau · Platz %d") % free_slot,22,hud.TEAL)
 		if summary.occupied:
 			var damaged: bool = bool(summary.get("damaged", false))
-			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),16,hud.INK,true)
+			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
 			_management_actions(body,str(summary.map),0,free_slot)
 			var entries: Array = Saves.saved_resorts(0,free_slot)
@@ -166,13 +200,14 @@ func _refresh_free_cards() -> void:
 					_management_actions(body,area,0,free_slot)
 			hud._button(body,L.text("Diesen freien Platz neu beginnen"),func():
 				pending_slot=free_slot
-				confirmation.popup_centered(Vector2i(620,230))
+				hud.present_dialog(confirmation,Vector2i(620,240))
 			)
 		else:
 			hud._label(body,L.text("Leerer freier Spielstand"),16,hud.MUTED)
 			hud._button(body,L.text("Freies Resort starten"),func():hud.game.select_free_slot(free_slot,true),true)
 
 func refresh() -> void:
+	action_grids.clear()
 	heading_label.text=L.text("DEINE VIER FREIEN SPIELSTÄNDE") if free_mode else L.text("DEINE VIER KARRIEREN")
 	intro_label.text=L.text("Vier unabhängige Plätze für freien Aufbau. Platz 1 enthält bisherige freie Spielstände.") if free_mode else L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände.")
 	tier_panel.visible=not free_mode
@@ -181,17 +216,18 @@ func refresh() -> void:
 	for child in cards.get_children():cards.remove_child(child);child.queue_free()
 	if free_mode:
 		_refresh_free_cards()
+		call_deferred("_fit_actions")
 		return
 	for child in cards.get_children():cards.remove_child(child);child.queue_free()
 	for number in range(1,5):
 		var slot: int=number
 		var summary:=Saves.summary(slot)
-		var panel:=PanelContainer.new();panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL;panel.add_theme_stylebox_override("panel",hud._style(Color("edf3ec"),12,16));cards.add_child(panel)
+		var panel:=PanelContainer.new();panel.size_flags_horizontal=Control.SIZE_EXPAND_FILL;panel.add_theme_stylebox_override("panel",hud._style(Color("ffffff"),12,16));cards.add_child(panel)
 		var body: VBoxContainer=hud._vbox(panel,8)
 		hud._label(body,L.text("Karriere %d") % slot,23,hud.TEAL)
 		if summary.occupied:
 			var damaged: bool = summary.get("damaged", false)
-			hud._label(body,L.text("Spielstand vorhanden – Wiederherstellung prüfen") if damaged else (L.text("%s · Tag %d · %d Sterne · %s €") % [L.text(Maps.spec(summary.map).name),summary.day,summary.rank,hud.money_text(summary.money)]),17,hud.INK,true)
+			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
 			_management_actions(body,str(summary.map),slot)
 			# Do not hide another old mountain behind a single last-map index.
@@ -204,10 +240,18 @@ func refresh() -> void:
 					var subtitle: String = L.text("Spielstand prüfen") if entry.damaged else L.text("Resort fortsetzen")
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + subtitle,func():hud.game.select_career_area(slot,area))
 					_management_actions(body,area,slot)
-			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;confirmation.popup_centered(Vector2i(620,230)))
+			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;hud.present_dialog(confirmation,Vector2i(620,240)))
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
 			hud._button(body,L.text("Neue Karriere starten"),func():hud.game.select_career_slot(slot,true,starting_tier.selected),true)
+
+	call_deferred("_fit_actions")
+
+func _fit_actions() -> void:
+	for button in cards.find_children("*","Button",true,false):
+		if not button is OptionButton:button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	for grid in action_grids:
+		if is_instance_valid(grid):grid.columns=2 if grid.size.x>=310 else 1
 
 func _update_tier_hint() -> void:
 	var tier: Dictionary = StartTiers.choice(starting_tier.selected)
@@ -216,8 +260,12 @@ func _update_tier_hint() -> void:
 func _fit() -> void:
 	if not is_inside_tree(): return
 	var w: float = minf(get_viewport_rect().size.x, get_tree().root.size.x)
+	var h: float = minf(get_viewport_rect().size.y, get_tree().root.size.y)
+	intro_label.visible=w>=650 and h>=520
+	tier_details.visible=w>=1000 and h>=600
 	var narrow: bool = w < 1050.0
 	cards.columns = 1 if narrow else 2
+	call_deferred("_fit_actions")
 	offset_left = 0
 	offset_right = 0
 	offset_top = 0
@@ -225,6 +273,6 @@ func _fit() -> void:
 	if is_instance_valid(heading_label):
 		heading_label.add_theme_font_size_override("font_size",18 if w<650 else 22 if narrow else 26)
 	if is_instance_valid(close_button):
-		close_button.text="✕" if w<650 else L.text("Zurück")
+		close_button.text=L.text("Zurück")
 		close_button.tooltip_text=L.text("Zurück")
 		close_button.custom_minimum_size.x=48 if w<650 else 0
