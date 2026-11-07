@@ -80,5 +80,19 @@ func run() -> void:
 	write(path,data,false)
 	original=FileAccess.get_sha256(path)
 	check(not Manager.repair("sonnenhang",3).ok and FileAccess.get_sha256(path)==original,"Failed checksums never enter geometry or visitor recovery")
+	# Archives from older builds are read-only candidates. The corrupt primary
+	# remains byte-for-byte available even if an archived copy is recovered.
+	var recovery_folder: String="user://save-recovery"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(recovery_folder))
+	var recovered_file: String=recovery_folder+"/"+path.get_file()+"-historical.before-repair"
+	write(recovered_file,data)
+	check(Manager.inspect("sonnenhang",3).loadable>=1,"Inspection discovers old archived copies even when the current primary has a bad checksum")
+	var rescued_from_archive:Dictionary=Manager.repair("sonnenhang",3)
+	check(rescued_from_archive.ok and rescued_from_archive.changed and FileAccess.get_sha256(path)==FileAccess.get_sha256(recovered_file),"Archived copy restores into occupied slot without changing original archive")
+	var raw_file:FileAccess=FileAccess.open(path,FileAccess.WRITE)
+	raw_file.store_string(JSON.stringify(data))
+	raw_file.close()
+	check(Saves._read(path).ok and Saves.load_game(Resort.new(),path).ok,"Versioned unwrapped historic snapshots pass full restore validation")
+
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
