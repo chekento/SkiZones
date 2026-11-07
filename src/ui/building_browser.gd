@@ -10,7 +10,7 @@ var search := LineEdit.new()
 var category := OptionButton.new()
 var grid := GridContainer.new()
 var cards: Array = []
-var groups := ["Alle Gebäude","Unterkünfte & Hotels","Verpflegung & Wärme","Service & Anreise","Freizeit & Erholung","Betrieb & Sicherheit"]
+var groups := ["Alle Gebäude","Unterkünfte & Hotels","Verpflegung & Wärme","Sanitär & Infrastruktur","Service & Anreise","Freizeit & Erholung","Betrieb & Sicherheit"]
 var selected_kind := "cabin"
 var preview := Icon.new()
 var detail: Label

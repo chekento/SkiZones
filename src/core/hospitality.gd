@@ -5,6 +5,8 @@ const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Rooms = preload("res://src/core/hotel_rooms.gd")
+const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
+const PublicWC = preload("res://src/core/public_wc.gd")
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const TOPPINGS := {"tomato":"Tomate", "cheese":"Käse", "mushroom":"Pilze", "pepper":"Paprika", "olive":"Oliven", "ham":"Schinken", "salami":"Salami", "pineapple":"Ananas", "spinach":"Spinat", "onion":"Zwiebeln", "arugula":"Rucola", "goat_cheese":"Ziegenkäse", "pesto":"Pesto", "chili":"Chilischoten", "truffle":"Trüffel", "tofu":"Räuchertofu"}
 ## At 0.35 all existing ingredients remain usable by prior saves and level-1 stores.
@@ -107,7 +109,7 @@ static func valid_hotel(value: Variant) -> bool:
 	return Terrain.number(value.cleanliness) and value.cleanliness >= 0 and value.cleanliness <= 100 and Terrain.number(value.rating) and value.rating >= 1 and value.rating <= 5
 
 static func valid_building(building: Dictionary) -> bool:
-	if not BuildingOffers.valid_sales(building) or not Rooms.valid(building): return false
+	if not BuildingOffers.valid_sales(building) or not Rooms.valid(building) or not PublicWC.valid(building) or not HotelSimulator.valid(building) or not HotelSimulator.valid_shift(building): return false
 	if building.has("hotel") and (not lodging(str(building.kind)) or not valid_hotel(building.hotel)): return false
 	if building.has("pizza_menu") and (building.kind != "pizzeria" or not valid_menu(building.pizza_menu)): return false
 	if building.has("activity"):
@@ -185,6 +187,9 @@ static func housekeeping(model: RefCounted, id: int) -> Dictionary:
 
 static func daily(model: RefCounted) -> void:
 	for building in model.buildings:
+		# Public toilets have independent maintenance; hotel/restaurant
+		# restrooms are already included and never receive this public state.
+		if PublicWC.is_public(str(building.kind)):PublicWC.daily(model,building)
 		if not lodging(str(building.kind)) or not building.enabled: continue
 		var settings := config(building)
 		if int(settings.last_review_day) >= int(model.day): continue

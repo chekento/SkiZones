@@ -50,6 +50,8 @@ func run() -> void:
 	check(radio.face.logo_texture!=null and radio.face.station_id=="alpine","Physical radio face displays first station artwork")
 	check(radio.playing_label.custom_minimum_size.y>=60 and not radio.playing_label.text.is_empty(),"Current title retains readable height when phone labels wrap")
 	check(radio.power_button.visible and radio.station_left.visible and radio.station_right.visible and radio.skip_button.visible,"All physical power, tuning and transport buttons are available")
+	check(radio.power_button.icon != null and radio.station_left.icon != null and radio.station_right.icon != null and radio.skip_button.icon != null and radio.credits_button.icon != null, "Radio hardware uses imported, large original SVG control icons")
+	check(radio.dial.custom_minimum_size.x >= 100 and radio.dial.focus_mode == Control.FOCUS_ALL, "Tuning wheel is a touch/keyboard accessible real UI control")
 	var techno:Button=radio.preset_buttons["techno"]
 	techno.pressed.emit()
 	check(game.preferences.music_genre=="techno" and saved(game.preferences.path).music_genre=="techno","Tapping SnowBeat logo tunes radio and persists instantly")
@@ -59,6 +61,10 @@ func run() -> void:
 	check(game.preferences.music_genre!=previous and game.preferences.music_genre!="off","Forward tuning button changes to a different real station")
 	radio.station_left.pressed.emit()
 	check(game.preferences.music_genre==previous,"Backward tuning returns to original station")
+	radio.dial._turn(1)
+	check(game.preferences.music_genre!=previous,"Turning the real tuning wheel immediately selects another station")
+	radio.dial._turn(-1)
+	check(game.preferences.music_genre==previous,"Reverse tuning restores original station")
 	var parent:Control=radio.volume_meters["master"].get_parent()
 	var adjust:Button=parent.get_children().filter(func(v): return v is Button).back()
 	var old_volume:float=game.preferences.master_volume
@@ -92,6 +98,7 @@ func run() -> void:
 	radio.close()
 	radio.open()
 	check(radio.face.station_id=="techno" and radio.enabled.button_pressed,"Reopening restores selected sender and power with no confirmation button")
+	check(radio.face.track_title == str(game.audio.now_playing().get("title","")), "Hardware LCD uses real live programme title, not placeholder visual art")
 	check(JSON.stringify(game.model.snapshot())==after,"Radio choices do not mutate career files or resort cash")
 	# The complete radio belongs to a scrollable window on small phones.
 	# The frame, close action and active art may never be outside a safe viewport.

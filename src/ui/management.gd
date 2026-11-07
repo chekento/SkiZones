@@ -303,17 +303,40 @@ func _contracts(page: VBoxContainer) -> void:
 func _research(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
 	var state: Dictionary = model.campaign
-	_card(page, L.text("%d Forschungspunkte verfügbar") % L.args(state.points), L.text("Forschungspunkte entstehen durch Erfahrung, abgeschlossene Aufträge und Betriebstage. Es kann immer nur ein Projekt laufen; danach kannst du das nächste starten. Kosten werden beim Start bezahlt."))
-	for id_value in Progression.RESEARCH:
-		var id: String = id_value
-		var spec: Dictionary = Progression.RESEARCH[id]
-		var done := Progression.has(model, id)
-		var active: bool = not state.project.is_empty() and state.project.id == id
-		var prefix := "✓ " if done else (L.text("In Arbeit · ") if active else "")
-		var body := _card(page, prefix + L.text(spec.name), L.text("%s\n%s € · %d FP · %d Betriebstag%s") % L.args([spec.effect, hud.money_text(spec.cost), spec.points, spec.days, L.day_suffix(spec.days)]))
-		var check := Progression.research_check(model, id)
-		hud._label(body, L.text("Fertig an Tag %d") % L.args(state.project.due_day) if active else check.message, 15, hud.TEAL, true)
-		_action(body, L.text("Abgeschlossen") if done else (L.text("Wird erforscht") if active else L.text("Forschung starten")), func(): return model.start_research(id), check.ok)
+	_card(page,L.text("Forschungspunkte: %d  ·  ein Projekt gleichzeitig") % int(state.points),L.text("Entwicklungszweige mit echten Voraussetzungen. Erforschte Projekte aus früheren Versionen bleiben erhalten."))
+	for branch in Progression.BRANCHES:
+		var progress: Dictionary=Progression.branch_progress(model,str(branch.id))
+		var group:=_card(page,str(branch.icon)+"  "+L.text(str(branch.name)),L.text(str(branch.description)))
+		var bar:=ProgressBar.new()
+		bar.name="research_branch_"+str(branch.id)
+		bar.custom_minimum_size.y=20
+		bar.min_value=0
+		bar.max_value=int(progress.total)
+		bar.value=int(progress.done)
+		bar.show_percentage=false
+		group.add_child(bar)
+		hud._label(group,L.text("%d / %d abgeschlossen") % [int(progress.done),int(progress.total)],15,hud.TEAL,true)
+		var flow:=HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation",10)
+		flow.add_theme_constant_override("v_separation",10)
+		group.add_child(flow)
+		for id_value in branch.nodes:
+			var id: String=str(id_value)
+			var spec: Dictionary=Progression.RESEARCH[id]
+			var done: bool=Progression.has(model,id)
+			var active: bool=not state.project.is_empty() and str(state.project.id)==id
+			var tile:=_card(flow,("✓ " if done else "◉ " if active else "◇ ")+L.text(str(spec.name)),"")
+			tile.custom_minimum_size.x=245
+			var need: Array=[]
+			for prerequisite in spec.requires:
+				need.append(L.text(str(Progression.RESEARCH[prerequisite].name)))
+			if not need.is_empty():hud._label(tile,L.text("Benötigt: %s") % ", ".join(need),14,hud.MUTED,true)
+			hud._label(tile,L.text("%s € · %d FP · %d Tage") % [hud.money_text(spec.cost),int(spec.points),int(spec.days)],15,hud.TEAL,true)
+			hud._label(tile,L.text(str(spec.effect)),14,hud.MUTED,true)
+			var check: Dictionary=Progression.research_check(model,id)
+			if active:hud._label(tile,L.text("Fertig an Tag %d") % int(state.project.due_day),15,hud.TEAL,true)
+			var action:Button=_action(tile,L.text("Abgeschlossen") if done else L.text("In Arbeit") if active else L.text("Forschung starten"),func():return model.start_research(id),check.ok)
+			action.name="research_node_"+id
 
 func _upgrades(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model

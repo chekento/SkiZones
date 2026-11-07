@@ -12,6 +12,11 @@ const RANK_NAMES := ["Berghütte", "Lokales Skigebiet", "Alpenresort", "Wintersp
 const RESEARCH := {
 	"snowcraft": {"name": "Schneemanagement", "cost": 18000, "points": 3, "days": 1, "requires": [], "effect": "Beschneiung, Pistenraupengarage, Snowpark und Pistenstufe 2 werden verfügbar."},
 	"service": {"name": "Gästekomfort", "cost": 24000, "points": 4, "days": 1, "requires": [], "effect": "15 % mehr Serviceerlöse, mehr Komfort und Gebäude-Upgrades auf Stufe 2."},
+	"sanitation": {"name": "Sanitärtechnik", "cost": 14000, "points": 2, "days": 1, "requires": ["service"], "effect": "Öffentliche Sanitär-Container freischalten. Hotels und Restaurants haben bereits eigene Toiletten."},
+	"wc_logistics": {"name":"Mobile WC-Logistik","cost":3200,"points":1,"days":1,"requires":[],"effect":"Winter-WC-Kabinen mit zwei Plätzen freischalten."},
+	"wc_winter": {"name":"Frostsichere Entsorgung","cost":8500,"points":2,"days":1,"requires":["wc_logistics"],"effect":"Winterisolierung für öffentliche Toiletten aktivieren."},
+	"wc_hygiene": {"name":"Sanitärhygiene","cost":26000,"points":4,"days":2,"requires":["sanitation"],"effect":"Alpine WC-Häuser mit acht Plätzen freischalten."},
+	"wc_comfort": {"name":"Premium-Sanitärversorgung","cost":49000,"points":6,"days":2,"requires":["wc_hygiene","wc_winter"],"effect":"Luxus-Sanitärzentrum mit höherer Kapazität freischalten."},
 	"meteo": {"name": "Bergwetterstation", "cost": 12000, "points": 2, "days": 1, "requires": [], "effect": "Eine verlässliche Wettervorschau für die nächsten sechs Betriebstage."},
 	"lifttech": {"name": "Fördertechnik", "cost": 36000, "points": 5, "days": 2, "requires": [], "effect": "Lifte auf Stufe 2 ausbauen: mehr Kapazität und kürzere Fahrzeiten."},
 	"hospitality": {"name": "Alpine Hotellerie", "cost": 48000, "points": 6, "days": 2, "requires": ["service"], "effect": "Berghotels werden verfügbar. Sie steigern Nachfrage, Komfort und Erlöse."},
@@ -20,6 +25,30 @@ const RESEARCH := {
 	"marketing": {"name": "Destinationsmarketing", "cost": 35000, "points": 5, "days": 2, "requires": ["service"], "effect": "15 % mehr Nachfrage. Gute Pisten und kurze Wartezeiten bleiben entscheidend."},
 	"mastercraft": {"name": "Alpine Meisterklasse", "cost": 90000, "points": 10, "days": 3, "requires": ["lifttech", "hospitality"], "effect": "8er-Sessel werden verfügbar; Pisten, Gebäude und Lifte können bis Stufe 3 ausgebaut werden."}
 }
+## These are branching, save-compatible research trees. All completed projects
+## keep their existing IDs, costs, durations and valid prerequisites.
+const BRANCHES := [
+	{"id":"snow", "name":"Schnee & Gelände", "icon":"❄", "description":"Pistenpräparierung und Bergwetter", "nodes":["snowcraft","efficient_snow","meteo"]},
+	{"id":"transport", "name":"Lifte & Mobilität", "icon":"🚠", "description":"Förderleistung und Seilbahn-Technologie", "nodes":["lifttech","gondola","mastercraft"]},
+	{"id":"hospitality", "name":"Gäste & Hotelentwicklung", "icon":"⌂", "description":"Gästekomfort und Hotellerie", "nodes":["service","hospitality"]},
+	{"id":"sanitation", "name":"Öffentliche Sanitäranlagen", "icon":"🚻", "description":"Dixi-Toiletten, Entsorgung, Frostschutz und Komfort", "nodes":["wc_logistics","sanitation","wc_winter","wc_hygiene","wc_comfort"]},
+	{"id":"destination", "name":"Destination & Vermarktung", "icon":"★", "description":"Reichweite, Gästegruppen und Nachfrage", "nodes":["marketing"]}
+]
+
+static func branch_for(id: String) -> Dictionary:
+	for branch in BRANCHES:
+		if branch.nodes.has(id):return branch
+	return {}
+
+static func branch_progress(model: RefCounted, branch_id: String) -> Dictionary:
+	for branch in BRANCHES:
+		if str(branch.id)!=branch_id:continue
+		var finished:=0
+		for id in branch.nodes:
+			if has(model,str(id)):finished+=1
+		return {"total":branch.nodes.size(),"done":finished,"fraction":float(finished)/maxf(1,branch.nodes.size())}
+	return {"total":0,"done":0,"fraction":0.0}
+
 const CONTRACTS := {
 	"visitors": {"name": "Der Berg ruft", "text": "Begrüße neue Tagesgäste.", "base": 80, "per_rank": 30, "money": 9000},
 	"rides": {"name": "Spuren im Schnee", "text": "Ermögliche zusätzliche Abfahrten.", "base": 60, "per_rank": 40, "money": 11000},
@@ -103,7 +132,7 @@ static func access_message(model: RefCounted, kind: String, is_lift: bool) -> St
 	elif is_lift and kind == "gondola":
 		needed = "gondola"
 	elif not is_lift:
-		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality"}.get(kind, "")
+		needed = {"snowmaker": "snowcraft", "maintenance": "snowcraft", "snowpark": "snowcraft", "hotel": "hospitality", "spa": "hospitality", "grand_hotel":"mastercraft", "guesthouse":"service", "chalet":"hospitality", "wc_cabin":"wc_logistics", "wc_module":"sanitation", "wc_house":"wc_hygiene", "wc_luxury":"wc_comfort"}.get(kind, "")
 	return L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name) if needed != "" and not has(model, needed) else ""
 
 static func research_check(model: RefCounted, id: String) -> Dictionary:
@@ -144,6 +173,10 @@ static func upgrade_check(model: RefCounted, id: int) -> Dictionary:
 	if level >= (5 if item.get("kind", "") in Catalog.BUILDINGS else 3):
 		return {"ok": false, "message": L.text("Maximale Ausbaustufe erreicht.")}
 	var needed := "mastercraft" if level >= 2 else ("lifttech" if item.has("bottom") else ("snowcraft" if item.has("difficulty") else "service"))
+	# Public sanitation develops through its own tree. The generic building
+	# rule would require hotel mastery to expand a portable Dixi toilet.
+	if model.PublicWC.is_public(str(item.get("kind",""))):
+		needed=["wc_logistics","sanitation","wc_hygiene","wc_comfort"][level-1]
 	if model.campaign.get("mode", "free") != "free" and not has(model, needed):
 		return {"ok": false, "message": L.text("Forschung „%s“ erforderlich.") % L.args(RESEARCH[needed].name)}
 	if item.has("difficulty"):

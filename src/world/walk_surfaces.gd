@@ -3,6 +3,8 @@ extends RefCounted
 ## The walking graph is unchanged; picking uses this same visible mesh.
 const Design = preload("res://src/core/walkway_design.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Styles = preload("res://src/core/visual_styles.gd")
+const Calendar = preload("res://src/core/annual_festival.gd")
 var step := 4.0
 var cells: Dictionary = {}
 var buckets: Dictionary = {}
@@ -11,6 +13,9 @@ const BUCKET := 32.0
 var bucket_size := BUCKET
 const EDGE := 3.2
 var edge := EDGE
+var visual_style := "alpine"
+var festival_season := ""
+var _tint: Dictionary = {}
 const MAX_CELLS := 90000
 
 func _primitive(shape: Dictionary, low: Vector2, high: Vector2) -> void:
@@ -60,6 +65,7 @@ func start(layout: Dictionary, wear: bool = false) -> void:
 	corners.clear()
 	_layout = layout
 	_wear = wear
+	_tint = Styles.detail_tints(visual_style)
 	_phase = 0
 	_cursor = 0
 	_keys.clear()
@@ -99,6 +105,8 @@ func result() -> ArrayMesh:
 	return _finished_mesh
 
 func build(view: Node3D, override_layout: Dictionary = {}, wear: bool = false) -> ArrayMesh:
+	visual_style = Styles.valid(str(view.get("visual_style")))
+	festival_season = Calendar.season(Calendar.device_now())
 	start(view._pedestrian_snapshot if override_layout.is_empty() else override_layout,wear)
 	advance(view,0)
 	return result()
@@ -137,11 +145,15 @@ func _add_cell(view: Node3D, cell: Vector2i) -> void:
 		for index in range(1,clipped.size()-1):
 			for vertex in [clipped[0],clipped[index],clipped[index+1]]:
 				var bank := clampf(float(vertex.d)/edge,0,1)
-				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.38+sin(bank*PI)*0.55)
-				var color := Color("cbdbe2").lerp(Color("cbbfa9"),vertex.tone)
-				if vertex.surface != "snow": color = Color(Design.SURFACES[vertex.surface].color)
+				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.095+sin(bank*PI)*0.018)
+				var tint: Dictionary = _tint
+				var color := Color(tint.snow).lerp(Color(tint.wood),vertex.tone*0.22)
+				if vertex.surface != "snow": color = Color(Design.SURFACES[vertex.surface].color).lerp(Color(tint.stone),0.20)
+				if visual_style == "monochrome": color = Color("eeeeee") if vertex.surface == "snow" else Color("bcbcbc")
+				if festival_season in ["advent","christmas"]: color=color.lerp(Color("c5e2d4"),0.18)
+				if festival_season in ["new_year_eve","new_year"]: color=color.lerp(Color("bcdaed"),0.24)
 				if _wear: color = Color("a8c5d0").lerp(Color("dae7ed"),smoothstep(-0.4,edge,float(vertex.d)))
-				else: color=color.lerp(Color("eaf2f6"),smoothstep(-0.8,edge,float(vertex.d)))
+				else: color=color.lerp(Color(tint.snow),smoothstep(-0.8,edge,float(vertex.d)))
 				_mesh_tool.set_uv(vertex.grain)
 				_mesh_tool.set_uv2(Vector2(Design.SURFACES.keys().find(vertex.surface), 1.0-smoothstep(-0.8,edge,float(vertex.d))))
 				_mesh_tool.set_color(color)

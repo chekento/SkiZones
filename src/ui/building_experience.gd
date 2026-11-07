@@ -12,8 +12,11 @@ const ReactionGame = preload("res://src/ui/reaction_game.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
+const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
+const PublicWC = preload("res://src/core/public_wc.gd")
 var _hotel_floor := 0
 var _selected_room := 1
+var hotel_shift: Dictionary = {}
 const HotelComplex = preload("res://src/core/hotel_complex.gd")
 const Newspaper = preload("res://src/core/newspaper.gd")
 const TownHall = preload("res://src/core/town_hall.gd")
@@ -26,6 +29,8 @@ var hud: CanvasLayer
 var asset_id := -1
 var tabs := TabContainer.new()
 var heading: Label
+var tagline: Label
+var primary_actions := HBoxContainer.new()
 var session: Dictionary = {}
 var game_box: VBoxContainer
 var task: Dictionary = {}
@@ -54,7 +59,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 	window.close_requested.connect(close)
 	var body: VBoxContainer=window.body
 	heading=window.title
-	hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
+	tagline=hud._label(body, L.text("DEIN BETRIEB · DEINE IDEEN"), 14, hud.TEAL)
+	primary_actions.name="building_primary_actions"
+	primary_actions.add_theme_constant_override("separation",8)
+	body.add_child(primary_actions)
+	primary_actions.hide()
 	tabs.add_theme_stylebox_override("panel", hud._style(Color("f6f2e8"), 10, 10))
 	tabs.add_theme_stylebox_override("tab_selected", hud._style(Color("bddccd"), 10, 12))
 	tabs.add_theme_stylebox_override("tab_unselected", hud._style(Color("e2e8db"), 10, 12))
@@ -79,6 +88,7 @@ func open(id: int) -> void:
 	if is_instance_valid(hud.game.audio):
 		hud.game.audio.set_context_station("hotel_lobby" if Hospitality.lodging(str(building.kind)) else "")
 	session.clear()
+	hotel_shift.clear()
 	_rebuild()
 	show()
 	window._fit()
@@ -88,6 +98,7 @@ func close() -> void:
 	if hud != null and hud.game != null and is_instance_valid(hud.game.audio):
 		hud.game.audio.set_context_station("")
 	session.clear()
+	hotel_shift.clear()
 	hide()
 	hud.refresh()
 
@@ -141,6 +152,11 @@ func _check(parent: Node, label_text: String, value: bool) -> CheckButton:
 	return field
 
 func _rebuild() -> void:
+	for child in primary_actions.get_children():
+		primary_actions.remove_child(child)
+		child.queue_free()
+	primary_actions.hide()
+	tagline.show()
 	var previous_page: String = tabs.get_tab_title(tabs.current_tab) if tabs.get_tab_count()>0 and tabs.current_tab>=0 else ""
 	for child in tabs.get_children():
 		tabs.remove_child(child)
@@ -153,6 +169,11 @@ func _rebuild() -> void:
 	if str(building.kind)=="town_hall":
 		_town_hall(building)
 		_offers(building)
+		_activity(building)
+		_restore_page(previous_page)
+		return
+	if PublicWC.is_public(str(building.kind)):
+		_public_wc(building)
 		_activity(building)
 		_restore_page(previous_page)
 		return
@@ -487,10 +508,105 @@ func _room_management(page: VBoxContainer, building: Dictionary) -> void:
 	_action(detail,L.text("Internen Zimmerplan ändern · 250 €"),func():return HotelRooms.move_room(model,asset_id,_selected_room,int(floor_input.value)-1,int(slot_input.value)-1)).name="move_selected_room"
 	hud._label(detail,L.text("Der Etagenplan ordnet die vorhandenen Zimmer innerhalb des Hauses. Er baut keine zusätzlichen Betten oder Außenflügel."),17,hud.MUTED,true)
 
+func _public_wc(building: Dictionary) -> void:
+	# No hotel reference: independent public sanitation, including Dixi units.
+	var model: RefCounted=hud.game.model
+	var info: Dictionary=PublicWC.status(model,building)
+	tagline.hide()
+	primary_actions.show()
+	var clean:Button=_action(primary_actions,L.text("Reinigen · %s €") % hud.money_text(info.clean_cost),func():return PublicWC.action(model,asset_id,"clean"))
+	clean.name="public_wc_clean";clean.disabled=float(info.hygiene)>=99.95
+	var empty:Button=_action(primary_actions,L.text("Entleeren · %s €") % hud.money_text(info.empty_cost),func():return PublicWC.action(model,asset_id,"empty"))
+	empty.name="public_wc_empty";empty.disabled=float(info.fill)<=0.01
+	var page: VBoxContainer=_page(L.text("Öffentliche Toiletten"))
+	var head:=_card(page,L.text("WC-BETRIEB"))
+	head.name="public_wc_manager"
+	hud._label(head,L.text("HYGIENE  %.0f %%  ·  TANK  %.0f %%") % [float(info.hygiene),float(info.fill)],20,hud.INK,true)
+	hud._label(head,L.text("PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d") % [int(info.capacity),int(info.waiting),int(info.visits)],21,hud.TEAL,true)
+	hud._label(head,L.text("VORGEMERKT  %d  ·  TANKVOLUMEN  %.0f Nutzungen") % [int(info.reserved),float(info.volume)],16,hud.MUTED,true)
+	var h:=ProgressBar.new()
+	h.name="public_wc_hygiene"
+	h.add_theme_stylebox_override("fill",hud._style(hud.TEAL,6,0))
+	h.show_percentage=false
+	h.max_value=100.0;h.value=float(info.hygiene);h.custom_minimum_size.y=23
+	head.add_child(h)
+	var tank:=ProgressBar.new()
+	tank.name="public_wc_tank"
+	tank.add_theme_stylebox_override("fill",hud._style(hud.ACCENT,6,0))
+	tank.show_percentage=false
+	tank.max_value=100.0;tank.value=float(info.fill);tank.custom_minimum_size.y=23
+	head.add_child(tank)
+	hud._label(head,L.text("BETRIEB  %s") % (L.text("Bereit") if info.ready else L.text("Reinigung oder Entleerung nötig")),17,hud.TEAL,true)
+	var actions:=_card(page,L.text("SERVICE & ENTSORGUNG"))
+	var winter:Button=_action(actions,L.text("Frostschutz einbauen · %s €") % hud.money_text(info.winter_cost),func():return PublicWC.action(model,asset_id,"winterize"))
+	winter.name="public_wc_winterize"
+	var allow_winter:bool=model.campaign.get("mode","career")=="free" or model.Progression.has(model,"wc_winter")
+	winter.disabled=bool(info.winterized) or not allow_winter
+	if not allow_winter:
+		hud._label(actions,L.text("Forschung: Frostsichere Entsorgung."),15,hud.ACCENT,true)
+	var growth:=_card(page,L.text("AUSBAU & PERSONAL"))
+	hud._label(growth,L.text("Ausbau: mehr Kabinen; ab Stufe 3 zusätzlicher Tankpuffer, ab Stufe 4 weniger Hygieneverschleiß, ab Stufe 5 günstigere Servicerunden."),15,hud.MUTED,true)
+	var upgrade:Dictionary=model.upgrade_check(asset_id)
+	var button:Button=_action(growth,L.text("Kapazität ausbauen · %s €") % hud.money_text(upgrade.get("cost",0)),func():return model.upgrade_asset(asset_id))
+	button.name="public_wc_upgrade";button.disabled=not upgrade.ok
+	hud._button(growth,L.text("Zusatzpersonal und Team"),func():close();hud.lift_staff.open(asset_id),true)
+	hud._label(growth,L.text("Reinigung, Tankfüllstand, Kälte und reale Toilettengäste bestimmen den Betrieb. Für Hotel- und Restaurant-Toiletten entstehen keine separaten WC-Gebäude."),15,hud.MUTED,true)
+
+func _hotel_simulator(building: Dictionary) -> void:
+	var model: RefCounted=hud.game.model
+	var summary: Dictionary=HotelSimulator.overview(model,building)
+	var account: Dictionary=summary.economy
+	var rooms: Dictionary=summary.rooms
+	var page: VBoxContainer=_page(L.text("Hotel-Simulator"))
+	var hero := _card(page,L.text("HOTEL SIMULATOR · DEIN BETRIEB"),
+		L.text("Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Gästeservice und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."))
+	hero.name="hotel_simulator_overview"
+	hud._label(hero,L.text("Belegung %d/%d · frei %d · Reinigung %d · Bewertung %.1f ★") % [int(account.occupied),int(account.capacity),int(rooms.ready),int(rooms.dirty),float(summary.rating)],18,hud.TEAL,true)
+	hud._label(hero,L.text("Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag") % [hud.money_text(account.forecast),hud.money_text(account.cost)],17,hud.INK,true)
+	var status := _card(page,L.text("Deine heutige Hotelschicht"))
+	if bool(summary.shift_done):
+		hud._label(status,L.text("Schicht für heute abgeschlossen · %d Punkte. Morgen gibt es neue Aufgaben.") % int(summary.last_score),19,hud.TEAL,true)
+		hud._label(status,L.text("Bis dahin kannst du weiterhin Zimmer verwalten, Preise ändern und Hotelmodule ausbauen."),16,hud.MUTED,true)
+		return
+	if hotel_shift.is_empty() or int(hotel_shift.get("id",-1))!=int(building.id) or int(hotel_shift.get("day",-1))!=int(model.day):
+		hud._label(status,L.text("Ein vollständiger Arbeitstag verbindet fünf operative Entscheidungen. Jede Entscheidung wirkt sofort; du kannst den Ablauf nicht durch Schließen zurücksetzen."),17,hud.MUTED,true)
+		_action(status,L.text("Hotelschicht beginnen"),func():
+			hotel_shift=HotelSimulator.begin(model,asset_id)
+			return hotel_shift
+		).name="hotel_sim_start"
+		return
+	var stage: int=int(hotel_shift.get("step",0))
+	var progress := ProgressBar.new()
+	progress.name="hotel_sim_progress"
+	progress.custom_minimum_size.y=18
+	progress.min_value=0
+	progress.max_value=5
+	progress.value=stage
+	progress.show_percentage=false
+	status.add_child(progress)
+	hud._label(status,L.text("Station %d / 5 · %d Punkte") % [stage+1,int(hotel_shift.get("score",0))],19,hud.TEAL,true)
+	if stage>=5:
+		hud._label(status,L.text("Deine heutige Hotelschicht ist abgeschlossen."),19,hud.TEAL,true)
+		return
+	var task: Dictionary=HotelSimulator.situation(model,building,stage)
+	hud._label(status,L.text(task.name),23,hud.INK,true)
+	hud._label(status,L.text(task.description),17,hud.TEAL,true)
+	hud._label(status,L.text(task.prompt),19,hud.INK,true)
+	for index in range(task.choices.size()):
+		var selected: int=index
+		var button: Button=_action(status,L.text(str(task.choices[index])),func():
+			return HotelSimulator.choose(model,hotel_shift,selected)
+		)
+		button.name="hotel_sim_option_%d" % index
+		button.custom_minimum_size.y=60
+	hud._label(status,L.text("Die echte Buchungs- und Zimmerbelegung bleibt geschützt. Für Ausgaben muss Budget vorhanden sein."),14,hud.MUTED,true)
+
 func _hotel(building: Dictionary) -> void:
 	var model: RefCounted = hud.game.model
 	var settings := Hospitality.config(building)
 	var dashboard := Hospitality.dashboard(model, building)
+	_hotel_simulator(building)
+	# Hotel/restaurants have built-in toilets; public WCs use their own manager.
 	var page := _page(L.text("Hotelverwaltung"))
 	hud._label(page,L.text("HOTEL LOBBY FM · Lounge-Musik während der Hotelverwaltung"),16,hud.TEAL,true)
 	_card(page, L.text("Deine Gäste bleiben länger"), L.text("%d / %d Zimmer belegt · %.0f %% Auslastung\nBewertung %.1f / 5 · Sauberkeit %.0f %%\nGeplante Kosten %s €/Tag · Kostendeckung ab %d belegten Zimmern") % [int(dashboard.occupied), int(dashboard.capacity), float(dashboard.occupancy) * 100.0, float(settings.rating), float(settings.cleanliness), hud.money_text(dashboard.cost), int(dashboard.break_even)])

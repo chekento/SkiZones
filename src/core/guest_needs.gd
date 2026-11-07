@@ -2,6 +2,13 @@ extends RefCounted
 ## Persisted personal needs, changed by activity and completed visits.
 const Terrain = preload("res://src/core/terrain.gd")
 const SERVICES := {
+	# Public toilets are standalone service visits. Hotel and restaurant
+	# bathrooms are included with those buildings, without a WC upgrade tab.
+	"wc_dixi":{"hunger":0,"warmth":0,"energy":0,"joy":0,"minutes":3,"places":1},
+	"wc_cabin":{"hunger":0,"warmth":0,"energy":0,"joy":0,"minutes":3,"places":2},
+	"wc_module":{"hunger":0,"warmth":0,"energy":0,"joy":0,"minutes":3,"places":4},
+	"wc_house":{"hunger":0,"warmth":5,"energy":0,"joy":3,"minutes":4,"places":8},
+	"wc_luxury":{"hunger":0,"warmth":8,"energy":0,"joy":7,"minutes":4,"places":16},
 	"cocoa": {"hunger":20,"warmth":65,"energy":15,"joy":12,"minutes":8,"places":10},
 	"schmarrn": {"hunger":65,"warmth":35,"energy":22,"joy":20,"minutes":13,"places":14},
 	"pizzeria": {"hunger":90,"warmth":30,"energy":24,"joy":18,"minutes":22,"places":20},
@@ -31,6 +38,8 @@ const SERVICES := {
 	"snowpark": {"hunger":0,"warmth":0,"energy":-8,"joy":65,"minutes":14,"places":16}
 }
 const FIELDS := ["hunger","warmth","energy","joy"]
+const BATHROOM_FIELDS := ["bladder","bowel"]
+const INDOOR_WCS := ["hotel","grand_hotel","guesthouse","cabin","apartment","chalet","restaurant","pizzeria","lodge","bar","disco","schmarrn","cocoa"]
 
 static func legacy(guest: Dictionary, temperature: float) -> Dictionary:
 	var fed: bool = guest.get("spent",false)
@@ -39,18 +48,28 @@ static func legacy(guest: Dictionary, temperature: float) -> Dictionary:
 		"energy":clampf(100-guest.get("runs",0)*4.5-guest.age*0.045+(15 if fed else 0),5,100),
 		"joy":clampf(85-guest.age*0.08,10,100),
 		"rental":not fed and int(guest.id)%4==0,
-		"lesson":not fed and int(guest.ability)==0 and int(guest.id)%3==0}
+		"lesson":not fed and int(guest.ability)==0 and int(guest.id)%3==0,
+		"bladder":clampf(12.0+float(guest.get("age",0))*0.13,0,100),
+		"bowel":clampf(3.0+float(guest.get("age",0))*0.018,0,100)}
 
 static func values(guest: Dictionary, temperature: float) -> Dictionary:
 	return guest.get("needs",legacy(guest,temperature))
 
 static func ensure(guest: Dictionary, temperature: float) -> void:
-	if not guest.has("needs"): guest.needs=legacy(guest,temperature)
-	if not guest.has("service_history"): guest.service_history={}
+	if not guest.has("needs"):guest.needs=legacy(guest,temperature)
+	# Optional keys: legacy saves need no destructive version migration.
+	if not guest.needs.has("bladder"):guest.needs.bladder=15.0
+	if not guest.needs.has("bowel"):guest.needs.bowel=4.0
+	if guest.has("family"):
+		for member in guest.family:
+			if not member.needs.has("bladder"):member.needs.bladder=15.0
+			if not member.needs.has("bowel"):member.needs.bowel=4.0
+	if not guest.has("service_history"):guest.service_history={}
 
 static func valid(guest: Dictionary) -> bool:
 	if not guest.get("needs") is Dictionary or not guest.get("service_history") is Dictionary: return false
-	for key in FIELDS:
+	for key in FIELDS + BATHROOM_FIELDS:
+		if key in BATHROOM_FIELDS and not guest.needs.has(key):continue
 		if not Terrain.number(guest.needs.get(key)) or guest.needs[key]<0 or guest.needs[key]>100: return false
 	for key in ["rental","lesson"]:
 		if not guest.needs.get(key) is bool: return false
@@ -63,13 +82,14 @@ static func valid(guest: Dictionary) -> bool:
 			if field not in FIELDS or not Terrain.number(guest.visit_benefits[field]) or guest.visit_benefits[field] < 0 or guest.visit_benefits[field] > maxf(0, SERVICES[guest.visit_kind][field]) + 0.001: return false
 	return true
 
-static func advance(guest: Dictionary, temperature: float, natural: bool = true) -> void:
+static func advance(guest: Dictionary, temperature: float, natural: bool = true, service_active: bool = true) -> void:
 	ensure(guest,temperature)
 	# Hotel residents rest safely indoors; needs recover when they wake.
 	if guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel": return
 	var kind := ""
 	if guest.phase!="leaving" and guest.leg<guest.route.legs.size(): kind=guest.route.legs[guest.leg].kind
 	if guest.phase=="waiting": kind=""
+	if not service_active:kind=""
 	if not natural and kind!="visit": return
 	var dose: Dictionary = {}
 	if kind == "visit" and not guest.route.legs[guest.leg].get("pause_only",false) and SERVICES.has(guest.get("visit_kind", "")):
@@ -86,6 +106,9 @@ static func advance(guest: Dictionary, temperature: float, natural: bool = true)
 
 static func _advance_values(state: Dictionary, kind: String, queue: bool, temperature: float, child: bool, dose: Dictionary, natural: bool) -> void:
 	if natural:
+		# Liquid intake produces more frequent urination than bowel movements.
+		state.bladder=minf(100,float(state.get("bladder",15))+ (0.19 if child else 0.26))
+		state.bowel=minf(100,float(state.get("bowel",4))+0.028)
 		state.hunger=minf(100,state.hunger+(0.25 if child else 0.20))
 		state.warmth=maxf(0,state.warmth-(maxf(0,2-temperature)*0.012*(1.3 if child else 1.0) if kind!="visit" else 0))
 		state.energy=clampf(state.energy+(0.07 if kind=="lift" else -0.14 if kind=="ski" and child else -0.12 if kind=="ski" else -0.055),0,100)
@@ -98,11 +121,12 @@ static func aggregate_family(guest: Dictionary) -> void:
 	for member in guest.family:
 		summary.hunger = maxf(summary.hunger, member.needs.hunger)
 		for field in ["energy", "warmth", "joy"]: summary[field] = minf(summary[field], member.needs[field])
+		for field in BATHROOM_FIELDS:summary[field]=maxf(float(summary.get(field,0)),float(member.needs.get(field,0)))
 		for field in ["rental", "lesson"]: summary[field] = summary[field] or member.needs[field]
 	guest.needs = summary
 
 static func urgent(guest: Dictionary) -> bool:
-	return guest.needs.hunger >= 70 or guest.needs.warmth < 35 or guest.needs.energy < 25
+	return guest.needs.hunger >= 70 or guest.needs.warmth < 35 or guest.needs.energy < 25 or float(guest.needs.get("bladder",0))>=72 or float(guest.needs.get("bowel",0))>=85
 
 static func utility(guest: Dictionary, kind: String) -> float:
 	if not SERVICES.has(kind): return 0
@@ -114,8 +138,16 @@ static func utility(guest: Dictionary, kind: String) -> float:
 	if state.warmth<58: score+=minf(service.warmth,100-state.warmth)*(1.6 if state.warmth<35 else 1.0)
 	if state.energy<55: score+=maxf(0,minf(service.energy,100-state.energy))*(1.4 if state.energy<30 else 0.85)
 	if state.joy<45: score+=minf(service.joy,100-state.joy)*0.7
-	if kind=="rental" and state.rental: score+=75
-	if kind=="school" and state.lesson: score+=65
+	if kind=="rental" and state.rental:score+=75
+	if kind=="school" and state.lesson:score+=65
+	var urgency:float=maxf(float(state.get("bladder",0)),float(state.get("bowel",0)))
+	if kind.begins_with("wc_"):
+		# Do not route low-urgency guests to every available toilet.
+		if urgency<48:return 0.0
+		score+=urgency*1.8 + (25 if urgency>=78 else 0)
+	elif kind in INDOOR_WCS and urgency>=65:
+		# Restaurants and hotels already contain normal, free-to-use toilets.
+		score+=urgency*0.95
 	return score
 
 static func complete(guest: Dictionary, kind: String) -> void:
@@ -126,8 +158,19 @@ static func complete(guest: Dictionary, kind: String) -> void:
 			var amount: float = SERVICES[kind][key]
 			if guest.get("visit_kind", "") == kind and amount > 0: amount = maxf(0, amount - guest.get("visit_benefits", {}).get(key, 0))
 			state[key]=clampf(state[key] + (-amount if key=="hunger" else amount),0,100)
-		if kind=="rental": state.rental=false
-		if kind=="school": state.lesson=false
+		if kind=="rental":state.rental=false
+		if kind=="school":state.lesson=false
+		if kind.begins_with("wc_"):
+			state.bladder=0.0
+			state.bowel=0.0
+		elif kind in INDOOR_WCS and (float(state.get("bladder",0))>=55 or float(state.get("bowel",0))>=75):
+			# Use the included toilet if actually needed; meals/drinks never
+			# reset an untroubled bladder just by visiting a building.
+			state.bladder=0.0
+			state.bowel=0.0
+		# Drinks increase urinary pressure AFTER any needed toilet visit.
+		if kind in ["bar","cocoa","kiosk","disco"]:
+			state.bladder=minf(100.0,float(state.get("bladder",0))+ (16.0 if kind=="bar" else 12.0))
 	aggregate_family(guest)
 	guest.service_history[kind]=guest.age
 	guest.spent=true

@@ -22,6 +22,7 @@ const SnowRender = preload("res://src/world/snow_render.gd")
 const SurfacePicker = preload("res://src/world/surface_picker.gd")
 const WalkSurfaces = preload("res://src/world/walk_surfaces.gd")
 const FootWear = preload("res://src/world/foot_wear.gd")
+const AlpineLake = preload("res://src/world/alpine_lake.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
@@ -102,6 +103,7 @@ var _vehicle_glass: Dictionary = {}
 var _queue_labels: Dictionary = {}
 var _pedestrian_snapshot: Dictionary = {}
 var foot_mesh: MeshInstance3D
+var _lake_root: Node3D
 var _groomers := MultiMeshInstance3D.new()
 var _swimmers := MultiMeshInstance3D.new()
 var _track_timer := 0.0
@@ -411,13 +413,8 @@ func _build_terrain() -> void:
 	terrain_instance.material_override = _relief
 	landscape.add_child(terrain_instance)
 	_build_height_labels()
-	var lake := CylinderMesh.new()
-	lake.top_radius = 53
-	lake.bottom_radius = 53
-	lake.height = 0.6
-	lake.radial_segments = 48
-	var lake_node := _mesh(landscape, lake, Vector3(-260, 7, 255), Color("85aab9"))
-	lake_node.scale.z = 0.62
+	_lake_root = AlpineLake.build(self)
+	landscape.add_child(_lake_root)
 	if model.portal_path.is_empty():
 		_ribbon(landscape, [[185, 490], [185, 335], [185, 230]], 11.0, Color("cbbda8"), 0.25)
 	_label(landscape, "TALZUGANG", terrain.world(Terrain.unpack(model.portal_path[-1]) if not model.portal_path.is_empty() else Terrain.BASE + Vector2(0,65), 8), Color("446774"))
@@ -790,6 +787,7 @@ func rebuild(progress: RefCounted = null) -> void:
 	_vehicle_glass.clear()
 	_queue_labels.clear()
 	_pedestrian_snapshot = model.pedestrian_layout()
+	foot_wear.cover_layout(_pedestrian_snapshot)
 	if progress != null:
 		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
 		await get_tree().process_frame
@@ -1919,6 +1917,14 @@ func set_visual_style(id: String) -> void:
 	# Never reset guest animations, snow tracks, piste meshes, lift fleets or
 	# cached collision geometry just to change the mountain's appearance.
 	forest.apply_style(self)
+	if is_instance_valid(_lake_root): AlpineLake.apply_style(_lake_root,visual_style)
+	if is_instance_valid(foot_mesh):
+		foot_mesh.mesh = WalkSurfaces.new().build(self)
+		foot_mesh.material_override = null
+		if visual_style != "monochrome":
+			var walk_material := ShaderMaterial.new()
+			walk_material.shader = preload("res://src/shaders/walk_surfaces.gdshader")
+			foot_mesh.material_override = walk_material
 	_refresh_architecture()
 	living_assets.restyle(visual_style)
 	_ink_layer.visible=visual_style=="monochrome"

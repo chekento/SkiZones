@@ -226,6 +226,17 @@ jobs:
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/hotel_room_operations_036.gd
           xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 420x860 --script tests/hotel_room_scene_036.gd
+      - name: 0.38 hotel simulator, public WC flow and isolated save manager
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-manager-038
+        run: |
+          for test in hotel_simulator_038 public_wc_038 public_wc_flow_038 save_management_038; do
+            python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd" || exit 1
+          done
+      - name: 0.38 building actions, hotel entry, staff and fullscreen mobile careers
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 330 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/ui_building_career_038.gd
       - name: Integrated 0.35 loans, products, notifications and persistent snow
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-035-release

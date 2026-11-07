@@ -5,6 +5,41 @@ extends RefCounted
 const Catalog = preload("res://src/core/catalog.gd")
 const MAX_LEVEL := 5
 const OFFERS := {
+	"wc_dixi": [
+		{"id":"public_wc","name":"Öffentliche Toilettennutzung","level":1,"price":0,"cost":0,"category":"service","asset":"upgrade-wc_dixi-public_wc"},
+		{"id":"extra_crew","name":"Mehr WC-Kapazität","level":2,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_dixi-extra_crew"},
+		{"id":"large_tank","name":"Größerer Entsorgungstank","level":3,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_dixi-large_tank"},
+		{"id":"hygiene_pack","name":"Verbesserte Hygieneausstattung","level":4,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_dixi-hygiene_pack"},
+		{"id":"premium_upkeep","name":"Optimierte Wartungsabläufe","level":5,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_dixi-premium_upkeep"}
+	],
+	"wc_cabin": [
+		{"id":"public_wc","name":"Öffentliche Toilettennutzung","level":1,"price":0,"cost":0,"category":"service","asset":"upgrade-wc_cabin-public_wc"},
+		{"id":"extra_crew","name":"Mehr WC-Kapazität","level":2,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_cabin-extra_crew"},
+		{"id":"large_tank","name":"Größerer Entsorgungstank","level":3,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_cabin-large_tank"},
+		{"id":"hygiene_pack","name":"Verbesserte Hygieneausstattung","level":4,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_cabin-hygiene_pack"},
+		{"id":"premium_upkeep","name":"Optimierte Wartungsabläufe","level":5,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_cabin-premium_upkeep"}
+	],
+	"wc_module": [
+		{"id":"public_wc","name":"Öffentliche Toilettennutzung","level":1,"price":0,"cost":0,"category":"service","asset":"upgrade-wc_module-public_wc"},
+		{"id":"extra_crew","name":"Mehr WC-Kapazität","level":2,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_module-extra_crew"},
+		{"id":"large_tank","name":"Größerer Entsorgungstank","level":3,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_module-large_tank"},
+		{"id":"hygiene_pack","name":"Verbesserte Hygieneausstattung","level":4,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_module-hygiene_pack"},
+		{"id":"premium_upkeep","name":"Optimierte Wartungsabläufe","level":5,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_module-premium_upkeep"}
+	],
+	"wc_house": [
+		{"id":"public_wc","name":"Öffentliche Toilettennutzung","level":1,"price":0,"cost":0,"category":"service","asset":"upgrade-wc_house-public_wc"},
+		{"id":"extra_crew","name":"Mehr WC-Kapazität","level":2,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_house-extra_crew"},
+		{"id":"large_tank","name":"Größerer Entsorgungstank","level":3,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_house-large_tank"},
+		{"id":"hygiene_pack","name":"Verbesserte Hygieneausstattung","level":4,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_house-hygiene_pack"},
+		{"id":"premium_upkeep","name":"Optimierte Wartungsabläufe","level":5,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_house-premium_upkeep"}
+	],
+	"wc_luxury": [
+		{"id":"public_wc","name":"Öffentliche Toilettennutzung","level":1,"price":0,"cost":0,"category":"service","asset":"upgrade-wc_luxury-public_wc"},
+		{"id":"extra_crew","name":"Mehr WC-Kapazität","level":2,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_luxury-extra_crew"},
+		{"id":"large_tank","name":"Größerer Entsorgungstank","level":3,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_luxury-large_tank"},
+		{"id":"hygiene_pack","name":"Verbesserte Hygieneausstattung","level":4,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_luxury-hygiene_pack"},
+		{"id":"premium_upkeep","name":"Optimierte Wartungsabläufe","level":5,"price":0,"cost":0,"category":"upgrade","asset":"upgrade-wc_luxury-premium_upkeep"}
+	],
 	"cocoa": [
 		{
 			"id": "hot_chocolate",

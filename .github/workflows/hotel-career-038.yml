@@ -1,0 +1,83 @@
+name: 0.38 Hotel, Staffing and Safe Save Manager QA
+on:
+  pull_request:
+    paths:
+      - 'src/core/public_wc.gd'
+      - 'src/core/guest_needs.gd'
+      - 'src/core/catalog.gd'
+      - 'src/core/operations.gd'
+      - 'src/core/hospitality.gd'
+      - 'src/world/alpine_art.gd'
+      - 'src/world/style_assets.gd'
+      - 'src/ui/building_icon.gd'
+      - 'src/ui/building_browser.gd'
+      - 'src/core/hotel_simulator.gd'
+      - 'src/core/hotel_rooms.gd'
+      - 'src/core/save_management_038.gd'
+      - 'src/core/save_store.gd'
+      - 'src/ui/career_slots.gd'
+      - 'src/ui/lift_staff.gd'
+      - 'src/ui/management.gd'
+      - 'src/ui/building_experience.gd'
+      - 'src/core/progression.gd'
+      - 'tests/save_management_038.gd'
+      - 'tests/hotel_simulator_038.gd'
+      - 'tests/public_wc_038.gd'
+      - 'tests/public_wc_flow_038.gd'
+      - 'tests/ui_building_career_038.gd'
+      - 'tests/asset_menu_scene.gd'
+      - 'tests/career_slots_scene.gd'
+      - '.github/workflows/hotel-career-038.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ski038-hotel-saves-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  hotel-career:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Validate imported scripts and DE-EN strings
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          python3 tools/check_localization.py
+      - name: Hotel Simulator, now without a public WC manager
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/hotel_simulator_038.gd
+      - name: Independent public Dixi manager and guest hygiene regression
+        run: |
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/public_wc_038.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/public_wc_flow_038.gd
+      - name: Isolated historical-save copy, corruption and archive
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-manager-038
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_management_038.gd
+      - name: Prepare virtual display for actual responsive UI
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Real hotel, staff and fullscreen careers on desktop and mobile
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 330 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/ui_building_career_038.gd
+      - name: Real mandatory staffing, workshop actions and bilingual asset operation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-assets-038
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/asset_menu_scene.gd
+      - name: Actual career continuation, management protection and restart confirmation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-careers-038
+        run: xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/career_slots_scene.gd

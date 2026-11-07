@@ -20,7 +20,7 @@ func build(view: Node3D) -> void:
 	const MIX := [0, 1, 5, 9, 10, 13, 15, 16, 17, 24, 25, 26, 27, 28, 29, 0, 1, 24, 25, 26, 27, 29, 2, 3, 4, 6, 7, 8, 11, 12, 14, 18, 19, 20, 21, 22, 23]
 	var count := 0
 	for entry in view.forest.available:
-		if count >= 2400: break
+		if count >= 3200: break
 		var point: Vector2 = entry.point
 		if entry.grade > 58 or not view.terrain.bounds.has_point(point): continue
 		var cell := Vector2i((point/192).floor())
@@ -56,13 +56,13 @@ func build(view: Node3D) -> void:
 		var node := MultiMeshInstance3D.new()
 		var mesh: ArrayMesh = Art.new().wildlife(kind)
 		mesh.surface_set_material(0,view._solid)
-		node.multimesh=view._multimesh(mesh,8)
+		node.multimesh=view._multimesh(mesh,16)
 		node.multimesh.visible_instance_count=0
 		root.add_child(node)
 		wildlife_groups.append(node)
 	var per_kind := [0,0,0]
 	for entry in view.forest.available:
-		if animals.size()>=24: break
+		if animals.size()>=42: break
 		if entry.grade>30 or entry.height-view.terrain.height(view.Terrain.BASE)>480: continue
 		var point: Vector2=entry.point
 		var target := point + Vector2.from_angle(point.x*0.4)*14

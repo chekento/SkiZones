@@ -8,6 +8,7 @@ const Branding = preload("res://src/core/radio_branding.gd")
 const FloatingFrame = preload("res://src/ui/floating_window.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const RadioFace = preload("res://src/ui/radio_face.gd")
+const RadioDial = preload("res://src/ui/radio_dial.gd")
 const RAIL := Color("0c1b27")
 const SCREEN := Color("102a35")
 const INK_LIGHT := Color("e8f5ee")
@@ -21,6 +22,7 @@ var ambience_slider := HSlider.new()
 var master_slider := HSlider.new()
 var enabled := CheckButton.new()
 var face := RadioFace.new()
+var dial := RadioDial.new()
 var area_label := Label.new()
 var station_info := Label.new()
 var playing_label := Label.new()
@@ -59,6 +61,15 @@ func _radio_button(parent: Node, text: String, callback: Callable, emphasized: b
 	button.add_theme_stylebox_override("pressed",hud._style(Color("85c8b6"),12,8))
 	return button
 
+func _icon_button(parent: Node, asset: String, callback: Callable, tooltip: String, emphasized: bool = false) -> Button:
+	var button := _radio_button(parent,"",callback,emphasized)
+	button.icon = load("res://assets/radio/controls/" + asset + ".svg")
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.expand_icon = true
+	button.custom_minimum_size = Vector2(62,62)
+	button.tooltip_text = L.text(tooltip)
+	return button
+
 func setup(owner_hud: CanvasLayer) -> void:
 	hud=owner_hud
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -91,11 +102,11 @@ func setup(owner_hud: CanvasLayer) -> void:
 	identity_title.max_lines_visible=-1
 	identity_title.text_overrun_behavior=TextServer.OVERRUN_NO_TRIMMING
 	_label(identity,L.text("15 SENDER · OFFLINE"),11,Color("8bb9ba"))
-	power_button=_radio_button(top,L.text("⏻ EIN/AUS"),func(): _set_power(not enabled.button_pressed),true)
-	power_button.custom_minimum_size.x=86
+	power_button=_icon_button(top,"power",func(): _set_power(not enabled.button_pressed), "Radio sofort ein- oder ausschalten",true)
+	power_button.custom_minimum_size.x=72
 	power_button.size_flags_vertical=Control.SIZE_SHRINK_CENTER
 	power_button.tooltip_text=L.text("Radio sofort einschalten oder ausschalten")
-	face.custom_minimum_size.y=132
+	face.custom_minimum_size.y=156
 	face.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	radio.add_child(face)
 	var now_panel: PanelContainer=_panel(radio,SCREEN,13)
@@ -109,40 +120,47 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var tuning: HBoxContainer=HBoxContainer.new()
 	tuning.add_theme_constant_override("separation",8)
 	radio.add_child(tuning)
-	station_left=_radio_button(tuning,"◀",func(): _step_station(-1))
+	station_left=_icon_button(tuning,"previous",func(): _step_station(-1),"Vorheriger Sender")
 	station_left.tooltip_text=L.text("Vorherigen Sender wählen")
-	station_left.custom_minimum_size.x=60
+	station_left.custom_minimum_size.x=62
+	dial.size_flags_horizontal=Control.SIZE_SHRINK_CENTER
+	dial.tuned.connect(_step_station)
+	dial.tooltip_text=L.text("Sendersuchrad drehen, wischen oder anklicken")
+	tuning.add_child(dial)
 	station_counter=_label(tuning,"",15,Color("dce9e2"))
 	station_counter.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	station_counter.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-	station_right=_radio_button(tuning,"▶",func(): _step_station(1))
+	station_right=_icon_button(tuning,"next",func(): _step_station(1),"Nächster Sender")
 	station_right.tooltip_text=L.text("Nächsten Sender wählen")
-	station_right.custom_minimum_size.x=60
+	station_right.custom_minimum_size.x=62
 	station_info=_label(radio,"",14,Color("a7c9ce"))
 	station_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var transport := HFlowContainer.new()
 	transport.add_theme_constant_override("h_separation",9)
 	transport.add_theme_constant_override("v_separation",7)
 	radio.add_child(transport)
-	skip_button=_radio_button(transport,L.text("⏭ NÄCHSTER TITEL"),func():
+	skip_button=_radio_button(transport,L.text("NÄCHSTER TITEL"),func():
 		hud.game.audio.next_track()
 		_update_now_playing()
 	)
+	skip_button.icon=load("res://assets/radio/controls/skip.svg")
+	skip_button.expand_icon=true
 	skip_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	skip_button.tooltip_text=L.text("Zum nächsten Titel dieses Senders springen")
-	credits_button=_radio_button(transport,L.text("ⓘ CREDITS"),_toggle_credits)
+	credits_button=_radio_button(transport,L.text("CREDITS"),_toggle_credits)
+	credits_button.icon=load("res://assets/radio/controls/info.svg")
 	credits_button.tooltip_text=L.text("Musik- und Lizenzquellen dieses Senders zeigen")
 	var bank: PanelContainer=_panel(radio,Color("132d39"))
 	var bank_stack: VBoxContainer=hud._vbox(bank,8)
 	_label(bank_stack,L.text("DEINE SENDERPRESETS · LOGO ANTIPPEN"),14,Color("b3dce0"))
 	var preset_scroll:=DragScroll.new()
-	preset_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
-	preset_scroll.custom_minimum_size.y=177
+	preset_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
+	preset_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	preset_scroll.custom_minimum_size.y=88
 	preset_scroll.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	bank_stack.add_child(preset_scroll)
-	var presets: HFlowContainer=HFlowContainer.new()
-	presets.add_theme_constant_override("h_separation",8)
-	presets.add_theme_constant_override("v_separation",8)
+	var presets: HBoxContainer=HBoxContainer.new()
+	presets.add_theme_constant_override("separation",10)
 	preset_scroll.add_child(presets)
 	for id in Design.GENRES:
 		if id=="off": continue
@@ -184,7 +202,7 @@ func _add_preset(parent: Node, id: String) -> void:
 	button.text=""
 	button.tooltip_text=L.text(str(Design.GENRE_NAMES[id]))
 	button.focus_mode=Control.FOCUS_NONE
-	button.custom_minimum_size=Vector2(174,60)
+	button.custom_minimum_size=Vector2(178,70)
 	button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	parent.add_child(button)
 	var row:=HBoxContainer.new()
@@ -223,7 +241,7 @@ func _add_volume_row(parent: VBoxContainer, id: String, slider: HSlider, caption
 	var row:HBoxContainer=HBoxContainer.new()
 	row.add_theme_constant_override("separation",10)
 	block.add_child(row)
-	var minus:Button=_radio_button(row,"−",func(): _adjust(slider,-PAD))
+	var minus:Button=_icon_button(row,"minus",func(): _adjust(slider,-PAD),"Lautstärke verringern")
 	minus.custom_minimum_size.x=52
 	minus.tooltip_text=L.text("Lautstärke verringern")
 	var meter:ProgressBar=ProgressBar.new()
@@ -234,7 +252,7 @@ func _add_volume_row(parent: VBoxContainer, id: String, slider: HSlider, caption
 	meter.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	row.add_child(meter)
 	volume_meters[id]=meter
-	var plus:Button=_radio_button(row,"+",func(): _adjust(slider,PAD))
+	var plus:Button=_icon_button(row,"plus",func(): _adjust(slider,PAD),"Lautstärke erhöhen")
 	plus.custom_minimum_size.x=52
 	plus.tooltip_text=L.text("Lautstärke erhöhen")
 
@@ -327,6 +345,9 @@ func _update_now_playing() -> void:
 	face.set_station(station if station!="off" else _station_last)
 	var track:String=str(info.get("title",""))
 	var artist:String=str(info.get("artist",""))
+	face.set_track(track,artist)
+	dial.active=enabled.button_pressed and station!="off"
+	dial.queue_redraw()
 	if station=="off" or not enabled.button_pressed:playing_label.text=L.text("RADIO AUS · mit dem Power-Knopf einschalten")
 	elif muted:playing_label.text=L.text("STUMM · Musik- oder Gesamtlautstärke erhöhen")
 	else:
@@ -337,13 +358,14 @@ func _update_now_playing() -> void:
 	if playing and not moment.is_empty():playing_label.tooltip_text+="\n"+L.text("Bergmoment: ")+moment
 	if str(info.get("context",""))=="hotel_lobby":
 		playing_label.text+="\n"+L.text("Hotelverwaltung · Lobby-Radio ist nur vorübergehend aktiv.")
-	power_button.text=L.text("⏻ EIN") if enabled.button_pressed and station!="off" else L.text("⏻ AUS")
+	power_button.modulate=Color("ffffff") if enabled.button_pressed and station!="off" else Color("9baab2")
+	power_button.tooltip_text=L.text("Radio ausschalten") if enabled.button_pressed and station!="off" else L.text("Radio einschalten")
 	skip_button.disabled=not playing
 	_update_dials()
 
 func _toggle_credits() -> void:
 	credits_label.visible=not credits_label.visible
-	credits_button.text=L.text("ⓘ ZUKLAPPEN") if credits_label.visible else L.text("ⓘ CREDITS")
+	credits_button.text=L.text("ZUKLAPPEN") if credits_label.visible else L.text("CREDITS")
 	if credits_label.visible:_update_credits()
 
 func _update_credits() -> void:

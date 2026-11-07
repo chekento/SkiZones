@@ -8865,3 +8865,759 @@ msgstr "Waypoints"
 
 msgid "%s · %.0f m\n8 m breit · Bau: %s €"
 msgstr "%s · %.0f m\n8 m wide · Build: %s €"
+
+msgid "SCAN / WÄHLE SENDER"
+msgstr "SCAN / CHOOSE STATION"
+
+msgid "RADIO AUS"
+msgstr "RADIO OFF"
+
+msgid "Radio sofort ein- oder ausschalten"
+msgstr "Turn radio on or off immediately"
+
+msgid "Vorheriger Sender"
+msgstr "Previous station"
+
+msgid "Sendersuchrad drehen, wischen oder anklicken"
+msgstr "Rotate, swipe, or tap the tuning wheel"
+
+msgid "Nächster Sender"
+msgstr "Next station"
+
+msgid "NÄCHSTER TITEL"
+msgstr "NEXT TRACK"
+
+msgid "CREDITS"
+msgstr "CREDITS"
+
+msgid "Radio ausschalten"
+msgstr "Turn radio off"
+
+msgid "Radio einschalten"
+msgstr "Turn radio on"
+
+msgid "ZUKLAPPEN"
+msgstr "COLLAPSE"
+
+msgid "Alpine Lake"
+msgstr "Alpine Lake"
+
+msgid "Water"
+msgstr "Water"
+
+msgid "Shoreline"
+msgstr "Shoreline"
+
+msgid "Rezeption & Buchungen"
+msgstr "Reception & bookings"
+
+msgid "Housekeeping & Zimmer"
+msgstr "Housekeeping & rooms"
+
+msgid "Frühstück & Gästeservice"
+msgstr "Breakfast & guest services"
+
+msgid "Toiletten & Hygiene"
+msgstr "Restrooms & hygiene"
+
+msgid "Zimmerpreise & Ertrag"
+msgstr "Room rates & earnings"
+
+msgid "Sanitärbetrieb ist bereits aktiv."
+msgstr "Restroom operations are already active."
+
+msgid "Sanitärbetrieb mit WC-Kapazität und Hygiene aktiviert."
+msgstr "Restroom service with capacity and hygiene monitoring activated."
+
+msgid "Zuerst den Sanitärbetrieb aktivieren."
+msgstr "Activate restroom operations first."
+
+msgid "Alle Toiletten sind bereits sauber."
+msgstr "All restrooms are already clean."
+
+msgid "Für die WC-Reinigung reicht das Budget nicht."
+msgstr "Not enough funds for restroom cleaning."
+
+msgid "Sanitäranlagen gereinigt · %d € Material und Arbeitsaufwand."
+msgstr "Restrooms cleaned · €%d for supplies and labor."
+
+msgid "Maximale Sanitärkapazität erreicht."
+msgstr "Maximum restroom capacity reached."
+
+msgid "Forschungszweig Sanitärtechnik zuerst freischalten."
+msgstr "Unlock the Sanitation Technology research branch first."
+
+msgid "Für neue Sanitäranlagen reicht das Budget nicht."
+msgstr "Not enough funds to add restrooms."
+
+msgid "Eine zusätzliche WC-Einheit ist verfügbar · %d € investiert."
+msgstr "One additional restroom unit available · €%d invested."
+
+msgid "Unbekannte Sanitäraktion."
+msgstr "Unknown restroom operation."
+
+msgid "Die heutige Hotelschicht ist abgeschlossen. Morgen warten neue Aufgaben."
+msgstr "Today's hotel shift is complete. New tasks await tomorrow."
+
+msgid "Ein neuer Ankunftstag beginnt. Wie organisierst du die Rezeption?"
+msgstr "A new arrival day begins. How will you organize reception?"
+
+msgid "%d freie Zimmer · %d bestehende Buchungen · %d ungeklärte Zimmer"
+msgstr "%d available rooms · %d existing bookings · %d rooms without assignments"
+
+msgid "Kapazität prüfen und Ankünfte koordinieren"
+msgstr "Check capacity and coordinate arrivals"
+
+msgid "Zusätzlichen Gästeservice organisieren · 120 €"
+msgstr "Arrange extra guest service · €120"
+
+msgid "Ohne Prüfung abwarten"
+msgstr "Wait without checking"
+
+msgid "Der Zimmerdienst beginnt. Wie bereitest du die nächsten Buchungen vor?"
+msgstr "Housekeeping begins. How will you prepare for upcoming bookings?"
+
+msgid "%d Zimmer zu reinigen · %d nutzbar"
+msgstr "%d rooms to clean · %d ready"
+
+msgid "Ein schmutziges Zimmer reinigen · 8 €"
+msgstr "Clean one dirty room · €8"
+
+msgid "Alle freien Zimmer reinigen · Kosten nach Bedarf"
+msgstr "Clean all vacant rooms · cost based on need"
+
+msgid "Reinigung verschieben"
+msgstr "Postpone cleaning"
+
+msgid "Vor dem ersten Liftbetrieb braucht dein Hotel einen Serviceplan."
+msgstr "Your hotel needs a service plan before the lifts open."
+
+msgid "Frühstück: %s · Sauberkeit %.0f %%"
+msgstr "Breakfast: %s · cleanliness %.0f %%"
+
+msgid "Frühstück und warmen Empfang anbieten"
+msgstr "Offer breakfast and a warm welcome"
+
+msgid "Frühstücksangebot deaktivieren"
+msgstr "Disable breakfast service"
+
+msgid "Servicequalitätsschulung · 85 €"
+msgstr "Service training · €85"
+
+msgid "Die Sanitäranlagen müssen Gästeansturm und Hygiene standhalten."
+msgstr "Restrooms must meet guest demand and hygiene standards."
+
+msgid "%d WCs · Nachfrage %d · Kapazität %d · Hygiene %.0f %%"
+msgstr "%d restrooms · demand %d · capacity %d · hygiene %.0f %%"
+
+msgid "WCs reinigen · Kosten nach Kapazität"
+msgstr "Clean restrooms · cost based on capacity"
+
+msgid "Sanitärkapazität ausbauen"
+msgstr "Expand restroom capacity"
+
+msgid "Sanitärdienst aussetzen"
+msgstr "Pause restroom service"
+
+msgid "Der Tagesabschluss: Welche Zimmerpreisstrategie wählst du?"
+msgstr "End-of-day review: which pricing strategy will you choose?"
+
+msgid "%d/%d Zimmer · aktueller Preis %.0f € · Prognose %.0f €/Tag"
+msgstr "%d/%d rooms · current rate €%.0f · forecast €%.0f/day"
+
+msgid "Attraktiven Tarif setzen · −10 %"
+msgstr "Set an attractive rate · −10%"
+
+msgid "Kostenorientierten Tarif berechnen"
+msgstr "Calculate a cost-based rate"
+
+msgid "Premiumpreis setzen · +10 %"
+msgstr "Set a premium rate · +10%"
+
+msgid "Die Hotelschicht ist nicht mehr aktiv."
+msgstr "This hotel shift is no longer active."
+
+msgid "Das Hotel ist nicht mehr verfügbar."
+msgstr "The hotel is no longer available."
+
+msgid "Diese Hotelschicht wurde bereits abgerechnet."
+msgstr "This hotel shift was already settled."
+
+msgid "Buchungen und freie Zimmer geprüft. Keine Doppelbelegung."
+msgstr "Bookings and vacant rooms checked. No double bookings."
+
+msgid "Für zusätzlichen Gästeservice reichen 120 € nicht."
+msgstr "Not enough funds for €120 in additional guest service."
+
+msgid "Zusätzliche Rezeptionsbetreuung bezahlt; Servicebewertung verbessert."
+msgstr "Extra reception staffing paid for; guest service rating improved."
+
+msgid "Ankünfte bleiben ungeprüft; keine Buchung wurde verändert."
+msgstr "Arrivals remain unchecked; no bookings changed."
+
+msgid "Alle verfügbaren Zimmer sind bereits sauber und buchbar."
+msgstr "All available rooms are already clean and bookable."
+
+msgid "Zimmerreinigung verschoben; ungereinigte Zimmer bleiben gesperrt."
+msgstr "Room cleaning postponed; dirty rooms remain unavailable."
+
+msgid "Für die Serviceschulung reichen 85 € nicht."
+msgstr "Not enough funds for €85 service training."
+
+msgid "Team geschult: Hotelhygiene und Gästebewertung steigen."
+msgstr "Team trained: hotel hygiene and guest rating improve."
+
+msgid "Die Sanitäranlagen sind bereits vollständig gereinigt."
+msgstr "The restrooms are already completely clean."
+
+msgid "Hygiene bleibt unverändert. Bei hoher Belastung sinkt sie weiter."
+msgstr "Hygiene unchanged. Heavy use will reduce it further."
+
+msgid "Zimmerpreis ist auf %d € je Nacht eingestellt. Neue Buchungen verwenden den Tarif."
+msgstr "Room rate set to €%d per night. New bookings use this rate."
+
+msgid "Schicht abgeschlossen · %d / 125 Punkte · echte Betriebsentscheidungen gespeichert."
+msgstr "Shift complete · %d / 125 points · real operating decisions saved."
+
+msgid "Nur auf einen anderen Platz desselben Spielmodus kopieren."
+msgstr "Copy only to a different slot in the same game mode."
+
+msgid "Das Resort ist auf dem Zielplatz bereits vorhanden."
+msgstr "This resort already exists in the destination slot."
+
+msgid "Kopieren fehlgeschlagen. Original unverändert."
+msgstr "Copy failed. The original is unchanged."
+
+msgid "Kopie nicht lesbar. Ziel zurückgesetzt."
+msgstr "Copy unreadable. The destination was reset."
+
+msgid "Resort kopiert. Beide Spielstände bleiben erhalten."
+msgstr "Resort copied. Both saves have been preserved."
+
+msgid "Keine vollständig ladbare Quelle. Original bleibt erhalten."
+msgstr "No fully loadable source found. Original preserved."
+
+msgid "Ungültiger Spielstand."
+msgstr "Invalid save slot."
+
+msgid "Keine Dateien zum Archivieren vorhanden."
+msgstr "No files available for archiving."
+
+msgid "Archiv konnte nicht erstellt werden."
+msgstr "Could not create the archive."
+
+msgid "Archivprüfung fehlgeschlagen. Original bleibt bestehen."
+msgstr "Archive verification failed. Original is preserved."
+
+msgid "Archiv angelegt, eine Quelldatei konnte nicht entfernt werden."
+msgstr "Archive created, but a source file could not be removed."
+
+msgid "Resort entfernt und Originaldateien vollständig archiviert."
+msgstr "Resort removed and all original files safely archived."
+
+msgid "Sanitärtechnik"
+msgstr "Sanitation Technology"
+
+msgid "Hotel-WCs erweitern: mehr Kapazität, kürzere Warteschlangen und planbarer Hygienedienst."
+msgstr "Expand hotel restrooms: more capacity, shorter queues and planned cleaning."
+
+msgid "Schnee & Gelände"
+msgstr "Snow & terrain"
+
+msgid "Pistenpräparierung und Bergwetter"
+msgstr "Slope maintenance and mountain weather"
+
+msgid "Lifte & Mobilität"
+msgstr "Lifts & mobility"
+
+msgid "Förderleistung und Seilbahn-Technologie"
+msgstr "Lift capacity and cable transport technology"
+
+msgid "Gäste & Hotelentwicklung"
+msgstr "Guests & hotel development"
+
+msgid "Gästekomfort, Sanitärtechnik und Hotellerie"
+msgstr "Guest comfort, sanitation and hospitality"
+
+msgid "Destination & Vermarktung"
+msgstr "Destination & marketing"
+
+msgid "Reichweite, Gästegruppen und Nachfrage"
+msgstr "Reach, visitor groups and demand"
+
+msgid "Forschungspunkte: %d  ·  ein Projekt gleichzeitig"
+msgstr "Research points: %d · one project at a time"
+
+msgid "Entwicklungszweige mit echten Voraussetzungen. Erforschte Projekte aus früheren Versionen bleiben erhalten."
+msgstr "Development branches with actual prerequisites. Research completed in earlier versions is preserved."
+
+msgid "%d / %d abgeschlossen"
+msgstr "%d / %d completed"
+
+msgid "Benötigt: %s"
+msgstr "Requires: %s"
+
+msgid "%s € · %d FP · %d Tage"
+msgstr "€%s · %d RP · %d days"
+
+msgid "In Arbeit"
+msgstr "In progress"
+
+msgid "Hotel-Simulator"
+msgstr "Hotel simulator"
+
+msgid "HOTEL SIMULATOR · DEIN BETRIEB"
+msgstr "HOTEL SIMULATOR · YOUR BUSINESS"
+
+msgid "Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Sanitär und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."
+msgstr "Five real management stages: reception, housekeeping, breakfast, sanitation and rates. Your decisions affect existing rooms, guests, prices, cleanliness and the operating budget."
+
+msgid "Belegung %d/%d · frei %d · Reinigung %d · Bewertung %.1f ★"
+msgstr "Occupancy %d/%d · free %d · cleaning %d · rating %.1f ★"
+
+msgid "Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag · WC-Hygiene %.0f %%"
+msgstr "Revenue forecast €%s/day · planned costs €%s/day · restroom hygiene %.0f %%"
+
+msgid "Deine heutige Hotelschicht"
+msgstr "Today's hotel shift"
+
+msgid "Schicht für heute abgeschlossen · %d Punkte. Morgen gibt es neue Aufgaben."
+msgstr "Shift completed for today · %d points. New tasks tomorrow."
+
+msgid "Bis dahin kannst du weiterhin Zimmer verwalten, Toiletten reinigen, Preise ändern und Module anbauen."
+msgstr "Meanwhile, you can still manage rooms, clean restrooms, change rates and add modules."
+
+msgid "Ein vollständiger Arbeitstag verbindet fünf operative Entscheidungen. Jede Entscheidung wirkt sofort; du kannst den Ablauf nicht durch Schließen zurücksetzen."
+msgstr "A complete hotel shift includes five operating decisions. Each takes effect immediately; closing the window cannot reset progress."
+
+msgid "Hotelschicht beginnen"
+msgstr "Start hotel shift"
+
+msgid "Station %d / 5 · %d Punkte"
+msgstr "Stage %d / 5 · %d points"
+
+msgid "Deine heutige Hotelschicht ist abgeschlossen."
+msgstr "Your hotel shift is complete."
+
+msgid "Die echte Buchungs- und Zimmerbelegung bleibt geschützt. Für Ausgaben muss Budget vorhanden sein."
+msgstr "Existing room bookings remain protected. Expenses require sufficient funds."
+
+msgid "Sanitär & WCs"
+msgstr "Restrooms & sanitation"
+
+msgid "Toilettenmanager · erster Ausbauzweig"
+msgstr "Restroom manager · first development branch"
+
+msgid "Der Sanitärdienst hat eigene WC-Kapazität und einen Hygienezustand. Die Nachfrage richtet sich nach tatsächlich belegten Zimmern und Tagesbesuchen."
+msgstr "The restroom service has its own capacity and hygiene level. Demand depends on occupied rooms and actual visits."
+
+msgid "WC-Einheiten %d · Bedarf %d · Kapazität %d · rechnerische Warteschlange %d"
+msgstr "Restroom units %d · demand %d · capacity %d · estimated queue %d"
+
+msgid "Hygiene %.0f %% · Verschleiß durch tatsächliche Nutzung am nächsten Betriebstag"
+msgstr "Hygiene %.0f %% · wear from actual usage during the next operating day"
+
+msgid "Sanitärbetrieb aktivieren"
+msgstr "Enable sanitation service"
+
+msgid "Toiletten reinigen · %s €"
+msgstr "Clean restrooms · €%s"
+
+msgid "Eine WC-Einheit ergänzen · %s €"
+msgstr "Add a restroom unit · €%s"
+
+msgid "Entwicklungszweig Gäste & Hotelentwicklung → Sanitärtechnik erforschen, um zusätzliche WCs zu bauen."
+msgstr "Research Guests & Hotel Development → Sanitation Technology to add restrooms."
+
+msgid "Hygiene unter 75 %% oder zu geringe Kapazität verschlechtert die Hotel-Sauberkeitsbewertung. Einheiten werden im bestehenden Hotel ausgebaut, ohne alte Gebäude zu versetzen."
+msgstr "Hygiene below 75% or insufficient capacity reduces hotel cleanliness. Units expand inside the existing building without moving it."
+
+msgid "Resort sicher archivieren?"
+msgstr "Archive resort safely?"
+
+msgid "Archivieren und aus Platz entfernen"
+msgstr "Archive and remove from slot"
+
+msgid "Original und Sicherung werden vor dem Entfernen vollständig kopiert und überprüft."
+msgstr "Original and backup are fully copied and verified before removal."
+
+msgid "Aktives Resort: vor dem Archivieren einen anderen Spielstand laden."
+msgstr "Active resort: load another save before archiving."
+
+msgid "Prüfen & retten"
+msgstr "Check & recover"
+
+msgid "Keine Datei gefunden."
+msgstr "No file found."
+
+msgid "%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar"
+msgstr "%d files · %d verified · %d loadable · %d recoverable"
+
+msgid "Prüfung fehlgeschlagen: Originaldateien erhalten."
+msgstr "Check failed: original files preserved."
+
+msgid "Platz %d"
+msgstr "Slot %d"
+
+msgid "Kopieren"
+msgstr "Copy"
+
+msgid "Archivieren"
+msgstr "Archive"
+
+msgid "Mit geprüfter Sicherung aus diesem Platz entfernen."
+msgstr "Remove from slot after creating a verified archive."
+
+msgid "AUSBAUSTUFE  %d  ·  STATUS  %s"
+msgstr "UPGRADE LEVEL  %d  ·  STATUS  %s"
+
+msgid "Geschlossen"
+msgstr "Closed"
+
+msgid "Hotel-Simulator · Zimmer & WCs"
+msgstr "Hotel simulator · rooms & restrooms"
+
+msgid "Gebäude betreten · Spiele & Betrieb"
+msgstr "Enter building · games & operations"
+
+msgid "Ausbau · Stufe %d · %s €"
+msgstr "Upgrade · level %d · €%s"
+
+msgid "Name, Farbe & Standort bearbeiten"
+msgstr "Edit name, color & location"
+
+msgid "Gefahrenzone · dauerhaft"
+msgstr "Danger zone · permanent"
+
+msgid "Abbau mit 25 % Erstattung erfordert eine gesonderte Bestätigung."
+msgstr "Demolition with 25% refund requires separate confirmation."
+
+msgid "Anlage abbauen"
+msgstr "Demolish facility"
+
+msgid "PFLICHTTEAM  %d/%d  ·  WARTEGÄSTE  %d  ·  AUSLASTUNG  %d"
+msgstr "REQUIRED CREW  %d/%d  ·  WAITING  %d  ·  RIDERS  %d"
+
+msgid "GÄSTE  %d/%d  ·  BESUCHE  %d  ·  UMSATZ  %s €"
+msgstr "GUESTS  %d/%d  ·  VISITS  %d  ·  SALES  €%s"
+
+msgid "KOSTEN  %s €  ·  SALDO  %s €"
+msgstr "COSTS  €%s  ·  BALANCE  €%s"
+
+msgid "Pflichtbesetzung %d · zusätzliche Liftbedienung freiwillig"
+msgstr "Minimum staffing %d · additional lift operators optional"
+
+msgid "+ Optionale Liftkraft · 180 €"
+msgstr "+ Optional lift operator · €180"
+
+msgid "Keine Pflichtstellen"
+msgstr "No mandatory positions"
+
+msgid "Dieses Gebäude läuft ohne Mindestpersonal. Freiwillige Verstärkung ist möglich."
+msgstr "This building has no minimum staffing requirement. Optional support is available."
+
+msgid "Pflichtstellen besetzen · %d Personen · %d €"
+msgstr "Fill required roles · %d people · €%d"
+
+msgid "PFLICHT · "
+msgstr "REQUIRED · "
+
+msgid "Zusätzliche Besetzung"
+msgstr "Extra staffing"
+
+msgid "Maximal drei Zusatzkräfte pro Rolle und Schicht."
+msgstr "Maximum three additional employees per role and shift."
+
+msgid "FREIWILLIGE ZUSATZKRÄFTE"
+msgstr "OPTIONAL STAFF"
+
+msgid "Zusätzliche Kräfte erhöhen die Reserve, ersetzen aber keine vorgeschriebene Mindestbesetzung. Jede Einstellung kostet 180 € plus Stundenlohn."
+msgstr "Additional staff increase backup capacity but do not replace mandatory staffing. Each hire costs €180 plus hourly pay."
+
+msgid "%s · optional %d/%d · %.0f €/h"
+msgstr "%s · optional %d/%d · €%.0f/h"
+
+msgid "+ Einstellen · 180 €  |  "
+msgstr "+ Hire · €180  |  "
+
+msgid "BESUCHE  %d  ·  PLÄTZE  %d/%d\nUMSATZ  %s €\nKOSTEN  %s €\nERGEBNIS  %s €"
+msgstr "VISITS  %d  ·  CAPACITY  %d/%d\nSALES  €%s\nCOSTS  €%s\nPROFIT  €%s"
+
+msgid "Hauptspielstand vollständig ladbar. Keine Reparatur nötig."
+msgstr "Main save is fully loadable. No repair needed."
+
+msgid "Rettungskopie konnte nicht geschrieben werden."
+msgstr "Could not write recovery copy."
+
+msgid "Rettungskopie ist beschädigt; Original bleibt bestehen."
+msgstr "Recovery copy is damaged; original is preserved."
+
+msgid "Original konnte nicht gesichert werden."
+msgstr "Could not back up the original."
+
+msgid "Rettung konnte nicht aktiviert werden. Sicherung bleibt erhalten."
+msgstr "Could not activate the recovered save. Backup is preserved."
+
+msgid "Spielstand aus geprüfter Sicherung wiederhergestellt. Original wurde archiviert."
+msgstr "Save restored from verified backup. Original was archived."
+
+msgid "Keine vollständig ladbare Sicherung gefunden. Dateien bleiben unverändert."
+msgstr "No fully loadable backup found. Files remain unchanged."
+
+msgid "Backup retten"
+msgstr "Restore backup"
+
+msgid "Aktives Resort: zuerst einen anderen Spielstand laden."
+msgstr "Active resort: load another save first."
+
+msgid "Die Hotelschicht wurde bereits verändert. Bitte erneut öffnen."
+msgstr "The hotel shift has already changed. Reopen it to resume."
+
+msgid "Eine öffentliche WC-Anlage auswählen."
+msgstr "Select a public restroom facility."
+
+msgid "Die öffentlichen Toiletten sind bereits sauber."
+msgstr "The public restrooms are already clean."
+
+msgid "Der Fäkalientank ist bereits leer."
+msgstr "The waste tank is already empty."
+
+msgid "Frostschutz ist bereits installiert."
+msgstr "Frost protection is already installed."
+
+msgid "Forschung Frostsichere Entsorgung ist erforderlich."
+msgstr "Research Frost-Proof Waste Management first."
+
+msgid "Unbekannte Toilettenaktion."
+msgstr "Unknown restroom action."
+
+msgid "Das Budget reicht für diesen WC-Service nicht."
+msgstr "Not enough money for this restroom service."
+
+msgid "Öffentlicher Toilettenservice ausgeführt · %d €."
+msgstr "Public restroom serviced · €%d."
+
+msgid "Dixi-Toilette · Blau"
+msgstr "Portable Toilet · Blue"
+
+msgid "Günstiges mobiles WC für Liftplätze, Pistenränder und den Winterbetrieb. Tankentleerung und Reinigung sind separat."
+msgstr "Inexpensive portable restroom for lift queues, slope edges and winter operations. Tank disposal and cleaning are separate."
+
+msgid "Winter-WC-Kabine"
+msgstr "Winter Restroom Cabin"
+
+msgid "Zwei robuste WC-Kabinen mit mehr Kapazität und günstiger Wartung."
+msgstr "Two robust toilet stalls with greater capacity and affordable maintenance."
+
+msgid "Sanitär-Container"
+msgstr "Restroom Container"
+
+msgid "Vier zugängliche Toiletten mit Ver- und Entsorgungsservice."
+msgstr "Four accessible restroom stalls with water and waste servicing."
+
+msgid "Alpines WC-Haus"
+msgstr "Alpine Restroom House"
+
+msgid "Beheizbares Sanitärhaus mit hoher Besucherleistung."
+msgstr "Heatable restroom house with high visitor throughput."
+
+msgid "Luxus-Sanitärzentrum"
+msgstr "Luxury Restroom Centre"
+
+msgid "Großes Premium-WC mit besonders viel Kapazität, Service und Komfort."
+msgstr "Large premium restroom facility with extensive capacity, service and comfort."
+
+msgid "Sanitär & Infrastruktur"
+msgstr "Sanitation & Infrastructure"
+
+msgid "Öffentliche Sanitär-Container freischalten. Hotels und Restaurants haben bereits eigene Toiletten."
+msgstr "Unlock public restroom containers. Hotels and restaurants already include their own toilets."
+
+msgid "Mobile WC-Logistik"
+msgstr "Mobile Restroom Logistics"
+
+msgid "Winter-WC-Kabinen mit zwei Plätzen freischalten."
+msgstr "Unlock winter restroom cabins with two stalls."
+
+msgid "Frostsichere Entsorgung"
+msgstr "Frost-Proof Waste Management"
+
+msgid "Winterisolierung für öffentliche Toiletten aktivieren."
+msgstr "Unlock winter insulation for public restrooms."
+
+msgid "Sanitärhygiene"
+msgstr "Sanitary Hygiene"
+
+msgid "Alpine WC-Häuser mit acht Plätzen freischalten."
+msgstr "Unlock alpine restroom houses with eight stalls."
+
+msgid "Premium-Sanitärversorgung"
+msgstr "Premium Restroom Services"
+
+msgid "Luxus-Sanitärzentrum mit höherer Kapazität freischalten."
+msgstr "Unlock high-capacity luxury restroom facilities."
+
+msgid "Gästekomfort und Hotellerie"
+msgstr "Guest comfort and hospitality"
+
+msgid "Öffentliche Sanitäranlagen"
+msgstr "Public Sanitation"
+
+msgid "Dixi-Toiletten, Entsorgung, Frostschutz und Komfort"
+msgstr "Portable restrooms, waste disposal, frost protection and comfort"
+
+msgid "Gästekomfort & Service"
+msgstr "Guest Comfort & Service"
+
+msgid "Wie verbesserst du heute den Komfort deiner Hotelgäste?"
+msgstr "How will you improve hotel guest comfort today?"
+
+msgid "Zimmerkomfort %d/5 · Bewertung %.1f ★ · Sauberkeit %.0f %%"
+msgstr "Room comfort %d/5 · rating %.1f ★ · cleanliness %.0f %%"
+
+msgid "Gästezufriedenheit prüfen"
+msgstr "Review guest satisfaction"
+
+msgid "Zimmerkomfort aufwerten"
+msgstr "Upgrade room comfort"
+
+msgid "Service- und Empfangsschulung · 85 €"
+msgstr "Service and reception training · €85"
+
+msgid "Zimmerkomfort, Gästezufriedenheit und Serviceleistungen wurden geprüft."
+msgstr "Room comfort, satisfaction and guest services have been reviewed."
+
+msgid "Empfang geschult: Gästebewertung verbessert."
+msgstr "Reception team trained: guest rating improved."
+
+msgid "Öffentliche Toiletten"
+msgstr "Public Restrooms"
+
+msgid "WC-MANAGER · MOBIL & ÖFFENTLICH"
+msgstr "RESTROOM MANAGER · PORTABLE & PUBLIC"
+
+msgid "Eigenständige Dixi-, Container- und Sanitärhäuser. Toiletten in Hotels und Restaurants sind bereits inklusive."
+msgstr "Independent portable restrooms, containers and sanitation houses. Hotels and restaurants already include their own toilets."
+
+msgid "PLÄTZE  %d  ·  WARTEND  %d  ·  BESUCHE  %d"
+msgstr "STALLS  %d  ·  WAITING  %d  ·  VISITS  %d"
+
+msgid "HYGIENE  %.0f %%  ·  TANK  %.0f %%"
+msgstr "HYGIENE  %.0f %%  ·  TANK  %.0f %%"
+
+msgid "BETRIEB  %s"
+msgstr "STATUS  %s"
+
+msgid "Reinigung oder Entleerung nötig"
+msgstr "Cleaning or tank emptying required"
+
+msgid "SERVICE & ENTSORGUNG"
+msgstr "SERVICE & WASTE DISPOSAL"
+
+msgid "Reinigen · %s €"
+msgstr "Clean · €%s"
+
+msgid "Tank entleeren · %s €"
+msgstr "Empty tank · %s €"
+
+msgid "Frostschutz einbauen · %s €"
+msgstr "Install frost protection · €%s"
+
+msgid "Forschung: Frostsichere Entsorgung."
+msgstr "Research: Frost-Proof Waste Management."
+
+msgid "AUSBAU & PERSONAL"
+msgstr "UPGRADES & STAFF"
+
+msgid "Kapazität ausbauen · %s €"
+msgstr "Expand capacity · €%s"
+
+msgid "Zusatzpersonal und Team"
+msgstr "Optional staff & team"
+
+msgid "Reinigung, Tankfüllstand, Kälte und reale Toilettengäste bestimmen den Betrieb. Für Hotel- und Restaurant-Toiletten entstehen keine separaten WC-Gebäude."
+msgstr "Cleanliness, tank level, cold weather and real visitors determine operations. Hotel and restaurant toilets require no separate buildings."
+
+msgid "Fünf echte Management-Stationen: Rezeption, Housekeeping, Frühstück, Gästeservice und Tarife. Deine Entscheidungen wirken auf vorhandene Zimmer, Gäste, Preise, Sauberkeit und die Betriebskasse."
+msgstr "Five real management stages: reception, housekeeping, breakfast, guest service and rates. Your decisions affect real rooms, guests, prices, cleanliness and operating finances."
+
+msgid "Einnahmeprognose %s €/Tag · geplante Kosten %s €/Tag"
+msgstr "Revenue forecast €%s/day · planned costs €%s/day"
+
+msgid "Bis dahin kannst du weiterhin Zimmer verwalten, Preise ändern und Hotelmodule ausbauen."
+msgstr "Meanwhile you can still manage rooms, change rates and upgrade hotel modules."
+
+msgid "WC-Service & Entsorgung"
+msgstr "Restroom Servicing & Waste Disposal"
+
+msgid "Dixi-Service-Runde"
+msgstr "Portable WC Service Round"
+
+msgid "Kabinen-Servicerunde"
+msgstr "Cabin Service Round"
+
+msgid "WC-Haus-Service"
+msgstr "Restroom House Service"
+
+msgid "Prüfe mobile Toiletten: Tank, Reinigung, Papier und Frostschutz."
+msgstr "Check portable toilets: tank, cleaning, paper and frost protection."
+
+msgid "Tank leeren"
+msgstr "Empty waste tank"
+
+msgid "Desinfizieren"
+msgstr "Disinfect"
+
+msgid "Papier auffüllen"
+msgstr "Restock toilet paper"
+
+msgid "Frostschutz prüfen"
+msgstr "Check frost protection"
+
+msgid "Ordne den richtigen Wartungsauftrag den Winter-Kabinen zu."
+msgstr "Assign the right maintenance task to the winter restrooms."
+
+msgid "Container-Sanitärdienst"
+msgstr "Container Restroom Service"
+
+msgid "Organisiere die Servicerunde für die öffentlichen Container."
+msgstr "Organize service rounds for public restroom containers."
+
+msgid "Prüfe Hygiene, Entsorgung und Winterbetrieb des Sanitärhauses."
+msgstr "Check sanitation-house hygiene, waste disposal and winter operations."
+
+msgid "Premium-Sanitärservice"
+msgstr "Premium Restroom Service"
+
+msgid "Leite die Wartungs- und Qualitätskontrolle des Luxus-Sanitärzentrums."
+msgstr "Manage the luxury restroom facility's service and quality checks."
+
+msgid "Öffentliche Toilettennutzung"
+msgstr "Public Restroom Access"
+
+msgid "Mehr WC-Kapazität"
+msgstr "Additional Restroom Capacity"
+
+msgid "Größerer Entsorgungstank"
+msgstr "Larger Waste Tank"
+
+msgid "Verbesserte Hygieneausstattung"
+msgstr "Improved Hygiene Equipment"
+
+msgid "Optimierte Wartungsabläufe"
+msgstr "Optimized Servicing Operations"
+
+msgid "VORGEMERKT  %d  ·  TANKVOLUMEN  %.0f Nutzungen"
+msgstr "RESERVED  %d  ·  TANK CAPACITY  %.0f uses"
+
+msgid "Ausbau: mehr Kabinen; ab Stufe 3 zusätzlicher Tankpuffer, ab Stufe 4 weniger Hygieneverschleiß, ab Stufe 5 günstigere Servicerunden."
+msgstr "Upgrades: more stalls; extra tank reserve from level 3, less hygiene wear from level 4, lower maintenance costs from level 5."
+
+msgid "Entleeren · %s €"
+msgstr "Empty tank · %s €"
+
+msgid "WC-BETRIEB"
+msgstr "RESTROOM OPERATIONS"
+
+msgid "Hotel-Simulator · Zimmer & Betrieb"
+msgstr "Hotel Simulator · Rooms & Operations"

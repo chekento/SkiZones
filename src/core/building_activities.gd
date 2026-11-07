@@ -6,6 +6,11 @@ const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const SectorCases = preload("res://src/core/sector_decisions.gd")
 const ACTIVITIES := {
+	"wc_dixi":{"title":"Dixi-Service-Runde","mode":"orders","hint":"Prüfe mobile Toiletten: Tank, Reinigung, Papier und Frostschutz.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
+	"wc_cabin":{"title":"Kabinen-Servicerunde","mode":"orders","hint":"Ordne den richtigen Wartungsauftrag den Winter-Kabinen zu.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
+	"wc_module":{"title":"Container-Sanitärdienst","mode":"orders","hint":"Organisiere die Servicerunde für die öffentlichen Container.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
+	"wc_house":{"title":"WC-Haus-Service","mode":"orders","hint":"Prüfe Hygiene, Entsorgung und Winterbetrieb des Sanitärhauses.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
+	"wc_luxury":{"title":"Premium-Sanitärservice","mode":"orders","hint":"Leite die Wartungs- und Qualitätskontrolle des Luxus-Sanitärzentrums.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
 	"town_hall":{"title":"Rathaus-Sitzung","mode":"orders","hint":"Bearbeite den nächsten Bürgerantrag und sortiere die Unterlagen des Gemeinderats.","choices":["Bauakte","Bürgerantrag","Haushaltsplan","Sitzungsprotokoll"]},
 	"printing_press":{"title":"Druckerei-Schicht","mode":"orders","hint":"Bereite eine saubere Ausgabe für den Druck vor.","choices":["Papier","Druckplatte","Druckfarbe","Setzkasten"]},
 	"newsstand":{"title":"Zeitungsstand","mode":"orders","hint":"Stelle die gewünschte Zeitung für den Gast bereit.","choices":["ExtraBlatt","Bergwetter","Pistenjournal","Dorfleben"]},

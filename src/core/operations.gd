@@ -3,6 +3,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
+const PublicWC = preload("res://src/core/public_wc.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
@@ -19,7 +20,8 @@ const ROLES := {
 	"snow": {"name": "Schneemeister", "wage": 23.0},
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
-	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0}
+	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
+	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
@@ -350,6 +352,7 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 	return true
 
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
+	if PublicWC.is_public(str(building.get("kind",""))) and not PublicWC.available(model,building):return false
 	if building.kind == "newsstand" and model.building_count("printing_press") == 0: return false
 	if not building.enabled or not building_staffed(model, building): return false
 	if not continuous(model): return true

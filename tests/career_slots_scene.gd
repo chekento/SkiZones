@@ -36,14 +36,38 @@ func run() -> void:
 	check(root.get_visible_rect().encloses(game.hud.career_slots.get_global_rect()),"The complete career selector fits the landscape viewport")
 	await capture("career-slots-0170")
 	var first: Array=buttons(game.hud.career_slots.cards.get_child(0))
-	check(first.size()==2 and first[0].text=="Diese Karriere fortsetzen","Populated slots make continuation the primary action")
+	check(not first.is_empty() and first[0].text=="Diese Karriere fortsetzen","Populated slots make continuation the primary action")
+	var populated_card:Node=game.hud.career_slots.cards.get_child(0)
+	check(populated_card.find_child("check_save_038",true,false)!=null and populated_card.find_child("rescue_save_038",true,false)!=null and populated_card.find_child("copy_save_038",true,false)!=null and populated_card.find_child("archive_save_038",true,false)!=null,"Populated careers expose diagnostics, backup rescue, copy and archive in addition to continuation")
 	first[0].pressed.emit()
 	for frame in range(120):
 		await process_frame
 		if not game.hud.loading.visible:break
 	check(Saves.active_slot==1 and game.model.money==123451 and game.model.day==1,"The real Continue button restores the selected career rather than the last open one")
 	game.paused=true;game.save_game();game.show_career_slots()
-	buttons(game.hud.career_slots.cards.get_child(0))[1].pressed.emit();await process_frame
+	populated_card=game.hud.career_slots.cards.get_child(0)
+	var source_path:String=Saves.path_for_map("sonnenhang",1)
+	var source_hash:String=FileAccess.get_sha256(source_path)
+	(populated_card.find_child("check_save_038",true,false) as Button).pressed.emit()
+	var diagnostic:Label=populated_card.find_child("save_diagnostics",true,false) as Label
+	check(diagnostic.text.contains("ladbar") and FileAccess.get_sha256(source_path)==source_hash,"The actual diagnostic action confirms loadability while preserving the original bytes")
+	var target_path:String=Saves.path_for_map("sonnenhang",2)
+	var target_hash:String=FileAccess.get_sha256(target_path)
+	var copy_target:OptionButton=populated_card.find_child("copy_target",true,false) as OptionButton
+	copy_target.select(copy_target.get_item_index(2))
+	(populated_card.find_child("copy_save_038",true,false) as Button).pressed.emit()
+	check(FileAccess.get_sha256(source_path)==source_hash and FileAccess.get_sha256(target_path)==target_hash,"Copying onto an occupied career through the real UI preserves both saved originals")
+	(populated_card.find_child("archive_save_038",true,false) as Button).pressed.emit()
+	check(game.hud.career_slots.archive_confirmation.visible and FileAccess.get_sha256(source_path)==source_hash,"Archive asks for confirmation before changing the actual saved career")
+	game.hud.career_slots.archive_confirmation.confirmed.emit()
+	game.hud.career_slots.archive_confirmation.hide()
+	check(FileAccess.get_sha256(source_path)==source_hash and Saves.summary(1).occupied and game.model.money==123451,"An active resort cannot be archived then silently auto-saved back into its slot")
+	var restart:Button=null
+	for action in buttons(game.hud.career_slots.cards.get_child(0)):
+		if action.text=="Neue Karriere auf diesem Platz":restart=action
+	check(restart!=null,"Restart remains a separate explicit action beside save management")
+	if restart==null:quit(1);return
+	restart.pressed.emit();await process_frame
 	check(game.hud.career_slots.confirmation.visible and game.model.money==123451,"Restarting an occupied slot first explains its backup and preserves the current resort")
 	game.hud.career_slots.confirmation.hide();game.hud.career_slots.hide()
 	game.app_session.save(game);game.queue_free();await process_frame;await process_frame

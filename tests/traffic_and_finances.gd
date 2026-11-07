@@ -43,7 +43,7 @@ func run() -> void:
 	var subsequent := Traffic.steps(mock)
 	check(float(subsequent[5]) > 0.9, "Passing choice stays stable across successive traffic calculations")
 	var narrow := MockTraffic.new()
-	narrow.slope.width = 10.0
+	narrow.slope.width = 9.0
 	narrow.guests = [skier(2, 0.501, 1000000.0), skier(4, 0.499, 100.0)]
 	var slowed := Traffic.steps(narrow)
 	check(float(slowed[4]) < 0.5, "A genuinely narrow single lane preserves safe headway")

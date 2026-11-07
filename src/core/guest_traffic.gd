@@ -7,8 +7,8 @@ const Snow = preload("res://src/core/snow_surface.gd")
 # Use the actual piste width: broad snow corridors support parallel tracks.
 # The 0.21 three-lane cap made long, visible columns in popular resorts.
 const MAX_LANES := 8
-const LANE_METRES := 4.0
-const EDGE_BUFFER_METRES := 1.2
+const LANE_METRES := 3.7 # clear physical passing corridors, including 10m narrow pistes
+const EDGE_BUFFER_METRES := 1.0
 const HEADWAY_METRES := 2.4
 const MIN_OVERTAKE_GAIN_METRES := 0.55
 
@@ -43,11 +43,11 @@ static func route_pressure(model: RefCounted, piste: Dictionary, counts: Diction
 	if piste.is_empty(): return 1.0
 	var lanes := lane_count(piste)
 	var metres := maxf(float(piste.get("length",1.0)),30.0)
-	var capacity: float = maxf(1.0, lanes * metres / 12.0)
+	var capacity: float = maxf(1.0, lanes * metres / 17.0)
 	var density: float = float(counts.get(int(piste.id),0)) / capacity
 	# Modest penalty below capacity, strong diversion when critically loaded.
 	# Keep minimum weight for isolated routes and returning guests.
-	return clampf(1.0 / (1.0 + 2.5 * density * density),0.18,1.0)
+	return clampf(1.0 / (1.0 + 3.4 * density * density),0.07,1.0)
 
 static func steps(model: RefCounted) -> Dictionary:
 	var groups: Dictionary = {}
@@ -94,8 +94,10 @@ static func steps(model: RefCounted) -> Dictionary:
 			# Keep this consistent with ski_motion.gd and the Android picker.
 			guest.traffic_lane = best_lane
 			var width_metres: float = Snow.piste_width(piste)
-			var lane_ratio: float = 0.0 if number <= 1 else (2.0 * float(best_lane) / float(number - 1) - 1.0)
-			guest.traffic_lateral = clampf(lane_ratio * width_metres * 0.30, -24.0, 24.0)
+			# Fixed metre-based corridors match overtaking safety requirements.
+			# Proportional offsets previously squeezed many wide-piste lanes
+			# into the same few visible metres, forming stacked rows.
+			guest.traffic_lateral = clampf((float(best_lane) - float(number - 1) * 0.5) * LANE_METRES, -width_metres * 0.43, width_metres * 0.43)
 			var local := inverse_lerp(float(leg.get("start_fraction", 0.0)), float(leg.get("end_fraction", 1.0)), best_limit)
 			var elapsed: float = _time_at(samples, clampf(local, 0.0, 1.0)) * duration
 			result[int(guest.id)] = clampf(elapsed - float(guest.elapsed), 0.0, 1.0)

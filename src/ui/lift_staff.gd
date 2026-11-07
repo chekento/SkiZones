@@ -14,6 +14,7 @@ var tabs: TabContainer
 var cards: Array = []
 var feedback: Label
 var expanded: Dictionary = {}
+const OPTIONAL_CAP := 3
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -104,13 +105,32 @@ func rebuild() -> void:
 		if item.has("bottom"):_lift_people(people,item)
 		else:_building_people(people,item)
 	else:_card(people,L.text("Personal"),L.text("In diesem Spielstand wird der Betrieb ohne einzelne Mitarbeiter simuliert."))
-	var design:=_card(_page(L.text("Gestalten")),L.asset_name(item),L.text("Name, Farbe und Standort direkt an dieser Anlage ändern."))
-	hud._button(design,L.text("Gestalten & umplanen"),func():hide();hud.asset_editor.open(lift_id),true)
-	hud._button(design,L.text("Abbauen · 25 % Erstattung"),_demolish,true)
+	var design:=_card(_page(L.text("Gestalten")),L.asset_name(item))
+	hud._label(design,L.text("AUSBAUSTUFE  %d  ·  STATUS  %s") % [int(item.get("level",1)),L.text("Geöffnet") if item.enabled else L.text("Geschlossen")],18,hud.TEAL,true)
+	if model.Hospitality.lodging(str(item.get("kind",""))):
+		hud._button(design,L.text("Hotel-Simulator · Zimmer & Betrieb"),func():hide();hud.experience.open(lift_id),true).name="open_hotel_simulator"
+	elif Catalog.BUILDINGS.has(item.get("kind","")):
+		hud._button(design,L.text("Gebäude betreten · Spiele & Betrieb"),func():hide();hud.experience.open(lift_id),true)
+	var upgrade: Dictionary=model.upgrade_check(lift_id)
+	_button(design,L.text("Ausbau · Stufe %d · %s €") % [int(item.get("level",1))+1,hud.money_text(upgrade.get("cost",0))],func():return model.upgrade_asset(lift_id),upgrade.ok).name="design_upgrade"
+	hud._button(design,L.text("Name, Farbe & Standort bearbeiten"),func():hide();hud.asset_editor.open(lift_id),true).name="design_relocate"
+	var safety:=_card(design,L.text("Gefahrenzone · dauerhaft"))
+	hud._label(safety,L.text("Abbau mit 25 % Erstattung erfordert eine gesonderte Bestätigung."),15,hud.MUTED,true)
+	hud._button(safety,L.text("Anlage abbauen"),_demolish).name="design_demolish"
 	tabs.current_tab=clampi(previous,0,tabs.get_tab_count()-1);refresh_status()
 func _build_operation(parent: Node, item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
-	var general:=_card(parent,L.asset_name(item),L.text("Betrieb, Team und Gestaltung dieser Anlage."))
+	var general:=_card(parent,L.asset_name(item))
+	if item.has("bottom"):
+		var team: Dictionary=Ops.staffing(model,item)
+		var load: Dictionary=model.lift_load(item)
+		hud._label(general,L.text("PFLICHTTEAM  %d/%d  ·  WARTEGÄSTE  %d  ·  AUSLASTUNG  %d") % [int(team.present),int(team.needed),model.queue_size(int(item.id)),int(load.get("riders",0))],19,hud.TEAL,true)
+	else:
+		var balance: Dictionary=Ops.business_balance(model,item)
+		var current: int=model.service_load(int(item.id)) if model.Needs.SERVICES.has(str(item.kind)) else 0
+		var seats: int=model.service_capacity(item) if model.Needs.SERVICES.has(str(item.kind)) else 0
+		hud._label(general,L.text("GÄSTE  %d/%d  ·  BESUCHE  %d  ·  UMSATZ  %s €") % [current,seats,int(item.get("visits",0)),hud.money_text(balance.sales)],19,hud.TEAL,true)
+		hud._label(general,L.text("KOSTEN  %s €  ·  SALDO  %s €") % [hud.money_text(balance.costs),hud.money_text(balance.net)],18,hud.MUTED,true)
 	if item.has("bottom"):
 		var parts:=Ops.line_lifts(model,item)
 		_button(general,L.text("Liftverbund schließen") if parts.any(func(part):return part.enabled) else L.text("Liftverbund öffnen"),_toggle_line)
@@ -209,7 +229,7 @@ func _lift_people(parent: Node, item: Dictionary) -> void:
 	hud._label(parent,L.text("Gemeinsame Mittelstationen teilen sich ein Team. Pausen ändern den Dienststatus, nicht die geplante Besetzung."),16,hud.MUTED,true)
 	_grid(parent)
 	for row in rows:
-		var box:=_card(stations,row.name)
+		var box:=_card(stations,row.name,L.text("Pflichtbesetzung %d · zusätzliche Liftbedienung freiwillig") % int(row.minimum))
 		var status: Label=hud._label(box,"",17,hud.INK,true)
 		var hire:=_button(box,"",func():return Ops.fill_line_station(model,lift_id,row.key))
 		cards.append({"key":row.key,"status":status,"hire":hire})
@@ -217,17 +237,22 @@ func _lift_people(parent: Node, item: Dictionary) -> void:
 		var details:=_team_details(box,row.key)
 		_people(details,row.people,row.key)
 		_reserve(details,"operator",row.key,"day")
+		var optional_count: int=row.people.filter(func(p):return p.shift=="day").size()-int(row.minimum)
+		var extra:Button=_button(box,L.text("+ Optionale Liftkraft · 180 €"),func():return _optional_hire("operator",row.key,"day"),model.money>=180 and optional_count<OPTIONAL_CAP)
+		extra.name="optional_lift_operator"
 func _building_people(parent: Node, item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
 	var rows:=Ops.building_team(model,item)
 	var missing:=0
 	for row in rows:missing+=row.missing
-	if rows.is_empty():_card(parent,L.text("Personal"),L.text("Diese Anlage benötigt kein eigenes Personal."));return
-	_button(parent,L.text("Alle Schichten besetzen · %d Personen · %d €") % [missing,missing*180],func():return Ops.fill_building(model,lift_id),missing>0 and model.money>=missing*180)
+	if rows.is_empty():
+		_card(parent,L.text("Keine Pflichtstellen"),L.text("Dieses Gebäude läuft ohne Mindestpersonal. Freiwillige Verstärkung ist möglich."))
+	else:
+		_button(parent,L.text("Pflichtstellen besetzen · %d Personen · %d €") % [missing,missing*180],func():return Ops.fill_building(model,lift_id),missing>0 and model.money>=missing*180).name="fill_required_building_team"
 	_grid(parent)
 	var shown: Array=[]
 	for row in rows:
-		var box:=_card(stations,L.text(Ops.ROLES[row.role].name)+" · "+L.text(Ops.SHIFT_NAMES[row.shift]))
+		var box:=_card(stations,L.text("PFLICHT · ")+L.text(Ops.ROLES[row.role].name)+" · "+L.text(Ops.SHIFT_NAMES[row.shift]))
 		hud._label(box,L.text("%d / %d eingeplant · %d im Dienst") % [row.planned,row.minimum,row.present],17,hud.TEAL,true)
 		_button(box,L.text("%d fehlende Person(en) einstellen · %d €") % [row.missing,row.missing*180],func():return _fill_role(row.role,row.shift),row.missing>0 and model.money>=row.missing*180)
 		var details:=_team_details(box,row.key+":"+row.role+":"+row.shift)
@@ -235,7 +260,39 @@ func _building_people(parent: Node, item: Dictionary) -> void:
 		_reserve(details,row.role,row.key,row.shift)
 		for person in row.people:shown.append(person.id)
 	var others: Array=model.operations.staff.filter(func(p):return p.assignment=="building:%d" % lift_id and not shown.has(p.id))
-	if not others.is_empty():_people(_card(parent,L.text("Weitere Zuweisungen")),others,"building:%d" % lift_id)
+	if not others.is_empty():_people(_card(parent,L.text("Zusätzliche Besetzung")),others,"building:%d" % lift_id)
+	_build_optional_positions(parent,item)
+
+func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
+	var model: RefCounted=hud.game.model
+	if not Ops.ROLES.has(role) or not Ops.SHIFTS.has(shift):return model._result(false,L.text("Diese Personalzuweisung ist nicht möglich."))
+	var count: int=model.operations.staff.filter(func(p):return p.assignment==target and p.role==role and p.shift==shift).size()
+	var required:=0
+	if target.begins_with("station:"):
+		for row in Ops.line_station_team(model,model.asset(lift_id)):
+			if str(row.key)==target:required=int(row.minimum)
+	else:
+		for row in Ops.building_team(model,model.asset(lift_id)):
+			if str(row.role)==role and str(row.shift)==shift:required=int(row.minimum)
+	if count-required>=OPTIONAL_CAP:return model._result(false,L.text("Maximal drei Zusatzkräfte pro Rolle und Schicht."))
+	return Ops.hire(model,role,target,shift)
+
+func _build_optional_positions(parent: Node,item: Dictionary) -> void:
+	var model: RefCounted=hud.game.model
+	var box:=_card(parent,L.text("FREIWILLIGE ZUSATZKRÄFTE"),L.text("Zusätzliche Kräfte erhöhen die Reserve, ersetzen aber keine vorgeschriebene Mindestbesetzung. Jede Einstellung kostet 180 € plus Stundenlohn."))
+	var allowed: Array=["sanitation"] if str(item.kind).begins_with("wc_") else ["hotel","security","catering"] if model.Hospitality.lodging(str(item.kind)) else ["hotel","security"] if str(item.kind) in ["rental","school","souvenir","fitness","newsstand"] else ["catering","security"] if str(item.kind) in ["restaurant","kiosk","pizzeria","bar","disco","lodge","cocoa","schmarrn"] else ["technician","security"] if str(item.kind)=="repair_office" else ["hotel","security"]
+	var target: String="building:%d" % int(item.id)
+	for role in allowed:
+		var shift: String="day" if str(item.kind) not in ["bar","disco"] else "evening"
+		var count: int=model.operations.staff.filter(func(p):return p.role==role and p.assignment==target and p.shift==shift).size()
+		var minimum:=0
+		for row in Ops.building_team(model,item):
+			if row.role==role and row.shift==shift:minimum=int(row.minimum)
+		var extra: int=maxi(0,count-minimum)
+		var label_text: String=L.text("%s · optional %d/%d · %.0f €/h") % [L.text(str(Ops.ROLES[role].name)),extra,OPTIONAL_CAP,float(Ops.ROLES[role].wage)]
+		var button: Button=_button(box,L.text("+ Einstellen · 180 €  |  ")+label_text,func():return _optional_hire(str(role),target,shift),model.money>=180 and extra<OPTIONAL_CAP)
+		button.name="optional_"+str(role)
+
 func _fill_role(role: String, shift: String) -> Dictionary:
 	var model: RefCounted=hud.game.model
 	for row in Ops.building_team(model,model.asset(lift_id)):
