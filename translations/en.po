@@ -10254,3 +10254,6 @@ msgstr "Career · Load & manage"
 
 msgid "Freier Aufbau · Laden & Verwalten"
 msgstr "Free build · Load & manage"
+
+msgid "TUNE"
+msgstr "TUNE"
