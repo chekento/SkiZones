@@ -72,6 +72,13 @@ func run() -> void:
 	check(fixed.ok and result.ok and not result.get("recovered",false) and restored.compatibility_geometry,"Historical geometry remains normally loadable after repair")
 	check(restored.guests.size()==data.guests.size() and same(restored.pistes[0].points,historical.pistes[0].points),"Historical repair preserves guests and authored waypoints")
 	check(FileAccess.get_sha256(str(fixed.get("archive","")))==original,"Historical repair also archives the exact original")
+	# Negative fixtures must have no salvageable earlier archive: an actual
+	# prior valid snapshot SHOULD be recovered, not rejected with the bad primary.
+	var positive_archives:DirAccess=DirAccess.open("user://save-recovery")
+	if positive_archives!=null:
+		for filename in positive_archives.get_files():
+			if filename.begins_with(path.get_file()+"-"):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path("user://save-recovery/"+filename))
 	var invalid:Dictionary=data.duplicate(true)
 	invalid.pistes[0].points[0]=[99999999,99999999]
 	write(path,invalid)
