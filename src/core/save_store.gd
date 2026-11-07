@@ -270,9 +270,23 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
 	return {"ok": true, "data": payload}
 
+## Guard against a wrong-mode or wrong-mountain primary/backup accidentally
+## placed in a modern slot. Unnamed historical fixture paths stay unrestricted.
+static func expected_slot(path: String) -> Dictionary:
+	if not path.ends_with(".json"): return {}
+	var pieces: PackedStringArray=path.get_file().trim_suffix(".json").split("_")
+	if pieces.size()>=3 and pieces[0]=="career" and pieces[1].is_valid_int() and int(pieces[1])>=1 and int(pieces[1])<=4:
+		return {"map":"_".join(pieces.slice(2)),"free":false}
+	if pieces.size()>=3 and pieces[0]=="free" and pieces[1].is_valid_int() and int(pieces[1])>=2 and int(pieces[1])<=4:
+		return {"map":"_".join(pieces.slice(2)),"free":true}
+	if pieces.size()>=2 and pieces[0]=="free" and not pieces[1].is_valid_int():
+		return {"map":"_".join(pieces.slice(1)),"free":true}
+	return {}
+
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
+	var expected: Dictionary=expected_slot(path)
 	var sources: Array = [path,path+".bak"]
 	# Pre-slot saves remain a final, read-only fallback. Never load a former
 	# career into slot 2–4, or a free-play career into a paid slot.
@@ -290,6 +304,10 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
+			# A filename or stale backup never silently changes the selected
+			# mountain or converts a career into free build (and vice versa).
+			if not expected.is_empty() and (str(read.data.get("map_id","sonnenhang")) != str(expected.map) or _free_data(read.data) != bool(expected.free)):
+				continue
 			if candidate in sources.slice(2) and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})

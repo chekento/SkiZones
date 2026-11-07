@@ -35,6 +35,8 @@ var credits_button: Button
 var station_counter := Label.new()
 var _now_playing_timer := 0.0
 var preset_buttons: Dictionary = {}
+var preset_grid: GridContainer
+var layout_width := 0.0
 var volume_meters: Dictionary = {}
 var volume_readouts: Dictionary = {}
 var _station_last := "alpine"
@@ -88,6 +90,8 @@ func setup(owner_hud: CanvasLayer) -> void:
 	window.body.add_child(scroll)
 	var page: VBoxContainer=hud._vbox(scroll,13)
 	page.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	window.resized.connect(_fit_radio)
+	page.resized.connect(_fit_radio)
 	var shell: PanelContainer=_panel(page,RAIL,19)
 	var radio: VBoxContainer=hud._vbox(shell,8)
 	var top: HBoxContainer=HBoxContainer.new()
@@ -103,7 +107,9 @@ func setup(owner_hud: CanvasLayer) -> void:
 	identity_title.text_overrun_behavior=TextServer.OVERRUN_NO_TRIMMING
 	_label(identity,L.text("15 SENDER · OFFLINE"),11,Color("8bb9ba"))
 	power_button=_icon_button(top,"power",func(): _set_power(not enabled.button_pressed), "Radio sofort ein- oder ausschalten",true)
-	power_button.custom_minimum_size.x=72
+	# Keep power anchored beside the brand, not outside an oversized strip.
+	power_button.custom_minimum_size=Vector2(68,68)
+	power_button.size_flags_horizontal=Control.SIZE_SHRINK_END
 	power_button.size_flags_vertical=Control.SIZE_SHRINK_CENTER
 	power_button.tooltip_text=L.text("Radio sofort einschalten oder ausschalten")
 	face.custom_minimum_size.y=156
@@ -117,22 +123,32 @@ func setup(owner_hud: CanvasLayer) -> void:
 	playing_label.custom_minimum_size.y=66
 	playing_label.max_lines_visible=3
 	playing_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
-	var tuning: HBoxContainer=HBoxContainer.new()
-	tuning.add_theme_constant_override("separation",8)
+	# On 360px portrait screens the tuning wheel and channel counter must
+	# wrap instead of imposing a 400px-wide row on the entire receiver.
+	var tuning: HFlowContainer=HFlowContainer.new()
+	tuning.add_theme_constant_override("h_separation",8)
+	tuning.add_theme_constant_override("v_separation",6)
 	radio.add_child(tuning)
 	station_left=_icon_button(tuning,"previous",func(): _step_station(-1),"Vorheriger Sender")
 	station_left.tooltip_text=L.text("Vorherigen Sender wählen")
 	station_left.custom_minimum_size.x=62
+	station_left.add_theme_stylebox_override("normal",hud._style(Color("bde4e0"),12,8))
 	dial.size_flags_horizontal=Control.SIZE_SHRINK_CENTER
 	dial.tuned.connect(_step_station)
 	dial.tooltip_text=L.text("Sendersuchrad drehen, wischen oder anklicken")
 	tuning.add_child(dial)
 	station_counter=_label(tuning,"",15,Color("dce9e2"))
-	station_counter.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	station_counter.size_flags_horizontal=Control.SIZE_SHRINK_CENTER
+	station_counter.custom_minimum_size.x=130
+	station_counter.add_theme_font_size_override("font_size",16)
 	station_counter.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
 	station_right=_icon_button(tuning,"next",func(): _step_station(1),"Nächster Sender")
 	station_right.tooltip_text=L.text("Nächsten Sender wählen")
 	station_right.custom_minimum_size.x=62
+	station_right.add_theme_stylebox_override("normal",hud._style(Color("bde4e0"),12,8))
+	# Keep both tuning arrows next to the wheel. The numeric station
+	# readout can move to the next line on a small Android display.
+	tuning.move_child(station_counter,tuning.get_child_count()-1)
 	station_info=_label(radio,"",14,Color("a7c9ce"))
 	station_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var transport := HFlowContainer.new()
@@ -145,26 +161,31 @@ func setup(owner_hud: CanvasLayer) -> void:
 	)
 	skip_button.icon=load("res://assets/radio/controls/skip.svg")
 	skip_button.expand_icon=true
-	skip_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	# A real transport key, not an enormous full-width pale strip.
+	skip_button.custom_minimum_size=Vector2(238,58)
+	skip_button.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
 	skip_button.tooltip_text=L.text("Zum nächsten Titel dieses Senders springen")
 	credits_button=_radio_button(transport,L.text("CREDITS"),_toggle_credits)
 	credits_button.icon=load("res://assets/radio/controls/info.svg")
+	credits_button.custom_minimum_size=Vector2(130,58)
 	credits_button.tooltip_text=L.text("Musik- und Lizenzquellen dieses Senders zeigen")
 	var bank: PanelContainer=_panel(radio,Color("132d39"))
 	var bank_stack: VBoxContainer=hud._vbox(bank,8)
 	_label(bank_stack,L.text("DEINE SENDERPRESETS · LOGO ANTIPPEN"),14,Color("b3dce0"))
-	var preset_scroll:=DragScroll.new()
-	preset_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
-	preset_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
-	preset_scroll.custom_minimum_size.y=88
-	preset_scroll.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	bank_stack.add_child(preset_scroll)
-	var presets: HBoxContainer=HBoxContainer.new()
-	presets.add_theme_constant_override("separation",10)
-	preset_scroll.add_child(presets)
+	# Never give the window the minimum width of fifteen unwrapped presets.
+	# GridContainer makes every station part of the vertical page scroll,
+	# and is reflowed for fullscreen, resize and phone rotation.
+	preset_grid=GridContainer.new()
+	preset_grid.name="responsive_station_grid"
+	preset_grid.columns=1
+	preset_grid.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	preset_grid.add_theme_constant_override("h_separation",9)
+	preset_grid.add_theme_constant_override("v_separation",9)
+	bank_stack.add_child(preset_grid)
 	for id in Design.GENRES:
 		if id=="off": continue
-		_add_preset(presets,str(id))
+		_add_preset(preset_grid,str(id))
+	_fit_radio()
 	# All previously separate audio options now use actual radio +/- controls.
 	var volume: PanelContainer=_panel(radio,Color("122936"))
 	var volume_stack: VBoxContainer=hud._vbox(volume,8)
@@ -197,12 +218,22 @@ func setup(owner_hud: CanvasLayer) -> void:
 		slider.value_changed.connect(func(_value:float): _apply_settings())
 	hide()
 
+func _fit_radio() -> void:
+	if preset_grid==null or not is_instance_valid(preset_grid):return
+	# Calculate from the OUTER window, not a child's previous minimum width:
+	# this prevents a 15-station row from expanding the entire receiver.
+	var available:float=maxf(180.0,window.size.x-92.0)
+	var columns:int=clampi(floori((available+9.0)/179.0),1,8)
+	if preset_grid.columns!=columns:preset_grid.columns=columns
+	# The display remains legible while keeping physical buttons reachable.
+	face.custom_minimum_size.y=144.0 if window.size.x<570.0 else 176.0
+
 func _add_preset(parent: Node, id: String) -> void:
 	var button:=Button.new()
 	button.text=""
 	button.tooltip_text=L.text(str(Design.GENRE_NAMES[id]))
 	button.focus_mode=Control.FOCUS_NONE
-	button.custom_minimum_size=Vector2(178,70)
+	button.custom_minimum_size=Vector2(170,76)
 	button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	parent.add_child(button)
 	var row:=HBoxContainer.new()
@@ -214,7 +245,7 @@ func _add_preset(parent: Node, id: String) -> void:
 	button.add_child(row)
 	var logo:=TextureRect.new()
 	logo.texture=Branding.logo(id)
-	logo.custom_minimum_size=Vector2(76,52)
+	logo.custom_minimum_size=Vector2(72,48)
 	logo.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	logo.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 	logo.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -222,6 +253,8 @@ func _add_preset(parent: Node, id: String) -> void:
 	var name: Label=_label(row,str(Branding.spec(id).short),12,Color("16343b"))
 	name.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	name.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	name.clip_text=false
+	name.add_theme_font_size_override("font_size",12)
 	button.pressed.connect(func(): _choose_station(id))
 	preset_buttons[id]=button
 
@@ -294,6 +327,7 @@ func open() -> void:
 	_suppress_callbacks=false
 	show()
 	window._fit()
+	_fit_radio()
 	hud.game.audio.clear_preview()
 	_refresh_tuner()
 	_update_now_playing()

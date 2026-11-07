@@ -154,7 +154,7 @@ static func planned_cost(model: RefCounted, building: Dictionary) -> float:
 	for row in model.Ops.building_team(model, building):
 		var times: Array = model.Ops.SHIFTS[row.shift]
 		wages += int(row.missing) * float(model.Ops.ROLES[row.role].wage) * posmod(int(times[1]) - int(times[0]), 1440) / 60.0
-	return wages + float(Catalog.BUILDINGS[building.kind].upkeep) * (1.0 + 0.2 * (int(building.get("level", 1)) - 1)) + 35 + extra_upkeep(building)
+	return wages + (float(PublicWC.specification(building,model).upkeep) if PublicWC.is_public(str(building.kind)) else float(Catalog.BUILDINGS[building.kind].upkeep)*(1.0+0.2*(int(building.get("level",1))-1))) + 35 + extra_upkeep(building)
 
 static func dashboard(model: RefCounted, building: Dictionary) -> Dictionary:
 	var capacity: int = model.Lodging.room_count(building)

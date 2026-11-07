@@ -316,6 +316,13 @@ func _research(page: VBoxContainer) -> void:
 		bar.show_percentage=false
 		group.add_child(bar)
 		hud._label(group,L.text("%d / %d abgeschlossen") % [int(progress.done),int(progress.total)],15,hud.TEAL,true)
+		if branch.id=="sanitation":
+			var facilities:Array=model.buildings.filter(func(item):return model.PublicWC.is_public(str(item.kind)))
+			hud._label(group,L.text("100 Entwicklungen in zehn Zweigen. Ausbau, Tank, Hygiene, Wartung, Besucherfluss und Winterbetrieb wirken direkt auf deine Toiletten."),15,hud.MUTED,true)
+			var open:Button=hud._button(group,L.text("Entwicklungsbaum öffnen"),func():hide();hud.experience.open(int(facilities[0].id));hud.experience.show_wc_development(),true)
+			open.disabled=facilities.is_empty()
+			if facilities.is_empty():hud._label(group,L.text("Zuerst eine Portable Toilet bauen."),15,hud.MUTED,true)
+			continue
 		var flow:=HFlowContainer.new()
 		flow.add_theme_constant_override("h_separation",10)
 		flow.add_theme_constant_override("v_separation",10)
@@ -350,7 +357,7 @@ func _upgrades(page: VBoxContainer) -> void:
 				details = L.text("%.0f %% Zustand · %.0f cm Schnee · %.0f m Strecke") % L.args([item.condition, item.snow, item.length])
 			else:
 				details = Catalog.BUILDINGS[item.kind].description
-			var body := _card(page, L.text("%s · Stufe %d / 3") % L.args([L.verbatim(L.asset_name(item)), item.get("level", 1)]), details)
+			var body := _card(page, L.text("%s · Stufe %d / %d") % L.args([L.verbatim(L.asset_name(item)), item.get("level", 1),5 if item.get("kind","") in Catalog.BUILDINGS else 3]), details)
 			var id: int = item.id
 			var check: Dictionary = model.upgrade_check(id)
 			hud._label(body, check.message, 16, hud.TEAL, true)
