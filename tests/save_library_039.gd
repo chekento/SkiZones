@@ -60,5 +60,5 @@ func run() -> void:
 		check(free_report.verified==2 and free_report.loadable==2,"Both checksum-verified free files in slot %d restore semantically" % free_slot)
 		var restored_free:=Resort.new()
 		check(Saves.load_game(restored_free,free_path).ok and restored_free.campaign.get("mode")=="free","Free slot %d resumes with all sandbox privileges" % free_slot)
-	print("SAVE LIBRARY v0.39: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
