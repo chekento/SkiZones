@@ -2423,7 +2423,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var piste_numbers: Array = []
 	var asset_total: int = data.pistes.size() + data.lifts.size() + data.buildings.size() + data.walk_areas.size()
 	var asset_done := 0
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · "+L.text("Anlagen")
 	for key in ["pistes", "lifts", "buildings", "walk_areas"]:
 		for item in data[key]:
 			# The previous generic "Anlagen" error concealed the exact object
@@ -2431,7 +2431,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 			# exposing the user's actual save bytes or dropping construction.
 			var asset_id:String=str(item.get("id","?")) if item is Dictionary else "?"
 			var asset_name:String=str(item.get("name","")) if item is Dictionary else ""
-			invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen · "+key+" #"+asset_id
+			invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · "+L.text("Anlagen")+" · "+key+" #"+asset_id
 			if not asset_name.is_empty():invalid.message+=" ("+asset_name.substr(0,40)+")"
 			asset_done += 1
 			_loading(15.0 + 28.0 * float(asset_done) / maxf(1, asset_total), L.text("Pisten, Lifte und Gebäude prüfen …"), asset_done, asset_total)
