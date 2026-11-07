@@ -10245,3 +10245,12 @@ msgstr "Repair only after making a copy of the original save."
 
 msgid "Kopiert in einen anderen freien Platz desselben Modus."
 msgstr "Copies to another available slot in the same game mode."
+
+msgid "Karriere oder freier Aufbau · alte Spielstände behalten"
+msgstr "Career or free build · keep your existing saves"
+
+msgid "Karriere · Laden & Verwalten"
+msgstr "Career · Load & manage"
+
+msgid "Freier Aufbau · Laden & Verwalten"
+msgstr "Free build · Load & manage"
