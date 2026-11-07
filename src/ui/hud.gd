@@ -692,11 +692,12 @@ func _build_tools() -> void:
 	for kind in Catalog.LIFTS:
 		lift_choice.add_item(L.text(Catalog.LIFTS[kind].name))
 	lift_choice.selected = Catalog.LIFTS.keys().find("drag")
+	# Historical WC type IDs stay registered for OLD saves, but do not
+	# appear as separate products anywhere in the new-build selector.
 	for kind in Catalog.BUILDINGS:
+		if not Catalog.purchasable(str(kind)):continue
 		building_choice.add_item(L.text(Catalog.BUILDINGS[kind].name))
-		if not Catalog.purchasable(kind):
-			building_choice.set_item_disabled(building_choice.item_count-1,true)
-	building_choice.selected = Catalog.BUILDINGS.keys().find("lodge")
+	building_choice.selected = Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind))).find("lodge")
 	box.add_child(palette)
 	palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	palette.setup(self)
@@ -1293,7 +1294,8 @@ func lift_kind() -> String:
 	return Catalog.LIFTS.keys()[lift_choice.selected]
 
 func building_kind() -> String:
-	return Catalog.BUILDINGS.keys()[building_choice.selected]
+	var offers:Array=Catalog.BUILDINGS.keys().filter(func(kind):return Catalog.purchasable(str(kind)))
+	return str(offers[clampi(building_choice.selected,0,offers.size()-1)])
 
 func show_atlas() -> void:
 	camera_dialog.hide()
