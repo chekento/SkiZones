@@ -105,6 +105,20 @@ func _slot_summary(parent: VBoxContainer, summary: Dictionary, damaged: bool) ->
 		hud._label(column,str(entry[1]),14 if entry[0]==L.text("Guthaben") else 16,hud.INK,true)
 
 func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1) -> void:
+	# Keep recovery and destructive actions behind a deliberate disclosure.
+	# The resort card itself shows only play/new and this compact manager.
+	var drawer:=PanelContainer.new()
+	drawer.name="save_manager_submenu"
+	drawer.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	drawer.add_theme_stylebox_override("panel",hud._style(Color("edf3f0"),10,12))
+	var toggle:Button=hud._button(parent,L.text("Verwalten  ▾"),func():drawer.visible=not drawer.visible)
+	toggle.name="toggle_save_manager"
+	toggle.tooltip_text=L.text("Prüfen, reparieren, kopieren oder sicher archivieren")
+	toggle.custom_minimum_size.y=42
+	parent.add_child(drawer)
+	var content:VBoxContainer=hud._vbox(drawer,8)
+	hud._label(content,L.text("SPIELSTANDVERWALTUNG"),14,hud.TEAL,true)
+	drawer.hide()
 	var section:=GridContainer.new()
 	section.columns=2
 	section.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -113,8 +127,8 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	action_grids.append(section)
 	section.name="save_manager_actions"
 	section.resized.connect(_fit_actions)
-	parent.add_child(section)
-	var diagnostic: Label=hud._label(parent,"",14,hud.TEAL,true)
+	content.add_child(section)
+	var diagnostic: Label=hud._label(content,"",14,hud.TEAL,true)
 	diagnostic.name="save_diagnostics"
 	diagnostic.hide()
 	var check: Button=hud._button(section,L.text("Prüfen"),func():
@@ -124,7 +138,10 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 			diagnostic.text=L.text("Keine Datei gefunden.")
 		else:
 			diagnostic.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [report.files.size(),int(report.verified),int(report.loadable),int(report.recoverable)]
-			if bool(report.damaged):diagnostic.text+=" · "+L.text("Prüfung fehlgeschlagen: Originaldateien erhalten.")
+			if bool(report.damaged):
+				diagnostic.text+=" · "+L.text("Prüfung fehlgeschlagen: Originaldateien erhalten.")
+				for entry in report.files:
+					if str(entry.message)!="":diagnostic.text+="\n"+str(entry.name)+": "+str(entry.message)
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -139,7 +156,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	rescue.name="rescue_save_038"
 	var destination:=HBoxContainer.new()
 	destination.add_theme_constant_override("separation",10)
-	parent.add_child(destination)
+	content.add_child(destination)
 	hud._label(destination,L.text("Kopie nach"),16,hud.MUTED)
 	var target:=OptionButton.new()
 	target.name="copy_target"
