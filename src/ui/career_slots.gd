@@ -18,6 +18,8 @@ var starting_tier:=OptionButton.new()
 var tier_details:=Label.new()
 var heading_label: Label
 var close_button: Button
+var career_tab: Button
+var free_tab: Button
 var action_grids: Array[GridContainer] = []
 func setup(interface: CanvasLayer) -> void:
 	hud=interface
@@ -32,6 +34,17 @@ func setup(interface: CanvasLayer) -> void:
 	heading_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	heading_label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	close_button=hud._button(row,L.text("Zurück"),hide)
+	# Distinct, persistent destinations: returning from the save details never
+	# leaves the player guessing whether this is a career or sandbox slot.
+	var switcher:=HBoxContainer.new()
+	switcher.add_theme_constant_override("separation",8)
+	body.add_child(switcher)
+	career_tab=hud._button(switcher,L.text("Karrieren"),open)
+	free_tab=hud._button(switcher,L.text("Freier Aufbau"),open_free)
+	for tab in [career_tab,free_tab]:
+		tab.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		tab.custom_minimum_size.y=48
+		tab.add_theme_font_size_override("font_size",16)
 	intro_label=hud._label(body,L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände."),17,hud.MUTED,true)
 	tier_panel=PanelContainer.new();tier_panel.add_theme_stylebox_override("panel",hud._style(Color("e1eeea"),12,12));body.add_child(tier_panel)
 	var controls: VBoxContainer=hud._vbox(tier_panel,5)
@@ -144,6 +157,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 					if str(entry.message)!="":diagnostic.text+="\n"+str(entry.name)+": "+str(entry.message)
 	)
 	check.name="check_save_038"
+	check.tooltip_text=L.text("Prüft Datei und Sicherungen, ohne etwas zu verändern.")
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var rescue: Button=hud._button(section,L.text("Reparieren"),func():
 		if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==map_id:
@@ -154,6 +168,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 		if result.ok:refresh()
 	)
 	rescue.name="rescue_save_038"
+	rescue.tooltip_text=L.text("Die Reparatur erhält Originaldateien und prüft das Ergebnis.")
 	var destination:=HBoxContainer.new()
 	destination.add_theme_constant_override("separation",10)
 	content.add_child(destination)
@@ -173,6 +188,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 		if result.ok:refresh()
 	)
 	copy.name="copy_save_038"
+	copy.tooltip_text=L.text("Kopiert in einen anderen freien Platz desselben Modus.")
 	var remove: Button=hud._button(section,L.text("Löschen & sichern"),func():_request_archive(map_id,slot,free_slot))
 	remove.name="archive_save_038"
 	remove.add_theme_stylebox_override("normal",hud._style(Color("f4d5cc"),9,10))
@@ -184,6 +200,10 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 		button.custom_minimum_size=Vector2(144,50)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	# A stable, visually separated hierarchy keeps dangerous actions distinct.
+	check.add_theme_stylebox_override("normal",hud._style(Color("cce9e8"),10,10))
+	rescue.add_theme_stylebox_override("normal",hud._style(Color("dbe7ff"),10,10))
+	copy.add_theme_stylebox_override("normal",hud._style(Color("e7f0df"),10,10))
 
 func open() -> void:
 	free_mode = false
@@ -227,6 +247,10 @@ func refresh() -> void:
 	action_grids.clear()
 	heading_label.text=L.text("DEINE VIER FREIEN SPIELSTÄNDE") if free_mode else L.text("DEINE VIER KARRIEREN")
 	intro_label.text=L.text("Vier unabhängige Plätze für freien Aufbau. Platz 1 enthält bisherige freie Spielstände.") if free_mode else L.text("Vier getrennte Karrieren mit eigenen Resorts und Freischaltungen. Freier Aufbau besitzt eigene Spielstände.")
+	for tab in [career_tab,free_tab]:
+		var selected:bool=(tab==free_tab)==free_mode
+		tab.add_theme_stylebox_override("normal",hud._style(Color("bfe4dc") if selected else Color("e8ece9"),10,10))
+		tab.disabled=selected
 	tier_panel.visible=not free_mode
 	confirmation.title=L.text("Freien Spielstand neu beginnen?") if free_mode else L.text("Karriere neu beginnen?")
 	confirmation.dialog_text=L.text("Der bisherige freie Spielstand wird zuerst archiviert. Die anderen freien Plätze und Karrieren bleiben erhalten.") if free_mode else L.text("Diese Karriere wird vor dem Neustart als Sicherung aufbewahrt. Die anderen drei Karrieren bleiben erhalten.")
