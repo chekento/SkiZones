@@ -2426,6 +2426,13 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen"
 	for key in ["pistes", "lifts", "buildings", "walk_areas"]:
 		for item in data[key]:
+			# The previous generic "Anlagen" error concealed the exact object
+			# rejecting both the primary and .bak. Show its save ID/name without
+			# exposing the user's actual save bytes or dropping construction.
+			var asset_id:String=str(item.get("id","?")) if item is Dictionary else "?"
+			var asset_name:String=str(item.get("name","")) if item is Dictionary else ""
+			invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen · "+key+" #"+asset_id
+			if not asset_name.is_empty():invalid.message+=" ("+asset_name.substr(0,40)+")"
 			asset_done += 1
 			_loading(15.0 + 28.0 * float(asset_done) / maxf(1, asset_total), L.text("Pisten, Lifte und Gebäude prüfen …"), asset_done, asset_total)
 			if not item is Dictionary or not Terrain.number(item.get("id")) or int(item.id) != item.id or item.id < 1 or item.id >= data.next_id or used_ids.has(item.id):
