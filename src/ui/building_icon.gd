@@ -30,7 +30,7 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	var style: String=current_style()
-	if style!="alpine":
+	if style!="alpine" or kind.begins_with("wc_"):
 		var key: String=style+"/"+kind+"/"+str(level)
 		if not theme_meshes.has(key):
 			if theme_meshes.size()>320:theme_meshes.clear()
