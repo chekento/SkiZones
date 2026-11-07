@@ -46,6 +46,7 @@ func run() -> void:
 	radio.open()
 	await process_frame
 	check(radio.visible and radio.preset_buttons.size()==15,"All fifteen playable presets are actual in-radio buttons")
+	check(radio.find_child("radio_station_grid",true,false) is HFlowContainer,"Station buttons wrap into accessible rows instead of clipping horizontally on Android")
 	check(not radio.enabled.visible and not radio.genre_choice.visible and not radio.music_slider.visible,"No separate checkbox or duplicate tuner form is visible")
 	check(radio.face.logo_texture!=null and radio.face.station_id=="alpine","Physical radio face displays first station artwork")
 	check(radio.playing_label.custom_minimum_size.y>=60 and not radio.playing_label.text.is_empty(),"Current title retains readable height when phone labels wrap")
