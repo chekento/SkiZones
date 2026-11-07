@@ -10299,3 +10299,9 @@ msgstr "Free build · Load & manage"
 
 msgid "TUNE"
 msgstr "TUNE"
+
+msgid "Prüft Datei und Sicherungen, ohne etwas zu verändern."
+msgstr "Checks the save file and its backups without changing anything."
+
+msgid "Die Reparatur erhält Originaldateien und prüft das Ergebnis."
+msgstr "Repair preserves the original files and verifies the result."
