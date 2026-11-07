@@ -8,7 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
-| **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Altspielstände prüfen und reparieren, besseres Lademenü | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
+| **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Lesbare Spielstände und wirksame Reparatur | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
 | **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
 | **[v0.37.0](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** | 06.11.2026 | feste Pistenplanung und sichtbare Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk) | [Details](docs/releases/0.37.0.md) |
@@ -56,6 +56,29 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.38.2 · Lesbare Spielstände und wirksame Reparatur (07.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk)** (167.3 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.38.2/manifest.json) · [Originalnotizen](docs/releases/0.38.2.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.38.2)
+
+Version **0.38.2**, Android versionCode **50** in beiden Profilen. Paketkennung `cloud.kosch.skizones` und bestehende Signaturkette bleiben erhalten. Die Android-APK ist am 7. November 2026 aus dem vollständig geprüften CI-Artefakt unverändert veröffentlicht worden. SHA-256, Signaturidentität mit 0.38.1, Version und Android-Paket wurden in einem separaten Freigabegate vor der Veröffentlichung erneut kontrolliert.
+
+- Die vier Karriereplätze und die vier freien Speicherplätze erhalten weiße Resortkarten mit getrennten Kennzahlen für Tag, Sterne und Guthaben. Freies Bauen zeigt unbegrenztes Guthaben. Auf kleinen Bildschirmen entfallen lange Erklärtexte im Kopfbereich.
+- Vier klar benannte Verwaltungsaktionen: **Prüfen**, **Reparieren**, **Kopie erstellen**, **Löschen & sichern**. Kopierziel mit eigener Beschriftung; keine zusammengeschobenen unlesbaren Knöpfe. Das Raster passt sich an die tatsächlich verfügbare Kartenbreite an.
+- Löschen entfernt den aktiven Platz erst nach einer überprüften vollständigen Archivkopie von Original und Sicherung. Der geladene aktive Spielstand bleibt geschützt. Neustart besitzt weiterhin eine eigene Bestätigung.
+- Dialogknöpfe bleiben auch mit Tastatur-/Controllerfokus dunkel und lesbar. Native Bestätigungen bekommen vollständige Theme-Zustände und echte Mindestabmessungen für beide Dialogtypen. Abbrechen ist übersetzt. Hilfe, Impressum, Community und Abrissdialog passen sich an Telefonbildschirme an; lange Hauptmenütexte umbrechen.
+- Prüfung, automatisches Laden und manuelle Reparatur verwenden dieselben Wiederherstellungsregeln. Eine als rettbar erkannte Hauptdatei lässt sich nun auch ohne intakte Sicherung reparieren. Vollständig gültige Sicherungen haben weiterhin Vorrang.
+- Ohne intakte Sicherung bleiben zunächst auch aktive Gäste erhalten. Nur wenn erforderlich, wird beschädigter vorübergehender Gastzustand zurückgesetzt. Pisten, Gebäude, Lifte, Budget und Karriere werden weiter geprüft und erhalten. Eine normalisierte Reparatur wird vor Aktivierung erneut eingelesen und vollständig geladen; das unveränderte Original wird mit SHA256-Nachprüfung archiviert.
+- Für erhaltene historische Baugeometrie wird ein optionales boolesches Kompatibilitätsmerkmal gespeichert. Dadurch ist das reparierte Ergebnis beim nächsten Start regulär ladbar. Neue Bauvorhaben benutzen weiterhin die bestehenden Bauprüfungen. Unbekannte Bauteile, ungültige dauerhafte Daten und fehlgeschlagene moderne Prüfsummen werden nicht umgangen.
+- Neue Freigabesperre: Aus den unveränderten, auf Commit-SHAs festgelegten Quellständen aller **45 vorhandenen öffentlichen Releases von 0.1.1 bis 0.38.1** werden echte Spielstände erzeugt und mit dem aktuellen Code geladen. Geld/Zeit, aktive Gäste, Anlagen, unveränderte Originaldatei und aktueller Save-Roundtrip werden geprüft. Die bestehenden umfassenderen 0.19-/0.27- und Android-Updateprüfungen bleiben bestehen.
+
+### Prüfung und Grenzen
+
+Siehe [Prüfbericht](docs/qa/0382-save-repair.md). Vor Veröffentlichung wurden [vollständige CI und Android API 30/36 für den identischen Code](https://github.com/chekento/SkiZones/actions/runs/42372211243) erfolgreich abgeschlossen. Die [separate APK-Freigabeprüfung](https://github.com/chekento/SkiZones/actions/runs/42384836193) ist ebenfalls bestanden. Die geprüfte APK ist als [v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) öffentlich verfügbar.
+
+Die drei gemeldeten problematischen Spielerdateien liegen noch nicht vor. Der historische Test erzeugt einen aktiven Starter-Spielstand pro Originalrelease; er ersetzt keine individuelle Prüfung beliebiger Spieldaten. Eine beschädigte Prüfsumme oder fehlende Datei wird ohne gültige Sicherung nicht durch erfundene Daten ersetzt. Weitere offene Anforderungen stehen im [Anforderungsabgleich](docs/qa/029-036-requirements-audit.md).
+
+---
 
 ## v0.38.1 · WC-Service respektiert Personalabwesenheit (07.11.2026)
 
