@@ -47,5 +47,18 @@ func run() -> void:
 	check(Manager.inspect(id,1).loadable==1,"Historical mission filename is available to manual inspection")
 	check(not FileAccess.file_exists(career) and not FileAccess.file_exists(sandbox),"Mission recovery does not create or overwrite unrelated careers or free slots")
 	check(FileAccess.get_sha256(legacy)==original,"Historical mission source remains byte-identical")
+	# The two reported free-build cards contain primary + backup with healthy
+	# checksums but neither is semantically loadable. Test that same file shape.
+	for free_slot in [1,2]:
+		var mountain:=Resort.new()
+		mountain.new_game(false,20261107+free_slot,"sonnenhang")
+		mountain.day=3 if free_slot==1 else 1
+		var free_path:String=Saves.path_for_map("sonnenhang",0,free_slot)
+		check(Saves.save_game(mountain,free_path).ok,"Free slot %d stores a real sandbox world" % free_slot)
+		check(DirAccess.copy_absolute(ProjectSettings.globalize_path(free_path),ProjectSettings.globalize_path(free_path+".bak"))==OK,"Free slot %d has an intact prior backup" % free_slot)
+		var free_report:Dictionary=Manager.inspect("sonnenhang",0,free_slot)
+		check(free_report.verified==2 and free_report.loadable==2,"Both checksum-verified free files in slot %d restore semantically" % free_slot)
+		var restored_free:=Resort.new()
+		check(Saves.load_game(restored_free,free_path).ok and restored_free.campaign.get("mode")=="free","Free slot %d resumes with all sandbox privileges" % free_slot)
 	print("SAVE LIBRARY v0.39: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
