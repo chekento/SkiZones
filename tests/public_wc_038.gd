@@ -16,6 +16,11 @@ func run() -> void:
 	model.campaign.mode="free"
 	model.money=2500000
 	check(WC.KINDS.size()==5 and WC.is_public("wc_dixi") and not WC.is_public("hotel"),"Five independent public WC assets, hotel excluded")
+	var Catalog=preload("res://src/core/catalog.gd")
+	var Styles=preload("res://src/world/style_assets.gd")
+	var public_offers: Array=Catalog.building_order().filter(func(kind): return str(kind).begins_with("wc_"))
+	check(public_offers==["wc_dixi"] and str(Catalog.BUILDINGS.wc_dixi.name)=="Portable Toilet","Only Portable Toilet is offered for purchase; historical WC types remain loadable")
+	check(Styles.dimensions("wc_dixi",5).x>Styles.dimensions("wc_dixi",1).x and Styles.dimensions("wc_dixi",5).y>Styles.dimensions("wc_dixi",1).y,"Sanitation upgrades visibly expand the same building")
 	check(Progression.branch_for("sanitation").id=="sanitation","Sanitation has a separate tech tree")
 	var bathroom:Dictionary={}
 	for z in range(160,440,24):
