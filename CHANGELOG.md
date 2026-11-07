@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **45 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **46 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Altspielstände prüfen und reparieren, besseres Lademenü | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
 | **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
 | **[v0.37.0](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** | 06.11.2026 | feste Pistenplanung und sichtbare Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk) | [Details](docs/releases/0.37.0.md) |
