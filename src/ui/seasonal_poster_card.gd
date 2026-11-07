@@ -3,6 +3,7 @@ extends Control
 ## Supplied original artwork sits UNDER readable, editable event typography.
 const Styles=preload("res://src/core/visual_styles.gd")
 const Art=preload("res://src/ui/seasonal_poster_art.gd")
+const L=preload("res://src/core/i18n.gd")
 var style_id: String="alpine"
 var campaign: Dictionary={}
 var art:=Art.new()
@@ -62,10 +63,10 @@ func _apply() -> void:
 	if file!="" and ResourceLoader.exists(file):
 		photo.texture=load(file) as Texture2D
 	photo.visible=photo.texture!=null
-	headline.text=str(campaign.get("title","WINTERWUNDER"))
-	subtitle.text=str(campaign.get("subtitle","Dein Winter am Berg"))
-	caption.text=str(campaign.get("detail",""))
-	date_text.text=str(campaign.get("date","01. DEZ"))
+	headline.text=L.text(str(campaign.get("title","WINTERWUNDER")))
+	subtitle.text=L.text(str(campaign.get("subtitle","Dein Winter am Berg")))
+	caption.text=L.text(str(campaign.get("detail","")))
+	date_text.text=L.text(str(campaign.get("date","01. DEZ")))
 	var palette:Dictionary=Styles.ui_palette(style_id)
 	var accent:=Color(str(palette.accent))
 	var badge:=StyleBoxFlat.new()
