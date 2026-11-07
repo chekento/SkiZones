@@ -92,7 +92,7 @@ func setup(interface: CanvasLayer) -> void:
 				report.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [result.files.size(),int(result.verified),int(result.loadable),int(result.recoverable)]
 				if result.damaged:
 					for entry in result.files:
-						if str(entry.message)!="":report.text+="\\n"+str(entry.name)+": "+str(entry.message)
+						if str(entry.message)!="":report.text+="\n"+str(entry.name)+": "+str(entry.message)
 			)
 			hud._button(actions,L.text("Spielstand reparieren"),func():
 				if hud.game.has_game and hud.game.model.map_id==id:
