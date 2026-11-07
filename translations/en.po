@@ -10227,3 +10227,21 @@ msgstr "Your winter in the mountains"
 
 msgid "Ad and headline"
 msgstr "Advertisement and headline"
+
+msgid "Karrieren"
+msgstr "Careers"
+
+msgid "Freier Aufbau"
+msgstr "Free build"
+
+msgid "SPIELSTAND VERWALTEN"
+msgstr "MANAGE SAVE"
+
+msgid "Prüft die Datei und ihre Sicherungen, ohne etwas zu verändern."
+msgstr "Checks this save and its backups without changing anything."
+
+msgid "Reparatur erst nach einer Kopie der Originaldatei."
+msgstr "Repair only after making a copy of the original save."
+
+msgid "Kopiert in einen anderen freien Platz desselben Modus."
+msgstr "Copies to another available slot in the same game mode."
