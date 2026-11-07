@@ -182,5 +182,9 @@
   {
     "tag": "v0.38.2",
     "commit": "fe3c32684edf63a12d09b25f386cea4904d68c59"
+  },
+  {
+    "tag": "v0.39.0",
+    "commit": "c7080681ffbc1e60483defdcc57d80fb44f2da96"
   }
 ]
