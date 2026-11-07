@@ -61,9 +61,29 @@ func run() -> void:
 	WC.visit(model,bathroom,50)
 	var hired:Dictionary=model.Ops.hire(model,"sanitation","building:%d" % int(bathroom.id),"day")
 	check(hired.ok,"Optional public WC maintenance staff can be hired without hotel roles")
+	# Daily maintenance is an overnight contract, independent of the selected
+	# hourly shift, but an absent employee cannot perform the physical service.
+	model.campaign.mode="career"
+	var worker:Dictionary=model.operations.staff[-1]
+	worker.absent_until=model.Ops.clock(model)+2*1440
+	var before_absence:Dictionary=WC.status(model,bathroom)
+	var budget:float=model.money
+	model.day+=1
+	WC.daily(model,bathroom)
+	var absent:Dictionary=WC.status(model,bathroom)
+	check(float(absent.fill)==float(before_absence.fill) and int(absent.visits)==int(before_absence.visits),"Absent WC worker cannot empty the tank or invent visits")
+	check(float(absent.hygiene)<float(before_absence.hygiene) and model.money==budget,"Absence preserves daily aging without charging nonexistent service")
+	var copy:=Resort.new()
+	check(copy.restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok,"WC state and employee absence survive save restore")
+	if not copy.operations.staff.is_empty():
+		check(int(copy.operations.staff[-1].absent_until)==int(worker.absent_until),"Save restore preserves the actual employee return deadline")
 	model.day+=1
 	WC.daily(model,bathroom)
 	var maintained:Dictionary=WC.status(model,bathroom)
+	check(model.money==budget-int(absent.clean_cost)-int(absent.empty_cost),"Returning worker charges exactly one real cleaning and tank service")
+	var after_service:float=model.money
+	WC.daily(model,bathroom)
+	check(model.money==after_service,"Repeated daily call cannot double-charge completed maintenance")
 	check(float(maintained.fill)<1.0 and float(maintained.hygiene)>99.0,"Optional WC worker performs actual paid tank and cleaning service on the next day")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
