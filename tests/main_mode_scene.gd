@@ -33,13 +33,13 @@ func run() -> void:
 	var labels: Array = collect_buttons(game.hud.menu).map(func(button): return button.text)
 	check(Maps.SCENARIOS_ENABLED, "Real scenarios are restored as an optional mode")
 	check(not game.hud.scenarios.visible and game.hud.scenarios.get_parent() != null, "Scenario selection is available without covering the main menu")
-	var career_index: int = labels.find("Karriere · vier Spielstände")
-	var free_index: int = labels.find("Freier Aufbau · vier Spielstände")
+	var career_index: int = labels.find("Karriere · Laden & Verwalten")
+	var free_index: int = labels.find("Freier Aufbau · Laden & Verwalten")
 	var scenarios_index: int = labels.find("Szenarien · vier echte Skigebiete")
 	check(career_index >= 0 and free_index > career_index and scenarios_index > free_index, "Career and four free-build save slots stay above optional real scenarios")
 	var free_menu_button: Button = null
 	for item in collect_buttons(game.hud.menu):
-		if item.text == "Freier Aufbau · vier Spielstände":
+		if item.text == "Freier Aufbau · Laden & Verwalten":
 			free_menu_button = item
 			break
 	if free_menu_button != null:
