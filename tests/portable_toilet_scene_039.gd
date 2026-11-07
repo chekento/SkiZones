@@ -28,11 +28,15 @@ func run() -> void:
 		for card in game.hud.building_browser.cards:
 			if game.model.PublicWC.is_public(str(card.kind)):types.append(card.kind)
 		check(types==["wc_dixi"],"Building browser has one purchasable toilet in "+language)
+		# Old IDs remain restorable, but must be ABSENT from all buy menus.
 		var hidden:=true
-		for kind in ["wc_cabin","wc_module","wc_house","wc_luxury"]:
-			var index:int=game.model.Catalog.BUILDINGS.keys().find(kind)
-			hidden=hidden and game.hud.building_choice.is_item_disabled(index) and not game.hud.building_choice.visible
-		check(hidden,"Obsolete standalone types stay disabled in the hidden legacy index; visible catalog offers one toilet")
+		var sole_count:=0
+		for index in range(game.hud.building_choice.item_count):
+			var label_text:String=game.hud.building_choice.get_item_text(index)
+			if label_text==game.hud.L.text("Portable Toilet"):sole_count+=1
+			for kind in ["wc_cabin","wc_module","wc_house","wc_luxury"]:
+				hidden=hidden and label_text!=game.hud.L.text(game.model.Catalog.BUILDINGS[kind].name)
+		check(hidden and sole_count==1,"All buy menus list exactly one Portable Toilet; four legacy IDs stay save-readable only")
 		for viewport in [Vector2i(1536,864),Vector2i(360,740),Vector2i(420,860),Vector2i(740,360)]:
 			root.size=viewport;await settle()
 			var manager:Control=game.hud.experience
