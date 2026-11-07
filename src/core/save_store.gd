@@ -384,6 +384,15 @@ static func _normalize_transient_assets(world: Dictionary) -> bool:
 		if not Terrain.number(grooming) or float(grooming)<0.0 or float(grooming)>2880.0:
 			raw.grooming_until=0
 			changed=true
+		# The old snow mesh can be dimensioned for the former slope length.
+		# Preserve the authored piste, Snowpark features and geometry; rebuild
+		# ONLY temporary compression/tracks if normal+legacy load both failed.
+		# The original checksum-verified file is separately archived first.
+		if raw.has("surface") or raw.has("tracks"):
+			raw.erase("surface")
+			raw.tracks=[]
+			raw.surface_revision=0
+			changed=true
 	for raw in world.lifts:
 		if not raw is Dictionary:continue
 		# Departure logs and their clock are expendable shift state. Never

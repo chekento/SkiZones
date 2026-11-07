@@ -17,6 +17,19 @@ static func valid(piste: Dictionary) -> bool:
 		if not placement(piste,str(feature.kind),float(feature.fraction),float(feature.lateral),index).is_empty(): return false
 	return true
 
+# Historical ramps and rails can be valid authored features even when new
+# distance-to-edge and inter-feature spacing restrictions have changed.
+# Accept only known finite, bounded features; do not move/delete objects.
+static func valid_historical(piste: Dictionary) -> bool:
+	var features: Variant=piste.get("features",[])
+	if not features is Array or features.size()>MAX_FEATURES:return false
+	var half_width: float=Snow.piste_width(piste)*0.5
+	for feature in features:
+		if not feature is Dictionary or feature.get("kind","") not in KINDS:return false
+		if not Terrain.number(feature.get("fraction")) or not Terrain.number(feature.get("lateral")):return false
+		if float(feature.fraction)<0.0 or float(feature.fraction)>1.0 or absf(float(feature.lateral))>half_width:return false
+	return true
+
 static func placement(piste: Dictionary, kind: String, fraction: float, lateral: float, ignore: int = -1) -> String:
 	if kind not in KINDS or not is_finite(fraction) or not is_finite(lateral): return L.text("Ungültiges Pistenmodul.")
 	var length_value: float=piste.get("length",0)

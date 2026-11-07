@@ -2500,7 +2500,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				if not Snow.validate(item):
 					return invalid
 				item.grade = analysis.grade
-				if not PisteFeatures.valid(item): return invalid
+				if not PisteFeatures.valid(item) and not (legacy_geometry and PisteFeatures.valid_historical(item)): return invalid
 			elif key == "lifts":
 				# 0.19–0.33 infrastructure must survive later placement rules.
 				# Still require a known machine and finite in-bounds endpoints.

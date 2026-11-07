@@ -50,6 +50,31 @@ func run() -> void:
 	check(same_assets(restored,model),"All piste positions, lift endpoints, building IDs and kinds are preserved")
 	check(restored.money==model.money and restored.day==model.day and restored.campaign==model.campaign,"Budget, day and career progression unchanged")
 	check(Manager.inspect("sonnenhang",2).loadable==1,"Recovered primary passes the strict loader without a second rescue")
+	# Both primary and .bak are checksum-valid but carry the same stale snow
+	# track layout. This reproduces the reported "2 verified / 0 loadable".
+	var old_snow:Dictionary=model.snapshot().duplicate(true)
+	old_snow.pistes[0].tracks=[{"key":"legacy-ghost","sport":"ski","ability":0,"run":0,"guest":0,"from":0.0,"until":1.0,"to":1.4}]
+	write_save(path,old_snow)
+	var snow_hash:String=FileAccess.get_sha256(path)
+	check(DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(path+".bak"))==OK,"Two checksum-valid copies of the same stale snow traces exist")
+	report=Manager.inspect("sonnenhang",2)
+	check(report.verified==2 and report.loadable==0 and report.recoverable==2,"Both unusable Anlagen saves become safely recoverable")
+	fixed=Manager.repair("sonnenhang",2)
+	restored=Resort.new()
+	check(fixed.ok and Saves.load_game(restored,path).ok,"In-game repair activates a strict-loadable resort from two failing files")
+	check(same_assets(restored,model) and restored.money==model.money,"Recovery discards only transient snow, preserving buildings and all pistes")
+	check(FileAccess.get_sha256(path+".bak")==snow_hash,"Original .bak remains byte-for-byte intact")
+	# A once-valid rail can predate new edge/spacing limits. Keep its authored
+	# kind and fraction, marking the layout as historical rather than removing it.
+	var old_feature:Dictionary=model.snapshot().duplicate(true)
+	old_feature.pistes[0].features=[{"kind":"rail","fraction":0.01,"lateral":0.0}]
+	write_save(path,old_feature)
+	if FileAccess.file_exists(path+".bak"):DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".bak"))
+	report=Manager.inspect("sonnenhang",2)
+	check(report.verified==1 and report.loadable==0 and report.recoverable==1,"Old Snowpark rail placement is recognized as historical geometry")
+	fixed=Manager.repair("sonnenhang",2)
+	restored=Resort.new()
+	check(fixed.ok and Saves.load_game(restored,path).ok and restored.pistes[0].features==old_feature.pistes[0].features,"Legacy Snowpark rail is preserved in a normally reloadable resort")
 	# Intentionally invalid permanent geometry must not be silently deleted.
 	var invalid:Dictionary=model.snapshot().duplicate(true)
 	invalid.pistes[0].points[0]=[99999999,99999999]
