@@ -56,7 +56,7 @@ static func preview(model: RefCounted, id: int, points: Array, rotation_value: i
 		original = [item.bottom, item.top]
 	else:
 		if points.size() != 1: return invalid
-		check = candidate.preview_plaza(item.kind, Terrain.unpack(points[0])) if item.has("radius") else candidate.preview_building(item.kind, Terrain.unpack(points[0]), rotation_value)
+		check = candidate.preview_plaza(item.kind, Terrain.unpack(points[0])) if item.has("radius") else candidate.preview_building(item.kind, Terrain.unpack(points[0]), rotation_value,int(item.get("level",1)))
 		original = [item.point]
 	if not check.ok: return check
 	check.points = check.get("points", points).duplicate(true)

@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const DEFAULT_PATH := "user://skizones_save.json"
 const MAX_BYTES := 64000000
 const Maps = preload("res://src/core/maps.gd")
+const Terrain = preload("res://src/core/terrain.gd")
 static var active_slot := 1
 ## Slot 1 retains all original free_*.json files without migration.
 static var active_free_slot := 1
@@ -240,16 +241,30 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
-		if _read(path).ok:
-			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK:
+		var old_read: Dictionary = _read(path)
+		# A correct checksum does not prove that the saved resort loads.
+		# Protect the last semantic-good .bak even if the primary is signed
+		# correctly but contains incompatible permanent construction data.
+		var old_loadable: bool = false
+		if old_read.ok and model.get_script() is Script:
+			var old_model: RefCounted = model.get_script().new()
+			old_loadable = bool(old_model.restore(old_read.data.duplicate(true)).ok)
+		if old_loadable:
+			var staged_backup: String = absolute + ".bak.stage-%d" % Time.get_ticks_usec()
+			if DirAccess.copy_absolute(absolute, staged_backup) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(staged_backup):
+				DirAccess.remove_absolute(staged_backup)
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			if DirAccess.rename_absolute(staged_backup, absolute + ".bak") != OK:
+				DirAccess.remove_absolute(staged_backup)
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
+			# Preserve both a malformed and a checksum-valid but un-loadable
+			# original byte-for-byte; never rotate it into the last-good backup.
 			var rescue_dir := "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(absolute) != FileAccess.get_sha256(archive):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
@@ -287,9 +302,23 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
 	return {"ok": true, "data": payload}
 
+## Guard against a wrong-mode or wrong-mountain primary/backup accidentally
+## placed in a modern slot. Unnamed historical fixture paths stay unrestricted.
+static func expected_slot(path: String) -> Dictionary:
+	if not path.ends_with(".json"): return {}
+	var pieces: PackedStringArray=path.get_file().trim_suffix(".json").split("_")
+	if pieces.size()>=3 and pieces[0]=="career" and pieces[1].is_valid_int() and int(pieces[1])>=1 and int(pieces[1])<=4:
+		return {"map":"_".join(pieces.slice(2)),"free":false}
+	if pieces.size()>=3 and pieces[0]=="free" and pieces[1].is_valid_int() and int(pieces[1])>=2 and int(pieces[1])<=4:
+		return {"map":"_".join(pieces.slice(2)),"free":true}
+	if pieces.size()>=2 and pieces[0]=="free" and not pieces[1].is_valid_int():
+		return {"map":"_".join(pieces.slice(1)),"free":true}
+	return {}
+
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
+	var expected: Dictionary=expected_slot(path)
 	var sources: Array = [path,path+".bak"]
 	# Pre-slot saves remain a final, read-only fallback. Never load a former
 	# career into slot 2–4, or a free-play career into a paid slot.
@@ -312,6 +341,10 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
+			# Slot ownership is determined by the selected file, not by stale
+			# archive/index metadata. Never load another mode or mountain.
+			if not expected.is_empty() and (str(read.data.get("map_id","sonnenhang"))!=str(expected.map) or _free_data(read.data)!=bool(expected.free)):
+				continue
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
 			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
@@ -336,23 +369,75 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 
 
 # Shared semantic validation for inspect, repair and load. The caller must
-# verify the original checksum first. Only transient visitor data may reset;
-# permanent assets, budget and progression still pass the full validator.
+# verify the original checksum first. Only transient visitor/operating state
+# may reset; authored pistes, lift endpoints, buildings, money, day and
+# progression must survive untouched. Normal loading always precedes rescue.
+static func _normalize_transient_assets(world: Dictionary) -> bool:
+	var changed:=false
+	if not world.get("pistes") is Array or not world.get("lifts") is Array or not world.get("buildings") is Array:
+		return false
+	# Historical builds could serialize a grooming deadline beyond the
+	# newer two-day limit. It is operational, not piste geometry.
+	for raw in world.pistes:
+		if not raw is Dictionary:continue
+		var grooming: Variant=raw.get("grooming_until",0)
+		if not Terrain.number(grooming) or float(grooming)<0.0 or float(grooming)>2880.0:
+			raw.grooming_until=0
+			changed=true
+		# The old snow mesh can be dimensioned for the former slope length.
+		# Preserve the authored piste, Snowpark features and geometry; rebuild
+		# ONLY temporary compression/tracks if normal+legacy load both failed.
+		# The original checksum-verified file is separately archived first.
+		if raw.has("surface") or raw.has("tracks"):
+			raw.erase("surface")
+			raw.tracks=[]
+			raw.surface_revision=0
+			changed=true
+	for raw in world.lifts:
+		if not raw is Dictionary:continue
+		# Departure logs and their clock are expendable shift state. Never
+		# change cable geometry, lift type, station layout or equipment.
+		var clock: Variant=raw.get("clock",0.0)
+		if not Terrain.number(clock) or float(clock)<0.0 or float(clock)>60000000.0:
+			raw.clock=0.0
+			raw.recent_departures=[]
+			changed=true
+		elif not raw.get("recent_departures",[]) is Array:
+			raw.recent_departures=[]
+			changed=true
+		else:
+			for departure in raw.recent_departures:
+				if not departure is Dictionary or not Terrain.number(departure.get("clock")) or float(departure.clock)<0.0 or float(departure.clock)>float(raw.clock) or not Terrain.number(departure.get("load")) or float(departure.load)<0.0:
+					raw.recent_departures=[]
+					changed=true
+					break
+	for raw in world.buildings:
+		if not raw is Dictionary or not raw.get("room_operations") is Dictionary:continue
+		var last: Variant=raw.room_operations.get("last_service",0)
+		var allowed: float=(float(world.get("day",1))-1.0)*1440.0+float(world.get("minute",0))
+		if not Terrain.number(last) or float(last)>allowed:
+			raw.room_operations.last_service=0
+			changed=true
+	return changed
+
 static func probe_restore(data: Dictionary, model_script: Script, recovery_only: bool = false, progress: RefCounted = null) -> Dictionary:
-	# Preserve active guests with historical construction before resetting them.
 	var first_error: String=""
-	for attempt in ([2, 1, 3] if recovery_only else [0, 2, 1, 3]):
-		var world: Dictionary = data.duplicate(true)
-		var reset_visitors: bool = attempt in [1, 3]
-		var old_geometry: bool = attempt >= 2
+	# 4/5 are a last resort for *transient* lift schedules, grooming and
+	# housekeeping. Never mutate the saved buildings or their placement.
+	for attempt in ([2,1,3,4,5] if recovery_only else [0,2,1,3,4,5]):
+		var world: Dictionary=data.duplicate(true)
+		var reset_visitors: bool=attempt in [1,3,5]
+		var old_geometry: bool=attempt in [2,3,4,5]
+		var reset_runtime: bool=attempt in [4,5]
+		if reset_runtime and not _normalize_transient_assets(world):continue
 		if reset_visitors:
-			if not world.get("guests") is Array or world.guests.is_empty(): continue
+			if not world.get("guests") is Array or world.guests.is_empty():continue
 			world.guests=[];world.itineraries=[];world.parties=[]
-		var probe: RefCounted = model_script.new()
+		var probe: RefCounted=model_script.new()
 		probe.load_progress=progress
 		if progress!=null:progress.detail(L.text("Strecke und Karriere wiederherstellen …"))
-		var result:Dictionary=probe.restore(world,old_geometry)
+		var result: Dictionary=probe.restore(world,old_geometry)
 		if result.ok:
-			return {"ok":true,"exact":attempt==0,"model":probe,"reset_visitors":reset_visitors,"legacy_geometry":old_geometry}
+			return {"ok":true,"exact":attempt==0,"model":probe,"reset_visitors":reset_visitors,"reset_runtime":reset_runtime,"legacy_geometry":old_geometry}
 		if first_error.is_empty():first_error=str(result.get("message",L.text("Unbekannter Validierungsfehler")))
 	return {"ok":false,"message":first_error}

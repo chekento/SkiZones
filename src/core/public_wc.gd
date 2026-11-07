@@ -2,6 +2,7 @@ extends RefCounted
 ## Independent PUBLIC sanitation manager. Hotels and restaurants have their
 ## own included restrooms; they do not acquire a public-WC module or state.
 ## All optional data is validated so older 0.19-0.37 saves load unchanged.
+const Development=preload("res://src/core/wc_development.gd")
 const L=preload("res://src/core/i18n.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const KINDS := ["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"]
@@ -9,36 +10,42 @@ const PLACES := {"wc_dixi":1,"wc_cabin":2,"wc_module":4,"wc_house":8,"wc_luxury"
 const VOLUME := {"wc_dixi":18.0,"wc_cabin":34.0,"wc_module":72.0,"wc_house":150.0,"wc_luxury":340.0}
 const MAX_QUEUE_MINUTES := 18.0
 
-static func specification(building: Dictionary) -> Dictionary:
-	var level: int=clampi(int(building.get("level",1)),1,5)
-	var units: int=int(PLACES[building.kind])*level
-	return {"units":units,"volume":float(VOLUME[building.kind])*level*(1.3 if level>=3 else 1.0),
-		"hygiene_use":0.65*(0.65 if level>=4 else 1.0),
-		"service_factor":0.8 if level>=5 else 1.0,
-		"aging_factor":0.75 if level>=5 else 1.0,
-		"minutes":3.0 if building.kind in ["wc_dixi","wc_cabin","wc_module"] else 4.0}
+static func specification(building: Dictionary, model: RefCounted = null) -> Dictionary:
+	var level:int=clampi(int(building.get("level",1)),1,5)
+	var canonical:bool=str(building.kind)=="wc_dixi"
+	var stage:Dictionary=Development.STAGES[Development.visual_index(str(building.kind),level)]
+	var bonuses:Dictionary=model.wc_modifiers() if model!=null else Development.modifiers([])
+	var units:int=int(stage.places) if canonical else int(PLACES[building.kind])*level
+	var volume:float=float(stage.volume) if canonical else float(VOLUME[building.kind])*level*(1.3 if level>=3 else 1.0)
+	return {"units":units,"volume":volume*float(bonuses.volume),
+		"hygiene_use":0.65*(0.65 if level>=4 else 1.0)*float(bonuses.hygiene),
+		"service_factor":(0.8 if level>=5 else 1.0)*float(bonuses.service),
+		"aging_factor":(0.75 if level>=5 else 1.0)*float(bonuses.aging),
+		"minutes":3.0*float(bonuses.minutes) if canonical else (3.0 if building.kind in ["wc_cabin","wc_module"] else 4.0)*float(bonuses.minutes),
+		"clean_factor":float(bonuses.cleaning),"empty_factor":float(bonuses.emptying),"frost_factor":float(bonuses.frost),
+		"upkeep":(float(stage.upkeep) if canonical else float([15,28,80,180,420][Development.visual_index(str(building.kind),level)])*(1.0+0.2*(level-1)))*float(bonuses.upkeep)}
 
 static func initialize(model: RefCounted, building: Dictionary) -> void:
 	if is_public(str(building.get("kind",""))) and not building.has("wc_public"):
 		building.wc_public=_default(model)
 
-static func visit_minutes(building: Dictionary, count: int) -> float:
-	var spec: Dictionary=specification(building)
+static func visit_minutes(building: Dictionary, count: int, model: RefCounted = null) -> float:
+	var spec: Dictionary=specification(building,model)
 	return ceili(float(maxi(1,count))/int(spec.units))*float(spec.minutes)
 
 static func reservation(model: RefCounted, building: Dictionary, guest: Dictionary) -> Dictionary:
 	# Reserve finite waste/hygiene and queue time, rather than requiring an
 	# entire family to fit in a single cabin simultaneously. Their service
 	# duration includes successive batches; other parties retain their turn.
-	var spec: Dictionary=specification(building)
+	var spec: Dictionary=specification(building,model)
 	var count: int=maxi(1,int(guest.get("group_size",1)))
 	var load: int=model.service_load(int(building.id),int(guest.id))
 	var s: Dictionary=state(model,building)
-	var minutes: float=visit_minutes(building,load+count)
+	var minutes: float=visit_minutes(building,load+count,model)
 	return {"ok":available(model,building) and minutes<=MAX_QUEUE_MINUTES and
 		float(s.fill)+100.0*(load+count)/float(spec.volume)<96.0 and
 		float(s.hygiene)-float(spec.hygiene_use)*(load+count)>=20.0,
-		"minutes":visit_minutes(building,count),"wait":maxf(0,minutes-visit_minutes(building,count))}
+		"minutes":visit_minutes(building,count,model),"wait":maxf(0,minutes-visit_minutes(building,count,model))}
 
 static func steps(model: RefCounted) -> Dictionary:
 	# Only current door visits consume physical stalls. Travelling guests
@@ -57,7 +64,7 @@ static func steps(model: RefCounted) -> Dictionary:
 		queues[int(leg.id)].append(guest)
 	var allowed: Dictionary={}
 	for id in queues:
-		var capacity: int=int(specification(model.asset(id)).units)
+		var capacity: int=int(specification(model.asset(id),model).units)
 		var slots: int=capacity
 		queues[id].sort_custom(func(a,b):
 			if (float(a.elapsed)>0)!=(float(b.elapsed)>0):return float(a.elapsed)>0
@@ -84,7 +91,7 @@ static func state(model: RefCounted,building: Dictionary) -> Dictionary:
 static func status(model: RefCounted,building: Dictionary) -> Dictionary:
 	if not is_public(str(building.get("kind",""))):return {}
 	var s: Dictionary=state(model,building)
-	var spec: Dictionary=specification(building)
+	var spec: Dictionary=specification(building,model)
 	var units: int=int(spec.units)
 	var reserved: int=model.service_load(int(building.id))
 	var present:=0
@@ -93,13 +100,13 @@ static func status(model: RefCounted,building: Dictionary) -> Dictionary:
 		var leg: Dictionary=guest.route.legs[int(guest.leg)]
 		if leg.kind=="visit" and int(leg.id)==int(building.id) and not leg.get("pause_only",false):present+=int(guest.get("group_size",1))
 	var capacity: int=model.service_capacity(building)
-	var cleaning: int=ceili((15+units*5)*float(spec.service_factor))
-	var disposal: int=ceili((20+float(spec.volume)*0.3)*float(spec.service_factor))
+	var cleaning: int=ceili((15+units*5)*float(spec.service_factor)*float(spec.clean_factor))
+	var disposal: int=ceili((20+float(spec.volume)*0.3)*float(spec.service_factor)*float(spec.empty_factor))
 	return {"hygiene":float(s.hygiene),"fill":float(s.fill),"capacity":capacity,
 		"waiting":maxi(0,present-capacity),"reserved":reserved,"visits":int(s.visits),"units":units,
-		"volume":float(spec.volume),"hygiene_use":float(spec.hygiene_use),"service_factor":float(spec.service_factor),
+		"upkeep":float(spec.upkeep),"volume":float(spec.volume),"hygiene_use":float(spec.hygiene_use),"service_factor":float(spec.service_factor),
 		"clean_cost":cleaning,"empty_cost":disposal,
-		"winterized":bool(s.winterized),"winter_cost":100+units*45,
+		"winterized":bool(s.winterized),"winter_cost":ceili((100+units*45)*float(spec.frost_factor)),
 		"ready":bool(building.get("enabled",false)) and float(s.hygiene)>=20.0 and float(s.fill)<96.0}
 
 static func available(model: RefCounted,building: Dictionary) -> bool:
@@ -109,7 +116,7 @@ static func available(model: RefCounted,building: Dictionary) -> bool:
 static func visit(model: RefCounted,building: Dictionary,count: int=1) -> void:
 	if not is_public(str(building.get("kind",""))) or count<1:return
 	var s: Dictionary=state(model,building).duplicate(true)
-	var spec: Dictionary=specification(building)
+	var spec: Dictionary=specification(building,model)
 	var volume: float=float(spec.volume)
 	s.fill=clampf(float(s.fill)+100.0*float(count)/volume,0.0,100.0)
 	s.hygiene=clampf(float(s.hygiene)-float(spec.hygiene_use)*float(count),0.0,100.0)
@@ -122,8 +129,8 @@ static func daily(model: RefCounted,building: Dictionary) -> void:
 	var s: Dictionary=building.wc_public
 	var delta: int=maxi(0,int(model.day)-int(s.last_day))
 	if delta==0:return
-	var freezing:float=5.0 if not s.winterized and float(model.weather().temperature)<-8.0 else 0.0
-	s.hygiene=clampf(float(s.hygiene)-float(mini(delta,10))*((0.75 if s.winterized else 2.0)+freezing)*float(specification(building).aging_factor),0.0,100.0)
+	var freezing:float=5.0*float(specification(building,model).frost_factor) if not s.winterized and float(model.weather().temperature)<-8.0 else 0.0
+	s.hygiene=clampf(float(s.hygiene)-float(mini(delta,10))*((0.75 if s.winterized else 2.0)+freezing)*float(specification(building,model).aging_factor),0.0,100.0)
 	s.last_day=int(model.day)
 	building.wc_public=s
 	# Optional WC-service staff perform actual paid maintenance overnight.

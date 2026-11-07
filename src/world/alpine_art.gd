@@ -683,7 +683,7 @@ func town_hall(accent: Color) -> ArrayMesh:
 ## Readable public-sanitation silhouettes from a single blue Dixi to a
 ## luxury toilet centre. These are not hotel meshes and no save geometry changes.
 func public_toilet(kind: String, level: int, accent: Color, style: String="alpine") -> ArrayMesh:
-	var index: int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+	var index: int=preload("res://src/core/wc_development.gd").visual_index(kind,level)
 	if index<0:return finish()
 	var widths: Array=[6.4,11.0,17.0,23.0,30.0]
 	var depths: Array=[6.8,9.0,12.0,17.0,22.0]
@@ -694,7 +694,7 @@ func public_toilet(kind: String, level: int, accent: Color, style: String="alpin
 	var h:float=heights[index]
 	var pale:bool=style in ["pastel","crisp","piste_map"]
 	var saturated:bool=style in ["comic","neon_noir","aurora_ink"]
-	var body_color:Color=Color("238ac1") if index==0 else accent
+	var body_color:Color=Color("238ac1") if index==0 else Color(["238ac1","5c9cad","819ba0","9b785b","e2d6bb"][index]).lerp(accent,0.16)
 	if pale:body_color=body_color.lightened(0.23)
 	if saturated:body_color=body_color.darkened(0.16)
 	var trim:Color=Color("f4fafb") if style!="neon_noir" else Color("75eef7")
@@ -702,7 +702,7 @@ func public_toilet(kind: String, level: int, accent: Color, style: String="alpin
 	soft_box(Vector3(0,0.5,0),Vector3(w+0.8,1.0,d+0.8),base,Vector3.ZERO,0.25)
 	soft_box(Vector3(0,h*0.5+0.4,0),Vector3(w,h,d),body_color,Vector3.ZERO,0.58 if index<2 else 0.24)
 	soft_box(Vector3(0,h+0.6,0),Vector3(w+0.5,1.3,d+0.5),trim,Vector3.ZERO,0.28)
-	if index>=3:
+	if index==3:
 		roof(w+1,d+0.8,h+1.2)
 	else:
 		soft_box(Vector3(0,h+1.15,0),Vector3(w+0.8,0.55,d+0.8),body_color.lightened(0.15),Vector3.ZERO,0.18)
@@ -725,6 +725,16 @@ func public_toilet(kind: String, level: int, accent: Color, style: String="alpin
 	if index>=2:
 		for x in [-w*0.38,w*0.38]:
 			box(Vector3(x,h-2.2,-d*0.5-0.2),Vector3(2.4,1.1,0.3),trim)
+	if index>=3:
+		# Alpine timber and premium glazing visibly replace portable plastic.
+		for z in [-d*0.28,d*0.12]:
+			soft_box(Vector3(w*0.5+0.15,h*0.57,z),Vector3(0.3,3.4,d*0.22),Color("618c9e"))
+			box(Vector3(w*0.5+0.34,h*0.57,z),Vector3(0.16,3.7,0.24),trim)
+		if index==3:
+			for plank in range(6):box(Vector3(w*0.5+0.05,1.4+plank*1.6,0),Vector3(0.12,0.16,d),Color("73583f"))
+	if index==4:
+		soft_box(Vector3(-w*0.22,h+1.6,-d*0.1),Vector3(w*0.45,1.0,d*0.6),Color("718c70"))
+		for panel in range(3):box(Vector3(w*0.22,h+1.8,-d*0.27+panel*d*0.18),Vector3(w*0.24,0.32,d*0.14),Color("3e626f"))
 	if index==4:
 		# Luxury centre with accessible front canopy, distinct from a hotel.
 		soft_box(Vector3(0,h-1.5,d*0.5+2.0),Vector3(w*0.80,0.65,4.2),trim)

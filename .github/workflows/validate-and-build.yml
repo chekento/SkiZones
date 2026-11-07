@@ -273,6 +273,36 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-library-039
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_library_039.gd
+      - name: 0.39.1 keep the last playable career, sandbox and mission backup
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-0391-backup-guard
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_last_good_backup_0391.gd
+      - name: 0.39.1 rescue checksum-valid Anlage runtime failures without losing buildings
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-asset-runtime-0391
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_asset_runtime_rescue_0391.gd
+      - name: 0.39.1 old free-slot ownership and safe historical backup fallback
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-slot-safety-039
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/save_slot_ownership_039.gd
+      - name: 0.39.1 responsive Alpine Radio and all controls visible
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-radio-ui-039
+        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/radio_responsive_039.gd
+      - name: 0.39.1 winter billboards and visible snow-piste transitions
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-seasonal-paths-039
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x800 --script tests/seasonal_paths_039.gd
+      - name: 0.39.1 only one purchasable Portable Toilet and 100 developments
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-portable-039
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/portable_toilet_039.gd
+      - name: 0.39.1 real toilet development tree and in-world asset upgrades
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-portable-ui-039
+        run: |
+          xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/portable_toilet_scene_039.gd
+          xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1400x850 --script tests/portable_toilet_assets_scene_039.gd
       - name: 0.38.2 readable save actions and focused dialogs on phones
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-readable-0382

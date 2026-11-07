@@ -91,6 +91,8 @@ var _choice_routes: Dictionary = {}
 var _choice_signature := ""
 var _asset_index: Dictionary = {}
 var _edit_context: Dictionary = {}
+var _wc_research_cache:Array=[]
+var _wc_modifier_cache:Dictionary={}
 var _anchor_revision := -1
 var _anchors: Array = []
 var _cable_profiles: Dictionary = {}
@@ -485,12 +487,12 @@ func build_lift(kind: String, bottom: Vector2, top: Vector2) -> Dictionary:
 		_reroute_guests()
 	return _result(true, L.text("Lift und Stationsplätze gebaut. Pisten an die Plätze anschließen; Gebäude erweitern das Fußwegenetz."))
 
-func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> Dictionary:
+func preview_building(kind: String, point: Vector2, rotation_value: int = 0, level: int = 1) -> Dictionary:
 	if not Catalog.BUILDINGS.has(kind) or not terrain.contains(point):
 		return _result(false, L.text("Einen Standort im Baugebiet wählen."))
 	if kind == "bus" and point.y < 165:
 		return _result(false, L.text("Den Skibus-Terminal im Tal bauen."))
-	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value}
+	var proposed := {"kind": kind, "point": Terrain.pack(point), "rotation": rotation_value,"level":level}
 	var footprint := Foot.building_size(proposed)
 	var rect := Rect2(point - footprint * 0.5, footprint).grow(2)
 	if edge_entries and not portal_path.is_empty() and not Foot.clear_walk(portal_path,buildings+[proposed],lifts):
@@ -527,7 +529,7 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 		local_grade = maxf(local_grade, absf(terrain.height(point + direction * 8) - terrain.height(point - direction * 8)) / 16.0)
 	if local_grade > 0.42:
 		return _result(false, L.text("Dieser Bauplatz ist zu steil. Einen flacheren Standort wählen."))
-	var connection: Dictionary = {} if kind == "snowmaker" else Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_value)
+	var connection: Dictionary = {} if kind == "snowmaker" else Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_value,level)
 	if kind != "snowmaker" and (connection.is_empty() or not Foot.clear_walk([Terrain.pack(Foot.door(proposed)), Terrain.pack(Foot.forecourt(proposed))], buildings + [proposed], lifts)):
 		return _result(false, L.text("An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen."))
 	for piste in pistes:
@@ -1319,6 +1321,15 @@ func service_load(id: int, excluding: int = -1) -> int:
 				count+=1;booked[int(person.id)]=true
 	return count
 
+func wc_modifiers() -> Dictionary:
+	# Cache belongs to this resort; background loaders never mutate a shared
+	# research cache while the visible world is being simulated.
+	var research:Array=campaign.get("research",[])
+	if _wc_modifier_cache.is_empty() or _wc_research_cache!=research:
+		_wc_research_cache=research.duplicate()
+		_wc_modifier_cache=PublicWC.Development.modifiers(research)
+	return _wc_modifier_cache
+
 func service_capacity(building: Dictionary) -> int:
 	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
 	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
@@ -1487,7 +1498,7 @@ func _start_leg(guest: Dictionary) -> void:
 	if leg.kind == "visit" and Needs.SERVICES.has(asset(int(leg.id)).get("kind", "")):
 		guest.visit_kind = asset(int(leg.id)).kind
 		if PublicWC.is_public(str(guest.visit_kind)):
-			guest.duration=PublicWC.visit_minutes(asset(int(leg.id)),int(guest.get("group_size",1)))*time_divisor
+			guest.duration=PublicWC.visit_minutes(asset(int(leg.id)),int(guest.get("group_size",1)),self)*time_divisor
 			guest.wc_queue_since=movement_clock()
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
@@ -2034,7 +2045,7 @@ func operating_costs(include_staff: bool = true) -> float:
 	for lift in lifts:
 		amount += Catalog.LIFTS[lift.kind].upkeep * (1.0 if lift.enabled else 0.25) * (1.0 + 0.18 * (lift.get("level", 1) - 1))
 	for building in buildings:
-		amount += Catalog.BUILDINGS[building.kind].upkeep * (1.0 if building.enabled else 0.2) * (1.0 + 0.2 * (building.get("level", 1) - 1))
+		amount += (float(PublicWC.specification(building,self).upkeep) if PublicWC.is_public(str(building.kind)) else Catalog.BUILDINGS[building.kind].upkeep*(1.0+0.2*(building.get("level",1)-1))) * (1.0 if building.enabled else 0.2)
 		amount += Hospitality.extra_upkeep(building)
 	for piste in pistes:
 		amount += piste.length * (0.4 if piste.enabled else 0.08) * float(piste.get("width", 20)) / 20
@@ -2412,9 +2423,16 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var piste_numbers: Array = []
 	var asset_total: int = data.pistes.size() + data.lifts.size() + data.buildings.size() + data.walk_areas.size()
 	var asset_done := 0
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · "+L.text("Anlagen")
 	for key in ["pistes", "lifts", "buildings", "walk_areas"]:
 		for item in data[key]:
+			# The previous generic "Anlagen" error concealed the exact object
+			# rejecting both the primary and .bak. Show its save ID/name without
+			# exposing the user's actual save bytes or dropping construction.
+			var asset_id:String=str(item.get("id","?")) if item is Dictionary else "?"
+			var asset_name:String=str(item.get("name","")) if item is Dictionary else ""
+			invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · "+L.text("Anlagen")+" · "+key+" #"+asset_id
+			if not asset_name.is_empty():invalid.message+=" ("+asset_name.substr(0,40)+")"
 			asset_done += 1
 			_loading(15.0 + 28.0 * float(asset_done) / maxf(1, asset_total), L.text("Pisten, Lifte und Gebäude prüfen …"), asset_done, asset_total)
 			if not item is Dictionary or not Terrain.number(item.get("id")) or int(item.id) != item.id or item.id < 1 or item.id >= data.next_id or used_ids.has(item.id):
@@ -2482,7 +2500,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				if not Snow.validate(item):
 					return invalid
 				item.grade = analysis.grade
-				if not PisteFeatures.valid(item): return invalid
+				if not PisteFeatures.valid(item) and not (legacy_geometry and PisteFeatures.valid_historical(item)): return invalid
 			elif key == "lifts":
 				# 0.19–0.33 infrastructure must survive later placement rules.
 				# Still require a known machine and finite in-bounds endpoints.

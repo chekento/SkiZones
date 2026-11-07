@@ -90,8 +90,12 @@ func _draw() -> void:
 		var unit := Vector2(cos(theta),sin(theta))
 		var big := tick % 3 == 0
 		draw_line(center + unit * (radius + 2.0),center + unit * (radius + (11.0 if big else 7.0)),Color("aee5e0") if active else Color("6b828b"),2.0 if big else 1.0,true)
-	draw_circle(center,radius * 0.56,Color("081e2b"))
-	draw_circle(center,radius * 0.47,Color("163a49") if active else Color("33464f"))
-	draw_line(center + Vector2(-radius*0.17,0),center + Vector2(radius*0.17,0),Color("d1f9eb"),2.5,true)
-	draw_line(center + Vector2(0,-radius*0.17),center + Vector2(0,radius*0.17),Color("d1f9eb"),2.5,true)
-	draw_circle(center + Vector2(radius*0.16,-radius*0.26),2.5,Color("fff1c9"))
+	draw_circle(center,radius*0.57,Color("081e2b"))
+	draw_circle(center,radius*0.47,Color("163a49") if active else Color("33464f"))
+	# No plus symbol: this is the station-tuning wheel, NOT volume +.
+	# The rotary marking now shows its actual purpose.
+	var font:Font=ThemeDB.fallback_font
+	var size_value:int=maxi(9,mini(13,roundi(radius*.21)))
+	draw_string(font,center+Vector2(0,4),"TUNE",HORIZONTAL_ALIGNMENT_CENTER,radius*.77,size_value,Color("d1f9eb"))
+	draw_line(center+Vector2(0,-radius*.27),center+Vector2(0,-radius*.41),Color("d7f3d9"),2.6,true)
+	draw_circle(center+Vector2(radius*.16,-radius*.26),2.5,Color("fff1c9"))
