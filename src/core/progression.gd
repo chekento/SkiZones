@@ -210,8 +210,13 @@ static func upgrade(model: RefCounted, id: int) -> Dictionary:
 	if not check.ok:
 		return check
 	var item: Dictionary = model.asset(id)
+	var is_wc:bool=model.PublicWC.is_public(str(item.get("kind","")))
+	var waste:float=float(model.PublicWC.state(model,item).fill)*float(model.PublicWC.specification(item,model).volume)/100.0 if is_wc else 0.0
 	model._spend(check.cost)
 	item.level = int(item.get("level", 1)) + 1
+	if is_wc:
+		model.PublicWC.initialize(model,item)
+		item.wc_public.fill=clampf(100.0*waste/float(model.PublicWC.specification(item,model).volume),0.0,100.0)
 	item.upgrade_total = item.get("upgrade_total", 0.0) + check.cost
 	if item.has("condition"):
 		item.condition = minf(100, item.condition + 25)
@@ -247,8 +252,17 @@ static func begin_day(model: RefCounted) -> void:
 	var state: Dictionary = model.campaign
 	if not state.project.is_empty() and model.day >= state.project.due_day:
 		var id: String = state.project.id
+		var tank_contents:Dictionary={}
+		if WCDevelopment.PROJECTS.has(id) and WCDevelopment.PROJECTS[id].modifier=="volume":
+			for building in model.buildings:
+				if model.PublicWC.is_public(str(building.kind)):
+					tank_contents[int(building.id)]=float(model.PublicWC.state(model,building).fill)*float(model.PublicWC.specification(building,model).volume)/100.0
 		if not state.research.has(id):
 			state.research.append(id)
+		for building in model.buildings:
+			if not tank_contents.has(int(building.id)):continue
+			model.PublicWC.initialize(model,building)
+			building.wc_public.fill=clampf(100.0*float(tank_contents[int(building.id)])/float(model.PublicWC.specification(building,model).volume),0.0,100.0)
 		state.project = {}
 		set_notice(state,"%s abgeschlossen.",[RESEARCH[id].name])
 	state.accepted_today = []

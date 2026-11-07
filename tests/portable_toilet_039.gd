@@ -95,6 +95,19 @@ func run() -> void:
 			if blocked_safely:break
 		if blocked_safely:break
 	check(blocked_safely,"A blocked larger footprint cannot charge money or expand into its neighbour")
+	var tank:=Resort.new();tank.new_game(true);tank.campaign.mode="free"
+	tank.build_building("wc_dixi",Vector2(155,300))
+	var container:Dictionary=tank.buildings[-1]
+	WC.visit(tank,container,6)
+	tank.campaign.research=["wc_logistics"];tank.campaign.mode="career";tank.money=100000
+	tank.upgrade_asset(int(container.id))
+	var after_expand:Dictionary=WC.status(tank,container)
+	check(is_equal_approx(float(after_expand.fill)*float(after_expand.volume)/100.0,6.0) and int(after_expand.visits)==6,"Larger tank preserves the real waste amount and visit count instead of inventing waste")
+	tank.start_research("wc_tanks_01");tank.minute=Resort.CLOSING-1
+	while not tank.day_finished():tank.advance_minute(false)
+	tank.next_day()
+	var after_research:Dictionary=WC.status(tank,container)
+	check(is_equal_approx(float(after_research.fill)*float(after_research.volume)/100.0,6.0) and float(after_research.volume)>float(after_expand.volume),"Tank research increases usable volume while preserving existing contents")
 	var free:=Resort.new();free.new_game(false)
 	check(float(WC.specification(item,free).service_factor)==0.8,"Free construction bypasses access gates without inventing economic research bonuses")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
