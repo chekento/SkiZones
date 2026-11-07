@@ -145,15 +145,29 @@ func _add_cell(view: Node3D, cell: Vector2i) -> void:
 		for index in range(1,clipped.size()-1):
 			for vertex in [clipped[0],clipped[index],clipped[index+1]]:
 				var bank := clampf(float(vertex.d)/edge,0,1)
-				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.095+sin(bank*PI)*0.018)
+				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.115+sin(bank*PI)*0.028)
+				# A piste's compacted snow can sit above the terrain. Follow the
+				# *rendered* surface at every junction rather than burying half a path.
+				# It also makes transitions onto raised forecourts continuous.
+				if not _wear and view.has_method("surface_position"):
+					var top: Vector3=view.surface_position(vertex.point)
+					if top.is_finite(): at.y=maxf(at.y,top.y+0.115+sin(bank*PI)*0.028)
 				var tint: Dictionary = _tint
-				var color := Color(tint.snow).lerp(Color(tint.wood),vertex.tone*0.22)
-				if vertex.surface != "snow": color = Color(Design.SURFACES[vertex.surface].color).lerp(Color(tint.stone),0.20)
-				if visual_style == "monochrome": color = Color("eeeeee") if vertex.surface == "snow" else Color("bcbcbc")
-				if festival_season in ["advent","christmas"]: color=color.lerp(Color("c5e2d4"),0.18)
-				if festival_season in ["new_year_eve","new_year"]: color=color.lerp(Color("bcdaed"),0.24)
-				if _wear: color = Color("a8c5d0").lerp(Color("dae7ed"),smoothstep(-0.4,edge,float(vertex.d)))
-				else: color=color.lerp(Color(tint.snow),smoothstep(-0.8,edge,float(vertex.d)))
+				var color: Color
+				if vertex.surface == "snow":
+					# A deliberate cool, compacted-snow path with a feathered,
+					# still-visible rim: white on white was previously invisible.
+					color=Color("849fad").lerp(Color("c9dce0"),smoothstep(0.08,0.98,bank))
+					if visual_style=="monochrome": color=Color("949494").lerp(Color("d4d4d4"),smoothstep(0.08,0.98,bank))
+				else:
+					color=Color(Design.SURFACES[vertex.surface].color).lerp(Color(tint.stone),0.20)
+					if visual_style=="monochrome": color=Color("a8a8a8")
+					# Preserve the material right into the join; do not dissolve
+					# timber, gravel or paving back into indistinguishable white.
+					color=color.lerp(Color(tint.snow),0.30*smoothstep(-0.8,edge,float(vertex.d)))
+				if festival_season in ["advent","christmas"]: color=color.lerp(Color("c5e2d4"),0.10)
+				if festival_season in ["new_year_eve","new_year"]: color=color.lerp(Color("bcdaed"),0.12)
+				if _wear: color=Color("8daebd").lerp(Color("d1e0e6"),smoothstep(-0.4,edge,float(vertex.d)))
 				_mesh_tool.set_uv(vertex.grain)
 				_mesh_tool.set_uv2(Vector2(Design.SURFACES.keys().find(vertex.surface), 1.0-smoothstep(-0.8,edge,float(vertex.d))))
 				_mesh_tool.set_color(color)
