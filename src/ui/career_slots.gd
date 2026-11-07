@@ -206,7 +206,7 @@ func _refresh_free_cards() -> void:
 		if summary.occupied:
 			var damaged: bool = bool(summary.get("damaged", false))
 			_slot_summary(body,summary,damaged)
-			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
+			hud._button(body,L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
 			_management_actions(body,str(summary.map),0,free_slot)
 			var entries: Array = Saves.saved_resorts(0,free_slot)
 			if entries.size() > 1:
@@ -245,7 +245,7 @@ func refresh() -> void:
 		if summary.occupied:
 			var damaged: bool = summary.get("damaged", false)
 			_slot_summary(body,summary,damaged)
-			hud._button(body,L.text("Spielstand prüfen") if damaged else L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
+			hud._button(body,L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
 			_management_actions(body,str(summary.map),slot)
 			# Do not hide another old mountain behind a single last-map index.
 			var entries: Array = Saves.saved_resorts(slot)
