@@ -2412,7 +2412,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	var piste_numbers: Array = []
 	var asset_total: int = data.pistes.size() + data.lifts.size() + data.buildings.size() + data.walk_areas.size()
 	var asset_done := 0
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · assets"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Anlagen"
 	for key in ["pistes", "lifts", "buildings", "walk_areas"]:
 		for item in data[key]:
 			asset_done += 1
@@ -2521,9 +2521,9 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				# These are optional ledger fields. Preserve their absence when
 				# loading older saves; injecting default keys breaks exact
 				# save/resume determinism even though balance calculations use get().
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · hotel"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Hotel"
 	if not HotelComplex.valid_all(data.buildings): return invalid
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · reports"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Berichte"
 	for key in ["report", "last_report"]:
 		if not data.get(key) is Dictionary:
 			return invalid
@@ -2556,7 +2556,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	report = data.report.duplicate(true)
 	report.investments = report.get("investments", 0.0)
 	last_report = data.last_report.duplicate(true)
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · operations"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Betrieb"
 	operations = data.get("operations", Ops.initial()).duplicate(true)
 	if operations.get("staff") is Array:Ops.normalize_assignments(self)
 	if not Ops.valid(operations, self): return invalid
@@ -2581,7 +2581,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	_invalidate()
 	if not Progression.restore(self, data.get("campaign")):
 		return invalid
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · visitors"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Gäste"
 	var occupied_seats: Dictionary = {}
 	var saved_routes: Variant = data.get("itineraries", [])
 	if not saved_routes is Array or saved_routes.size() > MAX_GUESTS:
@@ -2718,7 +2718,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 		guests.append(copy)
 	var saved_parties: Variant=data.get("parties",[])
 	if not saved_parties is Array:return invalid
-	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · parties"
+	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Gruppen"
 	parties=saved_parties.duplicate(true)
 	if not Parties.valid(self,parties):return invalid
 	for guest in guests:
