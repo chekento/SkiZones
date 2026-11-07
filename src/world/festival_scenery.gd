@@ -4,6 +4,8 @@ extends RefCounted
 const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
 const Calendar = preload("res://src/core/annual_festival.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
+const Campaign = preload("res://src/core/seasonal_campaign.gd")
+const PosterCard = preload("res://src/ui/seasonal_poster_card.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 var store := Calendar.new()
@@ -18,11 +20,15 @@ var _poll := 0.0
 var _seconds := 0.0
 var firework_nodes: Array = []
 var poster_sites: Array = []
+var poster_campaigns: Array = []
+var selected_poster: Dictionary = {}
 
 func hit_poster(at: Vector2) -> bool:
 	if not at.is_finite():return false
-	for site in poster_sites:
-		if at.distance_to(site)<17.0:return true
+	for i in range(poster_sites.size()):
+		if at.distance_to(poster_sites[i])<17.0:
+			selected_poster=poster_campaigns[i].duplicate(true)
+			return true
 	return false
 
 func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
@@ -42,6 +48,8 @@ func _free_decoration_site(view: Node3D, at: Vector2, clearance: float, occupied
 	if not _valid_place(view,at,clearance):return false
 	for site in occupied:
 		if at.distance_to(site.point)<clearance+float(site.radius):return false
+	for site in poster_sites:
+		if at.distance_to(site)<clearance+10.0:return false
 	return true
 
 func build(view: Node3D) -> void:
@@ -52,52 +60,17 @@ func build(view: Node3D) -> void:
 	clock_label=null
 	firework_nodes.clear()
 	poster_sites.clear()
+	poster_campaigns.clear()
+	selected_poster.clear()
 	var now:=date_now()
 	var stage:=Calendar.season(now)
 	if Calendar.preview_poster(now): stage="november_poster"
-	_world_key="%d:%s" % [int(now.get("year",0)),stage]
+	_world_key="%d:%02d:%02d:%s" % [int(now.get("year",0)),int(now.get("month",0)),int(now.get("day",0)),stage]
 	if stage=="": return
-	if stage=="november_poster":
-		# Reuse the confirmed original art if its bytes are subsequently supplied.
-		# Until then there is a sharply drawn, original on-site billboard and a
-		# full-screen vector fallback. Never fabricate the original artwork.
-		var mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
-		mesh.surface_set_material(0,view._solid)
-		var original_path: String="res://assets/seasonal/christmas_poster_original.webp"
-		var original_image: Texture2D=load(original_path) as Texture2D if ResourceLoader.exists(original_path) else null
-		for index in range(3):
-			var at: Vector2=Vector2.INF
-			for step in range(20):
-				var angle: float=float(index)*TAU/3.0+float(step)*0.31
-				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
-				if _valid_place(view,candidate):
-					at=candidate
-					break
-			if not at.is_finite(): continue
-			poster_sites.append(at)
-			var board:=MeshInstance3D.new()
-			board.mesh=mesh
-			board.position=view.terrain.world(at,0.25)
-			board.rotation.y=float(index)*1.25
-			board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			root.add_child(board)
-			var sign:=Label3D.new()
-			sign.text="SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
-			sign.font_size=39
-			sign.pixel_size=0.021
-			sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-			sign.outline_size=4
-			sign.position=Vector3(0,5.0,0.85)
-			board.add_child(sign)
-			if original_image!=null:
-				var picture:=Sprite3D.new()
-				picture.texture=original_image
-				picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-				picture.pixel_size=0.015
-				picture.position=Vector3(0,5,1.2)
-				board.add_child(picture)
-				sign.hide()
-		return
+	# Advertising runs in November, Advent, Christmas and on New Year's.
+	# The actual 3D panel reuses the same editable art and type as the preview.
+	_build_posters(view,now)
+	if stage=="november_poster": return
 	_decorate_buildings(view,stage)
 	var owned: Array=store.overview(now).owned
 	# Central free seasonal ambience. Bought decors are additional objects.
@@ -182,9 +155,59 @@ func update(view: Node3D, delta: float) -> void:
 	if _poll>=12.0:
 		_poll=0.0
 		var date:=date_now()
-		var key:="%d:%s" % [int(date.get("year",0)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
+		var key:="%d:%02d:%02d:%s" % [int(date.get("year",0)),int(date.get("month",0)),int(date.get("day",0)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
 		if key!=_world_key: build(view)
 
+
+
+func _build_posters(view: Node3D, date: Dictionary) -> void:
+	if Campaign.options(date).is_empty():return
+	var mesh:ArrayMesh=FestivalArt.make("poster",view.visual_style)
+	mesh.surface_set_material(0,view._solid)
+	# Several separate art concepts per campaign, chosen deterministically.
+	# A dedicated SubViewport renders true artwork plus the visible overlays
+	# once. Its Sprite3D stays attached to the built billboard at all times.
+	for index in range(6):
+		var at:Vector2=Vector2.INF
+		for step in range(48):
+			var angle:float=float(index)*TAU/6.0+float(step)*0.31
+			var candidate:Vector2=Terrain.BASE+Vector2.from_angle(angle)*(90.0+float(step%8)*20.0)
+			if not _valid_place(view,candidate,10.0):continue
+			var spaced:=true
+			for occupied in poster_sites:
+				if candidate.distance_to(occupied)<30.0:spaced=false;break
+			if spaced:at=candidate;break
+		if not at.is_finite():continue
+		var item:Dictionary=Campaign.choose(date,index)
+		poster_sites.append(at)
+		poster_campaigns.append(item)
+		var board:=MeshInstance3D.new()
+		board.name="seasonal_campaign_%d"%index
+		board.set_meta("festival_kind","poster")
+		board.set_meta("campaign_motif",str(item.motif))
+		board.mesh=mesh
+		board.position=view.terrain.world(at,0.25)
+		board.rotation.y=float(index)*TAU/6.0
+		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(board)
+		var canvas:=SubViewport.new()
+		canvas.name="Ad and headline"
+		canvas.size=Vector2i(640,420)
+		canvas.transparent_bg=false
+		canvas.render_target_update_mode=SubViewport.UPDATE_ONCE
+		board.add_child(canvas)
+		var design:=PosterCard.new()
+		design.size=Vector2(640,420)
+		canvas.add_child(design)
+		design.configure(view.visual_style,item)
+		var printout:=Sprite3D.new()
+		printout.texture=canvas.get_texture()
+		printout.pixel_size=0.0132
+		printout.position=Vector3(0,4.5,0.75)
+		printout.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		printout.shaded=false
+		printout.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		board.add_child(printout)
 
 func _decorate_buildings(view: Node3D,stage: String) -> void:
 	for building in view.model.buildings:
