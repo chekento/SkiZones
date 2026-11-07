@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **43 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **44 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
 | **[v0.37.0](https://github.com/chekento/SkiZones/releases/tag/v0.37.0)** | 06.11.2026 | feste Pistenplanung und sichtbare Wege | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.37.0/SkiZones-0.37.0-android-arm64.apk) | [Details](docs/releases/0.37.0.md) |
 | **[v0.36.0](https://github.com/chekento/SkiZones/releases/tag/v0.36.0)** | 06.11.2026 | Hotelzimmer und Etagenplan | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.36.0/SkiZones-0.36.0-android-arm64.apk) | [Details](docs/releases/0.36.0.md) |
 | **[v0.35.1](https://github.com/chekento/SkiZones/releases/tag/v0.35.1)** | 06.11.2026 | Stabilitäts-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.35.1/SkiZones-0.35.1-android-arm64.apk) | [Details](docs/releases/0.35.1.md) |
@@ -53,6 +54,30 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.38.0 · Alpenwelt und übersichtlichere Resortverwaltung (07.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.38.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk)** (167.3 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.38.0/manifest.json) · [Originalnotizen](docs/releases/0.38.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.38.0)
+
+Version **0.38.0**, Android versionCode **48**. Paketkennung `cloud.kosch.skizones` und bestehende Signaturkette bleiben erhalten.
+
+- Gebäudeverwaltung mit kompakteren Umsatz-, Kosten- und Auslastungswerten, wichtigen Aktionen oben sowie direktem Hotelzugang unter „Gestalten“. Pflichtpersonal und freiwillige Zusatzkräfte werden getrennt angeboten.
+- Hotel-Simulator mit Rezeption, Zimmern, Frühstück, Gästeservice und Tarifen. Entscheidungen wirken auf den tatsächlichen Hotelbetrieb; laufende Schichten lassen sich speichern und fortsetzen.
+- Eigenständiger öffentlicher WC-Manager: blaue Dixi-Kabine, Winterkabinen, Sanitärcontainer, alpines WC-Haus und Luxus-Sanitärzentrum. Hygiene, Tank, Reinigung, Entleerung, Frostschutz und optionales Servicepersonal wirken im Betrieb. Hotels und Restaurants behalten ihre enthaltenen Toiletten.
+- Öffentliche WCs bedienen auch Familien in aufeinanderfolgenden Durchgängen. Tatsächliche Kabinenzahl, begrenzte Reservierungen, Wartezeit, Hygiene und Tankfüllstand bestimmen ihre Verfügbarkeit. Die Warteschlange überlebt Save/Load. WC-Ausbau nutzt seinen eigenen Forschungszweig; er verlangt keine Hotel-Meisterklasse. Ausbauwirkungen auf Tank, Hygiene und Servicekosten sind in der Simulation hinterlegt.
+- Vollflächige Karriereverwaltung mit vier Karriere- und vier freien Speicherplätzen, Ladbarkeitsdiagnose, geprüftem Kopieren, Backup-Rettung und Archivierung vor dem Entfernen.
+- Skiverkehr mit an die tatsächliche Pistenbreite angepassten Fahrkorridoren und früherer Verteilung auf alternative Abfahrten. Sichere Überholabstände bleiben bestehen.
+- Wege folgen dem Gelände und der gewählten Stil-/Festtagsoptik. Gebaute Wege erhalten keine neuen natürlichen Sohlenabdrücke; historische verdeckte Spuren bleiben im Speicherarchiv erhalten.
+- Überarbeitete Seeoberfläche und Ufer, dichtere Wald- und Buschdetails sowie zusätzliche Tierwelt.
+- Interaktives Alpine Radio mit großen Hardwareknöpfen, Touch-Drehrad, Senderpresets, Song-/Interpretenanzeige und Credits. Sofortige Übernahme von Sender und Ein/Aus bleibt erhalten.
+
+### Prüfung und Grenzen
+
+Die Hauptzweig-Pipeline prüft zusätzlich die Hotel-, öffentlichen WC-, Warteschlangen-, Speicher- und Verwaltungsabläufe der Version 0.38. Die bisherigen Prüfungen einschließlich alter Spielstände, Android API 30/36, Signaturkontinuität und In-place-Updates bleiben erforderlich. Eine Veröffentlichung setzt die vollständig erfolgreiche Pipeline und tatsächliche APK-, Manifest- und SHA256-Assets voraus.
+
+Die ursprünglich gewünschten **100 öffentlichen WC-Forschungen**, sichtbare verfallende gelbe Schnee-/Waldspuren bei fehlender Versorgung, der vollständige äußere Hotelbau und die vollständige saisonale Assetmatrix sind noch nicht abgeschlossen. Details und nachprüfbare Anforderungen stehen in [PUBLIC_DIXI_TOILETS.md](docs/PUBLIC_DIXI_TOILETS.md). Diese Vorschau behauptet weder eine vollständige Straßen-/Pistenerschließung aller realen Resorts noch einen Test auf einem physischen Android-Gerät.
+
+---
 
 ## v0.37.0 · feste Pistenplanung und sichtbare Wege (06.11.2026)
 
