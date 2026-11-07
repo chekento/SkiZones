@@ -12,6 +12,50 @@ static func sources(id: String, slot: int, free_slot: int = 1) -> Array:
 	if id not in Maps.FANTASY_MAPS or (slot==1 or (slot==0 and free_slot==1)):
 		result.append(Saves.legacy_path(id))
 		result.append(Saves.legacy_path(id)+".bak")
+	# Return ONLY active slot files. Archived backups are recovery candidates,
+	# not owned slot files: never recursively archive/delete them and never
+	# prevent a new resort from being copied into a formerly occupied slot.
+	return result
+
+static func recovery_sources(id: String,slot: int,free_slot: int = 1) -> Array:
+	var active: Array=sources(id,slot,free_slot)
+	if active.is_empty():return []
+	var result: Array=active.duplicate()
+	for archived in _archived_sources(id,slot,free_slot):
+		if archived not in result:result.append(archived)
+	return result
+
+static func _archived_sources(id: String,slot: int,free_slot: int) -> Array:
+	var result: Array=[]
+	var target: String=Saves.path_for_map(id,slot,free_slot)
+	var names: Array=[target.get_file(),target.get_file()+".bak"]
+	var roots: Array=[]
+	var index:int=free_slot if slot==0 else slot
+	roots.append(["user://free-archives" if slot==0 else "user://career-archives","slot-%d-" % index])
+	roots.append(["user://save-archives","%s-%d-%d-" % [id,slot,free_slot]])
+	for spec in roots:
+		var root: String=str(spec[0])
+		var listing: DirAccess=DirAccess.open(root)
+		if listing==null:continue
+		for dirname in listing.get_directories():
+			if not dirname.begins_with(str(spec[1])):continue
+			for filename in names:
+				var file: String=root+"/"+dirname+"/"+filename
+				if FileAccess.file_exists(file):result.append(file)
+				if result.size()>=96:return result
+	var recovery: DirAccess=DirAccess.open("user://save-recovery")
+	if recovery!=null:
+		for filename in recovery.get_files():
+			if filename.begins_with(str(names[0])+"-") or filename.begins_with(str(names[1])+"-"):
+				result.append("user://save-recovery/"+filename)
+			if result.size()>=96:return result
+	# Load-game rescue snapshots were saved alongside the former source.
+	var top: DirAccess=DirAccess.open("user://")
+	if top!=null:
+		for filename in top.get_files():
+			if filename.begins_with(str(names[0])+".recovery-") and filename.ends_with(".json"):
+				result.append("user://"+filename)
+			if result.size()>=96:return result
 	return result
 
 static func correct_mode(read: Dictionary,id: String,slot: int) -> bool:
@@ -26,7 +70,15 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var good:=0
 	var owned: String=Saves.path_for_map(id,slot,free_slot)
 	var model_script: Script=load("res://src/core/resort.gd")
-	for source in sources(id,slot,free_slot):
+	var active: Array=sources(id,slot,free_slot)
+	# An intentionally archived/deleted slot is empty in the active manager.
+	# If it still holds damaged files, include read-only historic backups
+	# in diagnostics so the player can restore that occupied slot.
+	var occupied: bool=false
+	for candidate in active:
+		if FileAccess.file_exists(candidate):occupied=true;break
+	var paths: Array=recovery_sources(id,slot,free_slot) if occupied else active
+	for source in paths:
 		if not FileAccess.file_exists(source):continue
 		var read: Dictionary=Saves._read(source)
 		var valid: bool=correct_mode(read,id,slot)
@@ -48,7 +100,7 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 ## Prefer intact backups, then normalize a recoverable checksum-verified source.
 ## Every replacement must pass a complete normal restore before activation.
 static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
-	var paths: Array=sources(id,slot,free_slot)
+	var paths: Array=recovery_sources(id,slot,free_slot)
 	if paths.is_empty():return {"ok":false,"message":L.text("Ungültiger Spielstand.")}
 	var target: String=Saves.path_for_map(id,slot,free_slot)
 	var existing: Dictionary=Saves._read(target) if FileAccess.file_exists(target) else {"ok":false}

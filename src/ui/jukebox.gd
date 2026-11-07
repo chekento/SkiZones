@@ -103,7 +103,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	identity_title.text_overrun_behavior=TextServer.OVERRUN_NO_TRIMMING
 	_label(identity,L.text("15 SENDER · OFFLINE"),11,Color("8bb9ba"))
 	power_button=_icon_button(top,"power",func(): _set_power(not enabled.button_pressed), "Radio sofort ein- oder ausschalten",true)
-	power_button.custom_minimum_size.x=72
+	power_button.custom_minimum_size.x=92
 	power_button.size_flags_vertical=Control.SIZE_SHRINK_CENTER
 	power_button.tooltip_text=L.text("Radio sofort einschalten oder ausschalten")
 	face.custom_minimum_size.y=156
@@ -153,15 +153,14 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var bank: PanelContainer=_panel(radio,Color("132d39"))
 	var bank_stack: VBoxContainer=hud._vbox(bank,8)
 	_label(bank_stack,L.text("DEINE SENDERPRESETS · LOGO ANTIPPEN"),14,Color("b3dce0"))
-	var preset_scroll:=DragScroll.new()
-	preset_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
-	preset_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
-	preset_scroll.custom_minimum_size.y=88
-	preset_scroll.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	bank_stack.add_child(preset_scroll)
-	var presets: HBoxContainer=HBoxContainer.new()
-	presets.add_theme_constant_override("separation",10)
-	preset_scroll.add_child(presets)
+	# Wrap all station presets into additional rows on every aspect ratio.
+	# Horizontal-only scrolling hid most stations on smaller Android screens.
+	var presets:=HFlowContainer.new()
+	presets.name="radio_station_grid"
+	presets.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	presets.add_theme_constant_override("h_separation",8)
+	presets.add_theme_constant_override("v_separation",8)
+	bank_stack.add_child(presets)
 	for id in Design.GENRES:
 		if id=="off": continue
 		_add_preset(presets,str(id))
@@ -202,7 +201,7 @@ func _add_preset(parent: Node, id: String) -> void:
 	button.text=""
 	button.tooltip_text=L.text(str(Design.GENRE_NAMES[id]))
 	button.focus_mode=Control.FOCUS_NONE
-	button.custom_minimum_size=Vector2(178,70)
+	button.custom_minimum_size=Vector2(144,70)
 	button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	parent.add_child(button)
 	var row:=HBoxContainer.new()
@@ -214,7 +213,7 @@ func _add_preset(parent: Node, id: String) -> void:
 	button.add_child(row)
 	var logo:=TextureRect.new()
 	logo.texture=Branding.logo(id)
-	logo.custom_minimum_size=Vector2(76,52)
+	logo.custom_minimum_size=Vector2(62,52)
 	logo.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	logo.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 	logo.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -358,6 +357,7 @@ func _update_now_playing() -> void:
 	if playing and not moment.is_empty():playing_label.tooltip_text+="\n"+L.text("Bergmoment: ")+moment
 	if str(info.get("context",""))=="hotel_lobby":
 		playing_label.text+="\n"+L.text("Hotelverwaltung · Lobby-Radio ist nur vorübergehend aktiv.")
+	power_button.text=L.text("AUS") if enabled.button_pressed and station!="off" else L.text("EIN")
 	power_button.modulate=Color("ffffff") if enabled.button_pressed and station!="off" else Color("9baab2")
 	power_button.tooltip_text=L.text("Radio ausschalten") if enabled.button_pressed and station!="off" else L.text("Radio einschalten")
 	skip_button.disabled=not playing

@@ -72,6 +72,13 @@ func run() -> void:
 	check(fixed.ok and result.ok and not result.get("recovered",false) and restored.compatibility_geometry,"Historical geometry remains normally loadable after repair")
 	check(restored.guests.size()==data.guests.size() and same(restored.pistes[0].points,historical.pistes[0].points),"Historical repair preserves guests and authored waypoints")
 	check(FileAccess.get_sha256(str(fixed.get("archive","")))==original,"Historical repair also archives the exact original")
+	# Negative fixtures must have no salvageable earlier archive: an actual
+	# prior valid snapshot SHOULD be recovered, not rejected with the bad primary.
+	var positive_archives:DirAccess=DirAccess.open("user://save-recovery")
+	if positive_archives!=null:
+		for filename in positive_archives.get_files():
+			if filename.begins_with(path.get_file()+"-"):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path("user://save-recovery/"+filename))
 	var invalid:Dictionary=data.duplicate(true)
 	invalid.pistes[0].points[0]=[99999999,99999999]
 	write(path,invalid)
@@ -80,5 +87,19 @@ func run() -> void:
 	write(path,data,false)
 	original=FileAccess.get_sha256(path)
 	check(not Manager.repair("sonnenhang",3).ok and FileAccess.get_sha256(path)==original,"Failed checksums never enter geometry or visitor recovery")
+	# Archives from older builds are read-only candidates. The corrupt primary
+	# remains byte-for-byte available even if an archived copy is recovered.
+	var recovery_folder: String="user://save-recovery"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(recovery_folder))
+	var recovered_file: String=recovery_folder+"/"+path.get_file()+"-historical.before-repair"
+	write(recovered_file,data)
+	check(Manager.inspect("sonnenhang",3).loadable>=1,"Inspection discovers old archived copies even when the current primary has a bad checksum")
+	var rescued_from_archive:Dictionary=Manager.repair("sonnenhang",3)
+	check(rescued_from_archive.ok and rescued_from_archive.changed and FileAccess.get_sha256(path)==FileAccess.get_sha256(recovered_file),"Archived copy restores into occupied slot without changing original archive")
+	var raw_file:FileAccess=FileAccess.open(path,FileAccess.WRITE)
+	raw_file.store_string(JSON.stringify(data))
+	raw_file.close()
+	check(Saves._read(path).ok and Saves.load_game(Resort.new(),path).ok,"Versioned unwrapped historic snapshots pass full restore validation")
+
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
