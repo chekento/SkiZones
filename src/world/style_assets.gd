@@ -6,7 +6,9 @@ const Styles=preload("res://src/core/visual_styles.gd")
 const Catalog=preload("res://src/core/catalog.gd")
 static func dimensions(kind: String,level: int=1) -> Vector3:
 	if kind.begins_with("wc_"):
-		var index:int=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
+		# A newly placed Portable Toilet visibly grows into the next sanitation
+		# architecture without changing its stable saved building kind.
+		var index:int=clampi(level-1,0,4) if kind=="wc_dixi" else ["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"].find(kind)
 		var widths:Array=[6.4,11.0,17.0,23.0,30.0]
 		var depths:Array=[6.8,9.0,12.0,17.0,22.0]
 		var heights:Array=[9.5,10.5,11.0,13.0,16.0]
@@ -27,7 +29,8 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 			drawing.box(Vector3(0,size_value.y*0.42,size_value.z*0.5),Vector3(minf(4,size_value.x*0.45),size_value.y*0.67,0.3))
 			drawing.line(Vector3(-2,size_value.y*0.8,size_value.z*0.5+0.4),Vector3(2,size_value.y*0.8,size_value.z*0.5+0.4))
 			return drawing.finish()
-		return Art.new().public_toilet(kind,level,accent,style)
+		var wc_kind: String=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"][clampi(level-1,0,4)] if kind=="wc_dixi" else kind
+		return Art.new().public_toilet(wc_kind,level,accent,style)
 	if style=="alpine": return Art.new().chalet(kind,level,accent)
 	var s:=dimensions(kind,level)
 	var w:=s.x;var h:=s.y;var d:=s.z
