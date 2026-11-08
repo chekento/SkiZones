@@ -3,6 +3,7 @@ extends SceneTree
 const FramePacing=preload("res://src/core/frame_pacing_040.gd")
 const Fleet=preload("res://src/core/lift_fleet.gd")
 const Resort=preload("res://src/core/resort.gd")
+const Terrain=preload("res://src/core/terrain.gd")
 var passed:=0
 var failed:=0
 
@@ -53,6 +54,20 @@ func run() -> void:
 				break
 		exact_segments=exact_segments and reference.distance_to(Fleet._on_cable(profile,fraction))<0.000001
 	check(exact_segments,"Binary cable-section search exactly matches original 500-point physical geometry")
+	# Conveyor visual regression: returning belt sections must not park at the
+	# top and teleport to the base. Riders still use the same uphill schedule.
+	var carpet: Dictionary={"kind":"carpet","bottom":Terrain.pack(Vector2(200,205)),"top":Terrain.pack(Vector2(200,95)),"length":110.0,"level":1}
+	var belt_schedule: Dictionary=Fleet.layout(carpet)
+	var belt_start: Dictionary=Fleet.pose(model.terrain,carpet,{},0.0,0,belt_schedule)
+	var belt_top_a: Dictionary=Fleet.pose(model.terrain,carpet,{},belt_schedule.ride-0.0001,0,belt_schedule)
+	var belt_top_b: Dictionary=Fleet.pose(model.terrain,carpet,{},belt_schedule.ride+0.0001,0,belt_schedule)
+	var belt_return: Dictionary=Fleet.pose(model.terrain,carpet,{},belt_schedule.ride+belt_schedule.turn+belt_schedule.ride*0.5,0,belt_schedule)
+	var belt_end: Dictionary=Fleet.pose(model.terrain,carpet,{},belt_schedule.cycle-0.0001,0,belt_schedule)
+	check(belt_start.outbound and not belt_return.outbound,"Conveyor carries passengers uphill only; underside return remains non-boardable")
+	check(belt_top_a.transform.origin.distance_to(belt_top_b.transform.origin)<0.1,"Conveyor reaches its top roller without a frame discontinuity")
+	check(belt_end.transform.origin.distance_to(belt_start.transform.origin)<0.1,"Conveyor returns smoothly into the base after each full cycle")
+	var underside: Vector3=belt_return.transform.origin
+	check(underside.y<model.terrain.height(Vector2(underside.x,underside.z))-1.0,"Conveyor underside returns beneath the snow, not as a frozen visible carrier")
 	for speed in [1,4,8]:
 		var debt:=0.0
 		var steps:=0

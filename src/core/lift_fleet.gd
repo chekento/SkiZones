@@ -54,9 +54,38 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 	var lift_family: String=family(lift)
 	var phase := fposmod(clock - carrier * schedule.interval, schedule.cycle)
 	if lift_family == "carpet":
-		var belt_fraction: float = clampf(phase / schedule.ride, 0, 1)
-		var at := Terrain.unpack(lift.bottom).lerp(Terrain.unpack(lift.top), belt_fraction)
-		return {"transform": Transform3D(schedule.basis, mountain.world(at, 0.65)), "grip": mountain.world(at, 0.65), "fraction": belt_fraction, "outbound": phase < schedule.ride, "phase": phase, "carrier": carrier}
+		# A conveyor is an endless loop. The old clamped progress parked each
+		# belt segment at the top for the entire return phase, then teleported
+		# it to the bottom on wrap. At 4x/8x this looked like a stuck lift.
+		# Keep the passenger-carrying uphill interval exactly unchanged; the
+		# return travels below the terrain over rounded, continuous rollers.
+		var bottom: Vector2 = Terrain.unpack(lift.bottom)
+		var top: Vector2 = Terrain.unpack(lift.top)
+		var travel: Vector2 = top - bottom
+		var forward: Vector2 = travel.normalized()
+		var radius: float = float(schedule.offset)
+		var at: Vector2
+		var height_offset := 0.65
+		var belt_fraction := 0.0
+		if phase < schedule.ride:
+			belt_fraction = phase / schedule.ride
+			at = bottom.lerp(top, belt_fraction)
+		elif phase < schedule.ride + schedule.turn:
+			belt_fraction = 1.0
+			var angle: float = (phase - schedule.ride) / schedule.turn * PI
+			at = top + forward * radius * sin(angle)
+			height_offset -= radius * (1.0 - cos(angle))
+		elif phase < schedule.cycle - schedule.turn:
+			var return_duration: float = maxf(schedule.cycle - schedule.ride - schedule.turn * 2.0, 0.001)
+			belt_fraction = 1.0 - clampf((phase - schedule.ride - schedule.turn) / return_duration, 0.0, 1.0)
+			at = bottom.lerp(top, belt_fraction)
+			height_offset -= 2.0 * radius
+		else:
+			var angle: float = (phase - schedule.cycle + schedule.turn) / schedule.turn * PI
+			at = bottom - forward * radius * sin(angle)
+			height_offset -= radius * (1.0 + cos(angle))
+		var grip: Vector3 = mountain.world(at, height_offset)
+		return {"transform": Transform3D(schedule.basis, grip), "grip": grip, "fraction": belt_fraction, "outbound": phase < schedule.ride, "phase": phase, "carrier": carrier}
 	var r: float = schedule.offset
 	var orientation: Basis = schedule.basis
 	var direction := orientation * Vector3.FORWARD * -1
