@@ -88,7 +88,10 @@ func _food(kind: String) -> void:
 	check(built.ok,kind+" builds at a real connected village site")
 	if not built.ok:return
 	var food: Dictionary=model.buildings[-1]
-	check(Ops.building_roles(kind)==["catering"] and not Ops.building_open(model,food),kind+" needs a real catering employee")
+	# The old generic catering role is a legacy-save fallback; newly hired
+	# restaurants use cooks and waiters, while cocoa kiosks use vendors.
+	var expected_roles: Array = ["vendor"] if kind == "cocoa" else ["chef", "waiter"]
+	check(Ops.building_roles(kind)==expected_roles and not Ops.building_open(model,food),kind+" requires the correct specialist staff")
 	check(Ops.fill_building(model,int(food.id)).ok and Ops.building_open(model,food),kind+" opens after its own team is hired")
 	var budget: float=model.money
 	check(Ops.fill_building(model,int(food.id)).ok and model.money==budget,kind+" repeated hiring costs nothing")
