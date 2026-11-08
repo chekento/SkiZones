@@ -31,5 +31,5 @@ func run() -> void:
 	check(urgent.alerts.size()>=4 and int(urgent.alerts[0].severity)==3,"Critical alerts precede informational hints")
 	check(urgent.lifts.size()==model.lifts.size() and urgent.lifts[0].severity>=2,"The lift monitor prioritises affected real assets")
 	check(model.lifts[0].fault=="motor" and model.guests[-1].needs.warmth==12.0,"Inspection never repairs assets or edits guest needs by itself")
-	print("0.40 RESORT PULSE: %d passed; %d failed"%[passed,failed])
+	print("RESULT: %d passed; %d failed"%[passed,failed])
 	quit(1 if failed else 0)
