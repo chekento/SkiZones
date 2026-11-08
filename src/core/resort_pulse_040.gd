@@ -3,6 +3,7 @@ extends RefCounted
 ## This is intentionally NOT added to the save schema. Every result is rebuilt
 ## from current guests, installed lifts and staffed operations when requested.
 const Ops = preload("res://src/core/operations.gd")
+const L = preload("res://src/core/i18n.gd")
 
 static func inspect(model: RefCounted) -> Dictionary:
 	var active: bool=Ops.active(model)
@@ -37,9 +38,9 @@ static func inspect(model: RefCounted) -> Dictionary:
 		if fault:
 			alerts.append({"severity":3,"kind":"fault","asset":id,"title":"Liftstörung","detail":row.name})
 		elif shortage>0:
-			alerts.append({"severity":2,"kind":"crew","asset":id,"title":"Liftpersonal fehlt","detail":row.name+" · %d unbesetzt"%shortage})
+			alerts.append({"severity":2,"kind":"crew","asset":id,"title":"Liftpersonal fehlt","detail":row.name+(L.text(" · %d unbesetzt")%shortage)})
 		if queued>=12:
-			alerts.append({"severity":2 if queued>=24 else 1,"kind":"queue","asset":id,"title":"Warteschlange am Lift","detail":row.name+" · %d Personen"%queued})
+			alerts.append({"severity":2 if queued>=24 else 1,"kind":"queue","asset":id,"title":"Warteschlange am Lift","detail":row.name+(L.text(" · %d Personen")%queued)})
 	var cold:=0
 	var hungry:=0
 	var bathroom:=0
@@ -55,11 +56,11 @@ static func inspect(model: RefCounted) -> Dictionary:
 		if float(needs.get("energy",100))<25:low_energy+=number
 	var threshold: int=maxi(3,ceili(float(visitors)*0.2))
 	if cold>=threshold:
-		alerts.append({"severity":2,"kind":"warmth","asset":-1,"title":"Gäste frieren","detail":"%d Personen brauchen Wärme"%cold})
+		alerts.append({"severity":2,"kind":"warmth","asset":-1,"title":"Gäste frieren","detail":L.text("%d Personen brauchen Wärme")%cold})
 	if hungry>=threshold:
-		alerts.append({"severity":2,"kind":"food","asset":-1,"title":"Gäste brauchen Verpflegung","detail":"%d Personen sind hungrig"%hungry})
+		alerts.append({"severity":2,"kind":"food","asset":-1,"title":"Gäste brauchen Verpflegung","detail":L.text("%d Personen sind hungrig")%hungry})
 	if bathroom>=threshold:
-		alerts.append({"severity":2,"kind":"wc","asset":-1,"title":"Sanitäre Versorgung gefragt","detail":"%d Personen suchen eine Toilette"%bathroom})
+		alerts.append({"severity":2,"kind":"wc","asset":-1,"title":"Sanitäre Versorgung gefragt","detail":L.text("%d Personen suchen eine Toilette")%bathroom})
 	if active and fault_count>0 and int(model.operations.get("parts",0))<=0:
 		alerts.append({"severity":3,"kind":"parts","asset":-1,"title":"Ersatzteile fehlen","detail":"Defekte Lifte benötigen Ersatzteile"})
 	alerts.sort_custom(func(a,b):return int(a.severity)>int(b.severity) if int(a.severity)!=int(b.severity) else str(a.title)<str(b.title))
