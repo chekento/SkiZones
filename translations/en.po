@@ -10052,3 +10052,81 @@ msgstr "design a mountain"
 
 msgid "eigene Skiwelt"
 msgstr "custom mountain"
+
+msgid "%d Gipfel · %.1f km² · %d Bäume · %d Seen · %d Dörfer · %d Flüsse · Seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+
+msgid "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+
+msgid "Badeaufsicht"
+msgstr "Lifeguard"
+
+msgid "Baumgrenze (m)"
+msgstr "Tree line (m)"
+
+msgid "Bergketten-Verbund (%)"
+msgstr "Mountain connectivity (%)"
+
+msgid "Diese Fachkraft passt nicht zum gewählten Gebäude."
+msgstr "This specialist is not qualified for the selected venue."
+
+msgid "Eventservice"
+msgstr "Event staff"
+
+msgid "Fachverkäufer / Fachverkäuferin"
+msgstr "Specialist salesperson"
+
+msgid "Flüsse"
+msgstr "Rivers"
+
+msgid "Hotelrezeption"
+msgstr "Hotel receptionist"
+
+msgid "Housekeeping"
+msgstr "Housekeeping"
+
+msgid "Kein erreichbarer Pistenanschluss für die Rettung."
+msgstr "No accessible slope connection for the rescue team."
+
+msgid "Kellner / Servicekraft"
+msgstr "Waiter / service staff"
+
+msgid "Koch / Köchin"
+msgstr "Chef"
+
+msgid "Maximal drei Fachkräfte je Rolle und Schicht."
+msgstr "No more than three specialists per role and shift."
+
+msgid "Mountain connectivity (%)"
+msgstr "Mountain connectivity (%)"
+
+msgid "Rettungssanitäter / Rettungssanitäterin"
+msgstr "Paramedic"
+
+msgid "Rivers"
+msgstr "Rivers"
+
+msgid "Service %.0f %% · Plätze %.0f %% · Qualität %.0f %%"
+msgstr "Service %.0f %% · Capacity %.0f %% · Quality %.0f %%"
+
+msgid "Servicekraft / Kellner"
+msgstr "Service worker / waiter"
+
+msgid "Skilehrer / Skilehrerin"
+msgstr "Ski instructor"
+
+msgid "Skiservice-Techniker"
+msgstr "Ski service technician"
+
+msgid "Trailheads and rescue access"
+msgstr "Trailheads and rescue access"
+
+msgid "Tree line (m)"
+msgstr "Tree line (m)"
+
+msgid "Wander- & Rettungszugänge"
+msgstr "Trailheads & rescue access"
+
+msgid "Wellness-Therapeut / Therapeutin"
+msgstr "Spa therapist"
