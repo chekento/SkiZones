@@ -260,6 +260,53 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	if model.map_id in Maps.FANTASY_MAPS and path==path_for_map(model.map_id): _write_index(model,active_slot)
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
 
+## Read-only diagnostics for Android recovery. Never repairs or rewrites the source.
+## This can also inspect malformed originals which the normal loader rejects.
+static func diagnose_file(path: String) -> Dictionary:
+	var report := {"path": path, "exists": FileAccess.file_exists(path), "ok": false, "reason": "missing", "bytes": 0}
+	if not report.exists:
+		return report
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		report.reason = "unreadable"
+		return report
+	report.bytes = file.get_length()
+	if report.bytes > MAX_BYTES:
+		report.reason = "oversized"
+		return report
+	var source := file.get_as_text()
+	file.close()
+	var parser := JSON.new()
+	if parser.parse(source) != OK:
+		report.reason = "invalid_json"
+		report.line = parser.get_error_line()
+		return report
+	if not parser.data is Dictionary:
+		report.reason = "not_object"
+		return report
+	var data: Dictionary = parser.data
+	if data.has("format") or data.has("checksum") or data.has("payload"):
+		if data.get("format") != "SkiZones" or not data.get("payload") is String or not data.get("checksum") is String:
+			report.reason = "invalid_envelope"
+			return report
+		if data.payload.sha256_text() != data.checksum:
+			report.reason = "checksum_mismatch"
+			return report
+		if parser.parse(data.payload) != OK or not parser.data is Dictionary:
+			report.reason = "invalid_payload"
+			return report
+		data = parser.data
+	else:
+		report.reason = "legacy_raw"
+	report.version = data.get("version", -1)
+	report.map_id = str(data.get("map_id", ""))
+	report.ok = _read(path).get("ok", false)
+	if report.ok:
+		report.reason = "valid_structure"
+	elif report.reason != "legacy_raw":
+		report.reason = "unsupported_schema"
+	return report
+
 static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 	if progress != null: progress.report(3.0, L.text("Spielstand lesen …"))
 	var file := FileAccess.open(path, FileAccess.READ)
