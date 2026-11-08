@@ -99,3 +99,37 @@ Der CPU-Test ist Teil von GitHub Actions. Zeitwerte werden protokolliert und weg
 Die Szenentests verwenden echte OpenGL-Compatibility-Ausgabe über Mesa/llvmpipe und prüfen tatsächliche Fahrzeug-/Gasttransformationen, kontinuierliche Bewegung, GPU-Höhendaten, wiederverwendete Schneeflächen, das feste Spur-Arbeitsbudget, Sichtbarkeitswechsel und Grafikoptionen. Die Abbildungen im Repository stammen aus dieser tatsächlichen Ausgabe. Ein Dummy-Renderer ersetzt diese Tests nicht.
 
 Eine Messung auf einem physischen Android-Gerät steht noch aus. Die Softwaregrafik der Testumgebung ist kein Ersatz für einen Smartphone-GPU-Test. Größere Umbauten erzeugen die Szene einmalig neu; dieser Aufbau ist nicht Teil der fortlaufenden Bildbewegung. Die vorhandenen Entwicklungsgrenzen bleiben bei 360 aktiven Gästen, 24 Liften, 80 Pisten und 60 Gebäuden.
+
+## Version 0.40.0 – measured 1×/4×/8× headless pacing (8 November 2026)
+
+The first run of the new synthetic CPU benchmark is available in the CI log for
+[0.40 Fast QA run 42499587602](https://github.com/chekento/SkiZones/actions/runs/42499587602).
+The benchmark script printed a complete `PERFORMANCE_JSON` report before the
+runner's strict scene-test wrapper interpreted Godot's known exit-time resource
+warnings as errors. The latter warnings need a separate renderer-lifetime
+investigation; they are **not** proof of an FPS failure or a successful Android
+memory profile. The benchmark is now checked through Godot's exit code and a
+required JSON output line, preserving the diagnostic warnings in logs.
+
+| Generated CPU-only scene | Simulation tempo | Median per view update | p95 per view update |
+|---|---:|---:|---:|
+| 80 visitors, 1 lift | 1× | 3.652 ms | 5.166 ms |
+| 80 visitors, 1 lift | 4× | 4.335 ms | 5.697 ms |
+| 80 visitors, 1 lift | 8× | 4.367 ms | 5.423 ms |
+| 360 visitors, 24 lifts | 1× | 16.694 ms | 19.080 ms |
+| 360 visitors, 24 lifts | 4× | 16.551 ms | 19.578 ms |
+| 360 visitors, 24 lifts | 8× | 14.380 ms | 19.269 ms |
+
+Changes measured: display interpolation never rewinds when a 6 ms simulation
+budget leaves pending ticks; speed changes discard historic backlog to less than
+one tick; immutable cable profiles and schedules are cached in the renderer;
+non-followed skier paths use adaptive interpolation sampling at high speed
+(0.12/0.24/0.40 simulation ticks for 1×/4×/8×). The observed guest's exact ski
+pose, actual simulation ticks, lift-car positions and save payload are unaffected.
+A reproducible regression covers monotonic 1×/4×/8× lift movement, stalled CPU
+frames, transitions back to 1×, and legacy nighttime catch-up behavior.
+
+**Limitations:** headless timings exclude phone GPU work, actual display present
+latency, thermal throttling and Android memory pressure. There is no claim of
+60 FPS on the physical device, and p95 near 19–20 ms under a 360-guest/24-lift
+stress fixture indicates room for further CPU optimization.
