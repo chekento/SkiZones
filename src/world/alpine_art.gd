@@ -185,6 +185,36 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 	return finish()
 
 func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
+	if style_id=="bauhaus" and kind in [0,3,5,10,11,17]:
+		# Bauhaus scenery: orthogonal stone masses, clean snow slabs and
+		# rhythmic crystalline prisms. No extra nodes or per-instance materials.
+		var slate:=Color("34506c")
+		var clay:=Color("bb604a")
+		var cream:=Color("f4e8d3")
+		match kind:
+			0:
+				for i in range(3):
+					var x: float=float(i-1)*1.8
+					var height_value: float=1.2+float(i%2)*.7
+					box(Vector3(x,height_value*.5,0),Vector3(1.7,height_value,1.7),slate if i%2==0 else clay)
+					box(Vector3(x,height_value+.12,0),Vector3(1.8,.25,1.85),cream)
+			3:
+				for i in range(3):
+					var x: float=float(i-1)*1.65
+					box(Vector3(x,.3,0),Vector3(1.7,.6,2.8),cream)
+					box(Vector3(x,.67,-.3),Vector3(1.4,.18,2.0),Color("d3e6e9"))
+			5,10:
+				var factor: float=1.0 if kind==5 else .7
+				box(Vector3(0,1.5*factor,0),Vector3(4,3,3)*factor,slate)
+				box(Vector3(1.2*factor,2.0*factor,.5*factor),Vector3(1.6,2.2,2.2)*factor,clay)
+				box(Vector3(0,3.1*factor,0),Vector3(4.5,.3,3.5)*factor,cream)
+			11,17:
+				for i in range(3):
+					var x: float=float(i-1)*1.35
+					var height_value: float=2.2+float(i)*.55
+					box(Vector3(x,height_value*.5,0),Vector3(.95,height_value,1.1),slate if i%2==0 else clay)
+					box(Vector3(x,height_value+.16,0),Vector3(1.1,.32,1.2),cream)
+		return finish()
 	if style_id=="comic" and kind in [0,3,5,10,11,17]:
 		# Large, readable silhouettes rather than recolored realistic scenery.
 		# Each generated variant remains one batched ArrayMesh for mobile LOD.
