@@ -6,14 +6,16 @@ const PATH := "user://skizones_passport.json"
 var data := {"version": 1, "last_map": "sonnenhang", "records": {}}
 
 func record(model: RefCounted) -> void:
-	if model.map_id not in Maps.FANTASY_MAPS: return
+	if not Maps.is_player_map(model.map_id): return
 	var previous: Dictionary = data.records.get(model.map_id, {"rank": 1, "guests": 0, "contracts": 0})
 	data.records[model.map_id] = {"rank": maxi(previous.rank, model.campaign.rank), "guests": maxi(previous.guests, model.total_guests), "contracts": maxi(previous.contracts, model.campaign.completed)}
 	data.last_map = model.map_id
 
 func totals() -> Dictionary:
 	var result := {"rank": 1, "guests": 0, "contracts": 0}
-	for entry in data.records.values():
+	for id in Maps.FANTASY_MAPS:
+		if not data.records.has(id):continue
+		var entry:Dictionary=data.records[id]
 		result.rank = maxi(result.rank, entry.rank)
 		result.guests += entry.guests
 		result.contracts += entry.contracts
@@ -22,6 +24,7 @@ func totals() -> Dictionary:
 func unlocked(id: String) -> bool:
 	if not Maps.MAPS.has(id):
 		return false
+	if Maps.CUSTOM_MAPS.has(id):return true
 	var current := totals()
 	var needed := Maps.spec(id)
 	return current.rank >= needed.rank and current.guests >= needed.guests and current.contracts >= needed.contracts
