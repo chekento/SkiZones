@@ -1,5 +1,6 @@
 extends PanelContainer
 const OperatingPages = preload("res://src/ui/operating_pages.gd")
+const CommandCenter = preload("res://src/ui/resort_command_center_040.gd")
 const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
@@ -135,6 +136,7 @@ func refresh() -> void:
 	title.text = L.text("RESORT-BÜRO  ·  %s  ·  %d FP") % L.args(["★".repeat(state.rank), state.points])
 	feedback.text = _feedback if _feedback != "" else Progression.notice_text(state)
 	_career(_page(L.text("Karriere")))
+	CommandCenter.add(self)
 	_achievements(_page(L.text("Erfolge")))
 	_contracts(_page(L.text("Aufträge")))
 	_research(_page(L.text("Forschung")))
