@@ -50,7 +50,7 @@ func _selector(parent:Node,key:String,caption:String,choices:Array) -> void:
 	var field:=OptionButton.new()
 	field.custom_minimum_size=Vector2(212,48)
 	for entry in choices:
-		field.add_item(_text(s_text(entry[1]),s_text(entry[2])))
+		field.add_item(_text(str(entry[1]),str(entry[2])))
 		field.set_item_metadata(field.item_count-1,entry[0])
 	for index in range(field.item_count):
 		if field.get_item_metadata(index)==settings[key]:field.select(index);break
@@ -151,7 +151,7 @@ func regenerate() -> void:
 	if not mission_unlocked():return
 	var result:Dictionary=Creator.generate(settings)
 	if not result.ok:
-		result_label.text=s_text(result.error)
+		result_label.text=str(result.error)
 		return
 	preview.set_blueprint(result.map)
 	var map_data:Dictionary=result.map
@@ -161,7 +161,7 @@ func save_draft() -> void:
 	if not mission_unlocked():return
 	var checked:Dictionary=Creator.validate(settings)
 	if not checked.ok:
-		result_label.text=s_text(checked.error)
+		result_label.text=str(checked.error)
 		return
 	var payload:=JSON.stringify(checked.settings)
 	var envelope:=JSON.stringify({"schema":1,"payload":payload,"sha256":payload.sha256_text()})
@@ -185,7 +185,7 @@ func _load_draft() -> void:
 	if parser.parse(text_file)!=OK or not parser.data is Dictionary:return
 	var envelope:Dictionary=parser.data
 	if envelope.get("schema")!=1 or not envelope.get("payload") is String:return
-	if envelope.get("sha256")!=s_text(envelope.payload).sha256_text():return
+	if envelope.get("sha256")!=str(envelope.payload).sha256_text():return
 	if parser.parse(envelope.payload)!=OK or not parser.data is Dictionary:return
 	var validated:Dictionary=Creator.validate(parser.data)
 	if validated.ok:settings=validated.settings
