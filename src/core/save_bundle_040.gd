@@ -9,6 +9,17 @@ const MAX_TOTAL_BYTES := 150000000
 # when they exceed the much stricter in-game save loading limit (64 MB).
 const MAX_EXPORT_SOURCE_BYTES := 128000000
 const EXPORT_DIR := "user://save-diagnostics"
+# Android's share chooser triggers a focus-out notification. It is NOT a
+# request to save the game: doing so can overwrite the exact damaged primary
+# being exported as forensic evidence. Bound the handoff by monotonic time so
+# a failed/abandoned share can never suppress unrelated future autosaves.
+static var _share_handoff_deadline_msec: int = 0
+
+static func share_handoff_pending() -> bool:
+	return _share_handoff_deadline_msec > Time.get_ticks_msec()
+
+static func finish_share_handoff() -> void:
+	_share_handoff_deadline_msec = 0
 
 static func share_slot_archive(path: String) -> Dictionary:
 	# Godot 4.5 AndroidRuntime + JNI only exist on Android; do not reference
@@ -21,9 +32,15 @@ static func share_slot_archive(path: String) -> Dictionary:
 	var jni: Object = Engine.get_singleton("JavaClassWrapper")
 	var bridge: Object = jni.call("wrap", "cloud.kosch.skizones.AppInfoBridge")
 	if bridge == null: return {"ok": false, "code": "android_bridge_unavailable"}
+	# Arm BEFORE JNI opens Android's chooser; the app may lose focus before
+	# shareSaveBundle returns. The main scene must not autosave during this handoff.
+	_share_handoff_deadline_msec = Time.get_ticks_msec() + 30000
 	var status: String = str(bridge.call("shareSaveBundle", runtime.call("getActivity"), ProjectSettings.globalize_path(path)))
 	if jni.call("get_exception") != null:
+		finish_share_handoff()
 		return {"ok": false, "code": "android_share_exception"}
+	if status != "ok":
+		finish_share_handoff()
 	return {"ok": status == "ok", "code": status}
 
 static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictionary:
