@@ -134,3 +134,15 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 		"exposure":config.exposure,"snowline":int(config.snowline)
 	}
 	return {"ok":true,"map":result}
+
+## Exact analytic preview of the generated peaks and basins; no random calls.
+## The upcoming gameplay adapter uses the same immutable blueprint.
+static func sample_height(blueprint: Dictionary, point: Vector2) -> float:
+	var result := 0.0
+	for shape in blueprint.get("peaks",[]):
+		var radius := maxf(1.0,float(shape[3]))
+		result+=float(shape[2])*exp(-pow((point.x-float(shape[0]))/radius,2.0)-pow((point.y-float(shape[1]))/radius,2.0))
+	for shape in blueprint.get("valleys",[]):
+		var radius := maxf(1.0,float(shape[3]))
+		result+=float(shape[2])*exp(-pow((point.x-float(shape[0]))/radius,2.0)-pow((point.y-float(shape[1]))/radius,2.0))
+	return maxf(0.0,result)
