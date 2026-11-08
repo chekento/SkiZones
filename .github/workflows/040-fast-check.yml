@@ -5,6 +5,9 @@ on:
     paths:
       - 'src/core/resort_pulse_040.gd'
       - 'src/core/frame_pacing_040.gd'
+      - 'src/core/save_bundle_040.gd'
+      - 'src/core/save_store.gd'
+      - 'src/core/save_management_038.gd'
       - 'src/main.gd'
       - 'src/world/resort_view.gd'
       - 'src/ui/resort_command_center_040.gd'
@@ -63,6 +66,8 @@ jobs:
           grep -q '^PERFORMANCE_JSON ' /tmp/skizones-040-performance.log
       - name: Verify actual simulation diagnostics and no save changes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
+      - name: Verify read-only backup ZIP export, corrupted JSON and report
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_bundle_040.gd
       - name: Install software renderer for real phone screens
         run: |
           sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30
