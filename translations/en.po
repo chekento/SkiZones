@@ -10547,3 +10547,9 @@ msgstr "Diagnostic archive created (%d files), but Android sharing is unavailabl
 
 msgid "Original-Spielstand und Sicherung unverändert als ZIP teilen"
 msgstr "Share the original save and backup unchanged as a ZIP"
+
+msgid "[%s · v%d · %d B]"
+msgstr "[%s · v%d · %d B]"
+
+msgid " · Zeile %d"
+msgstr " · line %d"
