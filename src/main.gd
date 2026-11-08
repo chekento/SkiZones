@@ -13,6 +13,7 @@ const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
 const CustomMaps040 = preload("res://src/core/custom_maps_040.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
+const SaveBundle040 = preload("res://src/core/save_bundle_040.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
 const LoadProgress = preload("res://src/core/load_progress.gd")
 const AppSession = preload("res://src/core/app_session.gd")
@@ -1218,7 +1219,10 @@ func _suspend_application() -> void:
 	_app_background = true
 	audio.set_active(false)
 	_clear_input()
-	if has_game: save_game()
+	# A forensic support ZIP is deliberately read-only. Android's chooser
+	# steals focus like a normal app switch, but MUST NOT trigger the usual
+	# autosave over a damaged primary (or rotate its last-good backup).
+	if has_game and not SaveBundle040.share_handoff_pending(): save_game()
 
 func _queue_background_time(seconds: float, rate: int) -> void:
 	# Operating days still await the player's next-morning confirmation.
@@ -1230,6 +1234,7 @@ func _resume_application() -> void:
 	if _app_background:
 		var elapsed := maxf(0,(Time.get_ticks_msec()-_background_started)/1000.0)
 		_app_background = false
+		SaveBundle040.finish_share_handoff()
 		if _background_running: _queue_background_time(elapsed,_background_speed)
 		_background_running = false
 	_clear_input()
