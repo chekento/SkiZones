@@ -9879,3 +9879,9 @@ msgstr "Only buildings available now"
 
 msgid "%.0f / 100"
 msgstr "%.0f / 100"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Störung / Personal"
+msgstr "Fault / staff"
