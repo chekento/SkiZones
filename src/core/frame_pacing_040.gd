@@ -30,9 +30,14 @@ static func speed_change_debt(debt: float) -> float:
 	return minf(presentation_fraction(debt),1.0-0.000001)
 
 static func ski_sample_interval(motion_rate: float, time_divisor: int) -> float:
-	# Keep 1x precision, but avoid sampling the whole mountain several
-	# times per frame for off-camera skiers at accelerated rates.
-	# The exact, followed skier still uses its original full-accuracy path.
+	# For off-camera skiers, interpolate every display frame but sample
+	# expensive terrain/path geometry at approximately 30 Hz or less.
+	# The old fixed 0.40-tick interval at 8x + compact days could advance
+	# more than one cache cell PER FRAME and recompute two exact positions
+	# for hundreds of visitors on budget Android phones.
+	# The following tracked skier still uses the exact path on every frame.
 	var base: float=4.0 if time_divisor>1 else 1.0
 	var playback_speed: float=maxf(0.0,motion_rate)/base
-	return 0.40 if playback_speed>=6.0 else 0.24 if playback_speed>=2.0 else 0.12
+	var minimum: float=0.40 if playback_speed>=6.0 else 0.24 if playback_speed>=2.0 else 0.12
+	var ticks_per_30hz_sample: float=maxf(0.0,motion_rate)*0.5/30.0
+	return maxf(minimum,ticks_per_30hz_sample)
