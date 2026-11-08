@@ -140,8 +140,14 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 			diagnostic.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [report.files.size(),int(report.verified),int(report.loadable),int(report.recoverable)]
 			if bool(report.damaged):
 				diagnostic.text+=" · "+L.text("Prüfung fehlgeschlagen: Originaldateien erhalten.")
-				for entry in report.files:
-					if str(entry.message)!="":diagnostic.text+="\n"+str(entry.name)+": "+str(entry.message)
+			for entry in report.files:
+				var state: String = L.text("Ladbar") if bool(entry.loadable) else L.text("Rettbar") if bool(entry.recoverable) else L.text("Nicht ladbar")
+				var reason: String = str(entry.get("reason", "unknown"))
+				var version: int = int(entry.get("version", -1))
+				var size_kib: int = ceili(float(entry.get("bytes", 0)) / 1024.0)
+				diagnostic.text += "\n%s · %s · %d KiB · v%d · %s" % [str(entry.name),state,size_kib,version,reason]
+				if not bool(entry.loadable) and not bool(entry.recoverable) and str(entry.message)!="":
+					diagnostic.text+="\n"+str(entry.message)
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
