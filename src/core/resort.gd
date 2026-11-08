@@ -181,7 +181,7 @@ func new_game(starter: bool = true, game_seed: int = 20261027, area_id: String =
 				var t := float(i) / 4
 				route.append(Terrain.pack(top.lerp(bottom, t) + side * (38 + sin(t * PI) * 36)))
 			build_piste(route)
-		var service: String = ["lodge", "shelter", "restaurant", "lodge", "kiosk", "school", "hotel", "lodge"][Maps.MAPS.keys().find(map_id)]
+		var service: String = ["lodge", "shelter", "restaurant", "lodge", "kiosk", "school", "hotel", "lodge"][clampi(Maps.MAPS.keys().find(map_id),0,7)]
 		build_building(service, Vector2(235, 252))
 		build_building("rental", Vector2(145, 235))
 		_seeding_starter = false
