@@ -361,6 +361,9 @@ static func legacy_building_roles(kind: String) -> Array:
 	return []
 
 static func role_matches_building(role: String, kind: String) -> bool:
+	# Public WCs function without staff, but an optional sanitation crew may
+	# independently clean and empty them. No hotel/reception roles are allowed.
+	if role == "sanitation" and PublicWC.is_public(kind): return true
 	return role in building_roles(kind)
 
 ## Active, qualified specialist coverage improves both visitors processed
