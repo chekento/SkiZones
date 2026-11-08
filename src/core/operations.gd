@@ -11,6 +11,7 @@ const Progression = preload("res://src/core/progression.gd")
 const CreditService = preload("res://src/core/credit_service_035.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
+const Specialists = preload("res://src/core/specialist_staff_040.gd")
 const ROLES := {
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
@@ -21,6 +22,17 @@ const ROLES := {
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
 	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
+	"chef": {"name": "Koch / Köchin", "wage": 23.0},
+	"waiter": {"name": "Kellner / Servicekraft", "wage": 19.0},
+	"receptionist": {"name": "Hotelrezeption", "wage": 21.0},
+	"housekeeper": {"name": "Housekeeping", "wage": 19.0},
+	"ski_instructor": {"name": "Skilehrer / Skilehrerin", "wage": 25.0},
+	"rental_tech": {"name": "Skiservice-Techniker", "wage": 22.0},
+	"salesperson": {"name": "Fachverkäufer / Fachverkäuferin", "wage": 19.0},
+	"lifeguard": {"name": "Badeaufsicht", "wage": 24.0},
+	"spa_therapist": {"name": "Wellness-Therapeut / Therapeutin", "wage": 26.0},
+	"night_host": {"name": "Eventservice", "wage": 22.0},
+	"paramedic": {"name": "Rettungssanitäter / Rettungssanitäterin", "wage": 29.0},
 	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
@@ -257,8 +269,32 @@ static func lift_available(model: RefCounted, lift: Dictionary) -> bool:
 	if lift.get("fault", "") != "" or not staffing(model, lift).ok: return false
 	return model.minute >= 480 and model.minute < 1020
 
+## New assignments are checked against the actual venue profession. Existing
+## historical staff records remain loadable; this gate only affects edits/hiring.
+static func role_fits(model: RefCounted, role: String, assignment: String) -> bool:
+	if assignment=="reserve": return true
+	if assignment.begins_with("building:"):
+		var number: String=assignment.trim_prefix("building:")
+		if not number.is_valid_int():return false
+		var building:Dictionary=model.asset(int(number))
+		if building.is_empty() or not building.has("kind"):return false
+		var kind:String=str(building.kind)
+		return role in building_roles(kind) or Specialists.allowed(role,kind) or (role=="security" and kind in ["disco","bar","hotel","grand_hotel","guesthouse","pool","spa","first_aid"])
+	if role in Specialists.ROLES:return false
+	return true
+
+static func specialist_metrics(model: RefCounted, building: Dictionary) -> Dictionary:
+	var active_people:Array=[]
+	var target: String="building:%d" % int(building.id)
+	for person in model.operations.staff:
+		if str(person.assignment)==target and on_duty(model,person):
+			active_people.append(person)
+	return Specialists.metrics(str(building.kind),active_people)
+
 static func hire(model: RefCounted, role: String, assignment: String, shift: String = "day", free: bool = false) -> Dictionary:
 	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
+	if not role_fits(model,role,assignment):return model._result(false, L.text("Diese Fachkraft passt nicht zum gewählten Gebäude."))
+	if role in Specialists.ROLES and model.operations.staff.filter(func(p):return p.role==role and p.assignment==assignment and p.shift==shift).size()>=3:return model._result(false,L.text("Maximal drei Fachkräfte je Rolle und Schicht."))
 	if not free and not _expense(model, 180, "recruitment"): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	var id: int = model.operations.next_staff
 	model.operations.next_staff += 1
@@ -272,6 +308,7 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	if not SHIFTS.has(shift) or target.length() > 100: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if not role_fits(model,str(person.role),target):return model._result(false,L.text("Diese Fachkraft passt nicht zum gewählten Gebäude."))
 			person.assignment = target
 			person.shift = shift
 			model._duty_cache.clear()
