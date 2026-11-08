@@ -75,7 +75,11 @@ static func should_return(model: RefCounted, guest: Dictionary) -> bool:
 static func night_route(model: RefCounted, guest: Dictionary, source: String) -> Dictionary:
 	var hotel: Dictionary = model.asset(int(guest.get("lodging_id", 0)))
 	if hotel.is_empty() or not Ops.building_open(model, hotel): return {}
-	var graph: Dictionary = model._routing_graph(Agenda.comfort(guest))
+	# Night travel must use the real pedestrian network, not a ski routing
+	# graph that can be disconnected by closed lifts/pistes after 22:00.
+	# The cabin/guesthouse access was already verified when built; preserve
+	# the existing paths and require a valid walk both ways.
+	var graph: Dictionary = model.pedestrian_graph()
 	var destination := "d%d" % int(hotel.id)
 	var outbound: Dictionary = model._shortest(graph, source, destination)
 	var home: Dictionary = model._shortest(graph, destination, "base")
