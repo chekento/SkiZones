@@ -1983,7 +1983,7 @@ func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 	var key := "%s/%s/%d/%s/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", ""),visual_style]
 	if not _art_cache.has(key):
 		if _art_cache.size() > 128: _art_cache.clear()
-		_art_cache[key] = StyleAssets.station(lift.kind,int(lift.get("level",1)),lift.get("color",""),visual_style) if type=="station" else Art.new().chair(lift.kind,lift.get("color",""))
+		_art_cache[key] = StyleAssets.station(lift.kind,int(lift.get("level",1)),lift.get("color",""),visual_style) if type=="station" else StyleAssets.vehicle(lift.kind,lift.get("color",""),visual_style)
 	return _art_cache[key]
 
 
