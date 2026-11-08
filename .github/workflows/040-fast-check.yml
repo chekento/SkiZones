@@ -68,6 +68,11 @@ jobs:
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
       - name: Verify read-only backup ZIP export, corrupted JSON and report
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_bundle_040.gd
+      - name: Verify latest playable backup survives semantic and JSON corruption
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-integrity-040
+          SKIZONES_SAFE_SAVE_TEST: '1'
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_integrity_040.gd
       - name: Install software renderer for real phone screens
         run: |
           sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30
