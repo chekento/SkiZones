@@ -10052,3 +10052,9 @@ msgstr "design a mountain"
 
 msgid "eigene Skiwelt"
 msgstr "custom mountain"
+
+msgid "Spielen / Fortsetzen"
+msgstr "Play / Resume"
+
+msgid "Play / Resume"
+msgstr "Play / Resume"
