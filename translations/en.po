@@ -10277,3 +10277,21 @@ msgstr "Could not save custom map library"
 
 msgid "Could not register custom terrain"
 msgstr "Could not register custom terrain"
+
+msgid "Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten."
+msgstr "The new save could not be verified. Your previous save remains intact."
+
+msgid "%s [%s]"
+msgstr "%s [%s]"
+
+msgid "Ladbar"
+msgstr "Loadable"
+
+msgid "Rettbar"
+msgstr "Recoverable"
+
+msgid "Nicht ladbar"
+msgstr "Not loadable"
+
+msgid "\n%s · %s · %d KiB · v%d · %s"
+msgstr "\n%s · %s · %d KiB · v%d · %s"
