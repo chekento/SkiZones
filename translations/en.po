@@ -10259,3 +10259,21 @@ msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d river
 
 msgid "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
 msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+
+msgid "Custom map registry is damaged; original files preserved"
+msgstr "Custom map registry is damaged; original files preserved"
+
+msgid "Diese eigene Karte ist nicht verfügbar."
+msgstr "This custom map is unavailable."
+
+msgid "Damaged map library; original preserved"
+msgstr "Damaged map library; original preserved"
+
+msgid "All eight custom map slots are occupied"
+msgstr "All eight custom map slots are occupied"
+
+msgid "Could not save custom map library"
+msgstr "Could not save custom map library"
+
+msgid "Could not register custom terrain"
+msgstr "Could not register custom terrain"
