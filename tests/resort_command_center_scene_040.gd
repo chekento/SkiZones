@@ -38,11 +38,21 @@ func run() -> void:
 	if DisplayServer.get_name()!="headless":
 		await RenderingServer.frame_post_draw
 		DirAccess.make_dir_recursive_absolute("res://build/qa")
-		check(root.get_texture().get_image().save_png("res://build/qa/040-command-center.png")==OK,"The 0.40 command center renders to a real screenshot")
+		var width: int=int(root.get_visible_rect().size.x)
+		check(root.get_texture().get_image().save_png("res://build/qa/040-command-center-%d.png"%width)==OK,"The 0.40 command center renders to a real screenshot")
+		if index>=0:
+			var command_page: ScrollContainer=office.tabs.get_child(index)
+			command_page.scroll_vertical=1400
+			for frame in range(3):await process_frame
+			await RenderingServer.frame_post_draw
+			check(root.get_texture().get_image().save_png("res://build/qa/040-bottleneck-map-%d.png"%width)==OK,"The operational bottleneck map renders and can be inspected independently")
 	office.hide()
 	var browser: Control=game.hud.building_browser
 	browser.open()
 	await process_frame
+	if DisplayServer.get_name()!="headless":
+		await RenderingServer.frame_post_draw
+		check(root.get_texture().get_image().save_png("res://build/qa/040-building-catalog-%d.png"%int(root.get_visible_rect().size.x))==OK,"The responsive building catalog has a captured phone/desktop layout")
 	check(browser.sort_choice.item_count==4 and browser.ready_only!=null,"The new catalog exposes four sorts and a practical buildability filter")
 	check(browser.grid.columns>=1 and browser.grid.columns<=4,"The catalog grid has a safe responsive column count")
 	check(browser.cards.size()==Catalog.building_order().size(),"Every purchasable building has a real interactive card")
