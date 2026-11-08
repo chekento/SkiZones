@@ -90,7 +90,10 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		if not FileAccess.file_exists(source):continue
 		var read: Dictionary=Saves._read(source)
 		var valid: bool=correct_mode(read,id,slot)
-		if source!=owned and source!=owned+".bak" and not valid:continue
+		# A crashed write's .tmp/.bak.tmp is itself evidence even when its
+		# JSON is truncated. Only discard invalid *unrelated archived* files;
+		# always show the exact slot's malformed staging in diagnostics.
+		if source not in [owned, owned+".bak", owned+".tmp", owned+".bak.tmp"] and not valid:continue
 		var normal:=false
 		var salvage:=false
 		var detail: String=str(read.get("message",""))

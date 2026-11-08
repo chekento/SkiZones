@@ -80,5 +80,14 @@ func run() -> void:
 				staged_archived=staged_archived or FileAccess.get_sha256("user://save-recovery/" + name) == orphan_sha
 	check(staged_archived, "The unfinished original survives a normal save byte-for-byte in a separate archive")
 	check(Saves.load_game(Resort.new(), path).ok, "A replaced valid stage remains playable after recovery")
+	# Even a truncated .tmp is forensic evidence and must not be hidden as
+	# though the slot contained no files.
+	var damaged_stage: FileAccess=FileAccess.open(path + ".tmp", FileAccess.WRITE)
+	damaged_stage.store_string("{unfinished android write"); damaged_stage.close()
+	var damaged_stage_sha: String=FileAccess.get_sha256(path + ".tmp")
+	var forensic: Dictionary=Manager.inspect("sonnenhang", 3)
+	check(forensic.files.any(func(item): return str(item.get("source","")) == path + ".tmp" and str(item.get("code","")) == "invalid_json"), "Malformed staged save is reported with its actual parser-error classification")
+	check(FileAccess.get_sha256(path + ".tmp") == damaged_stage_sha, "Read-only diagnostics preserve malformed staging bytes")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path + ".tmp"))
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
