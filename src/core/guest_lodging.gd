@@ -70,11 +70,16 @@ static func should_return(model: RefCounted, guest: Dictionary) -> bool:
 	if guest.phase != "moving" or int(guest.age) >= int(guest.stay): return false
 	if model.minute < 1000 and model.minute >= 420: return false
 	var hotel: Dictionary = model.asset(int(guest.lodging_id))
-	return not hotel.is_empty() and Ops.building_open(model, hotel)
+	# Existing residents retain physical room access after reception closes.
+	# Staff availability gates new bookings, not the return to a paid room.
+	return not hotel.is_empty() and bool(hotel.get("enabled", false)) and Hospitality.lodging(str(hotel.get("kind", "")))
 
 static func night_route(model: RefCounted, guest: Dictionary, source: String) -> Dictionary:
 	var hotel: Dictionary = model.asset(int(guest.get("lodging_id", 0)))
-	if hotel.is_empty() or not Ops.building_open(model, hotel): return {}
+	# An already-booked guest needs an enabled accommodation and a real walk,
+	# not an on-duty receptionist or a daytime housekeeping shift. New room
+	# reservations remain subject to Ops.building_open() in assign().
+	if hotel.is_empty() or not hotel.get("enabled", false) or not Hospitality.lodging(str(hotel.get("kind", ""))): return {}
 	# Night travel must use the real pedestrian network, not a ski routing
 	# graph that can be disconnected by closed lifts/pistes after 22:00.
 	# The cabin/guesthouse access was already verified when built; preserve

@@ -100,6 +100,7 @@ func _night(model: RefCounted) -> void:
 	guest.stay=8000
 	model.minute=1300
 	model._operational_change()
+	check(model.Lodging.should_return(model,guest),"An existing resident can return without a staffed late reception")
 	var route: Dictionary=model.Lodging.night_route(model,guest,"base")
 	if route.is_empty():
 		# A closed service is different from a missing path. Print only
