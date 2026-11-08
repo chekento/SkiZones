@@ -1,6 +1,8 @@
 name: 0.40 Command Center Fast QA
 
 on:
+  push:
+    branches: [feature/0.40-alpine-world-ui-overhaul]
   pull_request:
     paths:
       - 'src/core/resort_pulse_040.gd'

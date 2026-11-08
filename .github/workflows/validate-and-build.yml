@@ -2,7 +2,10 @@ name: Validate and build Android
 
 on:
   push:
-    branches: [main]
+    # A release gate must run on connector-created branch pushes even when
+    # GitHub does not emit a separate pull_request synchronize workflow event.
+    # Publishing below is still restricted to refs/heads/main.
+    branches: [main, feature/0.40-alpine-world-ui-overhaul]
     paths-ignore:
       - 'README.md'
       - 'CHANGELOG.md'
