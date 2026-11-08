@@ -56,10 +56,30 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	elif kind == "lift" and guest.phase == "moving":
 		mood = "relaxed"; emotion = L.text("Entspannt"); emoji = "😌"; reason = L.text("Beine ausruhen, Aussicht genießen und langsam wieder hinauf.")
 	if guest.get("incident", -1) >= 0:
-		emotion = L.text("Benötigt Hilfe")
-		emoji = "🆘"
-		activity = L.text("Wartet auf die Pistenrettung")
-		reason = L.text("Ich bleibe an einem sicheren Ort, bis das Rettungsteam mich erreicht.")
+		for event in model.operations.incidents:
+			if int(event.id)!=int(guest.incident):continue
+			emoji="🆘"
+			if str(event.reason)=="navigation":
+				mood="focused"
+				emotion=L.text("Unsicher vor der Abfahrt")
+				activity=L.text("Wartet auf begleitete Abfahrt")
+				reason=L.text("Keine Verletzung. Eine Rettungskraft oder Skischule begleitet diesen Gast auf einem sicheren Weg ins Tal.")
+			elif str(event.status)=="treating":
+				mood="tired"
+				emotion=L.text("In der Bergrettungsstation")
+				activity=L.text("Wird medizinisch versorgt")
+				reason=L.text("Behandlung: noch ungefähr %d Minuten. Danach kann der Gast die Station wieder verlassen.") % int(ceilf(float(event.remaining)))
+			elif str(event.status)=="returning":
+				mood="tired"
+				emotion=L.text("Verletzt · wird transportiert")
+				activity=L.text("Liegt auf der Rettungstrage")
+				reason=L.text("Zwei Rettungskräfte bringen den Gast zur Bergrettungsstation.")
+			else:
+				mood="tired"
+				emotion=L.text("Verletzt · benötigt Hilfe")
+				activity=L.text("Liegt auf der Piste")
+				reason=L.text("Unfallstelle markiert. Die nächste freie Pistenrettung übernimmt den Einsatz.")
+			break
 	var score := Agenda.satisfaction(model, guest)
 	var motive := L.text(MOTIVES[(id * 11) % MOTIVES.size()])
 	var detail := ""
@@ -71,7 +91,7 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		if guest.has("family"):
 			detail += L.text("\n\nFAMILIE · %d Personen · gemeinsame Route\nPausen richten sich nach dem dringendsten Bedürfnis.") % guest.family.size()
 			for member in guest.family: detail += "\n" + L.text("%s · %d Jahre · Hunger %.0f %% · Wärme %.0f %%") % [member.name, member.years, member.needs.hunger, member.needs.warmth]
-		if score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
+		if guest.get("incident",-1)<0 and score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
 			mood = "impatient"; emotion = L.text("Enttäuscht"); emoji = "😕"; reason = L.text("Mein Urlaub soll zu meinen Wünschen passen. Bisher fehlen mir passende Erlebnisse oder erreichbare Pausen.")
 	if guest.has("party_id"):
 		var party:=Parties.group(model,guest)
