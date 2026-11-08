@@ -37,7 +37,7 @@ public final class AppInfoBridge {
             long now = System.currentTimeMillis();
             if (previous != null) for (File item : previous) {
                 if (item.isFile()
-                        && item.getName().matches("skizones-support-[0-9a-f]{32}\\\\.zip")
+                        && item.getName().matches("skizones-support-[0-9a-f]{32}\\.zip")
                         && now - item.lastModified() > 24L * 60 * 60 * 1000L) {
                     item.delete();
                 }
