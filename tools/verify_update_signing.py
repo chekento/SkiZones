@@ -5,7 +5,9 @@ import json
 import os
 from pathlib import Path
 import re
+import socket
 import subprocess
+import time
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,11 +38,44 @@ def main():
     if url != expected:
         raise SystemExit("Unexpected previous-release download URL")
     previous = ROOT / "build/android/previous-public.apk"
-    # Public download: do not forward the API token to redirect/CDN hosts.
-    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "SkiZones-build"}), timeout=90) as response:
-        with previous.open("wb") as stream:
-            while block := response.read(1024 * 1024):
-                stream.write(block)
+    # A public APK is ~175 MB; a single CDN read timeout must not discard
+    # an otherwise valid release. Resume partial downloads where supported.
+    # Never pass GH_TOKEN to the public download/CDN redirect.
+    expected_size = int(asset["size"])
+    if expected_size <= 0:
+        raise SystemExit("The previous public APK has an invalid release size")
+    for attempt in range(1, 7):
+        offset = previous.stat().st_size if previous.exists() else 0
+        if offset == expected_size:
+            break
+        if offset > expected_size:
+            previous.unlink()
+            offset = 0
+        download_headers = {"User-Agent": "SkiZones-build"}
+        if offset:
+            download_headers["Range"] = "bytes=%d-" % offset
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=download_headers), timeout=180) as response:
+                # A server may ignore Range and send the full object.
+                status = response.status
+                if offset and status != 206:
+                    offset = 0
+                if status == 206:
+                    content_range = response.headers.get("Content-Range", "")
+                    if not content_range.startswith("bytes %d-" % offset):
+                        raise RuntimeError("Unexpected public APK Content-Range: " + content_range)
+                with previous.open("ab" if offset else "wb") as stream:
+                    while block := response.read(256 * 1024):
+                        stream.write(block)
+            if previous.stat().st_size == expected_size:
+                break
+            print("Previous public APK download incomplete: %d / %d bytes" % (previous.stat().st_size, expected_size), flush=True)
+        except (OSError, RuntimeError, socket.timeout) as error:
+            print("Previous APK download attempt %d/6 interrupted: %s" % (attempt, error), flush=True)
+        if attempt < 6:
+            time.sleep(min(attempt * 2, 10))
+    if not previous.exists() or previous.stat().st_size != expected_size:
+        raise SystemExit("Cannot verify update signing: public APK download remained incomplete after retries")
     signer = Path(os.environ["ANDROID_HOME"]) / "build-tools/35.0.0/apksigner"
 
     def certificate(apk):
