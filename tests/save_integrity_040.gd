@@ -98,5 +98,14 @@ func run() -> void:
 	check(forensic.files.any(func(item): return str(item.get("source","")) == path + ".tmp" and str(item.get("code","")) == "invalid_json"), "Malformed staged save is reported with its actual parser-error classification")
 	check(FileAccess.get_sha256(path + ".tmp") == damaged_stage_sha, "Read-only diagnostics preserve malformed staging bytes")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path + ".tmp"))
+	# Interrupted backup replacement is also recoverable read-only, even
+	# when both ordinary committed files are malformed.
+	write_envelope(path,model.snapshot(),false)
+	write_envelope(path+".bak",model.snapshot(),false)
+	write_envelope(path+".bak.tmp",model.snapshot())
+	var backup_stage_hash: String=FileAccess.get_sha256(path+".bak.tmp")
+	var interrupted_backup: Dictionary=Saves.load_game(Resort.new(),path)
+	check(interrupted_backup.ok and interrupted_backup.recovered and interrupted_backup.source==path+".bak.tmp", "A validated interrupted backup can be loaded after two malformed committed saves")
+	check(FileAccess.get_sha256(path+".bak.tmp")==backup_stage_hash, "Direct recovery leaves the interrupted backup bytes unchanged")
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
