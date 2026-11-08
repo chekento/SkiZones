@@ -9876,3 +9876,6 @@ msgstr "Buildings: A–Z"
 
 msgid "Nur jetzt baubare Gebäude"
 msgstr "Only buildings available now"
+
+msgid "%.0f / 100"
+msgstr "%.0f / 100"
