@@ -10,6 +10,12 @@ func check(ok: bool, label: String) -> void:
 	else: failed += 1; push_error("FAIL " + label)
 func _init() -> void: call_deferred("run")
 func run() -> void:
+	# This intentionally creates, corrupts and removes a career save. Refuse
+	# to execute against a developer's or player's normal user:// location.
+	if OS.get_environment("SKIZONES_SAFE_BUNDLE_TEST") != "1" or not OS.get_environment("XDG_DATA_HOME").contains("skizones-test-bundle-040"):
+		push_error("Refusing destructive support-bundle fixture outside isolated test storage")
+		quit(1)
+		return
 	var slot := 4
 	var path := Saves.path_for_map("sonnenhang", slot)
 	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:

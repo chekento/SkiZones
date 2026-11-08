@@ -69,6 +69,9 @@ jobs:
       - name: Verify actual simulation diagnostics and no save changes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
       - name: Verify read-only backup ZIP export, corrupted JSON and report
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-bundle-040
+          SKIZONES_SAFE_BUNDLE_TEST: '1'
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_bundle_040.gd
       - name: Verify latest playable backup survives semantic and JSON corruption
         env:
