@@ -36,11 +36,11 @@ static func _read(path: String) -> Dictionary:
 		if validated.size()==source.maps.size():return {"ok":true,"maps":validated}
 	return {"ok":false,"maps":{}}
 
-static func read_registry() -> Dictionary:
-	for candidate in [PATH,PATH+".bak"]:
+static func read_registry(path: String = PATH) -> Dictionary:
+	for candidate in [path,path+".bak"]:
 		var read:Dictionary=_read(candidate)
 		if read.ok:return read
-	return {"ok":not FileAccess.file_exists(PATH) and not FileAccess.file_exists(PATH+".bak"),"maps":{}}
+	return {"ok":not FileAccess.file_exists(path) and not FileAccess.file_exists(path+".bak"),"maps":{}}
 
 static func install() -> bool:
 	var library:Dictionary=read_registry()
@@ -60,30 +60,30 @@ static func entries() -> Array:
 			result.append({"id":id,"name":options.name,"size":options.size,"landform":options.landform,"seed":options.seed})
 	return result
 
-static func _write(maps: Dictionary) -> bool:
+static func _write(maps: Dictionary, path: String = PATH) -> bool:
 	var checked:Dictionary=_validated_map_table(maps)
 	if checked.size()!=maps.size():return false
 	var payload:=JSON.stringify({"maps":checked})
 	var envelope:=JSON.stringify({"schema":1,"payload":payload,"sha256":payload.sha256_text()})
-	var temp:=PATH+".tmp"
+	var temp:=path+".tmp"
 	var file:=FileAccess.open(temp,FileAccess.WRITE)
 	if file==null:return false
 	file.store_string(envelope)
 	file.flush()
 	file.close()
-	if FileAccess.file_exists(PATH) and _read(PATH).ok:
-		if DirAccess.copy_absolute(ProjectSettings.globalize_path(PATH),ProjectSettings.globalize_path(PATH+".bak"))!=OK:
+	if FileAccess.file_exists(path) and _read(path).ok:
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(path+".bak"))!=OK:
 			return false
-	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(PATH))!=OK:
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(path))!=OK:
 		return false
 	return true
 
 ## No overwrite/delete yet: a map is permanent while its game saves exist.
 ## Players can create eight distinct custom landscapes and resume each later.
-static func create(options: Dictionary) -> Dictionary:
+static func create(options: Dictionary, path: String = PATH) -> Dictionary:
 	var checked:Dictionary=Creator.validate(options)
 	if not checked.ok:return checked
-	var stored:Dictionary=read_registry()
+	var stored:Dictionary=read_registry(path)
 	if not stored.ok:return {"ok":false,"error":"Damaged map library; original preserved"}
 	var maps:Dictionary=stored.maps.duplicate(true)
 	var selected:=""
@@ -92,7 +92,7 @@ static func create(options: Dictionary) -> Dictionary:
 		if not maps.has(id):selected=id;break
 	if selected=="":return {"ok":false,"error":"All eight custom map slots are occupied"}
 	maps[selected]=checked.settings
-	if not _write(maps):return {"ok":false,"error":"Could not save custom map library"}
+	if not _write(maps,path):return {"ok":false,"error":"Could not save custom map library"}
 	if not Maps.register_custom(selected,checked.settings):
 		return {"ok":false,"error":"Could not register custom terrain"}
 	return {"ok":true,"id":selected}
