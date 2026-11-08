@@ -1,5 +1,6 @@
 extends Node
 ## Included only by the emulator test export, never by the public ARM64 APK.
+const SupportBundle = preload("res://src/core/save_bundle_040.gd")
 var game: Node
 var timer := 0.0
 var boot := ""
@@ -10,6 +11,9 @@ var scenario_state := ""
 var update_test_state:=""
 var update_native_validation:=""
 var update_action:=""
+var support_status := ""
+var support_archive := ""
+var support_bytes_preserved := false
 func setup(controller: Node) -> void:
 	game=controller;boot=str(Time.get_unix_time_from_system())
 	if not game.has_game:
@@ -27,6 +31,11 @@ func _process(delta: float) -> void:
 	if timer >= 0.5:
 		timer=0
 		read_pick_request()
+		if FileAccess.file_exists("user://support-ci.json"):
+			var support: Variant = JSON.parse_string(FileAccess.get_file_as_string("user://support-ci.json"))
+			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://support-ci.json"))
+			if support is Dictionary and str(support.get("action", "")) == "export":
+				call_deferred("_export_support_fixture")
 		if FileAccess.file_exists("user://update-ci.json"):
 			var request: Variant=JSON.parse_string(FileAccess.get_file_as_string("user://update-ci.json"))
 			if request is Dictionary and request.get("action","")!=update_action:
@@ -39,6 +48,34 @@ func _process(delta: float) -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://scenario-ci.json"))
 			call_deferred("_test_real_scenario")
 		write_health()
+
+func _export_support_fixture() -> void:
+	# Emulator-only exercise of the real Android ZIP/JNI/share path. The host
+	# creates a deliberately malformed primary in its isolated test user://.
+	# Never modify or auto-repair any source during export.
+	support_status = "preparing"
+	var primary: String = game.SaveStore.path_for_map("sonnenhang", 3)
+	var backup: String = primary + ".bak"
+	if not FileAccess.file_exists(primary) or not FileAccess.file_exists(backup):
+		support_status = "missing_fixture"
+		write_health()
+		return
+	var primary_sha: String = FileAccess.get_sha256(primary)
+	var backup_sha: String = FileAccess.get_sha256(backup)
+	var bundle: Dictionary = SupportBundle.export_slot("sonnenhang", 3)
+	support_bytes_preserved = primary_sha == FileAccess.get_sha256(primary) and backup_sha == FileAccess.get_sha256(backup)
+	if not bundle.ok:
+		support_status = "export_" + str(bundle.get("code", "unknown"))
+		write_health()
+		return
+	support_archive = str(bundle.path)
+	if int(bundle.files) < 2 or not support_bytes_preserved:
+		support_status = "incomplete"
+		write_health()
+		return
+	var shared: Dictionary = SupportBundle.share_slot_archive(support_archive)
+	support_status = "shared" if shared.ok else "share_" + str(shared.get("code", "unknown"))
+	write_health()
 
 func _test_real_scenario() -> void:
 	game.hud._update_safe_area()
@@ -103,7 +140,7 @@ func write_health() -> void:
 		picking.handle_hit = game.hud.plan_overlay.pick_waypoint(pick_at, 2) == 0
 	var file:=FileAccess.open("user://lifecycle-ci.json.tmp",FileAccess.WRITE)
 	if file == null:return
-	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"installed_code":game.updater.installed_code,"updater_state":game.updater.state,"update_url":game.updater.last_opened_url,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
+	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"support_status":support_status,"support_archive":support_archive,"support_preserved":support_bytes_preserved,"installed_code":game.updater.installed_code,"updater_state":game.updater.state,"update_url":game.updater.last_opened_url,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
 	file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path("user://lifecycle-ci.json.tmp"),ProjectSettings.globalize_path("user://lifecycle-ci.json"))
 

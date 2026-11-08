@@ -1,6 +1,7 @@
 """Exercise real Android activities, native surfaces and a saved game on an emulator."""
 import argparse
 import io
+import zipfile
 import hashlib
 import xml.etree.ElementTree as ET
 import json
@@ -318,6 +319,65 @@ def main():
         assert before_files == after_files, "An in-place Android update changed a career save, unlock file or index"
         capture("updated-four-careers-restored", state)
         adb("shell", "run-as", PACKAGE, "rm", "-f", update_request_path)
+        # Exercise the Android-specific path used by a player whose original
+        # primary is unreadable. This is an isolated emulator save, not a real
+        # person's data. Preserve a verified .bak and its byte checksum.
+        damaged_file = save_folder + "/career_3_sonnenhang.json"
+        preserved_file = damaged_file + ".ci-original"
+        adb("shell", "run-as", PACKAGE, "cp", damaged_file, preserved_file)
+        good_primary_hash = saved_hash("career_3_sonnenhang.json")
+        before_backup = hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", damaged_file + ".bak")).hexdigest()
+        malformed = args.output / "malformed-android-save-fixture.json"
+        malformed.write_bytes(b'{"truncated":')
+        adb("push", str(malformed), "/data/local/tmp/skizones-corrupt-fixture.json")
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-corrupt-fixture.json", damaged_file)
+        corrupt_hash = saved_hash("career_3_sonnenhang.json")
+        assert corrupt_hash == hashlib.sha256(malformed.read_bytes()).hexdigest()
+        support_request = args.output / "support-request.json"
+        support_request.write_text('{"action":"export"}')
+        adb("push", str(support_request), "/data/local/tmp/skizones-support-request.json")
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-support-request.json",
+            save_folder + "/support-ci.json")
+        state = wait_for(lambda s: bool(s.get("support_status"))
+                         and s["support_status"] not in ("preparing",), seconds=120)
+        assert state["support_status"] == "shared", "Real Android support ZIP/JNI share failed: " + str(state)
+        assert state["support_preserved"], "Forensic export modified original or backup"
+        assert saved_hash("career_3_sonnenhang.json") == corrupt_hash
+        assert hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", damaged_file + ".bak")).hexdigest() == before_backup
+        archives = adb("shell", "run-as", PACKAGE, "find", "files", "-name", "skizones-support-*.zip").decode().splitlines()
+        archives = [z.strip() for z in archives if z.startswith("files/")]
+        assert archives, "Godot did not create the support ZIP on Android"
+        archive_data = adb("shell", "run-as", PACKAGE, "cat", archives[-1], timeout=60)
+        with zipfile.ZipFile(io.BytesIO(archive_data)) as bundle:
+            assert bundle.testzip() is None, "Android support ZIP failed CRC validation"
+            names = bundle.namelist()
+            assert "diagnostic.json" in names
+            assert "files/00-career_3_sonnenhang.json" in names
+            assert "files/01-career_3_sonnenhang.json.bak" in names
+            assert bundle.read("files/00-career_3_sonnenhang.json") == malformed.read_bytes()
+            report = json.loads(bundle.read("diagnostic.json"))
+            assert report["files"][0]["code"] == "invalid_json", report
+            assert report["files"][1]["sha256"] == before_backup, report
+        copies = adb("shell", "run-as", PACKAGE, "find", "cache/skizones-support", "-name", "skizones-support-*.zip").decode().splitlines()
+        copies = [z.strip() for z in copies if z.startswith("cache/")]
+        assert copies, "Android ContentProvider did not receive a shareable cache ZIP"
+        assert hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", copies[-1], timeout=60)).hexdigest() == hashlib.sha256(archive_data).hexdigest(), \
+            "The Android share cache copy changed ZIP bytes"
+        (args.output / "support-export-evidence.json").write_text(json.dumps({
+            "archive_sha256": hashlib.sha256(archive_data).hexdigest(),
+            "corrupted_primary_preserved": True, "backup_preserved": True,
+            "diagnostic_code": "invalid_json", "share_bridge": state["support_status"],
+        }, indent=2))
+        # Restore this *emulator-only* fixture so a later update test can still
+        # exercise the playable career, without changing any user's file.
+        adb("shell", "run-as", PACKAGE, "cp", preserved_file, damaged_file)
+        assert saved_hash("career_3_sonnenhang.json") == good_primary_hash
+        adb("shell", "run-as", PACKAGE, "rm", "-f", preserved_file, save_folder + "/support-ci.json")
+        print("PASS Android forensic ZIP: malformed source + last-good .bak retained, JNI share cache verified", flush=True)
+        # The chooser can take focus after the JNI dispatch; resume the game
+        # before assertions about crash logs and renderer state.
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
+        launch()
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"
