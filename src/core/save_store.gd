@@ -342,7 +342,7 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
-	var sources: Array = [path,path+".bak"]
+	var sources: Array = [path,path+".bak",path+".tmp",path+".bak.tmp"]
 	# Pre-slot saves remain a final, read-only fallback. Never load a former
 	# career into slot 2–4, or a free-play career into a paid slot.
 	var legacy_id := ""
@@ -357,20 +357,21 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		# Old scenario files may predate career/free mode metadata entirely.
 		legacy_id=path.trim_prefix("user://scenario_").trim_suffix(".json")
 		legacy_scenario=true
+	var legacy_sources: Array = []
 	if Maps.MAPS.has(legacy_id):
-		sources.append(legacy_path(legacy_id))
-		sources.append(legacy_path(legacy_id)+".bak")
+		legacy_sources = [legacy_path(legacy_id), legacy_path(legacy_id)+".bak"]
+		sources.append_array(legacy_sources)
 	for candidate in sources:
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
 		if read.ok:
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
-			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
+			if candidate in legacy_sources and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
-				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Älterer Spielstand geladen.") if candidate in sources.slice(2) else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+				return {"ok":true,"recovered":candidate.ends_with(".tmp"),"source":candidate,"legacy":candidate in legacy_sources or read.get("legacy_raw", false),"message":L.text("Unterbrochener Spielstand aus temporärer Sicherung geladen. Originaldateien bleiben erhalten.") if candidate.ends_with(".tmp") else L.text("Älterer Spielstand geladen.") if candidate in legacy_sources else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
 	# unchecked bytes: the envelope checksum and model validation still apply.

@@ -10556,3 +10556,6 @@ msgstr " · line %d"
 
 msgid "JavaClassWrapper"
 msgstr "JavaClassWrapper"
+
+msgid "Unterbrochener Spielstand aus temporärer Sicherung geladen. Originaldateien bleiben erhalten."
+msgstr "Interrupted save loaded from a temporary recovery file. All original files remain unchanged."
