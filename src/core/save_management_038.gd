@@ -35,6 +35,15 @@ static func _archived_sources(id: String,slot: int,free_slot: int) -> Array:
 	var result: Array=[]
 	var target: String=Saves.path_for_map(id,slot,free_slot)
 	var names: Array=[target.get_file(),target.get_file()+".bak"]
+	# Previous interrupted writes are archived under *.tmp-<timestamp>.
+	# Keep them discoverable for read-only repair and ZIP export after a later
+	# normal save has already replaced the temporary file.
+	var recovery_prefixes: Array=[]
+	for candidate in sources(id,slot,free_slot):
+		var basename: String=str(candidate).get_file()
+		for suffix in ["-", ".tmp-"]:
+			var prefix: String=basename+suffix
+			if prefix not in recovery_prefixes: recovery_prefixes.append(prefix)
 	var roots: Array=[]
 	var index:int=free_slot if slot==0 else slot
 	roots.append(["user://free-archives" if slot==0 else "user://career-archives","slot-%d-" % index])
@@ -52,8 +61,12 @@ static func _archived_sources(id: String,slot: int,free_slot: int) -> Array:
 	var recovery: DirAccess=DirAccess.open("user://save-recovery")
 	if recovery!=null:
 		for filename in recovery.get_files():
-			if filename.begins_with(str(names[0])+"-") or filename.begins_with(str(names[1])+"-"):
-				result.append("user://save-recovery/"+filename)
+			var relevant: bool=false
+			for prefix in recovery_prefixes:
+				if filename.begins_with(str(prefix)):
+					relevant=true
+					break
+			if relevant: result.append("user://save-recovery/"+filename)
 			if result.size()>=96:return result
 	# Load-game rescue snapshots were saved alongside the former source.
 	var top: DirAccess=DirAccess.open("user://")

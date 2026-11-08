@@ -76,12 +76,18 @@ func run() -> void:
 	model.money += 7.0
 	check(Saves.save_game(model, path).ok, "A new save does not erase the prior interrupted write without an archive")
 	var staged_archived := false
+	var orphan_archive: String=""
 	var archive_dir: DirAccess=DirAccess.open("user://save-recovery")
 	if archive_dir != null:
 		for name in archive_dir.get_files():
 			if name.begins_with((path + ".tmp").get_file() + "-") and name.ends_with(".before-staging"):
-				staged_archived=staged_archived or FileAccess.get_sha256("user://save-recovery/" + name) == orphan_sha
+				if FileAccess.get_sha256("user://save-recovery/" + name) == orphan_sha:
+					staged_archived=true
+					orphan_archive="user://save-recovery/" + name
 	check(staged_archived, "The unfinished original survives a normal save byte-for-byte in a separate archive")
+	check(not orphan_archive.is_empty() and Manager.recovery_sources("sonnenhang", 3).has(orphan_archive), "Previous interrupted-save archives remain discoverable by repair and export")
+	var forensic_listing: Dictionary=Manager.inspect("sonnenhang",3)
+	check(forensic_listing.files.any(func(item): return str(item.get("source",""))==orphan_archive and bool(item.get("loadable",false))), "A formerly staged valid save remains inspectable after a later save overwrote its temporary filename")
 	check(Saves.load_game(Resort.new(), path).ok, "A replaced valid stage remains playable after recovery")
 	# Even a truncated .tmp is forensic evidence and must not be hidden as
 	# though the slot contained no files.
