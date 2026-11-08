@@ -292,6 +292,10 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	if not SHIFTS.has(shift) or target.length() > 100: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if target.begins_with("building:"):
+				var venue:Dictionary=model.asset(target.trim_prefix("building:").to_int())
+				if venue.is_empty() or not role_matches_building(str(person.role),str(venue.get("kind",""))):
+					return model._result(false,L.text("Fachkraft passt nicht zum Gebäude. Bitte eine passende Berufsgruppe wählen."))
 			person.assignment = target
 			person.shift = shift
 			model._duty_cache.clear()
