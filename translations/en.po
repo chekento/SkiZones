@@ -10229,3 +10229,33 @@ msgstr "No custom maps saved yet."
 
 msgid "No custom maps saved yet."
 msgstr "No custom maps saved yet."
+
+msgid "Flüsse"
+msgstr "Rivers"
+
+msgid "Rivers"
+msgstr "Rivers"
+
+msgid "Baumgrenze (m)"
+msgstr "Tree line (m)"
+
+msgid "Tree line (m)"
+msgstr "Tree line (m)"
+
+msgid "Bergketten-Verbund (%)"
+msgstr "Mountain connectivity (%)"
+
+msgid "Mountain connectivity (%)"
+msgstr "Mountain connectivity (%)"
+
+msgid "Wander- & Rettungszugänge"
+msgstr "Trailheads & rescue access"
+
+msgid "Trailheads and rescue access"
+msgstr "Trailheads and rescue access"
+
+msgid "%d Gipfel · %.1f km² · %d Bäume · %d Seen · %d Dörfer · %d Flüsse · Seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+
+msgid "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d"
