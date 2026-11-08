@@ -36,6 +36,22 @@ func run() -> void:
 		zip.close()
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(str(bundle.path)))
 	check(FileAccess.get_sha256(path) == original_hash and FileAccess.get_sha256(path + ".bak") == backup_hash, "Export does not alter either damaged primary or the only good backup")
+	# A broken backup must not silently disappear during an unrelated save.
+	check(DirAccess.copy_absolute(ProjectSettings.globalize_path(path+".bak"),ProjectSettings.globalize_path(path))==OK,"Restore a valid primary only inside isolated test fixture")
+	var previous_good_hash:String=FileAccess.get_sha256(path)
+	var broken_backup:=FileAccess.open(path+".bak",FileAccess.WRITE)
+	broken_backup.store_string("{bad backup");broken_backup.close()
+	var bad_backup_hash:String=FileAccess.get_sha256(path+".bak")
+	model.money+=11
+	check(Saves.save_game(model,path).ok,"Normal save tolerates and archives an unreadable older backup")
+	check(FileAccess.get_sha256(path+".bak")==previous_good_hash,"Rotated backup contains the fully validated previous primary")
+	var found_broken:=false
+	var recovery:DirAccess=DirAccess.open("user://save-recovery")
+	if recovery!=null:
+		for filename in recovery.get_files():
+			if filename.begins_with((path+".bak").get_file()+"-") and filename.ends_with(".before-backup"):
+				found_broken=found_broken or FileAccess.get_sha256("user://save-recovery/"+filename)==bad_backup_hash
+	check(found_broken,"Unrecoverable former backup is separately archived byte-for-byte")
 	for suffix in ["", ".bak"]:
 		if FileAccess.file_exists(path + suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(path + suffix))
 	print("RESULT: %d passed; %d failed" % [passed,failed])

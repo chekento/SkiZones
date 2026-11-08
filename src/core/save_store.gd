@@ -250,6 +250,23 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 		var previous: Dictionary = _read(path)
 		var previous_model: RefCounted = model.get_script().new()
 		if previous.ok and previous_model.restore(previous.data.duplicate(true)).ok:
+			# Before rotating over an *unreadable* .bak, preserve those exact
+			# bytes separately. It may hold the only forensic evidence of why
+			# an Android upgrade failed, even if its checksum cannot be checked.
+			var old_backup_path: String = path + ".bak"
+			if FileAccess.file_exists(old_backup_path):
+				var old_read: Dictionary = _read(old_backup_path)
+				var old_exact: bool = false
+				if old_read.ok:
+					var old_probe: RefCounted = model.get_script().new()
+					old_exact = bool(old_probe.restore(old_read.data.duplicate(true)).ok)
+				if not old_exact:
+					var folder: String = "user://save-recovery"
+					if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK:
+						return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+					var archived: String = folder + "/" + old_backup_path.get_file() + "-%d-%d.before-backup" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+					if DirAccess.copy_absolute(ProjectSettings.globalize_path(old_backup_path),ProjectSettings.globalize_path(archived)) != OK or FileAccess.get_sha256(archived) != FileAccess.get_sha256(old_backup_path):
+						return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			# Never stream directly over .bak: an interrupted copy must not
 			# corrupt the only earlier checkpoint. Verify a staging copy first.
 			var safe_copy: String = path + ".bak.tmp"
