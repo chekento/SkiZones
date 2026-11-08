@@ -3,6 +3,8 @@ extends PanelContainer
 ## safe draft storage and a strict final mission unlock. Actual playable-map
 ## activation is deliberately gated until independent saves are implemented.
 const Creator=preload("res://src/core/map_creator_040.gd")
+const CustomMaps=preload("res://src/core/custom_maps_040.gd")
+const SaveStore=preload("res://src/core/save_store.gd")
 const Preview=preload("res://src/ui/map_creator_preview_040.gd")
 const Medals=preload("res://src/core/scenario_medals.gd")
 const Maps=preload("res://src/core/maps.gd")
@@ -16,6 +18,8 @@ var result_label:=Label.new()
 var access_label:=Label.new()
 var generate_button:=Button.new()
 var draft_button:=Button.new()
+var play_button:=Button.new()
+var saved_maps_list:=VBoxContainer.new()
 
 func _text(de:String,en:String)->String:
 	return en if L.language=="en" else de
@@ -123,10 +127,14 @@ func setup(owner:CanvasLayer) -> void:
 	var actions:=_line(content)
 	generate_button=_action(actions,_text("Karte neu generieren","Generate new map"),regenerate)
 	draft_button=_action(actions,_text("Entwurf speichern","Save blueprint"),save_draft)
+	play_button=_action(actions,_text("Als neue Karte spielen","Create playable map"),create_and_play)
 	_label(content,_text("Topografische Vorschau · noch keine spielbare Karte. Die Anbindung an unabhängige Spielstände folgt.","Topographic preview · not yet playable. Independent save-slot integration follows."),14)
 	preview.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	content.add_child(preview)
 	result_label=_label(content,"",15)
+	_label(content,_text("Deine eigenen Gebiete · 8 unabhängige Kartenplätze","Your custom mountains · 8 independent map slots"),20)
+	saved_maps_list.add_theme_constant_override("separation",8)
+	content.add_child(saved_maps_list)
 	hide()
 
 func mission_unlocked() -> bool:
@@ -142,10 +150,13 @@ func open() -> void:
 	var allowed:=mission_unlocked()
 	generate_button.disabled=not allowed
 	draft_button.disabled=not allowed
+	play_button.disabled=not allowed
+	refresh_saved_maps()
 	access_label.text=_text("Freier Modus: sofort verfügbar. Missionsmodus: erst nach allen Gebietsfreischaltungen und vier Goldmedaillen.","Free mode: available immediately. Mission mode: unlock every resort and earn gold in all four scenarios.") if allowed else _text("Noch gesperrt: Im freien Modus sofort verfügbar; im Missionsmodus sind alle Gebietsfreischaltungen und vier Goldmedaillen erforderlich.","Locked: open in free mode, or unlock every resort and earn four gold scenario medals.")
 	if allowed:regenerate()
 	else:result_label.text=_text("Generator gesperrt. Bisherige Spielstände bleiben unverändert.","Generator locked. Existing saves are untouched.")
 	show()
+	move_to_front()
 
 func regenerate() -> void:
 	if not mission_unlocked():return
@@ -176,6 +187,38 @@ func save_draft() -> void:
 		result_label.text=_text("Entwurf konnte nicht gespeichert werden.","Unable to save blueprint.")
 		return
 	result_label.text=_text("Karteneinstellungen sicher gespeichert. Noch keine spielbare Karte.","Map settings saved. Not yet a playable map.")
+
+## Independent, persistent custom terrain: no existing resort save is replaced.
+func create_and_play() -> void:
+	if not mission_unlocked():return
+	var built:Dictionary=CustomMaps.create(settings)
+	if not built.ok:
+		result_label.text=_text("Karte konnte nicht angelegt werden: ","Cannot create map: ")+str(built.get("error",""))
+		return
+	result_label.text=_text("Eigene Karte angelegt und registriert.","Custom map created and registered.")
+	refresh_saved_maps()
+	hide()
+	hud.game.open_custom_map(str(built.id))
+
+func refresh_saved_maps() -> void:
+	for old in saved_maps_list.get_children():old.queue_free()
+	var entries:Array=CustomMaps.entries()
+	if entries.is_empty():
+		_label(saved_maps_list,_text("Noch keine eigene Karte gespeichert.","No custom maps saved yet."),15)
+		return
+	for item in entries:
+		var panel:=PanelContainer.new()
+		panel.add_theme_stylebox_override("panel",hud._style(Color("e5f1ef"),12,10))
+		saved_maps_list.add_child(panel)
+		var row:=_line(panel)
+		var label:Label=_label(row,str(item.name)+" · "+str(item.size)+" · "+str(item.landform),15)
+		label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		var resume:Button=_action(row,_text("Spielen / Fortsetzen","Play / Resume"),func():
+			if mission_unlocked() or SaveStore.has_any_save(str(item.id)):
+				hide()
+				hud.game.open_custom_map(str(item.id))
+		)
+		resume.disabled=not mission_unlocked() and not SaveStore.has_any_save(str(item.id))
 
 func _load_draft() -> void:
 	if not FileAccess.file_exists(DRAFT_PATH):return
