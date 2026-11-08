@@ -688,41 +688,71 @@ static func tick(model: RefCounted) -> void:
 			model.snow_revision += 1
 			model._operational_change()
 	for event in model.operations.incidents:
-		if event.status == "waiting" and model.minute % 5 == 0: dispatch(model, int(event.id))
-		elif event.status == "responding":
-			var station: Dictionary = model.asset(int(event.station))
-			if station.is_empty() or not building_open(model, station): continue
-			event.remaining -= 1
-			if event.remaining <= 0:
-				event.status = "resolved"
-				model.operations.rescued += 1
-				for guest in model.guests:
-					if int(guest.id) == int(event.guest):
-						guest.incident = -1
-						guest.assisted = true
-						guest.needs.energy = maxf(60, guest.needs.energy)
-						if guest.has("family"):
-							for member in guest.family: member.needs.energy = maxf(60, member.needs.energy)
-							model.Needs.aggregate_family(guest)
-						if event.reason == "evacuation":
-							# Recovery uses the real graph after lowering the passenger to the ground.
-							var graph: Dictionary = model._routing_graph(int(guest.ability))
-							var home_paths: Dictionary = model._distances(graph, "base", true)
-							var nearest := "base"
-							var distance := INF
-							for key in graph.nodes:
-								var delta := Terrain.unpack(graph.nodes[key]).distance_to(Terrain.unpack(event.point))
-								if home_paths.distance.has(key) and delta < distance:
-									distance = delta
-									nearest = key
-							var home: Dictionary = model._shortest(graph, nearest, "base")
-							var walk: Dictionary = model._edge("rescue", nearest, "walk", 0, [event.point, graph.nodes[nearest]], maxf(0.15, distance / 45))
-							walk.rescue = true
-							guest.route = {"target": 0, "origin": event.point, "legs": [walk] + home.legs}
-							guest.heading_home = true
-							guest.leg = 0
-							model._start_leg(guest)
-				model.reputation = minf(95, model.reputation + 0.3)
+		if event.status=="waiting":
+			if model.minute % 5==0:dispatch(model,int(event.id))
+			continue
+		if not Rescue.active_status(str(event.status)):continue
+		var station:Dictionary=model.asset(int(event.station))
+		# A started mission remains in flight even if the shift changes at 18h.
+		if station.is_empty() or not station.get("enabled",false):continue
+		event.remaining-=1.0
+		if event.remaining>0.0:continue
+		if event.status=="responding" and event.has("rescue_team") and event.reason!="navigation":
+			# Two rescuers have arrived with an empty/folded stretcher.
+			# Patient rides on the return trip, then spends 1–2 hours in care.
+			event.status="returning"
+			event.remaining=maxf(4.0,float(event.response_duration)*0.85)
+			event.return_duration=event.remaining
+			event.return_started=clock(model)
+			event.treatment_duration=Rescue.treatment_minutes(str(event.reason),int(event.id))
+			model._operational_change()
+			continue
+		if event.status=="returning":
+			event.status="treating"
+			event.remaining=float(event.get("treatment_duration",90))
+			model._operational_change()
+			continue
+		if event.status=="treating" or event.status=="responding":
+			event.status="resolved"
+			model.operations.rescued+=1
+			for guest in model.guests:
+				if int(guest.id)!=int(event.guest):continue
+				guest.incident=-1
+				guest.assisted=true
+				guest.needs.energy=maxf(60,guest.needs.energy)
+				if guest.has("family"):
+					for member in guest.family:member.needs.energy=maxf(60,member.needs.energy)
+					model.Needs.aggregate_family(guest)
+				if event.reason in ["evacuation","navigation"] or event.has("rescue_team"):
+					# Escort a frightened guest on existing runs; injured guests
+					# emerge from the station only after their treatment period.
+					var graph:Dictionary=model._routing_graph(int(guest.ability))
+					var source:Vector2=Terrain.unpack(station.point) if event.has("rescue_team") and event.reason!="navigation" else Terrain.unpack(event.point)
+					var start_key: String="d%d" % int(station.id) if event.has("rescue_team") and event.reason!="navigation" else ""
+					if start_key=="":
+						var best:float=INF
+						for key in graph.nodes:
+							var distance:float=source.distance_to(Terrain.unpack(graph.nodes[key]))
+							if distance<best:
+								best=distance
+								start_key=str(key)
+					var home:Dictionary=model._shortest(graph,start_key,"base")
+					if home.ok and not home.legs.is_empty():
+						var route_legs:Array=home.legs
+						if not event.has("rescue_team") or event.reason=="navigation":
+							var approach:Dictionary=model._edge("rescue",start_key,"walk",0,[Terrain.pack(source),graph.nodes[start_key]],maxf(0.15,source.distance_to(Terrain.unpack(graph.nodes[start_key]))/45.0))
+							approach.rescue=true
+							route_legs=[approach]+home.legs
+						guest.route={"target":0,"origin":Terrain.pack(source),"legs":route_legs}
+						guest.heading_home=true
+						guest.leg=0
+						model._start_leg(guest)
+					else:
+						guest.phase="leaving"
+				break
+			model.reputation=minf(95.0,model.reputation+0.3)
+			model._operational_change()
+
 	if model.minute % 10 == 0:
 		for guest in model.guests:
 			if guest.phase == "leaving" or guest.get("incident", -1) >= 0 or guest.get("assisted", false) or guest.leg >= guest.route.legs.size(): continue
