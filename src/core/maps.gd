@@ -17,6 +17,32 @@ const FANTASY_MAPS := {
 }
 
 static var MAPS: Dictionary = _all_maps()
+static var CUSTOM_MAPS: Dictionary = {}
+
+## Custom-map specifications are registered on startup from a validated,
+## checksum-verified blueprint library. Shipped map definitions never change.
+static func custom_id(slot: int) -> String:
+	return "custom_%02d" % slot
+
+static func register_custom(id: String, options: Dictionary) -> bool:
+	var valid_id := false
+	for slot in range(1,9):
+		if custom_id(slot)==id:valid_id=true;break
+	if not valid_id:return false
+	var result: Dictionary=preload("res://src/core/map_creator_040.gd").generate(options)
+	if not result.ok:return false
+	CUSTOM_MAPS[id]=result.map
+	MAPS[id]=result.map
+	return true
+
+static func is_player_map(id: String) -> bool:
+	return FANTASY_MAPS.has(id) or CUSTOM_MAPS.has(id)
+
+static func player_maps() -> Dictionary:
+	var result:Dictionary=FANTASY_MAPS.duplicate()
+	for id in CUSTOM_MAPS:result[id]=CUSTOM_MAPS[id]
+	return result
+
 
 static func _all_maps() -> Dictionary:
 	var result := FANTASY_MAPS.duplicate(true)
@@ -34,7 +60,7 @@ static func area(id: String) -> float:
 static func base_height(point: Vector2, id: String, generation: int) -> float:
 	if id in Geo.IDS: return Geo.height(point, id)
 	if generation < 2 or id == "sonnenhang": return preload("res://src/core/terrain.gd").height(point)
-	var index := maxi(0, MAPS.keys().find(id))
+	var index := clampi(MAPS.keys().find(id),0,7)
 	var climb := maxf(210.0 - point.y, 0)
 	var gradient: float = [0.205, 0.185, 0.22, 0.20, 0.15, 0.18, 0.20, 0.22][index]
 	var shoulder := (38 + index * 3) * exp(-pow((point.x + 220 + index * 8) / 175.0, 2) - pow((point.y + 220) / 210.0, 2))
