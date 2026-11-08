@@ -253,7 +253,7 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
-	if model.map_Maps.is_player_map(id) and path==path_for_map(model.map_id): _write_index(model,active_slot)
+	if Maps.is_player_map(model.map_id) and path==path_for_map(model.map_id): _write_index(model,active_slot)
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
 
 static func _read(path: String, progress: RefCounted = null) -> Dictionary:
