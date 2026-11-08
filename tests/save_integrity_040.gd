@@ -61,6 +61,12 @@ func run() -> void:
 	# valid bytes must be discoverable without ever guessing an invalid JSON.
 	for suffix in ["", ".bak"]:
 		if FileAccess.file_exists(path + suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(path + suffix))
+	var foreign_stage: Dictionary=model.snapshot().duplicate(true)
+	foreign_stage.campaign.mode="free"
+	write_envelope(path + ".tmp", foreign_stage)
+	var foreign_sha: String=FileAccess.get_sha256(path + ".tmp")
+	check(not Saves.load_game(Resort.new(),path).ok, "A checksum-valid free-play stage can never enter a numbered career slot")
+	check(FileAccess.get_sha256(path + ".tmp")==foreign_sha, "Rejected wrong-mode staging remains byte-for-byte unchanged")
 	write_envelope(path + ".tmp", model.snapshot())
 	var orphan_sha: String=FileAccess.get_sha256(path + ".tmp")
 	check(Saves.has_any_save("sonnenhang", 3), "A staged-only interrupted save keeps the career slot occupied")

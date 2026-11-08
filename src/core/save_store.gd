@@ -368,6 +368,13 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
 			if candidate in legacy_sources and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
+			if candidate.ends_with(".tmp") and (path.begins_with("user://career_") or path.begins_with("user://free_")):
+				# An interrupted stage is not a trusted slot just because its
+				# envelope is checksum-valid. A different career/free map must not
+				# be silently opened under this slot's name.
+				var stage_map: String=str(read.data.get("map_id",""))
+				if not path.ends_with("_"+stage_map+".json") or _free_data(read.data) != path.begins_with("user://free_"):
+					continue
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
