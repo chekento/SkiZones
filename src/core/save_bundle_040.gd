@@ -46,14 +46,13 @@ static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictio
 			skipped.append({"name": path.get_file(), "reason": "bundle_limit", "bytes": length})
 			file.close()
 			continue
-		var bytes: PackedByteArray = file.get_buffer(length)
+		# Keep only file descriptors and short metadata in RAM. An Android
+		# resort may be tens of MB; holding 12 whole JSON files and the
+		# compressed ZIP at once risks an out-of-memory crash.
 		file.close()
-		if bytes.size() != length:
-			skipped.append({"name": path.get_file(), "reason": "read_error", "bytes": length})
-			continue
 		var archive_name := "files/%02d-%s" % [selected.size(), path.get_file().replace("/", "_")]
 		var read: Dictionary = Saves._read(path)
-		selected.append({"archive": archive_name, "bytes": bytes})
+		selected.append({"archive": archive_name, "source": path, "bytes": length, "sha256": FileAccess.get_sha256(path)})
 		entries.append({"name": path.get_file(), "archive": archive_name, "bytes": length, "sha256": FileAccess.get_sha256(path), "code": str(read.get("code", "unknown")), "schema_version": int(read.get("schema_version", -1)), "parse_line": int(read.get("parse_line", 0))})
 		total += length
 	if selected.is_empty():
@@ -76,7 +75,19 @@ static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictio
 	for item in selected:
 		if not ok: break
 		ok = zip.start_file(str(item.archive)) == OK
-		if ok: ok = zip.write_file(item.bytes) == OK
+		if ok:
+			var input := FileAccess.open(str(item.source), FileAccess.READ)
+			if input == null:
+				ok = false
+			else:
+				var left: int = int(item.bytes)
+				while left > 0:
+					var block: PackedByteArray = input.get_buffer(mini(65536, left))
+					if block.is_empty() or zip.write_file(block) != OK:
+						ok = false
+						break
+					left -= block.size()
+				input.close()
 		if ok: ok = zip.close_file() == OK
 	zip.close()
 	if not ok:
@@ -88,7 +99,9 @@ static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictio
 	var verified := reader.get_files().size() == selected.size() + 1
 	for item in selected:
 		if not verified: break
-		verified = reader.read_file(str(item.archive)) == item.bytes
+		# Only one decompressed source is resident at a time; validate the
+		# original checksum, not just the ZIP's file count.
+		verified = reader.read_file(str(item.archive)).sha256_buffer().hex_encode() == str(item.sha256)
 	reader.close()
 	if not verified:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(staging))
