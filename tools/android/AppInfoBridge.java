@@ -24,7 +24,7 @@ public final class AppInfoBridge {
             File ownFiles = activity.getFilesDir().getCanonicalFile();
             if (!source.getPath().startsWith(ownFiles.getPath() + File.separator)
                     || !source.isFile() || !source.getName().endsWith(".zip")
-                    || source.length() <= 0 || source.length() > 150000000L) {
+                    || source.length() <= 0 || source.length() > 170000000L) {
                 return "invalid_private_archive";
             }
             File folder = new File(activity.getCacheDir(), "skizones-support");
