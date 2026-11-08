@@ -112,6 +112,30 @@ func finish() -> ArrayMesh:
 
 func tree_variant(style_id: String, species: int, simplified: bool = false) -> ArrayMesh:
 	if style_id=="monochrome": return Lines.new().tree(species)
+	if style_id=="comic":
+		# Five independent chunky silhouettes, including distant LOD variants.
+		# Shared meshes remain compatible with forest MultiMesh batching.
+		var palette: Dictionary = VisualStyles.detail_tints(style_id)
+		var bark: Color = Color(str(palette.wood)).darkened(0.16)
+		var foliage: Color = Color(str(palette.flora))
+		var snow: Color = Color(str(palette.snow))
+		var ink := Color("21334d")
+		var height_value: float = [15.0,13.0,12.0,9.5,7.5][clampi(species,0,4)]
+		cone(Vector3(0,height_value*0.43,0),0.75,height_value*0.86,bark,0.2)
+		var crowns: int = 2 if simplified else 3
+		for tier in range(crowns):
+			var ratio: float = float(tier)/float(crowns)
+			var y: float = height_value*(0.42+ratio*0.25)
+			var radius: float = (5.1 if species==0 else 4.2 if species==1 else 3.7 if species==2 else 4.6)*(1.0-ratio*0.35)
+			if species==4:
+				radius *= 0.8
+			cone(Vector3(0,y+1.6,0),radius+0.25,4.5,ink,0.16)
+			cone(Vector3(0,y+1.85,0),radius,4.5,foliage.lightened(tier*0.07),0.16)
+			cone(Vector3(0,y+3.1,0),radius*0.85,1.25,snow,0.08)
+		if not simplified:
+			for side in [-1,1]:
+				sphere(Vector3(side*1.7,height_value*0.48,0),1.5,foliage.lightened(0.13),Vector3(1.2,0.8,1.1))
+		return finish()
 	if species == 0: return pine_painted(style_id, simplified)
 	if species >= 3:
 		# Dwarf mountain pine and slender snow larch provide new forest silhouettes.
