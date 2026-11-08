@@ -1,0 +1,58 @@
+name: 0.40 specialist staffing and piste rescue QA
+
+on:
+  push:
+    branches: ['feature/0.40-alpine-world-ui-overhaul']
+    paths:
+      - 'src/core/operations.gd'
+      - 'src/core/recruitment.gd'
+      - 'src/core/rescue_protocol_040.gd'
+      - 'src/core/resort.gd'
+      - 'src/core/guest_profile.gd'
+      - 'src/world/rescue_visuals_040.gd'
+      - 'tests/specialist_building_040.gd'
+      - 'tests/rescue_protocol_040.gd'
+      - '.github/workflows/staff-rescue-040.yml'
+  pull_request:
+    paths:
+      - 'src/core/operations.gd'
+      - 'src/core/recruitment.gd'
+      - 'src/core/rescue_protocol_040.gd'
+      - 'src/core/resort.gd'
+      - 'src/core/guest_profile.gd'
+      - 'src/world/rescue_visuals_040.gd'
+      - 'tests/specialist_building_040.gd'
+      - 'tests/rescue_protocol_040.gd'
+      - '.github/workflows/staff-rescue-040.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  specialists:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and validate specialist scripts
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          "$GODOT_BIN" --headless --check-only --script res://src/core/operations.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/core/recruitment.gd
+      - name: Venue qualifications and effective service capacity
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/specialist_building_040.gd
+      - name: Original recruitment and four scenario missions
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --script tests/recruitment_scenarios_032.gd
