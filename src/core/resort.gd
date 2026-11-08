@@ -1321,7 +1321,8 @@ func service_load(id: int, excluding: int = -1) -> int:
 
 func service_capacity(building: Dictionary) -> int:
 	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
-	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
+	var base:int=int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
+	return maxi(base,roundi(float(base)*float(Ops.specialist_metrics(self,building).capacity)))
 
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if (not Ops.continuous(self) and minute >= CLOSING) or guest.get("heading_home",false): return {}
@@ -1350,6 +1351,8 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
 		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
+		if not restroom and not Hospitality.lodging(str(building.kind)) and not night_activity:
+			visit_minutes=maxf(2.0,visit_minutes/float(Ops.specialist_metrics(self,building).throughput))
 		if restroom:visit_minutes=(float(reservation.minutes)+float(reservation.wait))*time_divisor
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
@@ -1542,7 +1545,7 @@ func _finish_leg(guest: Dictionary) -> void:
 				# flat 15-€ shop tariff rather than stacking a second income source.
 				base_revenue = float(product_sale.revenue)
 			var level_multiplier: float = 1.0 if Hospitality.lodging(str(building.kind)) or not product_sale.is_empty() else 1.0 + (building.get("level", 1) - 1) * 0.35
-			var revenue: float = base_revenue if not product_sale.is_empty() else base_revenue * level_multiplier * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
+			var revenue: float = base_revenue * float(Ops.specialist_metrics(self,building).quality) if not product_sale.is_empty() else base_revenue * level_multiplier * (1.15 if Progression.has(self, "service") else 1.0) * Hospitality.service_multiplier(self, building)
 			building.visits = building.get("visits", 0) + int(guest.get("group_size", 1))
 			building.revenue = building.get("revenue", 0.0) + revenue
 			building.daily_revenue = float(building.get("daily_revenue", 0.0)) + revenue
