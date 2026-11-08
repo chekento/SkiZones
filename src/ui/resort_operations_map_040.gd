@@ -3,6 +3,7 @@ extends Control
 ## and staff/fault severity. Read-only drawing; no synthetic heat data.
 signal lift_selected(asset_id: int)
 const Terrain = preload("res://src/core/terrain.gd")
+const L = preload("res://src/core/i18n.gd")
 var model: RefCounted
 var rows: Array=[]
 var hot_spots: Array=[]
@@ -14,7 +15,7 @@ func setup(model_value: RefCounted, lift_rows: Array) -> void:
 	custom_minimum_size=Vector2(0,265)
 	size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	mouse_filter=Control.MOUSE_FILTER_STOP
-	tooltip_text="Liftpunkt berühren: Anlage und Personal öffnen"
+	tooltip_text=L.text("Liftpunkt berühren: Anlage und Personal öffnen")
 	queue_redraw()
 
 func _map_rect() -> Rect2:
@@ -35,7 +36,7 @@ func _draw() -> void:
 		var y: float=bounds.position.y+bounds.size.y*ratio
 		draw_line(Vector2(bounds.position.x,y),Vector2(bounds.end.x,y-9),Color(0.29,0.45,0.47,0.13),1.0,true)
 	var font: Font=get_theme_default_font()
-	draw_string(font,Vector2(16,21),"BERGNETZ · WARTESCHLANGEN & STÖRUNGEN",HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("24454b"))
+	draw_string(font,Vector2(16,21),L.text("BERGNETZ · WARTESCHLANGEN & STÖRUNGEN"),HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("24454b"))
 	hot_spots.clear()
 	if model==null:return
 	for row in rows:
@@ -58,7 +59,7 @@ func _draw() -> void:
 		draw_string(font,centre+Vector2(-16,5),str(queued) if queued>0 else "✓",HORIZONTAL_ALIGNMENT_CENTER,32,13,Color.WHITE)
 		if int(row.id)==selected_id:draw_arc(centre,radius+5,0,TAU,28,Color("193e49"),3.0,true)
 		hot_spots.append({"id":int(row.id),"at":centre,"radius":radius+8})
-	draw_string(font,Vector2(16,size.y-13),"● NORMAL       ● WARTEZEIT       ● STÖRUNG / PERSONAL",HORIZONTAL_ALIGNMENT_LEFT,-1,12,Color("365c5f"))
+	draw_string(font,Vector2(16,size.y-13),L.text("● NORMAL       ● WARTEZEIT       ● STÖRUNG / PERSONAL"),HORIZONTAL_ALIGNMENT_LEFT,-1,12,Color("365c5f"))
 
 func _pick(at: Vector2) -> void:
 	var closest_id: int=-1
