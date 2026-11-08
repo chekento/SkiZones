@@ -1,0 +1,55 @@
+name: "0.40 map, staff and rescue focused QA"
+
+on:
+  pull_request:
+    paths:
+      - "src/core/map_creator_040.gd"
+      - "src/ui/map_creator_040.gd"
+      - "src/ui/map_creator_preview_040.gd"
+      - "src/core/specialist_staff_040.gd"
+      - "src/core/rescue_response_040.gd"
+      - "src/core/operations.gd"
+      - "src/core/resort.gd"
+      - "src/core/guest_profile.gd"
+      - "src/world/crew_life.gd"
+      - "src/world/resort_view.gd"
+      - "src/ui/lift_staff.gd"
+      - "tests/*_040.gd"
+      - "translations/en.po"
+      - ".github/workflows/map-staff-rescue-040.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  map-staff-rescue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot 4.5.2
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Check English catalog and source strings
+        run: python3 tools/check_localization.py
+      - name: Import and parse scene/script dependency graph
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          for script in src/core/map_creator_040.gd src/core/specialist_staff_040.gd src/core/rescue_response_040.gd src/ui/map_creator_040.gd src/world/crew_life.gd src/core/operations.gd; do
+            "$GODOT_BIN" --headless --check-only --script "res://$script"
+          done
+      - name: Test deterministic maps, forest placements, venue jobs and two-person rescue
+        run: |
+          for test in map_creator_040 snow_path_visibility_040 specialist_staff_040 rescue_response_040; do
+            python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+          done
