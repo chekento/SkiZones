@@ -10553,3 +10553,6 @@ msgstr "[%s · v%d · %d B]"
 
 msgid " · Zeile %d"
 msgstr " · line %d"
+
+msgid "JavaClassWrapper"
+msgstr "JavaClassWrapper"
