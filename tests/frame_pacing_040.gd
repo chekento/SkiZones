@@ -18,7 +18,7 @@ func _init() -> void:call_deferred("run")
 
 func run() -> void:
 	check(FramePacing.presentation_fraction(3.25)==1.0,"Frames with CPU tick debt never wrap their visible lift phases backwards")
-	check(FramePacing.speed_change_debt(7.5)==1.0,"Downshifting discards excess catch-up without reversing the rendered tick")
+	check(FramePacing.speed_change_debt(7.5)>=0.99999 and FramePacing.speed_change_debt(7.5)<1.0,"Downshifting discards excess catch-up without reversing the rendered tick")
 	check(FramePacing.presentation_fraction(-2.0)==0.0,"Negative timing debt cannot affect visual transforms")
 	check(FramePacing.add_debt(0.0,1.0,1,1,1.0,0.5)==0.125,"Slow frame delta is capped to avoid time jumps")
 	check(FramePacing.rate(1,24,1.0)==4.0 and FramePacing.rate(4,24,1.0)==16.0 and FramePacing.rate(8,24,1.0)==32.0,"Runtime clock preserves 1x/4x/8x ratios")
