@@ -1019,7 +1019,11 @@ func _build_lift(lift: Dictionary) -> void:
 		group.set_meta("styled_vehicle",int(lift.id))
 		group.multimesh.visible_instance_count = count
 		asset_root.add_child(group)
-		var data := {"node": group, "glass": null, "poses": [], "clock": -INF}
+		# Geometry and carrier schedule are immutable until a lift rebuild.
+		# Avoid redundant dictionary cache lookups for every active lift frame.
+		var data := {"node": group, "glass": null, "poses": [], "clock": -INF,
+			"profile": profile, "schedule": model.fleet_layout(lift), "family": Fleet.family(lift),
+			"bottom": bottom, "top": top}
 		if not _vehicles.has(lift.kind):
 			_vehicles[lift.kind] = group
 		if Fleet.family(lift) == "gondola":
@@ -1257,7 +1261,7 @@ func _process(delta: float) -> void:
 		if not _vehicle_sets.has(lift.id):
 			continue
 		var data: Dictionary = _vehicle_sets[lift.id]
-		var near := Geometry2D.get_closest_point_to_segment(focus, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top))
+		var near := Geometry2D.get_closest_point_to_segment(focus, data.bottom, data.top)
 		var shown := near.distance_to(focus) < maxf(zoom * 1.8, 260)
 		data.node.visible = shown
 		if data.glass != null:
@@ -1266,9 +1270,9 @@ func _process(delta: float) -> void:
 			continue
 		var clock: float = lift.get("clock", 0.0) + (simulation_fraction if model.lift_running(lift) else 0.0)
 		var changed: bool = not is_equal_approx(data.clock, clock)
-		var profile: Dictionary=model.cable_profile(lift) if changed else {}
-		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
-		var family: String=Fleet.family(lift)
+		var profile: Dictionary=data.profile
+		var schedule: Dictionary=data.schedule
+		var family: String=data.family
 		for carrier in range(data.poses.size()):
 			if changed:
 				# Opening state, cable geometry and schedule are constant across

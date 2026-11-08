@@ -7,6 +7,7 @@ const Resort = preload("res://src/core/resort.gd")
 const ResortAudio=preload("res://src/world/resort_audio.gd")
 const Progression = preload("res://src/core/progression.gd")
 const L = preload("res://src/core/i18n.gd")
+const FramePacing040 = preload("res://src/core/frame_pacing_040.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
@@ -164,7 +165,7 @@ func _process(delta: float) -> void:
 		_plan_dirty = false
 		_update_plan()
 	if simulation_running():
-		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0) * DayRhythm.playback(model.minute, preferences.day_length)
+		_accumulator = FramePacing040.add_debt(_accumulator,delta,speed,model.time_divisor,DayRhythm.playback(model.minute,preferences.day_length),Resort.MINUTES_PER_SECOND)
 		var budget_end := Time.get_ticks_usec() + 6000
 		if preferences.night_forward and model.empty_night():
 			var night_day: int=model.day
@@ -176,10 +177,12 @@ func _process(delta: float) -> void:
 			var previous_day: int = model.day
 			model.advance_minute()
 			if model.day != previous_day: call_deferred("save_game")
-	simulation_fraction = fmod(_accumulator,1.0)
+	# Never modulo an unprocessed tick: an overloaded 1x/4x/8x frame
+	# would visibly rewind all cable cars and skiers.
+	simulation_fraction = FramePacing040.presentation_fraction(_accumulator)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
-	view.motion_rate = float(speed)*(4.0 if model.time_divisor>1 else 1.0)*DayRhythm.playback(model.minute, preferences.day_length)
+	view.motion_rate = FramePacing040.rate(speed,model.time_divisor,DayRhythm.playback(model.minute,preferences.day_length))
 	if has_game and model.day_finished() and not _day_report_shown:
 		_day_report_shown = true
 		save_game()
@@ -517,7 +520,7 @@ func set_speed(value: int) -> void:
 	if value not in [1, 4, 8]: return
 	speed = value
 	paused = false
-	_accumulator = fmod(maxf(0.0, _accumulator), 1.0)
+	_accumulator = FramePacing040.speed_change_debt(_accumulator)
 	hud.refresh()
 
 func cycle_speed() -> void:

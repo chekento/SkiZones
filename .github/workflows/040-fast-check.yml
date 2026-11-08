@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'src/core/resort_pulse_040.gd'
+      - 'src/core/frame_pacing_040.gd'
+      - 'src/main.gd'
+      - 'src/world/resort_view.gd'
       - 'src/ui/resort_command_center_040.gd'
       - 'src/ui/resort_operations_map_040.gd'
       - 'src/ui/building_browser.gd'
@@ -48,6 +51,8 @@ jobs:
           PY
       - name: Check complete DE/EN translations
         run: python3 tools/check_localization.py
+      - name: Verify 1x/4x/8x smooth lift pacing and bounded catch-up
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/frame_pacing_040.gd
       - name: Verify actual simulation diagnostics and no save changes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
       - name: Install software renderer for real phone screens
