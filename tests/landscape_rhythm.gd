@@ -101,6 +101,18 @@ func _night(model: RefCounted) -> void:
 	model.minute=1300
 	model._operational_change()
 	var route: Dictionary=model.Lodging.night_route(model,guest,"base")
+	if route.is_empty():
+		# A closed service is different from a missing path. Print only
+		# non-personal topology diagnostics, never saved guest data.
+		var graph: Dictionary=model.pedestrian_graph()
+		var destination: String="d%d" % int(cabin.id)
+		var out: Dictionary=model._shortest(graph,"base",destination)
+		var back: Dictionary=model._shortest(graph,destination,"base")
+		print("NIGHT_ROUTE_DIAG hotel_open=",model.Ops.building_open(model,cabin),
+			" base=",graph.nodes.has("base")," door=",graph.nodes.has(destination),
+			" rooted=",model.pedestrian_layout().rooted.has(destination),
+			" outward=",out.get("ok",false)," home=",back.get("ok",false),
+			" legs=",out.get("legs",[]).size()," links=",model.pedestrian_layout().links.size())
 	check(not route.is_empty(),"The overnight tourist has a real walking route into the cabin")
 	if route.is_empty(): return
 	guest.route=route
