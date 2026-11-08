@@ -78,3 +78,25 @@ GDScript accepts this project's exact GitHub release/manifest URLs, saves the ac
 The public APK uses release export without debuggability. `tools/verify_apk_security.py` checks its actual binary manifest, declared permissions, ZIP integrity and absence of the retired installer classes. Signature continuity with the preceding public APK is checked separately. Private emulator fixtures remain debuggable for `run-as` test access and are never published as the ARM64 download.
 
 Android CI exercises a real browser/chooser handoff and return, rejects corrupted and foreign-signature replacement APKs through the Android package manager, and replaces a valid higher-code test APK while comparing all four career files. These checks do not establish a Google Play Protect clearance. See [reported warning and review status](../../docs/PLAY_PROTECT.md).
+
+## 0.40 Android career diagnostics (release-blocking until device validation)
+
+The Career/Free Save Manager offers **Diagnose-ZIP exportieren**. The game
+collects existing primary JSON, `.bak`, historical read-only copies, and a
+sanitized report, even when the primary JSON is malformed. Source bytes are
+preserved and compared with the resulting ZIP. No save is migrated or modified
+during export. The app attempts to open Android's standard sharing chooser;
+the user explicitly selects a destination. This ZIP **contains the actual
+private save data**, so it should only be sent to someone the user trusts.
+
+The built-in `AppInfoBridge.shareSaveBundle` accepts only an existing ZIP
+under the application's own files directory. It copies that ZIP into the
+private cache and hands out a time-limited user-granted read-only `content://`
+URI through `SaveBundleProvider`. The provider is **not exported** and
+does not request broad external-storage access. The public APK security check
+requires both the Java class and the manifest declaration.
+
+Issue #102 remains OPEN until the affected Samsung 0.39.0/0.39.1 save
+and backup have been exported, inspected and loaded through an actual
+**in-place updated** 0.40 ARM64 APK. Synthetic historical tests, successful
+Android compilation and ZIP tests alone are insufficient to claim recovery.
