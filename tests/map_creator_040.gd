@@ -1,8 +1,9 @@
 extends SceneTree
 const Creator=preload("res://src/core/map_creator_040.gd")
 var failures:=0
+var passes:=0
 func check(condition: bool, label: String) -> void:
-	if condition:print("PASS "+label)
+	if condition:passes+=1;print("PASS "+label)
 	else:failures+=1;push_error("FAIL "+label)
 
 func _init() -> void:
@@ -36,5 +37,5 @@ func _init() -> void:
 	check(snowless.ok and snowless.map.tree_density==0 and snowless.map.lake_count==0,"Natural-feature counts preserve zero")
 	var big:Dictionary=Creator.generate({"size":"grand","peak_count":24,"peak_height":2800,"forest":100})
 	check(big.ok and big.map.peaks.size()==24,"Largest bounded map supports maximum mountain controls")
-	print("MAP CREATOR 0.40: ", failures," failures")
+	print("RESULT: %d passed; %d failed" % [passes,failures])
 	quit(1 if failures else 0)
