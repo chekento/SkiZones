@@ -9702,3 +9702,177 @@ msgstr "OFF"
 
 msgid "EIN"
 msgstr "ON"
+
+msgid "Lift %d"
+msgstr "Lift %d"
+
+msgid "Liftstörung"
+msgstr "Lift failure"
+
+msgid "Liftpersonal fehlt"
+msgstr "Lift crew missing"
+
+msgid " · %d unbesetzt"
+msgstr " · %d unstaffed"
+
+msgid "Warteschlange am Lift"
+msgstr "Lift queue"
+
+msgid " · %d Personen"
+msgstr " · %d guests"
+
+msgid "Gäste frieren"
+msgstr "Guests are cold"
+
+msgid "%d Personen brauchen Wärme"
+msgstr "%d guests need warmth"
+
+msgid "Gäste brauchen Verpflegung"
+msgstr "Guests need food"
+
+msgid "%d Personen sind hungrig"
+msgstr "%d guests are hungry"
+
+msgid "Sanitäre Versorgung gefragt"
+msgstr "Toilet facilities needed"
+
+msgid "%d Personen suchen eine Toilette"
+msgstr "%d guests need a toilet"
+
+msgid "Ersatzteile fehlen"
+msgstr "Spare parts are missing"
+
+msgid "Defekte Lifte benötigen Ersatzteile"
+msgstr "Broken lifts need spare parts"
+
+msgid "Leitstand"
+msgstr "Command center"
+
+msgid "BERGLEITSTAND · LIVE"
+msgstr "MOUNTAIN COMMAND CENTER · LIVE"
+
+msgid "Entscheidungen nach echten Warteschlangen, Gästebedürfnissen und Anlagenzustand – ohne den Spielstand zu verändern."
+msgstr "Make decisions using real queues, guest needs and lift conditions – without changing your save."
+
+msgid "Wind %.0f km/h · %.0f °C · %d offene Hinweise"
+msgstr "Wind %.0f km/h · %.0f °C · %d open alerts"
+
+msgid "Aktualisieren"
+msgstr "Refresh"
+
+msgid "Gäste am Berg"
+msgstr "Guests on the mountain"
+
+msgid "Aktuell anwesend"
+msgstr "Currently present"
+
+msgid "Anstehende Gäste"
+msgstr "Queued guests"
+
+msgid "Aktuelle Liftwarteschlangen"
+msgstr "Current lift queues"
+
+msgid "Aktive Lifte"
+msgstr "Operating lifts"
+
+msgid "Tatsächlich fahrbereit"
+msgstr "Actually running"
+
+msgid "Resort-Ruf"
+msgstr "Resort reputation"
+
+msgid "Gespeicherter Rufwert"
+msgstr "Current reputation"
+
+msgid "Schnellzugriff"
+msgstr "Quick actions"
+
+msgid "Die wichtigsten Bereiche direkt öffnen, ohne lange in Untermenüs zu suchen."
+msgstr "Open the essential areas without searching through submenus."
+
+msgid "Gebäude planen"
+msgstr "Plan buildings"
+
+msgid "Handlungsbedarf · %d Hinweise"
+msgstr "Action needed · %d alerts"
+
+msgid "Kritische Störungen stehen oben. Berühre einen betroffenen Lift, um seine Stationssteuerung zu öffnen."
+msgstr "Critical problems appear first. Tap an affected lift to open its station controls."
+
+msgid "Keine kritischen Engpässe erkannt. Prüfe die Situation nach dem nächsten Betriebstag erneut."
+msgstr "No critical bottlenecks detected. Check again after the next operating day."
+
+msgid "Anlage öffnen"
+msgstr "Open lift"
+
+msgid "Zum Betrieb"
+msgstr "Operations"
+
+msgid "Gästeversorgung"
+msgstr "Guest welfare"
+
+msgid "Momentaufnahmen der tatsächlich simulierten Bedürfnisse; ein Gast kann mehrere Bedürfnisse gleichzeitig haben."
+msgstr "Snapshot of actually simulated needs; a guest may have several needs at once."
+
+msgid "Kälte"
+msgstr "Cold"
+
+msgid "Hunger"
+msgstr "Hunger"
+
+msgid "Toilettenbedarf"
+msgstr "Toilet need"
+
+msgid "Erschöpfung"
+msgstr "Exhaustion"
+
+msgid "Bergnetz · interaktive Engpasskarte"
+msgstr "Mountain network · interactive bottleneck map"
+
+msgid "Jeder Punkt gehört zu einem echten Lift. Farbe und Größe zeigen Warteschlangen, Personaldefizite und Störungen. Antippen öffnet die Anlage."
+msgstr "Every marker represents a real lift. Color and size show queues, staffing shortages and breakdowns. Tap to open the lift."
+
+msgid "Liftmonitor · nach Handlungsbedarf sortiert"
+msgstr "Lift monitor · ordered by urgency"
+
+msgid "Live-Warteschlangen und Stationsbesetzung. Die Zahlen sind keine geschätzten Prognosen."
+msgstr "Live queues and station staffing. The figures are not invented forecasts."
+
+msgid "Noch keine Liftanlagen vorhanden."
+msgstr "No lifts built yet."
+
+msgid "%d Wartende"
+msgstr "%d waiting"
+
+msgid "%d Personal fehlt"
+msgstr "%d crew missing"
+
+msgid "Störung"
+msgstr "Fault"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Liftpunkt berühren: Anlage und Personal öffnen"
+msgstr "Tap a lift marker to open its controls and staffing"
+
+msgid "BERGNETZ · WARTESCHLANGEN & STÖRUNGEN"
+msgstr "MOUNTAIN NETWORK · QUEUES & BREAKDOWNS"
+
+msgid "● NORMAL       ● WARTEZEIT       ● STÖRUNG / PERSONAL"
+msgstr "● NORMAL       ● QUEUE       ● FAULT / CREW"
+
+msgid "Preis: günstig zuerst"
+msgstr "Price: low to high"
+
+msgid "Preis: teuer zuerst"
+msgstr "Price: high to low"
+
+msgid "Betriebskosten: günstig zuerst"
+msgstr "Running costs: low to high"
+
+msgid "Gebäude: A–Z"
+msgstr "Buildings: A–Z"
+
+msgid "Nur jetzt baubare Gebäude"
+msgstr "Only buildings available now"
