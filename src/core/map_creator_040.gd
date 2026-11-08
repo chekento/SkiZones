@@ -101,7 +101,7 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 				var theta: float=PI*0.12+fraction*PI*0.76
 				position=centre+Vector2(cos(theta)*size.x*0.37,-sin(theta)*size.y*0.29)
 		position.x=clampf(position.x,-size.x*0.43,size.x*0.43)
-		position.y=clampf(position.y,-size.y*0.89,-size.y*0.12)
+		position.y=clampf(position.y,-size.y+500.0,-size.y*0.12)
 		var height: float=float(config.peak_height)*steepness*rng.randf_range(0.72,1.18)
 		if config.landform=="hills": height*=0.28+float(config.rolling_hills)*0.003
 		if config.landform=="alpine_pasture":height*=0.54
