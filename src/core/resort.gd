@@ -22,6 +22,7 @@ const Parties=preload("res://src/core/guest_parties.gd")
 const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
+const Rescue = preload("res://src/core/rescue_response_040.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
@@ -2116,7 +2117,16 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		return terrain.world(point+Vector2(float(int(guest.id)%3)-1,float(int(guest.id)%5)*0.35),0.12)
 	if guest.get("incident", -1) >= 0:
 		for event in operations.incidents:
-			if int(event.id) == int(guest.incident): return terrain.world(Terrain.unpack(event.point), 0.3)
+			if int(event.id)!=int(guest.incident):continue
+			if event.status=="returning" and event.has("rescue_route"):
+				var points:Array=event.rescue_route.duplicate(true)
+				points.reverse()
+				var ratio:float=1.0-float(event.remaining)/maxf(1.0,float(event.get("return_duration",1)))
+				return terrain.world(Rescue.position_on_route(points,ratio),0.5)
+			if event.status=="treating":
+				var station:Dictionary=asset(int(event.station))
+				if not station.is_empty():return terrain.world(Terrain.unpack(station.point),0.3)
+			return terrain.world(Terrain.unpack(event.point),0.3)
 	if guest.phase == "leaving":
 		return terrain.world(Terrain.BASE)
 	var leg: Dictionary = guest.route.legs[guest.leg]
