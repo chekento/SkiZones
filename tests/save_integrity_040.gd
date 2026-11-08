@@ -121,5 +121,18 @@ func run() -> void:
 	var interrupted_backup: Dictionary=Saves.load_game(Resort.new(),path)
 	check(interrupted_backup.ok and interrupted_backup.recovered and interrupted_backup.source==path+".bak.tmp", "A validated interrupted backup can be loaded after two malformed committed saves")
 	check(FileAccess.get_sha256(path+".bak.tmp")==backup_stage_hash, "Direct recovery leaves the interrupted backup bytes unchanged")
+	# Once the user resumes the resort and saves again, the abandoned backup
+	# stage must be archived before the ordinary backup rotation reuses it.
+	write_envelope(path,model.snapshot())
+	write_envelope(path+".bak",model.snapshot())
+	model.money+=3
+	check(Saves.save_game(model,path).ok, "Ordinary save safely rotates even with a leftover interrupted backup stage")
+	var previous_stage_archived:=false
+	var backup_archives: DirAccess=DirAccess.open("user://save-recovery")
+	if backup_archives!=null:
+		for filename in backup_archives.get_files():
+			if filename.begins_with((path+".bak.tmp").get_file()+"-") and filename.ends_with(".before-backup-staging"):
+				previous_stage_archived=previous_stage_archived or FileAccess.get_sha256("user://save-recovery/"+filename)==backup_stage_hash
+	check(previous_stage_archived, "The original interrupted backup stage is archived byte-for-byte before reuse")
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)

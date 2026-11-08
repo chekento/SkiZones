@@ -283,6 +283,16 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 			# Never stream directly over .bak: an interrupted copy must not
 			# corrupt the only earlier checkpoint. Verify a staging copy first.
 			var safe_copy: String = path + ".bak.tmp"
+			# A previous Android process may have completed the backup staging
+			# but died before its rename. Never overwrite those potentially
+			# unique bytes with a new backup, even if the stage is malformed.
+			if FileAccess.file_exists(safe_copy):
+				var folder: String = "user://save-recovery"
+				if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK:
+					return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+				var archive: String = folder + "/" + safe_copy.get_file() + "-%d-%d.before-backup-staging" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
+				if DirAccess.copy_absolute(ProjectSettings.globalize_path(safe_copy), ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(safe_copy) != FileAccess.get_sha256(archive):
+					return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(safe_copy)) != OK or FileAccess.get_sha256(safe_copy) != FileAccess.get_sha256(path):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			if DirAccess.rename_absolute(ProjectSettings.globalize_path(safe_copy), absolute + ".bak") != OK:
