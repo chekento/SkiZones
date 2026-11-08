@@ -234,7 +234,15 @@ func _update_planning() -> void:
 
 func refresh(force: bool = false) -> void:
 	_update_planning()
-	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, game.model.money, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode + str(game.last_plan_check.get("message","")) + game.walkway_surface, hud.lift_choice.selected * 100 + hud.building_choice.selected]
+	# Income changes every few simulated minutes. Re-styling and relaying out
+	# every build card on each 0.4-second HUD refresh causes periodic hitches,
+	# even if the player's new balance unlocks no additional purchase.
+	# Affordability changes only when a real catalog cost threshold is crossed.
+	var affordability_tier := 0
+	for card in cards:
+		if game.model.money >= card.cost:
+			affordability_tier += 1
+	var fingerprint := "%s:%s:%d:%s:%s:%d" % [category, game.tool, affordability_tier, str(game.model.campaign.research) + str(game.points.size()) + game.plaza_kind, game.model.campaign.mode + str(game.last_plan_check.get("message","")) + game.walkway_surface, hud.lift_choice.selected * 100 + hud.building_choice.selected]
 	if fingerprint == _state and not force:
 		return
 	_state = fingerprint
