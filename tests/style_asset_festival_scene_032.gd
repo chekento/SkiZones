@@ -49,6 +49,8 @@ func run() -> void:
 		if style=="alpine":
 			check(festive.root.get_children().any(func(node):return node.get_meta("poster_campaign","")=="christmas"),"Christmas billboards physically appear during December beside decorations")
 			check(festive.poster_sites.size()>0,"Christmas billboards use real nonblocking terrain sites")
+			var billboard_nodes: Array=festive.root.get_children().filter(func(node):return node.has_meta("poster_campaign"))
+			check(not billboard_nodes.is_empty() and billboard_nodes.all(func(node):return node.scale.x>=1.6),"Billboards are large enough to recognize in the resort overview")
 		check(game.view.asset_root.get_children()==original_nodes,style+" preserves building, lift and vehicle nodes")
 		check(game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]==terrain_vertices,style+" preserves terrain geometry")
 		var decorations: Array=festive.root.get_children().filter(func(node):return node.has_meta("festival_kind"))

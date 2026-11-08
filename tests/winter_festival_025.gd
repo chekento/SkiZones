@@ -35,6 +35,11 @@ func run() -> void:
 	check(Calendar.poster_campaign({"year":2027,"month":1,"day":1})=="new_year","January 1 still shows New Year posters across the year boundary")
 	check(Calendar.poster_campaign({"year":2027,"month":1,"day":2})=="" and Calendar.poster_campaign({"year":2026,"month":10,"day":31})=="","Poster campaigns end on January 1 and begin November 1")
 	check(Calendar.poster_campaign({"year":2026,"month":2,"day":30})=="","Invalid leap dates never activate billboards")
+	var Posters=preload("res://src/core/seasonal_billboards_040.gd")
+	var used: Dictionary={}
+	for idx in range(4):used[int(Posters.info({"year":2026,"month":11,"day":8},idx).variant)]=true
+	check(used.size()==4,"Four distinct Christmas poster designs rotate across billboard sites")
+	check(int(Posters.info({"year":2027,"month":1,"day":1},0).year)==2027,"New Year poster copies reflect the real rollover year")
 	check(Calendar.season(dec6)=="advent" and Calendar.unlocked(dec6,6) and not Calendar.unlocked(dec6,7),"Advent unlocks daily by device-local calendar day")
 	check(Calendar.reward(6)>Calendar.reward(5) and Calendar.reward(24)>Calendar.reward(6),"Nikolaus and Christmas Eve provide distinctive larger gifts")
 	check(cal.claim(6,dec6).ok and not cal.claim(6,dec6).ok,"The same yearly Advent door pays exactly once")

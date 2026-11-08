@@ -157,6 +157,8 @@ func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
 		board.set_meta("poster_campaign",campaign)
 		board.set_meta("poster_variant",variant)
 		board.mesh=mesh
+		# Readable at normal overview zoom; still nonblocking and tappable.
+		board.scale=Vector3.ONE*1.65
 		board.position=view.terrain.world(at,0.25)
 		board.rotation.y=float(index)*TAU/4.0
 		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
