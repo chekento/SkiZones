@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **47 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **48 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.39.1](https://github.com/chekento/SkiZones/releases/tag/v0.39.1)** | 08.11.2026 | Stabilisierungs-Hotfix für bestehende Resorts | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk) | [Details](docs/releases/0.39.1.md) |
 | **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
 | **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Lesbare Spielstände und wirksame Reparatur | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
@@ -57,6 +58,26 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.39.1 · Stabilisierungs-Hotfix für bestehende Resorts (08.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.39.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk)** (167.3 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.39.1/manifest.json) · [Originalnotizen](docs/releases/0.39.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.39.1)
+
+### Korrekturen
+
+- Alte Speicherdateien: Versionsgebundene, ungekapselte JSON-Spielstände werden zur vollständigen semantischen Prüfung zugelassen; beschädigte Prüfsummen moderner Archive werden weiterhin strikt abgelehnt.
+- Spielstandverwaltung: Frühere Rettungs- und Sicherheitsarchive werden als **schreibgeschützte** Kandidaten durchsucht, auch wenn die aktuelle Slot-Datei beschädigt ist. Vor jeder Aktivierung wird die Ziel-Datei geprüft und ein belegter Originalplatz bytegenau gesichert.
+- Alpine Radio: Alle Sender-Presets wechseln von der horizontal abgeschnittenen Leiste auf ein automatisch umbrechendes Raster; der Radio-Ein-/Ausschalter ist zusätzlich beschriftet.
+- Öffentliche Toiletten: Im Neubau-Katalog erscheint nur die **Portable Toilet**. Sie kann in fünf Stufen ausgebaut werden, deren Architektur sichtbar mitwächst. Frühere WC-Gebäudetypen bleiben für alte Savegames technisch bekannt und werden nicht gelöscht.
+- Android: versionName 0.39.1, versionCode 52; Paketkennung bleibt cloud.kosch.skizones.
+
+### Kritische Freigabeprüfungen
+
+Godot-Import und Parse, real erstellte historische Spielstände, Reparaturtests samt Originalerhalt, gerenderte Radio-Menüs auf schmalen Displays, Toilette-Level und Android-Neuinstallation/Update/Resume müssen erfolgreich durchlaufen sein.
+
+**Hinweis:** Eine Datei mit zerstörten Nutzdaten ohne intakte Sicherung ist nicht automatisch rekonstruierbar. Diese Änderung verhindert das Überschreiben solcher Originaldateien; eine pauschale Reparaturgarantie wäre nicht seriös.
+
+---
 
 ## v0.39.0 · Spielstände, sichere Reparatur und Vollbildverwaltung (07.11.2026)
 
