@@ -56,10 +56,31 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 	elif kind == "lift" and guest.phase == "moving":
 		mood = "relaxed"; emotion = L.text("Entspannt"); emoji = "😌"; reason = L.text("Beine ausruhen, Aussicht genießen und langsam wieder hinauf.")
 	if guest.get("incident", -1) >= 0:
-		emotion = L.text("Benötigt Hilfe")
-		emoji = "🆘"
-		activity = L.text("Wartet auf die Pistenrettung")
-		reason = L.text("Ich bleibe an einem sicheren Ort, bis das Rettungsteam mich erreicht.")
+		var event:Dictionary={}
+		for active in model.operations.get("incidents",[]):
+			if int(active.get("id",-1))==int(guest.incident):event=active;break
+		if not event.is_empty():
+			var stage:String=str(event.get("status","waiting"))
+			if event.reason=="navigation":
+				mood="fearful"
+				emotion="Afraid of this descent" if L.language=="en" else "Angst vor dieser Abfahrt"
+				emoji="😟"
+				activity="Being guided to safety" if L.language=="en" else "Wird sicher ins Tal begleitet"
+				reason="Needs reassurance, not a stretcher. The ski patrol or a passing instructor will escort this guest." if L.language=="en" else "Braucht Unterstützung und eine Begleitung, keine Trage. Die Pistenrettung oder Skischule hilft bei der Abfahrt."
+			else:
+				mood="injured"
+				emotion="Injured · ski patrol required" if L.language=="en" else "Verletzt · Pistenrettung erforderlich"
+				emoji="🚑"
+				match stage:
+					"waiting","responding":
+						activity="Lying safely on the slope" if L.language=="en" else "Liegt gesichert auf der Piste"
+						reason="A two-person rescue team is on its way with a stretcher." if L.language=="en" else "Ein zweiköpfiges Rettungsteam kommt mit einer Trage zur Unfallstelle."
+					"transporting":
+						activity="Transport on a rescue stretcher" if L.language=="en" else "Transport auf der Rettungstrage"
+						reason="The patrol is transporting the casualty to the rescue station." if L.language=="en" else "Die Bergrettung bringt die verletzte Person in die Rettungsstation."
+					"treating":
+						activity="Receiving treatment at the rescue station" if L.language=="en" else "Wird in der Bergrettungsstation behandelt"
+						reason=("Treatment remaining: %d minutes" if L.language=="en" else "Behandlung noch %d Minuten") % int(ceilf(float(event.get("remaining",0))))
 	var score := Agenda.satisfaction(model, guest)
 	var motive := L.text(MOTIVES[(id * 11) % MOTIVES.size()])
 	var detail := ""
@@ -71,7 +92,7 @@ static func describe(model: RefCounted, guest: Dictionary) -> Dictionary:
 		if guest.has("family"):
 			detail += L.text("\n\nFAMILIE · %d Personen · gemeinsame Route\nPausen richten sich nach dem dringendsten Bedürfnis.") % guest.family.size()
 			for member in guest.family: detail += "\n" + L.text("%s · %d Jahre · Hunger %.0f %% · Wärme %.0f %%") % [member.name, member.years, member.needs.hunger, member.needs.warmth]
-		if score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
+		if guest.get("incident",-1)<0 and score < 45 and warmth >= 45 and hunger <= 65 and energy >= 35:
 			mood = "impatient"; emotion = L.text("Enttäuscht"); emoji = "😕"; reason = L.text("Mein Urlaub soll zu meinen Wünschen passen. Bisher fehlen mir passende Erlebnisse oder erreichbare Pausen.")
 	if guest.has("party_id"):
 		var party:=Parties.group(model,guest)
