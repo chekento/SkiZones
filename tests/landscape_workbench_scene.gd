@@ -64,7 +64,8 @@ func run() -> void:
 	var browser: Control=game.hud.building_browser
 	browser.open()
 	await process_frame
-	check(browser.visible and browser.cards.size()==game.model.Catalog.BUILDINGS.size() and not game.simulation_running(),"The full-screen catalog covers every available village building")
+	check(browser.visible and browser.cards.size()==game.model.Catalog.building_order().size() and not game.simulation_running(),"The full-screen catalog covers every purchasable village building")
+	check(browser.cards.filter(func(card):return card.kind=="wc_dixi").size()==1 and browser.cards.all(func(card):return card.kind not in ["wc_cabin","wc_module","wc_house","wc_luxury"]),"The catalog sells one upgradable Portable Toilet, not historical WC tiers")
 	check(game.hud.blocks_map(browser.window.get_global_rect().get_center()),"The catalog frame captures map input")
 	await capture("landscape-023-catalog")
 	browser.search.text="Ferienhütte"
