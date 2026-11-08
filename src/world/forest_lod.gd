@@ -101,6 +101,10 @@ func build(view: Node3D) -> void:
 	var chunks: Dictionary = {}
 	var rocks: Array = []
 	var used := 0
+	# 0.40 custom worlds respect the explicit tree count. On shipped maps
+	# retain the original forest population and visuals for save continuity.
+	var specification:Dictionary=Maps.spec(map_id)
+	var requested_trees:int=clampi(int(specification.get("tree_count",0)),0,12000) if specification.get("map_creator",false) else int(6300*float(specification.forest))
 	for entry in candidates[id]:
 		if blocked.has(Vector2i((entry.point / CELL).floor())):
 			continue
@@ -108,7 +112,7 @@ func build(view: Node3D) -> void:
 		if entry.grade > 47 and rocks.size() < 150:
 			rocks.append(entry)
 			continue
-		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= int(6300 * Maps.spec(map_id).forest) or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.12:
+		if entry.grade > 65 or entry.height > float(Maps.spec(map_id).get("tree_line", 620 if map_id == "fichtenkamm" else 360)) or used >= requested_trees or absf(sin(entry.point.x * 0.031) * cos(entry.point.y * 0.023)) < 0.12:
 			continue
 		var cell := Vector2i((entry.point / CHUNK).floor())
 		var species := 1 if absf(sin(entry.point.x*0.17+entry.point.y*0.07)) > 0.90 else 2 if absf(cos(entry.point.y*0.19)) > 0.97 else 3 if absf(sin(entry.point.x*0.067-entry.point.y*0.071)) > 0.89 else 4 if absf(cos(entry.point.y*0.091+entry.point.x*0.019)) > 0.92 else 0
