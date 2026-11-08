@@ -4,10 +4,25 @@ on:
   pull_request:
     paths:
       - 'src/core/map_creator_040.gd'
+      - 'src/core/custom_maps_040.gd'
+      - 'src/core/maps.gd'
+      - 'src/core/mountain.gd'
+      - 'src/core/passport.gd'
+      - 'src/core/save_store.gd'
+      - 'src/core/resort.gd'
+      - 'src/main.gd'
       - 'src/ui/map_creator_040.gd'
       - 'src/ui/map_creator_preview_040.gd'
       - 'src/ui/hud.gd'
       - 'tests/map_creator_040.gd'
+      - 'tests/custom_map_registry_040.gd'
+      - '.github/workflows/map-creator-040.yml'
+  push:
+    branches: [feature/0.40-alpine-world-ui-overhaul]
+    paths:
+      - 'src/core/**'
+      - 'src/ui/map_creator_040.gd'
+      - 'tests/*map*040.gd'
       - '.github/workflows/map-creator-040.yml'
   workflow_dispatch:
 
@@ -38,7 +53,11 @@ jobs:
       - name: Parse independent map creator and preview scripts
         run: |
           "$GODOT_BIN" --headless --check-only --script res://src/core/map_creator_040.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/core/custom_maps_040.gd
           "$GODOT_BIN" --headless --check-only --script res://src/ui/map_creator_preview_040.gd
           "$GODOT_BIN" --headless --check-only --script res://src/ui/map_creator_040.gd
       - name: Check reproducible terrain, limits and morphologies
         run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --headless --script tests/map_creator_040.gd
+
+      - name: Check isolated playable custom map namespaces and damaged-library fallback
+        run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --headless --script tests/custom_map_registry_040.gd
