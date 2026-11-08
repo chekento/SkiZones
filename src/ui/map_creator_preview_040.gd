@@ -1,0 +1,38 @@
+extends Control
+## Compact topographic preview for generated 0.40 landscapes.
+const Creator=preload("res://src/core/map_creator_040.gd")
+var blueprint: Dictionary = {}
+const COLUMNS := 48
+const ROWS := 30
+
+func _ready() -> void:
+	custom_minimum_size=Vector2(260,240)
+	resized.connect(queue_redraw)
+
+func set_blueprint(value: Dictionary) -> void:
+	blueprint=value.duplicate(true)
+	queue_redraw()
+
+func _draw() -> void:
+	var bounds:=Rect2(Vector2.ZERO,size)
+	draw_rect(bounds,Color("15313d"),true)
+	if blueprint.is_empty():return
+	var area:Rect2=blueprint.bounds
+	var max_height:=maxf(100.0,float(blueprint.settings.peak_height)*1.8)
+	var cell:=size/Vector2(COLUMNS,ROWS)
+	for y in range(ROWS):
+		for x in range(COLUMNS):
+			var fraction:=Vector2((float(x)+0.5)/COLUMNS,(float(y)+0.5)/ROWS)
+			var point:=area.position+fraction*area.size
+			var elevation:float=Creator.sample_height(blueprint,point)
+			var level:=clampf(elevation/max_height,0.0,1.0)
+			var color:=Color("3e7181").lerp(Color("729389"),smoothstep(0,0.25,level))
+			color=color.lerp(Color("a4a9a6"),smoothstep(0.2,0.68,level))
+			color=color.lerp(Color("eef4fb"),smoothstep(0.60,0.95,level))
+			draw_rect(Rect2(Vector2(x,y)*cell,cell+Vector2.ONE),color,true)
+	# Elevation/peak markers remain readable on narrow phone screens.
+	for peak in blueprint.peaks:
+		var px:Vector2=(Vector2(float(peak[0]),float(peak[1]))-area.position)/area.size*size
+		draw_circle(px,3.0,Color("1c3441"))
+		draw_circle(px,1.5,Color("f7f2df"))
+	draw_rect(Rect2(Vector2.ZERO,size),Color("cfe4e7"),false,2.0)
