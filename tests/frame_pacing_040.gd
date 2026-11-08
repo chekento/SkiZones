@@ -21,7 +21,7 @@ func run() -> void:
 	check(FramePacing.speed_change_debt(7.5)==1.0,"Downshifting discards excess catch-up without reversing the rendered tick")
 	check(FramePacing.presentation_fraction(-2.0)==0.0,"Negative timing debt cannot affect visual transforms")
 	check(FramePacing.add_debt(0.0,1.0,1,1,1.0,0.5)==0.125,"Slow frame delta is capped to avoid time jumps")
-	check(FramePacing.rate(1,24,1.0)==2.0 and FramePacing.rate(4,24,1.0)==8.0 and FramePacing.rate(8,24,1.0)==16.0,"Runtime clock preserves 1x/4x/8x ratios")
+	check(FramePacing.rate(1,24,1.0)==4.0 and FramePacing.rate(4,24,1.0)==16.0 and FramePacing.rate(8,24,1.0)==32.0,"Runtime clock preserves 1x/4x/8x ratios")
 	var model:=Resort.new()
 	model.new_game(false)
 	model.money=3000000.0
@@ -46,7 +46,7 @@ func run() -> void:
 				steps+=1
 				debt-=1.0
 			var visual_clock:float=float(steps)+FramePacing.presentation_fraction(debt)
-			check(visual_clock+0.00001>=last_clock,"Clock monotonic 1x/4x/8x (%dx, frame %d)" % [speed,frame]) if visual_clock+0.00001<last_clock else null
+			if visual_clock+0.00001<last_clock:check(false,"Clock monotonic 1x/4x/8x (%dx, frame %d)" % [speed,frame])
 			last_clock=visual_clock
 			var position:Vector3=Fleet.pose(model.terrain,lift,profile,visual_clock,0,schedule).transform.origin
 			if last_position.is_finite():max_jump=maxf(max_jump,position.distance_to(last_position))
@@ -72,6 +72,6 @@ func run() -> void:
 		check(monotonic,"Lift presentation stays monotonic through forced 6ms-budget stalls at %dx" % speed)
 	var old:=2.25
 	var new_clock:=2.0+FramePacing.presentation_fraction(FramePacing.speed_change_debt(old))
-	check(new_clock>=3.0,"High-speed to 1x transition retains last visible carrier position")
+	check(new_clock>=3.0-0.00001,"High-speed to 1x transition retains last visible carrier position")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)

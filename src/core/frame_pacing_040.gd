@@ -20,4 +20,4 @@ static func presentation_fraction(debt: float) -> float:
 
 static func speed_change_debt(debt: float) -> float:
 	# Discard stale catch-up, but never reverse an already-rendered frame.
-	return presentation_fraction(debt)
+	return minf(presentation_fraction(debt),1.0-0.000001)
