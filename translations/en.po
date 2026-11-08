@@ -10130,3 +10130,39 @@ msgstr "Trailheads & rescue access"
 
 msgid "Wellness-Therapeut / Therapeutin"
 msgstr "Spa therapist"
+
+msgid "Behandlung: noch ungefähr %d Minuten. Danach kann der Gast die Station wieder verlassen."
+msgstr "Treatment: approximately %d minutes remaining. The guest may leave the station afterward."
+
+msgid "In der Bergrettungsstation"
+msgstr "At mountain rescue station"
+
+msgid "Keine Verletzung. Eine Rettungskraft oder Skischule begleitet diesen Gast auf einem sicheren Weg ins Tal."
+msgstr "Not injured. A ski patroller or ski instructor guides this guest down a safe route."
+
+msgid "Liegt auf der Piste"
+msgstr "Lying on the slope"
+
+msgid "Liegt auf der Rettungstrage"
+msgstr "Lying on the rescue stretcher"
+
+msgid "Unfallstelle markiert. Die nächste freie Pistenrettung übernimmt den Einsatz."
+msgstr "Incident marked. The nearest available ski patrol takes the call."
+
+msgid "Unsicher vor der Abfahrt"
+msgstr "Afraid of the descent"
+
+msgid "Verletzt · benötigt Hilfe"
+msgstr "Injured · needs assistance"
+
+msgid "Verletzt · wird transportiert"
+msgstr "Injured · being transported"
+
+msgid "Wartet auf begleitete Abfahrt"
+msgstr "Waiting for a guided descent"
+
+msgid "Wird medizinisch versorgt"
+msgstr "Receiving medical care"
+
+msgid "Zwei Rettungskräfte bringen den Gast zur Bergrettungsstation."
+msgstr "Two ski rescuers transport the guest to the rescue station."
