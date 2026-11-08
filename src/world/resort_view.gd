@@ -35,6 +35,8 @@ const ForestLOD = preload("res://src/world/forest_lod.gd")
 const TownScenery = preload("res://src/world/town_scenery.gd")
 const VillageDressing = preload("res://src/world/village_dressing.gd")
 const Art = preload("res://src/world/alpine_art.gd")
+const RescueVisuals040 = preload("res://src/world/rescue_visuals_040.gd")
+const Rescue040 = preload("res://src/core/rescue_protocol_040.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var snow_renderer := SnowRender.new()
@@ -106,6 +108,7 @@ var foot_mesh: MeshInstance3D
 var _lake_root: Node3D
 var _groomers := MultiMeshInstance3D.new()
 var _swimmers := MultiMeshInstance3D.new()
+var rescue_visuals_040:=RescueVisuals040.new()
 var _track_timer := 0.0
 var _track_seen := -1
 var _track_focus := Vector2.INF
@@ -180,6 +183,8 @@ void fragment() {
 	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
 		add_child(node)
 	foot_wear.setup()
+	add_child(rescue_visuals_040)
+	rescue_visuals_040.setup()
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
@@ -1311,6 +1316,19 @@ func _process(delta: float) -> void:
 	for guest in model.guests:
 		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
 			continue
+		# Injured guests lie on the piste or on the returning stretcher, never
+		# upright and shaking. Guidance-only fear remains a standing skier.
+		var held:Dictionary={}
+		if int(guest.get("incident",-1))>=0:
+			for event in model.operations.incidents:
+				if int(event.id)==int(guest.incident):held=event;break
+		if not held.is_empty() and held.reason!="navigation" and held.status in ["waiting","responding","transporting","treating"]:
+			var location:Vector2=Rescue040.route_position(held) if held.status=="transporting" else Terrain.unpack(held.point)
+			if held.status=="treating":
+				var station:Dictionary=model.asset(int(held.station))
+				if not station.is_empty():location=Terrain.unpack(station.point)
+			next_positions[guest.id]=ground_position(location,0.55)
+			continue
 		var position_value := Vector3.ZERO
 		var angle := 0.0
 		var lean := 0.0
@@ -1429,6 +1447,7 @@ func _process(delta: float) -> void:
 			focus = Vector2(_follow_position.x, _follow_position.z)
 			_update_camera()
 	_guest_positions = next_positions
+	rescue_visuals_040.update_patrol(self)
 	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
 	if _selection.visible:
