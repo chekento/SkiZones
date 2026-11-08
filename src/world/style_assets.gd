@@ -134,6 +134,28 @@ static func station(kind: String,level: int,livery: String,style: String) -> Arr
 	if style=="monochrome":
 		var a:=Lines.new();a.box(Vector3(0,5,0),Vector3(12,10,16));a.roof(14,18,10)
 		a.line(Vector3(-7,11,0),Vector3(7,11,0));return a.finish()
+	if style=="comic":
+		# Fully independent cartoon lift-station silhouette. The footprint and
+		# interaction anchors remain unchanged; only presentation geometry varies.
+		var cartoon:=Art.new()
+		var ink:=Color("192443")
+		var roof:=Color("ffe05e")
+		var glass:=Color("76e7ff")
+		var wall:=Color("e3f4ff")
+		cartoon.soft_box(Vector3(0,4.5,0),Vector3(13,9,16),wall,Vector3.ZERO,1.3)
+		cartoon.box(Vector3(0,9.2,0),Vector3(16,2.5,19),ink)
+		cartoon.soft_box(Vector3(0,11,0),Vector3(17,3.6,20),roof,Vector3.ZERO,1.6)
+		cartoon.soft_box(Vector3(0,13.1,0),Vector3(15,1.7,18),Color("ffffff"),Vector3.ZERO,1.1)
+		for side in [-1,1]:
+			cartoon.box(Vector3(side*6.1,4.5,0),Vector3(1.5,9.1,17),ink)
+			cartoon.box(Vector3(side*4.2,5.1,8.15),Vector3(3.0,5.0,0.8),ink)
+			cartoon.box(Vector3(side*4.2,5.1,8.65),Vector3(2.1,4.0,0.8),glass)
+			cartoon.cone(Vector3(side*6.5,14,0),1.5,4,roof,1.5)
+		cartoon.box(Vector3(0,4,8.3),Vector3(4.2,7,1.1),ink)
+		cartoon.box(Vector3(0,4,8.95),Vector3(3.2,6,0.8),glass)
+		cartoon.box(Vector3(0,10,9.8),Vector3(9,2.4,1.1),ink)
+		cartoon.box(Vector3(0,10,10.45),Vector3(7.5,1.3,0.8),roof)
+		return cartoon.finish()
 	var a:=Art.new();a.add(source,Vector3.ZERO,Color.WHITE,Vector3.ZERO,Vector3.ONE,true)
 	var color:=Color(str(Styles.ui_palette(style).accent))
 	var index: int=Styles.IDS.find(style)
