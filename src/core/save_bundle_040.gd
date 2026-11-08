@@ -7,6 +7,22 @@ const MAX_FILES := 12
 const MAX_TOTAL_BYTES := 150000000
 const EXPORT_DIR := "user://save-diagnostics"
 
+static func share_slot_archive(path: String) -> Dictionary:
+	# Godot 4.5 AndroidRuntime + JNI only exist on Android; do not reference
+	# their global symbols on desktop, where GDScript still must compile.
+	if not OS.has_feature("android"):
+		return {"ok": false, "code": "android_only"}
+	if not Engine.has_singleton("AndroidRuntime") or not Engine.has_singleton("JavaClassWrapper"):
+		return {"ok": false, "code": "android_runtime_unavailable"}
+	var runtime: Object = Engine.get_singleton("AndroidRuntime")
+	var jni: Object = Engine.get_singleton("JavaClassWrapper")
+	var bridge: Object = jni.call("wrap", "cloud.kosch.skizones.AppInfoBridge")
+	if bridge == null: return {"ok": false, "code": "android_bridge_unavailable"}
+	var status: String = str(bridge.call("shareSaveBundle", runtime.call("getActivity"), ProjectSettings.globalize_path(path)))
+	if jni.call("get_exception") != null:
+		return {"ok": false, "code": "android_share_exception"}
+	return {"ok": status == "ok", "code": status}
+
 static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictionary:
 	var candidates: Array = Manager.recovery_sources(map_id, slot, free_slot)
 	if candidates.is_empty():

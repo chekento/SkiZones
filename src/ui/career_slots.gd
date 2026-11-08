@@ -2,6 +2,7 @@ extends PanelContainer
 const L=preload("res://src/core/i18n.gd")
 const Saves=preload("res://src/core/save_store.gd")
 const SaveManager=preload("res://src/core/save_management_038.gd")
+const SaveBundle040=preload("res://src/core/save_bundle_040.gd")
 const Maps=preload("res://src/core/maps.gd")
 const DragScroll=preload("res://src/ui/drag_scroll.gd")
 const StartTiers=preload("res://src/core/start_tiers.gd")
@@ -140,8 +141,13 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 			diagnostic.text=L.text("%d Dateien · %d geprüft · %d ladbar · %d wiederherstellbar") % [report.files.size(),int(report.verified),int(report.loadable),int(report.recoverable)]
 			if bool(report.damaged):
 				diagnostic.text+=" · "+L.text("Prüfung fehlgeschlagen: Originaldateien erhalten.")
-				for entry in report.files:
-					if str(entry.message)!="":diagnostic.text+="\n"+str(entry.name)+": "+str(entry.message)
+			for entry in report.files:
+				# Diagnostic codes, schema and parser line—not the private JSON.
+				var detail: String="[%s · v%d · %d B]" % [str(entry.get("code","unknown")),int(entry.get("schema_version",-1)),int(entry.get("bytes",0))]
+				if int(entry.get("parse_line",0))>0:
+					detail+=" · Zeile %d" % int(entry.parse_line)
+				if str(entry.message)!="":detail+=" · "+str(entry.message)
+				diagnostic.text+="\n"+str(entry.name)+": "+detail
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -154,6 +160,23 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 		if result.ok:refresh()
 	)
 	rescue.name="rescue_save_038"
+	var export_button:Button=hud._button(section,L.text("Diagnose-ZIP exportieren"),func():
+		# ZIP is lossless even for malformed JSON and never modifies a save.
+		# It is shared only after an explicit button click.
+		var result:Dictionary=SaveBundle040.export_slot(map_id,slot,free_slot)
+		diagnostic.show()
+		if not result.ok:
+			diagnostic.text=L.text("Diagnoseexport fehlgeschlagen: %s") % str(result.get("code","unknown"))
+			return
+		var share:Dictionary=SaveBundle040.share_slot_archive(str(result.path))
+		if share.ok:
+			diagnostic.text=L.text("Diagnosearchiv erstellt (%d Dateien). Android-Freigabe geöffnet.") % int(result.files)
+		else:
+			diagnostic.text=L.text("Diagnosearchiv erstellt (%d Dateien), aber die Android-Freigabe ist nicht verfügbar.") % int(result.files)
+			diagnostic.tooltip_text=ProjectSettings.globalize_path(str(result.path))
+	)
+	export_button.name="export_save_040"
+	export_button.tooltip_text=L.text("Original-Spielstand und Sicherung unverändert als ZIP teilen")
 	var destination:=HBoxContainer.new()
 	destination.add_theme_constant_override("separation",10)
 	content.add_child(destination)
@@ -179,7 +202,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	remove.add_theme_stylebox_override("hover",hud._style(Color("edbcb0"),9,10))
 	remove.add_theme_stylebox_override("pressed",hud._style(Color("e9ad9e"),9,10))
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
-	for button in [check,rescue,copy,remove]:
+	for button in [check,rescue,export_button,copy,remove]:
 		button.add_theme_font_size_override("font_size",16)
 		button.custom_minimum_size=Vector2(144,50)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL

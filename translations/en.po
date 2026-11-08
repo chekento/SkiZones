@@ -10532,3 +10532,18 @@ msgstr "SKIZONES · WINTER ON THE MOUNTAIN"
 
 msgid "Poster %s %d"
 msgstr "Poster %s %d"
+
+msgid "Diagnose-ZIP exportieren"
+msgstr "Export diagnostic ZIP"
+
+msgid "Diagnoseexport fehlgeschlagen: %s"
+msgstr "Diagnostic export failed: %s"
+
+msgid "Diagnosearchiv erstellt (%d Dateien). Android-Freigabe geöffnet."
+msgstr "Diagnostic archive created (%d files). Android sharing opened."
+
+msgid "Diagnosearchiv erstellt (%d Dateien), aber die Android-Freigabe ist nicht verfügbar."
+msgstr "Diagnostic archive created (%d files), but Android sharing is unavailable."
+
+msgid "Original-Spielstand und Sicherung unverändert als ZIP teilen"
+msgstr "Share the original save and backup unchanged as a ZIP"
