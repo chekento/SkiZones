@@ -9702,3 +9702,353 @@ msgstr "OFF"
 
 msgid "EIN"
 msgstr "ON"
+
+
+# 0.40 Map Creator – bilingual source coverage
+msgid "%d Gipfel · %.1f km² · %d Bäume · %d Seen · Seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · seed %d"
+
+msgid "%d peaks · %.1f km² · %d trees · %d lakes · seed %d"
+msgstr "%d peaks · %.1f km² · %d trees · %d lakes · seed %d"
+
+msgid "Almlandschaft"
+msgstr "Almlandschaft"
+
+msgid "Alpin"
+msgstr "Alpin"
+
+msgid "Alpine"
+msgstr "Alpine"
+
+msgid "Alpine pasture"
+msgstr "Alpine pasture"
+
+msgid "Anspruchsvoll"
+msgstr "Anspruchsvoll"
+
+msgid "Anzahl Berge"
+msgstr "Number of peaks"
+
+msgid "Anzahl Bäume"
+msgstr "Number of trees"
+
+msgid "Avalanche exposure (%)"
+msgstr "Avalanche exposure (%)"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Bergkette"
+msgstr "Bergkette"
+
+msgid "Climate"
+msgstr "Climate"
+
+msgid "Compact"
+msgstr "Compact"
+
+msgid "Continental"
+msgstr "Continental"
+
+msgid "Create valleys, mountain ranges, pastures and plateaus. The same seed always rebuilds the same terrain."
+msgstr "Create valleys, mountain ranges, pastures and plateaus. The same seed always rebuilds the same terrain."
+
+msgid "Dörfer / Startorte"
+msgstr "Villages / hubs"
+
+msgid "East"
+msgstr "East"
+
+msgid "Eigene generierte Skiwelt"
+msgstr "Eigene generierte Skiwelt"
+
+msgid "Eigenes Basislager"
+msgstr "Eigenes Basislager"
+
+msgid "Einzelberge"
+msgstr "Einzelberge"
+
+msgid "Entwurf konnte nicht gespeichert werden."
+msgstr "Unable to save blueprint."
+
+msgid "Entwurf speichern"
+msgstr "Save blueprint"
+
+msgid "Erosion (%)"
+msgstr "Erosion (%)"
+
+msgid "Erschaffe einzigartige Täler, Bergketten, Almen oder Plateaus. Gleicher Seed = gleiche Landschaft."
+msgstr "Create valleys, mountain ranges, pastures and plateaus. The same seed always rebuilds the same terrain."
+
+msgid "Expected finite integer: "
+msgstr "Expected finite integer: "
+
+msgid "Extrem"
+msgstr "Extrem"
+
+msgid "Extreme"
+msgstr "Extreme"
+
+msgid "Forest coverage (%)"
+msgstr "Forest coverage (%)"
+
+msgid "Free mode: available immediately. Mission mode: unlock every resort and earn gold in all four scenarios."
+msgstr "Free mode: available immediately. Mission mode: unlock every resort and earn gold in all four scenarios."
+
+msgid "Freier Modus: sofort verfügbar. Missionsmodus: erst nach allen Gebietsfreischaltungen und vier Goldmedaillen."
+msgstr "Free mode: available immediately. Mission mode: unlock every resort and earn gold in all four scenarios."
+
+msgid "Geländeschwierigkeit"
+msgstr "Terrain challenge"
+
+msgid "Gemischt"
+msgstr "Gemischt"
+
+msgid "Generate new map"
+msgstr "Generate new map"
+
+msgid "Generator gesperrt. Bisherige Spielstände bleiben unverändert."
+msgstr "Generator locked. Existing saves are untouched."
+
+msgid "Generator locked. Existing saves are untouched."
+msgstr "Generator locked. Existing saves are untouched."
+
+msgid "Gentle"
+msgstr "Gentle"
+
+msgid "Gigantisch"
+msgstr "Gigantisch"
+
+msgid "Gipfelhöhe (m)"
+msgstr "Peak height (m)"
+
+msgid "Glacial basin"
+msgstr "Glacial basin"
+
+msgid "Gletscherkessel"
+msgstr "Gletscherkessel"
+
+msgid "Grand"
+msgstr "Grand"
+
+msgid "Groß"
+msgstr "Groß"
+
+msgid "Hangausrichtung"
+msgstr "Slope exposure"
+
+msgid "Hochplateau"
+msgstr "Hochplateau"
+
+msgid "Horseshoe valley"
+msgstr "Horseshoe valley"
+
+msgid "Hufeisental"
+msgstr "Hufeisental"
+
+msgid "Hügelintensität (%)"
+msgstr "Rolling hill intensity (%)"
+
+msgid "Hügelland"
+msgstr "Hügelland"
+
+msgid "Invalid map name"
+msgstr "Invalid map name"
+
+msgid "Invalid option: "
+msgstr "Invalid option: "
+
+msgid "Isolated peaks"
+msgstr "Isolated peaks"
+
+msgid "Karte neu generieren"
+msgstr "Generate new map"
+
+msgid "Karteneinstellungen sicher gespeichert. Noch keine spielbare Karte."
+msgstr "Map settings saved. Not yet a playable map."
+
+msgid "Kartengröße"
+msgstr "Map size"
+
+msgid "Kartenname"
+msgstr "Map name"
+
+msgid "Kettenrichtung (°)"
+msgstr "Range direction (°)"
+
+msgid "Klima"
+msgstr "Climate"
+
+msgid "Kompakt"
+msgstr "Kompakt"
+
+msgid "Kontinental"
+msgstr "Kontinental"
+
+msgid "Lakes"
+msgstr "Lakes"
+
+msgid "Landform"
+msgstr "Landform"
+
+msgid "Landschaftstyp"
+msgstr "Landform"
+
+msgid "Large"
+msgstr "Large"
+
+msgid "Lawinenrisiko (%)"
+msgstr "Avalanche exposure (%)"
+
+msgid "Locked: open in free mode, or unlock every resort and earn four gold scenario medals."
+msgstr "Locked: open in free mode, or unlock every resort and earn four gold scenario medals."
+
+msgid "MAP CREATOR · DEINE ALPENWELT"
+msgstr "MAP CREATOR · YOUR ALPINE WORLD"
+
+msgid "MAP CREATOR · YOUR ALPINE WORLD"
+msgstr "MAP CREATOR · YOUR ALPINE WORLD"
+
+msgid "Map Creator · "
+msgstr "Map Creator · "
+
+msgid "Map name"
+msgstr "Map name"
+
+msgid "Map name must be 2–48 characters"
+msgstr "Map name must be 2–48 characters"
+
+msgid "Map settings saved. Not yet a playable map."
+msgstr "Map settings saved. Not yet a playable map."
+
+msgid "Map size"
+msgstr "Map size"
+
+msgid "Meine Alpenwelt"
+msgstr "My Alpine World"
+
+msgid "Mild"
+msgstr "Mild"
+
+msgid "Mixed"
+msgstr "Mixed"
+
+msgid "Mountain range"
+msgstr "Mountain range"
+
+msgid "Noch gesperrt: Im freien Modus sofort verfügbar; im Missionsmodus sind alle Gebietsfreischaltungen und vier Goldmedaillen erforderlich."
+msgstr "Locked: open in free mode, or unlock every resort and earn four gold scenario medals."
+
+msgid "Nord"
+msgstr "Nord"
+
+msgid "North"
+msgstr "North"
+
+msgid "Number of peaks"
+msgstr "Number of peaks"
+
+msgid "Number of trees"
+msgstr "Number of trees"
+
+msgid "Ost"
+msgstr "Ost"
+
+msgid "Out of range: "
+msgstr "Out of range: "
+
+msgid "Peak height (m)"
+msgstr "Peak height (m)"
+
+msgid "Plateau"
+msgstr "Plateau"
+
+msgid "Plateau width (%)"
+msgstr "Plateau width (%)"
+
+msgid "Plateaufläche (%)"
+msgstr "Plateau width (%)"
+
+msgid "Range direction (°)"
+msgstr "Range direction (°)"
+
+msgid "Rolling hill intensity (%)"
+msgstr "Rolling hill intensity (%)"
+
+msgid "Rolling hills"
+msgstr "Rolling hills"
+
+msgid "Save blueprint"
+msgstr "Save blueprint"
+
+msgid "Schneegrenze (m)"
+msgstr "Snowline (m)"
+
+msgid "Schneereich"
+msgstr "Schneereich"
+
+msgid "Seen"
+msgstr "Lakes"
+
+msgid "Slope exposure"
+msgstr "Slope exposure"
+
+msgid "Snowline (m)"
+msgstr "Snowline (m)"
+
+msgid "Snowy"
+msgstr "Snowy"
+
+msgid "South"
+msgstr "South"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Süd"
+msgstr "Süd"
+
+msgid "Talbreite (%)"
+msgstr "Valley width (%)"
+
+msgid "Technical"
+msgstr "Technical"
+
+msgid "Terrain challenge"
+msgstr "Terrain challenge"
+
+msgid "Topografische Vorschau · noch keine spielbare Karte. Die Anbindung an unabhängige Spielstände folgt."
+msgstr "Topographic preview · not yet playable. Independent save-slot integration follows."
+
+msgid "Topographic preview · not yet playable. Independent save-slot integration follows."
+msgstr "Topographic preview · not yet playable. Independent save-slot integration follows."
+
+msgid "Unable to save blueprint."
+msgstr "Unable to save blueprint."
+
+msgid "Unknown setting: "
+msgstr "Unknown setting: "
+
+msgid "Valley width (%)"
+msgstr "Valley width (%)"
+
+msgid "Villages / hubs"
+msgstr "Villages / hubs"
+
+msgid "Waldanteil (%)"
+msgstr "Forest coverage (%)"
+
+msgid "Welt-Seed"
+msgstr "World seed"
+
+msgid "West"
+msgstr "West"
+
+msgid "World seed"
+msgstr "World seed"
+
+msgid "design a mountain"
+msgstr "design a mountain"
+
+msgid "eigene Skiwelt"
+msgstr "custom mountain"
