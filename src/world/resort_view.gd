@@ -148,6 +148,8 @@ var _guest_tick := ""
 var _queue_paths: Dictionary = {}
 var _visual_minute := 480.0
 var _atmosphere_tick := ""
+var _atmosphere_signature := ""
+var _atmosphere_update_usec := 0
 var _ink_layer := CanvasLayer.new()
 var _ink_filter := ColorRect.new()
 var _ink_material := StandardMaterial3D.new()
@@ -1189,11 +1191,20 @@ func preview(points: Array, color: Color, building_kind: String = "", analysis: 
 		var front := Foot.front(proposed)
 		marker.basis = Basis.looking_at(Vector3(-front.x, 0, -front.y), Vector3.UP)
 
-func _update_atmosphere() -> void:
-	var key := "%s-%d-%d-%d-%s-%d-%s" % [model.map_id, model.day, model.minute, model.weather_index, visual_style, quality_tier, str(effects_enabled)]
+func _update_atmosphere(realtime_delta: float = 0.0) -> void:
+	# Expensive sky/particle resources need not be rewritten for every game
+	# minute at 4x/8x. Keep immediate updates for weather, day, visual theme
+	# and quality; only intermediate daylight changes are wall-time coalesced.
+	var signature := "%s-%d-%d-%s-%d-%s" % [model.map_id, model.day, model.weather_index, visual_style, quality_tier, str(effects_enabled)]
+	var key := "%s-%d" % [signature,model.minute]
 	if key == _atmosphere_tick:
 		return
+	var now_usec := Time.get_ticks_usec()
+	if realtime_delta > 0.0 and not _atmosphere_tick.is_empty() and not FramePacing040.atmosphere_due(signature != _atmosphere_signature, _atmosphere_update_usec, now_usec):
+		return
 	_atmosphere_tick = key
+	_atmosphere_signature = signature
+	_atmosphere_update_usec = now_usec
 	var daylight := maxf(0, sin(float(model.minute - 360) / 1440.0 * TAU)) if Ops.continuous(model) else sin(clampf(float(model.minute - 420) / 720.0, 0.05, 0.95) * PI)
 	var style: Dictionary = VisualStyles.palette(visual_style)
 	# Weather alters the existing palette rather than adding full-screen sprites:
@@ -1229,8 +1240,12 @@ func _update_atmosphere() -> void:
 	_snow.initial_velocity_max = 17.0 if weather_kind == 3 else 8.0
 	_snow.spread = 20.0 if weather_kind == 3 else 11.0
 	var flake_budget: int = [50,90,140][quality_tier]
-	_snow.amount = flake_budget * (2 if weather_kind == 3 else 1)
-	_snow.emitting = effects_enabled and weather_kind in [1,3]
+	var flake_count: int = flake_budget * (2 if weather_kind == 3 else 1)
+	if _snow.amount != flake_count:
+		_snow.amount = flake_count
+	var snow_active: bool = effects_enabled and weather_kind in [1,3]
+	if _snow.emitting != snow_active:
+		_snow.emitting = snow_active
 	_snow.position = terrain.world(focus,130)
 
 func _process(delta: float) -> void:
@@ -1239,7 +1254,7 @@ func _process(delta: float) -> void:
 	if model.revision != _seen_revision:
 		rebuild()
 	tour.step(self,delta)
-	_update_atmosphere()
+	_update_atmosphere(delta)
 	_snow.position = terrain.world(focus, 130)
 	_visual_minute = model.minute + model.clock_fraction + simulation_fraction/model.time_divisor
 	if is_instance_valid(_town_shuttle):
@@ -1279,7 +1294,10 @@ func _process(delta: float) -> void:
 				# Opening state, cable geometry and schedule are constant across
 				# this lift's vehicles during one frame. Evaluate them once.
 				data.poses[carrier] = Fleet.pose(terrain,lift,profile,clock,carrier,schedule)
-				data.node.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
+				# Drag-tow geometry is immediately replaced by TowRope.frame
+				# below. Do not upload a redundant carrier transform to the GPU.
+				if family != "drag":
+					data.node.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
 				if data.glass != null:
 					data.glass.multimesh.set_instance_transform(carrier, data.poses[carrier].transform)
 			if family == "drag":

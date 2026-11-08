@@ -3,6 +3,13 @@ extends RefCounted
 ## CPU work is over budget, keep the display at the end of the completed tick
 ## instead of wrapping to a younger fractional phase (visible lift rewind).
 const MAX_FRAME_DELTA := 0.25
+# Rebuilding procedural skies and changing particle budgets on every game-minute
+# tick costs GPU time at 4x/8x. Update lighting at most five times per real
+# second while retaining immediate weather/style/day changes.
+const ATMOSPHERE_MIN_USEC := 200000
+
+static func atmosphere_due(environment_changed: bool, last_usec: int, now_usec: int) -> bool:
+	return environment_changed or last_usec <= 0 or now_usec < last_usec or now_usec - last_usec >= ATMOSPHERE_MIN_USEC
 
 static func rate(speed: int, time_divisor: int, daylight_factor: float) -> float:
 	if speed not in [1,4,8] or not is_finite(daylight_factor):
