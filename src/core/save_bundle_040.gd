@@ -101,7 +101,12 @@ static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictio
 		if not verified: break
 		# Only one decompressed source is resident at a time; validate the
 		# original checksum, not just the ZIP's file count.
-		verified = reader.read_file(str(item.archive)).sha256_buffer().hex_encode() == str(item.sha256)
+		var digest := HashingContext.new()
+		if digest.start(HashingContext.HASH_SHA256) != OK:
+			verified = false
+		else:
+			var unpacked: PackedByteArray = reader.read_file(str(item.archive))
+			verified = digest.update(unpacked) == OK and digest.finish().hex_encode() == str(item.sha256)
 	reader.close()
 	if not verified:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(staging))
