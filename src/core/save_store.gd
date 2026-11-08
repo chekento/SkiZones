@@ -252,15 +252,20 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 			var prior_probe: RefCounted = model.get_script().new()
 			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok", false))
 		if previous_loadable:
-			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(path + ".bak"):
+			# Stage and verify before replacing the previous known-good backup.
+			var backup_stage: String = path + ".bak.tmp"
+			var backup_stage_abs: String = ProjectSettings.globalize_path(backup_stage)
+			var backup_error: Error = DirAccess.copy_absolute(absolute, backup_stage_abs)
+			if backup_error != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(backup_stage):
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			if DirAccess.rename_absolute(backup_stage_abs, absolute + ".bak") != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
 			var rescue_dir := "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(archive):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
