@@ -10058,3 +10058,174 @@ msgstr "Play / Resume"
 
 msgid "Play / Resume"
 msgstr "Play / Resume"
+
+msgid "Koch / Köchin"
+msgstr "Chef"
+
+msgid "Servicekraft / Kellner"
+msgstr "Waiter / Server"
+
+msgid "Verkäufer / Verkäuferin"
+msgstr "Sales assistant"
+
+msgid "Barkeeper"
+msgstr "Bartender"
+
+msgid "Hotelrezeption"
+msgstr "Hotel reception"
+
+msgid "Zimmer- und Hausservice"
+msgstr "Housekeeping"
+
+msgid "Bademeister / Aufsicht"
+msgstr "Lifeguard / Pool supervisor"
+
+msgid "Spa- und Wellnesskraft"
+msgstr "Spa / Wellness specialist"
+
+msgid "Skilehrer / Skilehrerin"
+msgstr "Ski instructor"
+
+msgid "Ski- und Boardverleih"
+msgstr "Ski / Board rental specialist"
+
+msgid "Fitnesstrainer"
+msgstr "Fitness trainer"
+
+msgid "Handwerk / Werkstatt"
+msgstr "Craftsperson / Workshop technician"
+
+msgid "Uhrmacher / Uhrmacherin"
+msgstr "Watchmaker"
+
+msgid "Fachkraft passt nicht zum Gebäude. Bitte eine passende Berufsgruppe wählen."
+msgstr "This specialist is not qualified for that building. Choose a matching role."
+
+msgid "Küchenorganisation und Speisenzubereitung"
+msgstr "Kitchen operations and meal preparation"
+
+msgid "Gästeservice und Tischumschlag"
+msgstr "Guest service and table turnover"
+
+msgid "Kundenservice und Warenausgabe"
+msgstr "Customer service and product delivery"
+
+msgid "Getränkeservice und schnelle Bedienung"
+msgstr "Drink service and quick turnaround"
+
+msgid "Gästeempfang und Zimmerkoordination"
+msgstr "Guest reception and room coordination"
+
+msgid "Zimmerpflege und schnellere Reinigung"
+msgstr "Housekeeping and faster room cleaning"
+
+msgid "Badeaufsicht und Besuchersicherheit"
+msgstr "Pool supervision and guest safety"
+
+msgid "Wellnessbehandlungen und Servicequalität"
+msgstr "Wellness treatments and quality of service"
+
+msgid "Skiunterricht und sichere Abfahrten"
+msgstr "Ski instruction and safe descents"
+
+msgid "Materialanpassung und schnelle Ausleihe"
+msgstr "Equipment fitting and fast rentals"
+
+msgid "Fitnessbetreuung und Kursdurchführung"
+msgstr "Fitness coaching and class instruction"
+
+msgid "Handwerk und Reparaturservice"
+msgstr "Craftsmanship and repair services"
+
+msgid "Uhrmacherwerkstatt und feine Mechanik"
+msgstr "Watchmaking and precision mechanics"
+
+msgid "Afraid of this descent"
+msgstr "Afraid of this descent"
+
+msgid "Angst vor dieser Abfahrt"
+msgstr "Afraid of this descent"
+
+msgid "Being guided to safety"
+msgstr "Being guided to safety"
+
+msgid "Wird sicher ins Tal begleitet"
+msgstr "Being guided to safety"
+
+msgid "Needs reassurance, not a stretcher. The ski patrol or a passing instructor will escort this guest."
+msgstr "Needs reassurance, not a stretcher. Ski patrol or a passing instructor can escort this guest."
+
+msgid "Braucht Unterstützung und eine Begleitung, keine Trage. Die Pistenrettung oder Skischule hilft bei der Abfahrt."
+msgstr "Needs reassurance, not a stretcher. Ski patrol or a passing instructor can escort this guest."
+
+msgid "Injured · ski patrol required"
+msgstr "Injured · ski patrol required"
+
+msgid "Verletzt · Pistenrettung erforderlich"
+msgstr "Injured · ski patrol required"
+
+msgid "Lying safely on the slope"
+msgstr "Lying safely on the slope"
+
+msgid "Liegt gesichert auf der Piste"
+msgstr "Lying safely on the slope"
+
+msgid "A two-person rescue team is on its way with a stretcher."
+msgstr "A two-person rescue team is on its way with a stretcher."
+
+msgid "Ein zweiköpfiges Rettungsteam kommt mit einer Trage zur Unfallstelle."
+msgstr "A two-person rescue team is on its way with a stretcher."
+
+msgid "Transport on a rescue stretcher"
+msgstr "Transport on a rescue stretcher"
+
+msgid "Transport auf der Rettungstrage"
+msgstr "Transport on a rescue stretcher"
+
+msgid "The patrol is transporting the casualty to the rescue station."
+msgstr "The patrol is transporting the casualty to the rescue station."
+
+msgid "Die Bergrettung bringt die verletzte Person in die Rettungsstation."
+msgstr "The patrol is transporting the casualty to the rescue station."
+
+msgid "Receiving treatment at the rescue station"
+msgstr "Receiving treatment at the rescue station"
+
+msgid "Wird in der Bergrettungsstation behandelt"
+msgstr "Receiving treatment at the rescue station"
+
+msgid "Treatment remaining: %d minutes"
+msgstr "Treatment remaining: %d minutes"
+
+msgid "Behandlung noch %d Minuten"
+msgstr "Treatment remaining: %d minutes"
+
+msgid "Als neue Karte spielen"
+msgstr "Create playable map"
+
+msgid "Create playable map"
+msgstr "Create playable map"
+
+msgid "Deine eigenen Gebiete · 8 unabhängige Kartenplätze"
+msgstr "Your custom mountains · 8 independent map slots"
+
+msgid "Your custom mountains · 8 independent map slots"
+msgstr "Your custom mountains · 8 independent map slots"
+
+msgid "Karte konnte nicht angelegt werden: "
+msgstr "Could not create map: "
+
+msgid "Cannot create map: "
+msgstr "Cannot create map: "
+
+msgid "Eigene Karte angelegt und registriert."
+msgstr "Custom map created and registered."
+
+msgid "Custom map created and registered."
+msgstr "Custom map created and registered."
+
+msgid "Noch keine eigene Karte gespeichert."
+msgstr "No custom maps saved yet."
+
+msgid "No custom maps saved yet."
+msgstr "No custom maps saved yet."
