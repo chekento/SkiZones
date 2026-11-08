@@ -2,6 +2,7 @@ extends SceneTree
 const Resort = preload("res://src/core/resort.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Terrain = preload("res://src/core/terrain.gd")
+const Rescue040 = preload("res://src/core/rescue_protocol_040.gd")
 var passed := 0
 var failed := 0
 func check(value: bool, message: String) -> void:
@@ -73,10 +74,17 @@ func _init() -> void:
 		check(model.guest_position(guest).distance_to(position) < 0.01, "a guest awaiting rescue remains at the incident location")
 		var event: Dictionary = model.operations.incidents[-1]
 		check(Ops.dispatch(model, int(event.id)).ok, "staffed patrol dispatches via the actual route graph")
-		for i in range(250):
+		# A complete two-skier rescue includes travel, stretcher return and
+		# 60–120 game minutes of treatment; a fixed 250-minute test limit
+		# can expire before a valid care cycle finishes.
+		var response_minutes: float = float(event.response_duration)
+		var return_minutes: float = Rescue040.return_minutes(event) if Rescue040.needs_stretcher(str(event.reason)) else maxf(8.0, response_minutes * 1.1)
+		var treatment_minutes: int = Rescue040.treatment_minutes(event) if Rescue040.needs_stretcher(str(event.reason)) else 0
+		var rescue_deadline: int = ceili(response_minutes + return_minutes) + treatment_minutes + 12
+		for i in range(rescue_deadline):
 			model.advance_minute(false)
 			if event.status == "resolved": break
-		check(event.status == "resolved" and int(guest.incident) == -1 and guest.get("assisted", false), "patrol reaches and assists the actual guest")
+		check(event.status == "resolved" and int(guest.incident) == -1 and guest.get("assisted", false), "patrol reaches, transports, treats and releases the actual guest")
 		check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "populated rescue state saves and reloads")
 	model.guests.clear()
 	model.minute = 1319
