@@ -1,0 +1,43 @@
+name: 0.40 map creator and topographic preview QA
+
+on:
+  pull_request:
+    paths:
+      - 'src/core/map_creator_040.gd'
+      - 'src/ui/map_creator_040.gd'
+      - 'src/ui/map_creator_preview_040.gd'
+      - 'src/ui/hud.gd'
+      - 'tests/map_creator_040.gd'
+      - '.github/workflows/map-creator-040.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  map-creator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot when cache is cold
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import current project and resolve preload dependencies
+        run: "$GODOT_BIN" --headless --editor --import --quit
+      - name: Parse independent map creator and preview scripts
+        run: |
+          "$GODOT_BIN" --headless --check-only --script res://src/core/map_creator_040.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/ui/map_creator_preview_040.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/ui/map_creator_040.gd
+      - name: Check reproducible terrain, limits and morphologies
+        run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --headless --script tests/map_creator_040.gd
