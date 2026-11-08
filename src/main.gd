@@ -10,6 +10,7 @@ const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Passport = preload("res://src/core/passport.gd")
 const Maps = preload("res://src/core/maps.gd")
+const CustomMaps040 = preload("res://src/core/custom_maps_040.gd")
 const SaveStore = preload("res://src/core/save_store.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
 const LoadProgress = preload("res://src/core/load_progress.gd")
@@ -90,6 +91,7 @@ var audio := ResortAudio.new()
 func _ready() -> void:
 	preferences.load_from()
 	L.configure(preferences.language)
+	if not CustomMaps040.install():push_warning("Custom map registry is damaged; original files preserved")
 	SaveStore.active_free_slot = preferences.free_save_slot
 	SaveStore.migrate_legacy()
 	SaveStore.active_slot=0 if preferences.free_play else preferences.career_slot
@@ -415,6 +417,16 @@ func select_career_area(slot: int, area: String) -> void:
 	hud.career_slots.hide()
 	await enter_area(area)
 
+## Open a custom resort in its own career/free game-save namespace.
+## The terrain registry was loaded and checked before SaveStore initialization.
+func open_custom_map(id: String) -> void:
+	if not Maps.CUSTOM_MAPS.has(id):
+		hud.toast(L.text("Diese eigene Karte ist nicht verfügbar."))
+		return
+	if hud.loading.visible:return
+	hud.map_creator_040.hide()
+	await enter_area(id)
+
 func start_free_play() -> void:
 	show_free_slots()
 
@@ -449,8 +461,8 @@ func select_free_area(free_slot: int, area: String) -> void:
 	await enter_area(area)
 
 func main_game_area() -> String:
-	if has_game and model.map_id in Maps.FANTASY_MAPS: return model.map_id
-	if passport.data.last_map in Maps.FANTASY_MAPS and SaveStore.has_readable_save(passport.data.last_map):
+	if has_game and Maps.is_player_map(model.map_id): return model.map_id
+	if Maps.is_player_map(passport.data.last_map) and SaveStore.has_readable_save(passport.data.last_map):
 		return passport.data.last_map
 	var saved: Array = SaveStore.saved_resorts(SaveStore.active_slot)
 	if not saved.is_empty(): return str(saved[0].map)
