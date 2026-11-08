@@ -53,6 +53,8 @@ jobs:
         run: python3 tools/check_localization.py
       - name: Verify 1x/4x/8x smooth lift pacing and bounded catch-up
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/frame_pacing_040.gd
+      - name: Profile 1x, 4x and 8x frame CPU cost across light and crowded ski resorts
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tools/performance_benchmark.gd
       - name: Verify actual simulation diagnostics and no save changes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
       - name: Install software renderer for real phone screens

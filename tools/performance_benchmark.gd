@@ -1,5 +1,7 @@
 extends SceneTree
-## Reproducible CPU benchmark, also runnable unchanged against 0.6 source.
+## Reproducible CPU benchmark. It cannot measure physical Android FPS.
+const FramePacing=preload("res://src/core/frame_pacing_040.gd")
+const Resort=preload("res://src/core/resort.gd")
 ## This measures update work; the headless renderer cannot measure Android FPS.
 var game: Node
 var results: Array = []
@@ -9,7 +11,8 @@ func stats(values: Array) -> Dictionary:
 	values.sort()
 	return {"median": values[values.size()/2], "p95": values[floori(values.size()*0.95)], "max": values[-1]}
 func step(speed: int, delta: float) -> void:
-	var fraction: float = game.view.simulation_fraction + speed * delta * 0.5
+	var rate: float=FramePacing.rate(speed,game.model.time_divisor,1.0)
+	var fraction: float = game.view.simulation_fraction + rate * delta * Resort.MINUTES_PER_SECOND
 	while fraction >= 1:
 		fraction -= 1
 		game.model.minute += 1
@@ -17,7 +20,7 @@ func step(speed: int, delta: float) -> void:
 		for guest in game.model.guests: guest.elapsed += 1
 	game.view.simulation_fraction = fraction
 	game.view.motion_running = true
-	game.view.motion_rate = speed
+	game.view.motion_rate = rate
 func scenario(visitors: int, lifts: int) -> Dictionary:
 	game._junction_showcase()
 	var model: RefCounted = game.model
@@ -52,7 +55,7 @@ func scenario(visitors: int, lifts: int) -> Dictionary:
 	for piste in model.pistes: game.view._draw_snow(piste)
 	var snow_ms := (Time.get_ticks_usec()-start)/1000.0
 	var speeds: Array=[]
-	for speed in [1,4]:
+	for speed in [1,4,8]:
 		game.view.simulation_fraction=0
 		for i in range(24): step(speed,1.0/60);game.view._process(0)
 		var samples: Array=[]
@@ -70,7 +73,7 @@ func run() -> void:
 	await process_frame
 	game.set_process(false);game.view.set_process(false)
 	for case in [[80,1],[360,24]]: results.append(scenario(case[0],case[1]))
-	var report := {"version":ProjectSettings.get_setting("application/config/version"),"engine":Engine.get_version_info().string,"mode":"headless CPU; generated stress layout; 24 warmup and 120 measured frames per speed", "cases":results}
+	var report := {"version":ProjectSettings.get_setting("application/config/version"),"engine":Engine.get_version_info().string,"mode":"headless CPU; generated stress layout; 1x/4x/8x actual runtime-relative clock; 24 warmup and 120 measured frames per speed; NOT Android FPS", "cases":results}
 	print("PERFORMANCE_JSON ",JSON.stringify(report))
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--benchmark-json="):

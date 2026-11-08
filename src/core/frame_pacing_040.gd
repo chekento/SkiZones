@@ -21,3 +21,11 @@ static func presentation_fraction(debt: float) -> float:
 static func speed_change_debt(debt: float) -> float:
 	# Discard stale catch-up, but never reverse an already-rendered frame.
 	return minf(presentation_fraction(debt),1.0-0.000001)
+
+static func ski_sample_interval(motion_rate: float, time_divisor: int) -> float:
+	# Keep 1x precision, but avoid sampling the whole mountain several
+	# times per frame for off-camera skiers at accelerated rates.
+	# The exact, followed skier still uses its original full-accuracy path.
+	var base: float=4.0 if time_divisor>1 else 1.0
+	var playback_speed: float=maxf(0.0,motion_rate)/base
+	return 0.40 if playback_speed>=6.0 else 0.24 if playback_speed>=2.0 else 0.12

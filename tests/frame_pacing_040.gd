@@ -22,6 +22,8 @@ func run() -> void:
 	check(FramePacing.presentation_fraction(-2.0)==0.0,"Negative timing debt cannot affect visual transforms")
 	check(FramePacing.add_debt(0.0,1.0,1,1,1.0,0.5)==0.125,"Slow frame delta is capped to avoid time jumps")
 	check(FramePacing.rate(1,24,1.0)==4.0 and FramePacing.rate(4,24,1.0)==16.0 and FramePacing.rate(8,24,1.0)==32.0,"Runtime clock preserves 1x/4x/8x ratios")
+	check(FramePacing.ski_sample_interval(4.0,24)==0.12 and FramePacing.ski_sample_interval(16.0,24)==0.24 and FramePacing.ski_sample_interval(32.0,24)==0.40,"Adaptive ski path sampling keeps 1x precision and reduces high-speed terrain work")
+	check(FramePacing.ski_sample_interval(1.0,1)==0.12 and FramePacing.ski_sample_interval(4.0,1)==0.24 and FramePacing.ski_sample_interval(8.0,1)==0.40,"Legacy clocks retain the same 1x/4x/8x sampling ratios")
 	var model:=Resort.new()
 	model.new_game(false)
 	model.money=3000000.0

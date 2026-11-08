@@ -1,5 +1,6 @@
 extends Node3D
 const L = preload("res://src/core/i18n.gd")
+const FramePacing040=preload("res://src/core/frame_pacing_040.gd")
 ## Original, batched alpine scenery and a simulation-driven atmosphere.
 
 const Geo = preload("res://src/core/real_resorts.gd")
@@ -1874,18 +1875,20 @@ func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Diction
 	if follow_guest == int(guest.id):
 			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.
-	const QUANTUM := 0.12
-	var offset := float(int(guest.id) % 17) * QUANTUM / 17
-	var index := floori((elapsed + offset) / QUANTUM)
+	var quantum: float=FramePacing040.ski_sample_interval(motion_rate,model.time_divisor)
+	var offset := float(int(guest.id) % 17) * quantum / 17.0
+	var index := floori((elapsed + offset) / quantum)
 	var lane_key := roundi(float(guest.get("traffic_lateral", 0.0)) * 10.0)
-	var key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index, lane_key]
+	# A change from 1x to 4x/8x must invalidate old cached sample widths.
+	var quantum_key: int=roundi(quantum*1000.0)
+	var key := "%d:%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index, lane_key,quantum_key]
 	if not _motion_cache.has(guest.id) or _motion_cache[guest.id].key != key:
-		var at := index * QUANTUM - offset
-		var previous_key := "%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1, lane_key]
+		var at := index * quantum - offset
+		var previous_key := "%d:%d:%d:%d:%d:%d" % [piste.id, guest.leg, guest.loops, index - 1, lane_key,quantum_key]
 		var first: Dictionary = _motion_cache[guest.id].b if _motion_cache.has(guest.id) and _motion_cache[guest.id].key == previous_key else _exact_ski_pose(piste, guest, leg, at)
-		_motion_cache[guest.id] = {"key": key, "a": first, "b": _exact_ski_pose(piste, guest, leg, at + QUANTUM)}
+		_motion_cache[guest.id] = {"key": key, "a": first, "b": _exact_ski_pose(piste, guest, leg, at + quantum)}
 	var data: Dictionary = _motion_cache[guest.id]
-	var weight := fposmod(elapsed + offset, QUANTUM) / QUANTUM
+	var weight := fposmod(elapsed + offset, quantum) / quantum
 	return {"position": data.a.position.lerp(data.b.position, weight), "yaw": lerp_angle(data.a.yaw, data.b.yaw, weight), "lean": lerpf(data.a.lean, data.b.lean, weight), "pitch": lerp_angle(data.a.pitch, data.b.pitch, weight)}
 
 func _rider_pose(guest: Dictionary) -> Dictionary:
