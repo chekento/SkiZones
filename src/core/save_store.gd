@@ -13,7 +13,7 @@ static func legacy_path(id: String) -> String:
 	return DEFAULT_PATH if id == "sonnenhang" else "user://skizones_%s.json" % id
 
 static func path_for_map(id: String, slot: int = -1, free_slot: int = -1) -> String:
-	if id not in Maps.FANTASY_MAPS: return "user://scenario_%s.json" % id
+	if not Maps.is_player_map(id): return "user://scenario_%s.json" % id
 	var selected: int = active_slot if slot < 0 else slot
 	if selected == 0:
 		var index: int = clampi(active_free_slot if free_slot < 0 else free_slot, 1, 4)
@@ -24,7 +24,7 @@ static func path_for_map(id: String, slot: int = -1, free_slot: int = -1) -> Str
 ## archive still owns its resort and must not be hidden behind unlock gates.
 ## Actual model validation always happens in load_game before the scene is used.
 static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
-	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+	if id in Maps.MAPS and not Maps.is_player_map(id):
 		# Scenario files were once stored under the common pre-slot prefix.
 		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
 			var read:Dictionary=_read(source)
@@ -33,9 +33,9 @@ static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -
 	var selected: int = active_slot if slot < 0 else slot
 	for source in [path_for_map(id, selected, free_slot),path_for_map(id, selected, free_slot)+".bak"]:
 		var read: Dictionary = _read(source)
-		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and (id not in Maps.FANTASY_MAPS or _free_data(read.data) == (selected == 0)):
+		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and (not Maps.is_player_map(id) or _free_data(read.data) == (selected == 0)):
 			return true
-	if selected not in [0,1] or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) != 1) or not Maps.FANTASY_MAPS.has(id): return false
+	if selected not in [0,1] or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) != 1) or not Maps.is_player_map(id): return false
 	for source in [legacy_path(id),legacy_path(id)+".bak"]:
 		var read: Dictionary = _read(source)
 		if read.ok and str(read.data.get("map_id","sonnenhang")) == id and _free_data(read.data) == (selected==0):
@@ -45,14 +45,14 @@ static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -
 # Existence is not the same as readability. A corrupt or newer-format save
 # must NEVER silently become an empty new resort.
 static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
-	if id in Maps.MAPS and id not in Maps.FANTASY_MAPS:
+	if id in Maps.MAPS and not Maps.is_player_map(id):
 		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
 			if FileAccess.file_exists(source):return true
 		return false
 	var selected: int = active_slot if slot < 0 else slot
 	var path: String = path_for_map(id, selected, free_slot)
 	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"): return true
-	if selected not in [0, 1] or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) != 1) or id not in Maps.FANTASY_MAPS: return false
+	if selected not in [0, 1] or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) != 1) or not Maps.is_player_map(id): return false
 	for old_path in [legacy_path(id), legacy_path(id) + ".bak"]:
 		if not FileAccess.file_exists(old_path): continue
 		var read: Dictionary = _read(old_path)
@@ -67,7 +67,7 @@ static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> boo
 static func saved_resorts(slot: int = -1, free_slot: int = -1) -> Array:
 	var selected: int = active_slot if slot < 0 else slot
 	var result: Array = []
-	for id in Maps.FANTASY_MAPS:
+	for id in Maps.player_maps():
 		var path: String = path_for_map(id, selected, free_slot)
 		var sources: Array = [path, path + ".bak"]
 		if selected == 1 or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) == 1):
@@ -101,14 +101,14 @@ static func saved_resorts(slot: int = -1, free_slot: int = -1) -> Array:
 static func session_source_matches(id: String, slot: int, checksum: String, free_slot: int = -1) -> bool:
 	var path: String = path_for_map(id, slot, free_slot)
 	var sources: Array = [path, path + ".bak"]
-	if (slot == 1 or slot == 0 and (active_free_slot if free_slot < 0 else free_slot) == 1) and id in Maps.FANTASY_MAPS:
+	if (slot == 1 or slot == 0 and (active_free_slot if free_slot < 0 else free_slot) == 1) and Maps.is_player_map(id):
 		sources.append(legacy_path(id))
 		sources.append(legacy_path(id) + ".bak")
 	for source in sources:
 		var read: Dictionary = _read(source)
 		if not read.ok: continue
 		if str(read.data.get("map_id", "sonnenhang")) != id: continue
-		if id in Maps.FANTASY_MAPS and _free_data(read.data) != (slot == 0): continue
+		if Maps.is_player_map(id) and _free_data(read.data) != (slot == 0): continue
 		return FileAccess.get_sha256(source) == checksum
 	return false
 
@@ -173,7 +173,7 @@ static func migrate_legacy() -> bool:
 	# Earlier migrations could put a pre-career/free resort in career 1.
 	# Recover readable misplaced sources into an empty first free slot only;
 	# never move/delete the source or overwrite an existing free resort.
-	for id in Maps.FANTASY_MAPS:
+	for id in Maps.player_maps():
 		var free_target: String=path_for_map(id,0,1)
 		if FileAccess.file_exists(free_target):continue
 		for suffix in ["", ".bak"]:
@@ -197,7 +197,7 @@ static func archive_free_slot(free_slot: int) -> bool:
 	var folder := "user://free-archives/slot-%d-%d-%d" % [free_slot,Time.get_unix_time_from_system(),Time.get_ticks_usec()]
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK: return false
 	var paths: Array = [passport_path(0, free_slot), passport_path(0, free_slot) + ".bak", index_path(0, free_slot)]
-	for id in Maps.FANTASY_MAPS:
+	for id in Maps.player_maps():
 		var path := path_for_map(id, 0, free_slot)
 		paths.append_array([path, path + ".bak"])
 	# Complete and SHA-256-verify every archive file before removing ANY source.
@@ -215,7 +215,7 @@ static func archive_slot(slot: int) -> bool:
 	var folder := "user://career-archives/slot-%d-%d-%d" % [slot,Time.get_unix_time_from_system(),Time.get_ticks_usec()]
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))!=OK: return false
 	var paths: Array=[passport_path(slot),passport_path(slot)+".bak",index_path(slot)]
-	for id in Maps.FANTASY_MAPS: paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
+	for id in Maps.player_maps(): paths.append_array([path_for_map(id,slot),path_for_map(id,slot)+".bak"])
 	# Same two-phase, checksum-verified preservation for career restarts.
 	for path in paths:
 		if not FileAccess.file_exists(path):continue
@@ -253,7 +253,7 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
-	if model.map_id in Maps.FANTASY_MAPS and path==path_for_map(model.map_id): _write_index(model,active_slot)
+	if model.map_Maps.is_player_map(id) and path==path_for_map(model.map_id): _write_index(model,active_slot)
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
 
 static func _read(path: String, progress: RefCounted = null) -> Dictionary:
