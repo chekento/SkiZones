@@ -26,6 +26,10 @@ const DEFAULT := {
 	"forest": 55,
 	"tree_count": 2400,
 	"lake_count": 1,
+	"river_count": 2,
+	"ridge_connectivity": 65,
+	"tree_line": 2000,
+	"trailhead_count": 2,
 	"village_count": 2,
 	"ridge_angle": 20,
 	"valley_width": 48,
@@ -53,6 +57,7 @@ static func validate(values: Dictionary) -> Dictionary:
 	var limits := {
 		"seed":[0,2147483647], "peak_count":[1,24], "peak_height":[80,2800],
 		"forest":[0,100], "tree_count":[0,12000], "lake_count":[0,8], "village_count":[0,8],
+		"river_count":[0,6], "ridge_connectivity":[0,100], "tree_line":[200,3500], "trailhead_count":[0,8],
 		"ridge_angle":[0,359], "valley_width":[0,100], "plateau_width":[0,100],
 		"rolling_hills":[0,100], "snowline":[100,3500],
 		"erosion":[0,100], "avalanche_risk":[0,100]
@@ -86,7 +91,7 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 		var position := Vector2.ZERO
 		match config.landform:
 			"ridge":
-				position=centre+axis*(fraction-0.5)*size.x*0.72+across*rng.randf_range(-0.12,0.12)*size.y
+				position=centre+axis*(fraction-0.5)*size.x*0.72+across*rng.randf_range(-0.05, -0.05+0.18*(1.0-float(config.ridge_connectivity)/100.0))*size.y
 			"isolated":
 				position=Vector2(rng.randf_range(-0.39,0.39)*size.x, -rng.randf_range(0.20,0.88)*size.y)
 			"plateau":
@@ -114,6 +119,61 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 		valleys.append([roundf(centre.x),roundf(centre.y),-roundf(float(config.peak_height)*0.21*spread),roundf(size.x*0.19+size.x*spread*0.22)])
 	if config.landform=="alpine_pasture":
 		valleys.append([0,-roundf(size.y*0.42),-roundf(float(config.peak_height)*0.14),roundf(size.x*0.28)])
+	# Actual geographic placements, rather than only decorative counters. The
+	# seed and fixed candidate count keep re-generations stable across updates.
+	# All positions lie inside the playable rectangle and avoid the safe base.
+	var shape_map:Dictionary={"peaks":peaks,"valleys":valleys}
+	var lakes:Array=[]
+	for i in range(int(config.lake_count)):
+		var best_point:=Vector2.ZERO
+		var best_score:=INF
+		for attempt in range(28):
+			var candidate:=Vector2(rng.randf_range(-size.x*0.40,size.x*0.40),-rng.randf_range(size.y*0.18,size.y*0.86))
+			var separation:=true
+			for other in lakes:
+				if Vector2(other[0],other[1]).distance_to(candidate)<175.0:separation=false
+			if not separation:continue
+			var score:float=sample_height(shape_map,candidate)+absf(candidate.x)*0.005
+			if score<best_score:
+				best_score=score
+				best_point=candidate
+		if is_finite(best_score):
+			lakes.append([roundf(best_point.x),roundf(best_point.y),rng.randi_range(65,130)])
+	var villages:Array=[]
+	for i in range(int(config.village_count)):
+		var fraction:float=(float(i)+0.5)/float(maxi(1,int(config.village_count)))
+		var x:float=(fraction-0.5)*size.x*0.66+rng.randf_range(-50.0,50.0)
+		var y:float=-size.y*rng.randf_range(0.08,0.23)
+		villages.append([roundf(x),roundf(y),rng.randi_range(50,100)])
+	var trailheads:Array=[]
+	for i in range(int(config.trailhead_count)):
+		var x:float=rng.randf_range(-size.x*0.30,size.x*0.30)
+		var y:float=-size.y*rng.randf_range(0.25,0.58)
+		trailheads.append([roundf(x),roundf(y)])
+	var rivers:Array=[]
+	for i in range(int(config.river_count)):
+		var x:float=rng.randf_range(-size.x*0.34,size.x*0.34)
+		var origin_y:float=-size.y*rng.randf_range(0.54,0.85)
+		var segments:Array=[]
+		for j in range(9):
+			var fraction:float=float(j)/8.0
+			var y:float=lerpf(origin_y,-size.y*0.04,fraction)
+			segments.append([roundf(clampf(x+sin(fraction*TAU*1.5+float(i))*size.x*0.025,-size.x*0.45,size.x*0.45)),roundf(y)])
+		rivers.append(segments)
+	# Forests are batched as clusters, never thousands of individually stored
+	# Tree nodes. Actual 3D instancing can consume these patches incrementally.
+	var clusters:Array=[]
+	var remaining:int=int(config.tree_count)
+	var cluster_count:int=mini(64,ceili(float(remaining)/240.0))
+	for i in range(cluster_count):
+		var choice:=Vector2.ZERO
+		for attempt in range(16):
+			var point:=Vector2(rng.randf_range(-size.x*0.43,size.x*0.43),-rng.randf_range(size.y*0.10,size.y*0.85))
+			choice=point
+			if sample_height(shape_map,point)<=float(config.tree_line):break
+		var count:int=ceili(float(remaining)/float(maxi(1,cluster_count-i)))
+		clusters.append([roundf(choice.x),roundf(choice.y),rng.randi_range(90,210),count])
+		remaining-=count
 	var multiplier := 0.30+float(config.forest)/100.0*1.65
 	if config.landform=="glacial_basin":multiplier*=0.55
 	var snow := 0.75+float(3500-int(config.snowline))/3500.0*0.68
@@ -131,6 +191,9 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 		"sky":"bfd8ed","ground":"e4eff6","trees":"688578",
 		"map_creator":true,"tree_density":int(config.forest),"tree_count":int(config.tree_count),
 		"lake_count":int(config.lake_count),"village_count":int(config.village_count),
+		"river_count":int(config.river_count),"ridge_connectivity":int(config.ridge_connectivity),
+		"tree_line":int(config.tree_line),"trailhead_count":int(config.trailhead_count),
+		"lakes":lakes,"villages":villages,"trailheads":trailheads,"rivers":rivers,"forest_clusters":clusters,
 		"erosion":int(config.erosion),"avalanche_risk":int(config.avalanche_risk),
 		"exposure":config.exposure,"snowline":int(config.snowline)
 	}
