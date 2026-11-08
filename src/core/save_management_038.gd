@@ -21,6 +21,12 @@ static func recovery_sources(id: String,slot: int,free_slot: int = 1) -> Array:
 	var active: Array=sources(id,slot,free_slot)
 	if active.is_empty():return []
 	var result: Array=active.duplicate()
+	# Unfinished primary or backup renames are read-only recovery candidates.
+	# Never add these to sources(): archive/delete/copy operations must not
+	# sweep them up as if they were committed saves.
+	for source in active:
+		var staged: String=source+".tmp"
+		if FileAccess.file_exists(staged) and staged not in result:result.append(staged)
 	for archived in _archived_sources(id,slot,free_slot):
 		if archived not in result:result.append(archived)
 	return result
@@ -76,7 +82,9 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	# in diagnostics so the player can restore that occupied slot.
 	var occupied: bool=false
 	for candidate in active:
-		if FileAccess.file_exists(candidate):occupied=true;break
+		if FileAccess.file_exists(candidate) or FileAccess.file_exists(candidate+".tmp"):
+			occupied=true
+			break
 	var paths: Array=recovery_sources(id,slot,free_slot) if occupied else active
 	for source in paths:
 		if not FileAccess.file_exists(source):continue

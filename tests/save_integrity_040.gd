@@ -57,5 +57,28 @@ func run() -> void:
 	write_envelope(path, model.snapshot(), false)
 	check(str(Saves._read(path).get("code", "")) == "checksum_mismatch", "Checksum corruption has a distinct diagnostic code")
 	check(Saves.load_game(Resort.new(), path).ok, "Last good backup remains loadable after both primary-file failures")
+	# A killed Android process can leave only the fully written .tmp. Its
+	# valid bytes must be discoverable without ever guessing an invalid JSON.
+	for suffix in ["", ".bak"]:
+		if FileAccess.file_exists(path + suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(path + suffix))
+	write_envelope(path + ".tmp", model.snapshot())
+	var orphan_sha: String=FileAccess.get_sha256(path + ".tmp")
+	check(Saves.has_any_save("sonnenhang", 3), "A staged-only interrupted save keeps the career slot occupied")
+	var orphan_report: Dictionary=Manager.inspect("sonnenhang", 3)
+	check(orphan_report.files.any(func(item): return str(item.get("source", "")) == path + ".tmp" and bool(item.get("loadable", false))), "Read-only diagnostics discover a verified interrupted write")
+	var staged_repair: Dictionary=Manager.repair("sonnenhang", 3)
+	check(staged_repair.ok and Saves.load_game(Resort.new(), path).ok, "Explicit recovery activates a verified staged save without inventing new data")
+	check(FileAccess.get_sha256(path + ".tmp") == orphan_sha, "Recovery does not alter the original interrupted staging bytes")
+	# The next normal save must archive that orphan before truncating its name.
+	model.money += 7.0
+	check(Saves.save_game(model, path).ok, "A new save does not erase the prior interrupted write without an archive")
+	var staged_archived := false
+	var archive_dir: DirAccess=DirAccess.open("user://save-recovery")
+	if archive_dir != null:
+		for name in archive_dir.get_files():
+			if name.begins_with((path + ".tmp").get_file() + "-") and name.ends_with(".before-staging"):
+				staged_archived=staged_archived or FileAccess.get_sha256("user://save-recovery/" + name) == orphan_sha
+	check(staged_archived, "The unfinished original survives a normal save byte-for-byte in a separate archive")
+	check(Saves.load_game(Resort.new(), path).ok, "A replaced valid stage remains playable after recovery")
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)

@@ -47,11 +47,13 @@ static func has_readable_save(id: String, slot: int = -1, free_slot: int = -1) -
 static func has_any_save(id: String, slot: int = -1, free_slot: int = -1) -> bool:
 	if id in Maps.MAPS and not Maps.is_player_map(id):
 		for source in [path_for_map(id),path_for_map(id)+".bak",legacy_path(id),legacy_path(id)+".bak"]:
-			if FileAccess.file_exists(source):return true
+			if FileAccess.file_exists(source) or FileAccess.file_exists(source + ".tmp"): return true
 		return false
 	var selected: int = active_slot if slot < 0 else slot
 	var path: String = path_for_map(id, selected, free_slot)
-	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak"): return true
+	# After an Android process kill, the only remaining complete snapshot may
+	# be an uncommitted .tmp/.bak.tmp. Never offer an empty new career over it.
+	if FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak") or FileAccess.file_exists(path + ".tmp") or FileAccess.file_exists(path + ".bak.tmp"): return true
 	if selected not in [0, 1] or (selected == 0 and (active_free_slot if free_slot < 0 else free_slot) != 1) or not Maps.is_player_map(id): return false
 	for old_path in [legacy_path(id), legacy_path(id) + ".bak"]:
 		if not FileAccess.file_exists(old_path): continue
@@ -231,6 +233,17 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	if envelope.to_utf8_buffer().size() > MAX_BYTES:
 		return {"ok": false, "message": L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
 	var staging: String = path + ".tmp"
+	# A previous process may have died after writing a complete staged save,
+	# before the atomic rename. Preserve even unreadable bytes before opening
+	# WRITE (which would truncate the only recoverable copy). Never remove it
+	# based on parsing or checksum results.
+	if FileAccess.file_exists(staging):
+		var archive_dir: String = "user://save-recovery"
+		if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(archive_dir)) != OK:
+			return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+		var archive_path: String = archive_dir + "/" + staging.get_file() + "-%d-%d.before-staging" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(staging), ProjectSettings.globalize_path(archive_path)) != OK or FileAccess.get_sha256(staging) != FileAccess.get_sha256(archive_path):
+			return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 	var file := FileAccess.open(staging, FileAccess.WRITE)
 	if file == null:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht geschrieben werden.")}
