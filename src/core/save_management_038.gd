@@ -106,7 +106,18 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		# A crashed write's .tmp/.bak.tmp is itself evidence even when its
 		# JSON is truncated. Only discard invalid *unrelated archived* files;
 		# always show the exact slot's malformed staging in diagnostics.
-		if source not in [owned, owned+".bak", owned+".tmp", owned+".bak.tmp"] and not valid:continue
+		# When an earlier write was archived before its *.tmp was replaced,
+		# even invalid JSON in that *specific slot's* forensic archive must
+		# remain visible to the player and in diagnostic exports. Never classify
+		# an unrelated legacy archive from another slot as this career.
+		var own_archive: bool=false
+		if source.begins_with("user://save-recovery/"):
+			var archived_name: String=source.get_file()
+			for suffix in ["-", ".bak-", ".tmp-", ".bak.tmp-"]:
+				if archived_name.begins_with(owned.get_file()+suffix):
+					own_archive=true
+					break
+		if source not in [owned, owned+".bak", owned+".tmp", owned+".bak.tmp"] and not own_archive and not valid:continue
 		var normal:=false
 		var salvage:=false
 		var detail: String=str(read.get("message",""))

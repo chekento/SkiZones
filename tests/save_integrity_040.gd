@@ -103,7 +103,15 @@ func run() -> void:
 	var forensic: Dictionary=Manager.inspect("sonnenhang", 3)
 	check(forensic.files.any(func(item): return str(item.get("source","")) == path + ".tmp" and str(item.get("code","")) == "invalid_json"), "Malformed staged save is reported with its actual parser-error classification")
 	check(FileAccess.get_sha256(path + ".tmp") == damaged_stage_sha, "Read-only diagnostics preserve malformed staging bytes")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path + ".tmp"))
+	model.money += 3.0
+	check(Saves.save_game(model,path).ok, "A fresh verified save archives malformed staging without destroying its original bytes")
+	var damaged_archive_visible: bool=false
+	for entry in Manager.inspect("sonnenhang",3).get("files",[]):
+		var original: String=str(entry.get("source",""))
+		if original.begins_with("user://save-recovery/" + path.get_file() + ".tmp-") and str(entry.get("code",""))=="invalid_json":
+			damaged_archive_visible=damaged_archive_visible or FileAccess.get_sha256(original)==damaged_stage_sha
+	check(damaged_archive_visible, "Malformed interrupted-write archive remains listed in sanitized save diagnostics")
+	if FileAccess.file_exists(path + ".tmp"):DirAccess.remove_absolute(ProjectSettings.globalize_path(path + ".tmp"))
 	# Interrupted backup replacement is also recoverable read-only, even
 	# when both ordinary committed files are malformed.
 	write_envelope(path,model.snapshot(),false)
