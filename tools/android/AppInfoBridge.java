@@ -29,6 +29,22 @@ public final class AppInfoBridge {
             }
             File folder = new File(activity.getCacheDir(), "skizones-support");
             if (!folder.isDirectory() && !folder.mkdirs()) return "cache_unavailable";
+            // Android's chooser may open a previously shared URI after this
+            // function returns. Keep recent copies, but prune abandoned ones
+            // so repeated support attempts cannot fill the private cache and
+            // subsequently break the game's ordinary save writes.
+            File[] previous = folder.listFiles();
+            long now = System.currentTimeMillis();
+            if (previous != null) for (File item : previous) {
+                if (item.isFile()
+                        && item.getName().matches("skizones-support-[0-9a-f]{32}\\\\.zip")
+                        && now - item.lastModified() > 24L * 60 * 60 * 1000L) {
+                    item.delete();
+                }
+            }
+            if (folder.getUsableSpace() < source.length() + 4L * 1024 * 1024) {
+                return "insufficient_cache_space";
+            }
             File exported = new File(folder, "skizones-support-" +
                     java.util.UUID.randomUUID().toString().replace("-", "") + ".zip");
             try (java.io.InputStream in = new java.io.FileInputStream(source);
@@ -37,8 +53,14 @@ public final class AppInfoBridge {
                 int count;
                 while ((count = in.read(buf)) != -1) out.write(buf, 0, count);
                 out.flush();
+            } catch (Exception copyError) {
+                exported.delete(); // A partial ZIP must not consume save space.
+                return "cache_copy_failed";
             }
-            if (source.length() != exported.length()) return "copy_incomplete";
+            if (source.length() != exported.length()) {
+                exported.delete();
+                return "copy_incomplete";
+            }
             android.net.Uri uri = new android.net.Uri.Builder()
                     .scheme("content").authority(activity.getPackageName() + ".savebundle")
                     .appendPath(exported.getName()).build();
