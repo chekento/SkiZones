@@ -2266,7 +2266,7 @@ func snapshot() -> Dictionary:
 	if compatibility_geometry: data.compatibility_geometry = true
 	return data
 
-func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
+func _checked_itinerary(value: Variant, skill: int, visitor_id: int = -1) -> Dictionary:
 	if not value is Dictionary or not Terrain.number(value.get("target")) or not value.get("legs") is Array or value.legs.is_empty() or value.legs.size() > 220:
 		return {}
 	var previous := Terrain.unpack(value.get("origin", Terrain.pack(Terrain.BASE)))
@@ -2285,7 +2285,21 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 			return {}
 		previous = Terrain.unpack(leg.points.back())
 		if leg.kind == "walk":
-			var rescue_walk: bool = Ops.active(self) and leg.get("rescue", false) and operations.incidents.any(func(e): return e.status == "resolved" and e.reason == "evacuation" and e.point == leg.points[0])
+			# Rescued skiers must be allowed to leave their actual treatment
+			# station. These short emergency connectors are not user-built paths,
+			# but they must remain strictly tied to the rescued guest and event.
+			var rescue_walk: bool = false
+			if Ops.active(self) and leg.get("rescue", false) and visitor_id > 0:
+				for rescue_event in operations.incidents:
+					if rescue_event.get("status", "") != "resolved" or int(rescue_event.get("guest", -1)) != visitor_id: continue
+					var rescue_origin: Vector2 = Terrain.unpack(rescue_event.get("point"))
+					if rescue_event.get("reason", "") != "navigation":
+						var rescue_station: Dictionary = asset(int(rescue_event.get("station", -1)))
+						if rescue_station.get("kind", "") != "first_aid": continue
+						rescue_origin = Terrain.unpack(rescue_station.point)
+					if rescue_origin.distance_to(Terrain.unpack(leg.points[0])) <= 0.01:
+						rescue_walk = true
+						break
 			var walk_key := JSON.stringify(leg.points)
 			if not rescue_walk and not _checked_walks.has(walk_key):
 				_checked_walks[walk_key] = Foot.valid_walk(pedestrian_layout(), leg.points, buildings)
@@ -2641,9 +2655,9 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				if index < 0 or index >= saved_routes.size():
 					return invalid
 				var route_skill: int = mini(2, int(visitor.ability) + (1 if visitor.get("navigation_error", false) or visitor.get("assisted", false) else 0)) if Ops.active(self) else int(visitor.ability)
-				var key := "%d/%d" % [index, route_skill]
+				var key := "%d/%d/%d" % [index, route_skill, int(visitor.id)]
 				if not route_cache.has(key):
-					route_cache[key] = _checked_itinerary(saved_routes[int(index)], route_skill)
+					route_cache[key] = _checked_itinerary(saved_routes[int(index)], route_skill, int(visitor.id))
 				route = route_cache[key]
 				if route.is_empty() or route.target != visitor.target:
 					return invalid
