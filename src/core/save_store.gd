@@ -236,13 +236,17 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	file.store_string(envelope)
 	file.flush()
 	file.close()
+	# A failed or partial write must never replace an existing career.
+	var temporary_read: Dictionary = _read(path + ".tmp")
+	if not temporary_read.get("ok", false) or FileAccess.get_sha256(path + ".tmp") != envelope.sha256_text():
+		return {"ok": false, "message": L.text("Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten.")}
 	var absolute := ProjectSettings.globalize_path(path)
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
 		if _read(path).ok:
 			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK:
+			if backup_error != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(path + ".bak"):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
 			var rescue_dir := "user://save-recovery"
