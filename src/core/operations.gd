@@ -21,7 +21,21 @@ const ROLES := {
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
 	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
-	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
+	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0},
+	# Specialisms serve the relevant venue, rather than being a cosmetic cost.
+	"chef": {"name":"Koch / Köchin","wage":24.0},
+	"waiter": {"name":"Servicekraft / Kellner","wage":19.0},
+	"vendor": {"name":"Verkäufer / Verkäuferin","wage":18.0},
+	"bartender": {"name":"Barkeeper","wage":22.0},
+	"reception": {"name":"Hotelrezeption","wage":20.0},
+	"housekeeping": {"name":"Zimmer- und Hausservice","wage":19.0},
+	"lifeguard": {"name":"Bademeister / Aufsicht","wage":23.0},
+	"therapist": {"name":"Spa- und Wellnesskraft","wage":25.0},
+	"instructor": {"name":"Skilehrer / Skilehrerin","wage":25.0},
+	"equipment_fitter": {"name":"Ski- und Boardverleih","wage":20.0},
+	"trainer": {"name":"Fitnesstrainer","wage":23.0},
+	"artisan": {"name":"Handwerk / Werkstatt","wage":23.0},
+	"horologist": {"name":"Uhrmacher / Uhrmacherin","wage":26.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
@@ -259,6 +273,11 @@ static func lift_available(model: RefCounted, lift: Dictionary) -> bool:
 
 static func hire(model: RefCounted, role: String, assignment: String, shift: String = "day", free: bool = false) -> Dictionary:
 	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
+	if assignment.begins_with("building:"):
+		var building_id:=assignment.trim_prefix("building:").to_int()
+		var workplace:Dictionary=model.asset(building_id)
+		if workplace.is_empty() or not role_matches_building(role,str(workplace.get("kind",""))):
+			return model._result(false,"Fachkraft passt nicht zum Gebäude. Bitte eine passende Berufsgruppe wählen.")
 	if not free and not _expense(model, 180, "recruitment"): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	var id: int = model.operations.next_staff
 	model.operations.next_staff += 1
@@ -302,19 +321,67 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 	for target in additions: hire(model, "operator", target, "day", free)
 	return model._result(true, L.text("Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."))
 
+## The new specialist grid never assigns hotel reception to a restaurant.
+## Historic catering/hotel employees remain valid in old saves (see fallback).
 static func building_roles(kind: String) -> Array:
 	match kind:
-		"repair_office": return ["technician", "electrician"]
-		"first_aid": return ["rescue", "rescue"]
-		"maintenance": return ["driver"]
-		"snowmaker": return ["snow"]
-		"hotel", "grand_hotel": return ["hotel", "hotel", "security"]
-		"guesthouse": return ["hotel"]
-		"disco", "bar": return ["catering", "security"]
-		"pool", "spa": return ["hotel", "security"]
-		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand": return ["hotel"]
+		"repair_office":return ["technician","electrician"]
+		"first_aid":return ["rescue","rescue"]
+		"maintenance":return ["driver"]
+		"snowmaker":return ["snow"]
+		"hotel","grand_hotel":return ["reception","housekeeping","security"]
+		"guesthouse","chalet","apartment","cabin":return ["reception","housekeeping"]
+		"restaurant","pizzeria","lodge","schmarrn":return ["chef","waiter"]
+		"kiosk","cocoa","souvenir","newsstand":return ["vendor"]
+		"bar","disco":return ["bartender","security"]
+		"pool":return ["lifeguard","housekeeping"]
+		"spa":return ["therapist","housekeeping"]
+		"school":return ["instructor"]
+		"rental":return ["equipment_fitter"]
+		"fitness":return ["trainer"]
+		"watchmaker":return ["horologist"]
+		"craftshop","printing_press":return ["artisan"]
 	return []
+
+## Old career teams are honoured as a *baseline* to keep former saves playable.
+## They do not get the optional specialist production/throughput advantage.
+static func legacy_building_roles(kind: String) -> Array:
+	match kind:
+		"hotel","grand_hotel":return ["hotel","hotel","security"]
+		"guesthouse":return ["hotel"]
+		"disco","bar":return ["catering","security"]
+		"pool","spa":return ["hotel","security"]
+		"restaurant","lodge","kiosk","cocoa","schmarrn","pizzeria":return ["catering"]
+		"rental","school","fitness","souvenir","watchmaker","craftshop","printing_press","newsstand":return ["hotel"]
+	return []
+
+static func role_matches_building(role: String, kind: String) -> bool:
+	return role in building_roles(kind)
+
+## Active, qualified specialist coverage improves both visitors processed
+## and service time; legacy teams remain baseline 1.0 for old savegames.
+static func building_efficiency(model: RefCounted, building: Dictionary) -> float:
+	if not active(model) or not building.get("enabled",false):return 1.0
+	var roles:Array=building_roles(str(building.get("kind","")))
+	if roles.is_empty():return 1.0
+	var required:Dictionary={}
+	for role in roles:required[role]=int(required.get(role,0))+1
+	var target:="building:%d" % int(building.id)
+	var score:=0.0
+	var matched:=0
+	for role in required:
+		var crew:Array=model.operations.staff.filter(func(p):return p.role==role and p.assignment==target and on_duty(model,p))
+		if crew.size()<int(required[role]):return 1.0
+		crew.sort_custom(func(a:Dictionary,b:Dictionary)->bool:return float(a.get("qualification",1))*10.0+float(a.get("motivation",80))>float(b.get("qualification",1))*10.0+float(b.get("motivation",80)))
+		for member in crew.slice(0,int(required[role])):
+			matched+=1
+			score+=0.12+0.055*clampf(float(member.get("qualification",1))-1.0,0.0,3.0)+0.035*clampf(float(member.get("experience",0))/20.0,0.0,1.0)+0.035*clampf(float(member.get("motivation",85))/100.0,0.0,1.0)
+	# Extra relevant staff increase parallel throughput with diminishing returns.
+	var extras:=0
+	for member in model.operations.staff:
+		if member.assignment==target and role_matches_building(str(member.role),str(building.kind)) and on_duty(model,member):extras+=1
+	extras=maxi(0,extras-matched)
+	return clampf(1.0+score+0.06*minf(4.0,float(extras)),1.0,1.75)
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
 	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
@@ -347,8 +414,15 @@ static func building_staffed(model: RefCounted, building: Dictionary) -> bool:
 	if not active(model): return true
 	var required: Dictionary = {}
 	for role in building_roles(building.kind): required[role] = int(required.get(role, 0)) + 1
+	var specialized:=true
 	for role in required:
-		if duty(model, role, "building:%d" % int(building.id)) < required[role]: return false
+		if duty(model, role, "building:%d" % int(building.id)) < required[role]:specialized=false
+	if specialized:return true
+	var legacy:Dictionary={}
+	for role in legacy_building_roles(str(building.kind)):legacy[role]=int(legacy.get(role,0))+1
+	if legacy.is_empty():return false
+	for role in legacy:
+		if duty(model,role,"building:%d" % int(building.id)) < int(legacy[role]):return false
 	return true
 
 static func building_open(model: RefCounted, building: Dictionary) -> bool:
