@@ -230,28 +230,43 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	var envelope := JSON.stringify({"format": "SkiZones", "checksum": payload.sha256_text(), "payload": payload})
 	if envelope.to_utf8_buffer().size() > MAX_BYTES:
 		return {"ok": false, "message": L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
-	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
+	var staging: String = path + ".tmp"
+	var file := FileAccess.open(staging, FileAccess.WRITE)
 	if file == null:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht geschrieben werden.")}
 	file.store_string(envelope)
 	file.flush()
 	file.close()
+	# A checksum-valid but semantically impossible snapshot is not a usable
+	# backup. Prove that a *fresh* model can restore the bytes before either
+	# the primary or the last-good .bak is modified.
+	var staged_read: Dictionary = _read(staging)
+	var staged_model: RefCounted = model.get_script().new()
+	if not staged_read.ok or not staged_model.restore(staged_read.data.duplicate(true)).ok:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(staging))
+		return {"ok": false, "message": L.text("Reparaturprüfung fehlgeschlagen. Originaldateien bleiben unverändert.")}
 	var absolute := ProjectSettings.globalize_path(path)
-	# Never destroy a malformed/unsupported primary during a later save.
-	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
-		if _read(path).ok:
-			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
-			if backup_error != OK:
+		var previous: Dictionary = _read(path)
+		var previous_model: RefCounted = model.get_script().new()
+		if previous.ok and previous_model.restore(previous.data.duplicate(true)).ok:
+			# Never stream directly over .bak: an interrupted copy must not
+			# corrupt the only earlier checkpoint. Verify a staging copy first.
+			var safe_copy: String = path + ".bak.tmp"
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(safe_copy)) != OK or FileAccess.get_sha256(safe_copy) != FileAccess.get_sha256(path):
+				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			if DirAccess.rename_absolute(ProjectSettings.globalize_path(safe_copy), absolute + ".bak") != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		else:
+			# Preserve checksum-valid but semantically broken originals as well.
+			# Existing .bak is deliberately NOT rotated or overwritten.
 			var rescue_dir := "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK:
+			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(archive) != FileAccess.get_sha256(path):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
-	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(staging), absolute) != OK:
 		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
 	if Maps.is_player_map(model.map_id) and path==path_for_map(model.map_id): _write_index(model,active_slot)
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
