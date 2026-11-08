@@ -285,7 +285,7 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-035-release
         run: |
-          for test in building_offers_loans_035 credit_contracts_035 retail_sales_035 status_banner_035 footwear_persistence_035 ground_surface_sampling_032 walkway_design_037 snow_paths_geometry_037 snow_path_visibility_040; do
+          for test in building_offers_loans_035 credit_contracts_035 retail_sales_035 status_banner_035 footwear_persistence_035 ground_surface_sampling_032 walkway_design_037 snow_paths_geometry_037 snow_path_visibility_040 map_creator_040; do
             python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd" || exit 1
           done
       - name: Integrated 0.35 radio hardware and live building interface
