@@ -52,7 +52,13 @@ jobs:
           "$GODOT_BIN" --headless --editor --import --quit
           "$GODOT_BIN" --headless --check-only --script res://src/core/operations.gd
           "$GODOT_BIN" --headless --check-only --script res://src/core/recruitment.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/core/rescue_protocol_040.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/world/rescue_visuals_040.gd
+          "$GODOT_BIN" --headless --check-only --script res://src/core/guest_profile.gd
       - name: Venue qualifications and effective service capacity
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/specialist_building_040.gd
       - name: Original recruitment and four scenario missions
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --script tests/recruitment_scenarios_032.gd
+
+      - name: Two-person rescue route, stretcher and injury treatment timeline
+        run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --headless --script tests/rescue_protocol_040.gd
