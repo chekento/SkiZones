@@ -31,6 +31,7 @@ const WinterFestival = preload("res://src/ui/winter_festival.gd")
 const SeasonalPoster = preload("res://src/ui/seasonal_poster.gd")
 const MedalCabinet = preload("res://src/ui/medal_cabinet.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
+const MapCreator040 = preload("res://src/ui/map_creator_040.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const LiftStaff = preload("res://src/ui/lift_staff.gd")
@@ -73,6 +74,7 @@ var _loading_activity_clock := 0.0
 var _loading_activity_phase := 0
 var menu := Control.new()
 var scenarios := Scenarios.new()
+var map_creator_040 := MapCreator040.new()
 var credits := AcceptDialog.new()
 var community := AcceptDialog.new()
 var data_credit := Label.new()
@@ -283,6 +285,9 @@ func setup(controller: Node) -> void:
 	else:
 		# Avoid building real-world cards while starting a normal career.
 		scenarios.hide()
+	add_child(map_creator_040)
+	map_creator_040.theme=theme
+	map_creator_040.setup(self)
 	_build_credits()
 	_build_community()
 	root.add_child(seasonal_poster)
@@ -1180,6 +1185,7 @@ func _build_menu() -> void:
 	_button(play, L.text("Karriere · vier Spielstände"), game.show_career_slots)
 	_button(play, L.text("Freier Aufbau · vier Spielstände"), game.start_free_play)
 	var manage := _menu_group(box, "02  ·  RESORT & BERGWELT", "Dein Betrieb und deine acht Skiberge")
+	_button(manage, "Map Creator · " + ("eigene Skiwelt" if L.language!="en" else "design a mountain"), func(): map_creator_040.open())
 	_button(manage, L.text("Bergpass · alle Gebiete"), func():
 		hide_menu()
 		show_atlas()
@@ -1261,6 +1267,7 @@ func show_menu() -> void:
 	career_slots.hide()
 	atlas.hide()
 	scenarios.hide()
+	map_creator_040.hide()
 	jukebox.close()
 	credits.hide()
 	community.hide()
@@ -1279,7 +1286,7 @@ func blocks_map(point: Vector2) -> bool:
 	if jukebox.visible:return true
 	if medal_cabinet.visible: return true
 	if building_browser.blocks_map(point) or piste_workshop.blocks_map(point): return true
-	if piste_map_window.visible or seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
+	if map_creator_040.visible or piste_map_window.visible or seasonal_poster.visible or experience.visible or medal_cabinet.visible or update_dialog.visible or career_slots.visible or audience.visible or loading.visible or scenarios.visible or credits.visible or community.visible or asset_editor.visible or display_options.visible or lift_staff.visible or menu.visible or daily_dialog.visible or help_dialog.visible or camera_dialog.visible or management.visible or atlas.visible:
 		return true
 	for panel in map_panels:
 		if is_instance_valid(panel) and panel.is_visible_in_tree() and panel.get_global_rect().has_point(point):
