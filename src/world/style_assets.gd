@@ -167,3 +167,43 @@ static func station(kind: String,level: int,livery: String,style: String) -> Arr
 		a.box(Vector3(0,8+index*.15,0),Vector3(14+index*.15,.7+index*.07,17),color)
 		for side in [-1,1]:a.box(Vector3(side*6.5,5,0),Vector3(.4,10,16),color)
 	return a.finish()
+
+static func vehicle(kind: String,livery: String,style: String) -> ArrayMesh:
+	style=Styles.valid(style)
+	if style!="comic":
+		return Art.new().chair(kind,livery)
+	# Cartoon lift vehicles use distinct geometry, not just palette swapping.
+	# Keep the attachment pivot at the rope hanger and the footprint compatible.
+	var fleet=preload("res://src/core/lift_fleet.gd")
+	var family: String=fleet.family({"kind":kind})
+	var count: int=fleet.seats({"kind":kind})
+	var a:=Art.new()
+	var ink:=Color("192443")
+	var yellow:=Color("ffe05e") if livery=="" else Color(livery)
+	var glass:=Color("79e5ff")
+	var white:=Color("f6fcff")
+	if family=="drag":
+		a.cone(Vector3(0,0,0),0.95,0.35,ink,0.65)
+		a.cone(Vector3(0,0.19,0),0.75,0.28,yellow,0.65)
+		a.box(Vector3(0,0.65,0),Vector3(0.3,1.15,0.3),ink)
+	elif family=="gondola":
+		a.soft_box(Vector3(0,0.9,0),Vector3(7.8,5.4,6.8),ink,Vector3.ZERO,1.4)
+		a.soft_box(Vector3(0,1.0,0),Vector3(7.1,4.7,6.1),yellow,Vector3.ZERO,1.2)
+		for side in [-1,1]:
+			a.box(Vector3(side*3.62,1.25,0),Vector3(.26,2.8,5.1),glass)
+			a.box(Vector3(0,1.25,side*3.15),Vector3(6.0,2.8,.25),glass)
+		a.soft_box(Vector3(0,3.7,0),Vector3(8.5,1.3,7.4),white,Vector3.ZERO,.8)
+		a.box(Vector3(0,-1.4,0),Vector3(7.5,.55,6.5),ink)
+		a.link(Vector3(0,4.2,0),Vector3(0,6,0),.3,ink)
+	else:
+		var width: float=float(count)*fleet.SEAT_SPACING+0.45
+		a.soft_box(Vector3(0,-.2,0),Vector3(width,.7,2.4),ink,Vector3.ZERO,.3)
+		for seat in range(count):
+			var x: float=(float(seat)-(float(count)-1.0)*.5)*fleet.SEAT_SPACING
+			a.soft_box(Vector3(x,.15,.1),Vector3(1.7,.5,1.9),yellow,Vector3.ZERO,.25)
+			a.soft_box(Vector3(x,1.2,-.85),Vector3(1.7,2.2,.6),glass,Vector3.ZERO,.25)
+		for side in [-1,1]:
+			a.box(Vector3(side*width*.5,.5,0),Vector3(.3,1.7,2.4),ink)
+		a.link(Vector3(0,2,-1),Vector3(0,6,0),.28,ink)
+		a.box(Vector3(0,1,1.35),Vector3(width,.3,.3),ink)
+	return a.finish()
