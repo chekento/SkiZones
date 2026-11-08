@@ -385,7 +385,7 @@ static func building_efficiency(model: RefCounted, building: Dictionary) -> floa
 	return clampf(1.0+score+0.06*minf(4.0,float(extras)),1.0,1.75)
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
-	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
+	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse", "first_aid"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
 	if model.time_divisor > 1 and kind in ["disco", "bar", "pool", "spa"] and not shifts.has("night"): shifts.append("night")
 	return shifts
 
