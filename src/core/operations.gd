@@ -911,12 +911,23 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	for task in state.repairs:
 		if not task is Dictionary or not Terrain.number(task.get("asset")) or not Terrain.number(task.get("workshop")) or not Terrain.number(task.get("remaining")) or task.remaining < 0 or task.remaining > 100000: return false
 	for event in state.incidents:
-		if not event is Dictionary or event.get("status") not in ["waiting", "responding", "resolved"]: return false
+		if not event is Dictionary or event.get("status") not in ["waiting", "responding", "returning", "treating", "resolved"]: return false
 		for field in ["response_duration","response_started"]:
 			if event.has(field) and (not Terrain.number(event[field]) or event[field]<0 or event[field]>1000000000):return false
 		for key in ["id", "guest", "created", "station", "remaining"]:
 			if not Terrain.number(event.get(key)) or event[key] < -1 or event[key] > 1000000000: return false
 		if not model.terrain.contains(Terrain.unpack(event.get("point"))): return false
+		if event.has("rescue_team"):
+			if not event.rescue_team is Array or event.rescue_team.size()!=2 or event.rescue_team[0]==event.rescue_team[1]:return false
+			for worker in event.rescue_team:
+				if not Terrain.number(worker) or worker!=floorf(float(worker)) or worker<1 or worker>=state.next_staff:return false
+		if event.has("rescue_route"):
+			if not event.rescue_route is Array or event.rescue_route.size()<2 or event.rescue_route.size()>Rescue.ROUTE_LIMIT:return false
+			for point in event.rescue_route:
+				if not model.terrain.contains(Terrain.unpack(point)):return false
+		if event.has("transport_mode") and event.transport_mode not in ["ski_stretcher","snowcat"]:return false
+		for key in ["return_started","return_duration","treatment_duration"]:
+			if event.has(key) and (not Terrain.number(event[key]) or event[key]<0 or event[key]>1000000000):return false
 		if event.get("reason") not in ["fatigue", "collision", "evacuation", "navigation"]: return false
 	for centre in state.cost_centres:
 		if not centre is String or centre.length() > 100 or not Terrain.number(state.cost_centres[centre]) or state.cost_centres[centre] < 0: return false
