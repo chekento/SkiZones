@@ -272,35 +272,42 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	return {"ok": true, "message": L.text("Resort gespeichert.")}
 
 static func _read(path: String, progress: RefCounted = null) -> Dictionary:
+	# Sanitized, read-only reason codes. Do not log user-authored payloads.
 	if progress != null: progress.report(3.0, L.text("Spielstand lesen …"))
 	var file := FileAccess.open(path, FileAccess.READ)
-	if file == null or file.get_length() > MAX_BYTES:
-		return {"ok": false, "message": L.text("Kein gültiger Spielstand gefunden.")}
+	if file == null:
+		return {"ok": false, "code": "missing_or_unreadable", "bytes": 0, "message": L.text("Kein gültiger Spielstand gefunden.")}
+	var size: int = file.get_length()
+	if size > MAX_BYTES:
+		file.close()
+		return {"ok": false, "code": "size_limit", "bytes": size, "message": L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
+	var source: String = file.get_as_text()
+	file.close()
 	var parser := JSON.new()
-	if parser.parse(file.get_as_text()) != OK:
-		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
+	if parser.parse(source) != OK:
+		return {"ok": false, "code": "invalid_json", "bytes": size, "parse_line": parser.get_error_line(), "message": L.text("Beschädigte Spielstand-Datei.")}
 	var parsed: Variant = parser.data
 	if not parsed is Dictionary:
-		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
-	# Only pre-checksum APKs used unwrapped JSON (schema versions 1–6).
-	# Current schemas (7–17) must always carry their verified envelope.
-	# An envelope with a missing/incorrect checksum is NEVER treated as raw.
+		return {"ok": false, "code": "not_object", "bytes": size, "message": L.text("Beschädigte Spielstand-Datei.")}
+	# Only actual pre-checksum schemas 1–6 may be unsigned.
+	# Even a partially present envelope must never bypass validation.
 	if not parsed.has("format") and not parsed.has("checksum") and not parsed.has("payload"):
 		var version: Variant = parsed.get("version")
 		if (version is int or version is float) and float(version) == floorf(float(version)) and version >= 1 and version <= 6 and parsed.get("pistes") is Array and parsed.get("lifts") is Array and parsed.get("buildings") is Array and parsed.get("guests") is Array and parsed.get("map_id", "sonnenhang") is String and parsed.get("money") != null and parsed.get("day") != null:
-			return {"ok": true, "data": parsed, "legacy_raw": true}
-		return {"ok": false, "message": L.text("Unbekanntes historisches Speicherformat. Originaldatei bleibt erhalten.")}
+			return {"ok": true, "code": "ok_legacy", "bytes": size, "schema_version": int(version), "data": parsed, "legacy_raw": true}
+		return {"ok": false, "code": "unsupported_raw_schema", "bytes": size, "schema_version": int(version) if version is int or version is float else -1, "message": L.text("Unbekanntes historisches Speicherformat. Originaldatei bleibt erhalten.")}
 	if parsed.get("format") != "SkiZones" or not parsed.get("payload") is String or not parsed.get("checksum") is String:
-		return {"ok": false, "message": L.text("Beschädigte Spielstand-Datei.")}
+		return {"ok": false, "code": "invalid_envelope", "bytes": size, "message": L.text("Beschädigte Spielstand-Datei.")}
 	if progress != null: progress.report(7.0, L.text("Prüfsumme kontrollieren …"))
 	if parsed.payload.sha256_text() != parsed.checksum:
-		return {"ok": false, "message": L.text("Die Prüfsumme des Spielstands stimmt nicht.")}
+		return {"ok": false, "code": "checksum_mismatch", "bytes": size, "message": L.text("Die Prüfsumme des Spielstands stimmt nicht.")}
 	if parser.parse(parsed.payload) != OK:
-		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
+		return {"ok": false, "code": "invalid_payload_json", "bytes": size, "parse_line": parser.get_error_line(), "message": L.text("Beschädigte Spielstand-Daten.")}
 	var payload: Variant = parser.data
 	if not payload is Dictionary:
-		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
-	return {"ok": true, "data": payload}
+		return {"ok": false, "code": "invalid_payload_shape", "bytes": size, "message": L.text("Beschädigte Spielstand-Daten.")}
+	var schema: Variant = payload.get("version", -1)
+	return {"ok": true, "code": "ok", "bytes": size, "schema_version": int(schema) if schema is int or schema is float else -1, "data": payload}
 
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress

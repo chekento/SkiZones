@@ -86,15 +86,19 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		var normal:=false
 		var salvage:=false
 		var detail: String=str(read.get("message",""))
+		var code: String=str(read.get("code","unknown"))
+		if read.ok and not valid:code="wrong_slot_or_map"
 		if valid:
 			good+=1
 			var probe: Dictionary = Saves.probe_restore(read.data,model_script)
 			normal=bool(probe.ok and probe.get("exact",false))
 			salvage=bool(probe.ok and not probe.get("exact",false))
-			if not probe.ok:detail=str(probe.get("message",L.text("Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel.")))
+			if not probe.ok:
+				code="semantic_incompatible"
+				detail=str(probe.get("message",L.text("Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel.")))
 		if normal:exact+=1
 		elif salvage:recovery+=1
-		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":detail})
+		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"code":code,"bytes":int(read.get("bytes",0)),"schema_version":int(read.get("schema_version",-1)),"parse_line":int(read.get("parse_line",0)),"message":detail})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
 ## Prefer intact backups, then normalize a recoverable checksum-verified source.
