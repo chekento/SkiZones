@@ -1321,7 +1321,7 @@ func service_load(id: int, excluding: int = -1) -> int:
 
 func service_capacity(building: Dictionary) -> int:
 	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
-	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
+	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5) * Ops.building_efficiency(self,building))
 
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if (not Ops.continuous(self) and minute >= CLOSING) or guest.get("heading_home",false): return {}
@@ -1356,6 +1356,8 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 			var session: float=minf(60 if building.kind=="disco" else 45,guest.stay-guest.age-travel-0.5)
 			if session<=0: continue
 			visit_minutes=session*time_divisor
+		if not restroom and not night_activity:
+			visit_minutes=maxf(2.0,visit_minutes/Ops.building_efficiency(self,building))
 		var pause := _edge(door_key,door_key,"visit",building.id,[entrance,entrance],visit_minutes)
 		var route := {"target":0,"origin":graph.nodes[source],"legs":_merge_ski_legs(outbound.legs+[pause]+home.legs)}
 		var time := route_minutes(route,guest)
