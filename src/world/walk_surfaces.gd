@@ -147,17 +147,30 @@ func _add_cell(view: Node3D, cell: Vector2i) -> void:
 				var bank := clampf(float(vertex.d)/edge,0,1)
 				var at: Vector3=view.surface_position(vertex.point) + Vector3.UP * 0.045 if _wear else view.ground_position(vertex.point,0.095+sin(bank*PI)*0.018)
 				var tint: Dictionary = _tint
-				var color := Color(tint.snow).lerp(Color(tint.wood),vertex.tone*0.22)
-				if vertex.surface != "snow": color = Color(Design.SURFACES[vertex.surface].color).lerp(Color(tint.stone),0.20)
-				if visual_style == "monochrome": color = Color("eeeeee") if vertex.surface == "snow" else Color("bcbcbc")
-				if festival_season in ["advent","christmas"]: color=color.lerp(Color("c5e2d4"),0.18)
-				if festival_season in ["new_year_eve","new_year"]: color=color.lerp(Color("bcdaed"),0.24)
-				if _wear: color = Color("a8c5d0").lerp(Color("dae7ed"),smoothstep(-0.4,edge,float(vertex.d)))
-				else: color=color.lerp(Color(tint.snow),smoothstep(-0.8,edge,float(vertex.d)))
+				var color := surface_tint(vertex.surface,vertex.tone,vertex.d,edge,tint,visual_style,festival_season,_wear)
 				_mesh_tool.set_uv(vertex.grain)
 				_mesh_tool.set_uv2(Vector2(Design.SURFACES.keys().find(vertex.surface), 1.0-smoothstep(-0.8,edge,float(vertex.d))))
 				_mesh_tool.set_color(color)
 				_mesh_tool.add_vertex(at)
+
+## 0.40: Give snow-on-snow walkways a readable, compacted blue-grey
+## centre and a soft snow-bank transition. The walking graph, widths and
+## collision/picking mesh stay unchanged. Keeping this in one function also
+## makes every seasonal and monochrome palette consistent.
+static func surface_tint(surface: String, tone: float, distance: float, border: float, tint: Dictionary, style: String, season: String, wear: bool = false) -> Color:
+	var snow := Color(tint.snow)
+	var core := snow.lerp(Color("7297aa"),0.56)
+	var color := core.lerp(Color(tint.wood),clampf(tone,0.0,1.0)*0.18)
+	if surface != "snow":
+		color=Color(Design.SURFACES.get(surface,Design.SURFACES.snow).color).lerp(Color(tint.stone),0.20)
+	if style=="monochrome":
+		color=Color("c3c3c3") if surface=="snow" else Color("bcbcbc")
+	if season in ["advent","christmas"]: color=color.lerp(Color("c5e2d4"),0.18)
+	if season in ["new_year_eve","new_year"]: color=color.lerp(Color("bcdaed"),0.24)
+	if wear: return Color("a8c5d0").lerp(Color("dae7ed"),smoothstep(-0.4,border,distance))
+	# Keep a dark enough interior to read against the white mountain.
+	# Feather the edge into the surrounding snow instead of cutting it off.
+	return color.lerp(snow,smoothstep(-0.8,border,distance))
 
 func _finish() -> void:
 	if not _wear:
