@@ -127,7 +127,7 @@ static func tick(model: RefCounted) -> void:
 		if not building.enabled or not model.Hospitality.config(building).auto_clean or not model.Ops.building_staffed(model,building):continue
 		var team := 0
 		for person in model.operations.staff:
-			if person.assignment=="building:%d"%int(building.id) and person.role in ["hotel","security"] and model.Ops.on_duty(model,person):team+=1
+			if person.assignment=="building:%d"%int(building.id) and person.role in ["hotel","security","housekeeping"] and model.Ops.on_duty(model,person):team+=1
 		# Self-check-in units use the contracted cleaning already in upkeep.
 		if model.Ops.building_roles(str(building.kind)).is_empty():team=1
 		for room in state.rooms:
