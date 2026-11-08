@@ -24,6 +24,7 @@ const DEFAULT := {
 	"peak_count": 7,
 	"peak_height": 850,
 	"forest": 55,
+	"tree_count": 2400,
 	"lake_count": 1,
 	"village_count": 2,
 	"ridge_angle": 20,
@@ -51,7 +52,7 @@ static func validate(values: Dictionary) -> Dictionary:
 		return {"ok":false,"error":"Invalid map name"}
 	var limits := {
 		"seed":[0,2147483647], "peak_count":[1,24], "peak_height":[80,2800],
-		"forest":[0,100], "lake_count":[0,8], "village_count":[0,8],
+		"forest":[0,100], "tree_count":[0,12000], "lake_count":[0,8], "village_count":[0,8],
 		"ridge_angle":[0,359], "valley_width":[0,100], "plateau_width":[0,100],
 		"rolling_hills":[0,100], "snowline":[100,3500],
 		"erosion":[0,100], "avalanche_risk":[0,100]
@@ -128,7 +129,7 @@ static func generate(options: Dictionary = {}) -> Dictionary:
 		"start_lift":"drag","start_bottom":[140,180],"start_top":[155,-180],
 		"budget":400000,"start":"Eigenes Basislager",
 		"sky":"bfd8ed","ground":"e4eff6","trees":"688578",
-		"map_creator":true,"tree_density":int(config.forest),
+		"map_creator":true,"tree_density":int(config.forest),"tree_count":int(config.tree_count),
 		"lake_count":int(config.lake_count),"village_count":int(config.village_count),
 		"erosion":int(config.erosion),"avalanche_risk":int(config.avalanche_risk),
 		"exposure":config.exposure,"snowline":int(config.snowline)
