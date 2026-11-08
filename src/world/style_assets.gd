@@ -64,11 +64,28 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 		return a.finish()
 	match style:
 		"comic":
-			a.soft_box(Vector3(0,h*.5,0),s,body,Vector3.ZERO,.9)
-			a.box(Vector3(0,h+2,0),Vector3(w+2,2,d+2),Color("26304a"))
-			a.roof(w+4,d,h+2)
-			a.soft_box(Vector3(w*.28,h+7,0),Vector3(4,9,4),trim,Vector3(0,0,.1),.8)
-			for x in [-w*.43,w*.43]:a.box(Vector3(x,h*.5,d*.5+.3),Vector3(1.4,h,1),Color("26304a"))
+			# Deliberately exaggerated cartoon architecture, not a color filter:
+			# oversized silhouette, thick ink-like framing, huge dormers,
+			# chunky snowcap and high-contrast window geometry.
+			var ink := Color("192443")
+			var candy := Color("ffcd57")
+			a.soft_box(Vector3(0,h*.5,0),Vector3(w*1.08,h,d*1.06),body.lightened(.16),Vector3.ZERO,1.8)
+			a.box(Vector3(0,h+1.5,0),Vector3(w*1.18,3.2,d*1.17),ink)
+			a.roof(w*1.2,d*1.13,h+3.0)
+			# Roof snow is an actual oversized mesh volume.
+			a.soft_box(Vector3(0,h+7,0),Vector3(w*1.16,2.8,d*.48),snow,Vector3.ZERO,1.6)
+			for side in [-1,1]:
+				a.soft_box(Vector3(side*w*.31,h+8,d*.07),Vector3(w*.23,11,d*.28),trim,Vector3.ZERO,1.3)
+				a.box(Vector3(side*w*.31,h+8,d*.22),Vector3(w*.14,5,.9),ink)
+				a.box(Vector3(side*w*.31,h+8,d*.23),Vector3(w*.10,3,1.1),candy)
+				a.box(Vector3(side*w*.48,h*.5,0),Vector3(2.2,h*1.03,d*1.08),ink)
+			for x in [-w*.29,w*.29]:
+				a.box(Vector3(x,h*.55,d*.54),Vector3(6.8,6.8,1.5),ink)
+				a.box(Vector3(x,h*.55,d*.58),Vector3(4.8,4.8,1.5),Color("86e7ff"))
+				a.box(Vector3(x,h*.55,d*.65),Vector3(.9,5.0,.45),ink)
+				a.box(Vector3(x,h*.55,d*.66),Vector3(5.0,.9,.45),ink)
+			a.soft_box(Vector3(0,3.6,d*.57),Vector3(5.2,7.2,1.6),ink,Vector3.ZERO,.9)
+			a.box(Vector3(0,4,d*.67),Vector3(3.4,5.4,1),candy)
 		"pastel":
 			a.soft_box(Vector3(0,h*.5,0),s,body.lightened(.2),Vector3.ZERO,2)
 			a.sphere(Vector3(0,h,0),w*.52,snow,Vector3(1,.36,d/w))
