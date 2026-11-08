@@ -10478,3 +10478,54 @@ msgstr "Normal"
 
 msgid "Störung / Personal"
 msgstr "Fault / staff"
+
+msgid "FROHE"
+msgstr "MERRY"
+
+msgid "WEIHNACHTEN"
+msgstr "CHRISTMAS"
+
+msgid "ALPEN"
+msgstr "ALPINE"
+
+msgid "ADVENT"
+msgstr "ADVENT"
+
+msgid "FEST"
+msgstr "FESTIVAL"
+
+msgid "AM BERG"
+msgstr "ON THE MOUNTAIN"
+
+msgid "FROHES"
+msgstr "HAPPY"
+
+msgid "NEUES JAHR"
+msgstr "NEW YEAR"
+
+msgid "SILVESTER"
+msgstr "NEW YEAR'S EVE"
+
+msgid "COUNTDOWN"
+msgstr "COUNTDOWN"
+
+msgid "AM GIPFEL"
+msgstr "AT THE SUMMIT"
+
+msgid "NEUE PISTEN"
+msgstr "NEW SKI SLOPES"
+
+msgid "1. NOVEMBER – 26. DEZEMBER"
+msgstr "NOVEMBER 1 – DECEMBER 26"
+
+msgid "27. DEZEMBER – 1. JANUAR"
+msgstr "DECEMBER 27 – JANUARY 1"
+
+msgid "SKIZONES · WEIHNACHTSPLAKATE"
+msgstr "SKIZONES · CHRISTMAS POSTERS"
+
+msgid "SKIZONES · NEUJAHRSPLAKATE"
+msgstr "SKIZONES · NEW YEAR POSTERS"
+
+msgid "SKIZONES · WINTER AM BERG"
+msgstr "SKIZONES · WINTER ON THE MOUNTAIN"

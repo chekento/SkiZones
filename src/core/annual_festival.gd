@@ -41,6 +41,16 @@ static func season(date: Dictionary) -> String:
 static func preview_poster(date: Dictionary) -> bool:
 	return valid_date(date) and int(date.month)==11 and int(date.day)>=1 and int(date.day)<=30
 
+## Billboard campaigns are separate from Advent doors, awards and festivities.
+## 1 Nov–26 Dec: Christmas; 27 Dec–1 Jan: New Year, including year rollover.
+static func poster_campaign(date: Dictionary) -> String:
+	if not valid_date(date): return ""
+	var month: int=int(date.month)
+	var day: int=int(date.day)
+	if month==11 or (month==12 and day<=26):return "christmas"
+	if (month==12 and day>=27) or (month==1 and day==1):return "new_year"
+	return ""
+
 static func visible(date: Dictionary) -> bool:
 	return season(date)!=""
 

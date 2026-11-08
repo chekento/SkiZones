@@ -4,6 +4,8 @@ extends RefCounted
 const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
 const Calendar = preload("res://src/core/annual_festival.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
+const Posters = preload("res://src/core/seasonal_billboards_040.gd")
+const L = preload("res://src/core/i18n.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 var store := Calendar.new()
@@ -52,52 +54,15 @@ func build(view: Node3D) -> void:
 	clock_label=null
 	firework_nodes.clear()
 	poster_sites.clear()
-	var now:=date_now()
-	var stage:=Calendar.season(now)
-	if Calendar.preview_poster(now): stage="november_poster"
-	_world_key="%d:%s" % [int(now.get("year",0)),stage]
-	if stage=="": return
-	if stage=="november_poster":
-		# Reuse the confirmed original art if its bytes are subsequently supplied.
-		# Until then there is a sharply drawn, original on-site billboard and a
-		# full-screen vector fallback. Never fabricate the original artwork.
-		var mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
-		mesh.surface_set_material(0,view._solid)
-		var original_path: String="res://assets/seasonal/christmas_poster_original.webp"
-		var original_image: Texture2D=load(original_path) as Texture2D if ResourceLoader.exists(original_path) else null
-		for index in range(3):
-			var at: Vector2=Vector2.INF
-			for step in range(20):
-				var angle: float=float(index)*TAU/3.0+float(step)*0.31
-				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
-				if _valid_place(view,candidate):
-					at=candidate
-					break
-			if not at.is_finite(): continue
-			poster_sites.append(at)
-			var board:=MeshInstance3D.new()
-			board.mesh=mesh
-			board.position=view.terrain.world(at,0.25)
-			board.rotation.y=float(index)*1.25
-			board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			root.add_child(board)
-			var sign:=Label3D.new()
-			sign.text="SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
-			sign.font_size=39
-			sign.pixel_size=0.021
-			sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-			sign.outline_size=4
-			sign.position=Vector3(0,5.0,0.85)
-			board.add_child(sign)
-			if original_image!=null:
-				var picture:=Sprite3D.new()
-				picture.texture=original_image
-				picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-				picture.pixel_size=0.015
-				picture.position=Vector3(0,5,1.2)
-				board.add_child(picture)
-				sign.hide()
-		return
+	var now: Dictionary=date_now()
+	var stage: String=Calendar.season(now)
+	var campaign: String=Calendar.poster_campaign(now)
+	# Rebuild on date changes so a daily rotation and the 26/27 Dec
+	# campaign boundary appear without restarting or changing a save.
+	_world_key="%d:%02d:%02d:%s:%s" % [int(now.get("year",0)),int(now.get("month",0)),int(now.get("day",0)),stage,campaign]
+	if stage=="" and campaign=="":return
+	if campaign!="":_build_posters(view,now,campaign)
+	if stage=="":return
 	_decorate_buildings(view,stage)
 	var owned: Array=store.overview(now).owned
 	# Central free seasonal ambience. Bought decors are additional objects.
@@ -164,6 +129,55 @@ func build(view: Node3D) -> void:
 			firework_nodes.append(obj)
 	_update_clock(now)
 
+## Real, non-colliding signs are shown alongside December decorations.
+## Four distinct rotating placements use original procedural art if no custom
+## variant image has been installed in assets/seasonal.
+func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
+	var mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
+	mesh.surface_set_material(0,view._solid)
+	var images: Dictionary={}
+	for index in range(4):
+		var at: Vector2=Vector2.INF
+		for step in range(36):
+			var angle: float=float(index)*TAU/4.0+float(step)*0.28
+			var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(78.0+float(step%9)*19.0)
+			if not _valid_place(view,candidate):continue
+			if poster_sites.any(func(site):return site.distance_to(candidate)<27.0):continue
+			at=candidate
+			break
+		if not at.is_finite():continue
+		poster_sites.append(at)
+		var info: Dictionary=Posters.info(now,index)
+		var variant: int=int(info.variant)
+		if not images.has(variant):
+			var custom_path: String="res://assets/seasonal/%s_%d.webp" % [campaign,variant+1]
+			images[variant]=load(custom_path) as Texture2D if ResourceLoader.exists(custom_path) else Posters.texture(campaign,variant,view.visual_style=="monochrome")
+		var board:=MeshInstance3D.new()
+		board.name="Poster %s %d" % [campaign,index+1]
+		board.set_meta("poster_campaign",campaign)
+		board.set_meta("poster_variant",variant)
+		board.mesh=mesh
+		board.position=view.terrain.world(at,0.25)
+		board.rotation.y=float(index)*TAU/4.0
+		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(board)
+		var picture:=Sprite3D.new()
+		picture.texture=images[variant]
+		picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		picture.pixel_size=0.026
+		picture.position=Vector3(0,4.6,0.95)
+		picture.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		board.add_child(picture)
+		var sign:=Label3D.new()
+		sign.text="SKIZONES\n%s\n%s\n%s" % [L.text(str(info.title)),L.text(str(info.subtitle)),L.text(str(info.dates))]
+		sign.font_size=31
+		sign.pixel_size=0.013
+		sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		sign.outline_size=8
+		sign.modulate=Color("f8f7e8") if view.visual_style!="monochrome" else Color.WHITE
+		sign.position=Vector3(0,5.15,1.27)
+		board.add_child(sign)
+
 func _update_clock(now: Dictionary) -> void:
 	if not is_instance_valid(clock_label): return
 	var seconds:=Calendar.countdown(now)
@@ -182,7 +196,7 @@ func update(view: Node3D, delta: float) -> void:
 	if _poll>=12.0:
 		_poll=0.0
 		var date:=date_now()
-		var key:="%d:%s" % [int(date.get("year",0)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
+		var key:="%d:%02d:%02d:%s:%s" % [int(date.get("year",0)),int(date.get("month",0)),int(date.get("day",0)),Calendar.season(date),Calendar.poster_campaign(date)]
 		if key!=_world_key: build(view)
 
 

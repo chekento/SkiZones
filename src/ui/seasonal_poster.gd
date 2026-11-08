@@ -4,6 +4,8 @@ extends Control
 const Styles=preload("res://src/core/visual_styles.gd")
 const L=preload("res://src/core/i18n.gd")
 const Fallback=preload("res://src/ui/seasonal_poster_art.gd")
+const Calendar=preload("res://src/core/annual_festival.gd")
+const Posters=preload("res://src/core/seasonal_billboards_040.gd")
 const ORIGINAL_PATH="res://assets/seasonal/christmas_poster_original.webp"
 var fallback:=Fallback.new()
 var picture:=TextureRect.new()
@@ -46,14 +48,26 @@ func _ready() -> void:
 	dismiss.custom_minimum_size.y=55
 	dismiss.pressed.connect(hide)
 	stack.add_child(dismiss)
-	if ResourceLoader.exists(ORIGINAL_PATH):
-		picture.texture=load(ORIGINAL_PATH) as Texture2D
-	picture.visible=picture.texture!=null
-	fallback.visible=not picture.visible
+	# Select the actual campaign at open time, never cache November imagery.
+	picture.visible=false
+	fallback.visible=true
 	hide()
 
-func open(style: String) -> void:
+func open(style: String, date: Dictionary = {}) -> void:
+	var today: Dictionary=Calendar.device_now() if date.is_empty() else date
+	var info: Dictionary=Posters.info(today,0)
+	if info.is_empty():
+		hide()
+		return
+	var campaign: String=str(info.campaign)
 	fallback.style_id=Styles.valid(style)
+	fallback.campaign=campaign
+	fallback.variant=int(info.variant)
+	head.text=L.text("SKIZONES · WEIHNACHTSPLAKATE") if campaign=="christmas" else L.text("SKIZONES · NEUJAHRSPLAKATE")
+	var custom_path: String="res://assets/seasonal/%s_%d.webp" % [campaign,int(info.variant)+1]
+	picture.texture=load(custom_path) as Texture2D if ResourceLoader.exists(custom_path) else null
+	picture.visible=picture.texture!=null
+	fallback.visible=not picture.visible
 	fallback.queue_redraw()
 	var accent:=Color(str(Styles.ui_palette(style).accent))
 	var panel_style:=StyleBoxFlat.new()

@@ -25,6 +25,16 @@ func run() -> void:
 	var dec24: Dictionary={"year":2026,"month":12,"day":24,"hour":15,"minute":0,"second":0}
 	var dec31: Dictionary={"year":2026,"month":12,"day":31,"hour":23,"minute":59,"second":57}
 	check(Calendar.season({"year":2026,"month":11,"day":30})=="" and Calendar.season({"year":2027,"month":1,"day":2})=="","Winter event stays disabled outside its annual dates")
+	# Posters have a deliberately broader campaign than Advent doors.
+	for day in [1,15,30]:
+		check(Calendar.poster_campaign({"year":2026,"month":11,"day":day})=="christmas","November %d shows Christmas posters" % day)
+	for day in [1,24,25,26]:
+		check(Calendar.poster_campaign({"year":2026,"month":12,"day":day})=="christmas","December %d still shows Christmas posters" % day)
+	for day in [27,28,29,30,31]:
+		check(Calendar.poster_campaign({"year":2026,"month":12,"day":day})=="new_year","December %d shows New Year posters" % day)
+	check(Calendar.poster_campaign({"year":2027,"month":1,"day":1})=="new_year","January 1 still shows New Year posters across the year boundary")
+	check(Calendar.poster_campaign({"year":2027,"month":1,"day":2})=="" and Calendar.poster_campaign({"year":2026,"month":10,"day":31})=="","Poster campaigns end on January 1 and begin November 1")
+	check(Calendar.poster_campaign({"year":2026,"month":2,"day":30})=="","Invalid leap dates never activate billboards")
 	check(Calendar.season(dec6)=="advent" and Calendar.unlocked(dec6,6) and not Calendar.unlocked(dec6,7),"Advent unlocks daily by device-local calendar day")
 	check(Calendar.reward(6)>Calendar.reward(5) and Calendar.reward(24)>Calendar.reward(6),"Nikolaus and Christmas Eve provide distinctive larger gifts")
 	check(cal.claim(6,dec6).ok and not cal.claim(6,dec6).ok,"The same yearly Advent door pays exactly once")
