@@ -8,21 +8,45 @@ const FACILITIES := {
 	"driver":["maintenance"], "rescue":["first_aid"], "snow":["snowmaker"],
 	"hotel":["hotel","grand_hotel","guesthouse","chalet","apartment","cabin"],
 	"catering":["restaurant","pizzeria","bar","cocoa","schmarrn","kiosk","lodge"],
-	"security":[]
+	"security":[],
+	"chef":["restaurant","pizzeria","schmarrn","lodge"],
+	"waiter":["restaurant","pizzeria","schmarrn","lodge"],
+	"vendor":["kiosk","cocoa","souvenir","newsstand"],
+	"bartender":["bar","disco"],
+	"reception":["hotel","grand_hotel","guesthouse","chalet","apartment","cabin"],
+	"housekeeping":["hotel","grand_hotel","guesthouse","chalet","apartment","cabin","pool","spa"],
+	"lifeguard":["pool"],"therapist":["spa"],"instructor":["school"],
+	"equipment_fitter":["rental"],"trainer":["fitness"],
+	"artisan":["craftshop","printing_press"],"horologist":["watchmaker"]
+}
+const SPECIALTIES := {
+	"chef":"Küchenorganisation und Speisenzubereitung",
+	"waiter":"Gästeservice und Tischumschlag",
+	"vendor":"Kundenservice und Warenausgabe",
+	"bartender":"Getränkeservice und schnelle Bedienung",
+	"reception":"Gästeempfang und Zimmerkoordination",
+	"housekeeping":"Zimmerpflege und schnellere Reinigung",
+	"lifeguard":"Badeaufsicht und Besuchersicherheit",
+	"therapist":"Wellnessbehandlungen und Servicequalität",
+	"instructor":"Skiunterricht und sichere Abfahrten",
+	"equipment_fitter":"Materialanpassung und schnelle Ausleihe",
+	"trainer":"Fitnessbetreuung und Kursdurchführung",
+	"artisan":"Handwerk und Reparaturservice",
+	"horologist":"Uhrmacherwerkstatt und feine Mechanik"
 }
 static func market(model: RefCounted) -> Array:
 	var result: Array=[]
 	var roles: Array=Ops.ROLES.keys()
-	for i in range(NAMES.size()):
+	for i in range(maxi(NAMES.size(),roles.size()*2)):
 		var role: String=str(roles[i % roles.size()])
 		var level: int=1 if i < roles.size() else 2
 		var id: String="applicant-%02d" % i
 		var reason: String=gate(model,role,level)
 		var already: bool=model.operations.staff.any(func(p):return str(p.get("applicant_id",""))==id)
 		result.append({
-			"id":id,"name":NAMES[i],"role":role,"qualification":level,
+			"id":id,"name":NAMES[i % NAMES.size()],"role":role,"qualification":level,
 			"experience":2+i*3,"motivation":77+(i%5)*4,
-			"specialty": ["Gästebetreuung","Sicherheitsroutinen","Nachtdienst","Bergwetter","Teamkoordination","Technikdiagnose"][i%6],
+			"specialty": SPECIALTIES.get(role,["Gästebetreuung","Sicherheitsroutinen","Nachtdienst","Bergwetter","Teamkoordination","Technikdiagnose"][i%6]),
 			"fee":180 if level==1 else 380,
 			"reason":"Bereits eingestellt" if already else reason,
 			"available":reason.is_empty() and not already
