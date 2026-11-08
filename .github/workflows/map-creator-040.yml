@@ -33,7 +33,8 @@ jobs:
         if: steps.godot-cache.outputs.cache-hit != 'true'
         run: bash tools/install_godot.sh
       - name: Import current project and resolve preload dependencies
-        run: "$GODOT_BIN" --headless --editor --import --quit
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
       - name: Parse independent map creator and preview scripts
         run: |
           "$GODOT_BIN" --headless --check-only --script res://src/core/map_creator_040.gd
