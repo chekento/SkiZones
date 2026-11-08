@@ -10529,3 +10529,6 @@ msgstr "SKIZONES · NEW YEAR POSTERS"
 
 msgid "SKIZONES · WINTER AM BERG"
 msgstr "SKIZONES · WINTER ON THE MOUNTAIN"
+
+msgid "Poster %s %d"
+msgstr "Poster %s %d"
