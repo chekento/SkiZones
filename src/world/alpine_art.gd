@@ -185,6 +185,36 @@ func tree_variant(style_id: String, species: int, simplified: bool = false) -> A
 	return finish()
 
 func landscape_detail(kind: int, style_id: String = "alpine") -> ArrayMesh:
+	if style_id=="comic" and kind in [0,3,5,10,11,17]:
+		# Large, readable silhouettes rather than recolored realistic scenery.
+		# Each generated variant remains one batched ArrayMesh for mobile LOD.
+		var rock:=Color("536f9a")
+		var edge:=Color("233954")
+		var snowcap:=Color("f5fdff")
+		match kind:
+			0:
+				for i in range(3):
+					var x: float=float(i-1)*1.8
+					soft_box(Vector3(x,.8,0),Vector3(2.4,1.8,2.1),edge,Vector3(0,float(i)*.28,0),.38)
+					soft_box(Vector3(x,1.05,.1),Vector3(2.1,1.5,1.9),rock,Vector3(0,float(i)*.28,0),.32)
+					soft_box(Vector3(x,1.85,.1),Vector3(2.0,.42,1.85),snowcap,Vector3.ZERO,.24)
+			3:
+				for i in range(3):
+					var x: float=float(i-1)*1.65
+					sphere(Vector3(x,.55,0),1.65,snowcap,Vector3(1.1,.6,.85))
+					sphere(Vector3(x,1.1,-.3),1.15,Color("d9f0ff"),Vector3(1.1,.45,.75))
+			5,10:
+				var scale_value: float=1.0 if kind==5 else .72
+				soft_box(Vector3(0,1.6*scale_value,0),Vector3(4.2,3.4,3.4)*scale_value,edge,Vector3(0,.32,.12),.42)
+				soft_box(Vector3(0,1.8*scale_value,0),Vector3(3.8,3.0,3.1)*scale_value,rock,Vector3(0,.32,.12),.35)
+				soft_box(Vector3(-.15,3.25*scale_value,0),Vector3(4.3,.55,3.4)*scale_value,snowcap,Vector3(0,.32,0),.24)
+			11,17:
+				for i in range(3):
+					var x: float=float(i-1)*1.4
+					cone(Vector3(x,1.5,0),1.3,3.2,edge,.06)
+					cone(Vector3(x,1.65,0),1.08,3.0,Color("a2dfff"),.05)
+					cone(Vector3(x,2.65,0),.68,1.05,snowcap,.04)
+		return finish()
 	# The original six Alpine models and their colors remain unchanged.
 	# Alternate styles intentionally change silhouettes and props, not just tint.
 	var colors: Dictionary = VisualStyles.detail_tints(style_id)
