@@ -63,6 +63,20 @@ static func add(office: Control) -> void:
 	hiring.add_child(role_choice)
 	hud._label(hiring, L.text("2 · Einsatzort"), 16, hud.TEAL)
 	var hire_target := _targets(hiring, targets)
+	# Disabled job destinations remain visible for context, but a chef can
+	# never be offered a hotel front-desk or a lift operator's console.
+	var update_compatible := func():
+		var role:String=str(Ops.ROLES.keys()[role_choice.selected])
+		for index in range(targets.size()):
+			var key:String=str(targets[index].key)
+			var allowed:bool=key=="reserve" or role=="operator" and not key.begins_with("building:")
+			if key.begins_with("building:"):
+				var site:Dictionary=model.asset(key.trim_prefix("building:").to_int())
+				allowed=not site.is_empty() and Ops.role_matches_building(role,str(site.kind))
+			hire_target.set_item_disabled(index,not allowed)
+		if hire_target.selected<0 or hire_target.is_item_disabled(hire_target.selected):hire_target.select(0)
+	role_choice.item_selected.connect(func(_index:int):update_compatible.call())
+	update_compatible.call()
 	hud._label(hiring, L.text("3 · Arbeitszeit"), 16, hud.TEAL)
 	var hire_shift := _shifts(hiring)
 	office._action(hiring, L.text("Einstellen · 180 €"), func(): return Ops.hire(model, Ops.ROLES.keys()[role_choice.selected], targets[hire_target.selected].key, Ops.SHIFTS.keys()[hire_shift.selected]))
@@ -147,14 +161,23 @@ static func add(office: Control) -> void:
 		office.refresh()
 	)
 	next_page.disabled=office.candidate_page==max_page-1
-	var applicant_target:=_targets(applicants,targets)
 	var applicant_shift:=_shifts(applicants)
 	for applicant in market.slice(office.candidate_page*6,(office.candidate_page+1)*6):
 		var detail: String=L.text(Ops.ROLES[applicant.role].name)+" · "+L.text("Qualifikation %d") % int(applicant.qualification)+" · "+L.text("%d Jahre Erfahrung") % int(applicant.experience)+" · "+L.text("Motivation %.0f %%") % float(applicant.motivation)
 		var profile: VBoxContainer=office._card(applicants,str(applicant.name),detail)
 		hud._label(profile,L.text("Stärke: ")+L.text(str(applicant.specialty))+" · "+hud.money_text(applicant.fee)+" € "+L.text("Einstellungskosten"),16,hud.TEAL,true)
 		if applicant.available:
-			office._action(profile,L.text("Einstellen"),func():return Recruitment.hire_candidate(model,str(applicant.id),str(targets[applicant_target.selected].key),str(Ops.SHIFTS.keys()[applicant_shift.selected])))
+			var matching:Array=[]
+			for target in targets:
+				var key:String=str(target.key)
+				if key=="reserve" or (applicant.role=="operator" and not key.begins_with("building:")):
+					matching.append(target)
+				elif key.begins_with("building:"):
+					var site:Dictionary=model.asset(key.trim_prefix("building:").to_int())
+					if not site.is_empty() and Ops.role_matches_building(str(applicant.role),str(site.kind)):
+						matching.append(target)
+			var applicant_target:=_targets(profile,matching)
+			office._action(profile,L.text("Einstellen"),func():return Recruitment.hire_candidate(model,str(applicant.id),str(matching[applicant_target.selected].key),str(Ops.SHIFTS.keys()[applicant_shift.selected])))
 		else:
 			hud._label(profile,L.text("Noch gesperrt: ")+L.text(str(applicant.reason)),16,hud.ACCENT,true)
 	var services: VBoxContainer = office._page(L.text("Technik & Rettung"))
