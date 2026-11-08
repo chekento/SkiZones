@@ -114,13 +114,17 @@ func setup(owner:CanvasLayer) -> void:
 	_number(content,"peak_count",_text("Anzahl Berge","Number of peaks"),1,24)
 	_number(content,"peak_height",_text("Gipfelhöhe (m)","Peak height (m)"),80,2800)
 	_number(content,"ridge_angle",_text("Kettenrichtung (°)","Range direction (°)"),0,359)
+	_number(content,"ridge_connectivity",_text("Bergketten-Verbund (%)","Mountain connectivity (%)"),0,100)
 	_number(content,"valley_width",_text("Talbreite (%)","Valley width (%)"),0,100)
 	_number(content,"plateau_width",_text("Plateaufläche (%)","Plateau width (%)"),0,100)
 	_number(content,"rolling_hills",_text("Hügelintensität (%)","Rolling hill intensity (%)"),0,100)
 	_number(content,"tree_count",_text("Anzahl Bäume","Number of trees"),0,12000)
 	_number(content,"forest",_text("Waldanteil (%)","Forest coverage (%)"),0,100)
+	_number(content,"tree_line",_text("Baumgrenze (m)","Tree line (m)"),200,3500)
 	_number(content,"lake_count",_text("Seen","Lakes"),0,8)
+	_number(content,"river_count",_text("Flüsse","Rivers"),0,6)
 	_number(content,"village_count",_text("Dörfer / Startorte","Villages / hubs"),0,8)
+	_number(content,"trailhead_count",_text("Wander- & Rettungszugänge","Trailheads and rescue access"),0,8)
 	_number(content,"snowline",_text("Schneegrenze (m)","Snowline (m)"),100,3500)
 	_number(content,"erosion",_text("Erosion (%)","Erosion (%)"),0,100)
 	_number(content,"avalanche_risk",_text("Lawinenrisiko (%)","Avalanche exposure (%)"),0,100)
@@ -166,7 +170,7 @@ func regenerate() -> void:
 		return
 	preview.set_blueprint(result.map)
 	var map_data:Dictionary=result.map
-	result_label.text=_text("%d Gipfel · %.1f km² · %d Bäume · %d Seen · Seed %d","%d peaks · %.1f km² · %d trees · %d lakes · seed %d") % [map_data.peaks.size(),map_data.bounds.size.x*map_data.bounds.size.y/1000000.0,map_data.tree_count,map_data.lake_count,int(settings.seed)]
+	result_label.text=_text("%d Gipfel · %.1f km² · %d Bäume · %d Seen · %d Dörfer · %d Flüsse · Seed %d","%d peaks · %.1f km² · %d trees · %d lakes · %d villages · %d rivers · seed %d") % [map_data.peaks.size(),map_data.bounds.size.x*map_data.bounds.size.y/1000000.0,map_data.tree_count,map_data.lake_count,map_data.village_count,map_data.river_count,int(settings.seed)]
 
 func save_draft() -> void:
 	if not mission_unlocked():return
