@@ -86,6 +86,7 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		var normal:=false
 		var salvage:=false
 		var diagnostic: Dictionary = Saves.diagnose_file(source)
+		var semantic_error: String = ""
 		var detail: String=str(read.get("message",""))
 		if not valid and diagnostic.get("reason", "") != "missing":
 			detail = "%s [%s]" % [detail, str(diagnostic.reason)]
@@ -94,10 +95,13 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 			var probe: Dictionary = Saves.probe_restore(read.data,model_script)
 			normal=bool(probe.ok and probe.get("exact",false))
 			salvage=bool(probe.ok and not probe.get("exact",false))
-			if not probe.ok:detail=str(probe.get("message",L.text("Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel.")))
+			if not probe.ok:
+				semantic_error=str(probe.get("message",L.text("Datei ist lesbar, der Weltzustand ist jedoch nicht kompatibel.")))
+				detail=semantic_error
+				diagnostic.reason="semantic_restore_failed"
 		if normal:exact+=1
 		elif salvage:recovery+=1
-		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":detail,"reason":diagnostic.get("reason", "unknown"),"bytes":diagnostic.get("bytes", 0),"version":diagnostic.get("version", -1)})
+		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":detail,"reason":diagnostic.get("reason", "unknown"),"bytes":diagnostic.get("bytes", 0),"version":diagnostic.get("version", -1),"semantic_error":semantic_error})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
 ## Prefer intact backups, then normalize a recoverable checksum-verified source.
