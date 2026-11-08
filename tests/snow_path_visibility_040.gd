@@ -25,5 +25,5 @@ func _init() -> void:
 	var winter:Color=Walk.surface_tint("snow",0.0,-3.0,3.2,tint,"alpine","christmas")
 	check(difference(winter,snow)>0.08,"Holiday decoration does not erase snow paths")
 	check(difference(Walk.surface_tint("snow",0.0,-3.0,3.2,tint,"alpine","",true),inner)>0.01,"Dynamic foot wear retains its own overlay")
-	print("SNOW PATH VISIBILITY: ",failures," failures")
+	print("RESULT: %d passed; %d failed" % [6 - failures, failures])
 	quit(1 if failures else 0)
