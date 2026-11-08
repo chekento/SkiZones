@@ -45,6 +45,7 @@ func run() -> void:
 	if toggle!=null:toggle.pressed.emit()
 	check(submenu!=null and submenu.visible,"Explicit Manage action reveals recovery, copy and archive controls")
 	check(populated_card.find_child("check_save_038",true,false)!=null and populated_card.find_child("rescue_save_038",true,false)!=null and populated_card.find_child("copy_save_038",true,false)!=null and populated_card.find_child("archive_save_038",true,false)!=null,"Populated careers expose diagnostics, backup rescue, copy and archive in addition to continuation")
+	check(populated_card.find_child("export_save_040",true,false)!=null,"Career manager exposes read-only ZIP export directly in the same Save Manager")
 	first[0].pressed.emit()
 	for frame in range(120):
 		await process_frame
@@ -57,6 +58,21 @@ func run() -> void:
 	(populated_card.find_child("check_save_038",true,false) as Button).pressed.emit()
 	var diagnostic:Label=populated_card.find_child("save_diagnostics",true,false) as Label
 	check(diagnostic.text.contains("ladbar") and FileAccess.get_sha256(source_path)==source_hash,"The actual diagnostic action confirms loadability while preserving the original bytes")
+	var export_action: Button=populated_card.find_child("export_save_040",true,false) as Button
+	if export_action!=null:
+		export_action.pressed.emit()
+		check(diagnostic.text.contains("Diagnosearchiv erstellt") and FileAccess.get_sha256(source_path)==source_hash,"UI export packages the active career without touching its original bytes")
+		var export_dir:DirAccess=DirAccess.open("user://save-diagnostics")
+		var exported:=false
+		if export_dir!=null:
+			for filename in export_dir.get_files():
+				if filename.begins_with("skizones-support-sonnenhang-1-") and filename.ends_with(".zip"):
+					var reader:=ZIPReader.new()
+					if reader.open("user://save-diagnostics/"+filename)==OK:
+						exported=exported or reader.get_files().has("diagnostic.json")
+						reader.close()
+					DirAccess.remove_absolute(ProjectSettings.globalize_path("user://save-diagnostics/"+filename))
+		check(exported,"ZIP exported from the actual career interface includes sanitized diagnostics")
 	var target_path:String=Saves.path_for_map("sonnenhang",2)
 	var target_hash:String=FileAccess.get_sha256(target_path)
 	var copy_target:OptionButton=populated_card.find_child("copy_target",true,false) as OptionButton
