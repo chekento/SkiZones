@@ -1311,6 +1311,30 @@ func _process(delta: float) -> void:
 	for guest in model.guests:
 		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
 			continue
+		if int(guest.get("incident",-1))>=0:
+			# The separate low-poly rescue scene draws a casualty lying down,
+			# never a regular skier upright on top of the patient.
+			var rescued_event:Dictionary={}
+			for event in model.operations.incidents:
+				if int(event.id)==int(guest.incident):
+					rescued_event=event
+					break
+			if not rescued_event.is_empty():
+				var at:Vector3=model.guest_position(guest,simulation_fraction)
+				next_positions[guest.id]=at
+				if follow_guest==int(guest.id):
+					focus=Vector2(at.x,at.z)
+					_follow_position=at
+					_update_camera()
+				if str(rescued_event.reason)=="navigation":
+					# Fear is not an injury: a stationary, upright guest awaits an
+					# escort on the existing route, under an amber indicator.
+					var tint:Color=Color(Motion.COLORS[int(guest.id)%Motion.COLORS.size()])
+					_walkers.multimesh.set_instance_transform(foot_visitors,Transform3D(Basis.IDENTITY,at))
+					_walkers.multimesh.set_instance_color(foot_visitors,Color.WHITE)
+					_walkers.multimesh.set_instance_custom_data(foot_visitors,tint)
+					foot_visitors+=1
+				continue
 		var position_value := Vector3.ZERO
 		var angle := 0.0
 		var lean := 0.0
