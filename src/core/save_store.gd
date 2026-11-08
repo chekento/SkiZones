@@ -342,6 +342,7 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	model.load_progress = progress
 	var verified: Array = []
 	var sources: Array = [path,path+".bak"]
+	var failures: Array = []
 	# Pre-slot saves remain a final, read-only fallback. Never load a former
 	# career into slot 2–4, or a free-play career into a paid slot.
 	var legacy_id := ""
@@ -362,6 +363,9 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	for candidate in sources:
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
+		if not read.ok:
+			if FileAccess.file_exists(candidate): failures.append(diagnose_file(candidate))
+			continue
 		if read.ok:
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
 			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
@@ -383,7 +387,7 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if model.restore(checked.model.snapshot()).ok:
 			return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.") if checked.reset_visitors else L.text("Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert.")}
 
-	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten.")}
+	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten."), "diagnostics": failures, "verified_candidates": verified.size()}
 
 
 # Shared semantic validation for inspect, repair and load. The caller must
