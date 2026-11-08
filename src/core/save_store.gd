@@ -244,7 +244,14 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
 	if FileAccess.file_exists(path):
-		if _read(path).ok:
+		var previous: Dictionary = _read(path)
+		# A structurally valid but unrestorable primary must not overwrite a
+		# potentially working .bak checkpoint.
+		var previous_loadable: bool = false
+		if previous.get("ok", false):
+			var prior_probe: RefCounted = model.get_script().new()
+			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok", false))
+		if previous_loadable:
 			var backup_error: Error = DirAccess.copy_absolute(absolute, absolute + ".bak")
 			if backup_error != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(path + ".bak"):
 				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
