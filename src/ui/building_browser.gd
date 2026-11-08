@@ -9,6 +9,9 @@ var window := FloatingFrame.new()
 var search := LineEdit.new()
 var category := OptionButton.new()
 var grid := GridContainer.new()
+var filters := GridContainer.new()
+var sort_choice := OptionButton.new()
+var ready_only := CheckButton.new()
 var cards: Array = []
 var groups := ["Alle Gebäude","Unterkünfte & Hotels","Verpflegung & Wärme","Sanitär & Infrastruktur","Service & Anreise","Freizeit & Erholung","Betrieb & Sicherheit"]
 var selected_kind := "cabin"
@@ -26,14 +29,27 @@ func setup(owner_hud: CanvasLayer) -> void:
 	window.close_requested.connect(hide)
 	var body: VBoxContainer=window.body
 	hud._label(body,L.text("Gebäude entdecken, vergleichen und direkt am Berg platzieren. Fenster am Titel ziehen; unten rechts die Größe ändern."),15,hud.MUTED,true)
-	var filters := HBoxContainer.new()
+	filters.columns=2
+	filters.add_theme_constant_override("h_separation",10)
+	filters.add_theme_constant_override("v_separation",8)
 	body.add_child(filters)
 	for group in groups: category.add_item(L.text(group))
-	category.custom_minimum_size=Vector2(255,46)
+	category.custom_minimum_size=Vector2(0,46)
+	category.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	filters.add_child(category)
 	search.placeholder_text=L.text("Gebäude suchen …")
 	search.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	filters.add_child(search)
+	sort_choice.custom_minimum_size.y=46
+	for label in ["Preis: günstig zuerst","Preis: teuer zuerst","Betriebskosten: günstig zuerst","Gebäude: A–Z"]:
+		sort_choice.add_item(L.text(label))
+	sort_choice.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	filters.add_child(sort_choice)
+	ready_only.text=L.text("Nur jetzt baubare Gebäude")
+	ready_only.custom_minimum_size.y=46
+	filters.add_child(ready_only)
+	sort_choice.item_selected.connect(func(_index: int):_refresh(true))
+	ready_only.toggled.connect(func(_value: bool):_refresh(true))
 	category.item_selected.connect(func(_index: int): _refresh(true))
 	search.text_changed.connect(func(_text: String): _refresh(true))
 	var scroll := DragScroll.new()
@@ -81,14 +97,17 @@ func setup(owner_hud: CanvasLayer) -> void:
 	var footer := PanelContainer.new()
 	footer.add_theme_stylebox_override("panel",hud._style(Color("e2eadf"),12,12))
 	body.add_child(footer)
+	var footer_body := VBoxContainer.new()
+	footer_body.add_theme_constant_override("separation",8)
+	footer.add_child(footer_body)
 	var row := HBoxContainer.new()
-	footer.add_child(row)
-	preview.custom_minimum_size=Vector2(115,100)
+	footer_body.add_child(row)
+	preview.custom_minimum_size=Vector2(84,84)
 	row.add_child(preview)
 	detail=hud._label(row,"",15,hud.INK,true)
 	detail.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	choose=hud._button(row,L.text("Standort wählen"),_choose,true)
-	choose.custom_minimum_size.x=170
+	choose=hud._button(footer_body,L.text("Standort wählen"),_choose,true)
+	choose.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	hide()
 
 func open() -> void:
@@ -102,19 +121,31 @@ func open() -> void:
 
 func _refresh(force: bool = false) -> void:
 	var model: RefCounted=hud.game.model
-	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)+str(hud.game.view.visual_style)
+	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)+str(hud.game.view.visual_style)+search.text+str(category.selected)+str(sort_choice.selected)+str(ready_only.button_pressed)
 	if state==_state and not force: return
 	_state=state
-	grid.columns=clampi(floori((window.size.x-38)/255),2,4)
+	filters.columns=1 if window.size.x<620 else 2
+	grid.columns=clampi(floori((window.size.x-54)/235),1,4)
+	cards.sort_custom(_comes_before)
+	for i in range(cards.size()):grid.move_child(cards[i].button,i)
+	var first_visible: String=""
+	var selection_visible:=false
 	var query := search.text.strip_edges().to_lower()
 	for card in cards:
 		var spec: Dictionary=Catalog.BUILDINGS[card.kind]
-		var matches: bool=(category.selected==0 or Catalog.building_group(card.kind)==groups[category.selected]) and (query.is_empty() or (L.text(spec.name)+" "+L.text(spec.description)).to_lower().contains(query))
-		card.button.visible=matches
 		var locked: String=model.build_access_message(card.kind,false)
+		var matches: bool=(category.selected==0 or Catalog.building_group(card.kind)==groups[category.selected]) and (query.is_empty() or (L.text(spec.name)+" "+L.text(spec.description)).to_lower().contains(query))
+		matches=matches and (not ready_only.button_pressed or (locked=="" and model.money>=spec.cost))
+		card.button.visible=matches
+		if matches:
+			if first_visible=="": first_visible=card.kind
+			if selected_kind==card.kind:selection_visible=true
 		card.status.text=locked if locked!="" else L.text("Budget reicht noch nicht") if model.money<spec.cost else L.text(Catalog.building_group(card.kind))
 		card.button.add_theme_stylebox_override("normal",hud._style(Color("d6e9dc") if card.kind==selected_kind else Color("fffaf0"),12,8,hud.TEAL if card.kind==selected_kind else Color("d3ded4")))
 		card.button.modulate=Color(0.76,0.80,0.80) if locked!="" else Color.WHITE
+	if not selection_visible and first_visible!="":selected_kind=first_visible
+	for card in cards:
+		card.button.add_theme_stylebox_override("normal",hud._style(Color("d6e9dc") if card.kind==selected_kind else Color("fffaf0"),12,8,hud.TEAL if card.kind==selected_kind else Color("d3ded4")))
 	var spec: Dictionary=Catalog.BUILDINGS[selected_kind]
 	var reason: String=model.build_access_message(selected_kind,false)
 	preview.kind=selected_kind
@@ -122,6 +153,18 @@ func _refresh(force: bool = false) -> void:
 	detail.text=L.text(spec.name)+" · "+hud.money_text(spec.cost)+" €\n"+L.text(spec.description)+(L.text("\nBetrieb: %d €/Tag")%L.args(spec.upkeep))
 	if reason!="": detail.text+="\n"+reason
 	choose.disabled=reason!="" or model.money<spec.cost or not hud.game.points.is_empty()
+
+func _comes_before(a: Dictionary, b: Dictionary) -> bool:
+	var first: Dictionary=Catalog.BUILDINGS[a.kind]
+	var second: Dictionary=Catalog.BUILDINGS[b.kind]
+	match sort_choice.selected:
+		1:
+			if first.cost!=second.cost:return first.cost>second.cost
+		2:
+			if first.upkeep!=second.upkeep:return first.upkeep<second.upkeep
+		3:
+			return L.text(str(first.name)).naturalnocasecmp_to(L.text(str(second.name)))<0
+	return first.cost<second.cost if first.cost!=second.cost else str(a.kind)<str(b.kind)
 
 func _choose() -> void:
 	hud.building_choice.select(Catalog.BUILDINGS.keys().find(selected_kind))
