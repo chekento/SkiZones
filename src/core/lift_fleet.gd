@@ -51,11 +51,12 @@ static func seat_offset(lift: Dictionary, seat: int) -> Vector3:
 
 static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, clock: float, carrier: int, prepared: Dictionary = {}) -> Dictionary:
 	var schedule := layout(lift) if prepared.is_empty() else prepared
+	var lift_family: String=family(lift)
 	var phase := fposmod(clock - carrier * schedule.interval, schedule.cycle)
-	if family(lift) == "carpet":
+	if lift_family == "carpet":
 		var belt_fraction: float = clampf(phase / schedule.ride, 0, 1)
 		var at := Terrain.unpack(lift.bottom).lerp(Terrain.unpack(lift.top), belt_fraction)
-		return {"transform": Transform3D(basis(lift), mountain.world(at, 0.65)), "grip": mountain.world(at, 0.65), "fraction": belt_fraction, "outbound": phase < schedule.ride, "phase": phase, "carrier": carrier}
+		return {"transform": Transform3D(schedule.basis, mountain.world(at, 0.65)), "grip": mountain.world(at, 0.65), "fraction": belt_fraction, "outbound": phase < schedule.ride, "phase": phase, "carrier": carrier}
 	var r: float = schedule.offset
 	var orientation: Basis = schedule.basis
 	var direction := orientation * Vector3.FORWARD * -1
@@ -82,20 +83,28 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 		tangent = -right * sin(angle) - direction * cos(angle)
 	var yaw := atan2(tangent.x, tangent.z)
 	var origin := grip - Vector3.UP * 6
-	if family(lift) == "drag":
+	if lift_family == "drag":
 		origin = mountain.world(Vector2(grip.x, grip.z), 1.15) if outbound else grip - Vector3.UP * 2.4
-	elif family(lift) == "carpet":
+	elif lift_family == "carpet":
 		origin = mountain.world(Vector2(grip.x, grip.z), 0.65)
 	var body_basis := Basis(Vector3.UP, yaw)
-	if family(lift) == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
+	if lift_family == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
 	return {"transform": Transform3D(body_basis, origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
 
 static func _on_cable(profile: Dictionary, fraction: float) -> Vector3:
-	var distance: float = profile.length * clampf(fraction, 0, 1)
-	for index in range(1, profile.points.size()):
-		if distance <= profile.lengths[index]:
-			return profile.points[index - 1].lerp(profile.points[index], (distance - profile.lengths[index - 1]) / maxf(profile.lengths[index] - profile.lengths[index - 1], 0.001))
-	return profile.points[-1]
+	var distance: float=profile.length*clampf(fraction,0.0,1.0)
+	var last: int=profile.lengths.size()-1
+	if last<=0:return profile.points[0]
+	# All cumulative lengths are sorted. Binary interval search preserves the
+	# exact original segment lerp but avoids scanning every tower span for every
+	# moving chair/gondola at 1x, 4x and 8x.
+	var low:=1
+	var high: int=last
+	while low<high:
+		var mid: int=(low+high)/2
+		if distance<=float(profile.lengths[mid]):high=mid
+		else:low=mid+1
+	return profile.points[low-1].lerp(profile.points[low],(distance-profile.lengths[low-1])/maxf(profile.lengths[low]-profile.lengths[low-1],0.001))
 
 
 static func tow_point(mountain: RefCounted, pose: Dictionary) -> Vector3:

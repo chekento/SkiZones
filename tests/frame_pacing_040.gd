@@ -36,6 +36,19 @@ func run() -> void:
 	var lift: Dictionary=model.lifts[0]
 	var profile: Dictionary=model.cable_profile(lift)
 	var schedule: Dictionary=model.fleet_layout(lift)
+	# Compare binary segment lookup with the previous linear lookup at
+	# 500 positions, including endpoints. No change in actual cable geometry.
+	var exact_segments:=true
+	for index in range(501):
+		var fraction:float=float(index)/500.0
+		var distance:float=profile.length*fraction
+		var reference:Vector3=profile.points[-1]
+		for segment in range(1,profile.points.size()):
+			if distance<=profile.lengths[segment]:
+				reference=profile.points[segment-1].lerp(profile.points[segment],(distance-profile.lengths[segment-1])/maxf(profile.lengths[segment]-profile.lengths[segment-1],0.001))
+				break
+		exact_segments=exact_segments and reference.distance_to(Fleet._on_cable(profile,fraction))<0.000001
+	check(exact_segments,"Binary cable-section search exactly matches original 500-point physical geometry")
 	for speed in [1,4,8]:
 		var debt:=0.0
 		var steps:=0
