@@ -2,6 +2,7 @@ extends PanelContainer
 ## The selected asset owns its complete operating and staffing controls.
 const L = preload("res://src/core/i18n.gd")
 const Ops = preload("res://src/core/operations.gd")
+const Specialists = preload("res://src/core/specialist_staff_040.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 var hud: CanvasLayer
@@ -280,7 +281,15 @@ func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 func _build_optional_positions(parent: Node,item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
 	var box:=_card(parent,L.text("FREIWILLIGE ZUSATZKRÄFTE"),L.text("Zusätzliche Kräfte erhöhen die Reserve, ersetzen aber keine vorgeschriebene Mindestbesetzung. Jede Einstellung kostet 180 € plus Stundenlohn."))
-	var allowed: Array=["sanitation"] if str(item.kind).begins_with("wc_") else ["hotel","security","catering"] if model.Hospitality.lodging(str(item.kind)) else ["hotel","security"] if str(item.kind) in ["rental","school","souvenir","fitness","newsstand"] else ["catering","security"] if str(item.kind) in ["restaurant","kiosk","pizzeria","bar","disco","lodge","cocoa","schmarrn"] else ["technician","security"] if str(item.kind)=="repair_office" else ["hotel","security"]
+	var allowed: Array=Specialists.optional_roles(str(item.kind))
+	# Legacy mandatory roles stay available where historically required, but
+	# restaurant extras show chefs/waiters, not hotel staff by mistake.
+	if str(item.kind).begins_with("wc_"): allowed=["sanitation"]
+	elif str(item.kind) in ["hotel","grand_hotel","guesthouse"]: allowed.append_array(["hotel","security"])
+	elif str(item.kind)=="repair_office":allowed=["technician","electrician"]
+	elif str(item.kind) in ["bar","disco"]:allowed.append("security")
+	var indicators:Dictionary=Ops.specialist_metrics(model,item)
+	hud._label(box,"Service %.0f %% · Plätze %.0f %% · Qualität %.0f %%" % [float(indicators.throughput)*100.0,float(indicators.capacity)*100.0,float(indicators.quality)*100.0],16,hud.TEAL,true)
 	var target: String="building:%d" % int(item.id)
 	for role in allowed:
 		var shift: String="day" if str(item.kind) not in ["bar","disco"] else "evening"
