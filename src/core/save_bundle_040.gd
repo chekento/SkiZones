@@ -5,6 +5,9 @@ const Saves = preload("res://src/core/save_store.gd")
 const Manager = preload("res://src/core/save_management_038.gd")
 const MAX_FILES := 12
 const MAX_TOTAL_BYTES := 150000000
+# Oversized/corrupt originals must still be exportable for diagnosis even
+# when they exceed the much stricter in-game save loading limit (64 MB).
+const MAX_EXPORT_SOURCE_BYTES := 128000000
 const EXPORT_DIR := "user://save-diagnostics"
 
 static func share_slot_archive(path: String) -> Dictionary:
@@ -42,7 +45,7 @@ static func export_slot(map_id: String, slot: int, free_slot: int = 1) -> Dictio
 			skipped.append({"name": path.get_file(), "reason": "unreadable"})
 			continue
 		var length: int = file.get_length()
-		if length > Saves.MAX_BYTES or total + length > MAX_TOTAL_BYTES or selected.size() >= MAX_FILES:
+		if length > MAX_EXPORT_SOURCE_BYTES or total + length > MAX_TOTAL_BYTES or selected.size() >= MAX_FILES:
 			skipped.append({"name": path.get_file(), "reason": "bundle_limit", "bytes": length})
 			file.close()
 			continue
