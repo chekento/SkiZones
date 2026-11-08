@@ -2,6 +2,7 @@ extends RefCounted
 ## 0.40 operational command center – real numbers, not invented dashboard KPIs.
 const L = preload("res://src/core/i18n.gd")
 const Pulse = preload("res://src/core/resort_pulse_040.gd")
+const ResortMap = preload("res://src/ui/resort_operations_map_040.gd")
 
 static func add(office: Control) -> void:
 	var hud: CanvasLayer=office.hud
@@ -71,6 +72,15 @@ static func add(office: Control) -> void:
 	_meter(hud,needs,L.text("Hunger"),report.hungry,report.visitors,Color("d28e4d"))
 	_meter(hud,needs,L.text("Toilettenbedarf"),report.bathroom,report.visitors,Color("8d7dbb"))
 	_meter(hud,needs,L.text("Erschöpfung"),report.low_energy,report.visitors,Color("ac6f7e"))
+
+	var map_box: VBoxContainer=office._card(page,L.text("Bergnetz · interaktive Engpasskarte"),L.text("Jeder Punkt gehört zu einem echten Lift. Farbe und Größe zeigen Warteschlangen, Personaldefizite und Störungen. Antippen öffnet die Anlage."))
+	var map: Control=ResortMap.new()
+	map.setup(office.game.model,report.lifts)
+	map_box.add_child(map)
+	map.lift_selected.connect(func(id: int):
+		office.hide()
+		hud.lift_staff.open(id)
+	)
 
 	var routes: VBoxContainer=office._card(page,L.text("Liftmonitor · nach Handlungsbedarf sortiert"),L.text("Live-Warteschlangen und Stationsbesetzung. Die Zahlen sind keine geschätzten Prognosen."))
 	if report.lifts.is_empty():
