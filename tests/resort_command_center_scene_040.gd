@@ -67,5 +67,5 @@ func run() -> void:
 	browser.hide()
 	game.queue_free()
 	await process_frame
-	print("0.40 COMMAND CENTER UI: %d passed; %d failed"%[passed,failed])
+	print("RESULT: %d passed; %d failed"%[passed,failed])
 	quit(1 if failed else 0)
