@@ -183,9 +183,17 @@ public final class SaveImportActivity extends Activity {
         if (result != RESULT_OK || data == null || data.getData() == null) {
             publish("cancelled", files); finish(); return;
         }
+        // Storage providers and ZIP decompression can take several seconds.
+        // Never block Android's UI thread (which must continue to paint and
+        // respond to the system picker while the private inbox is prepared).
+        Uri selected = data.getData();
+        new Thread(() -> importDocument(selected), "SkiZones-SaveImport").start();
+    }
+
+    private void importDocument(Uri uri) {
+        JSONArray files = new JSONArray();
         File input = new File(directory, "selected.bin");
         try {
-            Uri uri = data.getData();
             String display = displayName(uri);
             try (InputStream stream = getContentResolver().openInputStream(uri)) {
                 if (stream == null || copyLimited(stream, input, MAX_SOURCE) == 0)
@@ -210,7 +218,7 @@ public final class SaveImportActivity extends Activity {
             publish("invalid_document", new JSONArray());
         } finally {
             input.delete();
-            finish();
+            runOnUiThread(this::finish);
         }
     }
 }
