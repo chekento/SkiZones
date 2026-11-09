@@ -77,8 +77,6 @@ static func inspect(token: String, metadata: Dictionary, slot: int, free_slot: i
 				if restored.ok:
 					report.loadable=bool(restored.get("exact",false))
 					report.recoverable=not bool(restored.get("exact",false))
-				else:
-					report.code="semantic_incompatible"
 					report["map"]=area
 					report["day"]=int(restored.model.day)
 					report["money"]=int(restored.model.money)
@@ -90,6 +88,8 @@ static func inspect(token: String, metadata: Dictionary, slot: int, free_slot: i
 					candidate["token"]=token
 					if best.is_empty() or (bool(restored.get("exact",false)) and bool(best.get("recoverable",false))):
 						best=candidate
+				else:
+					report.code="semantic_incompatible"
 			else:
 				report.code="wrong_map_or_mode"
 		variants.append(report)
