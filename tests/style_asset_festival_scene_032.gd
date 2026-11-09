@@ -51,6 +51,8 @@ func run() -> void:
 			check(festive.poster_sites.size()>0,"Christmas billboards use real nonblocking terrain sites")
 			var billboard_nodes: Array=festive.root.get_children().filter(func(node):return node.has_meta("poster_campaign"))
 			check(not billboard_nodes.is_empty() and billboard_nodes.all(func(node):return node.scale.x>=1.6),"Billboards are large enough to recognize in the resort overview")
+			check(billboard_nodes.all(func(board):return board.get_children().any(func(child):return child is Sprite3D and child.texture!=null and child.texture.get_height()>=600)),"Every displayed Christmas board uses its actual high-resolution SVG artwork")
+			check(billboard_nodes.all(func(board):return board.get_children().all(func(child):return not (child is Sprite3D or child is Label3D) or child.billboard==BaseMaterial3D.BILLBOARD_DISABLED)),"Poster image and lettering remain physically attached to frame during camera rotation")
 			var portraits_fit:=true
 			for board in billboard_nodes:
 				var picture:Sprite3D=null
@@ -72,6 +74,8 @@ func run() -> void:
 				var separation: float=decorations[i].position.distance_to(decorations[j].position)
 				spaced=spaced and separation>=float(decorations[i].get_meta("festival_clearance"))+float(decorations[j].get_meta("festival_clearance"))-.01
 		check(spaced,style+" purchased festive buildings and props do not overlap each other")
+		if style=="monochrome":
+			check(festive.root.get_children().filter(func(node):return node.has_meta("poster_campaign")).all(func(board):return board.get_children().any(func(child):return child is Sprite3D and child.texture!=null and child.texture.get_width()==256)),"Monochrome theme intentionally uses grayscale procedural poster faces")
 		await capture("assets-032-christmas-"+style,style=="monochrome")
 		if style in ["pastel","bauhaus","monochrome"]:
 			game.hud.building_browser.open()
@@ -84,6 +88,7 @@ func run() -> void:
 	check(festive.root.get_children().any(func(node):return node.get_meta("festival_kind","")=="winter_stage"),"Purchased stage is actually present at New Year")
 	check(not festive.firework_nodes.is_empty(),"New Year fireworks still use the actual seasonal clock")
 	check(festive.root.get_children().any(func(node):return node.get_meta("poster_campaign","")=="new_year"),"New Year billboards visibly replace Christmas signs after December 26")
+	check(festive.root.get_children().filter(func(node):return node.get_meta("poster_campaign","")=="new_year").all(func(board):return board.get_children().any(func(child):return child is Sprite3D and child.texture!=null and child.texture.get_height()>=600)),"Silvester posters show their original vector artwork, not missing-texture placeholders")
 	festive.qa_date_override={"year":2026,"month":12,"day":26};festive.build(game.view)
 	check(festive.root.get_children().any(func(node):return node.get_meta("poster_campaign","")=="christmas"),"Last Christmas poster day is December 26")
 	festive.qa_date_override={"year":2026,"month":12,"day":27};festive.build(game.view)
