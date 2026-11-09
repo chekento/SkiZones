@@ -38,6 +38,7 @@ const VillageDressing = preload("res://src/world/village_dressing.gd")
 const Art = preload("res://src/world/alpine_art.gd")
 const RescueVisuals040 = preload("res://src/world/rescue_visuals_040.gd")
 const Rescue040 = preload("res://src/core/rescue_protocol_040.gd")
+const SkiLessons040 = preload("res://src/core/ski_lessons_040.gd")
 const PISTE_COLORS := [Color("368bcb"), Color("ce5660"), Color("202c39")]
 
 var snow_renderer := SnowRender.new()
@@ -132,6 +133,12 @@ var preview_root := Node3D.new()
 var trees := MultiMeshInstance3D.new()
 var rocks := MultiMeshInstance3D.new()
 var visitor_mesh := MultiMeshInstance3D.new()
+# A separate, bounded 3D layer makes real school instructors unmistakable.
+# Not part of the paying guest array, ticket sales or visitor capacity.
+const MAX_VISIBLE_INSTRUCTORS := 48
+var _instructors := MultiMeshInstance3D.new()
+var _instructor_skis := MultiMeshInstance3D.new()
+var _instructor_labels: Array = []
 var chairs: Array = []
 var slopes_visible := false
 var slope_overlay: MeshInstance3D
@@ -183,7 +190,7 @@ void fragment() {
 	_build_environment()
 	_build_terrain()
 	_build_surroundings()
-	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
+	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _instructors, _instructor_skis, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
 		add_child(node)
 	foot_wear.setup()
 	add_child(rescue_visuals_040)
@@ -192,6 +199,14 @@ void fragment() {
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
 	visitor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_instructors.name="SkiInstructorNPCs"
+	_instructors.multimesh=_multimesh(Art.new().skier(false),MAX_VISIBLE_INSTRUCTORS,true)
+	_instructors.material_override=_people_material
+	_instructors.multimesh.visible_instance_count=0
+	_instructor_skis.name="SkiInstructorEquipment"
+	_instructor_skis.multimesh=_multimesh(Art.new().equipment("ski","glide"),MAX_VISIBLE_INSTRUCTORS)
+	_instructor_skis.material_override=_solid
+	_instructor_skis.multimesh.visible_instance_count=0
 	_riders.multimesh = _multimesh(Art.new().seated_skier(false), model.MAX_GUESTS * 5,true)
 	_riders.material_override = _people_material
 	_riders.multimesh.visible_instance_count = 0
@@ -1343,6 +1358,8 @@ func _process(delta: float) -> void:
 	var swimmers := 0
 	var equipment_counts: Dictionary = {}
 	for key in _equipment: equipment_counts[key] = 0
+	var instructor_count:int=0
+	for label in _instructor_labels:label.visible=false
 	# Many simultaneous rescue calls previously scanned the entire incident
 	# list for EACH of hundreds of skiers, on EVERY displayed frame. Index
 	# once per frame; do not alter incident timing or visible rescue locations.
@@ -1422,6 +1439,38 @@ func _process(delta: float) -> void:
 				position_value = _queue_step(guest.id, _guest_positions[guest.id], position_value, delta * 1.6 * motion_rate if motion_running else 0)
 		var color := Color(Motion.COLORS[int(guest.id) % Motion.COLORS.size()])
 		var transform_value := Transform3D(Basis.from_euler(Vector3(pitch, angle, lean)), position_value)
+		# Render only real, currently employed ski-school instructors. Escort
+		# the exact simulated skiing leg rather than wandering randomly around
+		# the building or teleporting along an unrelated piste.
+		if instructor_count<MAX_VISIBLE_INSTRUCTORS and guest.phase=="moving" and guest.has("ski_lesson") and guest.leg<guest.route.legs.size() and guest.route.legs[guest.leg].kind=="ski" and not hiking:
+			var lesson_crew:Dictionary=SkiLessons040.active(model,guest)
+			if not lesson_crew.is_empty():
+				var ahead:Vector3=Vector3(sin(angle),0.0,cos(angle))
+				var side:Vector3=Vector3(cos(angle),0.0,-sin(angle))
+				var guide_pos:Vector3=position_value+ahead*2.6+side*1.25
+				var point:Vector2=Vector2(guide_pos.x,guide_pos.z)
+				guide_pos.y=ground_position(point,0.14).y
+				var guide_transform:=Transform3D(Basis.from_euler(Vector3(pitch,angle,lean)),guide_pos)
+				_instructors.multimesh.set_instance_transform(instructor_count,guide_transform)
+				_instructors.multimesh.set_instance_color(instructor_count,Color.WHITE)
+				_instructors.multimesh.set_instance_custom_data(instructor_count,Color("ffca43"))
+				_instructor_skis.multimesh.set_instance_transform(instructor_count,guide_transform)
+				_instructor_skis.multimesh.set_instance_color(instructor_count,Color("ffd05b"))
+				if instructor_count>=_instructor_labels.size():
+					var badge:=Label3D.new()
+					badge.name="SkiInstructorLabel"
+					badge.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+					badge.font_size=34
+					badge.pixel_size=0.017
+					badge.outline_size=8
+					badge.modulate=Color("ffe080")
+					add_child(badge)
+					_instructor_labels.append(badge)
+				var badge:Label3D=_instructor_labels[instructor_count]
+				badge.text=L.text("Skilehrer / Skilehrerin")+" · "+str(lesson_crew.staff.get("name",""))
+				badge.position=guide_pos+Vector3.UP*3.0
+				badge.visible=zoom<1100.0
+				instructor_count+=1
 		if guest.get("years",18)<16:transform_value.basis=transform_value.basis.scaled(Vector3.ONE*0.72)
 		var sport: String = guest.get("sport", "ski")
 		var equipment_pose := "seated" if seated else ("hike" if hiking else ("walk" if on_foot else "glide"))
@@ -1480,6 +1529,8 @@ func _process(delta: float) -> void:
 			focus = Vector2(_follow_position.x, _follow_position.z)
 			_update_camera()
 	_guest_positions = next_positions
+	_instructors.multimesh.visible_instance_count=instructor_count
+	_instructor_skis.multimesh.visible_instance_count=instructor_count
 	rescue_visuals_040.update_patrol(self)
 	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
