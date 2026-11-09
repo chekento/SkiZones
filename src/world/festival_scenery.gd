@@ -3,6 +3,7 @@ extends RefCounted
 ## The first art pass is deliberately lightweight and never edits world geometry.
 const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
 const Calendar = preload("res://src/core/annual_festival.gd")
+const Posters = preload("res://src/core/holiday_poster_catalog.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
@@ -18,12 +19,21 @@ var _poll := 0.0
 var _seconds := 0.0
 var firework_nodes: Array = []
 var poster_sites: Array = []
+var poster_paths: Array = []
 
 func hit_poster(at: Vector2) -> bool:
 	if not at.is_finite():return false
 	for site in poster_sites:
 		if at.distance_to(site)<17.0:return true
 	return false
+
+## The on-screen preview must show the EXACT image on the tapped roadside board.
+func poster_art_at(at: Vector2) -> String:
+	if not at.is_finite():return ""
+	for i in range(poster_sites.size()):
+		if at.distance_to(poster_sites[i])<17.0:
+			return str(poster_paths[i]) if i<poster_paths.size() else ""
+	return ""
 
 func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
 	if not view.terrain.contains(at) or not Foot.free_of_buildings(at,view.model.buildings,clearance): return false
@@ -52,6 +62,7 @@ func build(view: Node3D) -> void:
 	clock_label=null
 	firework_nodes.clear()
 	poster_sites.clear()
+	poster_paths.clear()
 	var now:=date_now()
 	var stage:=Calendar.season(now)
 	if Calendar.preview_poster(now): stage="november_poster"
@@ -149,68 +160,65 @@ func update(view: Node3D, delta: float) -> void:
 		if key!=_world_key: build(view)
 
 
-## The original generated posters belong in assets/seasonal, as actual
-## textures. When artwork has not been supplied, the board stays clearly
-## marked as a text preview rather than claiming an image exists.
+## Ten static, compact PMDD images, with every word drawn in the current
+## Godot language. No baked-in language, forced phone permissions or video.
 func _poster_artworks(stage: String) -> Array:
-	var paths: Array=[]
-	if stage=="november_poster":
-		paths=["res://assets/seasonal/christmas_poster_original.webp","res://assets/seasonal/christmas_poster_alt_01.webp"]
-	elif stage in ["advent","christmas"]:
-		paths=["res://assets/seasonal/christmas_poster_original.webp","res://assets/seasonal/christmas_poster_alt_01.webp"]
-	elif stage in ["new_year_eve","new_year"]:
-		paths=["res://assets/seasonal/new_year_poster_original.webp","res://assets/seasonal/new_year_poster_alt_01.webp"]
-	var available: Array=[]
-	for path in paths:
-		if ResourceLoader.exists(path):available.append(path)
-	# Different verified originals rotate between boards and game launches.
+	var available: Array=Posters.available(stage)
 	available.shuffle()
 	return available
 
 func _spawn_posters(view: Node3D,stage: String) -> void:
 	var originals: Array=_poster_artworks(stage)
-	var sign_text: String="SKIZONES · WINTERWUNDER\nAB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
-	if stage in ["advent","christmas"]:
-		sign_text="SKIZONES · WEIHNACHTEN\nADVENTSKALENDER AB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
-	elif stage in ["new_year_eve","new_year"]:
-		sign_text="SKIZONES · SILVESTER\nNEUJAHR IM BERGDORF\nZUM PLAKAT TIPPEN"
 	var art_mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
 	art_mesh.surface_set_material(0,view._solid)
-	for index in range(3):
+	# Six roadside sites make a varied collection visible across a resort.
+	for index in range(6):
 		var at: Vector2=Vector2.INF
 		for step in range(20):
-			var angle: float=float(index)*TAU/3.0+float(step)*0.31
+			var angle: float=float(index)*TAU/6.0+float(step)*0.31
 			var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
 			if _valid_place(view,candidate):
 				at=candidate
 				break
 		if not at.is_finite():continue
+		var artwork: String=str(originals[index%originals.size()]) if not originals.is_empty() else ""
 		poster_sites.append(at)
+		poster_paths.append(artwork)
 		var board:=MeshInstance3D.new()
 		board.mesh=art_mesh
 		board.position=view.terrain.world(at,0.25)
-		board.rotation.y=float(index)*1.25
+		board.rotation.y=float(index)*TAU/6.0
 		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(board)
-		var sign:=Label3D.new()
-		sign.text=sign_text
-		sign.font_size=39
-		sign.pixel_size=0.021
-		sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-		sign.outline_size=4
-		sign.position=Vector3(0,5.0,0.85)
-		board.add_child(sign)
-		if not originals.is_empty():
-			# Stable rotation between supplied originals, not a placeholder texture.
-			var texture: Texture2D=load(str(originals[index%originals.size()])) as Texture2D
+		if not artwork.is_empty():
+			var texture: Texture2D=load(artwork) as Texture2D
 			if texture!=null:
-				var picture:=Sprite3D.new()
-				picture.texture=texture
-				picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-				picture.pixel_size=0.015
-				picture.position=Vector3(0,5,1.2)
+				# Rigid, non-billboard 16:9 plane sits INSIDE the picture frame.
+				# Neither source texture nor full-screen display is distorted.
+				var quad:=QuadMesh.new()
+				quad.size=Vector2(12.8,7.2)
+				var material:=StandardMaterial3D.new()
+				material.albedo_texture=texture
+				material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+				material.cull_mode=BaseMaterial3D.CULL_DISABLED
+				var picture:=MeshInstance3D.new()
+				picture.mesh=quad
+				picture.material_override=material
+				picture.position=Vector3(0,4.4,0.48)
+				picture.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 				board.add_child(picture)
-				sign.hide()
+		# Language-dependent overlay remains above the artwork, never baked
+		# into WebP. A thick dark outline keeps it readable on winter skies.
+		var sign:=Label3D.new()
+		sign.text=Posters.headline(stage,artwork)
+		sign.font_size=39
+		sign.pixel_size=0.016
+		sign.outline_size=10
+		sign.modulate=Color("fff4df")
+		sign.outline_modulate=Color("12223b")
+		sign.position=Vector3(0,6.60,0.60)
+		sign.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+		board.add_child(sign)
 
 func _decorate_buildings(view: Node3D,stage: String) -> void:
 	for building in view.model.buildings:
