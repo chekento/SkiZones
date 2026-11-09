@@ -31,6 +31,25 @@ func _init()->void:
 	check(Ops.building_efficiency(model,restaurant)>1.1,"Active specialist team raises real service efficiency")
 	check(model.service_capacity(restaurant)>int(Needs.SERVICES.restaurant.places),"Specialists increase concurrent visitor capacity")
 	check(Ops.building_efficiency(model,hotel)==1.0,"Unstaffed hotel has no invented efficiency bonus")
+	# The capacity improvement is NOT free. Actual minute ticks pay the
+	# specialists and allocate their wages to the correct venue's P&L.
+	var empty_sales:float=float(restaurant.get("daily_revenue",0))
+	var expected_minute_wages:float=(float(Ops.ROLES.chef.wage)+float(Ops.ROLES.waiter.wage))/60.0
+	var before_wages:float=float(model.operations.cost_centres.get("building:987",0.0))
+	Ops.tick(model)
+	var booked_wages:float=float(model.operations.cost_centres.get("building:987",0.0))-before_wages
+	check(absf(booked_wages-expected_minute_wages)<0.0001,"Qualified chef and waiter have real per-minute wage costs")
+	var loss:Dictionary=Ops.business_balance(model,restaurant)
+	check(empty_sales==0.0 and loss.wages>0.0 and loss.net<0.0,"A restaurant with employees but no customers actually loses money")
+	check(absf(loss.costs-(loss.wages+loss.supplies+loss.overhead))<0.001,"P&L includes building wages, supplies and operating costs without duplicates")
+	var first_capacity:int=model.service_capacity(restaurant)
+	check(Ops.hire(model,"waiter","building:987").ok,"A venue can hire an additional correctly qualified waiter")
+	Ops.refresh_duty(model)
+	check(model.service_capacity(restaurant)>first_capacity,"Extra on-duty specialist increases the number of concurrent customers")
+	var previous_wages:float=float(model.operations.cost_centres.get("building:987",0))
+	Ops.tick(model)
+	check(float(model.operations.cost_centres.get("building:987",0))-previous_wages>expected_minute_wages,"Adding a waiter increases recurring wage costs, not just capacity")
+	check(not Ops.role_matches_building("hotel","school") and Ops.optional_roles("school")==["instructor"],"Skischule never offers the legacy hotel role to new employees")
 	check(Recruit.FACILITIES.chef.has("restaurant") and not Recruit.FACILITIES.chef.has("hotel"),"Applicant gate matches required workplace")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
