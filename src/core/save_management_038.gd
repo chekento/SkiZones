@@ -205,6 +205,12 @@ static func copy(id: String,from_slot: int,to_slot: int,from_free: int = 1,to_fr
 	if originals.is_empty() or targets.is_empty() or (from_slot==0)!=(to_slot==0) or (from_slot==to_slot and (from_slot!=0 or from_free==to_free)):
 		return {"ok":false,"message":L.text("Nur auf einen anderen Platz desselben Spielmodus kopieren.")}
 	var dest: String=Saves.path_for_map(id,to_slot,to_free)
+	# A crashed Android write can leave ONLY a completed .tmp or .bak.tmp.
+	# The existing target may look empty to the ordinary primary/.bak scan,
+	# yet contain the player's last recoverable career in a staged file.
+	# Never import a copy over such a slot; require explicit inspection/repair.
+	if Saves.has_any_save(id,to_slot,to_free):
+		return {"ok":false,"message":L.text("Der Zielplatz enthält Spielstanddaten oder eine unvollständige Sicherung. Bitte zuerst prüfen und wiederherstellen.")}
 	for entry in targets:
 		if not FileAccess.file_exists(entry):continue
 		if entry==dest or entry==dest+".bak" or correct_mode(Saves._read(entry),id,to_slot):
