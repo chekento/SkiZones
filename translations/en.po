@@ -10559,3 +10559,6 @@ msgstr "JavaClassWrapper"
 
 msgid "Unterbrochener Spielstand aus temporärer Sicherung geladen. Originaldateien bleiben erhalten."
 msgstr "Interrupted save loaded from a temporary recovery file. All original files remain unchanged."
+
+msgid "Der Zielplatz enthält Spielstanddaten oder eine unvollständige Sicherung. Bitte zuerst prüfen und wiederherstellen."
+msgstr "The destination slot contains save data or an interrupted backup. Inspect and recover it before copying."
