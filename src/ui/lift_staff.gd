@@ -280,7 +280,10 @@ func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 func _build_optional_positions(parent: Node,item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
 	var box:=_card(parent,L.text("FREIWILLIGE ZUSATZKRÄFTE"),L.text("Zusätzliche Kräfte erhöhen die Reserve, ersetzen aber keine vorgeschriebene Mindestbesetzung. Jede Einstellung kostet 180 € plus Stundenlohn."))
-	var allowed: Array=["sanitation"] if str(item.kind).begins_with("wc_") else ["hotel","security","catering"] if model.Hospitality.lodging(str(item.kind)) else ["hotel","security"] if str(item.kind) in ["rental","school","souvenir","fitness","newsstand"] else ["catering","security"] if str(item.kind) in ["restaurant","kiosk","pizzeria","bar","disco","lodge","cocoa","schmarrn"] else ["technician","security"] if str(item.kind)=="repair_office" else ["hotel","security"]
+	var allowed: Array=Ops.optional_roles(str(item.kind))
+	if allowed.is_empty():
+		box.queue_free()
+		return
 	var target: String="building:%d" % int(item.id)
 	for role in allowed:
 		var shift: String="day" if str(item.kind) not in ["bar","disco"] else "evening"
