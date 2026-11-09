@@ -22,6 +22,7 @@ const Parties=preload("res://src/core/guest_parties.gd")
 const Agenda = preload("res://src/core/guest_agenda.gd")
 const Planner = preload("res://src/core/route_planner.gd")
 const Ops = preload("res://src/core/operations.gd")
+const SkiLessons040 = preload("res://src/core/ski_lessons_040.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const BuildingOffers = preload("res://src/core/building_offers_035.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
@@ -1331,6 +1332,9 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var best_score := 0.0
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
+		# Ski lessons require an actual on-duty instructor, not a phantom
+		# "hotel service" worker at a school or a merely paid building.
+		if str(building.kind)=="school" and (SkiLessons040.students(guest)>SkiLessons040.MAX_GROUP or SkiLessons040.available(self,building,guest).is_empty()):continue
 		var utility := Needs.utility(guest,building.kind)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
@@ -1488,6 +1492,10 @@ func _start_leg(guest: Dictionary) -> void:
 	guest.duration = leg.minutes
 	if leg.kind == "visit" and Needs.SERVICES.has(asset(int(leg.id)).get("kind", "")):
 		guest.visit_kind = asset(int(leg.id)).kind
+		# Reserve one real employee for either one guest or a family/group of
+		# up to six. If the last instructor is already engaged, the visit
+		# completes without billing or granting an imaginary lesson.
+		if guest.visit_kind=="school":SkiLessons040.book(self,guest,asset(int(leg.id)))
 		if PublicWC.is_public(str(guest.visit_kind)):
 			guest.duration=PublicWC.visit_minutes(asset(int(leg.id)),int(guest.get("group_size",1)))*time_divisor
 			guest.wc_queue_since=movement_clock()
@@ -1522,6 +1530,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			if was_open != piste_open(piste):
 				_invalidate()
 		if complete_descent:
+			SkiLessons040.finish_descent(guest)
 			guest.runs = guest.get("runs", 0) + 1
 			Needs.ensure(guest,weather().temperature)
 			guest.needs.joy=minf(100,guest.needs.joy+5)
@@ -1535,7 +1544,7 @@ func _finish_leg(guest: Dictionary) -> void:
 			guest.pacing_runs=int(guest.pacing_runs)%time_divisor
 	if leg.kind == "visit" and not leg.get("pause_only",false):
 		var building := asset(leg.id)
-		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
+		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind) and (str(building.kind)!="school" or SkiLessons040.valid(guest.get("ski_lesson",{}))):
 			Needs.ensure(guest,weather().temperature)
 			var product_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else BuildingOffers.visit_sale(building,guest)
 			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
@@ -2689,6 +2698,9 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 		if visitor.has("ski_motion") and not Motion.valid_profile(visitor.ski_motion): return invalid
 		var copy: Dictionary = visitor.duplicate(true)
 		copy.id = int(copy.id);copy.ability = int(copy.ability)
+		# An optional lesson never makes an otherwise playable old save
+		# impossible to restore. Discard malformed/obsolete booking metadata.
+		if copy.has("ski_lesson") and not SkiLessons040.valid(copy.ski_lesson):copy.erase("ski_lesson")
 		if copy.has("pacing_runs"): copy.pacing_runs=int(copy.pacing_runs)
 		if copy.has("lodging_id"): copy.lodging_id = int(copy.lodging_id)
 		if copy.has("hotel_sleep_until"): copy.hotel_sleep_until = int(copy.hotel_sleep_until)
