@@ -10637,3 +10637,24 @@ msgstr "SKI INSTRUCTORS ON DUTY  %d  ·  ACTIVE LESSONS  %d  ·  AVAILABLE  %d"
 
 msgid "Einzelunterricht (1 Gast) oder Gruppenkurs (2–6 Gäste). Skilehrer begleiten die nächste Abfahrt."
 msgstr "Private lessons (1 guest) or group lessons (2–6 guests). Instructors escort the next descent."
+
+msgid "hotel service"
+msgstr "hotel service"
+
+msgid "Einzelunterricht"
+msgstr "Private lesson"
+
+msgid "Gruppenkurs"
+msgstr "Group lesson"
+
+msgid "Skilehrer"
+msgstr "Ski instructor"
+
+msgid "SkiInstructorNPCs"
+msgstr "SkiInstructorNPCs"
+
+msgid "SkiInstructorEquipment"
+msgstr "SkiInstructorEquipment"
+
+msgid "SkiInstructorLabel"
+msgstr "SkiInstructorLabel"
