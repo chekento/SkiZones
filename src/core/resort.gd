@@ -1363,8 +1363,24 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if not restroom and not night_activity:
 			visit_minutes=maxf(2.0,visit_minutes/Ops.building_efficiency(self,building))
 		var pause := _edge(door_key,door_key,"visit",building.id,[entrance,entrance],visit_minutes)
-		var route := {"target":0,"origin":graph.nodes[source],"legs":_merge_ski_legs(outbound.legs+[pause]+home.legs)}
-		var time := route_minutes(route,guest)
+		var route_legs:Array=outbound.legs+[pause]+home.legs
+		var target_id:int=0
+		if str(building.kind)=="school":
+			# A course is not an indoor-only 22-minute fee. Reserve a genuine
+			# reachable blue piste loop after the visit. Its lift, ski and
+			# return legs are the game's ordinary validated path network.
+			# No teacher appears skiing until these actual legs are ridden.
+			var safe_run:Dictionary={}
+			for circuit in _routes_from(Agenda.comfort(guest),"base",true):
+				var slope:Dictionary=asset(int(circuit.target))
+				if int(slope.get("difficulty",-1))!=0:continue
+				if not is_finite(route_minutes(circuit,guest,1020)):continue
+				if safe_run.is_empty() or route_minutes(circuit,guest,1020)<route_minutes(safe_run,guest,1020):safe_run=circuit
+			if safe_run.is_empty():continue
+			target_id=int(safe_run.target)
+			route_legs.append_array(safe_run.legs)
+		var route := {"target":target_id,"origin":graph.nodes[source],"legs":_merge_ski_legs(route_legs)}
+		var time := route_minutes(route,guest,1020 if str(building.kind)=="school" else INF)
 		if (not Ops.continuous(self) and minute+time > CLOSING) or guest.age+time > guest.stay: continue
 		var outward_time := route_minutes({"legs":outbound.legs},guest)
 		var score := utility/(1+outward_time/18.0+float(load)/maxf(capacity,1))
@@ -1628,6 +1644,14 @@ func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
 		if _return_from_node(guest, leg.to):
 			return
 
+	if leg.kind=="visit" and guest.get("visit_kind","")=="school" and SkiLessons040.valid(guest.get("ski_lesson",{})):
+		# The booked class must ride its reserved lift and blue piste.
+		# Choosing an arbitrary new route here would silently cancel the
+		# actual lesson and strand its instructor at the school door.
+		guest.leg+=1
+		if guest.leg<guest.route.legs.size():
+			_start_leg(guest)
+			return
 	if leg.kind == "visit" and not guest.get("heading_home",false):
 		var onward := choose_route(guest,leg.to)
 		if not onward.is_empty():
