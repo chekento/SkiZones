@@ -105,7 +105,12 @@ public final class SaveImportActivity extends Activity {
     private static boolean isSaveEntry(String name) {
         // Only paths used by SkiZones' exported support ZIPs are accepted.
         // No archive entry is ever extracted to a path derived from its name.
-        return name.matches("files/[0-9]{2}-[a-zA-Z0-9._-]{1,100}\\.json(\\.bak)?");
+        // Support archives can include .json, .bak, .tmp, .bak.tmp and
+        // forensic suffixes (.broken, .before-repair, .before-staging).
+        // A strict internal entry name is enough: we never use it as an
+        // output path, only as a display label, and validate every JSON
+        // payload with Godot's checksum/restore model before activation.
+        return name.matches("files/[0-9]{2}-[a-zA-Z0-9._-]{1,120}") && name.contains(".json");
     }
 
     private void importZip(File archive, JSONArray files) throws Exception {
