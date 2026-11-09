@@ -75,6 +75,22 @@ func run() -> void:
 		if Catalog.BUILDINGS[kind].cost<=game.model.money and game.model.build_access_message(kind,false)=="":expected+=1
 	check(browser.cards.filter(func(card):return card.button.visible).size()==expected,"The availability filter excludes unaffordable and inaccessible buildings")
 	browser.hide()
+	# New 0.40 Android import controls must exist on every existing/empty
+	# career and free-build card, including narrow 420px phone layouts.
+	var slots:Control=game.hud.career_slots
+	slots.open()
+	await process_frame
+	var career_imports:Array=slots.find_children("import_save_040","Button",true,false)
+	check(career_imports.size()==4,"All four career slots expose the explicit secure JSON/ZIP importer")
+	check(career_imports.all(func(button):return button.custom_minimum_size.y>=48),"Career import buttons retain touch-safe target height")
+	if DisplayServer.get_name()!="headless":
+		await RenderingServer.frame_post_draw
+		check(root.get_texture().get_image().save_png("res://build/qa/040-career-import-%d.png"%int(root.get_visible_rect().size.x))==OK,"Real responsive career import screenshot")
+	slots.open_free()
+	await process_frame
+	var free_imports:Array=slots.find_children("import_save_040","Button",true,false)
+	check(free_imports.size()==4,"All four independent free-play slots expose secure JSON/ZIP import")
+	slots.hide()
 	game.queue_free()
 	await process_frame
 	print("RESULT: %d passed; %d failed"%[passed,failed])
