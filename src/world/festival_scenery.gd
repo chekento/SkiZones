@@ -150,8 +150,19 @@ func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
 		var info: Dictionary=Posters.info(now,index)
 		var variant: int=int(info.variant)
 		if not images.has(variant):
-			var custom_path: String="res://assets/seasonal/%s_%d.webp" % [campaign,variant+1]
-			images[variant]=load(custom_path) as Texture2D if ResourceLoader.exists(custom_path) else Posters.texture(campaign,variant,view.visual_style=="monochrome")
+			# Keep the monochrome art style strictly grayscale. All colorful
+			# art otherwise uses the original vector poster pack; a future
+			# high-resolution WEBP may override the SVG, never the fallback.
+			var webp: String="res://assets/seasonal/%s_%d.webp" % [campaign,variant+1]
+			var vector: String="res://assets/seasonal/%s_%d.svg" % [campaign,variant+1]
+			if view.visual_style=="monochrome":
+				images[variant]=Posters.texture(campaign,variant,true)
+			elif ResourceLoader.exists(webp):
+				images[variant]=load(webp) as Texture2D
+			elif ResourceLoader.exists(vector):
+				images[variant]=load(vector) as Texture2D
+			if not images.has(variant) or images[variant]==null:
+				images[variant]=Posters.texture(campaign,variant,false)
 		var board:=MeshInstance3D.new()
 		board.name="Poster %s %d" % [campaign,index+1]
 		board.set_meta("poster_campaign",campaign)

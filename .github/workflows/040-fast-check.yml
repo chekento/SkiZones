@@ -17,6 +17,8 @@ on:
       - 'src/ui/resort_command_center_040.gd'
       - 'src/ui/resort_operations_map_040.gd'
       - 'src/ui/career_slots.gd'
+      - 'src/world/festival_scenery.gd'
+      - 'assets/seasonal/*.svg'
       - 'tests/career_slots_scene.gd'
       - 'src/core/save_import_040.gd'
       - 'tools/android/SaveImportActivity.java'
@@ -77,6 +79,8 @@ jobs:
           # benchmark exits successfully; keep those visible in the log.
           "$GODOT_BIN" --language de --headless --script tools/performance_benchmark.gd 2>&1 | tee /tmp/skizones-040-performance.log
           grep -q '^PERFORMANCE_JSON ' /tmp/skizones-040-performance.log
+      - name: Verify eight original Christmas and New Year posters import as real SVG textures
+        run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --language de --headless --script tests/seasonal_poster_assets_040.gd
       - name: Verify actual simulation diagnostics and no save changes
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/resort_pulse_040.gd
       - name: Verify read-only backup ZIP export, corrupted JSON and report
