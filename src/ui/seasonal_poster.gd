@@ -4,7 +4,9 @@ extends Control
 const Styles=preload("res://src/core/visual_styles.gd")
 const L=preload("res://src/core/i18n.gd")
 const Fallback=preload("res://src/ui/seasonal_poster_art.gd")
-const ORIGINAL_PATH="res://assets/seasonal/christmas_poster_original.webp"
+const Calendar=preload("res://src/core/annual_festival.gd")
+const CHRISTMAS_ART=["res://assets/seasonal/christmas_poster_original.webp","res://assets/seasonal/christmas_poster_alt_01.webp"]
+const NEW_YEAR_ART=["res://assets/seasonal/new_year_poster_original.webp","res://assets/seasonal/new_year_poster_alt_01.webp"]
 var fallback:=Fallback.new()
 var picture:=TextureRect.new()
 var panel:=PanelContainer.new()
@@ -46,13 +48,28 @@ func _ready() -> void:
 	dismiss.custom_minimum_size.y=55
 	dismiss.pressed.connect(hide)
 	stack.add_child(dismiss)
-	if ResourceLoader.exists(ORIGINAL_PATH):
-		picture.texture=load(ORIGINAL_PATH) as Texture2D
-	picture.visible=picture.texture!=null
-	fallback.visible=not picture.visible
+	_refresh_art()
 	hide()
 
+func _refresh_art() -> void:
+	var now: Dictionary=Calendar.device_now()
+	var phase: String="november_poster" if Calendar.preview_poster(now) else Calendar.season(now)
+	var originals: Array=NEW_YEAR_ART if phase in ["new_year_eve","new_year"] else CHRISTMAS_ART
+	picture.texture=null
+	for file in originals:
+		if ResourceLoader.exists(str(file)):
+			var texture: Texture2D=load(str(file)) as Texture2D
+			if texture!=null:
+				picture.texture=texture
+				break
+	picture.visible=picture.texture!=null
+	fallback.phase=phase
+	fallback.visible=not picture.visible
+	fallback.queue_redraw()
+	head.text=L.text("SKIZONES · SILVESTER UND NEUJAHR") if phase in ["new_year_eve","new_year"] else L.text("SKIZONES · WEIHNACHTSWERBUNG") if phase=="november_poster" else L.text("SKIZONES · ADVENT UND WEIHNACHTEN")
+
 func open(style: String) -> void:
+	_refresh_art()
 	fallback.style_id=Styles.valid(style)
 	fallback.queue_redraw()
 	var accent:=Color(str(Styles.ui_palette(style).accent))
