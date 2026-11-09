@@ -13,6 +13,16 @@ func check(ok: bool,label: String) -> void:
 func _init() -> void:call_deferred("run")
 
 func run() -> void:
+	# Godot's project viewport may remain 1440x900 even when the process
+	# is invoked with --resolution 420x860. Enforce a REAL portrait canvas,
+	# otherwise the mobile QA artifact quietly contains only desktop images.
+	var mobile:bool=OS.get_environment("SKIZONES_QA_PHONE")=="1"
+	var intended:Vector2i=Vector2i(420,860) if mobile else Vector2i(1440,900)
+	root.content_scale_mode=Window.CONTENT_SCALE_MODE_DISABLED
+	root.content_scale_size=Vector2i.ZERO
+	root.size=intended
+	await process_frame
+	check(root.get_visible_rect().size==intended,"Real QA viewport is exactly %dx%d" % [intended.x,intended.y])
 	var game: Node=load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
@@ -20,6 +30,7 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	game.paused=true
+	game.hud._update_safe_area()
 	game.hud.show_management()
 	await process_frame
 	var office: Control=game.hud.management
@@ -39,7 +50,9 @@ func run() -> void:
 		await RenderingServer.frame_post_draw
 		DirAccess.make_dir_recursive_absolute("res://build/qa")
 		var width: int=int(root.get_visible_rect().size.x)
-		check(root.get_texture().get_image().save_png("res://build/qa/040-command-center-%d.png"%width)==OK,"The 0.40 command center renders to a real screenshot")
+		var shot:Image=root.get_texture().get_image()
+		check(shot!=null and shot.get_width()==intended.x and shot.get_height()==intended.y,"Captured pixels match actual mobile/desktop canvas")
+		check(shot.save_png("res://build/qa/040-command-center-%d.png"%width)==OK,"The 0.40 command center renders to a real screenshot")
 		if index>=0:
 			var command_page: ScrollContainer=office.tabs.get_child(index)
 			command_page.scroll_vertical=1400
