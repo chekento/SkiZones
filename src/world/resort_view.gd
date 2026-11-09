@@ -1457,15 +1457,15 @@ func _process(delta: float) -> void:
 				_instructor_skis.multimesh.set_instance_transform(instructor_count,guide_transform)
 				_instructor_skis.multimesh.set_instance_color(instructor_count,Color("ffd05b"))
 				if instructor_count>=_instructor_labels.size():
-					var badge:=Label3D.new()
-					badge.name="SkiInstructorLabel"
-					badge.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-					badge.font_size=34
-					badge.pixel_size=0.017
-					badge.outline_size=8
-					badge.modulate=Color("ffe080")
-					add_child(badge)
-					_instructor_labels.append(badge)
+					var new_label:=Label3D.new()
+					new_label.name="SkiInstructorLabel"
+					new_label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+					new_label.font_size=34
+					new_label.pixel_size=0.017
+					new_label.outline_size=8
+					new_label.modulate=Color("ffe080")
+					add_child(new_label)
+					_instructor_labels.append(new_label)
 				var badge:Label3D=_instructor_labels[instructor_count]
 				badge.text=L.text("Skilehrer / Skilehrerin")+" · "+str(lesson_crew.staff.get("name",""))
 				badge.position=guide_pos+Vector3.UP*3.0
