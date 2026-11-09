@@ -3,6 +3,7 @@ const L=preload("res://src/core/i18n.gd")
 const Saves=preload("res://src/core/save_store.gd")
 const SaveManager=preload("res://src/core/save_management_038.gd")
 const SaveBundle040=preload("res://src/core/save_bundle_040.gd")
+const SaveImport040=preload("res://src/core/save_import_040.gd")
 const Maps=preload("res://src/core/maps.gd")
 const DragScroll=preload("res://src/ui/drag_scroll.gd")
 const StartTiers=preload("res://src/core/start_tiers.gd")
@@ -10,6 +11,11 @@ var hud: CanvasLayer
 var cards: GridContainer
 var confirmation:=ConfirmationDialog.new()
 var archive_confirmation:=ConfirmationDialog.new()
+var import_confirmation:=ConfirmationDialog.new()
+var import_token: String=""
+var import_wait: float=0.0
+var import_destination: Dictionary={}
+var import_preview: Dictionary={}
 var pending_archive: Dictionary={}
 var pending_slot:=1
 var free_mode := false
@@ -68,7 +74,85 @@ func setup(interface: CanvasLayer) -> void:
 	archive_confirmation.cancel_button_text=L.text("Abbrechen")
 	archive_confirmation.dialog_text=L.text("Original und Sicherung werden vor dem Entfernen vollständig kopiert und überprüft.")
 	archive_confirmation.confirmed.connect(_archive_confirmed)
+	add_child(import_confirmation)
+	import_confirmation.title=L.text("Import bestätigen?")
+	import_confirmation.ok_button_text=L.text("Spielstand sicher importieren")
+	import_confirmation.cancel_button_text=L.text("Abbrechen")
+	import_confirmation.confirmed.connect(_confirm_import)
 	hide()
+## A picker writes to an isolated inbox. Only a validated preview and
+## deliberate confirmation may replace a saved resort. No auto-import.
+func _import_button(parent:VBoxContainer,slot:int,free_slot:int=1) -> void:
+	var button:Button=hud._button(parent,L.text("JSON/ZIP importieren"),func():_begin_import(slot,free_slot))
+	button.name="import_save_040"
+	button.tooltip_text=L.text("Spielstand auf Android auswählen, prüfen und sicher übernehmen")
+	button.custom_minimum_size.y=48
+
+func _begin_import(slot:int,free_slot:int) -> void:
+	if not import_token.is_empty():return
+	import_destination={"slot":slot,"free_slot":free_slot}
+	var token:String=SaveImport040.begin_android()
+	if token.is_empty():
+		import_destination.clear()
+		hud.toast(L.text("Import nicht verfügbar. Android-Dateiauswahl konnte nicht geöffnet werden."))
+		return
+	import_token=token
+	import_wait=0.0
+	hud.toast(L.text("Datei prüfen …"))
+
+func _process(delta:float) -> void:
+	if import_token.is_empty():return
+	import_wait+=maxf(0.0,delta)
+	if import_wait>180.0:
+		import_token=""
+		import_destination.clear()
+		hud.toast(L.text("Importdatei konnte nicht gelesen werden."))
+		return
+	var metadata:Dictionary=SaveImport040.poll(import_token)
+	var status:String=str(metadata.get("status","pending"))
+	if status=="pending":return
+	var token:String=import_token
+	import_token=""
+	if status=="cancelled":
+		import_destination.clear()
+		hud.toast(L.text("Import abgebrochen."))
+		return
+	if status!="ready":
+		import_destination.clear()
+		hud.toast(L.text("Importdatei beschädigt oder nicht unterstützt."))
+		return
+	var slot:int=int(import_destination.get("slot",-1))
+	var free_slot:int=int(import_destination.get("free_slot",1))
+	import_destination.clear()
+	var inspected:Dictionary=SaveImport040.inspect(token,metadata,slot,free_slot)
+	if not inspected.ok:
+		hud.toast(L.text("Keine passende Spielstand-Datei im Archiv gefunden."))
+		return
+	import_preview=inspected.selected
+	var map_id:String=str(import_preview.map)
+	if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==map_id:
+		import_preview.clear()
+		hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
+		return
+	import_confirmation.dialog_text=L.text("Datei: %s · Tag %d · %s · Platz %d") % [str(import_preview.name),int(import_preview.day),L.text(Maps.spec(map_id).name),free_slot if slot==0 else slot]
+	import_confirmation.dialog_text+="\n"+L.text("Original, Sicherung und temporäre Dateien werden vor der Übernahme separat archiviert. Der Import erfolgt erst nach Bestätigung.")
+	hud.present_dialog(import_confirmation,Vector2i(680,330))
+
+func _confirm_import() -> void:
+	if import_preview.is_empty():return
+	var selected:Dictionary=import_preview.duplicate(true)
+	import_preview.clear()
+	var slot:int=int(selected.slot)
+	var free_slot:int=int(selected.free_slot)
+	if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==str(selected.map):
+		hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
+		return
+	var result:Dictionary=SaveImport040.activate(selected)
+	if result.ok:
+		hud.toast(L.text("Spielstand importiert. Die bisherigen Dateien wurden sicher archiviert."))
+		refresh()
+	else:
+		hud.toast(L.text("Spielstandimport fehlgeschlagen. Originaldateien bleiben erhalten."))
 func _archive_confirmed() -> void:
 	if pending_archive.is_empty():return
 	var slot:int=int(pending_archive.slot)
@@ -231,6 +315,7 @@ func _refresh_free_cards() -> void:
 			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
 			_management_actions(body,str(summary.map),0,free_slot)
+			_import_button(body,0,free_slot)
 			var entries: Array = Saves.saved_resorts(0,free_slot)
 			if entries.size() > 1:
 				for entry in entries:
@@ -245,6 +330,7 @@ func _refresh_free_cards() -> void:
 		else:
 			hud._label(body,L.text("Leerer freier Spielstand"),16,hud.MUTED)
 			hud._button(body,L.text("Freies Resort starten"),func():hud.game.select_free_slot(free_slot,true),true)
+			_import_button(body,0,free_slot)
 
 func refresh() -> void:
 	action_grids.clear()
@@ -270,6 +356,7 @@ func refresh() -> void:
 			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
 			_management_actions(body,str(summary.map),slot)
+			_import_button(body,slot)
 			# Do not hide another old mountain behind a single last-map index.
 			var entries: Array = Saves.saved_resorts(slot)
 			if entries.size() > 1:
@@ -284,6 +371,7 @@ func refresh() -> void:
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
 			hud._button(body,L.text("Neue Karriere starten"),func():hud.game.select_career_slot(slot,true,starting_tier.selected),true)
+			_import_button(body,slot)
 
 	call_deferred("_fit_actions")
 
