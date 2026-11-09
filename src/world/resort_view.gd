@@ -1336,15 +1336,18 @@ func _process(delta: float) -> void:
 	var swimmers := 0
 	var equipment_counts: Dictionary = {}
 	for key in _equipment: equipment_counts[key] = 0
+	# Many simultaneous rescue calls previously scanned the entire incident
+	# list for EACH of hundreds of skiers, on EVERY displayed frame. Index
+	# once per frame; do not alter incident timing or visible rescue locations.
+	var incident_index: Dictionary={}
+	for incident in model.operations.incidents:
+		incident_index[int(incident.id)]=incident
 	for guest in model.guests:
 		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
 			continue
 		# Injured guests lie on the piste or on the returning stretcher, never
 		# upright and shaking. Guidance-only fear remains a standing skier.
-		var held:Dictionary={}
-		if int(guest.get("incident",-1))>=0:
-			for event in model.operations.incidents:
-				if int(event.id)==int(guest.incident):held=event;break
+		var held:Dictionary=incident_index.get(int(guest.get("incident",-1)),{})
 		if not held.is_empty() and held.reason!="navigation" and held.status in ["waiting","responding","transporting","treating"]:
 			var location:Vector2=Rescue040.route_position(held) if held.status=="transporting" else Terrain.unpack(held.point)
 			if held.status=="treating":
