@@ -1334,7 +1334,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if not Ops.building_open(self, building): continue
 		# Ski lessons require an actual on-duty instructor, not a phantom
 		# "hotel service" worker at a school or a merely paid building.
-		if str(building.kind)=="school" and (SkiLessons040.students(guest)>SkiLessons040.MAX_GROUP or SkiLessons040.available(self,building,guest).is_empty()):continue
+		if str(building.kind)=="school" and (SkiLessons040.students(guest,self)>SkiLessons040.MAX_GROUP or SkiLessons040.available(self,building,guest).is_empty()):continue
 		var utility := Needs.utility(guest,building.kind)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
