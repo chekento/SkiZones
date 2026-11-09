@@ -7,6 +7,17 @@ const Maps=preload("res://src/core/maps.gd")
 const Resort=preload("res://src/core/resort.gd")
 const INBOX: String="user://import-inbox"
 const MAX_FILES: int=12
+# Android's document picker takes focus away from Godot. That transition is
+# not an invitation to autosave over a damaged original being recovered.
+# Clear on resume, failed JNI, or completed/cancelled picker; time-bound for
+# unexpected native picker failures.
+static var _picker_handoff_deadline_msec: int=0
+
+static func picker_handoff_pending() -> bool:
+	return _picker_handoff_deadline_msec>Time.get_ticks_msec()
+
+static func finish_picker_handoff() -> void:
+	_picker_handoff_deadline_msec=0
 
 static func valid_token(token: String) -> bool:
 	if token.length()!=32:return false
@@ -21,8 +32,12 @@ static func begin_android() -> String:
 	var runtime: Object=Engine.get_singleton("AndroidRuntime")
 	var bridge: Object=java.call("wrap","cloud.kosch.skizones.AppInfoBridge")
 	if bridge==null:return ""
+	# Arm before startActivity() can trigger Android pause/focus-out.
+	_picker_handoff_deadline_msec=Time.get_ticks_msec()+600000
 	var token:String=str(bridge.call("selectSaveImport",runtime.call("getActivity")))
-	if java.call("get_exception")!=null or not valid_token(token):return ""
+	if java.call("get_exception")!=null or not valid_token(token):
+		finish_picker_handoff()
+		return ""
 	return token
 
 static func poll(token: String) -> Dictionary:
