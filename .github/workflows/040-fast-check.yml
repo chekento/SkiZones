@@ -97,6 +97,8 @@ jobs:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-integrity-040
           SKIZONES_SAFE_SAVE_TEST: '1'
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_integrity_040.gd
+      - name: Verify real specialist wages, capacity gains and unprofitable idle buildings
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/specialist_building_040.gd
       - name: Verify ski school instructors, private lessons and group escorts
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_instructors_040.gd
       - name: Verify Android import preview and explicit activation never destroy previous saves
@@ -116,6 +118,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-career-ui-040
         run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/career_slots_scene.gd
+      - name: Verify legacy hotel menu now displays qualified profession buttons on phones
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-ui-038
+        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 330 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/ui_building_career_038.gd
       - name: Run 0.40 in English at 1440x900
         run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1440x900 --script tests/resort_command_center_scene_040.gd
       - uses: actions/upload-artifact@v4
