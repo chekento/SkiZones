@@ -86,11 +86,12 @@ func setup(interface: CanvasLayer) -> void:
 	hide()
 ## A picker writes to an isolated inbox. Only a validated preview and
 ## deliberate confirmation may replace a saved resort. No auto-import.
-func _import_button(parent:VBoxContainer,slot:int,free_slot:int=1) -> void:
+func _import_button(parent:Container,slot:int,free_slot:int=1) -> Button:
 	var button:Button=hud._button(parent,L.text("JSON/ZIP importieren"),func():_begin_import(slot,free_slot))
 	button.name="import_save_040"
 	button.tooltip_text=L.text("Spielstand auf Android auswählen, prüfen und sicher übernehmen")
 	button.custom_minimum_size.y=48
+	return button
 
 func _import_diagnostic_text(report:Dictionary) -> String:
 	var lines:PackedStringArray=PackedStringArray()
@@ -205,7 +206,7 @@ func _slot_summary(parent: VBoxContainer, summary: Dictionary, damaged: bool) ->
 		hud._label(column,str(entry[0]),13,hud.MUTED,true)
 		hud._label(column,str(entry[1]),14 if entry[0]==L.text("Guthaben") else 16,hud.INK,true)
 
-func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1) -> void:
+func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:int=1,show_import:bool=true) -> void:
 	# Keep recovery and destructive actions behind a deliberate disclosure.
 	# The resort card itself shows only play/new and this compact manager.
 	var drawer:=PanelContainer.new()
@@ -302,7 +303,12 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	remove.add_theme_stylebox_override("hover",hud._style(Color("edbcb0"),9,10))
 	remove.add_theme_stylebox_override("pressed",hud._style(Color("e9ad9e"),9,10))
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
-	for button in [check,rescue,export_button,copy,remove]:
+	var actions: Array=[check,rescue,export_button,copy,remove]
+	# Occupied slots have ONE compact management drawer, not another large
+	# recovery button in the primary play/new area. Empty slots still
+	# expose the import directly because no manager exists yet.
+	if show_import:actions.append(_import_button(section,slot,free_slot))
+	for button in actions:
 		button.add_theme_font_size_override("font_size",16)
 		button.custom_minimum_size=Vector2(144,50)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -331,14 +337,13 @@ func _refresh_free_cards() -> void:
 			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Freies Resort fortsetzen"),func():hud.game.select_free_slot(free_slot),true)
 			_management_actions(body,str(summary.map),0,free_slot)
-			_import_button(body,0,free_slot)
 			var entries: Array = Saves.saved_resorts(0,free_slot)
 			if entries.size() > 1:
 				for entry in entries:
 					if entry.map == summary.map: continue
 					var area: String = str(entry.map)
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + L.text("Resort fortsetzen"),func():hud.game.select_free_area(free_slot,area))
-					_management_actions(body,area,0,free_slot)
+					_management_actions(body,area,0,free_slot,false)
 			hud._button(body,L.text("Diesen freien Platz neu beginnen"),func():
 				pending_slot=free_slot
 				hud.present_dialog(confirmation,Vector2i(620,240))
@@ -372,7 +377,6 @@ func refresh() -> void:
 			_slot_summary(body,summary,damaged)
 			hud._button(body,L.text("Diese Karriere fortsetzen"),func():hud.game.select_career_slot(slot,false),true)
 			_management_actions(body,str(summary.map),slot)
-			_import_button(body,slot)
 			# Do not hide another old mountain behind a single last-map index.
 			var entries: Array = Saves.saved_resorts(slot)
 			if entries.size() > 1:
@@ -382,7 +386,7 @@ func refresh() -> void:
 					var area: String = str(entry.map)
 					var subtitle: String = L.text("Spielstand prüfen") if entry.damaged else L.text("Resort fortsetzen")
 					hud._button(body,L.text(Maps.spec(area).name) + " · " + subtitle,func():hud.game.select_career_area(slot,area))
-					_management_actions(body,area,slot)
+					_management_actions(body,area,slot,1,false)
 			hud._button(body,L.text("Neue Karriere auf diesem Platz"),func():pending_slot=slot;hud.present_dialog(confirmation,Vector2i(620,240)))
 		else:
 			hud._label(body,L.text("Freier Karriereplatz"),17,hud.MUTED)
