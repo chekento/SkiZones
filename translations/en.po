@@ -10631,3 +10631,9 @@ msgstr "%s · %s · v%d · %d B"
 
 msgid "Nur baubar"
 msgstr "Buildable only"
+
+msgid "SKILEHRER IM DIENST  %d  ·  AKTIVE KURSE  %d  ·  FREIE LEHRKRÄFTE  %d"
+msgstr "SKI INSTRUCTORS ON DUTY  %d  ·  ACTIVE LESSONS  %d  ·  AVAILABLE  %d"
+
+msgid "Einzelunterricht (1 Gast) oder Gruppenkurs (2–6 Gäste). Skilehrer begleiten die nächste Abfahrt."
+msgstr "Private lessons (1 guest) or group lessons (2–6 guests). Instructors escort the next descent."
