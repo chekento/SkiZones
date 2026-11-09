@@ -4,7 +4,8 @@ on:
   push:
     # A release gate must run on connector-created branch pushes even when
     # GitHub does not emit a separate pull_request synchronize workflow event.
-    # Publishing below is still restricted to refs/heads/main.
+    # The signed 0.40.0 PREVIEW may also publish from its dedicated
+    # validated release-candidate branch; all other versions require main.
     branches: [main, feature/0.40-alpine-world-ui-overhaul]
     paths-ignore:
       - 'README.md'
@@ -623,7 +624,10 @@ jobs:
   publish:
     name: Publish APK download
     needs: [godot, android-lifecycle, career-recovery, historical-saves]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # Do not wait for resolving unrelated main-branch merge conflicts just
+    # to ship an explicitly labeled 0.40.0 preview. No release can bypass
+    # full Godot, original-save, Android-30/36 and update signing gates.
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/feature/0.40-alpine-world-ui-overhaul' && needs.godot.outputs.version == '0.40.0'))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -637,7 +641,9 @@ jobs:
       - name: Confirm this is still the current application source
         id: current
         run: |
-          git fetch --depth=1 origin main
+          # Compare the validated source against the LATEST commit of the
+          # release's own branch (never publish superseded APK bytes).
+          git fetch --depth=1 origin "$GITHUB_REF_NAME"
           if git diff --quiet "$GITHUB_SHA" FETCH_HEAD -- src scenes tests tools assets project.godot export_presets.cfg .github/workflows/validate-and-build.yml ':!tools/sync_releases.py'; then
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           else
