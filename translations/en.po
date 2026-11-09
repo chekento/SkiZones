@@ -10562,3 +10562,45 @@ msgstr "Interrupted save loaded from a temporary recovery file. All original fil
 
 msgid "Der Zielplatz enthält Spielstanddaten oder eine unvollständige Sicherung. Bitte zuerst prüfen und wiederherstellen."
 msgstr "The destination slot contains save data or an interrupted backup. Inspect and recover it before copying."
+
+msgid "Import bestätigen?"
+msgstr "Confirm import?"
+
+msgid "Spielstand sicher importieren"
+msgstr "Import save safely"
+
+msgid "JSON/ZIP importieren"
+msgstr "Import JSON/ZIP"
+
+msgid "Spielstand auf Android auswählen, prüfen und sicher übernehmen"
+msgstr "Select, inspect, and safely import a saved game on Android"
+
+msgid "Import nicht verfügbar. Android-Dateiauswahl konnte nicht geöffnet werden."
+msgstr "Import unavailable. Android document picker could not be opened."
+
+msgid "Datei prüfen …"
+msgstr "Inspecting file…"
+
+msgid "Importdatei konnte nicht gelesen werden."
+msgstr "Could not read the import file."
+
+msgid "Import abgebrochen."
+msgstr "Import cancelled."
+
+msgid "Importdatei beschädigt oder nicht unterstützt."
+msgstr "Import file is damaged or unsupported."
+
+msgid "Keine passende Spielstand-Datei im Archiv gefunden."
+msgstr "No compatible saved game found in the archive."
+
+msgid "Datei: %s · Tag %d · %s · Platz %d"
+msgstr "File: %s · Day %d · %s · Slot %d"
+
+msgid "Original, Sicherung und temporäre Dateien werden vor der Übernahme separat archiviert. Der Import erfolgt erst nach Bestätigung."
+msgstr "Existing primary, backup and temporary files are archived separately before replacement. Import happens only after confirmation."
+
+msgid "Spielstand importiert. Die bisherigen Dateien wurden sicher archiviert."
+msgstr "Saved game imported. Previous files were safely archived."
+
+msgid "Spielstandimport fehlgeschlagen. Originaldateien bleiben erhalten."
+msgstr "Save import failed. Original files were preserved."
