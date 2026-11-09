@@ -90,6 +90,8 @@ jobs:
           sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout=30
           sudo apt-get install -y -o Acquire::Retries=2 xvfb libgl1-mesa-dri
       - name: Run 0.40 actual mobile UI at 420x860
+        env:
+          SKIZONES_QA_PHONE: '1'
         run: xvfb-run -a -s '-screen 0 1200x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 420x860 --script tests/resort_command_center_scene_040.gd
       - name: Run 0.40 in English at 1440x900
         run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1440x900 --script tests/resort_command_center_scene_040.gd
