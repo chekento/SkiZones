@@ -91,15 +91,16 @@ static func make(kind: String, style: String = "alpine") -> ArrayMesh:
 			a.cone(Vector3(0,7.6,0),1.8,2.5,gold,0.4)
 			a.sphere(Vector3(0,6.1,0),0.5,wood)
 		"poster":
-			# Portrait-advertisement kiosk, never used as a gameplay obstacle.
-			for x in [-4.0,4.0]: a.box(Vector3(x,4,0),Vector3(.42,8,.55),wood)
-			a.box(Vector3(0,8,0),Vector3(10,1.3,1.0),snow)
-			a.box(Vector3(0,4.5,0),Vector3(10,7.0,.55),gold)
-			a.box(Vector3(0,4.5,.40),Vector3(8.8,5.7,.12),Color("263952") if style!="bauhaus" else Color("d95d4a"))
-			for i in range(4):
-				var x: float=-3.2+i*2.1
-				a.cone(Vector3(x,3.8,.6),.9,2.0,snow,.05)
-			a.sphere(Vector3(0,10,0),.8,red)
+			# 16:9 landscape billboard. Outer border 14 x 8, picture exactly
+			# 12.8 x 7.2 world units. The picture is a separate quad so the
+			# decorative frame never covers the actual PMDD depth artwork.
+			for x in [-6.85,6.85]:
+				a.box(Vector3(x,4.4,0),Vector3(.46,8.8,.65),wood)
+				a.sphere(Vector3(x,8.7,0),.42,red)
+			a.box(Vector3(0,4.4,0),Vector3(14.0,8.15,.64),gold)
+			a.box(Vector3(0,4.4,.35),Vector3(12.8,7.2,.12),Color("263952") if style!="bauhaus" else Color("d95d4a"))
+			a.box(Vector3(0,8.63,0),Vector3(14.3,.52,.90),snow)
+			a.sphere(Vector3(0,9.1,0),.55,red)
 		"firework":
 			for i in range(12):
 				var ang:=float(i)*TAU/12.0
