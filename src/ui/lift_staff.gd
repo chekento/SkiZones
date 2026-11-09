@@ -2,6 +2,7 @@ extends PanelContainer
 ## The selected asset owns its complete operating and staffing controls.
 const L = preload("res://src/core/i18n.gd")
 const Ops = preload("res://src/core/operations.gd")
+const SkiLessons040=preload("res://src/core/ski_lessons_040.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 var hud: CanvasLayer
@@ -131,6 +132,11 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 		var seats: int=model.service_capacity(item) if model.Needs.SERVICES.has(str(item.kind)) else 0
 		hud._label(general,L.text("GÄSTE  %d/%d  ·  BESUCHE  %d  ·  UMSATZ  %s €") % [current,seats,int(item.get("visits",0)),hud.money_text(balance.sales)],19,hud.TEAL,true)
 		hud._label(general,L.text("KOSTEN  %s €  ·  SALDO  %s €") % [hud.money_text(balance.costs),hud.money_text(balance.net)],18,hud.MUTED,true)
+		if str(item.kind)=="school":
+			var teachers:int=SkiLessons040.qualified(model,item).size()
+			var available:int=SkiLessons040.available(model,item).size()
+			hud._label(general,L.text("SKILEHRER IM DIENST  %d  ·  AKTIVE KURSE  %d  ·  FREIE LEHRKRÄFTE  %d") % [teachers,teachers-available,available],17,hud.TEAL,true)
+			hud._label(general,L.text("Einzelunterricht (1 Gast) oder Gruppenkurs (2–6 Gäste). Skilehrer begleiten die nächste Abfahrt."),15,hud.MUTED,true)
 	if item.has("bottom"):
 		var parts:=Ops.line_lifts(model,item)
 		_button(general,L.text("Liftverbund schließen") if parts.any(func(part):return part.enabled) else L.text("Liftverbund öffnen"),_toggle_line)
