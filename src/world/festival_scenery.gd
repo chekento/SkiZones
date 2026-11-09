@@ -57,47 +57,10 @@ func build(view: Node3D) -> void:
 	if Calendar.preview_poster(now): stage="november_poster"
 	_world_key="%d:%s" % [int(now.get("year",0)),stage]
 	if stage=="": return
-	if stage=="november_poster":
-		# Reuse the confirmed original art if its bytes are subsequently supplied.
-		# Until then there is a sharply drawn, original on-site billboard and a
-		# full-screen vector fallback. Never fabricate the original artwork.
-		var mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
-		mesh.surface_set_material(0,view._solid)
-		var original_path: String="res://assets/seasonal/christmas_poster_original.webp"
-		var original_image: Texture2D=load(original_path) as Texture2D if ResourceLoader.exists(original_path) else null
-		for index in range(3):
-			var at: Vector2=Vector2.INF
-			for step in range(20):
-				var angle: float=float(index)*TAU/3.0+float(step)*0.31
-				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
-				if _valid_place(view,candidate):
-					at=candidate
-					break
-			if not at.is_finite(): continue
-			poster_sites.append(at)
-			var board:=MeshInstance3D.new()
-			board.mesh=mesh
-			board.position=view.terrain.world(at,0.25)
-			board.rotation.y=float(index)*1.25
-			board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			root.add_child(board)
-			var sign:=Label3D.new()
-			sign.text="SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
-			sign.font_size=39
-			sign.pixel_size=0.021
-			sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-			sign.outline_size=4
-			sign.position=Vector3(0,5.0,0.85)
-			board.add_child(sign)
-			if original_image!=null:
-				var picture:=Sprite3D.new()
-				picture.texture=original_image
-				picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-				picture.pixel_size=0.015
-				picture.position=Vector3(0,5,1.2)
-				board.add_child(picture)
-				sign.hide()
-		return
+	# Poster boards are visible throughout the corresponding campaign;
+	# the Advent reward system itself remains disabled before December 1.
+	_spawn_posters(view,stage)
+	if stage=="november_poster":return
 	_decorate_buildings(view,stage)
 	var owned: Array=store.overview(now).owned
 	# Central free seasonal ambience. Bought decors are additional objects.
@@ -185,6 +148,67 @@ func update(view: Node3D, delta: float) -> void:
 		var key:="%d:%s" % [int(date.get("year",0)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
 		if key!=_world_key: build(view)
 
+
+## The original generated posters belong in assets/seasonal, as actual
+## textures. When artwork has not been supplied, the board stays clearly
+## marked as a text preview rather than claiming an image exists.
+func _poster_artworks(stage: String) -> Array:
+	var paths: Array=[]
+	if stage=="november_poster":
+		paths=["res://assets/seasonal/christmas_poster_original.webp","res://assets/seasonal/christmas_poster_alt_01.webp"]
+	elif stage in ["advent","christmas"]:
+		paths=["res://assets/seasonal/christmas_poster_original.webp","res://assets/seasonal/christmas_poster_alt_01.webp"]
+	elif stage in ["new_year_eve","new_year"]:
+		paths=["res://assets/seasonal/new_year_poster_original.webp","res://assets/seasonal/new_year_poster_alt_01.webp"]
+	var available: Array=[]
+	for path in paths:
+		if ResourceLoader.exists(path):available.append(path)
+	return available
+
+func _spawn_posters(view: Node3D,stage: String) -> void:
+	var originals: Array=_poster_artworks(stage)
+	var sign_text: String="SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
+	if stage in ["advent","christmas"]:
+		sign_text="SKIZONES · WEIHNACHTEN\\nADVENTSKALENDER AB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
+	elif stage in ["new_year_eve","new_year"]:
+		sign_text="SKIZONES · SILVESTER\\nNEUJAHR IM BERGDORF\\nZUM PLAKAT TIPPEN"
+	var art_mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
+	art_mesh.surface_set_material(0,view._solid)
+	for index in range(3):
+		var at: Vector2=Vector2.INF
+		for step in range(20):
+			var angle: float=float(index)*TAU/3.0+float(step)*0.31
+			var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
+			if _valid_place(view,candidate):
+				at=candidate
+				break
+		if not at.is_finite():continue
+		poster_sites.append(at)
+		var board:=MeshInstance3D.new()
+		board.mesh=art_mesh
+		board.position=view.terrain.world(at,0.25)
+		board.rotation.y=float(index)*1.25
+		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(board)
+		var sign:=Label3D.new()
+		sign.text=sign_text
+		sign.font_size=39
+		sign.pixel_size=0.021
+		sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		sign.outline_size=4
+		sign.position=Vector3(0,5.0,0.85)
+		board.add_child(sign)
+		if not originals.is_empty():
+			# Stable rotation between supplied originals, not a placeholder texture.
+			var texture: Texture2D=load(str(originals[index%originals.size()])) as Texture2D
+			if texture!=null:
+				var picture:=Sprite3D.new()
+				picture.texture=texture
+				picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+				picture.pixel_size=0.015
+				picture.position=Vector3(0,5,1.2)
+				board.add_child(picture)
+				sign.hide()
 
 func _decorate_buildings(view: Node3D,stage: String) -> void:
 	for building in view.model.buildings:
