@@ -166,10 +166,10 @@ func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
 		var picture:=Sprite3D.new()
 		picture.texture=images[variant]
 		picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-		# The 256x384 portrait image must fit within the actual frame
-		# backing at y=1..8. The former 0.026 pixel size made it 9.98m high,
-		# extending below the terrain and into the snowy base of the board.
-		picture.pixel_size=0.018
+		# Fit fallback AND optional high-resolution/custom WEBP art to
+		# the frame backing (x=-4.4..4.4, y=1..8). Fixed pixel sizes clipped
+		# taller posters into the snow. Allow 2% margin for texture filtering.
+		picture.pixel_size=0.98*minf(8.8/maxf(1.0,float(picture.texture.get_width())),7.0/maxf(1.0,float(picture.texture.get_height())))
 		picture.position=Vector3(0,4.5,0.95)
 		picture.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		board.add_child(picture)
