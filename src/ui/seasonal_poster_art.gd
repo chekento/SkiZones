@@ -4,6 +4,7 @@ extends Control
 const Styles=preload("res://src/core/visual_styles.gd")
 const L=preload("res://src/core/i18n.gd")
 var style_id := "alpine"
+var phase := "november_poster"
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -34,8 +35,13 @@ func _draw() -> void:
 	for line in ["WINTER","WUNDER","SKIZONES"]:
 		while font_size>15 and font.get_string_size(line,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x>w-38:
 			font_size-=1
+	var headlines: Array=["WINTER","WUNDER","SKIZONES"]
+	if phase in ["new_year_eve","new_year"]:headlines=["SILVESTER","NEUJAHR","SKIZONES"]
+	elif phase in ["advent","christmas"]:headlines=["ADVENT","WEIHNACHT","SKIZONES"]
 	for i in range(3):
-		draw_string(font,Vector2(12,h*.20+float(i)*font_size*1.08),L.text(["WINTER","WUNDER","SKIZONES"][i]),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-24),font_size,Color("fff2d3"))
+		draw_string(font,Vector2(12,h*.20+float(i)*font_size*1.08),L.text(str(headlines[i])),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-24),font_size,Color("fff2d3"))
 	var call_size:=clampi(roundi(w*.047),14,35)
-	draw_string(font,Vector2(10,h*.77),L.text("AB 1. DEZEMBER"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),call_size,Color("f5ffe9"))
-	draw_string(font,Vector2(10,h*.83),L.text("24 TÜRCHEN · EIN BERGDORF"),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),clampi(roundi(w*.028),11,22),Color("fff3d3"))
+	var date_line: String="AB 1. DEZEMBER" if phase=="november_poster" else "24 TÜRCHEN · 1.–24. DEZEMBER" if phase in ["advent","christmas"] else "SILVESTER AB 27. DEZEMBER"
+	draw_string(font,Vector2(10,h*.77),L.text(date_line),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),call_size,Color("f5ffe9"))
+	var subtitle: String="VORWERBUNG · NOCH KEIN ADVENTSKALENDER" if phase=="november_poster" else "24 TÜRCHEN · EIN BERGDORF" if phase in ["advent","christmas"] else "WINTERPARTY ZUM JAHRESWECHSEL"
+	draw_string(font,Vector2(10,h*.83),L.text(subtitle),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-20),clampi(roundi(w*.028),11,22),Color("fff3d3"))
