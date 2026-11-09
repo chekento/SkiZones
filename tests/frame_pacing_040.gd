@@ -31,6 +31,9 @@ func run() -> void:
 	check(absf(FramePacing.ski_sample_interval(28.8,24)-0.48)<0.00001 and absf(FramePacing.ski_sample_interval(57.6,24)-0.96)<0.00001,"4x and 8x accelerated resort clock bounds exact samples to approximately 30 Hz")
 	check(FramePacing.ski_sample_interval(70.4,24)>1.17,"Compact-day 8x playback avoids skipping multiple terrain-sample cache cells per frame")
 	check(FramePacing.ski_sample_interval(1.0,1)==0.12 and FramePacing.ski_sample_interval(4.0,1)==0.24 and FramePacing.ski_sample_interval(8.0,1)==0.40,"Legacy clocks retain the same 1x/4x/8x sampling ratios")
+	check(absf(FramePacing.ski_sample_interval(16.0,24,240)-0.3333333)<0.00001 and absf(FramePacing.ski_sample_interval(32.0,24,360)-0.8)<0.00001,"Crowded resorts reduce only the expensive terrain sample rate at 4x and 8x")
+	check(FramePacing.ski_sample_interval(4.0,24,360)==0.12,"1x stays precision-biased even in the 360-guest stress case")
+	check(FramePacing.ski_sample_interval(32.0,24,80)==FramePacing.ski_sample_interval(32.0,24),"Normal-sized resorts retain existing high-speed motion sampling")
 	var model:=Resort.new()
 	model.new_game(false)
 	model.money=3000000.0
