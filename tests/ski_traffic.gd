@@ -3,8 +3,10 @@ extends SceneTree
 const Traffic = preload("res://src/core/guest_traffic.gd")
 class FakeResort extends RefCounted:
 	var guests: Array = []
+	var asset_reads: int = 0
 	var piste := {"id": 7, "length": 100.0, "width": 21.0, "level": 1}
 	func asset(id: int) -> Dictionary:
+		asset_reads+=1
 		return piste if id == 7 else {}
 	func ski_fraction(_leg: Dictionary, progress: float, _samples: Array = []) -> float:
 		return clampf(progress, 0.0, 1.0)
@@ -52,8 +54,10 @@ func run() -> void:
 	model.guests = []
 	for i in range(240):
 		model.guests.append(skier(i, 10.0 + float(i % 40)))
+	model.asset_reads=0
 	var large := Traffic.steps(model)
 	check(large.size() == 240, "Large scenario crowd is processed without dropping visitors")
+	check(model.asset_reads==1, "All 240 skiers on one piste share one asset lookup per simulation tick")
 	check(large.values().all(func(step): return step >= 0.0 and step <= 1.0), "Crowded slope never reverses skiers or exceeds personal speed")
 	var waiting := skier(999, 20.0, "waiting")
 	model.guests = [waiting, skier(30, 19.0)]
