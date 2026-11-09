@@ -56,10 +56,15 @@ static func steps(model: RefCounted) -> Dictionary:
 		if guest.phase != "moving" or guest.leg >= guest.route.legs.size(): continue
 		var leg: Dictionary = guest.route.legs[guest.leg]
 		if leg.kind != "ski": continue
-		var piste: Dictionary = model.asset(int(leg.id))
-		if piste.is_empty(): continue
 		var key := int(leg.id)
-		pistes[key] = piste
+		# A high-traffic piste can host hundreds of guests. Resolve its asset
+		# once per traffic tick rather than scanning every lift and piste for
+		# each guest. Geometry is immutable during this collection pass.
+		var piste:Dictionary=pistes.get(key,{})
+		if piste.is_empty():
+			piste=model.asset(key)
+			if piste.is_empty():continue
+			pistes[key]=piste
 		if not groups.has(key): groups[key] = []
 		groups[key].append({"guest": guest, "leg": leg, "at": model.ski_fraction(leg, guest.elapsed / maxf(guest.duration, 0.001), guest.get("ski_motion", []))})
 	var result: Dictionary = {}
