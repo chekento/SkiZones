@@ -34,7 +34,7 @@ func run() -> void:
 	var source:String=folder+"/00.json"
 	check(Saves.save_game(candidate,source).ok,"Source career is staged outside the real slot")
 	var source_sha:String=FileAccess.get_sha256(source)
-	var entry:Dictionary={"name":"00.json","source":"00-career_3_sonnenhang.json","bytes":FileAccess.get_length(source),"sha256":source_sha}
+	var entry:Dictionary={"name":"00.json","source":"00-career_3_sonnenhang.json","bytes":FileAccess.get_file_as_bytes(source).size(),"sha256":source_sha}
 	var meta:Dictionary={"token":token,"status":"ready","files":[entry]}
 	var preview:Dictionary=Importer.inspect(token,meta,2)
 	check(preview.ok and preview.verified==1 and preview.selected.map=="sonnenhang","Validated preview recognizes exact career mode and map")
