@@ -81,6 +81,20 @@ public final class AppInfoBridge {
             return "share_failed";
         }
     }
+    /**
+     * Start the OS document picker. Returns an opaque token consumed by
+     * the in-game read-only importer; no save is changed until confirmation.
+     */
+    public static String selectSaveImport(Activity activity) {
+        if (activity == null) return "";
+        String token = java.util.UUID.randomUUID().toString().replace("-", "");
+        try {
+            android.content.Intent intent = new android.content.Intent(activity, SaveImportActivity.class);
+            intent.putExtra("token", token);
+            activity.startActivity(intent);
+            return token;
+        } catch (RuntimeException ignored) { return ""; }
+    }
     public static void clearLegacyUpdateCache(Activity activity) {
         File folder = new File(activity.getCacheDir(), "skizones-update");
         File apk = new File(folder, "update.apk");
