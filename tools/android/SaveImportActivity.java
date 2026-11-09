@@ -83,7 +83,8 @@ public final class SaveImportActivity extends Activity {
         try (Cursor result = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
             if (result != null && result.moveToFirst() && !result.isNull(0)) display = result.getString(0);
         } catch (RuntimeException ignored) { /* Name is informative only. */ }
-        return display.replaceAll("[^a-zA-Z0-9._-]", "_").substring(0, Math.min(display.length(), 80));
+        String safe = display.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return safe.substring(0, Math.min(safe.length(), 80));
     }
 
     private static long copyLimited(InputStream in, File target, long maximum) throws IOException {
