@@ -86,7 +86,7 @@ func _rebuild(date: Dictionary = {}) -> void:
 			)
 	if stage=="new_year_eve":
 		hud._label(contents,L.text("Silvester – gemeinsam in das neue Jahr!"),24,hud.TEAL,true)
-		clock_label=hud._label(contents,"",32,hud.INK,true)
+		clock_label=hud._label(contents,L.text("Jahreswechsel am 31. Dezember") if int(now.day)<31 else "",32,hud.INK,true)
 		_clock_bucket=-1
 	elif stage=="new_year":
 		hud._label(contents,L.text("Frohes neues Jahr!"),30,hud.TEAL,true)
