@@ -211,6 +211,7 @@ func _spawn_posters(view: Node3D,stage: String) -> void:
 		# into WebP. A thick dark outline keeps it readable on winter skies.
 		var sign:=Label3D.new()
 		sign.text=Posters.headline(stage,artwork)
+		sign.set_meta("source_text",Posters.source_headline(stage,artwork))
 		sign.font_size=39
 		sign.pixel_size=0.016
 		sign.outline_size=10
