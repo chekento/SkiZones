@@ -38,15 +38,21 @@ static func available(stage: String) -> Array:
 static func is_advent(path: String) -> bool:
 	return path in ADVENT
 
-static func headline(stage: String, art_path: String = "") -> String:
+## Preserve German msgid for the existing ResortView.relocalize pipeline.
+## Switching the menu language must immediately repaint the same roadside
+## caption, without changing or reloading the underlying holiday texture.
+static func source_headline(stage: String, art_path: String = "") -> String:
 	if stage=="november_poster":
-		return L.text("ADVENTSKALENDER · AB 1. DEZEMBER") if is_advent(art_path) else L.text("WEIHNACHTSZAUBER · AB 1. DEZEMBER")
+		return "ADVENTSKALENDER · AB 1. DEZEMBER" if is_advent(art_path) else "WEIHNACHTSZAUBER · AB 1. DEZEMBER"
 	if stage=="advent":
-		return L.text("24 TÜRCHEN · JEDEN TAG NEU") if is_advent(art_path) else L.text("FROHE ADVENTSZEIT")
-	if stage=="christmas":return L.text("FROHE WEIHNACHTEN")
-	if stage=="new_year_eve":return L.text("SILVESTER AM BERG")
-	if stage=="new_year":return L.text("FROHES NEUES JAHR")
+		return "24 TÜRCHEN · JEDEN TAG NEU" if is_advent(art_path) else "FROHE ADVENTSZEIT"
+	if stage=="christmas":return "FROHE WEIHNACHTEN"
+	if stage=="new_year_eve":return "SILVESTER AM BERG"
+	if stage=="new_year":return "FROHES NEUES JAHR"
 	return ""
+
+static func headline(stage: String, art_path: String = "") -> String:
+	return L.text(source_headline(stage,art_path))
 
 static func campaign_active(stage: String) -> bool:
 	return stage in ["november_poster","advent","christmas","new_year_eve","new_year"]
