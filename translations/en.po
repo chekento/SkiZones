@@ -10604,3 +10604,6 @@ msgstr "Saved game imported. Previous files were safely archived."
 
 msgid "Spielstandimport fehlgeschlagen. Originaldateien bleiben erhalten."
 msgstr "Save import failed. Original files were preserved."
+
+msgid "Importierte JSON-Datei"
+msgstr "Imported JSON file"
