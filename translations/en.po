@@ -10625,3 +10625,6 @@ msgstr "Partial recovery: guest itineraries may be reset."
 
 msgid "Vollständig ladbar und prüfsummengeprüft."
 msgstr "Fully loadable and checksum-verified."
+
+msgid "%s · %s · v%d · %d B"
+msgstr "%s · %s · v%d · %d B"
