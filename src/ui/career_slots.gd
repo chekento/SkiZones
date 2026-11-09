@@ -116,6 +116,7 @@ func _process(delta:float) -> void:
 	if import_token.is_empty():return
 	import_wait+=maxf(0.0,delta)
 	if import_wait>180.0:
+		SaveImport040.finish_picker_handoff()
 		import_token=""
 		import_destination.clear()
 		hud.toast(L.text("Importdatei konnte nicht gelesen werden."))
@@ -125,6 +126,7 @@ func _process(delta:float) -> void:
 	if status=="pending":return
 	var token:String=import_token
 	import_token=""
+	SaveImport040.finish_picker_handoff()
 	if status=="cancelled":
 		import_destination.clear()
 		hud.toast(L.text("Import abgebrochen."))
