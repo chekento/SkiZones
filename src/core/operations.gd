@@ -360,6 +360,16 @@ static func legacy_building_roles(kind: String) -> Array:
 		"rental","school","fitness","souvenir","watchmaker","craftshop","printing_press","newsstand":return ["hotel"]
 	return []
 
+## Only occupations the venue can employ may appear in its optional hiring UI.
+## The historical generic hotel/catering staff stay loadable but are never
+## offered as NEW hires at unrelated venues such as the ski school.
+static func optional_roles(kind: String) -> Array:
+	if PublicWC.is_public(kind): return ["sanitation"]
+	var unique: Array=[]
+	for role in building_roles(kind):
+		if not unique.has(role):unique.append(role)
+	return unique
+
 static func role_matches_building(role: String, kind: String) -> bool:
 	# Public WCs function without staff, but an optional sanitation crew may
 	# independently clean and empty them. No hotel/reception roles are allowed.
