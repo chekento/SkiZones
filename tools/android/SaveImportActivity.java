@@ -116,13 +116,18 @@ public final class SaveImportActivity extends Activity {
     private void importZip(File archive, JSONArray files) throws Exception {
         long total = 0;
         int entries = 0;
+        int scanned = 0;
+        boolean diagnosticSeen = false;
         try (ZipInputStream zip = new ZipInputStream(new FileInputStream(archive))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 String name = entry.getName();
+                if (++scanned > MAX_FILES + 1) throw new IOException("too_many_archive_entries");
                 if (entry.isDirectory() || !("diagnostic.json".equals(name) || isSaveEntry(name)))
                     throw new IOException("invalid_archive_entry");
                 if ("diagnostic.json".equals(name)) {
+                    if (diagnosticSeen) throw new IOException("duplicate_diagnostic");
+                    diagnosticSeen = true;
                     // Read and discard the optional metadata, but bound it too.
                     byte[] discard = new byte[4096];
                     long n = 0;
