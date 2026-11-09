@@ -10607,3 +10607,21 @@ msgstr "Save import failed. Original files were preserved."
 
 msgid "Importierte JSON-Datei"
 msgstr "Imported JSON file"
+
+msgid "Importdiagnose"
+msgstr "Import diagnostics"
+
+msgid "%d Dateien geprüft · %d Prüfsummen bestätigt"
+msgstr "%d files inspected · %d checksums verified"
+
+msgid "Vollständig ladbar"
+msgstr "Fully loadable"
+
+msgid "Teilweise wiederherstellbar"
+msgstr "Partially recoverable"
+
+msgid "Teilweise wiederherstellbar: Besucherverläufe können zurückgesetzt werden."
+msgstr "Partial recovery: guest itineraries may be reset."
+
+msgid "Vollständig ladbar und prüfsummengeprüft."
+msgstr "Fully loadable and checksum-verified."
