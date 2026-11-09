@@ -51,6 +51,18 @@ func run() -> void:
 			check(festive.poster_sites.size()>0,"Christmas billboards use real nonblocking terrain sites")
 			var billboard_nodes: Array=festive.root.get_children().filter(func(node):return node.has_meta("poster_campaign"))
 			check(not billboard_nodes.is_empty() and billboard_nodes.all(func(node):return node.scale.x>=1.6),"Billboards are large enough to recognize in the resort overview")
+			var portraits_fit:=true
+			for board in billboard_nodes:
+				var picture:Sprite3D=null
+				for child in board.get_children():
+					if child is Sprite3D:picture=child;break
+				if picture==null or picture.texture==null:
+					portraits_fit=false
+					continue
+				var half_height:float=float(picture.texture.get_height())*picture.pixel_size*0.5
+				var half_width:float=float(picture.texture.get_width())*picture.pixel_size*0.5
+				portraits_fit=portraits_fit and picture.position.y-half_height>=0.99 and picture.position.y+half_height<=8.01 and half_width<=4.41
+			check(portraits_fit,"All portrait poster images fit their real 3D frames without clipping into snow")
 		check(game.view.asset_root.get_children()==original_nodes,style+" preserves building, lift and vehicle nodes")
 		check(game.view.terrain_instance.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]==terrain_vertices,style+" preserves terrain geometry")
 		var decorations: Array=festive.root.get_children().filter(func(node):return node.has_meta("festival_kind"))
