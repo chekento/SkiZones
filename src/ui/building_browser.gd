@@ -17,6 +17,7 @@ var groups := ["Alle Gebäude","Unterkünfte & Hotels","Verpflegung & Wärme","S
 var selected_kind := "cabin"
 var preview := Icon.new()
 var detail: Label
+var introduction: Label
 var choose: Button
 var _state := ""
 
@@ -28,19 +29,23 @@ func setup(owner_hud: CanvasLayer) -> void:
 	window.setup(hud,L.text("Dein Dorf · Gebäudekatalog"))
 	window.close_requested.connect(hide)
 	var body: VBoxContainer=window.body
-	hud._label(body,L.text("Gebäude entdecken, vergleichen und direkt am Berg platzieren. Fenster am Titel ziehen; unten rechts die Größe ändern."),15,hud.MUTED,true)
+	introduction=hud._label(body,L.text("Gebäude entdecken, vergleichen und direkt am Berg platzieren. Fenster am Titel ziehen; unten rechts die Größe ändern."),15,hud.MUTED,true)
 	filters.columns=2
 	filters.add_theme_constant_override("h_separation",10)
 	filters.add_theme_constant_override("v_separation",8)
 	body.add_child(filters)
 	for group in groups: category.add_item(L.text(group))
 	category.custom_minimum_size=Vector2(0,46)
+	category.fit_to_longest_item=false
+	category.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	category.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	filters.add_child(category)
 	search.placeholder_text=L.text("Gebäude suchen …")
 	search.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	filters.add_child(search)
 	sort_choice.custom_minimum_size.y=46
+	sort_choice.fit_to_longest_item=false
+	sort_choice.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
 	for label in ["Preis: günstig zuerst","Preis: teuer zuerst","Betriebskosten: günstig zuerst","Gebäude: A–Z"]:
 		sort_choice.add_item(L.text(label))
 	sort_choice.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -124,7 +129,15 @@ func _refresh(force: bool = false) -> void:
 	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)+str(hud.game.view.visual_style)+search.text+str(category.selected)+str(sort_choice.selected)+str(ready_only.button_pressed)
 	if state==_state and not force: return
 	_state=state
-	filters.columns=1 if window.size.x<620 else 2
+	# In portrait the introductory text and a four-row filter column used
+	# nearly half the phone height; expose two balanced filter columns when
+	# touch targets remain at least ~175px wide. Preserve a single column
+	# only on genuinely narrow floating windows.
+	var compact:bool=window.size.x<620
+	introduction.visible=not compact
+	filters.columns=1 if window.size.x<375 else 2
+	ready_only.text=L.text("Nur baubar") if compact else L.text("Nur jetzt baubare Gebäude")
+	ready_only.tooltip_text=L.text("Nur jetzt baubare Gebäude")
 	grid.columns=clampi(floori((window.size.x-54)/235),1,4)
 	cards.sort_custom(_comes_before)
 	for i in range(cards.size()):grid.move_child(cards[i].button,i)

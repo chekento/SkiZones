@@ -10628,3 +10628,6 @@ msgstr "Fully loadable and checksum-verified."
 
 msgid "%s · %s · v%d · %d B"
 msgstr "%s · %s · v%d · %d B"
+
+msgid "Nur baubar"
+msgstr "Buildable only"

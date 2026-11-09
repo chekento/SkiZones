@@ -68,6 +68,9 @@ func run() -> void:
 		check(root.get_texture().get_image().save_png("res://build/qa/040-building-catalog-%d.png"%int(root.get_visible_rect().size.x))==OK,"The responsive building catalog has a captured phone/desktop layout")
 	check(browser.sort_choice.item_count==4 and browser.ready_only!=null,"The new catalog exposes four sorts and a practical buildability filter")
 	check(browser.grid.columns>=1 and browser.grid.columns<=4,"The catalog grid has a safe responsive column count")
+	if root.get_visible_rect().size.x<=480:
+		check(not browser.introduction.visible and browser.filters.columns==2,"Phone catalog saves vertical space with compact two-column filters")
+		check(browser.category.custom_minimum_size.y>=46 and browser.sort_choice.custom_minimum_size.y>=46 and browser.ready_only.custom_minimum_size.y>=46,"Compact catalog retains accessible filter touch targets")
 	check(browser.cards.size()==Catalog.building_order().size(),"Every purchasable building has a real interactive card")
 	check(browser.cards.filter(func(card):return card.kind=="wc_dixi").size()==1 and browser.cards.all(func(card):return card.kind not in ["wc_cabin","wc_module","wc_house","wc_luxury"]),"Only one upgradeable toilet is offered without discarding historical types")
 	browser.search.text="Portable Toilet"
