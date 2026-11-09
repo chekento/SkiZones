@@ -1,6 +1,7 @@
 extends Node
 ## Included only by the emulator test export, never by the public ARM64 APK.
 const SupportBundle = preload("res://src/core/save_bundle_040.gd")
+const SafeImport040 = preload("res://src/core/save_import_040.gd")
 var game: Node
 var timer := 0.0
 var boot := ""
@@ -14,6 +15,8 @@ var update_action:=""
 var support_status := ""
 var support_archive := ""
 var support_bytes_preserved := false
+var import_status := ""
+var import_token := ""
 func setup(controller: Node) -> void:
 	game=controller;boot=str(Time.get_unix_time_from_system())
 	if not game.has_game:
@@ -31,6 +34,17 @@ func _process(delta: float) -> void:
 	if timer >= 0.5:
 		timer=0
 		read_pick_request()
+		if FileAccess.file_exists("user://import-ci.json"):
+			var import_request:Variant=JSON.parse_string(FileAccess.get_file_as_string("user://import-ci.json"))
+			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://import-ci.json"))
+			if import_request is Dictionary and str(import_request.get("action",""))=="picker":
+				call_deferred("_test_import_picker")
+		if not import_token.is_empty():
+			var result:Dictionary=SafeImport040.poll(import_token)
+			if str(result.get("status","pending"))=="cancelled":
+				import_status="cancelled"
+				import_token=""
+				SafeImport040.finish_picker_handoff()
 		if FileAccess.file_exists("user://support-ci.json"):
 			var support: Variant = JSON.parse_string(FileAccess.get_file_as_string("user://support-ci.json"))
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://support-ci.json"))
@@ -48,6 +62,15 @@ func _process(delta: float) -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("user://scenario-ci.json"))
 			call_deferred("_test_real_scenario")
 		write_health()
+
+func _test_import_picker() -> void:
+	# Actual Android SAF UI handoff in an emulator-only export. Never stage
+	# or activate any save: the external picker is cancelled by ADB.
+	import_status="opening"
+	write_health()
+	import_token=SafeImport040.begin_android()
+	import_status="picker_started" if not import_token.is_empty() else "picker_unavailable"
+	write_health()
 
 func _export_support_fixture() -> void:
 	# Emulator-only exercise of the real Android ZIP/JNI/share path. The host
@@ -140,7 +163,7 @@ func write_health() -> void:
 		picking.handle_hit = game.hud.plan_overlay.pick_waypoint(pick_at, 2) == 0
 	var file:=FileAccess.open("user://lifecycle-ci.json.tmp",FileAccess.WRITE)
 	if file == null:return
-	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"support_status":support_status,"support_archive":support_archive,"support_preserved":support_bytes_preserved,"installed_code":game.updater.installed_code,"updater_state":game.updater.state,"update_url":game.updater.last_opened_url,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
+	file.store_string(JSON.stringify({"boot":boot,"update_test":update_test_state,"update_validation":update_native_validation,"support_status":support_status,"support_archive":support_archive,"import_status":import_status,"support_preserved":support_bytes_preserved,"installed_code":game.updater.installed_code,"updater_state":game.updater.state,"update_url":game.updater.last_opened_url,"slot":game.SaveStore.active_slot,"money":game.model.money,"map":game.model.map_id,"minute":game.model.minute,"day":game.model.day,"guests":game.model.guests.map(func(g):return g.id),"sports":game.model.guests.map(func(g):return g.get("sport","ski")),"frames":Engine.get_frames_drawn(),"resumes":game.resume_count,"background":game._app_background,"camera":game.view.camera.is_current(),"render_scale":get_viewport().scaling_3d_scale,"paused":game.paused,"size":[get_viewport().size.x,get_viewport().size.y],"picking":picking,"scenario":scenario_state,"elevation":game.model.terrain.height(Vector2(185,230)),"lifts":game.model.lifts.size(),"pistes":game.model.pistes.size(),"staff":game.model.operations.staff.size()}))
 	file.close()
 	DirAccess.rename_absolute(ProjectSettings.globalize_path("user://lifecycle-ci.json.tmp"),ProjectSettings.globalize_path("user://lifecycle-ci.json"))
 
