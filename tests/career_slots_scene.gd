@@ -26,8 +26,14 @@ func run() -> void:
 		game.show_career_slots();await process_frame
 		var card: Node=game.hud.career_slots.cards.get_child(slot-1)
 		var actions:=buttons(card)
-		check(actions.size()==1 and actions[0].text=="Neue Karriere starten","Empty career "+str(slot)+" has one clear start action")
-		actions[0].pressed.emit();await process_frame
+		# In 0.40 the second action is the opt-in JSON/ZIP recovery picker.
+		# It must not replace the primary new-career button or start by itself.
+		var starts:Array=actions.filter(func(button:Button):return button.text=="Neue Karriere starten")
+		var imports:Array=actions.filter(func(button:Button):return button.name=="import_save_040")
+		check(starts.size()==1 and imports.size()==1 and actions.size()==2,"Empty career "+str(slot)+" offers one primary start and one explicit save import")
+		check(imports.size()==1 and imports[0].custom_minimum_size.y>=48,"Empty career "+str(slot)+" import button is touch accessible")
+		if starts.is_empty():quit(1);return
+		starts[0].pressed.emit();await process_frame
 		game.paused=true;game.model.money=123450+slot;game.model.day=slot
 		check(Saves.active_slot==slot and game.has_game and game.model.campaign.mode=="career" and game.save_game(),"The actual career card starts and saves independent slot "+str(slot))
 	game.show_career_slots();await process_frame
