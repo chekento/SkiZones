@@ -47,9 +47,12 @@ func run() -> void:
 	var submenu:PanelContainer=populated_card.find_child("save_manager_submenu",true,false) as PanelContainer
 	var toggle:Button=populated_card.find_child("toggle_save_manager",true,false) as Button
 	check(submenu!=null and toggle!=null and not submenu.visible,"Save management is collapsed by default, not scattered across the slot card")
+	var occupied_import:Button=populated_card.find_child("import_save_040",true,false) as Button
+	check(occupied_import!=null and not occupied_import.is_visible_in_tree(),"Occupied career import is safely grouped under hidden save management")
 	check(game.hud.career_slots.get_parent()==game.hud and game.hud.career_slots.get_global_rect().size==root.get_visible_rect().size,"Save selector fills viewport instead of inheriting padded HUD safe area")
 	if toggle!=null:toggle.pressed.emit()
 	check(submenu!=null and submenu.visible,"Explicit Manage action reveals recovery, copy and archive controls")
+	check(occupied_import!=null and occupied_import.is_visible_in_tree(),"Save manager exposes the import only after explicit disclosure")
 	check(populated_card.find_child("check_save_038",true,false)!=null and populated_card.find_child("rescue_save_038",true,false)!=null and populated_card.find_child("copy_save_038",true,false)!=null and populated_card.find_child("archive_save_038",true,false)!=null,"Populated careers expose diagnostics, backup rescue, copy and archive in addition to continuation")
 	check(populated_card.find_child("export_save_040",true,false)!=null,"Career manager exposes read-only ZIP export directly in the same Save Manager")
 	first[0].pressed.emit()
