@@ -373,6 +373,8 @@ static func _has_legacy_track_overrun(data: Dictionary) -> bool:
 ## Transactional activation. Stage and fully reload before archiving or
 ## touching the active destination. Backups and historical sources stay intact.
 static func _persist_repaired_game(model: RefCounted, path: String) -> Dictionary:
+	if not path.begins_with("user://"):
+		return {"ok":false,"message":"External test fixtures are read-only; automatic repair is permitted only for player saves."}
 	var stage: String=path+".autorepair-%d.tmp" % Time.get_ticks_usec()
 	var written: Dictionary=save_game(model,stage)
 	if not written.ok:return {"ok":false,"message":written.get("message","Kopie konnte nicht geschrieben werden.")}
