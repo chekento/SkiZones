@@ -163,6 +163,8 @@ func _poster_artworks(stage: String) -> Array:
 	var available: Array=[]
 	for path in paths:
 		if ResourceLoader.exists(path):available.append(path)
+	# Different verified originals rotate between boards and game launches.
+	available.shuffle()
 	return available
 
 func _spawn_posters(view: Node3D,stage: String) -> void:
