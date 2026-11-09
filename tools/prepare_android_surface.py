@@ -23,6 +23,7 @@ INPUT_URL = "https://raw.githubusercontent.com/godotengine/godot/4.5.2-stable/pl
 INPUT_SHA256 = "041ef748632b7f7b1c3607576ab110260114c67ffddf461597de0d206b2da117"
 UPDATE_PREFIX = "cloud/kosch/skizones/AppInfoBridge"
 SHARE_PREFIX = "cloud/kosch/skizones/SaveBundleProvider"
+IMPORT_PREFIX = "cloud/kosch/skizones/SaveImportActivity"
 INPUT_PREFIX = "org/godotengine/godot/input/InputEventRunnable"
 
 
@@ -44,7 +45,8 @@ def prepare(sdk: Path, java: Path):
                       hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                       hashlib.sha256((ROOT / "tools/android/AppInfoBridge.java").read_bytes()).hexdigest(),
                       hashlib.sha256((ROOT / "tools/android/SaveBundleProvider.java").read_bytes()).hexdigest(),
-                      "assetsPaths-sdk36-savebundle"])
+                      hashlib.sha256((ROOT / "tools/android/SaveImportActivity.java").read_bytes()).hexdigest(),
+                      "assetsPaths-sdk36-savebundle-import"])
     build = ROOT / "android/build"
     marker = build / ".skizones-surface-fix"
     if marker.exists() and marker.read_text() == stamp:
@@ -70,8 +72,11 @@ def prepare(sdk: Path, java: Path):
             android:authorities="${applicationId}.savebundle"
             android:exported="false"
             android:grantUriPermissions="true" />\n"""
+    importer = """        <activity android:name="cloud.kosch.skizones.SaveImportActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />\n"""
     assert text.count("</application>") == 1
-    manifest.write_text(text.replace("</application>", provider + "    </application>"))
+    manifest.write_text(text.replace("</application>", provider + importer + "    </application>"))
     (build / "res/xml/skizones_update_paths.xml").unlink(missing_ok=True)
     config = build / "config.gradle"
     text = config.read_text()
@@ -83,7 +88,7 @@ def prepare(sdk: Path, java: Path):
     (build / "gradlew").chmod(0o755)
     work = ROOT / "build/android-surface-fix"
     work.mkdir(parents=True, exist_ok=True)
-    source_files = [ROOT / "tools/android/AppInfoBridge.java", ROOT / "tools/android/SaveBundleProvider.java"]
+    source_files = [ROOT / "tools/android/AppInfoBridge.java", ROOT / "tools/android/SaveBundleProvider.java", ROOT / "tools/android/SaveImportActivity.java"]
     for name, url, digest, diff in [("GLSurfaceView.java", SOURCE_URL, SOURCE_SHA256, patch),
                                      ("InputEventRunnable.java", INPUT_URL, INPUT_SHA256, input_patch)]:
         with urllib.request.urlopen(url, timeout=45) as response:
@@ -118,16 +123,16 @@ def prepare(sdk: Path, java: Path):
                     "-classpath", os.pathsep.join([str(sdk / "platforms/android-35/android.jar"), str(dependencies)]),
                     "-d", str(classes), *map(str, source_files)], check=True)
     compiled = {str(p.relative_to(classes)): p.read_bytes() for p in classes.rglob("*.class")
-                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX))}
+                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX, IMPORT_PREFIX))}
     assert compiled and any(p.startswith(INPUT_PREFIX) for p in compiled), "Missing input patch classes"
     for kind in ["debug", "release"]:
         aar = build / f"libs/{kind}/godot-lib.template_{kind}.aar"
         with zipfile.ZipFile(aar) as original:
             old_jar = original.read("classes.jar")
         with zipfile.ZipFile(io.BytesIO(old_jar)) as jar:
-            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX)) and n.endswith(".class")}
+            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX, IMPORT_PREFIX)) and n.endswith(".class")}
         assert family <= set(compiled), "The complete existing Java class families must be replaced"
-        assert all(p.startswith((INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX)) for p in set(compiled) - family), "Only input helpers and the app support bridge may be added"
+        assert all(p.startswith((INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX)) for p in set(compiled) - family), "Only input helpers and the app support bridge may be added"
         new_jar = io.BytesIO()
         rewrite_archive(io.BytesIO(old_jar), new_jar, compiled)
         temporary = aar.with_suffix(".patched.aar")
