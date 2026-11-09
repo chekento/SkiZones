@@ -134,5 +134,26 @@ func run() -> void:
 			if filename.begins_with((path+".bak.tmp").get_file()+"-") and filename.ends_with(".before-backup-staging"):
 				previous_stage_archived=previous_stage_archived or FileAccess.get_sha256("user://save-recovery/"+filename)==backup_stage_hash
 	check(previous_stage_archived, "The original interrupted backup stage is archived byte-for-byte before reuse")
+	# A slot containing ONLY orphaned Android staging is occupied, even when
+	# neither primary nor .bak exists. Copying over it would hide its rescue.
+	var copy_target: String = Saves.path_for_map("sonnenhang", 2)
+	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:
+		if FileAccess.file_exists(copy_target + suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(copy_target + suffix))
+	var orphan: FileAccess = FileAccess.open(copy_target + ".tmp", FileAccess.WRITE)
+	orphan.store_string("{android interrupted original")
+	orphan.close()
+	var orphan_target_sha: String = FileAccess.get_sha256(copy_target + ".tmp")
+	check(Saves.has_any_save("sonnenhang", 2), "An interrupted-only career target is not an empty slot")
+	check(not Manager.copy("sonnenhang", 3, 2).ok, "Copy refuses overwriting a career containing only interrupted Android staging")
+	check(not FileAccess.file_exists(copy_target) and FileAccess.get_sha256(copy_target + ".tmp") == orphan_target_sha, "Refused copy preserves the exact unfinished target bytes")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(copy_target + ".tmp"))
+	var orphan_backup: FileAccess = FileAccess.open(copy_target + ".bak.tmp", FileAccess.WRITE)
+	orphan_backup.store_string("{android backup interrupted")
+	orphan_backup.close()
+	var orphan_backup_sha: String = FileAccess.get_sha256(copy_target + ".bak.tmp")
+	check(not Manager.copy("sonnenhang", 3, 2).ok, "Copy also refuses overwriting orphaned interrupted backup staging")
+	check(not FileAccess.file_exists(copy_target) and FileAccess.get_sha256(copy_target + ".bak.tmp") == orphan_backup_sha, "Original backup-stage bytes remain unchanged")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(copy_target + ".bak.tmp"))
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
