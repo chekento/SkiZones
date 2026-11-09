@@ -71,7 +71,7 @@ func run() -> void:
 		var result: Dictionary=Saves.load_game(loaded_old,rescue_path)
 		check(result.ok and result.get("recovered",false) and loaded_old.lifts.size()==state.lifts.size(), "Legacy geometry recovery keeps all lifts instead of deleting the resort")
 		check(result.ok and int(loaded_old.money)==int(state.money) and loaded_old.day==state.day and loaded_old.pistes.size()==state.pistes.size(), "Old money, calendar and pistes remain intact")
-		check(FileAccess.get_sha256(rescue_path)==original_checksum and FileAccess.file_exists(str(result.get("archive",""))), "Recovery archives the original and never modifies the source")
+		check(result.get("auto_saved",false) and FileAccess.get_sha256(str(result.get("archive","")))==original_checksum and FileAccess.get_sha256(rescue_path)!=original_checksum and Saves.load_game(Resort.new(),rescue_path).ok, "Recovery archives the original byte-for-byte and activates a verified replacement")
 	remove_file(rescue_path)
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
