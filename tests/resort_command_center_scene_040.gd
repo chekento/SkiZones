@@ -22,7 +22,7 @@ func run() -> void:
 	root.content_scale_size=Vector2i.ZERO
 	root.size=intended
 	await process_frame
-	check(root.get_visible_rect().size==intended,"Real QA viewport is exactly %dx%d" % [intended.x,intended.y])
+	check(root.get_visible_rect().size==Vector2(intended),"Real QA viewport is exactly %dx%d" % [intended.x,intended.y])
 	var game: Node=load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
