@@ -59,10 +59,15 @@ static func inspect(token: String, metadata: Dictionary, slot: int, free_slot: i
 	for entry in entries:
 		if not entry is Dictionary:continue
 		var source: String=_safe_entry(token,entry)
-		if source.is_empty() or not FileAccess.file_exists(source):continue
-		if FileAccess.get_sha256(source)!=str(entry.get("sha256","")):continue
+		var source_name:String=str(entry.get("source","Importierte JSON-Datei")).substr(0,100)
+		if source.is_empty() or not FileAccess.file_exists(source):
+			variants.append({"name":source_name,"code":"source_missing_or_unsafe","bytes":0,"schema":-1,"loadable":false,"recoverable":false})
+			continue
+		if FileAccess.get_sha256(source)!=str(entry.get("sha256","")):
+			variants.append({"name":source_name,"code":"staging_checksum_mismatch","bytes":0,"schema":-1,"loadable":false,"recoverable":false})
+			continue
 		var read:Dictionary=Saves._read(source)
-		var report:Dictionary={"name":str(entry.get("source","Importierte JSON-Datei")).substr(0,100),"code":str(read.get("code","unknown")),"bytes":int(read.get("bytes",0)),"schema":int(read.get("schema_version",-1)),"loadable":false,"recoverable":false}
+		var report:Dictionary={"name":source_name,"code":str(read.get("code","unknown")),"bytes":int(read.get("bytes",0)),"schema":int(read.get("schema_version",-1)),"loadable":false,"recoverable":false}
 		if read.ok:
 			verified+=1
 			var area:String=str(read.data.get("map_id","sonnenhang"))
@@ -70,8 +75,10 @@ static func inspect(token: String, metadata: Dictionary, slot: int, free_slot: i
 			if correct:
 				var restored:Dictionary=Saves.probe_restore(read.data,Resort)
 				if restored.ok:
-					report.loadable=true
+					report.loadable=bool(restored.get("exact",false))
 					report.recoverable=not bool(restored.get("exact",false))
+				else:
+					report.code="semantic_incompatible"
 					report["map"]=area
 					report["day"]=int(restored.model.day)
 					report["money"]=int(restored.model.money)
