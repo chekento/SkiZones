@@ -14,6 +14,11 @@ on:
       - 'src/world/resort_view.gd'
       - 'src/ui/resort_command_center_040.gd'
       - 'src/ui/resort_operations_map_040.gd'
+      - 'src/ui/career_slots.gd'
+      - 'tests/career_slots_scene.gd'
+      - 'src/core/save_import_040.gd'
+      - 'tools/android/SaveImportActivity.java'
+      - 'tools/android/AppInfoBridge.java'
       - 'src/ui/building_browser.gd'
       - 'src/ui/management.gd'
       - 'tests/*040.gd'
@@ -93,6 +98,10 @@ jobs:
         env:
           SKIZONES_QA_PHONE: '1'
         run: xvfb-run -a -s '-screen 0 1200x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 420x860 --script tests/resort_command_center_scene_040.gd
+      - name: Verify career 1-4 start, save, import, backup recovery and responsive actions
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-career-ui-040
+        run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/career_slots_scene.gd
       - name: Run 0.40 in English at 1440x900
         run: xvfb-run -a -s '-screen 0 1600x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language en --audio-driver Dummy --resolution 1440x900 --script tests/resort_command_center_scene_040.gd
       - uses: actions/upload-artifact@v4
