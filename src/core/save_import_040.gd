@@ -81,7 +81,7 @@ static func inspect(token: String, metadata: Dictionary, slot: int, free_slot: i
 					candidate["slot"]=slot
 					candidate["free_slot"]=free_slot
 					candidate["token"]=token
-					if best.is_empty() or (not bool(restored.get("exact",false))==false and bool(best.get("recoverable",false))):
+					if best.is_empty() or (bool(restored.get("exact",false)) and bool(best.get("recoverable",false))):
 						best=candidate
 			else:
 				report.code="wrong_map_or_mode"
