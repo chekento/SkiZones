@@ -176,7 +176,10 @@ func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
 		root.add_child(board)
 		var picture:=Sprite3D.new()
 		picture.texture=images[variant]
-		picture.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		# Artwork belongs flush to its physical poster frame. Camera-facing
+		# Sprite3D billboards rotate independently and appear to peel away
+		# from the frame as the player rotates or pans the mountain camera.
+		picture.billboard=BaseMaterial3D.BILLBOARD_DISABLED
 		# Fit fallback AND optional high-resolution/custom WEBP art to
 		# the frame backing (x=-4.4..4.4, y=1..8). Fixed pixel sizes clipped
 		# taller posters into the snow. Allow 2% margin for texture filtering.
@@ -188,7 +191,7 @@ func _build_posters(view: Node3D, now: Dictionary, campaign: String) -> void:
 		sign.text="SKIZONES\n%s\n%s\n%s" % [L.text(str(info.title)),L.text(str(info.subtitle)),L.text(str(info.dates))]
 		sign.font_size=31
 		sign.pixel_size=0.013
-		sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		sign.billboard=BaseMaterial3D.BILLBOARD_DISABLED
 		sign.outline_size=8
 		sign.modulate=Color("f8f7e8") if view.visual_style!="monochrome" else Color.WHITE
 		sign.position=Vector3(0,5.15,1.27)
