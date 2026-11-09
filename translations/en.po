@@ -10658,3 +10658,6 @@ msgstr "SkiInstructorEquipment"
 
 msgid "SkiInstructorLabel"
 msgstr "SkiInstructorLabel"
+
+msgid "Kursleitung"
+msgstr "Course instructor"
