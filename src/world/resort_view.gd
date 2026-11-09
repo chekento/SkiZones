@@ -1893,7 +1893,7 @@ func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Diction
 	if follow_guest == int(guest.id):
 			return _exact_ski_pose(piste, guest, leg, elapsed)
 	# Stagger expensive terrain/path samples. Every display frame still interpolates.
-	var quantum: float=FramePacing040.ski_sample_interval(motion_rate,model.time_divisor)
+	var quantum: float=FramePacing040.ski_sample_interval(motion_rate,model.time_divisor,model.guests.size())
 	var offset := float(int(guest.id) % 17) * quantum / 17.0
 	var index := floori((elapsed + offset) / quantum)
 	var lane_key := roundi(float(guest.get("traffic_lateral", 0.0)) * 10.0)
