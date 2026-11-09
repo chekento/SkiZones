@@ -374,24 +374,24 @@ static func _has_legacy_track_overrun(data: Dictionary) -> bool:
 ## touching the active destination. Backups and historical sources stay intact.
 static func _persist_repaired_game(model: RefCounted, path: String) -> Dictionary:
 	if not path.begins_with("user://"):
-		return {"ok":false,"message":"External test fixtures are read-only; automatic repair is permitted only for player saves."}
+		return {"ok":false,"message":L.text("External test fixtures are read-only; automatic repair is permitted only for player saves.")}
 	var stage: String=path+".autorepair-%d.tmp" % Time.get_ticks_usec()
 	var written: Dictionary=save_game(model,stage)
-	if not written.ok:return {"ok":false,"message":written.get("message","Kopie konnte nicht geschrieben werden.")}
+	if not written.ok:return {"ok":false,"message":written.get("message",L.text("Kopie konnte nicht geschrieben werden."))}
 	var checked: Dictionary=_read(stage)
 	var fresh: RefCounted=model.get_script().new()
 	if not checked.ok or not fresh.restore(checked.data.duplicate(true)).ok:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
-		return {"ok":false,"message":"Automatisch reparierte Kopie konnte nicht validiert werden."}
+		return {"ok":false,"message":L.text("Automatisch reparierte Kopie konnte nicht validiert werden.")}
 	var archive: String=""
 	if FileAccess.file_exists(path):
 		archive=path+".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
 		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(archive))!=OK or FileAccess.get_sha256(archive)!=FileAccess.get_sha256(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
-			return {"ok":false,"message":"Originalspielstand konnte nicht gesichert werden."}
+			return {"ok":false,"message":L.text("Originalspielstand konnte nicht gesichert werden.")}
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(stage),ProjectSettings.globalize_path(path))!=OK:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
-		return {"ok":false,"message":"Reparierte Datei konnte nicht aktiviert werden."}
+		return {"ok":false,"message":L.text("Reparierte Datei konnte nicht aktiviert werden.")}
 	return {"ok":true,"archive":archive}
 
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
@@ -434,8 +434,8 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 				if candidate!=path or _has_legacy_track_overrun(read.data):
 					var persisted: Dictionary=_persist_repaired_game(model,path)
 					if persisted.ok:
-						return {"ok":true,"recovered":true,"auto_saved":true,"source":candidate,"archive":persisted.archive,"message":L.text("Spielstand automatisch repariert. Das Original wurde gesichert.")}
-					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert.")}
+						return {"ok":true,"recovered":true,"auto_saved":true,"source":candidate,"archive":persisted.archive,"message":L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
+					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text(L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."))}
 				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Resort geladen.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
@@ -447,8 +447,8 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 		if model.restore(checked.model.snapshot()).ok:
 			var persisted: Dictionary=_persist_repaired_game(model,path)
 			if persisted.ok:
-				return {"ok":true,"recovered":true,"auto_saved":true,"source":original.path,"archive":persisted.archive,"reset_visitors":checked.reset_visitors,"message":L.text("Spielstand automatisch repariert. Gästezustand musste zurückgesetzt werden; alle Anlagen und Karrierewerte wurden erhalten.") if checked.reset_visitors else L.text("Spielstand automatisch repariert. Das Original wurde gesichert.")}
-			return {"ok":true,"recovered":true,"auto_saved":false,"source":original.path,"reset_visitors":checked.reset_visitors,"message":L.text("Spielstand wiederhergestellt, aber die reparierte Datei konnte nicht automatisch gespeichert werden. Originale sind unverändert.")}
+				return {"ok":true,"recovered":true,"auto_saved":true,"source":original.path,"archive":persisted.archive,"reset_visitors":checked.reset_visitors,"message":L.text(L.text("Spielstand automatisch repariert. Gästezustand musste zurückgesetzt werden; alle Anlagen und Karrierewerte wurden erhalten.")) if checked.reset_visitors else L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
+			return {"ok":true,"recovered":true,"auto_saved":false,"source":original.path,"reset_visitors":checked.reset_visitors,"message":L.text(L.text("Spielstand wiederhergestellt, aber die reparierte Datei konnte nicht automatisch gespeichert werden. Originale sind unverändert."))}
 
 	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten."), "diagnostics": failures, "verified_candidates": verified.size()}
 
