@@ -269,6 +269,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-repair-0382
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_repair_0382.gd
+      - name: 0.40.1 ten real PMDD holiday pictures, correct campaigns and translated text
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-pmdd-0401
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/seasonal_posters_0401.gd
       - name: 0.39 mission backup rescue, legacy scenario paths and save isolation
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-library-039
@@ -637,6 +641,14 @@ jobs:
           set -euo pipefail
           for artwork in \
             assets/seasonal/christmas_poster_original.webp \
+            assets/seasonal/christmas_poster_alt_01.webp \
+            assets/seasonal/christmas_poster_alt_02.webp \
+            assets/seasonal/christmas_poster_alt_03.webp \
+            assets/seasonal/christmas_poster_alt_04.webp \
+            assets/seasonal/christmas_poster_alt_05.webp \
+            assets/seasonal/christmas_poster_alt_06.webp \
+            assets/seasonal/advent_poster_original.webp \
+            assets/seasonal/advent_poster_alt_01.webp \
             assets/seasonal/new_year_poster_original.webp; do
             if [[ ! -s "$artwork" ]]; then
               echo "::error file=$artwork::The originally generated poster artwork is missing. Do not release 0.40.1 with placeholders."
