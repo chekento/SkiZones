@@ -282,6 +282,8 @@ jobs:
           XDG_DATA_HOME="${{ runner.temp }}/skizones-test-bundle-040" SKIZONES_SAFE_BUNDLE_TEST=1 python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_bundle_040.gd
           XDG_DATA_HOME="${{ runner.temp }}/skizones-test-import-040" SKIZONES_SAFE_IMPORT_TEST=1 python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_import_040.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/frame_pacing_040.gd
+      - name: 0.40 ski instructors and qualified venue staff release gate
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_instructors_040.gd
       - name: 0.40 eight seasonal SVG poster artwork import gate
         run: python3 tools/run_godot_test.py --timeout 120 -- "$GODOT_BIN" --language de --headless --script tests/seasonal_poster_assets_040.gd
       - name: 0.38.2 readable save actions and focused dialogs on phones
