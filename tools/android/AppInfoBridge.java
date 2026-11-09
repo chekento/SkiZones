@@ -91,7 +91,28 @@ public final class AppInfoBridge {
         try {
             android.content.Intent intent = new android.content.Intent(activity, SaveImportActivity.class);
             intent.putExtra("token", token);
-            activity.startActivity(intent);
+            activity.runOnUiThread(() -> {
+                try {
+                    activity.startActivity(intent);
+                } catch (RuntimeException ignored) {
+                    // Return a real failure to Godot instead of leaving a
+                    // picker token pending until the 180-second UI timeout.
+                    try {
+                        File inbox = new File(activity.getFilesDir(), "import-inbox");
+                        if (!inbox.isDirectory() && !inbox.mkdirs()) return;
+                        JSONObject failed = new JSONObject().put("version", 1)
+                                .put("token", token).put("status", "picker_unavailable")
+                                .put("files", new org.json.JSONArray());
+                        File staged = new File(inbox, "latest.json.tmp");
+                        try (java.io.FileOutputStream out = new java.io.FileOutputStream(staged)) {
+                            out.write(failed.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                            out.getFD().sync();
+                        }
+                        File target = new File(inbox, "latest.json");
+                        if (!staged.renameTo(target) && target.delete()) staged.renameTo(target);
+                    } catch (Exception ignoredAgain) { /* Never touch a career save. */ }
+                }
+            });
             return token;
         } catch (RuntimeException ignored) { return ""; }
     }
