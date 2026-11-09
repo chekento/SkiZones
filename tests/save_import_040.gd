@@ -37,7 +37,13 @@ func run() -> void:
 	var entry:Dictionary={"name":"00.json","source":"00-career_3_sonnenhang.json","bytes":FileAccess.get_file_as_bytes(source).size(),"sha256":source_sha}
 	var meta:Dictionary={"token":token,"status":"ready","files":[entry]}
 	var preview:Dictionary=Importer.inspect(token,meta,2)
-	check(preview.ok and preview.verified==1 and preview.selected.map=="sonnenhang","Validated preview recognizes exact career mode and map")
+	check(preview.ok and int(preview.get("verified",0))==1 and str(preview.get("selected",{}).get("map",""))=="sonnenhang","Validated preview recognizes exact career mode and map")
+	if not preview.ok:
+		# A rejected preview must terminate the fixture immediately; never
+		# dereference empty selection data or stall CI until its 180s watchdog.
+		print("IMPORT_DIAGNOSTICS: ",JSON.stringify({"code":preview.get("code","unknown"),"files":preview.get("files",[])}))
+		print("RESULT: %d passed; %d failed" % [passed,failed])
+		quit(1);return
 	check(preview.selected.loadable and not preview.selected.recoverable,"Exact compatible imported career is not incorrectly labeled partial recovery")
 	check(int(preview.selected.day)==9 and int(preview.selected.money)==234565,"Import preview shows real day and money, not assumed defaults")
 	check(FileAccess.get_sha256(target)==old_primary and FileAccess.get_sha256(target+".bak")==old_backup,"Read-only preview cannot modify an existing career or backup")
