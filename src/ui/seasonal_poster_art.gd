@@ -31,13 +31,13 @@ func _draw() -> void:
 		draw_circle(Vector2(px,py),1.3+(i%3)*.65,Color("f5f8ee",0.80))
 	var font: Font=get_theme_default_font()
 	if font==null: return
-	var font_size:=clampi(roundi(w*.078),21,63)
-	for line in ["WINTER","WUNDER","SKIZONES"]:
-		while font_size>15 and font.get_string_size(line,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x>w-38:
-			font_size-=1
 	var headlines: Array=["WINTER","WUNDER","SKIZONES"]
 	if phase in ["new_year_eve","new_year"]:headlines=["SILVESTER","NEUJAHR","SKIZONES"]
 	elif phase in ["advent","christmas"]:headlines=["ADVENT","WEIHNACHT","SKIZONES"]
+	var font_size:=clampi(roundi(w*.078),21,63)
+	for line in headlines:
+		while font_size>15 and font.get_string_size(str(line),HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x>w-38:
+			font_size-=1
 	for i in range(3):
 		draw_string(font,Vector2(12,h*.20+float(i)*font_size*1.08),L.text(str(headlines[i])),HORIZONTAL_ALIGNMENT_CENTER,roundi(w-24),font_size,Color("fff2d3"))
 	var call_size:=clampi(roundi(w*.047),14,35)
