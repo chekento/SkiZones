@@ -374,10 +374,43 @@ def main():
         assert saved_hash("career_3_sonnenhang.json") == good_primary_hash
         adb("shell", "run-as", PACKAGE, "rm", "-f", preserved_file, save_folder + "/support-ci.json")
         print("PASS Android forensic ZIP: malformed source + last-good .bak retained, JNI share cache verified", flush=True)
-        # The chooser can take focus after the JNI dispatch; resume the game
-        # before assertions about crash logs and renderer state.
+        # First leave the share chooser and return to the game. Then launch
+        # the genuine Android ACTION_OPEN_DOCUMENT picker (not a mocked Java
+        # return) and verify cancel/resume never rewrites the career or .bak.
         adb("shell", "input", "keyevent", "KEYCODE_HOME")
         launch()
+        state = wait_for(lambda s: not s["background"] and s["slot"] == 3, seconds=60)
+        primary_before_picker = saved_hash("career_3_sonnenhang.json")
+        backup_before_picker = hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", damaged_file + ".bak")).hexdigest()
+        picker_request = args.output / "import-picker-request.json"
+        picker_request.write_text('{"action":"picker"}')
+        adb("push", str(picker_request), "/data/local/tmp/skizones-import-picker-request.json")
+        adb("shell", "run-as", PACKAGE, "cp", "/data/local/tmp/skizones-import-picker-request.json",
+            save_folder + "/import-ci.json")
+        state = wait_for(lambda s: s.get("import_status") in ("picker_started", "picker_unavailable"), seconds=60)
+        assert state["import_status"] == "picker_started", "Android SAF picker JNI request failed: " + str(state)
+        deadline = time.monotonic() + 35
+        picker_visible = False
+        while time.monotonic() < deadline:
+            activities = adb("shell", "dumpsys", "activity", "activities").decode(errors="replace").lower()
+            resumed = [line for line in activities.splitlines()
+                       if "mresumedactivity" in line or "topresumedactivity" in line]
+            if any("documentsui" in line or "filesactivity" in line
+                   for line in resumed):
+                picker_visible = True
+                break
+            time.sleep(0.7)
+        assert picker_visible, "Android did not open the real Storage Access Framework picker"
+        (args.output / "android-real-import-picker.png").write_bytes(adb("exec-out", "screencap", "-p"))
+        assert saved_hash("career_3_sonnenhang.json") == primary_before_picker, "Opening SAF picker overwrote career primary"
+        assert hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", damaged_file + ".bak")).hexdigest() == backup_before_picker, "Opening SAF picker overwrote the only backup"
+        adb("shell", "input", "keyevent", "KEYCODE_BACK")
+        state = wait_for(lambda s: not s["background"]
+                         and s.get("import_status") in ("cancelled", "picker_started"), seconds=60)
+        assert saved_hash("career_3_sonnenhang.json") == primary_before_picker, "Cancelling SAF picker overwrote career primary"
+        assert hashlib.sha256(adb("shell", "run-as", PACKAGE, "cat", damaged_file + ".bak")).hexdigest() == backup_before_picker, "Cancelling SAF picker changed the last good backup"
+        assert state["slot"] == 3 and state["money"] == 234563, "SAF picker changed active career: " + str(state)
+        print("PASS Android SAF open/cancel/resume: original career and .bak preserved byte-for-byte", flush=True)
         logs = adb("logcat", "-d").decode(errors="replace")
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"
