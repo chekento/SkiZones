@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **48 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **49 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.40.0](https://github.com/chekento/SkiZones/releases/tag/v0.40.0)** | 09.11.2026 | Alpine Renaissance, sichere Spielstände und Skischulkurse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) |
 | **[v0.39.1](https://github.com/chekento/SkiZones/releases/tag/v0.39.1)** | 08.11.2026 | Stabilisierungs-Hotfix für bestehende Resorts | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk) | [Details](docs/releases/0.39.1.md) |
 | **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
 | **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Lesbare Spielstände und wirksame Reparatur | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
@@ -58,6 +59,51 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.40.0 · Alpine Renaissance, sichere Spielstände und Skischulkurse (09.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk)** (167.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.40.0/manifest.json) · [Originalnotizen](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.40.0)
+
+**Android ARM64 · Preview · Versionscode 53 · 9. November 2026**
+
+Diese Version erweitert den freien Aufbau und die Karriere um neue Oberflächen, glaubwürdigere alpine Grafik und eine nichtdestruktive Verwaltung alter Spielstände. Die neue Skischule setzt fachlich passende Mitarbeiter und eine reale Pistenabfahrt voraus. Der vollständige Android-Release wird erst nach bestandener Signatur-, Update-, Lebenszyklus- und Spielstandprüfung freigegeben.
+
+### Änderungen gegenüber 0.39.1
+
+#### Spielstände und Android-Sicherheit
+- Historische Karrieren und vier freie Bauplätze bleiben im Speichermanager erreichbar; Prüfung, Reparatur, Sicherungskopie und Diagnose-ZIP wurden ausgebaut.
+- **JSON-/ZIP-Import:** Android-Dateiauswahl mit isolierter Eingangsablage, Größen- und Pfadbegrenzung, SHA-256-Validierung sowie Vorschau und ausdrücklicher Bestätigung. Alte Primär-, Backup- und temporäre Speicherdateien werden vor einer Übernahme separat verifiziert archiviert.
+- Keine automatische Überschreibung beschädigter Karrieren beim Öffnen des Android-Teilen- oder Dateiimport-Dialogs.
+- Neuere Speicherformatfelder bleiben optional, soweit technisch kompatibel. Eine erfolgreiche CI-Migration ersetzt nicht die Prüfung einer real beschädigten persönlichen Datei.
+
+#### Personal, Wirtschaftlichkeit und Skischule
+- **Fachpersonal pro Gebäudetyp:** Skilehrer statt Hotelservice in der Skischule, Koch- und Servicepersonal in Restaurants, Rezeption und Hauswirtschaft in Hotels, Verleih-Fachkräfte im Skiverleih und weitere passende Berufe. Generische Altbeschäftigte werden aus Kompatibilitätsgründen nicht automatisch gelöscht, sind aber keine neuen Fachbewerber.
+- Diensthabende, ausreichend qualifizierte Teams erhöhen tatsächliche Serviceeffizienz, Besucher-Kapazität und Bearbeitungsgeschwindigkeit. Einstellungen verursachen Kosten und laufende Löhne, die in der Gebäude-Erfolgsrechnung auftauchen. Unrentable Betriebe können Verluste erwirtschaften.
+- **Skikurse:** Ein echter Mitarbeiter kann einen einzelnen Gast oder eine Gruppe mit bis zu sechs Personen auf eine erreichbare blaue Piste begleiten. Ein Skilehrer wird nicht gleichzeitig mehreren unabhängigen Kursen zugewiesen; Familien teilen eine Kursleitung. Die gelb gekennzeichneten Skilehrer-NPCs fahren auf der realen Pistenroute und erhalten ein Namensschild.
+- Bergrettung, Personalverfügbarkeit, Gebäudedurchsatz und Wartungsabläufe wurden weiter überprüft.
+
+#### Grafik, Landschaft, Radio und Bedienung
+- Acht individuell gestaltete Weihnachts- und Neujahrsplakate als SVG-Ressourcen mit datumsabhängiger Kampagne, physisch am 3D-Rahmen befestigt und eigener monochromer Darstellung.
+- Überarbeitete alpine Landschaft, Pisten- und Fußwegübergänge, Gebäudekarten, Smartphone-Menüs und erweiterte Gestaltungsmöglichkeiten.
+- Resort-Leitstand mit betrieblicher Übersicht, Gästen, Liften, Störungen, Versorgung und interaktiver Anlagenkarte.
+- Weiterentwickelter Karteneditor mit topografischer Vorschau; nicht alle zukünftigen Editor-Funktionen sind vollständig spielbar.
+- Responsivere Radio- und Einstellmenüs, inklusive Mobilbedienung.
+- 1×-, 4×- und 8×-Zeitsteuerung mit angepasstem Animations- und Abtastbudget für größere Besucherzahlen. Die Flüssigkeit auf schwächeren realen Geräten hängt weiterhin von deren Hardware ab.
+
+### Bekannte Grenzen dieser Preview
+
+- Gemeldete **beschädigte Original-Spielstände von einem Samsung-Gerät unter 0.39.1** liegen der automatisierten Prüfung bisher nicht vor. Die Wiederherstellung dieser konkreten Dateien ist deshalb nicht nachgewiesen. Vor der Installation sollten wertvolle Spielstände separat gesichert werden. **App-Daten nicht löschen und die App nicht deinstallieren.**
+- Individuell angelegte 3D-Karten, Hotel- und andere Tycoon-Unterfunktionen können noch Entwicklungsgrenzen haben.
+- Eine allumfassende NPC-Tagesrhythmus-, Interessen- und Wirtschaftsreform sowie sichtbare Sitzbänke mit pausierenden Gastronomiegästen werden als Schwerpunkt der **0.41** geplant und sind kein abgeschlossenes Feature der 0.40.
+- Android-APK: Signatur und Installationsverträglichkeit werden separat im CI geprüft; ein Emulator-Test garantiert noch keine korrekte Funktion auf jedem realen Gerät.
+
+### Release-Prüfungen
+
+Der veröffentlichte Build muss den vollständigen **Validate and build Android**-Workflow einschließlich Godot-Regressionsprüfungen, originalen historischen Spielständen, Import-/Archivtests, ARM64-Signatur- und Updatekontrolle sowie Android-API-30-/36-Lebenszyklusprüfungen bestanden haben. Die jeweilige abgeschlossene Workflow-Ausführung wird beim Release referenziert.
+
+[GitHub Actions](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml) · [Quellcode und offene 0.40-Punkte](https://github.com/chekento/SkiZones/pull/98) · [Meldung zu problematischen Altspielständen](https://github.com/chekento/SkiZones/issues/102)
+
+---
 
 ## v0.39.1 · Stabilisierungs-Hotfix für bestehende Resorts (08.11.2026)
 
