@@ -1262,14 +1262,21 @@ func _process(delta: float) -> void:
 	_car_positions.clear()
 	var tows := 0
 	var occupied: Dictionary={}
+	# In a crowded scene many riders share each drag lift. Compute expensive
+	# lift layout once per visible frame, not for every queued/riding guest.
+	var drag_lifts:Dictionary={}
+	for lift in model.lifts:
+		if Fleet.family(lift)=="drag":
+			drag_lifts[int(lift.id)]={"lift":lift,"ride":float(model.fleet_layout(lift).ride)}
 	for guest in model.guests:
 		if guest.phase not in ["queue","moving"] or int(guest.leg)>=guest.route.legs.size(): continue
 		var leg: Dictionary=guest.route.legs[int(guest.leg)]
 		if leg.kind!="lift": continue
-		var lift: Dictionary=model.asset(int(leg.id))
-		if Fleet.family(lift)!="drag": continue
+		var drag:Dictionary=drag_lifts.get(int(leg.id),{})
+		if drag.is_empty():continue
+		var lift:Dictionary=drag.lift
 		var passengers: Array=guest.get("ride_manifest",[guest] if guest.phase=="moving" else [])
-		var ride: float=model.fleet_layout(lift).ride
+		var ride: float=drag.ride
 		for passenger in passengers:
 			if float(lift.clock)+simulation_fraction-float(passenger.get("ride_departure",0))<ride:
 				occupied[Vector2i(int(lift.id),int(passenger.get("ride_car",0)))]=true
@@ -1667,14 +1674,19 @@ func _draw_tracks(blocking: bool = true) -> void:
 			followed_piste = leg.id
 			record = {"key": key, "guest": int(guest.id), "ability": int(guest.ability), "sport":guest.get("sport","ski"), "run": int(guest.loops), "hikes":guest.get("walk_ranges",[]),"from":leg.get("start_fraction",0.0),"until": leg.get("end_fraction", 1.0), "to": live[key]}
 	var visible: Array = []
+	var visible_distance:Dictionary={}
 	for piste in model.pistes:
-		if terrain.point_on_path(piste.points, 0.5).distance_to(focus) < maxf(zoom * 2 + piste.length * 0.5, 600):
+		# Point-on-path interpolates geometry. Never re-run it inside sort's
+		# comparator (O(P log P) geometry calls when there are many pistes).
+		var distance:float=terrain.point_on_path(piste.points,0.5).distance_to(focus)
+		if distance<maxf(zoom*2+piste.length*0.5,600):
 			visible.append(piste)
+			visible_distance[int(piste.id)]=distance
 	visible.sort_custom(func(a, b):
 		if int(a.id) == int(b.id): return false
 		if int(a.id) == followed_piste: return true
 		if int(b.id) == followed_piste: return false
-		return terrain.point_on_path(a.points, 0.5).distance_to(focus) < terrain.point_on_path(b.points, 0.5).distance_to(focus)
+		return float(visible_distance[int(a.id)]) < float(visible_distance[int(b.id)])
 	)
 	var mesh := ArrayMesh.new()
 	var segments := 0
