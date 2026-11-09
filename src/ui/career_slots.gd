@@ -12,6 +12,7 @@ var cards: GridContainer
 var confirmation:=ConfirmationDialog.new()
 var archive_confirmation:=ConfirmationDialog.new()
 var import_confirmation:=ConfirmationDialog.new()
+var import_report_dialog:=AcceptDialog.new()
 var import_token: String=""
 var import_wait: float=0.0
 var import_destination: Dictionary={}
@@ -79,6 +80,9 @@ func setup(interface: CanvasLayer) -> void:
 	import_confirmation.ok_button_text=L.text("Spielstand sicher importieren")
 	import_confirmation.cancel_button_text=L.text("Abbrechen")
 	import_confirmation.confirmed.connect(_confirm_import)
+	add_child(import_report_dialog)
+	import_report_dialog.title=L.text("Importdiagnose")
+	import_report_dialog.ok_button_text=L.text("Schließen")
 	hide()
 ## A picker writes to an isolated inbox. Only a validated preview and
 ## deliberate confirmation may replace a saved resort. No auto-import.
@@ -87,6 +91,14 @@ func _import_button(parent:VBoxContainer,slot:int,free_slot:int=1) -> void:
 	button.name="import_save_040"
 	button.tooltip_text=L.text("Spielstand auf Android auswählen, prüfen und sicher übernehmen")
 	button.custom_minimum_size.y=48
+
+func _import_diagnostic_text(report:Dictionary) -> String:
+	var lines:PackedStringArray=PackedStringArray()
+	lines.append(L.text("%d Dateien geprüft · %d Prüfsummen bestätigt") % [report.get("files",[]).size(),int(report.get("verified",0))])
+	for item in report.get("files",[]):
+		var status:String=L.text("Vollständig ladbar") if bool(item.get("loadable",false)) else L.text("Teilweise wiederherstellbar") if bool(item.get("recoverable",false)) else str(item.get("code","unknown"))
+		lines.append("%s · %s · v%d · %d B" % [str(item.get("name","")).replace("\n"," ").substr(0,80),status,int(item.get("schema",-1)),int(item.get("bytes",0))])
+	return "\n".join(lines)
 
 func _begin_import(slot:int,free_slot:int) -> void:
 	if not import_token.is_empty():return
@@ -126,7 +138,8 @@ func _process(delta:float) -> void:
 	import_destination.clear()
 	var inspected:Dictionary=SaveImport040.inspect(token,metadata,slot,free_slot)
 	if not inspected.ok:
-		hud.toast(L.text("Keine passende Spielstand-Datei im Archiv gefunden."))
+		import_report_dialog.dialog_text=L.text("Keine passende Spielstand-Datei im Archiv gefunden.")+"\n\n"+_import_diagnostic_text(inspected)
+		hud.present_dialog(import_report_dialog,Vector2i(740,420))
 		return
 	import_preview=inspected.selected
 	var map_id:String=str(import_preview.map)
@@ -135,8 +148,9 @@ func _process(delta:float) -> void:
 		hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
 		return
 	import_confirmation.dialog_text=L.text("Datei: %s · Tag %d · %s · Platz %d") % [str(import_preview.name),int(import_preview.day),L.text(Maps.spec(map_id).name),free_slot if slot==0 else slot]
+	import_confirmation.dialog_text+="\n"+(L.text("Teilweise wiederherstellbar: Besucherverläufe können zurückgesetzt werden.") if bool(import_preview.get("recoverable",false)) else L.text("Vollständig ladbar und prüfsummengeprüft."))
 	import_confirmation.dialog_text+="\n"+L.text("Original, Sicherung und temporäre Dateien werden vor der Übernahme separat archiviert. Der Import erfolgt erst nach Bestätigung.")
-	hud.present_dialog(import_confirmation,Vector2i(680,330))
+	hud.present_dialog(import_confirmation,Vector2i(740,360))
 
 func _confirm_import() -> void:
 	if import_preview.is_empty():return
