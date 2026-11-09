@@ -7,11 +7,13 @@ on:
     paths:
       - 'src/core/resort_pulse_040.gd'
       - 'src/core/frame_pacing_040.gd'
+      - 'src/core/guest_traffic.gd'
+      - 'tests/ski_traffic.gd'
+      - 'src/world/resort_view.gd'
       - 'src/core/save_bundle_040.gd'
       - 'src/core/save_store.gd'
       - 'src/core/save_management_038.gd'
       - 'src/main.gd'
-      - 'src/world/resort_view.gd'
       - 'src/ui/resort_command_center_040.gd'
       - 'src/ui/resort_operations_map_040.gd'
       - 'src/ui/career_slots.gd'
@@ -63,6 +65,8 @@ jobs:
         run: python3 tools/check_localization.py
       - name: Verify 1x/4x/8x smooth lift pacing and bounded catch-up
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/frame_pacing_040.gd
+      - name: Verify busy-piste overtaking, 240-guest traffic and asset lookup budget
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_traffic.gd
       - name: Verify real cabin overnight pedestrian access (release blocker)
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
       - name: Profile 1x, 4x and 8x frame CPU cost across light and crowded ski resorts
