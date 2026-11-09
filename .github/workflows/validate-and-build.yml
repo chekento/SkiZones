@@ -631,6 +631,18 @@ jobs:
             echo 'A newer application source is being validated; preserve existing public downloads.'
             echo 'publish=false' >> "$GITHUB_OUTPUT"
           fi
+      - name: Block the 0.40.1 release until real generated seasonal posters are included
+        if: steps.current.outputs.publish == 'true' && needs.godot.outputs.version == '0.40.1'
+        run: |
+          set -euo pipefail
+          for artwork in \
+            assets/seasonal/christmas_poster_original.webp \
+            assets/seasonal/new_year_poster_original.webp; do
+            if [[ ! -s "$artwork" ]]; then
+              echo "::error file=$artwork::The originally generated poster artwork is missing. Do not release 0.40.1 with placeholders."
+              exit 1
+            fi
+          done
       - name: Publish an immutable preview release
         if: steps.current.outputs.publish == 'true'
         env:
