@@ -123,14 +123,14 @@ def prepare(sdk: Path, java: Path):
                     "-classpath", os.pathsep.join([str(sdk / "platforms/android-35/android.jar"), str(dependencies)]),
                     "-d", str(classes), *map(str, source_files)], check=True)
     compiled = {str(p.relative_to(classes)): p.read_bytes() for p in classes.rglob("*.class")
-                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX, IMPORT_PREFIX))}
+                if str(p.relative_to(classes)).startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX))}
     assert compiled and any(p.startswith(INPUT_PREFIX) for p in compiled), "Missing input patch classes"
     for kind in ["debug", "release"]:
         aar = build / f"libs/{kind}/godot-lib.template_{kind}.aar"
         with zipfile.ZipFile(aar) as original:
             old_jar = original.read("classes.jar")
         with zipfile.ZipFile(io.BytesIO(old_jar)) as jar:
-            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX, IMPORT_PREFIX)) and n.endswith(".class")}
+            family = {n for n in jar.namelist() if n.startswith((PREFIX, INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX)) and n.endswith(".class")}
         assert family <= set(compiled), "The complete existing Java class families must be replaced"
         assert all(p.startswith((INPUT_PREFIX, UPDATE_PREFIX, SHARE_PREFIX, IMPORT_PREFIX)) for p in set(compiled) - family), "Only input helpers and the app support bridge may be added"
         new_jar = io.BytesIO()
