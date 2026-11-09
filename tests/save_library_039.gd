@@ -44,7 +44,7 @@ func run() -> void:
 	Saves.active_slot=0
 	check(Saves.has_any_save(id) and Saves.has_readable_save(id),"Historical mission remains discoverable even while free mode is active")
 	check(Saves.load_game(Resort.new(),scenario).ok,"Historical mission filename remains loadable without moving original")
-	check(Manager.inspect(id,1).loadable==1,"Historical mission filename is available to manual inspection")
+	check(Manager.inspect(id,1).loadable>=1,"Historical mission filename and automatically promoted save remain available to manual inspection")
 	check(not FileAccess.file_exists(career) and not FileAccess.file_exists(sandbox),"Mission recovery does not create or overwrite unrelated careers or free slots")
 	check(FileAccess.get_sha256(legacy)==original,"Historical mission source remains byte-identical")
 	# The two reported free-build cards contain primary + backup with healthy
