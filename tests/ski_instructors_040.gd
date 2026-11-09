@@ -59,5 +59,18 @@ func run()->void:
 	check(Ops.dismiss(model,fired_id).ok and Lessons.active(model,group).is_empty(),"Dismissed employee cannot appear as a phantom instructor NPC")
 	Lessons.finish_descent(group)
 	check(not group.has("ski_lesson"),"Course finishes without charging repeated visits or perpetual escort")
-	print("SKI INSTRUCTOR 040: %d passed; %d failed" % [passed,failed])
+	# Party mode expands a family into real individual NPCs. Each student
+	# must share ONE course leader rather than consuming cloned instructors.
+	var family_a:Dictionary={"id":810,"group_size":1,"party_id":77}
+	var family_b:Dictionary={"id":811,"group_size":1,"party_id":77}
+	var family_c:Dictionary={"id":812,"group_size":1,"party_id":77}
+	model.parties.append({"id":77,"members":[810,811,812]})
+	model.guests.append_array([family_a,family_b,family_c])
+	var one_family:Dictionary=Lessons.book(model,family_a,school)
+	var same_family:Dictionary=Lessons.book(model,family_b,school)
+	var third_family:Dictionary=Lessons.book(model,family_c,school)
+	check(one_family.ok and same_family.ok and third_family.ok,"All actual family members enter one shared group class")
+	check(int(family_a.ski_lesson.staff)==int(family_b.ski_lesson.staff) and int(family_b.ski_lesson.staff)==int(family_c.ski_lesson.staff),"One and only one on-duty instructor serves the whole three-student party")
+	check(family_c.ski_lesson.students==3 and family_c.ski_lesson.mode=="group","Split family count is recovered from real party members")
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
