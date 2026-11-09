@@ -25,6 +25,10 @@ on:
       - 'tools/android/AppInfoBridge.java'
       - 'src/ui/building_browser.gd'
       - 'src/ui/management.gd'
+      - 'src/ui/lift_staff.gd'
+      - 'src/core/ski_lessons_040.gd'
+      - 'src/core/recruitment.gd'
+      - 'src/core/operations.gd'
       - 'tests/*040.gd'
       - 'translations/en.po'
       - '.github/workflows/040-fast-check.yml'
@@ -93,6 +97,8 @@ jobs:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-integrity-040
           SKIZONES_SAFE_SAVE_TEST: '1'
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/save_integrity_040.gd
+      - name: Verify ski school instructors, private lessons and group escorts
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/ski_instructors_040.gd
       - name: Verify Android import preview and explicit activation never destroy previous saves
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-import-040
