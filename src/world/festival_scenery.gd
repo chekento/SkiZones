@@ -169,11 +169,11 @@ func _poster_artworks(stage: String) -> Array:
 
 func _spawn_posters(view: Node3D,stage: String) -> void:
 	var originals: Array=_poster_artworks(stage)
-	var sign_text: String="SKIZONES · WINTERWUNDER\\nAB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
+	var sign_text: String="SKIZONES · WINTERWUNDER\nAB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
 	if stage in ["advent","christmas"]:
-		sign_text="SKIZONES · WEIHNACHTEN\\nADVENTSKALENDER AB 1. DEZEMBER\\nZUM PLAKAT TIPPEN"
+		sign_text="SKIZONES · WEIHNACHTEN\nADVENTSKALENDER AB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
 	elif stage in ["new_year_eve","new_year"]:
-		sign_text="SKIZONES · SILVESTER\\nNEUJAHR IM BERGDORF\\nZUM PLAKAT TIPPEN"
+		sign_text="SKIZONES · SILVESTER\nNEUJAHR IM BERGDORF\nZUM PLAKAT TIPPEN"
 	var art_mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
 	art_mesh.surface_set_material(0,view._solid)
 	for index in range(3):
