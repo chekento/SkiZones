@@ -9813,3 +9813,33 @@ msgstr "NEW YEAR'S EVE IN THE MOUNTAINS"
 
 msgid "FROHES NEUES JAHR"
 msgstr "HAPPY NEW YEAR"
+
+msgid "Winterplakat entdeckt"
+msgstr "Winter poster discovered"
+
+msgid "%d von %d Motiven entdeckt"
+msgstr "%d of %d pictures discovered"
+
+msgid "Winterplakat-Sammler"
+msgstr "Winter Poster Collector"
+
+msgid "Alle 10 unterschiedlichen Festtagsplakate entdecken"
+msgstr "Discover all 10 distinct holiday posters"
+
+msgid "Plakatsammlung: %d von %d entdeckt"
+msgstr "Poster collection: %d of %d found"
+
+msgid "%d von %d unterschiedlichen Festtagsplakaten entdeckt"
+msgstr "%d of %d unique holiday posters found"
+
+msgid "Achievement freigeschaltet!"
+msgstr "Achievement unlocked!"
+
+msgid "Finde die unterschiedlichen Motive auf den Plakattafeln an den Pisten."
+msgstr "Find the different pictures on the signs along the ski pistes."
+
+msgid "✦  PLAKAT ENTDECKT"
+msgstr "✦  POSTER DISCOVERED"
+
+msgid "Aktuelle Karriere: %d von 1000 Leistungserfolgen freigeschaltet."
+msgstr "Current career: %d of 1,000 performance achievements unlocked."
