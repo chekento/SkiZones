@@ -5,6 +5,7 @@ extends SceneTree
 const Book=preload("res://src/core/achievement_book.gd")
 const Collection=preload("res://src/core/poster_collection.gd")
 const Posters=preload("res://src/core/holiday_poster_catalog.gd")
+const Scenery=preload("res://src/world/festival_scenery.gd")
 const Resort=preload("res://src/core/resort.gd")
 const L=preload("res://src/core/i18n.gd")
 var passed:=0
@@ -20,6 +21,22 @@ func run()->void:
 	var model:=Resort.new()
 	model.new_game(true)
 	var assets: Array=Posters.all_paths()
+	var advent_found: Dictionary={}
+	for day in [1,2]:
+		var day_art: Array=Posters.visible_on_day("advent",day)
+		check(day_art.size()==6,"Exactly six different Advent/Christmas motifs appear on day %d" % day)
+		for art in day_art:advent_found[art]=true
+	check(advent_found.size()==9,"Daily rotation exposes all nine Advent and Christmas motifs across two dates")
+	var christmas_found: Dictionary={}
+	for day in [25,26]:
+		for art in Posters.visible_on_day("christmas",day):christmas_found[art]=true
+	check(christmas_found.size()==7,"The Christmas holiday days expose all seven Christmas pictures")
+	check(Posters.visible_on_day("new_year_eve",27).size()==1 and Posters.visible_on_day("november_poster",1).size()==6,"New Year art is a distinct, date-gated tenth picture")
+	for approach in [Vector2(1,0),Vector2(0,1),Vector2(-1,-1)]:
+		var yaw: float=Scenery.sign_yaw(approach)
+		var facing: Vector2=Vector2(sin(yaw),cos(yaw))
+		check(facing.dot(approach.normalized())>0.90,"Slanted lift-area billboard faces approaching skiers, not away from them")
+
 	check(assets.size()==10 and Collection.total()==10,"Exactly ten unique official poster images")
 	check(Collection.valid([]) and Collection.valid(assets) and not Collection.valid(assets+[assets[0]]),"Discovery list validates 0..10 unique official IDs")
 	check(not Collection.valid(["res://assets/seasonal/fake.webp"]) and not Collection.valid([assets[0],assets[0]]),"Unknown and duplicated textures are rejected")
