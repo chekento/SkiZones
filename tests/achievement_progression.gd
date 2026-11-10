@@ -26,8 +26,8 @@ func run() -> void:
 		unique[a.id] = true
 		check(a.tier >= 1 and a.tier <= 50 and a.reward > 0 and Book.target(a.track,a.tier) > 0,
 			"Achievement %d has a valid target and reward" % id)
-	check(unique.size() == 1000 and Book.entry(1004).is_empty(),
-		"No missing or duplicate IDs and legacy IDs remain reserved")
+	check(unique.size() == 1000 and Book.entry(Book.POSTER_COLLECTOR_ID).id == Book.POSTER_COLLECTOR_ID and Book.entry(Book.POSTER_COLLECTOR_ID+1).is_empty(),
+		"All 1,000 historical IDs stay unchanged; the new collector has one separate special ID")
 	for track in range(Book.TRACKS.size()):
 		for tier in range(2,Book.TIERS+1):
 			check(Book.target(track,tier)>Book.target(track,tier-1),
@@ -65,7 +65,7 @@ func run() -> void:
 	check(migrated.restore(legacy).ok and migrated.achievements == [0,1],
 		"Old four-achievement saves migrate without injecting fake earned milestones")
 	var false_id := model.snapshot()
-	false_id.achievements.append(1004)
+	false_id.achievements.append(Book.POSTER_COLLECTOR_ID+1)
 	check(not copy.restore(false_id).ok,"Unknown achievement IDs cannot corrupt saves")
 	var duplicate := model.snapshot()
 	duplicate.achievements.append(duplicate.achievements[0])
