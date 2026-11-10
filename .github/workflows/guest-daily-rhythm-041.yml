@@ -33,6 +33,16 @@ jobs:
           print(p.stdout+p.stderr)
           raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
           PY
+      - name: 0.41 lift animation clock, speed downshift and 20:00 night boundary
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-lift-pacing-041
+        run: |
+          python3 tools/run_godot_test.py --timeout 160 -- "$GODOT_BIN" --language de --headless --script tests/lift_frame_pacing_041.gd
+          python3 tools/run_godot_test.py --timeout 200 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
+      - name: 0.41 non-blocking resort office and building catalog transitions
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-ui-041
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/menu_lift_performance_041.gd
       - name: 0.41 needs-driven meal hours and save isolation
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-rhythm-041
