@@ -43,6 +43,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-ui-041
         run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/menu_lift_performance_041.gd
+      - name: 0.41 ten original poster discoveries, bilingual notifications and historic saves
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-poster-collection-041
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/poster_collection_041.gd
       - name: 0.41 needs-driven meal hours and save isolation
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-rhythm-041
