@@ -1101,6 +1101,12 @@ func chair(kind: String, livery: String = "") -> ArrayMesh:
 		link(Vector3(0, 3.7, 0), Vector3(0, 6, 0), 0.25, Color("526870"))
 		for x in [-2.7, -0.9, 0.9, 2.7]:
 			box(Vector3(x, 0.4, 3.45), Vector3(0.28, 3.4, 0.14), Color("d5a85b"))
+		# Small trim, handles and safety lights are built once per vehicle
+		# mesh, not spawned as individual nodes for each moving gondola.
+		for side in [-1,1]:
+			box(Vector3(side*3.7,2.25,0),Vector3(0.13,0.22,5.9),Color("e2e9ed"))
+			box(Vector3(side*3.2,0.72,3.48),Vector3(0.28,0.70,0.10),Color("e7c36d"))
+		box(Vector3(0,3.85,0),Vector3(5.5,0.13,4.4),Color("dbe7ea"))
 	else:
 		var width := count * Fleet.SEAT_SPACING + 0.45
 		box(Vector3(0, -0.22, 0), Vector3(width, 0.35, 1.8), Color("4b6872"))
@@ -1111,9 +1117,14 @@ func chair(kind: String, livery: String = "") -> ArrayMesh:
 		for side in [-1, 1]:
 			box(Vector3(side * width * 0.5, 0.5, 0), Vector3(0.15, 1.3, 1.7), Color("526b74"))
 		link(Vector3(0, 1.9, -1.1), Vector3(0, 6, 0), 0.19, Color("526b74"))
-		box(Vector3(0, 1, 1.3), Vector3(width, 0.18, 0.18), Color("84989d"))
-		for side in [-1, 1]:
-			link(Vector3(side * width * 0.5, 1, 1.3), Vector3(side * width * 0.5, 0.7, -0.8), 0.09, Color("84989d"))
+		# Linked safety bar, footrest and end reflectors make individual seats
+		# recognizable from the playable 3D resort camera.
+		box(Vector3(0,1,1.3),Vector3(width,0.18,0.18),Color("84989d"))
+		box(Vector3(0,-1.15,1.15),Vector3(width*0.91,0.13,0.18),Color("738d96"))
+		for side in [-1,1]:
+			link(Vector3(side*width*.5,1,1.3),Vector3(side*width*.5,0.7,-0.8),0.09,Color("84989d"))
+			link(Vector3(side*width*.43,0.9,1.27),Vector3(side*width*.43,-1.15,1.15),0.09,Color("526b74"))
+			box(Vector3(side*width*.47,0.9,1.45),Vector3(0.22,0.23,0.10),Color("e6b65e"))
 	return finish()
 
 func gondola_glass() -> ArrayMesh:
