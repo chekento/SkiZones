@@ -7,6 +7,7 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
 const LoanOptions = preload("res://src/core/loan_options_035.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
@@ -287,9 +288,24 @@ func _achievements(page: VBoxContainer) -> void:
 	for id in model.achievements: earned[int(id)] = true
 	var expanded := 0
 	for id in model.achievements:
-		if int(id) >= AchievementBook.START_ID: expanded += 1
+		if int(id) >= AchievementBook.START_ID and int(id) < AchievementBook.START_ID + AchievementBook.TOTAL: expanded += 1
 	_card(page, L.text("1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET") % L.args(expanded),
 		L.text("20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."))
+	# A separate, actual collector achievement does not change the existing
+	# 1,000 milestones or their numeric IDs.
+	var discovered: Dictionary=PosterCollection.progress(model)
+	var collector: VBoxContainer=_card(page,L.text("Winterplakat-Sammler"),
+		L.text("%d von %d unterschiedlichen Festtagsplakaten entdeckt") % L.args([discovered.found,discovered.total]))
+	var collection_progress:=ProgressBar.new()
+	collection_progress.max_value=maxi(1,int(discovered.total))
+	collection_progress.value=int(discovered.found)
+	collection_progress.show_percentage=false
+	collection_progress.custom_minimum_size.y=21
+	collector.add_child(collection_progress)
+	if model.achievements.has(AchievementBook.POSTER_COLLECTOR_ID):
+		hud._label(collector,L.text("Achievement freigeschaltet!"),17,hud.TEAL,true)
+	else:
+		hud._label(collector,L.text("Finde die unterschiedlichen Motive auf den Plakattafeln an den Pisten."),15,hud.MUTED,true)
 	var picker := OptionButton.new()
 	picker.custom_minimum_size.y = 52
 	for track in AchievementBook.TRACKS:
