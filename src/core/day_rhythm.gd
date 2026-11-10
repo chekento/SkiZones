@@ -3,7 +3,7 @@ extends RefCounted
 ## needs, queues and wages per game minute in existing saves.
 const PRESETS := ["balanced", "compact", "cozy"]
 const DAY_SPEED := {"balanced":1.8, "compact":2.2, "cozy":1.35}
-const QUIET_FROM := 1320
+const QUIET_FROM := 1200 # 20:00, but only after every visible outdoor trip is safely complete
 const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenirs", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
 
 static func playback(minute: int, preset: String = "balanced") -> float:
@@ -13,6 +13,7 @@ static func playback(minute: int, preset: String = "balanced") -> float:
 ## Only foot traffic to a real exit/overnight/after-ski destination can be
 ## safely accelerated. Every remaining leg must be a walk or indoor visit:
 ## never fast-forward a skier, lift rider, queue, rescue or lost NPC.
+## Starting the safe-night check at 20:00 does NOT force those trips to finish.
 static func _safe_foot_destination(model: RefCounted, guest: Dictionary) -> bool:
 	if not guest.has("route") or not guest.route is Dictionary: return false
 	var legs: Array = guest.route.get("legs", [])
