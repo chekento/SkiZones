@@ -16,6 +16,7 @@ const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
+const GuestRhythm = preload("res://src/core/guest_daily_rhythm.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
 const Access=preload("res://src/core/resort_access.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
@@ -1331,7 +1332,10 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var best_score := 0.0
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
+		# A weak, time-dependent meal preference adds human routine without
+		# bypassing personal hunger, cooldown, route, capacity or opening checks.
 		var utility := Needs.utility(guest,building.kind)
+		utility += GuestRhythm.utility_bonus(guest,str(building.kind),minute)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
