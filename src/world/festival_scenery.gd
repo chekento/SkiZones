@@ -169,6 +169,32 @@ func _poster_artworks(stage: String) -> Array:
 	# New Year art remains date-gated until December 27.
 	return Posters.available(stage)
 
+## A board's local +Z normal must face arriving skiers (the upper piste),
+## with a small deliberate angle so it reads naturally beside the lift queue.
+static func sign_yaw(towards_arrivals: Vector2,skew_degrees: float = 25.0) -> float:
+	if towards_arrivals.length_squared()<0.0001:return 0.0
+	var direction: Vector2=towards_arrivals.normalized()
+	return atan2(direction.x,direction.y)+deg_to_rad(skew_degrees)
+
+func _lift_poster_site(view: Node3D,lift: Dictionary) -> Dictionary:
+	var bottom: Vector2=Terrain.unpack(lift.bottom)
+	var upper: Vector2=Terrain.unpack(lift.top)
+	var approaching: Vector2=(upper-bottom).normalized()
+	if approaching.length_squared()<0.0001:return {}
+	var lateral: Vector2=Vector2(-approaching.y,approaching.x)
+	# A little above the valley station, beyond the rope/queue corridor,
+	# visibly angled towards skiers who have just finished their run.
+	for sideways in [27.0,-27.0,36.0,-36.0,44.0,-44.0]:
+		for forward in [16.0,24.0,34.0]:
+			var proposed: Vector2=bottom+approaching*forward+lateral*sideways
+			if not _valid_place(view,proposed,10.0):continue
+			var occupied: bool=false
+			for site in poster_sites:
+				if site.distance_to(proposed)<26.0:occupied=true;break
+			if occupied:continue
+			return {"point":proposed,"yaw":sign_yaw(approaching,25.0 if sideways>0.0 else -25.0)}
+	return {}
+
 func _spawn_posters(view: Node3D,stage: String) -> void:
 	var originals: Array=_poster_artworks(stage)
 	var today: Dictionary=date_now()
@@ -178,11 +204,26 @@ func _spawn_posters(view: Node3D,stage: String) -> void:
 	# Six roadside sites make a varied collection visible across a resort.
 	for index in range(6):
 		var at: Vector2=Vector2.INF
-		for step in range(20):
-			var angle: float=float(index)*TAU/6.0+float(step)*0.31
-			var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%6)*22.0)
-			if _valid_place(view,candidate):
+		var angle_y: float=0.0
+		# Prefer one deliberately positioned, slanted poster near each lift
+		# valley station. Ignore invalid sites instead of blocking a piste.
+		if index<view.model.lifts.size():
+			var site: Dictionary=_lift_poster_site(view,view.model.lifts[index])
+			if not site.is_empty():
+				at=site.point
+				angle_y=float(site.yaw)
+		if not at.is_finite():
+			# Scenic fallback for resorts with fewer lifts or crowded entrances.
+			for step in range(30):
+				var angle: float=float(index)*TAU/6.0+float(step)*0.31
+				var candidate: Vector2=Terrain.BASE+Vector2.from_angle(angle)*(73.0+float(step%7)*22.0)
+				if not _valid_place(view,candidate,10.0):continue
+				var too_close: bool=false
+				for earlier in poster_sites:
+					if earlier.distance_to(candidate)<26.0:too_close=true;break
+				if too_close:continue
 				at=candidate
+				angle_y=sign_yaw(Terrain.BASE-at,0.0)
 				break
 		if not at.is_finite():continue
 		var artwork: String=str(originals[(rotation+index)%originals.size()]) if not originals.is_empty() else ""
@@ -191,7 +232,7 @@ func _spawn_posters(view: Node3D,stage: String) -> void:
 		var board:=MeshInstance3D.new()
 		board.mesh=art_mesh
 		board.position=view.terrain.world(at,0.25)
-		board.rotation.y=float(index)*TAU/6.0
+		board.rotation.y=angle_y
 		board.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(board)
 		if not artwork.is_empty():
