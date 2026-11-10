@@ -27,6 +27,9 @@ const TRACKS := [
 	{"key": "boarded", "name": "Bergwärts", "unit": "Liftfahrten", "step": 100, "curve": 1.6}
 ]
 const TOTAL := 1000
+## Special discovery achievement – outside the unchanged 1,000-tier catalogue.
+## Older achievements (0..1003) keep their exact numeric IDs.
+const POSTER_COLLECTOR_ID := START_ID + TOTAL # 1004
 const MAX_RANK := 500
 const MASTERY_XP_FACTOR := 5.0
 
@@ -37,6 +40,8 @@ static func target(track: int, tier: int) -> int:
 	return maxi(1, roundi(float(spec.step) * pow(float(tier), float(spec.curve))))
 
 static func entry(id: int) -> Dictionary:
+	if id == POSTER_COLLECTOR_ID:
+		return {"id":id,"track":-1,"tier":1,"name":L.text("Winterplakat-Sammler"),"goal":L.text("Alle 10 unterschiedlichen Festtagsplakate entdecken"),"reward":0}
 	if id < START_ID or id >= START_ID + TOTAL: return {}
 	var track: int = (id - START_ID) / TIERS
 	var tier: int = (id - START_ID) % TIERS + 1
