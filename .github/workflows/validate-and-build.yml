@@ -273,6 +273,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-pmdd-0401
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/seasonal_posters_0401.gd
+      - name: 0.41 PMDD poster collector progress and non-destructive save compatibility
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-poster-collector-041
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/poster_collection_041.gd
       - name: 0.39 mission backup rescue, legacy scenario paths and save isolation
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-save-library-039
