@@ -30,6 +30,7 @@ var selected_achievement_track := 0
 var notification_filter := "all"
 var _page_bodies: Dictionary={}
 var _operating_layout := false
+var _page_language := ""
 var _building_tabs := false
 var _rendering_page := false
 
@@ -101,7 +102,9 @@ func open() -> void:
 ## research/staffing controls) was blocking the Android UI on every opening.
 func _ensure_pages() -> void:
 	var operating: bool=Ops.active(game.model)
-	if not _page_bodies.is_empty() and _operating_layout==operating:return
+	# Language changes invalidate translated tab keys. Recreate only the
+	# inexpensive empty shells, not their expensive research/staff content.
+	if not _page_bodies.is_empty() and _operating_layout==operating and _page_language==L.language:return
 	var desired: int=clampi(tabs.current_tab,0,12)
 	_building_tabs=true
 	for child in tabs.get_children():
@@ -109,6 +112,7 @@ func _ensure_pages() -> void:
 		child.queue_free()
 	_page_bodies.clear()
 	_operating_layout=operating
+	_page_language=L.language
 	for title_value in ["Karriere","Erfolge","Aufträge","Forschung","Ausbau","Finanzen","Sponsoring"]:
 		_page(L.text(title_value))
 	if operating:
