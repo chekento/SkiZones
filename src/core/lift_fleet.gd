@@ -93,6 +93,16 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 ## Cable samples are cumulative, sorted distances. Binary lookup avoids
 ## scanning every pylon for every gondola/chair every rendered frame.
 ## Keep the exact same linear interpolation used by the physical schedule.
+## The simulation remains authoritative. After a long Android frame or an
+## 8x -> 1x downshift, release accumulated visual distance over several frames
+## instead of drawing a frozen carrier followed by a multi-metre jump.
+## A stopped or reset cable synchronizes exactly to the simulation.
+static func visual_clock(previous: float, target: float, delta: float, units_per_second: float, running: bool = true) -> float:
+	if not running or not is_finite(previous) or target <= previous:return target
+	var frame_time: float=clampf(delta,0.0,0.1)
+	var maximum_step: float=maxf(0.02,frame_time*maxf(units_per_second,0.0)*1.8)
+	return minf(target,previous+maximum_step)
+
 static func _on_cable(profile: Dictionary, fraction: float) -> Vector3:
 	var length: float=float(profile.length)
 	var distance: float=length*clampf(fraction,0.0,1.0)
