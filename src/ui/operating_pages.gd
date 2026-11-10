@@ -8,14 +8,20 @@ static func add(office: Control, only: int = -1) -> void:
 	var model: RefCounted = office.game.model
 	if not Ops.active(model): return
 	var hud: CanvasLayer = office.hud
-	var targets: Array = [{"key": "reserve", "name": L.text("Reserve / Pausenvertretung")}]
-	var used: Dictionary = {}
-	for lift in model.lifts:
-		for station in Ops.station_demands(lift):
-			if used.has(station.key): continue
-			used[station.key] = true
-			targets.append({"key": station.key, "name": "%s · %s" % [L.asset_name(lift), L.text("Berg / Mittel") if station.top else L.text("Tal / Mittel")]})
-	for building in model.buildings: targets.append({"key": "building:%d" % int(building.id), "name": L.asset_name(building)})
+	# Fast-path for the Operations and Rescue pages. Staff assignment
+	# targets were previously computed for every lift and building on every
+	# page, even when the corresponding personnel picker was never visible.
+	var targets: Array=[]
+	if only in [-1,1,2,4]:
+		targets=[{"key": "reserve", "name": L.text("Reserve / Pausenvertretung")}]
+		var used: Dictionary={}
+		for lift in model.lifts:
+			for station in Ops.station_demands(lift):
+				if used.has(station.key):continue
+				used[station.key]=true
+				targets.append({"key":station.key,"name":"%s · %s" % [L.asset_name(lift),L.text("Berg / Mittel") if station.top else L.text("Tal / Mittel")]})
+		for building in model.buildings:
+			targets.append({"key":"building:%d" % int(building.id),"name":L.asset_name(building)})
 	if only in [-1, 0]:
 		var page: VBoxContainer = office._page(L.text("Betrieb"))
 		if model.operations.scenario != "":
