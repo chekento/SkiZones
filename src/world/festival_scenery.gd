@@ -66,7 +66,7 @@ func build(view: Node3D) -> void:
 	var now:=date_now()
 	var stage:=Calendar.season(now)
 	if Calendar.preview_poster(now): stage="november_poster"
-	_world_key="%d:%s" % [int(now.get("year",0)),stage]
+	_world_key="%d:%02d:%02d:%s" % [int(now.get("year",0)),int(now.get("month",1)),int(now.get("day",1)),stage]
 	if stage=="": return
 	# Poster boards are visible throughout the corresponding campaign;
 	# the Advent reward system itself remains disabled before December 1.
@@ -156,19 +156,23 @@ func update(view: Node3D, delta: float) -> void:
 	if _poll>=12.0:
 		_poll=0.0
 		var date:=date_now()
-		var key:="%d:%s" % [int(date.get("year",0)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
+		var key:="%d:%02d:%02d:%s" % [int(date.get("year",0)),int(date.get("month",1)),int(date.get("day",1)),"november_poster" if Calendar.preview_poster(date) else Calendar.season(date)]
 		if key!=_world_key: build(view)
 
 
 ## Ten static, compact PMDD images, with every word drawn in the current
 ## Godot language. No baked-in language, forced phone permissions or video.
 func _poster_artworks(stage: String) -> Array:
-	var available: Array=Posters.available(stage)
-	available.shuffle()
-	return available
+	# Keep catalog order stable. Six of nine motifs are shown at any moment;
+	# rotating by six each local day guarantees that all nine become
+	# discoverable over two consecutive Advent/November days.
+	# New Year art remains date-gated until December 27.
+	return Posters.available(stage)
 
 func _spawn_posters(view: Node3D,stage: String) -> void:
 	var originals: Array=_poster_artworks(stage)
+	var today: Dictionary=date_now()
+	var rotation: int=posmod((int(today.get("day",1))-1)*6,maxi(1,originals.size()))
 	var art_mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
 	art_mesh.surface_set_material(0,view._solid)
 	# Six roadside sites make a varied collection visible across a resort.
@@ -181,7 +185,7 @@ func _spawn_posters(view: Node3D,stage: String) -> void:
 				at=candidate
 				break
 		if not at.is_finite():continue
-		var artwork: String=str(originals[index%originals.size()]) if not originals.is_empty() else ""
+		var artwork: String=str(originals[(rotation+index)%originals.size()]) if not originals.is_empty() else ""
 		poster_sites.append(at)
 		poster_paths.append(artwork)
 		var board:=MeshInstance3D.new()
