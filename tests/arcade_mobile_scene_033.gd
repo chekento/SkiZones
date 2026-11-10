@@ -89,11 +89,25 @@ func run() -> void:
 			game._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 			check(not experience.visible and not game.paused, "Android Back closes the game and restores running state")
 		game.model.operations.pending_arrivals = 8
-		game.hud.management.open()
+		var office: Control=game.hud.management
+		office.open()
 		await settle()
-		var interest: Label = game.hud.management.find_child("morning_interest", true, false)
-		check(interest != null and interest.text == L.text("Morgeninteresse: %d · Ankünfte 08–10 Uhr nach freien Plätzen. Noch keine Gäste oder Einnahmen.") % 8, "%s: operations page shows actual interest and its capacity limit" % language)
-		game.hud.management.hide()
+		# In 0.41, hidden tabs are intentionally lazy; ask for the real
+		# operations page before expecting its arrival-interest widget.
+		var operating_tab: int=-1
+		for index in range(office.tabs.get_tab_count()):
+			if office.tabs.get_tab_title(index)==L.text("Betrieb"):
+				operating_tab=index
+				break
+		check(operating_tab>=0,"%s: resort office exposes the translated Operations tab" % language)
+		if operating_tab>=0:
+			office.tabs.current_tab=operating_tab
+			office.refresh()
+		await settle()
+		var interest: Label=office.find_child("morning_interest",true,false)
+		check(interest!=null and interest.text==L.text("Morgeninteresse: %d · Ankünfte 08–10 Uhr nach freien Plätzen. Noch keine Gäste oder Einnahmen.") % 8,
+			"%s: lazily loaded operations page shows actual interest and its capacity limit" % language)
+		office.hide()
 	game.queue_free()
 	await process_frame
 	await process_frame
