@@ -1,5 +1,6 @@
 extends PanelContainer
 const OperatingPages = preload("res://src/ui/operating_pages.gd")
+const Ops = preload("res://src/core/operations.gd")
 const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
