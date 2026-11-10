@@ -49,6 +49,7 @@ func run()->void:
 	check(bounded,"Dropped Android frames cannot generate a multi-step vehicle teleport")
 	check(absf(Fleet.visual_clock(1.0,8.0,0.1,4.0,false)-8.0)<0.000001,"Stopped cable synchronizes exactly without animation drift")
 	check(absf(Fleet.visual_clock(20.0,19.75,0.016,4.0)-19.75)<0.000001,"Loading an older save resets animation without invalid forward extrapolation")
+	check(Fleet.visual_clock(-1.0,2450.0,0.016,4.0)==2450.0,"Android resume sentinel immediately restores the actual vehicle positions")
 	var model:=Resort.new()
 	model.new_game(true,20261110,"sonnenhang")
 	Ops.enable(model)
