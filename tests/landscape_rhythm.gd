@@ -17,7 +17,7 @@ func _init() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	check(Rhythm.playback(600)>1.5 and Rhythm.playback(1100)==1.0 and Rhythm.playback(1319)==1.0,"Ski days are shorter while the entire 17–22h evening retains its old pacing")
+	check(Rhythm.playback(600)>1.5 and Rhythm.playback(1100)==1.0 and Rhythm.playback(1199)==1.0 and Rhythm.playback(1200)>1.0,"Ski days are shorter, 17–20h remains relaxed and safe night pacing begins at 20:00")
 	check(Rhythm.playback(600,"compact")>Rhythm.playback(600) and Rhythm.playback(600,"cozy")<Rhythm.playback(600),"Three day-length preferences have distinct rates")
 	var model := Resort.new()
 	model.new_game(true)
@@ -98,7 +98,7 @@ func _night(model: RefCounted) -> void:
 	var daytime_route: Dictionary=guest.route.duplicate(true)
 	guest.lodging_id=cabin.id
 	guest.stay=8000
-	model.minute=1300
+	model.minute=1199
 	model._operational_change()
 	var route: Dictionary=model.Lodging.night_route(model,guest,"base")
 	check(not route.is_empty(),"The overnight tourist has a real walking route into the cabin")
@@ -108,8 +108,8 @@ func _night(model: RefCounted) -> void:
 		if route.legs[index].kind=="visit": guest.leg=index; break
 	guest.hotel_night=true
 	model.Lodging.start_sleep(model,guest)
-	check(not model.empty_night(),"Sleeping guests do not skip the relaxed evening before 22h")
-	model.minute=1320
+	check(not model.empty_night(),"Sleeping guests do not skip the relaxed evening at 19:59")
+	model.minute=1200
 	check(model.empty_night(),"A sleeping resident no longer prevents quiet-night forward")
 	var day: int=model.day
 	for tick in range(5000):
