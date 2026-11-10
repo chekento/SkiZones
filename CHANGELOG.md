@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **49 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **50 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.40.1](https://github.com/chekento/SkiZones/releases/tag/v0.40.1)** | 10.11.2026 | Karriere-Rettung und Saisontermine | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk) | [Details](docs/releases/0.40.1.md) |
 | **[v0.40.0](https://github.com/chekento/SkiZones/releases/tag/v0.40.0)** | 09.11.2026 | Alpine Renaissance, sichere Spielstände und Skischulkurse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) |
 | **[v0.39.1](https://github.com/chekento/SkiZones/releases/tag/v0.39.1)** | 08.11.2026 | Stabilisierungs-Hotfix für bestehende Resorts | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk) | [Details](docs/releases/0.39.1.md) |
 | **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
@@ -59,6 +60,49 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **4
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.40.1 · Karriere-Rettung und Saisontermine (10.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.40.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk)** (179.8 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.40.1/manifest.json) · [Originalnotizen](docs/releases/0.40.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.40.1)
+
+Hotfix nach dem Android-Preview 0.40.0.
+
+### Spielstände
+- Automatische Wiederherstellung von checksum-validen historischen Karriere-Spielständen: Snapshot wird transaktional in eine temporäre Datei geschrieben, erneut mit der aktuellen Engine vollständig geprüft und erst dann aktiviert.
+- Alte Primärdateien werden bytegenau als `.recovery-*.json` archiviert. Gesunde `.bak`-Dateien bleiben erhalten.
+- Problematische temporäre Besucherzustände dürfen kontrolliert zurückgesetzt werden, permanente Anlagen, Finanzen und Karrierewerte nicht.
+- Altlasten aus v16/v17: Ski-Spurfortschritt darf nach dem Reparieren und bei der weiteren Simulation nicht außerhalb des Streckenabschnittes liegen.
+- Sicherheitsgrenze: Prüfsummenfehler und strukturell ungültige Anlagen werden nicht blind „repariert“.
+
+### Saison
+- 01.11.–30.11.: Weihnachts-Vorwerbung mit Werbetafeln, **ohne** Adventskalender und Advents-Belohnungen.
+- 01.12.–24.12.: Advent mit täglich freischaltbaren Türchen.
+- 25.12.–26.12.: Weihnachten.
+- 27.12.–31.12.: Silvester-/Neujahrs-Vorbereitung; tatsächlicher Countdown und Feier nur zum Jahreswechsel.
+- 01.01.: Neujahr.
+
+### PMDD 4.0 – zehn fertige Querformat-Bilder
+Die gesamte zuletzt erstellte, sprachneutrale Festtagsserie ist als echte WebP-Textur im Repository und damit in der Android-App integriert:
+
+- 7 Weihnachts-/Pisten-/Weihnachtsmarkt-Motive
+- 2 Advents-/Adventskalender-Motive
+- 1 Silvester-/Neujahrsmotiv
+
+Alle Bilder sind **1280 × 720 Pixel**, 16:9, und einzeln unter 256 KiB. Die zehn Dateien zusammen benötigen nur ca. 1,84 MB. Es gibt keinerlei eingebrannte Beschriftungen.
+
+Sechs Plakatrahmen pro Resort sind auf exakt 16:9 umgestaltet. Ihre Motive werden je Resort-Aufbau randomisiert, das Motiv wird unverzerrt in einem starren 3D-Quad dargestellt, und ein Klick auf das Schild öffnet exakt dasselbe Bild als Großansicht. Deutsche und englische Werbeüberschriften sind **Godot-Overlays**, nicht Teil der Bilder.
+
+- 01.11.–30.11.: Sieben Weihnachts- und zwei Adventsmotive als Vorwerbung. Kein Adventskalender.
+- 01.12.–24.12.: Weihnachts- und Adventsmotive, mit täglich öffnenden Türchen.
+- 25.12.–26.12.: Sieben Weihnachtsmotive, ohne Silvesterwerbung.
+- 27.12.–01.01.: Silvester- und Neujahrsmotiv.
+
+Die Bildwirkung basiert auf PMDD 4.0 Level 5 als **statische** Tiefen- und Bewegungsillusion. Es gibt keine echte Head-Tracking-Parallaxe oder zusätzliche Bildanimation.
+
+### Test-Freigabe
+Vor dem Release müssen die GitHub Actions alle alten Spielstandsregressionen, 0.40.1-PMDD-Asset-/Kalender-/Übersetzungstests, Android-Export und die Update-Signaturprüfung erfolgreich abschließen. Die Release-Pipeline überprüft nun ausdrücklich **alle zehn** WebP-Dateien.
+
+---
 
 ## v0.40.0 · Alpine Renaissance, sichere Spielstände und Skischulkurse (09.11.2026)
 
