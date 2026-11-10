@@ -16,6 +16,8 @@ var preview := Icon.new()
 var detail: Label
 var choose: Button
 var _state := ""
+var _style_cache: Dictionary={}
+var _refresh_elapsed := 0.0
 
 func setup(owner_hud: CanvasLayer) -> void:
 	hud=owner_hud
@@ -77,7 +79,13 @@ func setup(owner_hud: CanvasLayer) -> void:
 			selected_kind=kind
 			_refresh(true)
 		)
-		cards.append({"kind":kind,"button":button,"status":status})
+		cards.append({"kind":kind,"button":button,"status":status,"last_style":"","last_status":"","last_locked":false})
+		# Persistent theme styleboxes: the original open path allocated a new
+		# pair of StyleBoxes for EVERY building every time a menu was shown.
+		_style_cache[kind]={
+			"selected":hud._style(Color("d6e9dc"),12,8,hud.TEAL),
+			"normal":hud._style(Color("fffaf0"),12,8,Color("d3ded4"))
+		}
 	var footer := PanelContainer.new()
 	footer.add_theme_stylebox_override("panel",hud._style(Color("e2eadf"),12,12))
 	body.add_child(footer)
@@ -98,23 +106,33 @@ func open() -> void:
 	hud.game._clear_input()
 	show()
 	window._fit()
-	_refresh(true)
+	_refresh()
 
 func _refresh(force: bool = false) -> void:
 	var model: RefCounted=hud.game.model
-	var state := str(model.money)+str(model.campaign.research)+selected_kind+str(window.size)+str(hud.game.view.visual_style)
+	var state := str(model.money)+"|"+str(model.campaign.research)+"|"+str(model.campaign.rank)+"|"+selected_kind+"|"+str(window.size)+"|"+str(category.selected)+"|"+search.text+"|"+str(hud.game.view.visual_style)
 	if state==_state and not force: return
 	_state=state
-	grid.columns=clampi(floori((window.size.x-38)/255),2,4)
+	var columns: int=clampi(floori((window.size.x-38)/255),2,4)
+	if grid.columns!=columns:grid.columns=columns
 	var query := search.text.strip_edges().to_lower()
 	for card in cards:
 		var spec: Dictionary=Catalog.BUILDINGS[card.kind]
 		var matches: bool=(category.selected==0 or Catalog.building_group(card.kind)==groups[category.selected]) and (query.is_empty() or (L.text(spec.name)+" "+L.text(spec.description)).to_lower().contains(query))
-		card.button.visible=matches
+		if card.button.visible!=matches:card.button.visible=matches
+		if not matches:continue
 		var locked: String=model.build_access_message(card.kind,false)
-		card.status.text=locked if locked!="" else L.text("Budget reicht noch nicht") if model.money<spec.cost else L.text(Catalog.building_group(card.kind))
-		card.button.add_theme_stylebox_override("normal",hud._style(Color("d6e9dc") if card.kind==selected_kind else Color("fffaf0"),12,8,hud.TEAL if card.kind==selected_kind else Color("d3ded4")))
-		card.button.modulate=Color(0.76,0.80,0.80) if locked!="" else Color.WHITE
+		var status_text: String=locked if locked!="" else L.text("Budget reicht noch nicht") if model.money<spec.cost else L.text(Catalog.building_group(card.kind))
+		if card.last_status!=status_text:
+			card.status.text=status_text
+			card.last_status=status_text
+		var style_key: String="selected" if card.kind==selected_kind else "normal"
+		if style_key!=card.last_style:
+			card.button.add_theme_stylebox_override("normal",_style_cache[card.kind][style_key])
+			card.last_style=style_key
+		if card.last_locked!=(locked!=""):
+			card.button.modulate=Color(0.76,0.80,0.80) if locked!="" else Color.WHITE
+			card.last_locked=locked!=""
 	var spec: Dictionary=Catalog.BUILDINGS[selected_kind]
 	var reason: String=model.build_access_message(selected_kind,false)
 	preview.kind=selected_kind
@@ -132,6 +150,13 @@ func _choose() -> void:
 func blocks_map(point: Vector2) -> bool:
 	return visible and window.get_global_rect().has_point(point)
 
-func _process(_delta: float) -> void:
-	if visible: _refresh()
+func _process(delta: float) -> void:
+	if not visible:return
+	_refresh_elapsed+=delta
+	# Never run every card's research/access calculation at render frame rate.
+	# Search/category callbacks stay immediate; background state is checked
+	# four times per second even when the catalogue is non-modal.
+	if _refresh_elapsed<0.25:return
+	_refresh_elapsed=0.0
+	_refresh()
 
