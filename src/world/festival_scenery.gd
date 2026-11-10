@@ -162,13 +162,6 @@ func update(view: Node3D, delta: float) -> void:
 
 ## Ten static, compact PMDD images, with every word drawn in the current
 ## Godot language. No baked-in language, forced phone permissions or video.
-func _poster_artworks(stage: String) -> Array:
-	# Keep catalog order stable. Six of nine motifs are shown at any moment;
-	# rotating by six each local day guarantees that all nine become
-	# discoverable over two consecutive Advent/November days.
-	# New Year art remains date-gated until December 27.
-	return Posters.available(stage)
-
 ## A board's local +Z normal must face arriving skiers (the upper piste),
 ## with a small deliberate angle so it reads naturally beside the lift queue.
 static func sign_yaw(towards_arrivals: Vector2,skew_degrees: float = 25.0) -> float:
@@ -196,9 +189,8 @@ func _lift_poster_site(view: Node3D,lift: Dictionary) -> Dictionary:
 	return {}
 
 func _spawn_posters(view: Node3D,stage: String) -> void:
-	var originals: Array=_poster_artworks(stage)
 	var today: Dictionary=date_now()
-	var rotation: int=posmod((int(today.get("day",1))-1)*6,maxi(1,originals.size()))
+	var originals: Array=Posters.visible_on_day(stage,int(today.get("day",1)))
 	var art_mesh: ArrayMesh=FestivalArt.make("poster",view.visual_style)
 	art_mesh.surface_set_material(0,view._solid)
 	# Six roadside sites make a varied collection visible across a resort.
@@ -226,7 +218,7 @@ func _spawn_posters(view: Node3D,stage: String) -> void:
 				angle_y=sign_yaw(Terrain.BASE-at,0.0)
 				break
 		if not at.is_finite():continue
-		var artwork: String=str(originals[(rotation+index)%originals.size()]) if not originals.is_empty() else ""
+		var artwork: String=str(originals[index%originals.size()]) if not originals.is_empty() else ""
 		poster_sites.append(at)
 		poster_paths.append(artwork)
 		var board:=MeshInstance3D.new()
