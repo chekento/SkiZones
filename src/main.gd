@@ -852,7 +852,7 @@ func _map_tap(position_value: Vector2) -> void:
 		# November noticeboards are non-physical and do not alter the career.
 		# A direct tap opens their original/fallback artwork at full screen.
 		if view.festival_scene.hit_poster(point):
-			hud.show_seasonal_poster()
+			hud.show_seasonal_poster(view.festival_scene.poster_art_at(point))
 			return
 		var visitor: int = view.pick_guest(position_value)
 		if visitor != -1:

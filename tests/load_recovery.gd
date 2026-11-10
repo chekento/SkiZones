@@ -30,21 +30,24 @@ func run() -> void:
 	var backup_hash := FileAccess.get_sha256(path+".bak")
 	var full := Resort.new()
 	var full_result := Saves.load_game(full,path)
-	check(full_result.ok and not full_result.recovered and full_result.source.ends_with(".bak") and full.guests.size()==data.guests.size(),"A complete valid backup takes priority over resetting any visitors")
-	check(FileAccess.get_sha256(path)==original_hash and FileAccess.get_sha256(path+".bak")==backup_hash,"Backup loading never overwrites either original file")
+	check(full_result.ok and full_result.recovered and full_result.get("auto_saved",false) and full_result.source.ends_with(".bak") and full.guests.size()==data.guests.size(),"A complete verified backup is promoted automatically without dropping visitors")
+	if full_result.get("auto_saved",false):
+		cleanup.append(str(full_result.archive))
+	check(FileAccess.get_sha256(str(full_result.get("archive","")))==original_hash and FileAccess.get_sha256(path+".bak")==backup_hash and Saves._read(path).ok,"Corrupt primary is archived exactly; verified backup and repaired primary remain readable")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".bak"))
+	write_data(path,broken)
 	var recovered := Resort.new()
 	var result := Saves.load_game(recovered,path)
 	check(result.ok and result.get("recovered",false),"A damaged transient guest cannot block recovery of a valid resort")
 	if result.ok and result.get("recovered",false):
 		cleanup.append(result.archive)
-		check(FileAccess.file_exists(result.archive) and FileAccess.get_sha256(result.archive)==original_hash and FileAccess.get_sha256(path)==original_hash,"The complete original bytes are archived before recovery and remain unchanged")
+		check(FileAccess.file_exists(result.archive) and FileAccess.get_sha256(result.archive)==original_hash and FileAccess.get_sha256(path)!=original_hash and Saves._read(path).ok,"The complete original is archived byte-for-byte, then replaced only by a tested repair")
 		check(recovered.pistes.size()==data.pistes.size() and recovered.lifts.size()==data.lifts.size() and recovered.buildings.size()==data.buildings.size(),"Recovery retains all pistes, lifts and buildings")
 		var intact := true
 		for index in range(data.pistes.size()): intact = intact and recovered.pistes[index].points==data.pistes[index].points and recovered.pistes[index].name==data.pistes[index].name
 		check(intact and absf(recovered.money-float(data.money))<0.000001 and recovered.day==data.day,"Recovery keeps exact piste geometry, names, money and operating day")
 		check(recovered.guests.is_empty() and recovered.parties.is_empty(),"Recovery explicitly resets only transient visitor state")
-		check(Saves.save_game(recovered,path).ok and Saves.load_game(Resort.new(),path).ok,"Recovered construction is a normally readable saved game on the next launch")
+		check(result.get("auto_saved",false) and Saves.load_game(Resort.new(),path).ok,"Recovered construction was automatically saved and reloads on the next launch")
 	var structure: Dictionary = data.duplicate(true)
 	structure.pistes[0].points[0]=[99999999,99999999]
 	var unsafe := "user://recovery0201-unsafe.json"

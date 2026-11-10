@@ -9702,3 +9702,114 @@ msgstr "OFF"
 
 msgid "EIN"
 msgstr "ON"
+
+msgid "Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten."
+msgstr "The new save file could not be verified. Your previous save is preserved."
+
+msgid "External test fixtures are read-only; automatic repair is permitted only for player saves."
+msgstr "External test fixtures are read-only; automatic repair is permitted only for player saves."
+
+msgid "Kopie konnte nicht geschrieben werden."
+msgstr "Could not write the copy."
+
+msgid "Automatisch reparierte Kopie konnte nicht validiert werden."
+msgstr "The automatically repaired copy failed validation."
+
+msgid "Originalspielstand konnte nicht gesichert werden."
+msgstr "Could not back up the original save."
+
+msgid "Reparierte Datei konnte nicht aktiviert werden."
+msgstr "The repaired file could not be activated."
+
+msgid "Spielstand automatisch repariert. Das Original wurde gesichert."
+msgstr "Save repaired automatically. The original was backed up."
+
+msgid "Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."
+msgstr "Save loaded, but the automatic backup failed. Original files remain unchanged."
+
+msgid "Spielstand automatisch repariert. Gästezustand musste zurückgesetzt werden; alle Anlagen und Karrierewerte wurden erhalten."
+msgstr "Save repaired automatically. Visitor state had to be reset; all infrastructure and career values were preserved."
+
+msgid "Spielstand wiederhergestellt, aber die reparierte Datei konnte nicht automatisch gespeichert werden. Originale sind unverändert."
+msgstr "Save recovered, but the repaired file could not be saved automatically. Originals remain unchanged."
+
+msgid "%s [%s]"
+msgstr "%s [%s]"
+
+msgid "SKIZONES · SILVESTER UND NEUJAHR"
+msgstr "SKIZONES · NEW YEAR'S EVE AND DAY"
+
+msgid "SKIZONES · WEIHNACHTSWERBUNG"
+msgstr "SKIZONES · CHRISTMAS PREVIEW"
+
+msgid "SKIZONES · ADVENT UND WEIHNACHTEN"
+msgstr "SKIZONES · ADVENT AND CHRISTMAS"
+
+msgid "Ladbar"
+msgstr "Loadable"
+
+msgid "Rettbar"
+msgstr "Recoverable"
+
+msgid "Nicht ladbar"
+msgstr "Not loadable"
+
+msgid "\n%s · %s · %d KiB · v%d · %s"
+msgstr "\n%s · %s · %d KiB · v%d · %s"
+
+msgid "Jahreswechsel am 31. Dezember"
+msgstr "New Year on December 31"
+
+msgid "SILVESTER"
+msgstr "NEW YEAR'S EVE"
+
+msgid "NEUJAHR"
+msgstr "NEW YEAR"
+
+msgid "ADVENT"
+msgstr "ADVENT"
+
+msgid "WEIHNACHT"
+msgstr "CHRISTMAS"
+
+msgid "24 TÜRCHEN · 1.–24. DEZEMBER"
+msgstr "24 DOORS · DECEMBER 1–24"
+
+msgid "SILVESTER AB 27. DEZEMBER"
+msgstr "NEW YEAR'S EVE FROM DECEMBER 27"
+
+msgid "VORWERBUNG · NOCH KEIN ADVENTSKALENDER"
+msgstr "PREVIEW ONLY · ADVENT CALENDAR NOT YET ACTIVE"
+
+msgid "WINTERPARTY ZUM JAHRESWECHSEL"
+msgstr "NEW YEAR WINTER PARTY"
+
+msgid "SKIZONES · WEIHNACHTEN\nADVENTSKALENDER AB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
+msgstr "SKIZONES · CHRISTMAS\nADVENT CALENDAR FROM DECEMBER 1\nTAP FOR POSTER"
+
+msgid "SKIZONES · SILVESTER\nNEUJAHR IM BERGDORF\nZUM PLAKAT TIPPEN"
+msgstr "SKIZONES · NEW YEAR'S EVE\nNEW YEAR IN THE VILLAGE\nTAP FOR POSTER"
+
+msgid "SKIZONES · WINTERWUNDER\nAB 1. DEZEMBER\nZUM PLAKAT TIPPEN"
+msgstr "SKIZONES · WINTER MAGIC\nFROM DECEMBER 1\nTAP FOR POSTER"
+
+msgid "ADVENTSKALENDER · AB 1. DEZEMBER"
+msgstr "ADVENT CALENDAR · FROM DECEMBER 1"
+
+msgid "WEIHNACHTSZAUBER · AB 1. DEZEMBER"
+msgstr "CHRISTMAS MAGIC · FROM DECEMBER 1"
+
+msgid "24 TÜRCHEN · JEDEN TAG NEU"
+msgstr "24 DOORS · A NEW ONE EVERY DAY"
+
+msgid "FROHE ADVENTSZEIT"
+msgstr "HAPPY ADVENT SEASON"
+
+msgid "FROHE WEIHNACHTEN"
+msgstr "MERRY CHRISTMAS"
+
+msgid "SILVESTER AM BERG"
+msgstr "NEW YEAR'S EVE IN THE MOUNTAINS"
+
+msgid "FROHES NEUES JAHR"
+msgstr "HAPPY NEW YEAR"

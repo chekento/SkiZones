@@ -25,6 +25,12 @@ func run() -> void:
 	var dec24: Dictionary={"year":2026,"month":12,"day":24,"hour":15,"minute":0,"second":0}
 	var dec31: Dictionary={"year":2026,"month":12,"day":31,"hour":23,"minute":59,"second":57}
 	check(Calendar.season({"year":2026,"month":11,"day":30})=="" and Calendar.season({"year":2027,"month":1,"day":2})=="","Winter event stays disabled outside its annual dates")
+	# Promotional signs start on Nov 1; the real calendar starts on Dec 1.
+	check(Calendar.preview_poster({"year":2026,"month":11,"day":1}) and Calendar.preview_poster({"year":2026,"month":11,"day":30}),"November is a poster-only pre-advertising phase")
+	check(not Calendar.visible({"year":2026,"month":11,"day":30}) and not Calendar.unlocked({"year":2026,"month":11,"day":30},1),"No Advent event or calendar door can open in November")
+	check(not Calendar.preview_poster({"year":2026,"month":12,"day":1}) and Calendar.season({"year":2026,"month":12,"day":1})=="advent" and Calendar.unlocked({"year":2026,"month":12,"day":1},1),"December 1 activates Advent and the calendar")
+	check(Calendar.season({"year":2026,"month":12,"day":26})=="christmas" and Calendar.season({"year":2026,"month":12,"day":27})=="new_year_eve","New Year artwork starts December 27, not 31")
+	check(Calendar.season({"year":2027,"month":1,"day":1})=="new_year" and Calendar.season({"year":2027,"month":1,"day":2})=="","January 1 ends New Year season at midnight")
 	check(Calendar.season(dec6)=="advent" and Calendar.unlocked(dec6,6) and not Calendar.unlocked(dec6,7),"Advent unlocks daily by device-local calendar day")
 	check(Calendar.reward(6)>Calendar.reward(5) and Calendar.reward(24)>Calendar.reward(6),"Nikolaus and Christmas Eve provide distinctive larger gifts")
 	check(cal.claim(6,dec6).ok and not cal.claim(6,dec6).ok,"The same yearly Advent door pays exactly once")

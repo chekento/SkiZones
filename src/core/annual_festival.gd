@@ -33,7 +33,7 @@ static func valid_date(date: Dictionary) -> bool:
 static func season(date: Dictionary) -> String:
 	if not valid_date(date): return ""
 	if int(date.month)==12:
-		return "advent" if int(date.day)<=24 else "christmas" if int(date.day)<=30 else "new_year_eve"
+		return "advent" if int(date.day)<=24 else "christmas" if int(date.day)<=26 else "new_year_eve"
 	if int(date.month)==1 and int(date.day)==1: return "new_year"
 	return ""
 

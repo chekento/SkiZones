@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const DEFAULT_PATH := "user://skizones_save.json"
 const MAX_BYTES := 64000000
 const Maps = preload("res://src/core/maps.gd")
+const Terrain = preload("res://src/core/terrain.gd")
 static var active_slot := 1
 ## Slot 1 retains all original free_*.json files without migration.
 static var active_free_slot := 1
@@ -350,6 +351,49 @@ static func _read(path: String, progress: RefCounted = null) -> Dictionary:
 		return {"ok": false, "message": L.text("Beschädigte Spielstand-Daten.")}
 	return {"ok": true, "data": payload}
 
+## Only a checksum-verified legacy split-run track can enter this normalization.
+## Do not guess missing or malformed permanent world data.
+static func _has_legacy_track_overrun(data: Dictionary) -> bool:
+	var piste_data: Variant=data.get("pistes",[])
+	if not piste_data is Array:return false
+	for piste in piste_data:
+		if not piste is Dictionary:continue
+		var tracks: Variant=piste.get("tracks",[])
+		if not tracks is Array:continue
+		for track in tracks:
+			if not track is Dictionary:continue
+			var start: Variant=track.get("from",0.0)
+			var ending: Variant=track.get("until",1.0)
+			var progress: Variant=track.get("to")
+			if Terrain.number(start) and Terrain.number(ending) and Terrain.number(progress):
+				if float(start)>=0.0 and float(start)<=float(ending) and float(ending)<=1.0 and float(progress)>float(ending) and float(progress)<=1.0:
+					return true
+	return false
+
+## Transactional activation. Stage and fully reload before archiving or
+## touching the active destination. Backups and historical sources stay intact.
+static func _persist_repaired_game(model: RefCounted, path: String) -> Dictionary:
+	if not path.begins_with("user://"):
+		return {"ok":false,"message":L.text("External test fixtures are read-only; automatic repair is permitted only for player saves.")}
+	var stage: String=path+".autorepair-%d.tmp" % Time.get_ticks_usec()
+	var written: Dictionary=save_game(model,stage)
+	if not written.ok:return {"ok":false,"message":written.get("message",L.text("Kopie konnte nicht geschrieben werden."))}
+	var checked: Dictionary=_read(stage)
+	var fresh: RefCounted=model.get_script().new()
+	if not checked.ok or not fresh.restore(checked.data.duplicate(true)).ok:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
+		return {"ok":false,"message":L.text("Automatisch reparierte Kopie konnte nicht validiert werden.")}
+	var archive: String=""
+	if FileAccess.file_exists(path):
+		archive=path+".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(archive))!=OK or FileAccess.get_sha256(archive)!=FileAccess.get_sha256(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
+			return {"ok":false,"message":L.text("Originalspielstand konnte nicht gesichert werden.")}
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(stage),ProjectSettings.globalize_path(path))!=OK:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(stage))
+		return {"ok":false,"message":L.text("Reparierte Datei konnte nicht aktiviert werden.")}
+	return {"ok":true,"archive":archive}
+
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
@@ -385,7 +429,14 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			verified.append({"path":candidate,"data":read.data})
 			var restored: Dictionary = model.restore(read.data.duplicate(true))
 			if restored.ok:
-				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Älterer Spielstand geladen.") if candidate in sources.slice(2) else L.text("Vorherige Sicherung geladen.") if candidate.ends_with(".bak") else L.text("Resort geladen.")}
+				# Older split-run traces are read-safe but must be saved in their
+				# normalized form. A verified backup is also promoted automatically.
+				if candidate!=path or _has_legacy_track_overrun(read.data):
+					var persisted: Dictionary=_persist_repaired_game(model,path)
+					if persisted.ok:
+						return {"ok":true,"recovered":true,"auto_saved":true,"source":candidate,"archive":persisted.archive,"message":L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
+					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text(L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."))}
+				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Resort geladen.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
 	# unchecked bytes: the envelope checksum and model validation still apply.
@@ -393,11 +444,11 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	for original in verified:
 		var checked: Dictionary = probe_restore(original.data, model.get_script(), true, progress)
 		if not checked.ok: continue
-		var archive: String = original.path + ".recovery-%d-%d.json" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
-		if DirAccess.copy_absolute(ProjectSettings.globalize_path(original.path),ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(original.path) != FileAccess.get_sha256(archive):
-			return {"ok":false,"message":L.text("Die ursprüngliche Datei konnte nicht gesichert werden. Der Spielstand bleibt unverändert.")}
 		if model.restore(checked.model.snapshot()).ok:
-			return {"ok":true,"recovered":true,"source":original.path,"archive":archive,"message":L.text("Strecke und Karriere wiederhergestellt. Aktuelle Gastpositionen wurden zurückgesetzt; die ursprüngliche Datei bleibt gesichert.") if checked.reset_visitors else L.text("Strecke und Karriere wiederhergestellt; die ursprüngliche Datei bleibt gesichert.")}
+			var persisted: Dictionary=_persist_repaired_game(model,path)
+			if persisted.ok:
+				return {"ok":true,"recovered":true,"auto_saved":true,"source":original.path,"archive":persisted.archive,"reset_visitors":checked.reset_visitors,"message":L.text(L.text("Spielstand automatisch repariert. Gästezustand musste zurückgesetzt werden; alle Anlagen und Karrierewerte wurden erhalten.")) if checked.reset_visitors else L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
+			return {"ok":true,"recovered":true,"auto_saved":false,"source":original.path,"reset_visitors":checked.reset_visitors,"message":L.text(L.text("Spielstand wiederhergestellt, aber die reparierte Datei konnte nicht automatisch gespeichert werden. Originale sind unverändert."))}
 
 	return {"ok": false, "message": L.text("Kein lesbarer Spielstand vorhanden. Das aktuelle Resort bleibt erhalten."), "diagnostics": failures, "verified_candidates": verified.size()}
 

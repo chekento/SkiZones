@@ -115,5 +115,19 @@ func run() -> void:
 	var old_sha:String=FileAccess.get_sha256(path)
 	check(Saves._read(path).ok and Saves.load_game(Resort.new(),path).ok and FileAccess.get_sha256(path)==old_sha,"Genuine unwrapped v1 resort fully restores without changing its original bytes")
 
+	# Regression: old v16/v17 split-piste tracks were checksum-valid but had
+	# progress beyond their intended segment. Archive source and normalize automatically.
+	var split_trace: Dictionary = data.duplicate(true)
+	split_trace.pistes[0].tracks = [{"key":"regression-split","guest":1,"ability":1,"run":0,"from":0.0,"until":0.35,"to":1.0,"hikes":[],"sport":"ski"}]
+	write(path,split_trace)
+	var trace_hash: String = FileAccess.get_sha256(path)
+	var trace_loaded := Resort.new()
+	var trace_result: Dictionary=Saves.load_game(trace_loaded,path)
+	check(trace_result.ok and trace_result.get("recovered",false) and trace_result.get("auto_saved",false),"Historical split-piste trace is automatically repaired and saved")
+	check(FileAccess.get_sha256(str(trace_result.get("archive","")))==trace_hash and FileAccess.get_sha256(path)!=trace_hash,"Historical split-piste source remains byte-for-byte archived")
+	check(Saves.load_game(Resort.new(),path).ok,"Normalized split-piste save can load again without further repair")
+	check(not trace_loaded.pistes.is_empty() and not trace_loaded.pistes[0].tracks.is_empty() and is_equal_approx(float(trace_loaded.pistes[0].tracks[0].to),0.35),"Recovered split-piste progress is clamped to its end marker")
+	check(trace_loaded.money==model.money and trace_loaded.day==model.day and same(geometry(trace_loaded),geometry(model)),"Split-trace rescue preserves budget, game day and resort geometry")
+
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)

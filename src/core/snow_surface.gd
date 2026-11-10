@@ -76,7 +76,9 @@ static func touch(mountain: RefCounted, piste: Dictionary, guest: Dictionary, fr
 		if track.key == guest.get("track", ""):
 			range_start = track.get("from", 0.0)
 			range_end = track.get("until", 1.0)
-			track.to = maxf(track.to, to_fraction)
+			# A split piste route may end before the physical end of the run.
+			# Do not persist progress beyond the segment's end marker.
+			track.to = clampf(maxf(float(track.to), to_fraction), float(range_start), float(range_end))
 	var first := floori(from_fraction * piste.length / STEP)
 	var last := floori(to_fraction * piste.length / STEP)
 	var width := piste_width(piste)
@@ -155,6 +157,13 @@ static func validate(piste: Dictionary) -> bool:
 			return false
 		if not Terrain.number(track.get("to")):
 			return false
+		# Older builds could save a valid split-run trace with 'to' past
+		# 'until'. Only clamp this transient visual progress when the
+		# complete segment itself remains finite and within [0, 1].
+		var trace_from: Variant = track.get("from", 0)
+		var trace_until: Variant = track.get("until", 1)
+		if Terrain.number(trace_from) and Terrain.number(trace_until) and track.to > trace_until and trace_from >= 0 and trace_from <= trace_until and trace_until <= 1 and track.to <= 1:
+			track.to = trace_until
 		if not Terrain.number(track.get("from", 0)) or track.get("from", 0) < 0 or track.get("from", 0) > track.get("to", -1):
 			return false
 		if not Terrain.number(track.get("until", 1)) or track.get("until", 1) > 1 or track.get("until", 1) < track.get("to", -1):
