@@ -29,11 +29,11 @@ static func progress(model: RefCounted) -> Dictionary:
 ## Returning events does not display them; the HUD handles presentation.
 static func discover(model: RefCounted, art: String) -> Dictionary:
 	var old: Array=discovered(model)
-	var result: Dictionary={"new":false,"found":old.size(),"total":total(),"complete":old.size()==total(),"awarded":false,"events":[]}
+	var result: Dictionary={"is_new":false,"found":old.size(),"total":total(),"complete":old.size()==total(),"awarded":false,"events":[]}
 	if art not in Posters.all_paths() or old.has(art):return result
 	old.append(art)
 	model.campaign["poster_discoveries"]=old
-	result.new=true
+	result.is_new=true
 	result.found=old.size()
 	result.complete=old.size()==total()
 	result.events.append({"kind":"poster","title":L.text("Winterplakat entdeckt"),"detail":L.text("%d von %d Motiven entdeckt") % L.args([old.size(),total()])})
