@@ -6,6 +6,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
@@ -2538,11 +2539,13 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				break
 			if not Terrain.number(data[key].get(field)) or data[key][field] < 0:
 				return invalid
-	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL:
+	# One additional special achievement lives directly after the immutable
+	# 1,000-tier catalogue; all old IDs and stored arrays stay unchanged.
+	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL + 1:
 		return invalid
 	var achievement_seen := {}
 	for achievement in data.achievements:
-		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement >= AchievementBook.START_ID + AchievementBook.TOTAL or achievement_seen.has(int(achievement)):
+		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement > AchievementBook.POSTER_COLLECTOR_ID or achievement_seen.has(int(achievement)):
 			return invalid
 		achievement_seen[int(achievement)] = true
 	if not data.get("rng_seed") is String or not data.get("rng_state") is String or not data.rng_seed.is_valid_int() or not data.rng_state.is_valid_int():
@@ -2585,6 +2588,8 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	_invalidate()
 	if not Progression.restore(self, data.get("campaign")):
 		return invalid
+	# Never accept a forged completed-poster medal without all ten unique IDs.
+	if achievements.has(AchievementBook.POSTER_COLLECTOR_ID) and PosterCollection.progress(self).found != PosterCollection.total():return invalid
 	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Gäste"
 	var occupied_seats: Dictionary = {}
 	var saved_routes: Variant = data.get("itineraries", [])
