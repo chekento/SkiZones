@@ -861,7 +861,7 @@ func _map_tap(position_value: Vector2) -> void:
 			var discovery: Dictionary=PosterCollection.discover(model,artwork)
 			# Preview the exact board image, not the first texture in the pool.
 			hud.show_seasonal_poster(artwork)
-			if discovery.new:
+			if discovery.is_new:
 				for event in discovery.events:
 					hud.achievement_overlay.announce(event)
 				# Poster progress is real career data, not a session-only badge.
