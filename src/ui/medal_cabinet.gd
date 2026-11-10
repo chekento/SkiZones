@@ -2,6 +2,8 @@ extends Control
 const L = preload("res://src/core/i18n.gd")
 const Annual = preload("res://src/core/annual_festival.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
+const AchievementBook = preload("res://src/core/achievement_book.gd")
 const FloatingFrame = preload("res://src/ui/floating_window.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 var hud: CanvasLayer
@@ -59,7 +61,15 @@ func open() -> void:
 		_card(head,detail,Color("f4e1c2") if event=="christmas" else Color("dce7f3"))
 	for medal in scenario_medals:
 		_card("🏅 "+L.text(str(medal.title)),L.text("Erfolgreich abgeschlossenes reales Resort-Szenario"),Color("f2e6cc"))
-	hud._label(content,L.text("Aktuelle Karriere: %d freigeschaltete Achievements · 1000 mögliche Leistungserfolge.") % hud.game.model.achievements.size(),16,hud.MUTED,true)
+	var unlocked_count:int=0
+	for id in hud.game.model.achievements:
+		if int(id)>=AchievementBook.START_ID and int(id)<AchievementBook.START_ID+AchievementBook.TOTAL:unlocked_count+=1
+	hud._label(content,L.text("Aktuelle Karriere: %d von 1000 Leistungserfolgen freigeschaltet.") % unlocked_count,16,hud.MUTED,true)
+	var collection: Dictionary=PosterCollection.progress(hud.game.model)
+	var achieved: bool=hud.game.model.achievements.has(AchievementBook.POSTER_COLLECTOR_ID)
+	_card(("🏆 " if achieved else "🖼 ") + L.text("Winterplakat-Sammler"),
+		L.text("%d von %d unterschiedlichen Festtagsplakaten entdeckt") % L.args([collection.found,collection.total])
+		+ (" · "+L.text("Achievement freigeschaltet!") if achieved else ""),Color("f3e5cf") if achieved else Color("e4edf5"))
 	show()
 	frame._fit()
 
