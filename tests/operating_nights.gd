@@ -97,7 +97,6 @@ func _init() -> void:
 			if event.status=="resolved":break
 		check(saw_return and saved_transport, "patient is carried on a saved and recoverable rescue return")
 		check(saw_treatment, "clinic treats the rescued skier after return transport")
-		print("RESCUE-PROBE: state=%s minute=%d divisor=%d remaining=%.1f transport=%.1f treatment=%.1f guest_incident=%s assisted=%s roster_guests=%d" % [str(event.status),int(model.minute),int(model.time_divisor),float(event.get("remaining",-1)),float(event.get("transport_remaining",-1)),float(event.get("treatment_remaining",-1)),str(guest.get("incident","none")),str(guest.get("assisted",false)),model.guests.size()])
 		check(event.status=="resolved" and int(guest.incident)==-1 and guest.get("assisted",false), "patrol completes transport, treatment and actual guest discharge")
 		check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "populated rescue state saves and reloads")
 	model.guests.clear()
