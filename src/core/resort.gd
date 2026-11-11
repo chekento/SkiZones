@@ -2121,7 +2121,14 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		return terrain.world(point+Vector2(float(int(guest.id)%3)-1,float(int(guest.id)%5)*0.35),0.12)
 	if guest.get("incident", -1) >= 0:
 		for event in operations.incidents:
-			if int(event.id) == int(guest.incident): return terrain.world(Terrain.unpack(event.point), 0.3)
+			if int(event.id) == int(guest.incident):
+				var place:Vector2=Terrain.unpack(event.point)
+				# Victims remain at the incident until the two rescuers arrive.
+				# On the return trip the person moves with the stretcher;
+				# during treatment they wait at the first-aid station.
+				if str(event.get("status","")) in ["returning","treating"]:
+					place=Ops.rescue_location(self,event)
+				return terrain.world(place,0.3)
 	if guest.phase == "leaving":
 		return terrain.world(Terrain.BASE)
 	var leg: Dictionary = guest.route.legs[guest.leg]
