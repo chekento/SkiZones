@@ -630,7 +630,7 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 		var best_points:Array=[]
 		for building in model.buildings:
 			if building.kind != "first_aid" or (station_id >= 0 and int(building.id) != station_id) or not building_open(model, building): continue
-			var busy: bool = model.operations.incidents.any(func(e): return str(e.status) in ["responding","returning"] and int(e.station) == int(building.id))
+			var busy: bool = model.operations.incidents.any(func(e): return str(e.status) in ["responding","returning","treating"] and int(e.station) == int(building.id))
 			if busy: continue
 			var position := Terrain.unpack(event.point)
 			var distance := Terrain.unpack(building.point).distance_to(position)
@@ -667,6 +667,9 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 		event.treatment_duration = 120.0 if str(event.reason) in ["collision","evacuation"] else 60.0
 		event.treatment_remaining = event.treatment_duration
 		event.status = "responding"
+		# Bandages, heat blankets and on-slope consumables are an actual
+		# case-based expense, separate from already accounted staff payroll.
+		_charge(model,90.0 if str(event.reason) in ["fatigue","navigation"] else 165.0,"rescue:%d" % station)
 		return model._result(true, L.text("Zwei Ski-Rettungskräfte sind unterwegs. Trage, Rücktransport und Behandlung folgen."))
 	return model._result(false, L.text("Kein offener Hilferuf gefunden."))
 
@@ -695,7 +698,7 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 	upkeep += 35.0 + model.Hospitality.extra_upkeep(building)
 	var efficiency: float = 0.85 if Progression.has(model, "efficient_snow") else 1.0
 	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
-	var supplies: float = float(model.operations.cost_centres.get("supplies:%d" % int(building.id), 0.0))
+	var supplies: float = float(model.operations.cost_centres.get("supplies:%d" % int(building.id), 0.0)) + float(model.operations.cost_centres.get("rescue:%d" % int(building.id),0.0))
 	var costs := wages + overhead + supplies
 	return {"sales": sales, "wages": wages, "supplies": supplies, "overhead": overhead, "costs": costs, "net": sales - costs}
 
@@ -811,7 +814,20 @@ static func tick(model: RefCounted) -> void:
 			dispatch(model,int(event.id))
 		elif str(event.status) in ["responding","returning","treating"]:
 			var station:Dictionary=model.asset(int(event.station))
-			if station.is_empty() or not building_open(model,station):continue
+			# A dispatched emergency team cannot abandon a patient at 18:00.
+			# Continue an active case through the shift boundary and pay
+			# overtime to the engaged responders until discharge.
+			if station.is_empty() or not station.enabled:continue
+			if not building_open(model,station):
+				var overtime_count:=0
+				for person in model.operations.staff:
+					if str(person.role)!="rescue" or str(person.assignment)!="building:%d" % int(station.id) or on_duty(model,person):continue
+					if overtime_count>=2:break
+					var overtime:float=float(person.wage)/60.0
+					_charge(model,overtime,"building:%d" % int(station.id))
+					model.operations.payroll+=overtime
+					person.worked=int(person.worked)+1
+					overtime_count+=1
 			if event.status == "responding":
 				event.remaining-=1.0
 				if event.remaining<=0:
