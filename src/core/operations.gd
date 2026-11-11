@@ -576,19 +576,65 @@ static func evacuate(model: RefCounted, id: int) -> Dictionary:
 			count += int(guest.get("group_size", 1))
 	return model._result(count > 0, L.text("Hilferufe für %d Passagiere angelegt. Rettungsteams werden nach Erreichbarkeit entsandt.") % count)
 
+## Model-owned rescue geometry follows actual pedestrian/piste/lift graph
+## waypoints. Never animate a shortcut straight through the resort.
+static func _rescue_route_points(model:RefCounted,station:Dictionary,route:Dictionary,incident_point:Vector2)->Array:
+	var points:Array=[Terrain.pack(Foot.door(station))]
+	for leg in route.get("legs",[]):
+		for position in leg.get("points",[]):
+			if not position is Array or position.size()!=2:continue
+			if points.is_empty() or points[-1]!=position:points.append(position.duplicate())
+	var finish:Vector2=Terrain.unpack(points[-1])
+	if finish.distance_to(incident_point)>0.01:
+		var approach:Array=Foot.path_between(finish,incident_point,model.buildings,model.lifts)
+		# A route that cuts through occupied structures is not dispatchable.
+		if approach.size()<2:return []
+		for point in approach:
+			if points[-1]!=point:points.append(point.duplicate())
+	return points if points.size()>=2 and points.size()<=512 else []
+
+static func rescue_path_point(points:Array,ratio:float)->Vector2:
+	if points.is_empty():return Vector2.ZERO
+	if points.size()==1:return Terrain.unpack(points[0])
+	var length:=0.0
+	for i in range(1,points.size()):
+		length+=Terrain.unpack(points[i-1]).distance_to(Terrain.unpack(points[i]))
+	var target:=clampf(ratio,0,1)*length
+	var traveled:=0.0
+	for i in range(1,points.size()):
+		var a:Vector2=Terrain.unpack(points[i-1])
+		var b:Vector2=Terrain.unpack(points[i])
+		var span:=a.distance_to(b)
+		if traveled+span>=target:return a.lerp(b,clampf((target-traveled)/maxf(0.001,span),0,1))
+		traveled+=span
+	return Terrain.unpack(points[-1])
+
+static func rescue_fraction(event:Dictionary)->float:
+	match str(event.get("status","")):
+		"responding":return clampf(1.0-float(event.get("remaining",0))/maxf(1.0,float(event.get("response_duration",1))),0,1)
+		"returning":return clampf(float(event.get("transport_remaining",0))/maxf(1.0,float(event.get("return_duration",1))),0,1)
+	return 0.0
+
+static func rescue_location(model:RefCounted,event:Dictionary)->Vector2:
+	var points:Array=event.get("route_points",[])
+	if points.size()>=2:return rescue_path_point(points,rescue_fraction(event))
+	var station:Dictionary=model.asset(int(event.get("station",-1)))
+	if station.is_empty():return Terrain.unpack(event.point)
+	return Terrain.unpack(station.point).lerp(Terrain.unpack(event.point),rescue_fraction(event))
+
 static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
 		if int(event.id) != id or event.status != "waiting": continue
 		var best := INF
 		var station := -1
+		var best_points:Array=[]
 		for building in model.buildings:
 			if building.kind != "first_aid" or (station_id >= 0 and int(building.id) != station_id) or not building_open(model, building): continue
-			var busy: bool = model.operations.incidents.any(func(e): return e.status == "responding" and int(e.station) == int(building.id))
+			var busy: bool = model.operations.incidents.any(func(e): return str(e.status) in ["responding","returning"] and int(e.station) == int(building.id))
 			if busy: continue
 			var position := Terrain.unpack(event.point)
 			var distance := Terrain.unpack(building.point).distance_to(position)
 			if distance > 1800 * int(building.get("level", 1)): continue
-			# Dispatch needs a route in the actual lift / piste / foot graph.
 			var graph: Dictionary = model._routing_graph(2)
 			var nearest := ""
 			var delta := INF
@@ -600,19 +646,28 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 			if delta > 180 or nearest == "": continue
 			var route: Dictionary = model._shortest(graph, "d%d" % int(building.id), nearest)
 			if not route.ok: continue
+			var points:Array=_rescue_route_points(model,building,route,position)
+			if points.is_empty():continue
 			var time := 4.0 + delta / 60 + absf(model.terrain.height(Terrain.unpack(building.point)) - model.terrain.height(position)) / 100
 			for leg in route.legs: time += float(leg.minutes)
 			time *= 1.5 if model.weather_index in [2, 3] else 1.0
 			if time < best:
 				best = time
 				station = int(building.id)
-		if station < 0: return model._result(false, L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort innerhalb seines Einsatzradius."))
+				best_points=points
+		if station < 0: return model._result(false, L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege."))
 		event.station = station
 		event.remaining = best
-		event.response_duration=best
-		event.response_started=clock(model)
+		event.response_duration = best
+		event.response_started = clock(model)
+		event.route_points = best_points
+		event.return_duration = maxf(8.0,best*1.25)
+		event.transport_remaining = event.return_duration
+		# Treatment after stretcher return, from 60 to 120 game minutes.
+		event.treatment_duration = 120.0 if str(event.reason) in ["collision","evacuation"] else 60.0
+		event.treatment_remaining = event.treatment_duration
 		event.status = "responding"
-		return model._result(true, L.text("Rettung unterwegs. Wege, Höhenunterschied und Wetter bestimmen die Reaktionszeit."))
+		return model._result(true, L.text("Zwei Ski-Rettungskräfte sind unterwegs. Trage, Rücktransport und Behandlung folgen."))
 	return model._result(false, L.text("Kein offener Hilferuf gefunden."))
 
 static func _expense(model: RefCounted, amount: float, centre: String) -> bool:
@@ -752,41 +807,54 @@ static func tick(model: RefCounted) -> void:
 			model.snow_revision += 1
 			model._operational_change()
 	for event in model.operations.incidents:
-		if event.status == "waiting" and model.minute % 5 == 0: dispatch(model, int(event.id))
-		elif event.status == "responding":
-			var station: Dictionary = model.asset(int(event.station))
-			if station.is_empty() or not building_open(model, station): continue
-			event.remaining -= 1
-			if event.remaining <= 0:
-				event.status = "resolved"
-				model.operations.rescued += 1
-				for guest in model.guests:
-					if int(guest.id) == int(event.guest):
-						guest.incident = -1
-						guest.assisted = true
-						guest.needs.energy = maxf(60, guest.needs.energy)
+		if event.status == "waiting" and model.minute % 5 == 0:
+			dispatch(model,int(event.id))
+		elif str(event.status) in ["responding","returning","treating"]:
+			var station:Dictionary=model.asset(int(event.station))
+			if station.is_empty() or not building_open(model,station):continue
+			if event.status == "responding":
+				event.remaining-=1.0
+				if event.remaining<=0:
+					event.remaining=0.0
+					event.status="returning"
+					event.return_duration=maxf(8.0,float(event.get("return_duration",float(event.get("response_duration",12.0))*1.25)))
+					event.transport_remaining=event.return_duration
+			elif event.status == "returning":
+				event.transport_remaining=float(event.get("transport_remaining",8.0))-1.0
+				if event.transport_remaining<=0:
+					event.transport_remaining=0.0
+					event.status="treating"
+					event.treatment_duration=float(event.get("treatment_duration",60.0))
+					event.treatment_remaining=event.treatment_duration
+			elif event.status == "treating":
+				event.treatment_remaining=float(event.get("treatment_remaining",60.0))-1.0
+				if event.treatment_remaining<=0:
+					event.treatment_remaining=0.0
+					event.status="resolved"
+					model.operations.rescued+=1
+					# Discharge the actual visitor at the rescue station,
+					# with a normal connected home route after treatment.
+					for guest in model.guests:
+						if int(guest.id)!=int(event.guest):continue
+						guest.incident=-1
+						guest.assisted=true
+						guest.needs.energy=maxf(60,guest.needs.energy)
 						if guest.has("family"):
-							for member in guest.family: member.needs.energy = maxf(60, member.needs.energy)
+							for member in guest.family:member.needs.energy=maxf(60,member.needs.energy)
 							model.Needs.aggregate_family(guest)
-						if event.reason == "evacuation":
-							# Recovery uses the real graph after lowering the passenger to the ground.
-							var graph: Dictionary = model._routing_graph(int(guest.ability))
-							var home_paths: Dictionary = model._distances(graph, "base", true)
-							var nearest := "base"
-							var distance := INF
-							for key in graph.nodes:
-								var delta := Terrain.unpack(graph.nodes[key]).distance_to(Terrain.unpack(event.point))
-								if home_paths.distance.has(key) and delta < distance:
-									distance = delta
-									nearest = key
-							var home: Dictionary = model._shortest(graph, nearest, "base")
-							var walk: Dictionary = model._edge("rescue", nearest, "walk", 0, [event.point, graph.nodes[nearest]], maxf(0.15, distance / 45))
-							walk.rescue = true
-							guest.route = {"target": 0, "origin": event.point, "legs": [walk] + home.legs}
-							guest.heading_home = true
-							guest.leg = 0
+						var graph:Dictionary=model._routing_graph(int(guest.ability))
+						var home:Dictionary=model._shortest(graph,"d%d" % int(station.id),"base")
+						if home.ok and not home.legs.is_empty():
+							guest.route={"target":0,"origin":Terrain.pack(Foot.door(station)),"legs":home.legs}
+							guest.heading_home=true
+							guest.leg=0
+							guest.elapsed=0.0
+							guest.phase="moving"
 							model._start_leg(guest)
-				model.reputation = minf(95, model.reputation + 0.3)
+						else:
+							guest.phase="leaving"
+						break
+					model.reputation=minf(95,model.reputation+0.3)
 	if model.minute % 10 == 0:
 		for guest in model.guests:
 			if guest.phase == "leaving" or guest.get("incident", -1) >= 0 or guest.get("assisted", false) or guest.leg >= guest.route.legs.size(): continue
@@ -945,12 +1013,16 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	for task in state.repairs:
 		if not task is Dictionary or not Terrain.number(task.get("asset")) or not Terrain.number(task.get("workshop")) or not Terrain.number(task.get("remaining")) or task.remaining < 0 or task.remaining > 100000: return false
 	for event in state.incidents:
-		if not event is Dictionary or event.get("status") not in ["waiting", "responding", "resolved"]: return false
-		for field in ["response_duration","response_started"]:
+		if not event is Dictionary or event.get("status") not in ["waiting","responding","returning","treating","resolved"]: return false
+		for field in ["response_duration","response_started","return_duration","transport_remaining","treatment_duration","treatment_remaining"]:
 			if event.has(field) and (not Terrain.number(event[field]) or event[field]<0 or event[field]>1000000000):return false
 		for key in ["id", "guest", "created", "station", "remaining"]:
 			if not Terrain.number(event.get(key)) or event[key] < -1 or event[key] > 1000000000: return false
 		if not model.terrain.contains(Terrain.unpack(event.get("point"))): return false
+		if event.has("route_points"):
+			if not event.route_points is Array or event.route_points.size()>512:return false
+			for point in event.route_points:
+				if not model.terrain.contains(Terrain.unpack(point)):return false
 		if event.get("reason") not in ["fatigue", "collision", "evacuation", "navigation"]: return false
 	for centre in state.cost_centres:
 		if not centre is String or centre.length() > 100 or not Terrain.number(state.cost_centres[centre]) or state.cost_centres[centre] < 0: return false
