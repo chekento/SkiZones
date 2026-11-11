@@ -279,9 +279,10 @@ func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 
 func _build_optional_positions(parent: Node,item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
-	var box:=_card(parent,L.text("FREIWILLIGE ZUSATZKRÄFTE"),L.text("Zusätzliche Kräfte erhöhen die Reserve, ersetzen aber keine vorgeschriebene Mindestbesetzung. Jede Einstellung kostet 180 € plus Stundenlohn."))
-	var allowed: Array=["sanitation"] if str(item.kind).begins_with("wc_") else ["hotel","security","catering"] if model.Hospitality.lodging(str(item.kind)) else ["hotel","security"] if str(item.kind) in ["rental","school","souvenir","fitness","newsstand"] else ["catering","security"] if str(item.kind) in ["restaurant","kiosk","pizzeria","bar","disco","lodge","cocoa","schmarrn"] else ["technician","security"] if str(item.kind)=="repair_office" else ["hotel","security"]
+	var box:=_card(parent,L.text("FREIWILLIGE ZUSATZKRÄFTE"),L.text("Fachkräfte verbessern bei Dienstantritt die tatsächliche Besucher-Kapazität und verkürzen Servicezeiten (maximal +75 %). Die Löhne senken den Nettogewinn; nicht passende Jobs sind gesperrt."))
+	var allowed: Array=Ops.building_optional_roles(str(item.kind))
 	var target: String="building:%d" % int(item.id)
+	hud._label(box,L.text("Aktuelle Service-Effizienz: %.0f %% · nur passende Berufe und aktive Schichten zählen") % (Ops.service_efficiency(model,item)*100.0),16,hud.TEAL,true)
 	for role in allowed:
 		var shift: String="day" if str(item.kind) not in ["bar","disco"] else "evening"
 		var count: int=model.operations.staff.filter(func(p):return p.role==role and p.assignment==target and p.shift==shift).size()
