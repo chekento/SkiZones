@@ -169,8 +169,8 @@ func _on_diagram_input(event: InputEvent) -> void:
 	var width: float=Snow.piste_width(piste)
 	var margin: float=maxf(0.0,width*0.5-3.5)
 	var lateral: float=clampf((p.y-rect.get_center().y)*width/60.0,-margin,margin)
-	position_slider.value=fraction*100.0
-	lateral_slider.value=lateral
+	position_slider.set_value_no_signal(fraction*100.0)
+	lateral_slider.set_value_no_signal(lateral)
 	_refresh()
 
 func _draw_plan() -> void:
