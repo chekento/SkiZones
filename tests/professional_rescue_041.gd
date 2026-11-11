@@ -125,8 +125,9 @@ func run()->void:
 	model.minute=1085
 	Ops.tick(model)
 	check(incident.status=="returning","Rescue arrival starts stretcher return rather than instant heal")
-	Ops.tick(model)
-	check(incident.status=="treating","Stretcher return starts an actual clinic treatment")
+	for travel_minute in range(8):
+		Ops.tick(model)
+	check(incident.status=="treating","Stretcher return starts an actual clinic treatment after travel time")
 	for step in range(60):
 		Ops.tick(model)
 	check(incident.status=="resolved" and int(model.operations.rescued)>=1,"Rescue resolves only after treatment time has elapsed")
