@@ -130,6 +130,15 @@ func run()->void:
 		"route_points":[aid.point.duplicate(),Terrain.pack(Terrain.BASE+Vector2(35,35))]
 	}
 	model.operations.incidents=[incident]
+	var building_count:int=model.buildings.size()
+	check(not model.demolish(int(aid.id)).ok and model.buildings.size()==building_count,"Active mountain-rescue building cannot be demolished with a patient en route")
+	model.set_enabled(int(aid.id),false)
+	check(bool(aid.enabled),"Active rescue station cannot close while its crew carries a casualty")
+	var assigned_rescuers:Array=model.operations.staff.filter(func(p):return str(p.role)=="rescue" and str(p.assignment)=="building:%d" % int(aid.id))
+	if not assigned_rescuers.is_empty():
+		var medic_id:int=int(assigned_rescuers[0].id)
+		check(not Ops.dismiss(model,medic_id).ok,"Assigned on-scene rescuers cannot be dismissed before patient discharge")
+		check(not Ops.assign(model,medic_id,"reserve","day").ok,"Assigned rescue crew cannot be moved away from an active incident")
 	var wages_before:float=float(model.operations.cost_centres.get("building:%d" % int(aid.id),0.0))
 	model.time_divisor=24
 	model.minute=1200
