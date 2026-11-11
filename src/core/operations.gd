@@ -306,6 +306,8 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	if not SHIFTS.has(shift) or target.length() > 100: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if _assigned_active_rescue(model,person):
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
 			if not suitable_assignment(model,str(person.role),target):return model._result(false,L.text("Diese Aufgabe passt fachlich nicht zu diesem Gebäude oder dieser Station."))
 			person.assignment = target
 			person.shift = shift
@@ -314,9 +316,19 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 			return model._result(true, L.text("Einsatzort und Schicht aktualisiert."))
 	return model._result(false, L.text("Mitarbeiter nicht gefunden."))
 
+static func _assigned_active_rescue(model:RefCounted,person:Dictionary)->bool:
+	if str(person.get("role","")) not in ["rescue","medic"]:return false
+	var place:String=str(person.get("assignment",""))
+	if not place.begins_with("building:"):return false
+	var id_text:String=place.trim_prefix("building:")
+	if not id_text.is_valid_int():return false
+	return model.operations.incidents.any(func(e):return int(e.get("station",-1))==int(id_text) and str(e.get("status","")) in ["responding","returning","treating"])
+
 static func dismiss(model: RefCounted, id: int) -> Dictionary:
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if _assigned_active_rescue(model,person):
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
 			model.operations.staff.erase(person)
 			model._duty_cache.clear()
 			model._operational_change()
@@ -862,7 +874,9 @@ static func tick(model: RefCounted) -> void:
 			# A dispatched emergency team cannot abandon a patient at 18:00.
 			# Continue an active case through the shift boundary and pay
 			# overtime to the engaged responders until discharge.
-			if station.is_empty() or not station.enabled:continue
+			# Recover even older saves whose clinic was manually closed
+			# after dispatch. An emergency already under way must finish.
+			if station.is_empty():continue
 			if not building_open(model,station):
 				var overtime_count:=0
 				for person in model.operations.staff:
