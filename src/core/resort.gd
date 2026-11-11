@@ -1323,7 +1323,10 @@ func service_load(id: int, excluding: int = -1) -> int:
 
 func service_capacity(building: Dictionary) -> int:
 	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
-	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
+	var base_places:float=float(Needs.SERVICES.get(building.kind, {}).get("places",0))*(1.0+(float(building.get("level",1))-1.0)*0.5)
+	# Optional qualified professionals raise real bookable capacity; payroll
+	# remains an operating expense and only actual visits produce revenue.
+	return ceili(base_places*Ops.service_efficiency(self,building))
 
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if (not Ops.continuous(self) and minute >= CLOSING) or guest.get("heading_home",false): return {}
@@ -1354,7 +1357,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
-		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
+		var visit_minutes: float = float(Needs.SERVICES[building.kind].minutes) / Ops.service_efficiency(self,building)
 		if restroom:visit_minutes=(float(reservation.minutes)+float(reservation.wait))*time_divisor
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
