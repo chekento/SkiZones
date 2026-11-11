@@ -154,5 +154,13 @@ func run()->void:
 	check(incident.status=="resolved" and int(model.operations.rescued)>=1,"Rescue resolves only after treatment time has elapsed")
 	check(float(model.operations.cost_centres.get("building:%d" % int(aid.id),0.0))>wages_before,"Rescue staff earn ledgered overtime after normal shifts")
 
+	# Broken older careers may reference a rescue station that a previous
+	# version allowed the player to demolish. Requeue the case instead of
+	# trapping the patient indefinitely in a responding state.
+	incident.status="responding"
+	incident.station=9999999
+	incident.remaining=12.0
+	Ops.tick(model)
+	check(incident.status=="waiting" and int(incident.station)==-1,"Deleted historical rescue station requeues the stranded patient for another dispatch")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
