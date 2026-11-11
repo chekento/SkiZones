@@ -6,6 +6,7 @@ const Resort=preload("res://src/core/resort.gd")
 const Ops=preload("res://src/core/operations.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const DayRhythm=preload("res://src/core/day_rhythm.gd")
+const CrewLife=preload("res://src/world/crew_life.gd")
 var passed:=0
 var failed:=0
 
@@ -91,6 +92,11 @@ func run()->void:
 		check(route_points.size()==2 and Terrain.unpack(route_points[-1]).distance_to(middle)<0.01,"Rescue approach uses true ski line to injured midpoint")
 	check(Ops._rescue_slope_candidates(virtual_graph,Terrain.BASE+Vector2(200,300)).is_empty(),"No invented rescue shortcut to a distant inaccessible off-piste point")
 
+	var outward: ArrayMesh=CrewLife.rescue_mesh("alpine",false)
+	var returning: ArrayMesh=CrewLife.rescue_mesh("alpine",true)
+	var victim: ArrayMesh=CrewLife.casualty_mesh_geometry("alpine")
+	check(outward.get_surface_count()>0 and returning.get_surface_count()>0 and victim.get_surface_count()>0,"Rettungsteam mit zwei Skifahrern, beladene Trage und Unfallopfer erzeugen echte 3D-Meshes")
+	check(outward.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size()!=returning.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size(),"Return journey includes visibly different loaded stretcher geometry")
 	var points:Array=[Terrain.pack(Terrain.BASE),Terrain.pack(Terrain.BASE+Vector2(20,0)),Terrain.pack(Terrain.BASE+Vector2(20,20))]
 	check(Ops.rescue_path_point(points,0.5).distance_to(Terrain.BASE+Vector2(20,0))<0.01,"Rescue personnel follow a bent route, not a direct diagonal shortcut")
 	var event:Dictionary={"id":1,"guest":1,"station":-1,"point":Terrain.pack(Terrain.BASE+Vector2(20,20)),"status":"responding","remaining":15.0,"response_duration":30.0,"route_points":points}
