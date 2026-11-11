@@ -58,6 +58,7 @@ func setup(owner_hud: CanvasLayer) -> void:
 	install_button=hud._button(row,L.text("Modul einbauen"),_install,true)
 	hud._button(row,L.text("Neues Modul"),func(): selected_index=-1; _refresh())
 	hud._button(row,L.text("Modul am Hang ansehen"),_show_on_slope)
+	hud._label(content,L.text("Pistenplan: Modul mit Finger oder Maus direkt positionieren; Feineinstellung über die Regler."),15,hud.MUTED,true)
 	hud._label(content,L.text("Eingebaute Module · antippen zum Verschieben"),19,hud.TEAL)
 	list=hud._vbox(content,8)
 	for slider in [position_slider,lateral_slider]: slider.value_changed.connect(func(_value: float): _refresh())
@@ -160,6 +161,7 @@ func _on_diagram_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and not (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
 		return
 	var rect := Rect2(20,14,maxf(80,diagram.size.x-40),78)
+	if asset_id<0 or not rect.grow(14).has_point(event.position): return
 	var p: Vector2=event.position
 	var fraction: float=clampf((p.x-rect.position.x-12)/maxf(1.0,rect.size.x-24),0.0,1.0)
 	var piste: Dictionary=hud.game.model.asset(asset_id)
