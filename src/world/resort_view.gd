@@ -1312,6 +1312,18 @@ func _process(delta: float) -> void:
 	for guest in model.guests:
 		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
 			continue
+		# The model freezes an injured skier. Never let the regular piste
+		# motion renderer keep skiing while the actual casualty is waiting,
+		# on the stretcher or being treated in the mountain clinic. CrewLife
+		# renders a prone patient at the scene and on the return stretcher.
+		if int(guest.get("incident",-1))>=0:
+			var casualty_position:Vector3=model.guest_position(guest)
+			next_positions[guest.id]=casualty_position
+			if follow_guest==int(guest.id):
+				_follow_position=_follow_position.lerp(casualty_position,minf(1.0,delta*7.0)) if camera_smoothing and delta>0.0 and _follow_position.is_finite() else casualty_position
+				focus=Vector2(_follow_position.x,_follow_position.z)
+				_update_camera()
+			continue
 		var position_value := Vector3.ZERO
 		var angle := 0.0
 		var lean := 0.0
