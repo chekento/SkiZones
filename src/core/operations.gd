@@ -191,6 +191,8 @@ static func refresh_duty(model: RefCounted) -> void:
 		var role_key: String = person.role + ":"
 		model._duty_cache[key] = int(model._duty_cache.get(key, 0)) + 1
 		model._duty_cache[role_key] = int(model._duty_cache.get(role_key, 0)) + 1
+		var qualification_key:String="qualification:"+key
+		model._duty_cache[qualification_key]=float(model._duty_cache.get(qualification_key,0.0))+minf(0.05,maxf(0.0,float(person.get("qualification",1))-1.0)*0.025)
 
 static func signature(model: RefCounted) -> String:
 	var result := "%d/" % int(model.minute >= 480 and model.minute < 1020)
@@ -422,12 +424,11 @@ static func service_efficiency(model:RefCounted,building:Dictionary)->float:
 	var extras:=0
 	var proficiency:=0.0
 	for role in building_optional_roles(str(building.kind)):
-		var qualified:Array=model.operations.staff.filter(func(p):return str(p.role)==role and str(p.assignment)==target and on_duty(model,p))
-		var surplus:int=maxi(0,qualified.size()-int(required.get(role,0)))
-		extras+=surplus
-		# Real qualification and morale matter, with bounded economic impact.
-		for person in qualified:
-			proficiency+=minf(0.05,maxf(0,float(person.get("qualification",1))-1)*0.025) if on_duty(model,person) else 0.0
+		# The duty ledger is already refreshed once per simulation minute.
+		# Never scan all 1200 employees for each prospective guest visit.
+		var count:int=duty(model,role,target)
+		extras+=maxi(0,count-int(required.get(role,0)))
+		proficiency+=float(model._duty_cache.get("qualification:"+role+":"+target,0.0))
 	return clampf(1.0+minf(0.60,float(extras)*0.15)+minf(0.15,proficiency),1.0,1.75)
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
