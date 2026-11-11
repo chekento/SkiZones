@@ -704,11 +704,16 @@ func asset(id: int) -> Dictionary:
 func set_enabled(id: int, enabled: bool) -> void:
 	var item := asset(id)
 	if not item.is_empty():
+		# Never strand a stretcher team / casualty by closing its clinic.
+		if not enabled and str(item.get("kind",""))=="first_aid" and operations.incidents.any(func(e):return int(e.get("station",-1))==id and str(e.get("status","")) in ["responding","returning","treating"]):
+			return
 		item.enabled = enabled
 		_invalidate()
 		_reroute_guests(true)
 
 func demolish(id: int) -> Dictionary:
+	if operations.incidents.any(func(e):return int(e.get("station",-1))==id and str(e.get("status","")) in ["responding","returning","treating"]):
+		return _result(false,L.text("Die Bergwacht ist noch im Rettungseinsatz und kann nicht abgebaut werden."))
 	# Do not strand linear hotel wings or remove their host while modules exist.
 	for building in buildings:
 		var a: Dictionary=building.get("hotel_attachment",{})
