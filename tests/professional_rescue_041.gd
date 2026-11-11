@@ -92,5 +92,40 @@ func run()->void:
 	event.treatment_remaining=90.0
 	check(is_equal_approx(Ops.rescue_fraction(event),0.0),"Treating patient remains at first-aid station")
 	check(event.treatment_duration>=60.0 and event.treatment_duration<=120.0,"Treatment takes one to two game hours")
+	# Progress an actual rescue job across all phases, beyond the day shift.
+	# Active incidents must not freeze in the evening when day personnel
+	# finish their normal shift; after-hours rescue pay remains in the ledger.
+	var aid:Dictionary={}
+	for building in model.buildings:
+		if str(building.get("kind",""))=="first_aid":
+			aid=building
+			break
+	if aid.is_empty():
+		var rescue_id:=int(model.next_id)+450
+		aid={"id":rescue_id,"kind":"first_aid","point":Terrain.pack(Terrain.BASE+Vector2(60,70)),"enabled":true,"level":1}
+		model.buildings.append(aid)
+		model._invalidate()
+	Ops.fill_building(model,int(aid.id),true)
+	model.minute=1085
+	var incident:Dictionary={
+		"id":808,"guest":99999,"reason":"collision",
+		"point":Terrain.pack(Terrain.BASE+Vector2(35,35)),
+		"station":int(aid.id),"created":Ops.clock(model),"status":"responding",
+		"remaining":1.0,"response_duration":1.0,"response_started":Ops.clock(model),
+		"return_duration":1.0,"transport_remaining":1.0,
+		"treatment_duration":60.0,"treatment_remaining":60.0,
+		"route_points":[aid.point.duplicate(),Terrain.pack(Terrain.BASE+Vector2(35,35))]
+	}
+	model.operations.incidents=[incident]
+	var wages_before:float=float(model.operations.cost_centres.get("building:%d" % int(aid.id),0.0))
+	Ops.tick(model)
+	check(incident.status=="returning","Rescue arrival starts stretcher return rather than instant heal")
+	Ops.tick(model)
+	check(incident.status=="treating","Stretcher return starts an actual clinic treatment")
+	for step in range(60):
+		Ops.tick(model)
+	check(incident.status=="resolved" and int(model.operations.rescued)>=1,"Rescue resolves only after treatment time has elapsed")
+	check(float(model.operations.cost_centres.get("building:%d" % int(aid.id),0.0))>wages_before,"Rescue staff earn ledgered overtime after normal shifts")
+
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
