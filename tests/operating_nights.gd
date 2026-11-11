@@ -73,10 +73,27 @@ func _init() -> void:
 		check(model.guest_position(guest).distance_to(position) < 0.01, "a guest awaiting rescue remains at the incident location")
 		var event: Dictionary = model.operations.incidents[-1]
 		check(Ops.dispatch(model, int(event.id)).ok, "staffed patrol dispatches via the actual route graph")
-		for i in range(250):
+		check(event.get("route_points",[]).size()>=2 and float(event.get("response_duration",0))>0, "ski patrol has an actual non-empty approach route")
+		# Exercise every emergency phase with bounded simulated time. The
+		# original direct-healing assertion was invalid once patients gained
+		# a return journey and a real 60–120 minute clinic treatment.
+		# Accelerate only the *fixture's* long approach so the simulation
+		# regression stays fast; real dispatch timing is checked above.
+		event.remaining=3.0
+		var saw_return:=false
+		var saw_treatment:=false
+		var saved_transport:=false
+		for i in range(320):
 			model.advance_minute(false)
-			if event.status == "resolved": break
-		check(event.status == "resolved" and int(guest.incident) == -1 and guest.get("assisted", false), "patrol reaches and assists the actual guest")
+			if event.status=="returning":
+				saw_return=true
+				if not saved_transport:
+					saved_transport=Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok
+			if event.status=="treating":saw_treatment=true
+			if event.status=="resolved":break
+		check(saw_return and saved_transport, "patient is carried on a saved and recoverable rescue return")
+		check(saw_treatment, "clinic treats the rescued skier after return transport")
+		check(event.status=="resolved" and int(guest.incident)==-1 and guest.get("assisted",false), "patrol completes transport, treatment and actual guest discharge")
 		check(Resort.new().restore(JSON.parse_string(JSON.stringify(model.snapshot()))).ok, "populated rescue state saves and reloads")
 	model.guests.clear()
 	model.minute = 1319
