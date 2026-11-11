@@ -80,6 +80,10 @@ func _init() -> void:
 		# Accelerate only the *fixture's* long approach so the simulation
 		# regression stays fast; real dispatch timing is checked above.
 		event.remaining=3.0
+		# This fixture tests state transitions with a short controlled journey,
+		# without weakening the production route's real calculated duration.
+		event.return_duration=8.0
+		event.transport_remaining=8.0
 		var saw_return:=false
 		var saw_treatment:=false
 		var saved_transport:=false
