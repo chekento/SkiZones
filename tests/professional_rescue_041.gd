@@ -79,6 +79,18 @@ func run()->void:
 	check(migrated.id==old_id and migrated.role=="ski_instructor" and migrated.wage==Ops.ROLES["ski_instructor"].wage and migrated.worked==30,"Old school employee becomes an instructor without losing progress")
 	check(Ops.valid(model.operations,model),"Specialist roles and migrated salaries remain valid for career saves")
 
+	# Regression: an injured skier in the center of a 600 m run must
+	# remain reachable even though both graph end nodes are >180 m away.
+	var long_piste:Array=[Terrain.pack(Terrain.BASE),Terrain.pack(Terrain.BASE+Vector2(0,600))]
+	var virtual_graph:Dictionary={"edges":{"slope-start":[{"kind":"ski","from":"slope-start","to":"slope-end","points":long_piste}]}}
+	var middle:Vector2=Terrain.BASE+Vector2(0,300)
+	var links:Array=Ops._rescue_slope_candidates(virtual_graph,middle)
+	check(not links.is_empty() and str(links[0].from)=="slope-start","Injured mid-slope skier can be located on a long piste, not only at top/bottom nodes")
+	if not links.is_empty():
+		var route_points:Array=links[0].points
+		check(route_points.size()==2 and Terrain.unpack(route_points[-1]).distance_to(middle)<0.01,"Rescue approach uses true ski line to injured midpoint")
+	check(Ops._rescue_slope_candidates(virtual_graph,Terrain.BASE+Vector2(200,300)).is_empty(),"No invented rescue shortcut to a distant inaccessible off-piste point")
+
 	var points:Array=[Terrain.pack(Terrain.BASE),Terrain.pack(Terrain.BASE+Vector2(20,0)),Terrain.pack(Terrain.BASE+Vector2(20,20))]
 	check(Ops.rescue_path_point(points,0.5).distance_to(Terrain.BASE+Vector2(20,0))<0.01,"Rescue personnel follow a bent route, not a direct diagonal shortcut")
 	var event:Dictionary={"id":1,"guest":1,"station":-1,"point":Terrain.pack(Terrain.BASE+Vector2(20,20)),"status":"responding","remaining":15.0,"response_duration":30.0,"route_points":points}
