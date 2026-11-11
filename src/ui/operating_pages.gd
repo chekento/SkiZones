@@ -198,8 +198,14 @@ static func add(office: Control, only: int = -1) -> void:
 			office._action(body, L.text("Präparieren · 220 €"), func(): return Ops.groom(model, int(piste.id)))
 		for event in model.operations.incidents:
 			if event.status == "resolved": continue
-			var body: VBoxContainer = office._card(services, L.text("Hilferuf · Gast %d") % int(event.guest), L.text("Wartet auf Hilfe") if event.status == "waiting" else L.text("Rettung unterwegs · %.0f Minuten") % float(event.remaining))
-			office._action(body, L.text("Rettung entsenden"), func(): return Ops.dispatch(model, int(event.id)))
+			var status_text:String=L.text("Wartet auf Hilfe")
+			match str(event.status):
+				"responding":status_text=L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten") % maxf(0,float(event.remaining))
+				"returning":status_text=L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten") % maxf(0,float(event.get("transport_remaining",0)))
+				"treating":status_text=L.text("Behandlung in der Bergwacht · %.0f Minuten") % maxf(0,float(event.get("treatment_remaining",0)))
+			var body: VBoxContainer = office._card(services, L.text("Hilferuf · Gast %d") % int(event.guest), status_text)
+			if event.status=="waiting":
+				office._action(body, L.text("Rettung entsenden"), func(): return Ops.dispatch(model, int(event.id)))
 	if only in [-1, 4]:
 		var finance: VBoxContainer = office._page(L.text("Kostenstellen"))
 		office._card(finance, L.text("Laufende Kosten und Liquidität"), L.text("Personalkosten und Infrastruktur werden minutengenau abgezogen. Investitionen erscheinen separat. Der Mitternachtsbericht speichert Einnahmen, laufende Kosten und Ergebnis für 28 Tage."))
