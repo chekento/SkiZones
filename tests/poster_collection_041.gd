@@ -7,6 +7,7 @@ const Collection=preload("res://src/core/poster_collection.gd")
 const Posters=preload("res://src/core/holiday_poster_catalog.gd")
 const Scenery=preload("res://src/world/festival_scenery.gd")
 const Resort=preload("res://src/core/resort.gd")
+const SaveStore=preload("res://src/core/save_store.gd")
 const L=preload("res://src/core/i18n.gd")
 var passed:=0
 var failed:=0
@@ -54,6 +55,30 @@ func run()->void:
 	var restored:=Resort.new()
 	check(restored.restore(model.snapshot()).ok and Collection.progress(restored).found==2,"Two discovered pictures persist in a validated save")
 	check(Collection.progress(restored).total==10 and Collection.discovered(restored).size()==2,"Loaded progress correctly identifies ten motifs")
+	# Exercise actual checksum-protected disk I/O, not just snapshot()/restore().
+	# A unique user:// filename avoids touching any real career or existing fixture.
+	var disk_path: String="user://poster_collection_041_%d.json" % Time.get_ticks_usec()
+	var write_two: Dictionary=SaveStore.save_game(restored,disk_path)
+	check(write_two.ok and FileAccess.file_exists(disk_path),"Two collected pictures are written to a real checksummed career file")
+	var from_disk:=Resort.new()
+	var read_two: Dictionary=SaveStore.load_game(from_disk,disk_path)
+	check(read_two.ok and Collection.progress(from_disk).found==2 and not read_two.get("recovered",false),
+		"Disk reload preserves two IDs without accidentally invoking recovery")
+	# An old v0.40.1-style save without the optional poster field must also load.
+	var original_legacy:=Resort.new()
+	check(original_legacy.restore(legacy.duplicate(true)).ok,"Pre-collector career snapshot restores before disk migration")
+	var legacy_path: String="user://poster_collection_legacy_041_%d.json" % Time.get_ticks_usec()
+	var legacy_saved: Dictionary=SaveStore.save_game(original_legacy,legacy_path)
+	var loaded_legacy:=Resort.new()
+	var legacy_loaded: Dictionary=SaveStore.load_game(loaded_legacy,legacy_path)
+	check(legacy_saved.ok and legacy_loaded.ok and Collection.progress(loaded_legacy).found==0,
+		"Legacy v0.40.1-style checksum save loads with zero discovered posters")
+	check(not loaded_legacy.campaign.has("poster_discoveries"),
+		"Loading a legacy disk file never injects mandatory collector fields")
+	for suffix in ["",".bak",".tmp"]:
+		if FileAccess.file_exists(legacy_path+suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(legacy_path+suffix))
+
 	for i in range(2,assets.size()-1):
 		var r: Dictionary=Collection.discover(restored,assets[i])
 		check(r.is_new and r.found==i+1 and not r.awarded,"Unique motif %d increments progress exactly once" % [i+1])
@@ -63,6 +88,20 @@ func run()->void:
 	check(not Collection.discover(restored,assets[-1]).is_new and restored.achievements.count(Book.POSTER_COLLECTOR_ID)==1,"Revisiting last board never gives a second medal")
 	var finished:=Resort.new()
 	check(finished.restore(restored.snapshot()).ok and Collection.progress(finished).complete and finished.achievements.has(Book.POSTER_COLLECTOR_ID),"The actual medal and all ten IDs survive a save/reload")
+	var write_ten: Dictionary=SaveStore.save_game(restored,disk_path)
+	var reopened:=Resort.new()
+	var read_ten: Dictionary=SaveStore.load_game(reopened,disk_path)
+	check(write_ten.ok and read_ten.ok and Collection.progress(reopened).complete and
+		reopened.achievements.has(Book.POSTER_COLLECTOR_ID),
+		"Completing ten posters survives a second checksummed disk save and reload")
+	var backup: Dictionary=SaveStore._read(disk_path+".bak")
+	check(backup.ok and Collection.valid(backup.data.campaign.get("poster_discoveries",[])) and
+		backup.data.campaign.poster_discoveries.size()==2,
+		"Overwriting a completed collection preserves the previous two-poster backup")
+	for suffix in ["",".bak",".tmp"]:
+		if FileAccess.file_exists(disk_path+suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(disk_path+suffix))
+
 	var bad: Dictionary=finished.snapshot()
 	bad.campaign.poster_discoveries.append(bad.campaign.poster_discoveries[0])
 	check(not Resort.new().restore(bad).ok,"Duplicate discoveries cannot be injected into a career save")
