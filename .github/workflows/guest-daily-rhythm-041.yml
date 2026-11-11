@@ -51,6 +51,10 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-rhythm-041
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/guest_daily_rhythm_041.gd
+      - name: 0.41 specialist professions, staffing economics and multi-stage rescue
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-professional-rescue-041
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/professional_rescue_041.gd
       - name: Existing family, routing and economy regression
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-regression-041
