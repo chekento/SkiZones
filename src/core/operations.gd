@@ -874,9 +874,17 @@ static func tick(model: RefCounted) -> void:
 			# A dispatched emergency team cannot abandon a patient at 18:00.
 			# Continue an active case through the shift boundary and pay
 			# overtime to the engaged responders until discharge.
-			# Recover even older saves whose clinic was manually closed
-			# after dispatch. An emergency already under way must finish.
-			if station.is_empty():continue
+			# A historic save may contain a dispatched case whose clinic
+			# was later demolished. Requeue it for a valid active station,
+			# rather than trapping an injured guest forever in "responding".
+			if station.is_empty():
+				event.status="waiting"
+				event.station=-1
+				event.remaining=-1.0
+				event.erase("route_points")
+				continue
+			# Do not interrupt a rescue already in progress if that clinic
+			# was closed on an earlier game version.
 			if not building_open(model,station):
 				var overtime_count:=0
 				for person in model.operations.staff:
