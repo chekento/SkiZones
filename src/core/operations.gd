@@ -594,6 +594,31 @@ static func _rescue_route_points(model:RefCounted,station:Dictionary,route:Dicti
 			if points[-1]!=point:points.append(point.duplicate())
 	return points if points.size()>=2 and points.size()<=512 else []
 
+## An incident in the middle of a long run is usually hundreds of
+## metres from the *graph nodes* at the start and finish of that run.
+## Find an approach on the actual ski polyline instead of only searching
+## those nodes; this keeps remote but accessible piste accidents rescuable.
+static func _rescue_slope_candidates(graph:Dictionary,position:Vector2)->Array:
+	var candidates:Array=[]
+	for from_node in graph.get("edges",{}):
+		for edge in graph.edges[from_node]:
+			if str(edge.get("kind",""))!="ski":continue
+			var points:Array=edge.get("points",[])
+			if points.size()<2:continue
+			for i in range(1,points.size()):
+				var a:Vector2=Terrain.unpack(points[i-1])
+				var b:Vector2=Terrain.unpack(points[i])
+				var closest:Vector2=Geometry2D.get_closest_point_to_segment(position,a,b)
+				var off:float=position.distance_to(closest)
+				if off>35.0:continue
+				var prefix:Array=points.slice(0,i)
+				var projected:Array=Terrain.pack(closest)
+				if prefix.is_empty() or prefix[-1]!=projected:prefix.append(projected)
+				candidates.append({"from":str(edge.get("from",from_node)),"points":prefix,"off":off})
+	candidates.sort_custom(func(a,b):return float(a.off)<float(b.off))
+	if candidates.size()>12:candidates.resize(12)
+	return candidates
+
 static func rescue_path_point(points:Array,ratio:float)->Vector2:
 	if points.is_empty():return Vector2.ZERO
 	if points.size()==1:return Terrain.unpack(points[0])
@@ -636,22 +661,41 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 			var position := Terrain.unpack(event.point)
 			var distance := Terrain.unpack(building.point).distance_to(position)
 			if distance > 1800 * int(building.get("level", 1)): continue
-			var graph: Dictionary = model._routing_graph(2)
-			var nearest := ""
-			var delta := INF
-			for key in graph.nodes:
-				var value := Terrain.unpack(graph.nodes[key]).distance_to(position)
-				if value < delta:
-					delta = value
-					nearest = key
-			if delta > 180 or nearest == "": continue
-			var route: Dictionary = model._shortest(graph, "d%d" % int(building.id), nearest)
-			if not route.ok: continue
-			var points:Array=_rescue_route_points(model,building,route,position)
-			if points.is_empty():continue
-			var time := 4.0 + delta / 60 + absf(model.terrain.height(Terrain.unpack(building.point)) - model.terrain.height(position)) / 100
-			for leg in route.legs: time += float(leg.minutes)
-			time *= 1.5 if model.weather_index in [2, 3] else 1.0
+			var graph:Dictionary=model._routing_graph(2)
+			var route:Dictionary={}
+			var points:Array=[]
+			var delta:=INF
+			var slope_fraction:=0.0
+			# First try the piste centerline. Graph nodes may exist only
+			# at top/bottom while the skier is injured halfway down.
+			for candidate in _rescue_slope_candidates(graph,position):
+				route=model._shortest(graph,"d%d" % int(building.id),str(candidate.from))
+				if not route.ok:continue
+				var combined:Array=route.legs.duplicate()
+				combined.append({"points":candidate.points})
+				points=_rescue_route_points(model,building,{"legs":combined},position)
+				if points.is_empty():continue
+				delta=float(candidate.off)
+				for i in range(1,candidate.points.size()):
+					slope_fraction+=Terrain.unpack(candidate.points[i-1]).distance_to(Terrain.unpack(candidate.points[i]))/60.0
+				break
+			# Fallback for a footpath, lift evacuation, or an accident near
+			# a connected graph node outside the defined piste corridor.
+			if points.is_empty():
+				var nearest:=""
+				for key in graph.nodes:
+					var value:float=Terrain.unpack(graph.nodes[key]).distance_to(position)
+					if value<delta:
+						delta=value
+						nearest=str(key)
+				if delta>180.0 or nearest=="":continue
+				route=model._shortest(graph,"d%d" % int(building.id),nearest)
+				if not route.ok:continue
+				points=_rescue_route_points(model,building,route,position)
+				if points.is_empty():continue
+			var time:=4.0+delta/60.0+slope_fraction+absf(model.terrain.height(Terrain.unpack(building.point))-model.terrain.height(position))/100.0
+			for leg in route.legs:time+=float(leg.minutes)
+			time*=1.5 if model.weather_index in [2,3] else 1.0
 			if time < best:
 				best = time
 				station = int(building.id)
