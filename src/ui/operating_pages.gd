@@ -71,6 +71,20 @@ static func add(office: Control, only: int = -1) -> void:
 		hiring.add_child(role_choice)
 		hud._label(hiring, L.text("2 · Einsatzort"), 16, hud.TEAL)
 		var hire_target := _targets(hiring, targets)
+		# The selectable job titles must react to the selected facility.
+		# A ski school must never offer a hotel receptionist as a valid job.
+		var filter_roles:=func(index:int)->void:
+			if index<0 or index>=targets.size():return
+			var first_valid:=-1
+			for i in range(Ops.ROLES.size()):
+				var role:String=str(Ops.ROLES.keys()[i])
+				var allowed:bool=Ops.suitable_assignment(model,role,str(targets[index].key))
+				role_choice.set_item_disabled(i,not allowed)
+				if allowed and first_valid<0:first_valid=i
+			if first_valid>=0 and (role_choice.selected<0 or role_choice.is_item_disabled(role_choice.selected)):
+				role_choice.select(first_valid)
+		hire_target.item_selected.connect(filter_roles)
+		filter_roles.call(hire_target.selected)
 		hud._label(hiring, L.text("3 · Arbeitszeit"), 16, hud.TEAL)
 		var hire_shift := _shifts(hiring)
 		office._action(hiring, L.text("Einstellen · 180 €"), func(): return Ops.hire(model, Ops.ROLES.keys()[role_choice.selected], targets[hire_target.selected].key, Ops.SHIFTS.keys()[hire_shift.selected]))
