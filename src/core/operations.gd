@@ -21,7 +21,25 @@ const ROLES := {
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
 	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
-	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
+	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0},
+	"chef": {"name":"Koch / Küchenleitung","wage":23.0},
+	"waiter": {"name":"Servicekraft / Kellner","wage":18.0},
+	"barista": {"name":"Barista / Kakao-Service","wage":19.0},
+	"bartender": {"name":"Barkeeper","wage":21.0},
+	"vendor": {"name":"Verkaufskraft","wage":18.0},
+	"rental_specialist": {"name":"Skiverleih-Fachkraft","wage":21.0},
+	"ski_instructor": {"name":"Skilehrer / Skilehrerin","wage":26.0},
+	"fitness_trainer": {"name":"Fitnesstrainer","wage":23.0},
+	"lifeguard": {"name":"Schwimmaufsicht","wage":23.0},
+	"therapist": {"name":"Wellness-Therapeut","wage":26.0},
+	"shop_assistant": {"name":"Fachverkäufer / Souvenir","wage":19.0},
+	"watchmaker": {"name":"Uhrmacher","wage":26.0},
+	"artisan": {"name":"Kunsthandwerker","wage":23.0},
+	"printer": {"name":"Drucktechniker","wage":22.0},
+	"editor": {"name":"Redakteur","wage":25.0},
+	"housekeeper": {"name":"Housekeeping","wage":18.0},
+	"receptionist": {"name":"Hotelrezeption","wage":20.0},
+	"medic": {"name":"Rettungssanitäter / Behandlung","wage":28.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
@@ -209,7 +227,21 @@ static func normalize_assignments(model: RefCounted) -> void:
 		for station in station_demands(lift):
 			aliases["station:%s:%.1f:%.1f" % [str(float(line)),station.point[0],station.point[1]]]=station.key
 	for person in model.operations.staff:
-		if person is Dictionary and aliases.has(person.get("assignment","")):person.assignment=aliases[person.assignment]
+		if not person is Dictionary:continue
+		if aliases.has(person.get("assignment","")):person.assignment=aliases[person.assignment]
+		# Old saves assigned hotel staff to ski schools / shops, and generic
+		# catering workers to kitchens. Upgrade their *existing* jobs in
+		# memory, preserving employee IDs, shifts and all financial history.
+		var target:String=str(person.get("assignment",""))
+		if not target.begins_with("building:"):continue
+		var id_text:String=target.trim_prefix("building:")
+		if not id_text.is_valid_int():continue
+		var workplace:Dictionary=model.asset(int(id_text))
+		if workplace.is_empty():continue
+		var specialized:String=legacy_specialization(str(workplace.get("kind","")))
+		if specialized!="" and str(person.get("role","")) in ["hotel","catering"]:
+			person.role=specialized
+			person.wage=float(ROLES[specialized].wage)
 
 static func staffing(model: RefCounted, lift: Dictionary) -> Dictionary:
 	var present := 0
@@ -258,7 +290,7 @@ static func lift_available(model: RefCounted, lift: Dictionary) -> bool:
 	return model.minute >= 480 and model.minute < 1020
 
 static func hire(model: RefCounted, role: String, assignment: String, shift: String = "day", free: bool = false) -> Dictionary:
-	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
+	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or not suitable_assignment(model,role,assignment) or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	if not free and not _expense(model, 180, "recruitment"): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	var id: int = model.operations.next_staff
 	model.operations.next_staff += 1
@@ -272,6 +304,7 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	if not SHIFTS.has(shift) or target.length() > 100: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if not suitable_assignment(model,str(person.role),target):return model._result(false,L.text("Diese Aufgabe passt fachlich nicht zu diesem Gebäude oder dieser Station."))
 			person.assignment = target
 			person.shift = shift
 			model._duty_cache.clear()
@@ -302,19 +335,100 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 	for target in additions: hire(model, "operator", target, "day", free)
 	return model._result(true, L.text("Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."))
 
+## Keep a one-to-one migration for existing generic workers; new saves use
+## professional titles and correct wage rates from the first hire onward.
+static func legacy_specialization(kind:String)->String:
+	match kind:
+		"restaurant","lodge","pizzeria","schmarrn":return "chef"
+		"cocoa":return "barista"
+		"kiosk","newsstand":return "vendor"
+		"bar","disco":return "bartender"
+		"rental":return "rental_specialist"
+		"school":return "ski_instructor"
+		"fitness":return "fitness_trainer"
+		"pool":return "lifeguard"
+		"spa":return "therapist"
+		"souvenir":return "shop_assistant"
+		"watchmaker":return "watchmaker"
+		"craftshop":return "artisan"
+		"printing_press":return "printer"
+	return ""
+
 static func building_roles(kind: String) -> Array:
 	match kind:
-		"repair_office": return ["technician", "electrician"]
-		"first_aid": return ["rescue", "rescue"]
+		"repair_office": return ["technician","electrician"]
+		"first_aid": return ["rescue","rescue"]
 		"maintenance": return ["driver"]
 		"snowmaker": return ["snow"]
-		"hotel", "grand_hotel": return ["hotel", "hotel", "security"]
+		"hotel","grand_hotel": return ["hotel","hotel","security"]
 		"guesthouse": return ["hotel"]
-		"disco", "bar": return ["catering", "security"]
-		"pool", "spa": return ["hotel", "security"]
-		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand": return ["hotel"]
+		"disco","bar": return ["bartender","security"]
+		"pool": return ["lifeguard","security"]
+		"spa": return ["therapist","security"]
+		"restaurant","lodge","schmarrn","pizzeria": return ["chef"]
+		"kiosk","newsstand": return ["vendor"]
+		"cocoa": return ["barista"]
+		"rental": return ["rental_specialist"]
+		"school": return ["ski_instructor"]
+		"fitness": return ["fitness_trainer"]
+		"souvenir": return ["shop_assistant"]
+		"watchmaker": return ["watchmaker"]
+		"craftshop": return ["artisan"]
+		"printing_press": return ["printer"]
 	return []
+
+## Optional staff is tied to the building's real trade, not a generic
+## hotel/catering/security list. Extra trained employees cost wages but
+## improve throughput only when present and on duty.
+static func building_optional_roles(kind:String)->Array:
+	if kind.begins_with("wc_"):return ["sanitation"]
+	match kind:
+		"restaurant","lodge","schmarrn","pizzeria":return ["chef","waiter"]
+		"cocoa":return ["barista","waiter"]
+		"kiosk","newsstand":return ["vendor"]
+		"bar","disco":return ["bartender","security"]
+		"hotel","grand_hotel":return ["hotel","housekeeper","receptionist","chef"]
+		"guesthouse":return ["hotel","housekeeper","chef"]
+		"pool":return ["lifeguard"]
+		"spa":return ["therapist"]
+		"rental":return ["rental_specialist"]
+		"school":return ["ski_instructor"]
+		"fitness":return ["fitness_trainer"]
+		"souvenir":return ["shop_assistant"]
+		"watchmaker":return ["watchmaker"]
+		"craftshop":return ["artisan"]
+		"printing_press":return ["printer","editor"]
+		"repair_office":return ["technician","electrician"]
+		"maintenance":return ["driver","technician"]
+		"snowmaker":return ["snow","technician"]
+		"first_aid":return ["rescue","medic"]
+	return []
+
+static func suitable_assignment(model:RefCounted,role:String,target:String)->bool:
+	if target=="reserve":return true
+	if target.begins_with("station:"):return role in ["operator","technician","electrician"]
+	if not target.begins_with("building:"):return false
+	var id_text:String=target.trim_prefix("building:")
+	if not id_text.is_valid_int():return false
+	var building:Dictionary=model.asset(int(id_text))
+	if building.is_empty() or not Catalog.BUILDINGS.has(str(building.get("kind",""))):return false
+	return role in building_roles(str(building.kind)) or role in building_optional_roles(str(building.kind))
+
+static func service_efficiency(model:RefCounted,building:Dictionary)->float:
+	if not active(model):return 1.0
+	var target:String="building:%d" % int(building.id)
+	var required:Dictionary={}
+	for role in building_roles(str(building.kind)):required[role]=int(required.get(role,0))+1
+	var extras:=0
+	var proficiency:=0.0
+	for role in building_optional_roles(str(building.kind)):
+		var qualified:Array=model.operations.staff.filter(func(p):return str(p.role)==role and str(p.assignment)==target and on_duty(model,p))
+		var surplus:int=maxi(0,qualified.size()-int(required.get(role,0)))
+		extras+=surplus
+		# Real qualification and morale matter, with bounded economic impact.
+		for person in qualified:
+			proficiency+=minf(0.05,maxf(0,float(person.get("qualification",1))-1)*0.025) if on_duty(model,person) else 0.0
+	return clampf(1.0+minf(0.60,float(extras)*0.15)+minf(0.15,proficiency),1.0,1.75)
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
 	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
