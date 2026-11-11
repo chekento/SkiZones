@@ -8,14 +8,7 @@
 
 Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. Plane Abfahrten, erschließe neue Hänge und entwickle dein Skigebiet über mehrere Wintersaisons.
 
-<details>
-<summary>❄️ SkiZones 0.19: neues App-Icon und PMDD-Ladebildschirm</summary>
-
-<img src="assets/branding/splash_1920.png" width="960" alt="PMDD 4.0 gestalteter SkiZones-Ladebildschirm mit Wintersportlern, Gondeln und Schneemann">
-
-*Seit Version 0.19 als vollflächiger Android-Ladebildschirm integriert. Die PMDD-Tiefenwirkung ist bildgestalterisch; die statische Grafik verwendet keine Geräte-Sensorparallaxe.*
-
-</details>
+## ⬇️ Neueste öffentliche Android-APK
 
 <!-- APK-DOWNLOAD:START -->
 [![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk)
@@ -29,13 +22,38 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 *Nur APK-Dateien werden gezählt, einschließlich Previews. Prüfsummen und Metadaten sind ausgeschlossen. Downloads sind keine eindeutigen Installationen. Der Download-Link wird nach dem Build und zusätzlich stündlich aktualisiert; GitHub-Bildcaches können verzögern.*
 <!-- APK-DOWNLOAD:END -->
 
-### Aktuelle Version und APK-Status
+> **Wichtig:** Das Banner führt immer direkt zur zuletzt *tatsächlich veröffentlichten* GitHub-APK, nicht zu einem nur geplanten oder laufenden Build. Installiere Updates über die vorhandene App, ohne sie zu deinstallieren. Sichere wichtige Spielstände vorher.
+
+### Neu in SkiZones 0.41.1 – Rettung, Personal und spielbare Wintersaison
+
+- **Pistenrettung:** Zwei skifahrende Retter, Einsatzroute auch zu Unfallstellen mitten auf langen Pisten, Trage mit Rücktransport und anschließender Behandlung in der Bergwacht.
+- **Echte Fachberufe:** Skilehrkräfte statt Hotelpersonal, Küchen- und Servicekräfte statt unpassender Standardrollen, realistische Spezialisten für weitere Gebäudetypen.
+- **Wirtschaft mit Wirkung:** Tatsächlich besetzte Zusatzstellen verbessern die Servicekapazität, während Löhne, Rettungsmaterial und Überstunden Kosten verursachen.
+- **Bestehende Spielstände:** Historische Karrieren und Update-Signaturen werden automatisiert geprüft; noch nicht bekannte individuelle Problemspielstände bleiben ein eigener Testfall.
+- **Mobil & Bedienung:** Verbesserter Tagesablauf, weniger unnötige UI-Arbeit, visuelle Liftglättung und Winterplakat-Sammler.
+
+[**Vollständiges 0.41.1-Changelog**](docs/releases/0.41.1.md) · [**Android-Buildprüfungen**](https://github.com/chekento/SkiZones/actions/workflows/validate-and-build.yml) · [**Offene Geräteabnahme**](https://github.com/chekento/SkiZones/issues/105)
+
+
+
+<details>
+<summary>❄️ SkiZones 0.19: neues App-Icon und PMDD-Ladebildschirm</summary>
+
+<img src="assets/branding/splash_1920.png" width="960" alt="PMDD 4.0 gestalteter SkiZones-Ladebildschirm mit Wintersportlern, Gondeln und Schneemann">
+
+*Seit Version 0.19 als vollflächiger Android-Ladebildschirm integriert. Die PMDD-Tiefenwirkung ist bildgestalterisch; die statische Grafik verwendet keine Geräte-Sensorparallaxe.*
+
+</details>
+
+
+
+### Versionsarchiv und APK-Prüfstatus
 
 **Öffentlich installierbare APK:** Der Downloadblock oben nennt die neueste tatsächlich veröffentlichte ARM64-APK.
 
-**0.38.2 · Android-VersionCode 50:** [Spielstand-Reparatur als ARM64-APK](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) · **[APK direkt herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk)**. Verbesserte Prüfung und Reparatur alter Speicherstände, deutlich lesbareres Lade-/Speichermenü sowie 45 erfolgreich getestete historische Release-Spielstände. Die [vollständige Android-/Emulator-Prüfung einschließlich Signaturkontinuität](https://github.com/chekento/SkiZones/actions/runs/42372211243) und die [gesonderte Freigabeprüfung der installierbaren APK](https://github.com/chekento/SkiZones/actions/runs/42384836193) sind erfolgreich. **Wichtig: Als Update installieren, vorher nicht deinstallieren oder App-Daten löschen.** Drei gemeldete individuelle Problemspielstände konnten ohne Originaldateien noch nicht getestet werden. [Versionshinweise](docs/releases/0.38.2.md).
+**Früherer Spielstand-Hotfix 0.38.2 · Android-VersionCode 50:** [Spielstand-Reparatur als ARM64-APK](https://github.com/chekento/SkiZones/releases/tag/v0.38.2) · **[APK direkt herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk)**. Verbesserte Prüfung und Reparatur alter Speicherstände, deutlich lesbareres Lade-/Speichermenü sowie 45 erfolgreich getestete historische Release-Spielstände. Die [vollständige Android-/Emulator-Prüfung einschließlich Signaturkontinuität](https://github.com/chekento/SkiZones/actions/runs/42372211243) und die [gesonderte Freigabeprüfung der installierbaren APK](https://github.com/chekento/SkiZones/actions/runs/42384836193) sind erfolgreich. **Wichtig: Als Update installieren, vorher nicht deinstallieren oder App-Daten löschen.** Drei gemeldete individuelle Problemspielstände konnten ohne Originaldateien noch nicht getestet werden. [Versionshinweise](docs/releases/0.38.2.md).
 
-**Vorversion 0.38.1 · Android-VersionCode 49:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.1). Der automatische öffentliche WC-Service respektiert Personalabwesenheit; Hygienealterung bleibt aktiv, Kosten entstehen nur bei tatsächlicher Wartung. Enthält den vollständigen 0.38.0-Stand mit Hotelbetrieb, eigenständigem WC-Manager, Speicherverwaltung, Alpenwelt und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42360334472) bestanden. [Änderungen und Prüfgrenzen](docs/releases/0.38.1.md).
+**Ältere Version 0.38.1 · Android-VersionCode 49:** [Veröffentlichte ARM64-Preview](https://github.com/chekento/SkiZones/releases/tag/v0.38.1). Der automatische öffentliche WC-Service respektiert Personalabwesenheit; Hygienealterung bleibt aktiv, Kosten entstehen nur bei tatsächlicher Wartung. Enthält den vollständigen 0.38.0-Stand mit Hotelbetrieb, eigenständigem WC-Manager, Speicherverwaltung, Alpenwelt und Touch-Radio. [Vollständige Freigabe einschließlich Android API 30/36, Altspielständen, Signaturkontinuität und In-place-Updates](https://github.com/chekento/SkiZones/actions/runs/42360334472) bestanden. [Änderungen und Prüfgrenzen](docs/releases/0.38.1.md).
 
 | Entwicklungsstufe | Schwerpunkt | Status |
 | --- | --- | --- |
