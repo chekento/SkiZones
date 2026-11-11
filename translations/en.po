@@ -9843,3 +9843,83 @@ msgstr "✦  POSTER DISCOVERED"
 
 msgid "Aktuelle Karriere: %d von 1000 Leistungserfolgen freigeschaltet."
 msgstr "Current career: %d of 1,000 performance achievements unlocked."
+
+# 0.41 specialist resort staffing, operational rescue and finance
+
+msgid "Koch / Küchenleitung"
+msgstr "Chef / Kitchen Manager"
+
+msgid "Servicekraft / Kellner"
+msgstr "Waiter / Table Service"
+
+msgid "Barista / Kakao-Service"
+msgstr "Barista / Hot Chocolate Service"
+
+msgid "Barkeeper"
+msgstr "Bartender"
+
+msgid "Verkaufskraft"
+msgstr "Sales Associate"
+
+msgid "Skiverleih-Fachkraft"
+msgstr "Ski Rental Specialist"
+
+msgid "Skilehrer / Skilehrerin"
+msgstr "Ski Instructor"
+
+msgid "Fitnesstrainer"
+msgstr "Fitness Instructor"
+
+msgid "Schwimmaufsicht"
+msgstr "Lifeguard"
+
+msgid "Wellness-Therapeut"
+msgstr "Wellness Therapist"
+
+msgid "Fachverkäufer / Souvenir"
+msgstr "Souvenir Sales Specialist"
+
+msgid "Uhrmacher"
+msgstr "Watchmaker"
+
+msgid "Kunsthandwerker"
+msgstr "Craftsperson"
+
+msgid "Drucktechniker"
+msgstr "Print Technician"
+
+msgid "Redakteur"
+msgstr "Editor"
+
+msgid "Housekeeping"
+msgstr "Housekeeping"
+
+msgid "Hotelrezeption"
+msgstr "Hotel Receptionist"
+
+msgid "Rettungssanitäter / Behandlung"
+msgstr "Rescue Paramedic / Treatment"
+
+msgid "Diese Aufgabe passt fachlich nicht zu diesem Gebäude oder dieser Station."
+msgstr "This profession is not suitable for the selected building or station."
+
+msgid "Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege."
+msgstr "No available staffed rescue team can reach this location by a safe route."
+
+msgid "Zwei Ski-Rettungskräfte sind unterwegs. Trage, Rücktransport und Behandlung folgen."
+msgstr "Two ski rescuers are on their way. Stretcher transport and treatment will follow."
+
+msgid "Fachkräfte verbessern bei Dienstantritt die tatsächliche Besucher-Kapazität und verkürzen Servicezeiten (maximal +75 %). Die Löhne senken den Nettogewinn; nicht passende Jobs sind gesperrt."
+msgstr "Qualified staff improve actual visitor capacity and shorten service times (up to +75%). Wages reduce net profit; unsuitable jobs are unavailable."
+
+msgid "Aktuelle Service-Effizienz: %.0f %% · nur passende Berufe und aktive Schichten zählen"
+msgstr "Current service efficiency: %.0f %% · only matching professions on active shifts count"
+
+msgid "Zwei Skiretter auf dem Hinweg · %.0f Minuten"
+msgstr "Two ski rescuers heading to the incident · %.0f minutes"
+
+msgid "Verletzter auf Trage im Rücktransport · %.0f Minuten"
+msgstr "Patient returning on a stretcher · %.0f minutes"
+
+msgid "Behandlung in der Bergwacht · %.0f Minuten"
+msgstr "Treatment at mountain rescue station · %.0f minutes"
