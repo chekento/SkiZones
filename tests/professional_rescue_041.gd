@@ -5,6 +5,7 @@ extends SceneTree
 const Resort=preload("res://src/core/resort.gd")
 const Ops=preload("res://src/core/operations.gd")
 const Terrain=preload("res://src/core/terrain.gd")
+const DayRhythm=preload("res://src/core/day_rhythm.gd")
 var passed:=0
 var failed:=0
 
@@ -118,6 +119,10 @@ func run()->void:
 	}
 	model.operations.incidents=[incident]
 	var wages_before:float=float(model.operations.cost_centres.get("building:%d" % int(aid.id),0.0))
+	model.time_divisor=24
+	model.minute=1200
+	check(not DayRhythm.quiet_night(model),"A live rescue cannot be erased by the 20:00 fast night skip")
+	model.minute=1085
 	Ops.tick(model)
 	check(incident.status=="returning","Rescue arrival starts stretcher return rather than instant heal")
 	Ops.tick(model)
