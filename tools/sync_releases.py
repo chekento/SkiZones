@@ -59,6 +59,20 @@ def badge(count):
 <text x="160" y="17" text-anchor="end" fill="#9be0cb" font-family="Arial,sans-serif" font-size="12" font-weight="700">{count}</text></svg>\n'''
 
 
+
+def update_download_banner_version(tag):
+    """Show only the actually published APK version on the top hero banner."""
+    if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
+        raise ValueError('Unexpected SkiZones release tag: ' + repr(tag))
+    path = Path('docs/images/download-apk.svg')
+    banner = path.read_text(encoding='utf-8')
+    pattern = r'(<text x="1134" y="120"[^>]*>)[^<]*(</text>)'
+    result, count = re.subn(pattern, lambda m: m[1] + html.escape(tag) + m[2], banner)
+    if count != 1:
+        raise ValueError('Expected exactly one top banner version label')
+    path.write_text(result, encoding='utf-8')
+
+
 def version_sort_key(tag):
     match = re.fullmatch(r'v?(\d+)\.(\d+)\.(\d+)', tag)
     return tuple(map(int, match.groups())) if match else (-1, -1, -1)
@@ -220,6 +234,7 @@ def sync(snapshot=None, ski=False):
         Path('README.md').write_text(text)
         Path('CHANGELOG.md').write_text(complete_changelog(ski_rows))
         Path('docs/images').mkdir(parents=True, exist_ok=True)
+        update_download_banner_version(release['tag'])
         Path('docs/images/apk-downloads.svg').write_text(badge(release['total']))
         Path('docs/downloads.json').write_text(json.dumps(release, indent=2)+'\n')
         print(f"SkiZones: {release['tag']}, {release['total']} APK downloads")
