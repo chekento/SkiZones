@@ -8,19 +8,30 @@ const FACILITIES := {
 	"driver":["maintenance"], "rescue":["first_aid"], "snow":["snowmaker"],
 	"hotel":["hotel","grand_hotel","guesthouse","chalet","apartment","cabin"],
 	"catering":["restaurant","pizzeria","bar","cocoa","schmarrn","kiosk","lodge"],
-	"security":[]
+	"security":[],
+	"chef":["restaurant","lodge","pizzeria","schmarrn","hotel","grand_hotel","guesthouse"],
+	"waiter":["restaurant","lodge","pizzeria","schmarrn","cocoa"],
+	"barista":["cocoa"],"bartender":["bar","disco"],"vendor":["kiosk","newsstand"],
+	"rental_specialist":["rental"],"ski_instructor":["school"],"fitness_trainer":["fitness"],
+	"lifeguard":["pool"],"therapist":["spa"],"shop_assistant":["souvenir"],
+	"watchmaker":["watchmaker"],"artisan":["craftshop"],"printer":["printing_press"],
+	"editor":["printing_press"],"housekeeper":["hotel","grand_hotel","guesthouse"],
+	"receptionist":["hotel","grand_hotel"],"medic":["first_aid"]
 }
 static func market(model: RefCounted) -> Array:
 	var result: Array=[]
-	var roles: Array=Ops.ROLES.keys()
-	for i in range(NAMES.size()):
-		var role: String=str(roles[i % roles.size()])
-		var level: int=1 if i < roles.size() else 2
+	# Keep the historic 18 candidate IDs and their original professions.
+	# Append specialist applicants instead of silently changing an old hire.
+	var legacy_roles:Array=["operator","technician","electrician","driver","rescue","snow","hotel","catering","security","sanitation"]
+	var specialties:Array=Ops.ROLES.keys().filter(func(role):return role not in legacy_roles)
+	for i in range(NAMES.size()+specialties.size()):
+		var role:String=str(legacy_roles[i % legacy_roles.size()]) if i<NAMES.size() else str(specialties[i-NAMES.size()])
+		var level:int=1 if i<legacy_roles.size() or i>=NAMES.size() else 2
 		var id: String="applicant-%02d" % i
 		var reason: String=gate(model,role,level)
 		var already: bool=model.operations.staff.any(func(p):return str(p.get("applicant_id",""))==id)
 		result.append({
-			"id":id,"name":NAMES[i],"role":role,"qualification":level,
+			"id":id,"name":NAMES[i%NAMES.size()] if i<NAMES.size() else NAMES[i%NAMES.size()]+" · "+str(Ops.ROLES[role].name),"role":role,"qualification":level,
 			"experience":2+i*3,"motivation":77+(i%5)*4,
 			"specialty": ["Gästebetreuung","Sicherheitsroutinen","Nachtdienst","Bergwetter","Teamkoordination","Technikdiagnose"][i%6],
 			"fee":180 if level==1 else 380,
