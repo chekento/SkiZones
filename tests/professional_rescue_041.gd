@@ -25,7 +25,7 @@ func run()->void:
 		"school":["ski_instructor"],"rental":["rental_specialist"],
 		"fitness":["fitness_trainer"],"watchmaker":["watchmaker"],
 		"craftshop":["artisan"],"printing_press":["printer"],
-		"newsstand":["vendor"],"pool":["lifeguard"],"spa":["therapist"],
+		"newsstand":["vendor"],"pool":["lifeguard","security"],"spa":["therapist","security"],
 		"first_aid":["rescue","rescue"]
 	}
 	for kind in professions:
