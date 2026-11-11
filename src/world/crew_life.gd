@@ -15,6 +15,7 @@ var lodge_point := Vector2.INF
 var staff_mesh: MultiMeshInstance3D
 var emergency_mesh: MultiMeshInstance3D
 var stretcher_mesh: MultiMeshInstance3D
+var casualty_mesh: MultiMeshInstance3D
 var route_cache: Dictionary={}
 var rescue_durations: Dictionary={}
 var snapshot_revision := -1
@@ -123,6 +124,22 @@ static func rescue_mesh(style:String,loaded:bool=false)->ArrayMesh:
 		art.box(Vector3(0,2.11,-1.93),Vector3(1.00,0.27,0.85),Color("cfd9e5"))
 	return art.finish()
 
+## A skier lies at the real collision position until the pair arrives;
+## the same patient is then drawn only on the return stretcher.
+static func casualty_mesh_geometry(style:String)->ArrayMesh:
+	if style=="monochrome":
+		var lines:=Lines.new()
+		lines.box(Vector3(0,0.38,0),Vector3(1.35,0.40,2.9))
+		lines.circle(Vector3(0,0.50,-1.65),0.45)
+		return lines.finish()
+	var art:=Art.new()
+	art.box(Vector3(0,0.48,0.1),Vector3(1.25,0.58,2.5),Color("4783ae"))
+	art.sphere(Vector3(0,0.59,-1.50),0.48,Color("e5c5ad"))
+	art.box(Vector3(0,0.86,-1.53),Vector3(1.1,0.24,0.92),Color("db5039"))
+	for x in [-0.40,0.40]:
+		art.box(Vector3(x,0.18,2.1),Vector3(0.24,0.18,3.5),Color("354955"))
+	return art.finish()
+
 static func lodge_mesh(style: String) -> ArrayMesh:
 	if style!="alpine":return Assets.building("hotel",1,Color(str(Styles.detail_tints(style).wood)),style)
 	var art:=Art.new()
@@ -186,6 +203,12 @@ func build(view: Node3D) -> void:
 	stretcher_mesh.multimesh=view._multimesh(return_scene,MAX_VISIBLE_RESCUE)
 	stretcher_mesh.multimesh.visible_instance_count=0
 	root.add_child(stretcher_mesh)
+	var casualty_art:=casualty_mesh_geometry(view.visual_style)
+	casualty_art.surface_set_material(0,view._solid)
+	casualty_mesh=MultiMeshInstance3D.new()
+	casualty_mesh.multimesh=view._multimesh(casualty_art,MAX_VISIBLE_RESCUE)
+	casualty_mesh.multimesh.visible_instance_count=0
+	root.add_child(casualty_mesh)
 
 func _person_pos(view: Node3D, staff: Dictionary) -> Vector2:
 	var destination_value:Vector2=destination(view.model,staff)
@@ -234,6 +257,16 @@ func update(view: Node3D,delta: float) -> void:
 			staff_mesh.multimesh.set_instance_color(amount,Color.WHITE)
 			amount+=1
 	staff_mesh.multimesh.visible_instance_count=amount
+	var stranded_count:=0
+	for case in view.model.operations.incidents:
+		if str(case.get("status","")) not in ["waiting","responding"]:continue
+		if stranded_count>=MAX_VISIBLE_RESCUE:break
+		var stranded:Vector2=Terrain.unpack(case.point)
+		if stranded.distance_to(view.focus)>maxf(view.zoom*2.0,240.0):continue
+		casualty_mesh.multimesh.set_instance_transform(stranded_count,Transform3D(Basis.IDENTITY,view.terrain.world(stranded,0.12)))
+		casualty_mesh.multimesh.set_instance_color(stranded_count,Color.WHITE)
+		stranded_count+=1
+	casualty_mesh.multimesh.visible_instance_count=stranded_count
 	var outbound_count:=0
 	var transport_count:=0
 	for incident in view.model.operations.incidents:
