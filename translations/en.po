@@ -9923,3 +9923,9 @@ msgstr "Patient returning on a stretcher · %.0f minutes"
 
 msgid "Behandlung in der Bergwacht · %.0f Minuten"
 msgstr "Treatment at mountain rescue station · %.0f minutes"
+
+msgid "Die Bergwacht ist noch im Rettungseinsatz und kann nicht abgebaut werden."
+msgstr "The mountain rescue station cannot be demolished while its crew is treating or transporting a casualty."
+
+msgid "Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."
+msgstr "The rescue worker remains on duty until the patient is discharged."
