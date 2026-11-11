@@ -6,6 +6,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const Mountain = preload("res://src/core/mountain.gd")
 const Maps = preload("res://src/core/maps.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
@@ -16,6 +17,7 @@ const Edit = preload("res://src/core/resort_edit.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
+const GuestRhythm = preload("res://src/core/guest_daily_rhythm.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
 const Access=preload("res://src/core/resort_access.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
@@ -702,11 +704,16 @@ func asset(id: int) -> Dictionary:
 func set_enabled(id: int, enabled: bool) -> void:
 	var item := asset(id)
 	if not item.is_empty():
+		# Never strand a stretcher team / casualty by closing its clinic.
+		if not enabled and str(item.get("kind",""))=="first_aid" and operations.incidents.any(func(e):return int(e.get("station",-1))==id and str(e.get("status","")) in ["responding","returning","treating"]):
+			return
 		item.enabled = enabled
 		_invalidate()
 		_reroute_guests(true)
 
 func demolish(id: int) -> Dictionary:
+	if operations.incidents.any(func(e):return int(e.get("station",-1))==id and str(e.get("status","")) in ["responding","returning","treating"]):
+		return _result(false,L.text("Die Bergwacht ist noch im Rettungseinsatz und kann nicht abgebaut werden."))
 	# Do not strand linear hotel wings or remove their host while modules exist.
 	for building in buildings:
 		var a: Dictionary=building.get("hotel_attachment",{})
@@ -1321,7 +1328,10 @@ func service_load(id: int, excluding: int = -1) -> int:
 
 func service_capacity(building: Dictionary) -> int:
 	if PublicWC.is_public(str(building.kind)):return int(PublicWC.specification(building).units)
-	return int(Needs.SERVICES.get(building.kind, {}).get("places",0) * (1 + (building.get("level",1)-1)*0.5))
+	var base_places:float=float(Needs.SERVICES.get(building.kind, {}).get("places",0))*(1.0+(float(building.get("level",1))-1.0)*0.5)
+	# Optional qualified professionals raise real bookable capacity; payroll
+	# remains an operating expense and only actual visits produce revenue.
+	return ceili(base_places*Ops.service_efficiency(self,building))
 
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if (not Ops.continuous(self) and minute >= CLOSING) or guest.get("heading_home",false): return {}
@@ -1331,7 +1341,10 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var best_score := 0.0
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
+		# A weak, time-dependent meal preference adds human routine without
+		# bypassing personal hunger, cooldown, route, capacity or opening checks.
 		var utility := Needs.utility(guest,building.kind)
+		utility += GuestRhythm.utility_bonus(guest,str(building.kind),minute)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
@@ -1349,7 +1362,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		var home := _shortest(graph,door_key,"base")
 		if not outbound.ok or not home.ok: continue
 		var entrance := Terrain.pack(Foot.door(building))
-		var visit_minutes: float = Needs.SERVICES[building.kind].minutes
+		var visit_minutes: float = float(Needs.SERVICES[building.kind].minutes) / Ops.service_efficiency(self,building)
 		if restroom:visit_minutes=(float(reservation.minutes)+float(reservation.wait))*time_divisor
 		if night_activity:
 			var travel: float=route_minutes({"legs":outbound.legs+home.legs},guest)
@@ -2113,7 +2126,14 @@ func guest_position(guest: Dictionary, fraction_tick: float = 0.0, unconstrained
 		return terrain.world(point+Vector2(float(int(guest.id)%3)-1,float(int(guest.id)%5)*0.35),0.12)
 	if guest.get("incident", -1) >= 0:
 		for event in operations.incidents:
-			if int(event.id) == int(guest.incident): return terrain.world(Terrain.unpack(event.point), 0.3)
+			if int(event.id) == int(guest.incident):
+				var place:Vector2=Terrain.unpack(event.point)
+				# Victims remain at the incident until the two rescuers arrive.
+				# On the return trip the person moves with the stretcher;
+				# during treatment they wait at the first-aid station.
+				if str(event.get("status","")) in ["returning","treating"]:
+					place=Ops.rescue_location(self,event)
+				return terrain.world(place,0.3)
 	if guest.phase == "leaving":
 		return terrain.world(Terrain.BASE)
 	var leg: Dictionary = guest.route.legs[guest.leg]
@@ -2534,11 +2554,13 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				break
 			if not Terrain.number(data[key].get(field)) or data[key][field] < 0:
 				return invalid
-	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL:
+	# One additional special achievement lives directly after the immutable
+	# 1,000-tier catalogue; all old IDs and stored arrays stay unchanged.
+	if data.achievements.size() > AchievementBook.START_ID + AchievementBook.TOTAL + 1:
 		return invalid
 	var achievement_seen := {}
 	for achievement in data.achievements:
-		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement >= AchievementBook.START_ID + AchievementBook.TOTAL or achievement_seen.has(int(achievement)):
+		if not Terrain.number(achievement) or int(achievement) != achievement or achievement < 0 or achievement > AchievementBook.POSTER_COLLECTOR_ID or achievement_seen.has(int(achievement)):
 			return invalid
 		achievement_seen[int(achievement)] = true
 	if not data.get("rng_seed") is String or not data.get("rng_state") is String or not data.rng_seed.is_valid_int() or not data.rng_state.is_valid_int():
@@ -2581,6 +2603,8 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 	_invalidate()
 	if not Progression.restore(self, data.get("campaign")):
 		return invalid
+	# Never accept a forged completed-poster medal without all ten unique IDs.
+	if achievements.has(AchievementBook.POSTER_COLLECTOR_ID) and PosterCollection.progress(self).found != PosterCollection.total():return invalid
 	invalid.message=L.text("Der Spielstand ist unvollständig oder beschädigt.")+" · Gäste"
 	var occupied_seats: Dictionary = {}
 	var saved_routes: Variant = data.get("itineraries", [])

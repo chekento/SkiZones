@@ -22,13 +22,16 @@ func fresh() -> RefCounted:
 
 func run() -> void:
 	var model: RefCounted = fresh()
-	model.minute=1320
+	model.minute=DayRhythm.QUIET_FROM-1
 	model._operational_change()
-	check(model.empty_night(),"No visitors: quiet calendar starts at 22:00")
+	check(not model.empty_night(),"No accelerated night before 20:00")
+	model.minute=DayRhythm.QUIET_FROM
+	model._operational_change()
+	check(model.empty_night(),"Empty resort permits safe night forwarding from 20:00")
 	var tickets: float=model.report.tickets
 	var visitors: int=model.total_guests
 	var old_day: int=model.day
-	for i in range(1440 - 1320 + model.OPENING - 1):
+	for i in range(1440-DayRhythm.QUIET_FROM+model.OPENING-1):
 		if not model.advance_empty_minute(): break
 	check(model.day==old_day+1 and model.minute==model.OPENING-1,"Night skips to one minute before the actual lift opening without stalling")
 	check(model.total_guests==visitors and model.report.tickets==tickets and model.guests.is_empty(),"Quiet-night demand creates no ghost guests and charges no imaginary ticket")
@@ -94,10 +97,10 @@ func _ten_nights() -> void:
 		var before_day: int = model.day
 		var arrivals: int = model.total_guests
 		var steps: int = 0
-		while model.empty_night() and steps < 700:
+		while model.empty_night() and steps < 1440-DayRhythm.QUIET_FROM+model.OPENING+25:
 			model.advance_empty_minute()
 			steps += 1
-		check(steps == 600 and model.day == before_day + 1 and model.minute == model.OPENING, "Night %d reaches opening through exactly one midnight settlement" % (night + 1))
+		check(steps == 1440-DayRhythm.QUIET_FROM+model.OPENING and model.day == before_day + 1 and model.minute == model.OPENING, "Night %d reaches opening through exactly one midnight settlement" % (night + 1))
 		check(model.total_guests == arrivals and model.guests.is_empty() and model.report.tickets == 0, "Night %d never invents visitors or ticket income without a viable route" % (night + 1))
 		check(int(model.operations.pending_arrivals) <= 24, "Night %d keeps unsatisfied demand bounded" % (night + 1))
 		var restored: RefCounted = Resort.new()

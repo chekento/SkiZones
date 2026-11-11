@@ -29,6 +29,7 @@ const AudioDesign = preload("res://src/core/audio_design.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const WinterFestival = preload("res://src/ui/winter_festival.gd")
 const SeasonalPoster = preload("res://src/ui/seasonal_poster.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const MedalCabinet = preload("res://src/ui/medal_cabinet.gd")
 const Scenarios = preload("res://src/ui/scenarios.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
@@ -1678,7 +1679,8 @@ func show_report() -> void:
 
 
 func show_seasonal_poster(artwork: String = "") -> void:
-	seasonal_poster.open(game.preferences.visual_style,artwork)
+	var collected: Dictionary=PosterCollection.progress(game.model)
+	seasonal_poster.open(game.preferences.visual_style,artwork,int(collected.found),int(collected.total))
 
 func _open_community_url(address: String) -> void:
 	# Only open the external destination following an explicit player action.

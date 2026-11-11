@@ -4,6 +4,7 @@ const Geo = preload("res://src/core/real_resorts.gd")
 const Ops = preload("res://src/core/operations.gd")
 const DayRhythm = preload("res://src/core/day_rhythm.gd")
 const Resort = preload("res://src/core/resort.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const ResortAudio=preload("res://src/world/resort_audio.gd")
 const Progression = preload("res://src/core/progression.gd")
 const L = preload("res://src/core/i18n.gd")
@@ -186,7 +187,11 @@ func _process(delta: float) -> void:
 	_refresh_timer += delta
 	if _refresh_timer >= 0.4:
 		_refresh_timer = 0.0
-		hud.refresh()
+		# Main/office/fullscreen building menus pause the simulation and
+		# manage their own callbacks. Do not rebuild live HUD diagnostics
+		# repeatedly behind opaque overlays on low-end Android devices.
+		if not hud.menu.visible and not hud.management.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen):
+			hud.refresh()
 
 func simulation_running() -> bool:
 	return has_game and not _app_background and not paused and points.is_empty() and not _stroke_drawn and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
@@ -469,9 +474,9 @@ func show_menu() -> void:
 
 func _save_state_marker() -> String:
 	# Lightweight change signature; never serialize the full mountain each frame.
-	return "%d/%d/%d/%d/%d/%d/%d/%.2f/%d/%d/%d" % [model.revision, model.day, model.minute, model.clock_steps, model.motion_tick, model.total_guests, model.total_rides, float(model.money), model.pistes.size(), model.lifts.size(), model.buildings.size()]
+	return "%d/%d/%d/%d/%d/%d/%d/%.2f/%d/%d/%d/%d" % [model.revision, model.day, model.minute, model.clock_steps, model.motion_tick, model.total_guests, model.total_rides, float(model.money), model.pistes.size(), model.lifts.size(), model.buildings.size(), PosterCollection.progress(model).found]
 
-func save_game() -> bool:
+func save_game(show_feedback: bool = true) -> bool:
 	if has_game:
 		# Freeze only the bounded visible snow-wear state alongside the same
 		# checksum-protected resort snapshot. Old versions remain readable.
@@ -489,7 +494,7 @@ func save_game() -> bool:
 			app_session.save(self)
 		else:
 			_save_failed = true
-		hud.toast(result.message)
+		if show_feedback or not result.ok:hud.toast(result.message)
 		hud.refresh()
 		return result.ok
 	return false
@@ -852,7 +857,16 @@ func _map_tap(position_value: Vector2) -> void:
 		# November noticeboards are non-physical and do not alter the career.
 		# A direct tap opens their original/fallback artwork at full screen.
 		if view.festival_scene.hit_poster(point):
-			hud.show_seasonal_poster(view.festival_scene.poster_art_at(point))
+			var artwork: String=view.festival_scene.poster_art_at(point)
+			var discovery: Dictionary=PosterCollection.discover(model,artwork)
+			# Preview the exact board image, not the first texture in the pool.
+			hud.show_seasonal_poster(artwork)
+			if discovery.is_new:
+				for event in discovery.events:
+					hud.achievement_overlay.announce(event)
+				# Poster progress is real career data, not a session-only badge.
+				# Defer verified save I/O until after the tap and overlay open.
+				call_deferred("save_game",false)
 			return
 		var visitor: int = view.pick_guest(position_value)
 		if visitor != -1:

@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
 const CreditService = preload("res://src/core/credit_service_035.gd")
 const XP_STEPS := [0, 800, 2400, 6000, 12000]
@@ -402,6 +403,10 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	if not value is Dictionary or value.get("version") != 1 or value.get("mode") not in ["career", "free"]:
 		return false
 	var state: Dictionary = value.duplicate(true)
+	# The 0.41 collection is optional: old v0.19–0.40.1 snapshots have no
+	# poster_discoveries key and remain byte-for-byte valid on first load.
+	# Reject spoofed/unknown IDs and duplicates rather than mutating saves.
+	if state.has("poster_discoveries") and not PosterCollection.valid(state.poster_discoveries):return false
 	# Preserve byte-for-byte legacy campaign fields at the moment of load.
 	# Old careers use an implicit rank until their next normal progress tick;
 	# only a truly stored mastery rank requires separate validation.

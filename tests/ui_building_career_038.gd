@@ -43,7 +43,7 @@ func run() -> void:
 	for index in range(crew_tabs.get_tab_count()):
 		if crew_tabs.get_tab_title(index)==game.hud.L.text("Personal"):crew_tabs.current_tab=index
 	await settle()
-	check(crew.find_child("optional_hotel",true,false)!=null and crew.find_child("optional_security",true,false)!=null,"Optional hotel staff have direct hire buttons separate from mandatory team")
+	check(crew.find_child("optional_hotel",true,false)!=null and crew.find_child("optional_housekeeper",true,false)!=null and crew.find_child("optional_receptionist",true,false)!=null,"Hotel can hire professionally appropriate optional front desk and housekeeping staff")
 	for index in range(crew_tabs.get_tab_count()):
 		if crew_tabs.get_tab_title(index)==game.hud.L.text("Gestalten"):crew_tabs.current_tab=index
 	await settle()

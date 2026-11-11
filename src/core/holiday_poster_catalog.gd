@@ -35,6 +35,18 @@ static func available(stage: String) -> Array:
 		if ResourceLoader.exists(path):result.append(path)
 	return result
 
+## Show a varied six-picture selection every local calendar day. A circular
+## shift by six guarantees that all nine Christmas/Advent textures appear
+## within two days, but the New-Year image stays behind its real date gate.
+static func visible_on_day(stage: String, day: int, boards: int = 6) -> Array:
+	var collection: Array=available(stage)
+	var selected: Array=[]
+	if collection.is_empty() or boards<1:return selected
+	var offset: int=posmod((maxi(1,day)-1)*boards,collection.size())
+	for i in range(mini(boards,collection.size())):
+		selected.append(collection[(offset+i)%collection.size()])
+	return selected
+
 static func is_advent(path: String) -> bool:
 	return path in ADVENT
 

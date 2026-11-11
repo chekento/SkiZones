@@ -1,11 +1,13 @@
 extends PanelContainer
 const OperatingPages = preload("res://src/ui/operating_pages.gd")
+const Ops = preload("res://src/core/operations.gd")
 const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
 
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
+const PosterCollection = preload("res://src/core/poster_collection.gd")
 const Sponsorship = preload("res://src/core/sponsorship.gd")
 const LoanOptions = preload("res://src/core/loan_options_035.gd")
 const StartTiers = preload("res://src/core/start_tiers.gd")
@@ -27,6 +29,11 @@ var staff_page := 0
 var candidate_page := 0
 var selected_achievement_track := 0
 var notification_filter := "all"
+var _page_bodies: Dictionary={}
+var _operating_layout := false
+var _page_language := ""
+var _building_tabs := false
+var _rendering_page := false
 
 func setup(controller: Node, interface: CanvasLayer) -> void:
 	game = controller
@@ -63,6 +70,7 @@ func setup(controller: Node, interface: CanvasLayer) -> void:
 	layout.add_child(tabs)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	_apply_responsive_layout(get_viewport().get_visible_rect().size.x)
+	tabs.tab_changed.connect(_tab_selected)
 	hide()
 
 func _on_viewport_size_changed() -> void:
@@ -87,10 +95,40 @@ func open() -> void:
 	game._clear_input()
 	_feedback = ""
 	Progression.refresh(game.model)
-	refresh()
+	_ensure_pages()
 	show()
+	refresh()
+
+## Page shells are cheap. Building all thirteen panels (including hundreds of
+## research/staffing controls) was blocking the Android UI on every opening.
+func _ensure_pages() -> void:
+	var operating: bool=Ops.active(game.model)
+	# Language changes invalidate translated tab keys. Recreate only the
+	# inexpensive empty shells, not their expensive research/staff content.
+	if not _page_bodies.is_empty() and _operating_layout==operating and _page_language==L.language:return
+	var desired: int=clampi(tabs.current_tab,0,12)
+	_building_tabs=true
+	for child in tabs.get_children():
+		tabs.remove_child(child)
+		child.queue_free()
+	_page_bodies.clear()
+	_operating_layout=operating
+	_page_language=L.language
+	for title_value in ["Karriere","Erfolge","Aufträge","Forschung","Ausbau","Finanzen","Sponsoring"]:
+		_page(L.text(title_value))
+	if operating:
+		for title_value in ["Betrieb","Personal","Bewerbermarkt","Technik & Rettung","Kostenstellen"]:
+			_page(L.text(title_value))
+	_page(L.text("Meldungen"))
+	tabs.current_tab=mini(desired,tabs.get_tab_count()-1)
+	_building_tabs=false
+
+func _tab_selected(_index: int) -> void:
+	if not _building_tabs:refresh()
 
 func _page(name_value: String) -> VBoxContainer:
+	if _page_bodies.has(name_value) and is_instance_valid(_page_bodies[name_value]):
+		return _page_bodies[name_value]
 	var scroll := DragScroll.new()
 	scroll.name = name_value
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -100,7 +138,9 @@ func _page(name_value: String) -> VBoxContainer:
 	for side in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 15)
 	scroll.add_child(margin)
-	return hud._vbox(margin, 14)
+	var body: VBoxContainer=hud._vbox(margin,14)
+	_page_bodies[name_value]=body
+	return body
 
 func _card(parent: Node, heading: String, text_value: String) -> VBoxContainer:
 	var panel := PanelContainer.new()
@@ -123,30 +163,38 @@ func _action(parent: Node, caption: String, callback: Callable, enabled: bool = 
 	button.disabled = not enabled
 	return button
 
+## Only the selected office tab is rebuilt. Open and tab switches do not
+## recreate hidden financial, staffing, research and achievement catalogues.
 func refresh() -> void:
-	var current := maxi(0, tabs.current_tab)
-	var scroll_positions: Dictionary = {}
-	for page in tabs.get_children():
-		if page is ScrollContainer:
-			scroll_positions[page.name] = page.scroll_vertical
-		tabs.remove_child(page)
-		page.queue_free()
-	var state: Dictionary = game.model.campaign
+	if _rendering_page:return
+	_ensure_pages()
+	var current: int=maxi(0,tabs.current_tab)
+	if current>=tabs.get_tab_count():return
+	_rendering_page=true
+	var state: Dictionary=game.model.campaign
 	title.text = L.text("RESORT-BÜRO  ·  %s  ·  %d FP") % L.args(["★".repeat(state.rank), state.points])
 	feedback.text = _feedback if _feedback != "" else Progression.notice_text(state)
-	_career(_page(L.text("Karriere")))
-	_achievements(_page(L.text("Erfolge")))
-	_contracts(_page(L.text("Aufträge")))
-	_research(_page(L.text("Forschung")))
-	_upgrades(_page(L.text("Ausbau")))
-	_finances(_page(L.text("Finanzen")))
-	_sponsoring(_page(L.text("Sponsoring")))
-	OperatingPages.add(self)
-	_notifications(_page(L.text("Meldungen")))
-	tabs.current_tab = mini(current, tabs.get_tab_count() - 1)
-	for page in tabs.get_children():
-		if page is ScrollContainer:
-			page.set_deferred("scroll_vertical", scroll_positions.get(page.name, 0))
+	var scroll: ScrollContainer=tabs.get_child(current) as ScrollContainer
+	var page: VBoxContainer=_page_bodies[str(scroll.name)]
+	var old_offset: int=scroll.scroll_vertical
+	for child in page.get_children():
+		page.remove_child(child)
+		child.queue_free()
+	match current:
+		0: _career(page)
+		1: _achievements(page)
+		2: _contracts(page)
+		3: _research(page)
+		4: _upgrades(page)
+		5: _finances(page)
+		6: _sponsoring(page)
+		_:
+			if _operating_layout and current>=7 and current<12:
+				OperatingPages.add(self,current-7)
+			else:
+				_notifications(page)
+	scroll.set_deferred("scroll_vertical",old_offset)
+	_rendering_page=false
 
 ## The user's session notification center: safe to open and filter by type.
 ## Only transient UI history is stored here; financial and mission truth remains
@@ -240,9 +288,24 @@ func _achievements(page: VBoxContainer) -> void:
 	for id in model.achievements: earned[int(id)] = true
 	var expanded := 0
 	for id in model.achievements:
-		if int(id) >= AchievementBook.START_ID: expanded += 1
+		if int(id) >= AchievementBook.START_ID and int(id) < AchievementBook.START_ID + AchievementBook.TOTAL: expanded += 1
 	_card(page, L.text("1.000 ERFOLGE · %d / 1.000 FREIGESCHALTET") % L.args(expanded),
 		L.text("20 Themen mit jeweils 50 echten Zielen. Jeder neue Erfolg bringt eine kleine Bauprämie. Alle Errungenschaften bleiben im Spielstand erhalten."))
+	# A separate, actual collector achievement does not change the existing
+	# 1,000 milestones or their numeric IDs.
+	var discovered: Dictionary=PosterCollection.progress(model)
+	var collector: VBoxContainer=_card(page,L.text("Winterplakat-Sammler"),
+		L.text("%d von %d unterschiedlichen Festtagsplakaten entdeckt") % L.args([discovered.found,discovered.total]))
+	var collection_progress:=ProgressBar.new()
+	collection_progress.max_value=maxi(1,int(discovered.total))
+	collection_progress.value=int(discovered.found)
+	collection_progress.show_percentage=false
+	collection_progress.custom_minimum_size.y=21
+	collector.add_child(collection_progress)
+	if model.achievements.has(AchievementBook.POSTER_COLLECTOR_ID):
+		hud._label(collector,L.text("Achievement freigeschaltet!"),17,hud.TEAL,true)
+	else:
+		hud._label(collector,L.text("Finde die unterschiedlichen Motive auf den Plakattafeln an den Pisten."),15,hud.MUTED,true)
 	var picker := OptionButton.new()
 	picker.custom_minimum_size.y = 52
 	for track in AchievementBook.TRACKS:

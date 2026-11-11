@@ -1259,7 +1259,8 @@ func _process(delta: float) -> void:
 			data.glass.visible = shown
 		if not shown:
 			continue
-		var clock: float = lift.get("clock", 0.0) + (simulation_fraction if model.lift_running(lift) else 0.0)
+		var target_clock: float=float(lift.get("clock",0.0))+(simulation_fraction if model.lift_running(lift) else 0.0)
+		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift))
 		var changed: bool = not is_equal_approx(data.clock, clock)
 		var profile: Dictionary=model.cable_profile(lift) if changed else {}
 		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
@@ -1310,6 +1311,18 @@ func _process(delta: float) -> void:
 	for key in _equipment: equipment_counts[key] = 0
 	for guest in model.guests:
 		if guest.phase == "leaving" or (guest.phase=="waiting" and guest.get("waiting_reason","")=="hotel"):
+			continue
+		# The model freezes an injured skier. Never let the regular piste
+		# motion renderer keep skiing while the actual casualty is waiting,
+		# on the stretcher or being treated in the mountain clinic. CrewLife
+		# renders a prone patient at the scene and on the return stretcher.
+		if int(guest.get("incident",-1))>=0:
+			var casualty_position:Vector3=model.guest_position(guest)
+			next_positions[guest.id]=casualty_position
+			if follow_guest==int(guest.id):
+				_follow_position=_follow_position.lerp(casualty_position,minf(1.0,delta*7.0)) if camera_smoothing and delta>0.0 and _follow_position.is_finite() else casualty_position
+				focus=Vector2(_follow_position.x,_follow_position.z)
+				_update_camera()
 			continue
 		var position_value := Vector3.ZERO
 		var angle := 0.0
@@ -1524,7 +1537,15 @@ func pick_guest(point: Vector2) -> int:
 	return id
 
 func _draw_family_member(guest: Dictionary, index: int, counts: Dictionary, equipment: Dictionary) -> void:
-	var pose: Dictionary = model.family_pose(guest, index, simulation_fraction)
+	var member_fraction: float=simulation_fraction
+	if int(guest.leg)<guest.route.legs.size():
+		var current_leg: Dictionary=guest.route.legs[int(guest.leg)]
+		if str(current_leg.kind)=="lift" and index<int(guest.get("ride_manifest",[]).size()):
+			var carrier_data: Dictionary=_vehicle_sets.get(int(current_leg.id),{})
+			var lift: Dictionary=model.asset(int(current_leg.id))
+			if not carrier_data.is_empty() and not lift.is_empty() and carrier_data.node.visible:
+				member_fraction=float(carrier_data.clock)-float(lift.get("clock",0.0))
+	var pose: Dictionary = model.family_pose(guest, index, member_fraction)
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	var at: Vector3 = pose.position
 	if leg.kind == "ski":

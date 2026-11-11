@@ -1,0 +1,71 @@
+name: 0.41 Guest Daily Rhythm – family meals and full-day ski use
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: guest-rhythm-041-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  meal-rhythm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile and import
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          p = subprocess.run([os.environ["GODOT_BIN"], "--headless", "--editor", "--import", "--quit"], capture_output=True, text=True, timeout=180)
+          print(p.stdout+p.stderr)
+          raise SystemExit(1 if p.returncode or "SCRIPT ERROR" in p.stdout+p.stderr else 0)
+          PY
+      - name: 0.41 lift animation clock, speed downshift and 20:00 night boundary
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-lift-pacing-041
+        run: |
+          python3 tools/run_godot_test.py --timeout 160 -- "$GODOT_BIN" --language de --headless --script tests/lift_frame_pacing_041.gd
+          python3 tools/run_godot_test.py --timeout 200 -- "$GODOT_BIN" --language de --headless --script tests/quiet_night_033.gd
+      - name: 0.41 non-blocking resort office and building catalog transitions
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-ui-041
+        run: xvfb-run -a -s '-screen 0 1280x960x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 900x900 --script tests/menu_lift_performance_041.gd
+      - name: 0.41 ten original poster discoveries, bilingual notifications and historic saves
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-poster-collection-041
+        run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/poster_collection_041.gd
+      - name: 0.41 needs-driven meal hours and save isolation
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-rhythm-041
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/guest_daily_rhythm_041.gd
+      - name: 0.41 specialist professions, staffing economics and multi-stage rescue
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-professional-rescue-041
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/professional_rescue_041.gd
+      - name: Existing family, routing and economy regression
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-regression-041
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd
+          python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
+      - name: Non-destructive 0.38.2 to 0.41 save repair regression
+        env:
+          # Existing repair test intentionally rejects non-isolated test dirs.
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-repair-0382-041
+        run: python3 tools/run_godot_test.py --timeout 210 -- "$GODOT_BIN" --language de --headless --script tests/save_repair_0382.gd
+      # Old 0.19/0.27 production downloads require real historical fixtures;
+      # these are exercised by the existing Validate and build Android gate.

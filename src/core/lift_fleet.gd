@@ -90,12 +90,34 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 	if family(lift) == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
 	return {"transform": Transform3D(body_basis, origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
 
+## Cable samples are cumulative, sorted distances. Binary lookup avoids
+## scanning every pylon for every gondola/chair every rendered frame.
+## Keep the exact same linear interpolation used by the physical schedule.
+## The simulation remains authoritative. After a long Android frame or an
+## 8x -> 1x downshift, release accumulated visual distance over several frames
+## instead of drawing a frozen carrier followed by a multi-metre jump.
+## A stopped or reset cable synchronizes exactly to the simulation.
+static func visual_clock(previous: float, target: float, delta: float, units_per_second: float, running: bool = true) -> float:
+	if not running or not is_finite(previous) or previous < 0.0 or target <= previous:return target
+	var frame_time: float=clampf(delta,0.0,0.1)
+	var maximum_step: float=maxf(0.02,frame_time*maxf(units_per_second,0.0)*1.8)
+	return minf(target,previous+maximum_step)
+
 static func _on_cable(profile: Dictionary, fraction: float) -> Vector3:
-	var distance: float = profile.length * clampf(fraction, 0, 1)
-	for index in range(1, profile.points.size()):
-		if distance <= profile.lengths[index]:
-			return profile.points[index - 1].lerp(profile.points[index], (distance - profile.lengths[index - 1]) / maxf(profile.lengths[index] - profile.lengths[index - 1], 0.001))
-	return profile.points[-1]
+	var length: float=float(profile.length)
+	var distance: float=length*clampf(fraction,0.0,1.0)
+	var cumulative: Array=profile.lengths
+	var points: Array=profile.points
+	if points.size()<2:return points[0] if not points.is_empty() else Vector3.ZERO
+	var low: int=1
+	var high: int=mini(cumulative.size()-1,points.size()-1)
+	while low<high:
+		var mid: int=(low+high)/2
+		if distance<=float(cumulative[mid]):high=mid
+		else:low=mid+1
+	var before: float=float(cumulative[low-1])
+	var segment: float=maxf(float(cumulative[low])-before,0.001)
+	return points[low-1].lerp(points[low],(distance-before)/segment)
 
 
 static func tow_point(mountain: RefCounted, pose: Dictionary) -> Vector3:

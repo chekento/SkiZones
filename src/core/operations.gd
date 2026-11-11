@@ -21,7 +21,25 @@ const ROLES := {
 	"hotel": {"name": "Hotelpersonal", "wage": 18.0},
 	"catering": {"name": "Gastronomiepersonal", "wage": 18.0},
 	"security": {"name": "Reinigung & Sicherheit", "wage": 19.0},
-	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0}
+	"sanitation": {"name":"WC-Service & Entsorgung","wage":19.0},
+	"chef": {"name":"Koch / Küchenleitung","wage":23.0},
+	"waiter": {"name":"Servicekraft / Kellner","wage":18.0},
+	"barista": {"name":"Barista / Kakao-Service","wage":19.0},
+	"bartender": {"name":"Barkeeper","wage":21.0},
+	"vendor": {"name":"Verkaufskraft","wage":18.0},
+	"rental_specialist": {"name":"Skiverleih-Fachkraft","wage":21.0},
+	"ski_instructor": {"name":"Skilehrer / Skilehrerin","wage":26.0},
+	"fitness_trainer": {"name":"Fitnesstrainer","wage":23.0},
+	"lifeguard": {"name":"Schwimmaufsicht","wage":23.0},
+	"therapist": {"name":"Wellness-Therapeut","wage":26.0},
+	"shop_assistant": {"name":"Fachverkäufer / Souvenir","wage":19.0},
+	"watchmaker": {"name":"Uhrmacher","wage":26.0},
+	"artisan": {"name":"Kunsthandwerker","wage":23.0},
+	"printer": {"name":"Drucktechniker","wage":22.0},
+	"editor": {"name":"Redakteur","wage":25.0},
+	"housekeeper": {"name":"Housekeeping","wage":18.0},
+	"receptionist": {"name":"Hotelrezeption","wage":20.0},
+	"medic": {"name":"Rettungssanitäter / Behandlung","wage":28.0}
 }
 const SHIFTS := {"day": [420, 1080], "evening": [960, 120], "night": [0, 480], "early": [420, 900], "late": [900, 1380]}
 const SHIFT_NAMES := {"day": "Tag · 07–18 Uhr", "evening": "Abend · 16–02 Uhr", "night": "Nacht · 00–08 Uhr", "early": "Früh · 07–15 Uhr", "late": "Spät · 15–23 Uhr"}
@@ -173,6 +191,8 @@ static func refresh_duty(model: RefCounted) -> void:
 		var role_key: String = person.role + ":"
 		model._duty_cache[key] = int(model._duty_cache.get(key, 0)) + 1
 		model._duty_cache[role_key] = int(model._duty_cache.get(role_key, 0)) + 1
+		var qualification_key:String="qualification:"+key
+		model._duty_cache[qualification_key]=float(model._duty_cache.get(qualification_key,0.0))+minf(0.05,maxf(0.0,float(person.get("qualification",1))-1.0)*0.025)
 
 static func signature(model: RefCounted) -> String:
 	var result := "%d/" % int(model.minute >= 480 and model.minute < 1020)
@@ -209,7 +229,21 @@ static func normalize_assignments(model: RefCounted) -> void:
 		for station in station_demands(lift):
 			aliases["station:%s:%.1f:%.1f" % [str(float(line)),station.point[0],station.point[1]]]=station.key
 	for person in model.operations.staff:
-		if person is Dictionary and aliases.has(person.get("assignment","")):person.assignment=aliases[person.assignment]
+		if not person is Dictionary:continue
+		if aliases.has(person.get("assignment","")):person.assignment=aliases[person.assignment]
+		# Old saves assigned hotel staff to ski schools / shops, and generic
+		# catering workers to kitchens. Upgrade their *existing* jobs in
+		# memory, preserving employee IDs, shifts and all financial history.
+		var target:String=str(person.get("assignment",""))
+		if not target.begins_with("building:"):continue
+		var id_text:String=target.trim_prefix("building:")
+		if not id_text.is_valid_int():continue
+		var workplace:Dictionary=model.asset(int(id_text))
+		if workplace.is_empty():continue
+		var specialized:String=legacy_specialization(str(workplace.get("kind","")))
+		if specialized!="" and str(person.get("role","")) in ["hotel","catering"]:
+			person.role=specialized
+			person.wage=float(ROLES[specialized].wage)
 
 static func staffing(model: RefCounted, lift: Dictionary) -> Dictionary:
 	var present := 0
@@ -258,7 +292,7 @@ static func lift_available(model: RefCounted, lift: Dictionary) -> bool:
 	return model.minute >= 480 and model.minute < 1020
 
 static func hire(model: RefCounted, role: String, assignment: String, shift: String = "day", free: bool = false) -> Dictionary:
-	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
+	if not ROLES.has(role) or not SHIFTS.has(shift) or assignment.length() > 100 or not suitable_assignment(model,role,assignment) or model.operations.staff.size() >= 1200: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	if not free and not _expense(model, 180, "recruitment"): return model._result(false, L.text("Das Budget reicht für die Einstellung noch nicht."))
 	var id: int = model.operations.next_staff
 	model.operations.next_staff += 1
@@ -272,6 +306,9 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	if not SHIFTS.has(shift) or target.length() > 100: return model._result(false, L.text("Diese Personalzuweisung ist nicht möglich."))
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if _assigned_active_rescue(model,person):
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
+			if not suitable_assignment(model,str(person.role),target):return model._result(false,L.text("Diese Aufgabe passt fachlich nicht zu diesem Gebäude oder dieser Station."))
 			person.assignment = target
 			person.shift = shift
 			model._duty_cache.clear()
@@ -279,9 +316,19 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 			return model._result(true, L.text("Einsatzort und Schicht aktualisiert."))
 	return model._result(false, L.text("Mitarbeiter nicht gefunden."))
 
+static func _assigned_active_rescue(model:RefCounted,person:Dictionary)->bool:
+	if str(person.get("role","")) not in ["rescue","medic"]:return false
+	var place:String=str(person.get("assignment",""))
+	if not place.begins_with("building:"):return false
+	var id_text:String=place.trim_prefix("building:")
+	if not id_text.is_valid_int():return false
+	return model.operations.incidents.any(func(e):return int(e.get("station",-1))==int(id_text) and str(e.get("status","")) in ["responding","returning","treating"])
+
 static func dismiss(model: RefCounted, id: int) -> Dictionary:
 	for person in model.operations.staff:
 		if int(person.id) == id:
+			if _assigned_active_rescue(model,person):
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
 			model.operations.staff.erase(person)
 			model._duty_cache.clear()
 			model._operational_change()
@@ -302,19 +349,99 @@ static func fill_stations(model: RefCounted, id: int, free: bool = false) -> Dic
 	for target in additions: hire(model, "operator", target, "day", free)
 	return model._result(true, L.text("Stationsplan besetzt. Zusätzliche Schichten und Pausenvertretung lassen sich einzeln einteilen."))
 
+## Keep a one-to-one migration for existing generic workers; new saves use
+## professional titles and correct wage rates from the first hire onward.
+static func legacy_specialization(kind:String)->String:
+	match kind:
+		"restaurant","lodge","pizzeria","schmarrn":return "chef"
+		"cocoa":return "barista"
+		"kiosk","newsstand":return "vendor"
+		"bar","disco":return "bartender"
+		"rental":return "rental_specialist"
+		"school":return "ski_instructor"
+		"fitness":return "fitness_trainer"
+		"pool":return "lifeguard"
+		"spa":return "therapist"
+		"souvenir":return "shop_assistant"
+		"watchmaker":return "watchmaker"
+		"craftshop":return "artisan"
+		"printing_press":return "printer"
+	return ""
+
 static func building_roles(kind: String) -> Array:
 	match kind:
-		"repair_office": return ["technician", "electrician"]
-		"first_aid": return ["rescue", "rescue"]
+		"repair_office": return ["technician","electrician"]
+		"first_aid": return ["rescue","rescue"]
 		"maintenance": return ["driver"]
 		"snowmaker": return ["snow"]
-		"hotel", "grand_hotel": return ["hotel", "hotel", "security"]
+		"hotel","grand_hotel": return ["hotel","hotel","security"]
 		"guesthouse": return ["hotel"]
-		"disco", "bar": return ["catering", "security"]
-		"pool", "spa": return ["hotel", "security"]
-		"restaurant", "lodge", "kiosk", "cocoa", "schmarrn", "pizzeria": return ["catering"]
-		"rental", "school", "fitness", "souvenir", "watchmaker", "craftshop", "printing_press", "newsstand": return ["hotel"]
+		"disco","bar": return ["bartender","security"]
+		"pool": return ["lifeguard","security"]
+		"spa": return ["therapist","security"]
+		"restaurant","lodge","schmarrn","pizzeria": return ["chef"]
+		"kiosk","newsstand": return ["vendor"]
+		"cocoa": return ["barista"]
+		"rental": return ["rental_specialist"]
+		"school": return ["ski_instructor"]
+		"fitness": return ["fitness_trainer"]
+		"souvenir": return ["shop_assistant"]
+		"watchmaker": return ["watchmaker"]
+		"craftshop": return ["artisan"]
+		"printing_press": return ["printer"]
 	return []
+
+## Optional staff is tied to the building's real trade, not a generic
+## hotel/catering/security list. Extra trained employees cost wages but
+## improve throughput only when present and on duty.
+static func building_optional_roles(kind:String)->Array:
+	if kind.begins_with("wc_"):return ["sanitation"]
+	match kind:
+		"restaurant","lodge","schmarrn","pizzeria":return ["chef","waiter"]
+		"cocoa":return ["barista","waiter"]
+		"kiosk","newsstand":return ["vendor"]
+		"bar","disco":return ["bartender","security"]
+		"hotel","grand_hotel":return ["hotel","housekeeper","receptionist","chef"]
+		"guesthouse":return ["hotel","housekeeper","chef"]
+		"pool":return ["lifeguard"]
+		"spa":return ["therapist"]
+		"rental":return ["rental_specialist"]
+		"school":return ["ski_instructor"]
+		"fitness":return ["fitness_trainer"]
+		"souvenir":return ["shop_assistant"]
+		"watchmaker":return ["watchmaker"]
+		"craftshop":return ["artisan"]
+		"printing_press":return ["printer","editor"]
+		"repair_office":return ["technician","electrician"]
+		"maintenance":return ["driver","technician"]
+		"snowmaker":return ["snow","technician"]
+		"first_aid":return ["rescue","medic"]
+	return []
+
+static func suitable_assignment(model:RefCounted,role:String,target:String)->bool:
+	if target=="reserve":return true
+	if target.begins_with("station:"):return role in ["operator","technician","electrician"]
+	if not target.begins_with("building:"):return false
+	var id_text:String=target.trim_prefix("building:")
+	if not id_text.is_valid_int():return false
+	var building:Dictionary=model.asset(int(id_text))
+	if building.is_empty() or not Catalog.BUILDINGS.has(str(building.get("kind",""))):return false
+	return role in building_roles(str(building.kind)) or role in building_optional_roles(str(building.kind))
+
+static func service_efficiency(model:RefCounted,building:Dictionary)->float:
+	if not active(model):return 1.0
+	var target:String="building:%d" % int(building.id)
+	var required:Dictionary={}
+	for role in building_roles(str(building.kind)):required[role]=int(required.get(role,0))+1
+	var extras:=0
+	var proficiency:=0.0
+	for role in building_optional_roles(str(building.kind)):
+		# The duty ledger is already refreshed once per simulation minute.
+		# Never scan all 1200 employees for each prospective guest visit.
+		var count:int=duty(model,role,target)
+		extras+=maxi(0,count-int(required.get(role,0)))
+		proficiency+=float(model._duty_cache.get("qualification:"+role+":"+target,0.0))
+	return clampf(1.0+minf(0.60,float(extras)*0.15)+minf(0.15,proficiency),1.0,1.75)
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
 	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
@@ -462,43 +589,145 @@ static func evacuate(model: RefCounted, id: int) -> Dictionary:
 			count += int(guest.get("group_size", 1))
 	return model._result(count > 0, L.text("Hilferufe für %d Passagiere angelegt. Rettungsteams werden nach Erreichbarkeit entsandt.") % count)
 
+## Model-owned rescue geometry follows actual pedestrian/piste/lift graph
+## waypoints. Never animate a shortcut straight through the resort.
+static func _rescue_route_points(model:RefCounted,station:Dictionary,route:Dictionary,incident_point:Vector2)->Array:
+	var points:Array=[Terrain.pack(Foot.door(station))]
+	for leg in route.get("legs",[]):
+		for position in leg.get("points",[]):
+			if not position is Array or position.size()!=2:continue
+			if points.is_empty() or points[-1]!=position:points.append(position.duplicate())
+	var finish:Vector2=Terrain.unpack(points[-1])
+	if finish.distance_to(incident_point)>0.01:
+		var approach:Array=Foot.path_between(finish,incident_point,model.buildings,model.lifts)
+		# A route that cuts through occupied structures is not dispatchable.
+		if approach.size()<2:return []
+		for point in approach:
+			if points[-1]!=point:points.append(point.duplicate())
+	return points if points.size()>=2 and points.size()<=512 else []
+
+## An incident in the middle of a long run is usually hundreds of
+## metres from the *graph nodes* at the start and finish of that run.
+## Find an approach on the actual ski polyline instead of only searching
+## those nodes; this keeps remote but accessible piste accidents rescuable.
+static func _rescue_slope_candidates(graph:Dictionary,position:Vector2)->Array:
+	var candidates:Array=[]
+	for from_node in graph.get("edges",{}):
+		for edge in graph.edges[from_node]:
+			if str(edge.get("kind",""))!="ski":continue
+			var points:Array=edge.get("points",[])
+			if points.size()<2:continue
+			for i in range(1,points.size()):
+				var a:Vector2=Terrain.unpack(points[i-1])
+				var b:Vector2=Terrain.unpack(points[i])
+				var closest:Vector2=Geometry2D.get_closest_point_to_segment(position,a,b)
+				var off:float=position.distance_to(closest)
+				if off>35.0:continue
+				var prefix:Array=points.slice(0,i)
+				var projected:Array=Terrain.pack(closest)
+				if prefix.is_empty() or prefix[-1]!=projected:prefix.append(projected)
+				candidates.append({"from":str(edge.get("from",from_node)),"points":prefix,"off":off})
+	candidates.sort_custom(func(a,b):return float(a.off)<float(b.off))
+	if candidates.size()>12:candidates.resize(12)
+	return candidates
+
+static func rescue_path_point(points:Array,ratio:float)->Vector2:
+	if points.is_empty():return Vector2.ZERO
+	if points.size()==1:return Terrain.unpack(points[0])
+	var length:=0.0
+	for i in range(1,points.size()):
+		length+=Terrain.unpack(points[i-1]).distance_to(Terrain.unpack(points[i]))
+	var target:=clampf(ratio,0,1)*length
+	var traveled:=0.0
+	for i in range(1,points.size()):
+		var a:Vector2=Terrain.unpack(points[i-1])
+		var b:Vector2=Terrain.unpack(points[i])
+		var span:=a.distance_to(b)
+		if traveled+span>=target:return a.lerp(b,clampf((target-traveled)/maxf(0.001,span),0,1))
+		traveled+=span
+	return Terrain.unpack(points[-1])
+
+static func rescue_fraction(event:Dictionary)->float:
+	match str(event.get("status","")):
+		"responding":return clampf(1.0-float(event.get("remaining",0))/maxf(1.0,float(event.get("response_duration",1))),0,1)
+		"returning":return clampf(float(event.get("transport_remaining",0))/maxf(1.0,float(event.get("return_duration",1))),0,1)
+	return 0.0
+
+static func rescue_location(model:RefCounted,event:Dictionary)->Vector2:
+	var points:Array=event.get("route_points",[])
+	if points.size()>=2:return rescue_path_point(points,rescue_fraction(event))
+	var station:Dictionary=model.asset(int(event.get("station",-1)))
+	if station.is_empty():return Terrain.unpack(event.point)
+	return Terrain.unpack(station.point).lerp(Terrain.unpack(event.point),rescue_fraction(event))
+
 static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
 		if int(event.id) != id or event.status != "waiting": continue
 		var best := INF
 		var station := -1
+		var best_points:Array=[]
 		for building in model.buildings:
 			if building.kind != "first_aid" or (station_id >= 0 and int(building.id) != station_id) or not building_open(model, building): continue
-			var busy: bool = model.operations.incidents.any(func(e): return e.status == "responding" and int(e.station) == int(building.id))
+			var busy: bool = model.operations.incidents.any(func(e): return str(e.status) in ["responding","returning","treating"] and int(e.station) == int(building.id))
 			if busy: continue
 			var position := Terrain.unpack(event.point)
 			var distance := Terrain.unpack(building.point).distance_to(position)
 			if distance > 1800 * int(building.get("level", 1)): continue
-			# Dispatch needs a route in the actual lift / piste / foot graph.
-			var graph: Dictionary = model._routing_graph(2)
-			var nearest := ""
-			var delta := INF
-			for key in graph.nodes:
-				var value := Terrain.unpack(graph.nodes[key]).distance_to(position)
-				if value < delta:
-					delta = value
-					nearest = key
-			if delta > 180 or nearest == "": continue
-			var route: Dictionary = model._shortest(graph, "d%d" % int(building.id), nearest)
-			if not route.ok: continue
-			var time := 4.0 + delta / 60 + absf(model.terrain.height(Terrain.unpack(building.point)) - model.terrain.height(position)) / 100
-			for leg in route.legs: time += float(leg.minutes)
-			time *= 1.5 if model.weather_index in [2, 3] else 1.0
+			var graph:Dictionary=model._routing_graph(2)
+			var route:Dictionary={}
+			var points:Array=[]
+			var delta:=INF
+			var slope_fraction:=0.0
+			# First try the piste centerline. Graph nodes may exist only
+			# at top/bottom while the skier is injured halfway down.
+			for candidate in _rescue_slope_candidates(graph,position):
+				route=model._shortest(graph,"d%d" % int(building.id),str(candidate.from))
+				if not route.ok:continue
+				var combined:Array=route.legs.duplicate()
+				combined.append({"points":candidate.points})
+				points=_rescue_route_points(model,building,{"legs":combined},position)
+				if points.is_empty():continue
+				delta=float(candidate.off)
+				for i in range(1,candidate.points.size()):
+					slope_fraction+=Terrain.unpack(candidate.points[i-1]).distance_to(Terrain.unpack(candidate.points[i]))/60.0
+				break
+			# Fallback for a footpath, lift evacuation, or an accident near
+			# a connected graph node outside the defined piste corridor.
+			if points.is_empty():
+				var nearest:=""
+				for key in graph.nodes:
+					var value:float=Terrain.unpack(graph.nodes[key]).distance_to(position)
+					if value<delta:
+						delta=value
+						nearest=str(key)
+				if delta>180.0 or nearest=="":continue
+				route=model._shortest(graph,"d%d" % int(building.id),nearest)
+				if not route.ok:continue
+				points=_rescue_route_points(model,building,route,position)
+				if points.is_empty():continue
+			var time:=4.0+delta/60.0+slope_fraction+absf(model.terrain.height(Terrain.unpack(building.point))-model.terrain.height(position))/100.0
+			for leg in route.legs:time+=float(leg.minutes)
+			time*=1.5 if model.weather_index in [2,3] else 1.0
 			if time < best:
 				best = time
 				station = int(building.id)
-		if station < 0: return model._result(false, L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort innerhalb seines Einsatzradius."))
+				best_points=points
+		if station < 0: return model._result(false, L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege."))
 		event.station = station
 		event.remaining = best
-		event.response_duration=best
-		event.response_started=clock(model)
+		event.response_duration = best
+		event.response_started = clock(model)
+		event.route_points = best_points
+		event.return_duration = maxf(8.0,best*1.25)
+		event.transport_remaining = event.return_duration
+		# Treatment after stretcher return, from 60 to 120 game minutes.
+		event.treatment_duration = 120.0 if str(event.reason) in ["collision","evacuation"] else 60.0
+		event.treatment_remaining = event.treatment_duration
 		event.status = "responding"
-		return model._result(true, L.text("Rettung unterwegs. Wege, Höhenunterschied und Wetter bestimmen die Reaktionszeit."))
+		# Bandages, heat blankets and on-slope consumables are an actual
+		# case-based expense, separate from already accounted staff payroll.
+		_charge(model,90.0 if str(event.reason) in ["fatigue","navigation"] else 165.0,"rescue:%d" % station)
+		return model._result(true, L.text("Zwei Ski-Rettungskräfte sind unterwegs. Trage, Rücktransport und Behandlung folgen."))
 	return model._result(false, L.text("Kein offener Hilferuf gefunden."))
 
 static func _expense(model: RefCounted, amount: float, centre: String) -> bool:
@@ -526,7 +755,7 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 	upkeep += 35.0 + model.Hospitality.extra_upkeep(building)
 	var efficiency: float = 0.85 if Progression.has(model, "efficient_snow") else 1.0
 	var overhead: float = upkeep * efficiency * clampf(float(model.minute) / 1440.0, 0.0, 1.0)
-	var supplies: float = float(model.operations.cost_centres.get("supplies:%d" % int(building.id), 0.0))
+	var supplies: float = float(model.operations.cost_centres.get("supplies:%d" % int(building.id), 0.0)) + float(model.operations.cost_centres.get("rescue:%d" % int(building.id),0.0))
 	var costs := wages + overhead + supplies
 	return {"sales": sales, "wages": wages, "supplies": supplies, "overhead": overhead, "costs": costs, "net": sales - costs}
 
@@ -638,41 +867,77 @@ static func tick(model: RefCounted) -> void:
 			model.snow_revision += 1
 			model._operational_change()
 	for event in model.operations.incidents:
-		if event.status == "waiting" and model.minute % 5 == 0: dispatch(model, int(event.id))
-		elif event.status == "responding":
-			var station: Dictionary = model.asset(int(event.station))
-			if station.is_empty() or not building_open(model, station): continue
-			event.remaining -= 1
-			if event.remaining <= 0:
-				event.status = "resolved"
-				model.operations.rescued += 1
-				for guest in model.guests:
-					if int(guest.id) == int(event.guest):
-						guest.incident = -1
-						guest.assisted = true
-						guest.needs.energy = maxf(60, guest.needs.energy)
+		if event.status == "waiting" and model.minute % 5 == 0:
+			dispatch(model,int(event.id))
+		elif str(event.status) in ["responding","returning","treating"]:
+			var station:Dictionary=model.asset(int(event.station))
+			# A dispatched emergency team cannot abandon a patient at 18:00.
+			# Continue an active case through the shift boundary and pay
+			# overtime to the engaged responders until discharge.
+			# A historic save may contain a dispatched case whose clinic
+			# was later demolished. Requeue it for a valid active station,
+			# rather than trapping an injured guest forever in "responding".
+			if station.is_empty():
+				event.status="waiting"
+				event.station=-1
+				event.remaining=-1.0
+				event.erase("route_points")
+				continue
+			# Do not interrupt a rescue already in progress if that clinic
+			# was closed on an earlier game version.
+			if not building_open(model,station):
+				var overtime_count:=0
+				for person in model.operations.staff:
+					if str(person.role)!="rescue" or str(person.assignment)!="building:%d" % int(station.id) or on_duty(model,person):continue
+					if overtime_count>=2:break
+					var overtime:float=float(person.wage)/60.0
+					_charge(model,overtime,"building:%d" % int(station.id))
+					model.operations.payroll+=overtime
+					person.worked=int(person.worked)+1
+					overtime_count+=1
+			if event.status == "responding":
+				event.remaining-=1.0
+				if event.remaining<=0:
+					event.remaining=0.0
+					event.status="returning"
+					event.return_duration=maxf(8.0,float(event.get("return_duration",float(event.get("response_duration",12.0))*1.25)))
+					event.transport_remaining=event.return_duration
+			elif event.status == "returning":
+				event.transport_remaining=float(event.get("transport_remaining",8.0))-1.0
+				if event.transport_remaining<=0:
+					event.transport_remaining=0.0
+					event.status="treating"
+					event.treatment_duration=float(event.get("treatment_duration",60.0))
+					event.treatment_remaining=event.treatment_duration
+			elif event.status == "treating":
+				event.treatment_remaining=float(event.get("treatment_remaining",60.0))-1.0
+				if event.treatment_remaining<=0:
+					event.treatment_remaining=0.0
+					event.status="resolved"
+					model.operations.rescued+=1
+					# Discharge the actual visitor at the rescue station,
+					# with a normal connected home route after treatment.
+					for guest in model.guests:
+						if int(guest.id)!=int(event.guest):continue
+						guest.incident=-1
+						guest.assisted=true
+						guest.needs.energy=maxf(60,guest.needs.energy)
 						if guest.has("family"):
-							for member in guest.family: member.needs.energy = maxf(60, member.needs.energy)
+							for member in guest.family:member.needs.energy=maxf(60,member.needs.energy)
 							model.Needs.aggregate_family(guest)
-						if event.reason == "evacuation":
-							# Recovery uses the real graph after lowering the passenger to the ground.
-							var graph: Dictionary = model._routing_graph(int(guest.ability))
-							var home_paths: Dictionary = model._distances(graph, "base", true)
-							var nearest := "base"
-							var distance := INF
-							for key in graph.nodes:
-								var delta := Terrain.unpack(graph.nodes[key]).distance_to(Terrain.unpack(event.point))
-								if home_paths.distance.has(key) and delta < distance:
-									distance = delta
-									nearest = key
-							var home: Dictionary = model._shortest(graph, nearest, "base")
-							var walk: Dictionary = model._edge("rescue", nearest, "walk", 0, [event.point, graph.nodes[nearest]], maxf(0.15, distance / 45))
-							walk.rescue = true
-							guest.route = {"target": 0, "origin": event.point, "legs": [walk] + home.legs}
-							guest.heading_home = true
-							guest.leg = 0
+						var graph:Dictionary=model._routing_graph(int(guest.ability))
+						var home:Dictionary=model._shortest(graph,"d%d" % int(station.id),"base")
+						if home.ok and not home.legs.is_empty():
+							guest.route={"target":0,"origin":Terrain.pack(Foot.door(station)),"legs":home.legs}
+							guest.heading_home=true
+							guest.leg=0
+							guest.elapsed=0.0
+							guest.phase="moving"
 							model._start_leg(guest)
-				model.reputation = minf(95, model.reputation + 0.3)
+						else:
+							guest.phase="leaving"
+						break
+					model.reputation=minf(95,model.reputation+0.3)
 	if model.minute % 10 == 0:
 		for guest in model.guests:
 			if guest.phase == "leaving" or guest.get("incident", -1) >= 0 or guest.get("assisted", false) or guest.leg >= guest.route.legs.size(): continue
@@ -831,12 +1096,16 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	for task in state.repairs:
 		if not task is Dictionary or not Terrain.number(task.get("asset")) or not Terrain.number(task.get("workshop")) or not Terrain.number(task.get("remaining")) or task.remaining < 0 or task.remaining > 100000: return false
 	for event in state.incidents:
-		if not event is Dictionary or event.get("status") not in ["waiting", "responding", "resolved"]: return false
-		for field in ["response_duration","response_started"]:
+		if not event is Dictionary or event.get("status") not in ["waiting","responding","returning","treating","resolved"]: return false
+		for field in ["response_duration","response_started","return_duration","transport_remaining","treatment_duration","treatment_remaining"]:
 			if event.has(field) and (not Terrain.number(event[field]) or event[field]<0 or event[field]>1000000000):return false
 		for key in ["id", "guest", "created", "station", "remaining"]:
 			if not Terrain.number(event.get(key)) or event[key] < -1 or event[key] > 1000000000: return false
 		if not model.terrain.contains(Terrain.unpack(event.get("point"))): return false
+		if event.has("route_points"):
+			if not event.route_points is Array or event.route_points.size()>512:return false
+			for point in event.route_points:
+				if not model.terrain.contains(Terrain.unpack(point)):return false
 		if event.get("reason") not in ["fatigue", "collision", "evacuation", "navigation"]: return false
 	for centre in state.cost_centres:
 		if not centre is String or centre.length() > 100 or not Terrain.number(state.cost_centres[centre]) or state.cost_centres[centre] < 0: return false

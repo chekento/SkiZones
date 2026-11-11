@@ -12,6 +12,8 @@ var panel:=PanelContainer.new()
 var dismiss:=Button.new()
 var head:=Label.new()
 var image_overlay:=Label.new()
+var discovery_text:=Label.new()
+var discovery_bar:=ProgressBar.new()
 var selected_artwork: String=""
 
 func _ready() -> void:
@@ -61,6 +63,14 @@ func _ready() -> void:
 	image_overlay.add_theme_color_override("font_color",Color("fff4df"))
 	image_overlay.add_theme_color_override("font_outline_color",Color("10223f"))
 	image_overlay.add_theme_constant_override("outline_size",8)
+	discovery_text.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	discovery_text.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	discovery_text.add_theme_font_size_override("font_size",18)
+	stack.add_child(discovery_text)
+	discovery_bar.custom_minimum_size.y=12
+	discovery_bar.show_percentage=false
+	discovery_bar.min_value=0
+	stack.add_child(discovery_bar)
 	dismiss.text=L.text("Schließen · zurück zur Piste")
 	dismiss.custom_minimum_size.y=55
 	dismiss.pressed.connect(hide)
@@ -81,8 +91,11 @@ func _refresh_art() -> void:
 	image_overlay.text=Posters.headline(phase,display_path) if picture.visible else ""
 	head.text=L.text("SKIZONES · SILVESTER UND NEUJAHR") if phase in ["new_year_eve","new_year"] else L.text("SKIZONES · WEIHNACHTSWERBUNG") if phase=="november_poster" else L.text("SKIZONES · ADVENT UND WEIHNACHTEN")
 
-func open(style: String, artwork: String = "") -> void:
+func open(style: String, artwork: String = "", found: int = 0, total: int = 10) -> void:
 	selected_artwork=artwork
+	discovery_text.text=L.text("Plakatsammlung: %d von %d entdeckt") % L.args([found,total])
+	discovery_bar.max_value=maxi(1,total)
+	discovery_bar.value=clampi(found,0,total)
 	_refresh_art()
 	fallback.style_id=Styles.valid(style)
 	fallback.queue_redraw()

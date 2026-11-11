@@ -3,8 +3,8 @@ extends RefCounted
 ## needs, queues and wages per game minute in existing saves.
 const PRESETS := ["balanced", "compact", "cozy"]
 const DAY_SPEED := {"balanced":1.8, "compact":2.2, "cozy":1.35}
-const QUIET_FROM := 1320
-const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenirs", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
+const QUIET_FROM := 1200 # 20:00, but only after every visible outdoor trip is safely complete
+const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenir", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
 
 static func playback(minute: int, preset: String = "balanced") -> float:
 	# Keep an unhurried 17–22h evening after the shorter skiing day.
@@ -13,6 +13,7 @@ static func playback(minute: int, preset: String = "balanced") -> float:
 ## Only foot traffic to a real exit/overnight/after-ski destination can be
 ## safely accelerated. Every remaining leg must be a walk or indoor visit:
 ## never fast-forward a skier, lift rider, queue, rescue or lost NPC.
+## Starting the safe-night check at 20:00 does NOT force those trips to finish.
 static func _safe_foot_destination(model: RefCounted, guest: Dictionary) -> bool:
 	if not guest.has("route") or not guest.route is Dictionary: return false
 	var legs: Array = guest.route.get("legs", [])
@@ -30,6 +31,9 @@ static func _safe_foot_destination(model: RefCounted, guest: Dictionary) -> bool
 	return true
 
 static func indoors_only(model: RefCounted) -> bool:
+	# A casualty cannot be silently fast-forwarded simply because the
+	# associated visitor was temporarily removed during a save migration.
+	if model.operations.get("incidents",[]).any(func(e):return str(e.get("status",""))!="resolved"):return false
 	var now: int = model.Ops.clock(model)
 	for guest in model.guests:
 		if int(guest.get("incident", -1)) >= 0: return false

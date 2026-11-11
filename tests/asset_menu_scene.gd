@@ -119,7 +119,7 @@ func run() -> void:
 		var expected_columns: int=3 if screen.x>=1440 else 1
 		check(root.get_visible_rect().encloses(menu.get_global_rect()) and menu.stations.columns==expected_columns,"The building dialog and staff columns adapt to actual screen "+str(screen))
 	game.apply_language("en");game.hud.lift_staff.open(int(game.model.buildings[-1].id));menu=game.hud.lift_staff
-	check(texts(menu).contains("BUILDING & TEAM") and menu.tabs.get_tab_title(0)=="Operations" and texts(menu).contains("Catering"),"The complete building operations and staff controls are available in English")
+	check(texts(menu).contains("BUILDING & TEAM") and menu.tabs.get_tab_title(0)=="Operations" and texts(menu).contains("Chef / Kitchen Manager"),"The English building menu uses the correct professional kitchen role")
 	menu.hide();game.paused=true
 	# This exercises the same strict handoff used on Android, with only the OS opener injected.
 	# Simulate an installed 0.18 build: 0.19 cannot be an update to itself.

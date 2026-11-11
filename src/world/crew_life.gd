@@ -14,6 +14,8 @@ var root: Node3D
 var lodge_point := Vector2.INF
 var staff_mesh: MultiMeshInstance3D
 var emergency_mesh: MultiMeshInstance3D
+var stretcher_mesh: MultiMeshInstance3D
+var casualty_mesh: MultiMeshInstance3D
 var route_cache: Dictionary={}
 var rescue_durations: Dictionary={}
 var snapshot_revision := -1
@@ -82,20 +84,60 @@ static func human_mesh(style: String) -> ArrayMesh:
 	art.sphere(Vector3(0,3.75,0),0.12,Color("ffe19f"))
 	return art.finish()
 
-static func rescue_mesh(style: String) -> ArrayMesh:
+## Two visibly separate alpine rescuers on skis, not the old red
+## snowmobile. The return mesh carries a patient on the unfolded stretcher.
+static func rescue_mesh(style:String,loaded:bool=false)->ArrayMesh:
 	if style=="monochrome":
-		var lines:=Lines.new();lines.box(Vector3(0,1,0),Vector3(4,2,8))
-		for side in [-1,1]:lines.line(Vector3(side*2,.1,-5),Vector3(side*2,.1,5))
+		var lines:=Lines.new()
+		for side in [-1,1]:
+			lines.circle(Vector3(side*1.55,3.2,0),0.55)
+			lines.line(Vector3(side*1.55,0.6,-3.2),Vector3(side*1.55,0.6,3.2))
+			lines.line(Vector3(side*1.55,1.0,0),Vector3(side*1.55,2.8,0))
+		lines.box(Vector3(0,1.35,0),Vector3(2.1,0.35,5.3 if loaded else 3.1))
+		if loaded:lines.circle(Vector3(0,2.1,-0.7),0.55)
 		return lines.finish()
 	var art:=Art.new()
-	var color:=Color("dd6c70") if style!="piste_map" else Color("c0504b")
-	art.box(Vector3(0,1.1,0),Vector3(4.2,1.3,8.0),color)
-	art.box(Vector3(0,2.25,0.1),Vector3(3.2,1.7,3.3),Color("fcfbec"))
-	art.box(Vector3(0,3.2,0),Vector3(0.65,0.3,1.9),color)
-	art.box(Vector3(0,3.2,0),Vector3(2.2,0.3,0.55),color)
+	var jacket:=Color("e9623b") if style!="piste_map" else Color("c14b34")
+	var ski:=Color("394851")
+	var rail:=Color("c2ccd4")
 	for side in [-1,1]:
-		art.box(Vector3(side*1.8,0.3,0),Vector3(0.5,0.45,9.0),Color("5c6770"))
-		art.link(Vector3(side*1.65,0.7,2.7),Vector3(side*1.65,2.2,1.0),0.22,Color("53646e"))
+		var x:float=float(side)*1.6
+		# Each worker has independent skis, boots, arms and a helmet.
+		for offset in [-0.40,0.40]:
+			art.box(Vector3(x+offset,0.35,0),Vector3(0.22,0.22,6.4),ski)
+			art.box(Vector3(x+offset,0.67,-0.05),Vector3(0.40,0.7,0.8),Color("374855"))
+		art.cone(Vector3(x,2.0,0),0.68,1.8,jacket,0.70)
+		art.sphere(Vector3(x,3.20,0),0.55,Color("ecd0ae"))
+		art.box(Vector3(x,3.63,0),Vector3(1.25,0.43,1.15),Color("e74a38"))
+		art.box(Vector3(x,3.26,-0.43),Vector3(1.05,0.20,0.20),Color("303e4c"))
+		art.link(Vector3(x,2.70,0),Vector3(x-float(side)*0.55,1.55,-0.5),0.23,jacket)
+		art.link(Vector3(x-float(side)*0.55,1.55,-0.5),Vector3(float(side)*0.92,1.40,-0.5),0.16,Color("5c6570"))
+	var length_value:=5.0 if loaded else 3.2
+	for side in [-1,1]:
+		art.box(Vector3(float(side)*0.97,1.22,0),Vector3(0.16,0.17,length_value),rail)
+	art.box(Vector3(0,1.18,0),Vector3(1.90,0.18,length_value-0.4),Color("e7b750"))
+	if loaded:
+		# The injured skier is lying on the return stretcher, never on
+		# the empty outward trip.
+		art.box(Vector3(0,1.72,-0.15),Vector3(1.25,0.65,2.7),Color("417c9e"))
+		art.sphere(Vector3(0,1.90,-1.9),0.47,Color("e1b795"))
+		art.box(Vector3(0,2.11,-1.93),Vector3(1.00,0.27,0.85),Color("cfd9e5"))
+	return art.finish()
+
+## A skier lies at the real collision position until the pair arrives;
+## the same patient is then drawn only on the return stretcher.
+static func casualty_mesh_geometry(style:String)->ArrayMesh:
+	if style=="monochrome":
+		var lines:=Lines.new()
+		lines.box(Vector3(0,0.38,0),Vector3(1.35,0.40,2.9))
+		lines.circle(Vector3(0,0.50,-1.65),0.45)
+		return lines.finish()
+	var art:=Art.new()
+	art.box(Vector3(0,0.48,0.1),Vector3(1.25,0.58,2.5),Color("4783ae"))
+	art.sphere(Vector3(0,0.59,-1.50),0.48,Color("e5c5ad"))
+	art.box(Vector3(0,0.86,-1.53),Vector3(1.1,0.24,0.92),Color("db5039"))
+	for x in [-0.40,0.40]:
+		art.box(Vector3(x,0.18,2.1),Vector3(0.24,0.18,3.5),Color("354955"))
 	return art.finish()
 
 static func lodge_mesh(style: String) -> ArrayMesh:
@@ -149,12 +191,24 @@ func build(view: Node3D) -> void:
 	staff_mesh.multimesh=view._multimesh(crew,MAX_VISIBLE_STAFF)
 	staff_mesh.multimesh.visible_instance_count=0
 	root.add_child(staff_mesh)
-	var rescue:=rescue_mesh(view.visual_style)
+	var rescue:=rescue_mesh(view.visual_style,false)
 	rescue.surface_set_material(0,view._solid)
 	emergency_mesh=MultiMeshInstance3D.new()
 	emergency_mesh.multimesh=view._multimesh(rescue,MAX_VISIBLE_RESCUE)
 	emergency_mesh.multimesh.visible_instance_count=0
 	root.add_child(emergency_mesh)
+	var return_scene:=rescue_mesh(view.visual_style,true)
+	return_scene.surface_set_material(0,view._solid)
+	stretcher_mesh=MultiMeshInstance3D.new()
+	stretcher_mesh.multimesh=view._multimesh(return_scene,MAX_VISIBLE_RESCUE)
+	stretcher_mesh.multimesh.visible_instance_count=0
+	root.add_child(stretcher_mesh)
+	var casualty_art:=casualty_mesh_geometry(view.visual_style)
+	casualty_art.surface_set_material(0,view._solid)
+	casualty_mesh=MultiMeshInstance3D.new()
+	casualty_mesh.multimesh=view._multimesh(casualty_art,MAX_VISIBLE_RESCUE)
+	casualty_mesh.multimesh.visible_instance_count=0
+	root.add_child(casualty_mesh)
 
 func _person_pos(view: Node3D, staff: Dictionary) -> Vector2:
 	var destination_value:Vector2=destination(view.model,staff)
@@ -203,25 +257,41 @@ func update(view: Node3D,delta: float) -> void:
 			staff_mesh.multimesh.set_instance_color(amount,Color.WHITE)
 			amount+=1
 	staff_mesh.multimesh.visible_instance_count=amount
-	var rescue_count:=0
+	var stranded_count:=0
+	for case in view.model.operations.incidents:
+		if str(case.get("status","")) not in ["waiting","responding"]:continue
+		if stranded_count>=MAX_VISIBLE_RESCUE:break
+		var stranded:Vector2=Terrain.unpack(case.point)
+		if stranded.distance_to(view.focus)>maxf(view.zoom*2.0,240.0):continue
+		casualty_mesh.multimesh.set_instance_transform(stranded_count,Transform3D(Basis.IDENTITY,view.terrain.world(stranded,0.12)))
+		casualty_mesh.multimesh.set_instance_color(stranded_count,Color.WHITE)
+		stranded_count+=1
+	casualty_mesh.multimesh.visible_instance_count=stranded_count
+	var outbound_count:=0
+	var transport_count:=0
 	for incident in view.model.operations.incidents:
-		if rescue_count>=MAX_VISIBLE_RESCUE:break
-		if str(incident.get("status",""))!="responding":continue
+		var stage:String=str(incident.get("status",""))
+		if stage not in ["responding","returning"]:continue
+		if outbound_count>=MAX_VISIBLE_RESCUE and transport_count>=MAX_VISIBLE_RESCUE:break
 		var station:Dictionary=view.model.asset(int(incident.get("station",-1)))
 		if station.is_empty():continue
-		var from:Vector2=Terrain.unpack(station.point)
-		var to:Vector2=Terrain.unpack(incident.point)
-		if minf(from.distance_to(view.focus),to.distance_to(view.focus))>maxf(view.zoom*2.0,240):continue
-		# Visual travel progress based on response time. An exact path for rescue
-		# vehicles is a separate future routing feature.
-		var total: float=float(incident.get("response_duration",rescue_durations.get(incident.id,maxf(1,float(incident.get("remaining",1))))))
-		rescue_durations[incident.id]=total
-		var ratio:float=clampf(1.0-float(incident.get("remaining",0))/maxf(1,total),0,1)
-		var pos:Vector2=from.lerp(to,ratio)
-		var angle:float=atan2(to.x-from.x,to.y-from.y)
-		emergency_mesh.multimesh.set_instance_transform(rescue_count,Transform3D(Basis(Vector3.UP,angle),view.terrain.world(pos,0.5)))
-		emergency_mesh.multimesh.set_instance_color(rescue_count,Color.WHITE)
-		rescue_count+=1
-	emergency_mesh.multimesh.visible_instance_count=rescue_count
-
-
+		var pos:Vector2=Ops.rescue_location(view.model,incident)
+		if pos.distance_to(view.focus)>maxf(view.zoom*2.0,240):continue
+		var forward:Vector2=Terrain.unpack(incident.point)-Terrain.unpack(station.point)
+		var path:Array=incident.get("route_points",[])
+		if path.size()>=2:
+			var fraction:float=Ops.rescue_fraction(incident)
+			var next_fraction:float=clampf(fraction+(0.015 if stage=="responding" else -0.015),0,1)
+			forward=Ops.rescue_path_point(path,next_fraction)-pos
+		var heading:float=atan2(forward.x,forward.y) if forward.length_squared()>0.001 else 0.0
+		var transform_value:=Transform3D(Basis(Vector3.UP,heading),view.terrain.world(pos,0.45))
+		if stage=="responding" and outbound_count<MAX_VISIBLE_RESCUE:
+			emergency_mesh.multimesh.set_instance_transform(outbound_count,transform_value)
+			emergency_mesh.multimesh.set_instance_color(outbound_count,Color.WHITE)
+			outbound_count+=1
+		elif stage=="returning" and transport_count<MAX_VISIBLE_RESCUE:
+			stretcher_mesh.multimesh.set_instance_transform(transport_count,transform_value)
+			stretcher_mesh.multimesh.set_instance_color(transport_count,Color.WHITE)
+			transport_count+=1
+	emergency_mesh.multimesh.visible_instance_count=outbound_count
+	stretcher_mesh.multimesh.visible_instance_count=transport_count
