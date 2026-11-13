@@ -67,10 +67,11 @@ static func valid(state:Variant)->bool:
 		if not (v is int or v is float) or not is_finite(float(v)) or float(v)!=floorf(float(v)) or float(v)<0:return false
 	return state.xp<=600 and state.day<=1000000000 and state.attempts<=DAILY_LIMIT and state.best<=100 and state.serial<=1000000 and state.settled<=state.serial
 
-static func start(model:RefCounted,id:int)->Dictionary:
+static func start(model:RefCounted,id:int,practice:bool=false)->Dictionary:
 	var employee:=person(model,id)
 	if employee.is_empty() or not CASES.has(str(employee.role)):return model._result(false,L.text("Diese Fachkraft ist nicht mehr verfügbar."))
 	if model.Ops._assigned_active_rescue(model,employee):return model._result(false,L.text("Ein laufender Rettungseinsatz hat Vorrang vor dem Training."))
+	if practice:return {"ok":true,"practice":true,"person":id,"role":str(employee.role),"assignment":str(employee.assignment),"day":model.day,"step":0,"score":0,"finished":false}
 	var old:Dictionary=employee.get("training",{})
 	var attempts:int=int(old.get("attempts",0)) if int(old.get("day",0))==int(model.day) else 0
 	if attempts>=DAILY_LIMIT or int(old.get("serial",0))>=1000000:return model._result(false,L.text("Heute sind beide Trainingsrunden dieser Fachkraft verbraucht."))
@@ -83,6 +84,7 @@ static func start(model:RefCounted,id:int)->Dictionary:
 static func current(model:RefCounted,session:Dictionary)->bool:
 	var employee:=person(model,int(session.get("person",-1)))
 	if employee.is_empty() or not session.get("ok",false) or session.get("finished",false):return false
+	if session.get("practice",false):return str(employee.role)==str(session.get("role","")) and str(employee.assignment)==str(session.get("assignment","")) and int(model.day)==int(session.get("day",-1))
 	var state:Dictionary=employee.get("training",{})
 	return str(employee.role)==str(session.get("role","")) and str(employee.assignment)==str(session.get("assignment","")) and int(model.day)==int(session.get("day",-1)) and int(state.get("serial",-1))==int(session.get("serial",-2)) and int(state.get("settled",0))<int(session.serial)
 
@@ -91,7 +93,7 @@ static func challenge(model:RefCounted,session:Dictionary)->Dictionary:
 	var step:int=session.step
 	var data:Array=CASES[str(session.role)] if step==0 else PRIORITIES[group(str(session.role))] if step==1 else HANDOFF
 	var choices:Array=[]
-	var offset:int=posmod(int(session.person)*7+int(session.serial)*11+step,3)
+	var offset:int=posmod(int(session.person)*7+int(session.get("serial",0))*11+step,3)
 	for i in range(3):choices.append(data[1+posmod(i+offset,3)])
 	return {"prompt":data[0],"choices":choices,"answer":posmod(-offset,3),"explanation":data[4]}
 
@@ -105,6 +107,10 @@ static func answer(model:RefCounted,session:Dictionary,choice:Variant)->Dictiona
 	if not result.finished:return result
 	var employee:=person(model,int(session.person))
 	var average:int=roundi(float(session.score)/3.0)
+	if session.get("practice",false):
+		session.finished=true
+		result.merge({"average":average,"earned":0,"qualification":employee.qualification,"promoted":false})
+		return result
 	var earned:int=roundi(float(average)*0.36)
 	var state:Dictionary=employee.training
 	state.settled=int(session.serial)
