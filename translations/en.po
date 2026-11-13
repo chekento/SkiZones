@@ -10646,3 +10646,42 @@ msgstr "Practise for free · no experience points"
 
 msgid "Übungsrunde abgeschlossen · %d %% · ohne Erfahrungspunkte"
 msgstr "Practice complete · %d %% · no experience points"
+
+msgid "Ein Berg für tausend Gäste"
+msgstr "A mountain for a thousand guests"
+
+msgid "Fünftausend Abfahrten"
+msgstr "Five thousand descents"
+
+msgid "Fünfhundert glückliche Abschiede"
+msgstr "Five hundred happy farewells"
+
+msgid "Zehn wirtschaftliche Betriebstage"
+msgstr "Ten profitable operating days"
+
+msgid "Acht qualifizierte Fachkräfte"
+msgstr "Eight qualified professionals"
+
+msgid "Drei abgeschlossene Winter"
+msgstr "Three completed winters"
+
+msgid "Dieses Langzeitziel ist noch offen oder bereits belohnt."
+msgstr "This long-term goal is incomplete or already rewarded."
+
+msgid "Langzeitziel abgeschlossen · %d € Bonus"
+msgstr "Long-term goal completed · €%d bonus"
+
+msgid "Langzeitziele"
+msgstr "Long-term goals"
+
+msgid "Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sechs Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."
+msgstr "One-time milestones per resort. Up to €18,500 across all six goals; no cash bonus in sandbox mode. Profitable days exclude rewards and use the last 28 reports."
+
+msgid "Fortschritt %d / %d · einmalig %d €"
+msgstr "Progress %d / %d · one-time €%d"
+
+msgid "Bereits abgeschlossen"
+msgstr "Already completed"
+
+msgid "Ziel abschließen und Bonus abholen"
+msgstr "Complete goal and collect bonus"

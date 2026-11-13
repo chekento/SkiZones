@@ -5,6 +5,7 @@ const L = preload("res://src/core/i18n.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
 ## The resort office is a paused planning space with real simulation actions.
 
+const LongGoals=preload("res://src/core/long_goals_042.gd")
 const Progression = preload("res://src/core/progression.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
 const PosterCollection = preload("res://src/core/poster_collection.gd")
@@ -279,6 +280,20 @@ func _career(page: VBoxContainer) -> void:
 	else:
 		_card(page, L.text("Den nächsten Wintertag vorbereiten"), L.text("Erforsche die Bergwetterstation für eine Wettervorschau. Jeden Tag erscheinen neue Auftragsangebote. Am Ende eines 28-tägigen Winters erhältst du eine Wertung und eine Saisonprämie; dein Resort bleibt bestehen."))
 	_card(page, L.text("Karriere und freier Aufbau"), L.text("Karriere: Forschung schaltet neue Technik und Ausbaustufen frei. Im freien Aufbau sind die Anlagen direkt verfügbar; Aufträge, Forschungseffekte und Winterwertung bleiben nutzbar. Im Resort-Büro pausiert die Zeit, damit du in Ruhe planen kannst."))
+
+	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sechs Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."))
+	for id in LongGoals.SPECS:
+		var goal_id:String=id
+		var spec:Dictionary=LongGoals.SPECS[id]
+		var claimed:bool=id in state.get("long_goal_claims",[])
+		var reward:int=spec.reward if state.mode=="career" else 0
+		var card:=_card(page,L.text(str(spec.name)),L.text("Fortschritt %d / %d · einmalig %d €") % [mini(int(spec.target),LongGoals.progress(model,id)),int(spec.target),reward])
+		var goal_bar:=ProgressBar.new();goal_bar.max_value=int(spec.target);goal_bar.value=mini(int(spec.target),LongGoals.progress(model,id));goal_bar.custom_minimum_size.y=18;card.add_child(goal_bar)
+		_action(card,L.text("Bereits abgeschlossen") if claimed else L.text("Ziel abschließen und Bonus abholen"),func():
+			var result:Dictionary=LongGoals.claim(model,goal_id)
+			if result.ok:game.save_game(false)
+			return result
+		,LongGoals.ready(model,id))
 
 func _achievements(page: VBoxContainer) -> void:
 	# A virtual catalogue: show the chosen theme in detail instead of

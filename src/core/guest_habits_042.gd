@@ -9,7 +9,7 @@ static func allowed(guest:Dictionary,kind:String)->bool:
 	var youngest:=years(guest)
 	for member in guest.get("family",[]):youngest=mini(youngest,int(member.years))
 	return kind not in ["bar","disco"] or youngest>=18
-static func bonus(guest:Dictionary,kind:String,minute:int)->float:
+static func _base_bonus(guest:Dictionary,kind:String,minute:int)->float:
 	if not allowed(guest,kind) or not Needs.SERVICES.has(kind):return 0.0
 	if guest.get("heading_home",false) or guest.get("hotel_night",false):return 0.0
 	if int(guest.age)-int(guest.get("service_history",{}).get(kind,-10000))<120:return 0.0
@@ -29,3 +29,23 @@ static func bonus(guest:Dictionary,kind:String,minute:int)->float:
 	if kind=="bar" and clock>=1020 and clock<1380:return 20.0 if id%3==1 else 0.0
 	if kind=="disco" and age>=18 and age<45 and clock>=1140:return 24.0 if id%3==2 else 0.0
 	return 0.0
+
+## Shared party identity keeps group preferences coherent, without RNG writes.
+static func profile(guest:Dictionary)->Dictionary:
+	var identity:int=hash(str(guest.get("party_id",guest.get("id",0)))) & 0x7fffffff
+	return {"break_offset":posmod(identity,51)-25,"taste":posmod(identity/51,4)}
+static func bonus(guest:Dictionary,kind:String,minute:int)->float:
+	var traits:=profile(guest)
+	var leisure:Array=SHOPS+["pool","spa","fitness","bar","disco"]
+	if kind in leisure:
+		# Avoid a chain of purchases in different leisure businesses.
+		for previous in leisure:
+			if int(guest.get("age",0))-int(guest.get("service_history",{}).get(previous,-10000))<90:return 0.0
+		if float(guest.get("needs",{}).get("energy",100))<25:return 0.0
+	var value:float=_base_bonus(guest,kind,minute-int(traits.break_offset))
+	var taste:int=traits.taste
+	if kind in SHOPS:value*=1.25 if taste==0 else 0.85
+	elif kind in ["pool","spa","fitness"]:value*=1.25 if taste==1 else 0.85
+	elif kind in ["bar","disco"]:value*=1.25 if taste==2 else 0.85
+	elif kind in ["viewpoint","shelter","lodge"]:value*=1.2 if taste==3 else 1.0
+	return value
