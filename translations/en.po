@@ -10637,3 +10637,6 @@ msgstr "Qualification %d \u00b7 Training experience %d"
 
 msgid "Praxis-Training starten · kostenlos"
 msgstr "Start practical training \u00b7 free"
+
+msgid "Fels"
+msgstr "Rock"
