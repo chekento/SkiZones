@@ -8,6 +8,7 @@ var phase := "idle"
 var samples: Array[float] = []
 var _remaining := 0.0
 var _elapsed := 0.0
+var _go_at:=0
 var _button := Button.new()
 var _message := Label.new()
 var _score := Label.new()
@@ -67,7 +68,7 @@ func press() -> void:
 	if phase == "idle" or phase == "next": _begin()
 	elif phase == "done": reset(); _begin()
 	elif phase == "waiting": _finish(1500.0, true)
-	elif phase == "go": _finish(clampf(_elapsed*1000.0,0.0,1500.0),false)
+	elif phase == "go": _finish(clampf(float(Time.get_ticks_usec()-_go_at)/1000.0,0.0,1500.0),false)
 
 func _finish(milliseconds: float, early: bool) -> void:
 	samples.append(milliseconds)
@@ -92,7 +93,13 @@ func _process(delta: float) -> void:
 		if _remaining <= 0:
 			phase = "go"
 			_elapsed = 0.0
+			_go_at=Time.get_ticks_usec()
 			_button.text = L.text("LOS · JETZT TIPPEN")
 	elif phase == "go":
-		_elapsed += delta
+		_elapsed = float(Time.get_ticks_usec()-_go_at)/1000000.0
 		if _elapsed >= 1.5: _finish(1500.0,false)
+
+func _notification(what:int)->void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED,NOTIFICATION_APPLICATION_FOCUS_OUT] and phase in ["waiting","go"]:
+		phase="next"
+		_button.text=L.text("Startrunde wiederholen")
