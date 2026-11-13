@@ -3,6 +3,9 @@ extends RefCounted
 const KINDS := ["ramp","rail","roller","kicker_medium","kicker_pro","table_jump","step_up","step_down","rail_down","rail_kink","rail_rainbow","box","tube","funbox","wallride","whoops","quarterpipe","halfpipe","spine","transfer"]
 const NAMES := ["Kleine Sprungrampe","Breite Anfänger-Rail","Sanfte Schneewelle","Mittlerer Kicker","Pro-Kicker","Table Jump","Step-Up","Step-Down","Down-Rail","Kink-Rail","Rainbow-Rail","Breite Box","Tube","Funbox","Wallride","Whoops-Linie","Quarterpipe","Halfpipe","Spine","Transfer"]
 const COSTS := [850,1200,600,1800,3200,2800,2600,2600,1600,2100,2400,1400,1500,2900,3400,2200,4600,7800,2900,3600]
+## Conservative longitudinal bound for this catalogue at its maximum size.
+const MAX_REACH := 32.0
+static var _angles:Dictionary={}
 const SPECS := {
 	"ramp":{"length":10.0,"width":4.8,"height":1.35,"skill":1,"appeal":8.0,"upkeep":0.0,"risk":0.3,"shape":"kicker"},
 	"rail":{"length":6.4,"width":1.1,"height":1.1,"skill":1,"appeal":8.0,"upkeep":0.0,"risk":0.4,"shape":"rail"},
@@ -27,6 +30,12 @@ const SPECS := {
 }
 static func legacy(kind:String)->bool:return kind in ["ramp","rail","roller"]
 static func spec(kind:String)->Dictionary:return SPECS.get(kind,{})
+static func _rotation(degrees:float)->Vector2:
+	if not _angles.has(degrees):
+		if _angles.size()>=256:_angles.clear()
+		var angle:=deg_to_rad(degrees)
+		_angles[degrees]=Vector2(cos(angle),sin(angle))
+	return _angles[degrees]
 static func valid_options(options:Dictionary)->bool:
 	for field in ["rotation","scale"]:
 		var value:Variant=options.get(field,0.0 if field=="rotation" else 1.0)
@@ -35,13 +44,13 @@ static func valid_options(options:Dictionary)->bool:
 static func footprint(kind:String,options:Dictionary={})->Vector2:
 	var item:=spec(kind)
 	if item.is_empty():return Vector2.ZERO
-	var angle:=deg_to_rad(float(options.get("rotation",0)))
+	var rotation:=_rotation(float(options.get("rotation",0)))
 	var scale_value:float=options.get("scale",1.0)
-	return Vector2(absf(cos(angle))*float(item.width)+absf(sin(angle))*float(item.length),absf(cos(angle))*float(item.length)+absf(sin(angle))*float(item.width))*scale_value
+	return Vector2(absf(rotation.x)*float(item.width)+absf(rotation.y)*float(item.length),absf(rotation.x)*float(item.length)+absf(rotation.y)*float(item.width))*scale_value
 static func local_point(along:float,side:float,options:Dictionary)->Vector2:
-	var angle:=deg_to_rad(float(options.get("rotation",0)))
+	var rotation:=_rotation(float(options.get("rotation",0)))
 	var scale_value:float=options.get("scale",1.0)
-	return Vector2(cos(angle)*side-sin(angle)*along,sin(angle)*side+cos(angle)*along)/scale_value
+	return Vector2(rotation.x*side-rotation.y*along,rotation.y*side+rotation.x*along)/scale_value
 
 static func surface_height(kind:String,along:float,side:float)->float:
 	var item:=spec(kind)

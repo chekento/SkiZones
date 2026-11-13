@@ -32,6 +32,7 @@ jobs:
       - name: Real geometry, usage, upkeep, maintenance, safety and historic modules
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_modules_042.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_crowd_042.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/piste_side_visits_042.gd
       - name: Install virtual display

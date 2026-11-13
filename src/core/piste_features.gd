@@ -103,9 +103,11 @@ static func height_offset(piste: Dictionary, fraction: float, lateral: float, ab
 	if ability<1: return 0.0
 	var result := 0.0
 	for feature in piste.get("features",[]):
+		var along_world:float=(fraction-float(feature.fraction))*float(piste.length)
+		if absf(along_world)>Modules.MAX_REACH:continue
 		var spec:Dictionary=Modules.spec(str(feature.kind))
 		if ability<int(spec.skill) or float(feature.get("condition",100))<25:continue
-		var local:=Modules.local_point((fraction-float(feature.fraction))*float(piste.length),lateral-float(feature.lateral),feature)
+		var local:=Modules.local_point(along_world,lateral-float(feature.lateral),feature)
 		var scale_value:float=feature.get("scale",1.0)
 		if not Modules.legacy(str(feature.kind)):
 			result=maxf(result,Modules.ride_height(str(feature.kind),local.y,local.x)*scale_value)
@@ -134,6 +136,7 @@ static func safe_lateral(piste: Dictionary, fraction: float, lateral: float, abi
 		var spec:Dictionary=Modules.spec(str(feature.kind))
 		if ability>=int(spec.skill) and float(feature.get("condition",100))>=25:continue
 		var along := absf(fraction-float(feature.fraction))*float(piste.length)
+		if along>Modules.MAX_REACH+14.0:continue
 		var footprint:=Modules.footprint(str(feature.kind),feature)
 		var approach:float=maxf(24.0,footprint.y*0.5+14.0)
 		if along>=approach:continue

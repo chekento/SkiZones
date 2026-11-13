@@ -55,7 +55,14 @@ Godot 4.6.3, 2026-11-13:
 | `snowpark_workshop_042.gd` — real touches, six phone/language layouts, world preview and confirmed duplication | 52 passed, 0 failed |
 | `landscape_rhythm.gd` — original three modules, old saves, pacing and night safety | 37 passed, 0 failed |
 | `compile_sensitive_032.gd` — main/controller/UI dependency graph | 8 passed, 0 failed |
+| `snowpark_crowd_042.gd` — 180 admitted guests, four real modules, 720 calendar minutes at 1×/4×/8× batching | 16 passed, 0 failed |
 | Translation placeholders and source coverage | 3,210 messages verified |
+
+The crowd checkpoints were identical across all three playback batches:
+66 actual module uses, all 180 guests departed. Simulation work took about
+2.1–2.4 seconds per twelve-hour run on this executor; this is not a per-frame
+or Android GPU benchmark. Far-away module profiles are rejected before
+surface calculations; rotation trig is cached outside persisted game state.
 
 `snowpark_gallery_042.gd` builds a labelled synthetic comparison display from
 the actual meshes. CI captures it and the six real workshop screens in
