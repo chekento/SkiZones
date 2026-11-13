@@ -188,7 +188,8 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 		_card(parent,L.text("Bergwacht"),L.text("Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter.") % (1800*int(item.get("level",1))))
 		for event in model.operations.incidents:
 			if event.status=="resolved":continue
-			var box:=_card(parent,L.text("Hilferuf · Gast %d") % int(event.guest),L.text("Wartet auf Hilfe") if event.status=="waiting" else L.text("Rettung unterwegs · %.0f Minuten") % float(event.remaining))
+			if event.status!="waiting" and int(event.station)!=lift_id:continue
+			var box:=_card(parent,L.text("Hilferuf · Gast %d") % int(event.guest),Ops.rescue_status(event))
 			if event.status=="waiting":_button(box,L.text("Von hier Rettung entsenden"),func():return Ops.dispatch(model,int(event.id),lift_id))
 	if model.Hospitality.lodging(str(item.kind)):
 		var box := _card(parent, L.text("Unterkunft verwalten"))
