@@ -60,6 +60,7 @@ jobs:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-regression-041
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/rescue_routes_042.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/piste_side_visits_042.gd
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd
           python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
@@ -68,5 +69,13 @@ jobs:
           # Existing repair test intentionally rejects non-isolated test dirs.
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-repair-0382-041
         run: python3 tools/run_godot_test.py --timeout 210 -- "$GODOT_BIN" --language de --headless --script tests/save_repair_0382.gd
+      - name: 0.42 actual piste restaurant and matching compacted-snow access
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/piste_side_visit_scene_042.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: piste-restaurant-access-042
+          path: build/qa/piste-restaurant-access-042.png
+          if-no-files-found: ignore
       # Old 0.19/0.27 production downloads require real historical fixtures;
       # these are exercised by the existing Validate and build Android gate.

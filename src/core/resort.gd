@@ -18,6 +18,10 @@ const Snow = preload("res://src/core/snow_surface.gd")
 const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const GuestRhythm = preload("res://src/core/guest_daily_rhythm.gd")
+const GuestHabits = preload("res://src/core/guest_habits_042.gd")
+const PisteStops = preload("res://src/core/piste_stops_042.gd")
+var _piste_stops_revision: int = -1
+var _piste_stops: Array = []
 const PublicWC = preload("res://src/core/public_wc.gd")
 const Access=preload("res://src/core/resort_access.gd")
 const Parties=preload("res://src/core/guest_parties.gd")
@@ -530,6 +534,7 @@ func preview_building(kind: String, point: Vector2, rotation_value: int = 0) -> 
 	if local_grade > 0.42:
 		return _result(false, L.text("Dieser Bauplatz ist zu steil. Einen flacheren Standort wählen."))
 	var connection: Dictionary = {} if kind == "snowmaker" else Foot.connection(terrain, pedestrian_layout(), buildings, kind, point, rotation_value)
+	if connection.is_empty() and kind!="snowmaker":connection=PisteStops.connection(self,proposed)
 	if kind != "snowmaker" and (connection.is_empty() or not Foot.clear_walk([Terrain.pack(Foot.door(proposed)), Terrain.pack(Foot.forecourt(proposed))], buildings + [proposed], lifts)):
 		return _result(false, L.text("An einen Stationsplatz, den Talzugang oder einen bereits angeschlossenen Gebäudeplatz bauen."))
 	for piste in pistes:
@@ -1270,9 +1275,9 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		draw -= choice.weight
 		if draw <= 0:
 			guest.navigation_error = false
-			return choice.route
+			return PisteStops.decorate(self,guest,choice.route)
 	guest.navigation_error = false
-	return choices[-1].route
+	return PisteStops.decorate(self,guest,choices[-1].route)
 
 func _night_break_route(guest: Dictionary, source: String) -> Dictionary:
 	if not guest.get("night_out",false) or not (minute>=1020 or minute<360) or not source.begins_with("d"):return {}
@@ -1333,6 +1338,10 @@ func service_capacity(building: Dictionary) -> int:
 	# remains an operating expense and only actual visits produce revenue.
 	return ceili(base_places*Ops.service_efficiency(self,building))
 
+func service_utility(guest: Dictionary, kind: String) -> float:
+	if not GuestHabits.allowed(guest,kind):return 0.0
+	return Needs.utility(guest,kind)+GuestRhythm.utility_bonus(guest,kind,minute)+GuestHabits.bonus(guest,kind,minute)
+
 func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	if (not Ops.continuous(self) and minute >= CLOSING) or guest.get("heading_home",false): return {}
 	Agenda.ensure(self, guest)
@@ -1343,8 +1352,8 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if not Ops.building_open(self, building): continue
 		# A weak, time-dependent meal preference adds human routine without
 		# bypassing personal hunger, cooldown, route, capacity or opening checks.
-		var utility := Needs.utility(guest,building.kind)
-		utility += GuestRhythm.utility_bonus(guest,str(building.kind),minute)
+		if not GuestHabits.allowed(guest,str(building.kind)):continue
+		var utility := service_utility(guest,str(building.kind))
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0
@@ -1524,7 +1533,7 @@ func _finish_leg(guest: Dictionary) -> void:
 	if leg.kind == "ski":
 		var piste := asset(leg.id)
 		Agenda.record_piste(guest, piste, leg)
-		var complete_descent: bool = leg.id == guest.route.target or (is_zero_approx(leg.get("start_fraction", 0.0)) and is_equal_approx(leg.get("end_fraction", 1.0), 1.0))
+		var complete_descent: bool = is_equal_approx(leg.get("end_fraction",1.0),1.0) and (leg.id==guest.route.target or is_zero_approx(leg.get("start_fraction",0.0)))
 		if not piste.is_empty():
 			if complete_descent:
 				piste.rides += int(guest.get("group_size", 1))
@@ -1606,7 +1615,7 @@ func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
 			_start_leg(guest)
 			return
 
-	if leg.kind == "ski" and int(leg.id) == int(guest.route.target):
+	if leg.kind == "ski" and int(leg.id) == int(guest.route.target) and is_equal_approx(float(leg.get("end_fraction",1)),1.0):
 		if not guest.has("party_id"):
 			guest.last_piste = int(leg.id)
 			guest.loops += 1
@@ -1630,7 +1639,7 @@ func _continue_leg(guest: Dictionary,leg: Dictionary) -> void:
 		if _return_from_node(guest, leg.to):
 			return
 
-	if leg.kind == "visit" and not guest.get("heading_home",false):
+	if leg.kind == "visit" and not leg.get("resume_piste",false) and not guest.get("heading_home",false):
 		var onward := choose_route(guest,leg.to)
 		if not onward.is_empty():
 			guest.route=onward
@@ -1836,6 +1845,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 		if clock_tick: guest.age += 1
 		Needs.advance(guest,weather().temperature,clock_tick,bool(restroom_steps.get(int(guest.id),true)))
 		if clock_tick: Agenda.advance(guest)
+		if clock_tick and posmod(int(guest.id)+minute,5)==0:PisteStops.maybe_stop(self,guest)
 		if guest.get("incident", -1) >= 0: continue
 		if guest.phase == "leaving":
 			_depart(guest)
@@ -2296,6 +2306,9 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 		if not leg is Dictionary or leg.get("kind") not in ["walk", "lift", "ski", "visit"] or not Terrain.number(leg.get("id")) or leg.id != floorf(leg.id) or leg.id < 0 or not leg.get("points") is Array or leg.points.size() < 2 or leg.points.size() > 64 or not Terrain.number(leg.get("minutes")) or leg.minutes < 0.15 or leg.minutes > 1000000:
 			return {}
 		if leg.has("pause_only") and (not leg.pause_only is bool or leg.kind!="visit"):return {}
+		if leg.has("resume_piste") and (not leg.resume_piste is bool or leg.kind!="visit"):return {}
+		if leg.has("partial") and (not leg.partial is bool or leg.kind!="ski"):return {}
+		if leg.has("piste_access") and leg.kind!="walk":return {}
 		for point in leg.points:
 			if not terrain.contains(Terrain.unpack(point)) and (leg.kind!="walk" or portal_path.is_empty() or Terrain.unpack(point).distance_to(Terrain.unpack(portal_path[-1]))>0.01):
 				return {}
@@ -2307,7 +2320,9 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 			var walk_key := JSON.stringify(leg.points)
 			if not rescue_walk and not _checked_walks.has(walk_key):
 				_checked_walks[walk_key] = Foot.valid_walk(pedestrian_layout(), leg.points, buildings)
-			if leg.id != 0 or (not rescue_walk and not _checked_walks[walk_key]):
+			var piste_access:bool=leg.has("piste_access") and PisteStops.valid_access(self,leg)
+			if leg.has("piste_access") and not piste_access:return {}
+			if leg.id != 0 or (not rescue_walk and not _checked_walks[walk_key] and not piste_access):
 				return {}
 		else:
 			var item := asset(int(leg.id))
@@ -2337,6 +2352,11 @@ func _checked_itinerary(value: Variant, skill: int) -> Dictionary:
 				expected = item.points.slice(int(first), int(last) + 1)
 				var start_fraction := terrain.waypoint_fraction(item.points, int(first))
 				var end_fraction := terrain.waypoint_fraction(item.points, int(last))
+				if leg.get("partial",false):
+					if not Terrain.number(leg.get("start_fraction")) or not Terrain.number(leg.get("end_fraction")):return {}
+					start_fraction=float(leg.start_fraction);end_fraction=float(leg.end_fraction)
+					if start_fraction<0 or end_fraction>1 or end_fraction-start_fraction<0.00001:return {}
+					expected=PisteStops.slice_points(self,item,start_fraction,end_fraction)
 				if not Terrain.number(leg.get("start_fraction", start_fraction)) or not Terrain.number(leg.get("end_fraction", end_fraction)) or absf(leg.get("start_fraction", start_fraction) - start_fraction) > 0.00001 or absf(leg.get("end_fraction", end_fraction) - end_fraction) > 0.00001:
 					return {}
 				if not Motion.valid_profile(leg.get("motion", [])):

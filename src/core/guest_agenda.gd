@@ -166,7 +166,11 @@ static func offer(model: RefCounted) -> Dictionary:
 		if not model.Ops.building_open(model, building) or not Needs.SERVICES.has(building.kind): continue
 		var graph: Dictionary = model._routing_graph(2)
 		var door := "d%d" % int(building.id)
-		if not model._shortest(graph, "base", door).ok or not model._shortest(graph, door, "base").ok: continue
+		var connected:bool=model._shortest(graph,"base",door).ok and model._shortest(graph,door,"base").ok
+		if not connected:
+			for stop in model.PisteStops.stops(model):
+				if int(stop.building)==int(building.id) and model.routes_for(2).any(func(route):return route.legs.any(func(leg):return leg.kind=="ski" and int(leg.id)==int(stop.piste))):connected=true;break
+		if not connected:continue
 		park = park or building.kind == "snowpark"
 		food = food or Needs.SERVICES[building.kind].hunger >= 35
 		warm = warm or Needs.SERVICES[building.kind].warmth >= 35
