@@ -9929,3 +9929,93 @@ msgstr "The mountain rescue station cannot be demolished while its crew is treat
 
 msgid "Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."
 msgstr "The rescue worker remains on duty until the patient is discharged."
+
+msgid "Drehung von −45 bis +45 Grad und Größe von 70 bis 140 % wählen."
+msgstr "Choose a rotation from −45 to +45 degrees and a size from 70 to 140%."
+
+msgid "Anfahrt und Landebereich müssen frei bleiben."
+msgstr "Keep the approach and landing area clear."
+
+msgid "Module brauchen freie Anfahrten und getrennte Landebereiche."
+msgstr "Modules need clear approaches and separate landing areas."
+
+msgid "Snowpark-Modul gewartet."
+msgstr "Snowpark module serviced."
+
+msgid "Mittlerer Kicker"
+msgstr "Medium kicker"
+
+msgid "Pro-Kicker"
+msgstr "Pro kicker"
+
+msgid "Table Jump"
+msgstr "Table jump"
+
+msgid "Step-Up"
+msgstr "Step-up"
+
+msgid "Step-Down"
+msgstr "Step-down"
+
+msgid "Down-Rail"
+msgstr "Down rail"
+
+msgid "Kink-Rail"
+msgstr "Kink rail"
+
+msgid "Rainbow-Rail"
+msgstr "Rainbow rail"
+
+msgid "Breite Box"
+msgstr "Wide box"
+
+msgid "Tube"
+msgstr "Tube"
+
+msgid "Funbox"
+msgstr "Funbox"
+
+msgid "Wallride"
+msgstr "Wallride"
+
+msgid "Whoops-Linie"
+msgstr "Whoops line"
+
+msgid "Quarterpipe"
+msgstr "Quarterpipe"
+
+msgid "Halfpipe"
+msgstr "Halfpipe"
+
+msgid "Spine"
+msgstr "Spine"
+
+msgid "Transfer"
+msgstr "Transfer"
+
+msgid "Pistenplan: Modul mit Finger oder Maus direkt positionieren; Feineinstellung über die Regler."
+msgstr "Piste plan: place the module directly with a finger or mouse; use the sliders for fine adjustments."
+
+msgid "Freie Anfahrt, Landebereich und Umfahrung beachten. Versetzen kostet 120 €; größere Module zusätzlich den Preisunterschied. Entfernen erstattet keine Baukosten."
+msgstr "Keep the approach, landing and bypass clear. Moving costs €120; larger modules also cost the price difference. Removal does not refund construction costs."
+
+msgid "Drehung zur Piste: %+.0f°"
+msgstr "Rotation relative to piste: %+.0f°"
+
+msgid "Größe: %.0f %%"
+msgstr "Size: %.0f %%"
+
+msgid "Niveau %d · %.1f × %.1f m · Unterhalt %.0f €/Tag"
+msgstr "Level %d · %.1f × %.1f m · Upkeep €%.0f/day"
+
+msgid "Zustand %.0f %% · Nutzungen %d"
+msgstr "Condition %.0f %% · Uses %d"
+
+msgid "Warten · %d €"
+msgstr "Service · €%d"
+
+msgid "Modul duplizieren"
+msgstr "Duplicate module"
+
+msgid "Snowpark-Wartung · %s"
+msgstr "Snowpark maintenance · %s"

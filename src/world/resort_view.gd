@@ -954,7 +954,9 @@ func _feature_transform(piste: Dictionary, feature: Dictionary) -> Transform3D:
 	var point := center+direction.orthogonal()*float(feature.lateral)
 	var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
 	var x := Vector3.UP.cross(z).normalized()
-	return Transform3D(Basis(x,z.cross(x).normalized(),z),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
+	var basis:=Basis(x,z.cross(x).normalized(),z)*Basis(Vector3.UP,deg_to_rad(float(feature.get("rotation",0))))
+	basis=basis.scaled(Vector3.ONE*float(feature.get("scale",1)))
+	return Transform3D(basis,ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
 
 func _feature_mesh(kind: String) -> ArrayMesh:
 	var key := "module/"+kind

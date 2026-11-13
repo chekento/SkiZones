@@ -155,11 +155,13 @@ static func offer(model: RefCounted) -> Dictionary:
 	if model._audience_offer.get("key", "") == key: return model._audience_offer
 	var counts := [0, 0, 0]
 	var used: Dictionary = {}
+	var modular_park:=false
 	for route in model.routes_for(2):
 		counts[int(model.asset(int(route.target)).difficulty)] += 1
+		modular_park=modular_park or model.PisteFeatures.appeal(model.asset(int(route.target)),2)>0
 		for leg in route.legs:
 			if leg.kind == "lift": used[int(leg.id)] = true
-	var park := false
+	var park := modular_park
 	var food := false
 	var warm := false
 	for building in model.buildings:

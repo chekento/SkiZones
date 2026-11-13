@@ -1260,6 +1260,7 @@ func choose_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		if int(guest.get("last_piste", -1)) == int(route.target):
 			weight *= 0.28
 		var piste := asset(route.target)
+		if guest.agenda.kind=="expert":weight*=1.0+PisteFeatures.appeal(piste,int(guest.ability))/60.0
 		weight *= 1.4 if piste.get("difficulty", -1) == route_skill else 1.0
 		weight *= Traffic.route_pressure(self, piste, piste_load)
 		# Prefer forgotten but connected old ski runs. Avoid a fixed monopoly
@@ -1872,6 +1873,7 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 				guest.elapsed += movement * Parties.pace(self,guest) * (traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0) * (1.0 if restroom_steps.get(int(guest.id),true) else 0.0)
 			if leg.kind == "ski":
 				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])),1.0/time_divisor)
+				PisteFeatures.traverse(self,asset(int(leg.id)),guest,ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])))
 				snow_revision += 1
 			if guest.elapsed >= duration:
 				_finish_leg(guest)
@@ -2061,6 +2063,7 @@ func operating_costs(include_staff: bool = true) -> float:
 		amount += Hospitality.extra_upkeep(building)
 	for piste in pistes:
 		amount += piste.length * (0.4 if piste.enabled else 0.08) * float(piste.get("width", 20)) / 20
+		amount += PisteFeatures.upkeep(piste)
 	var staff_cost := 0.0
 	if include_staff and Ops.active(self):
 		for person in operations.staff:
