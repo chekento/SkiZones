@@ -9,6 +9,8 @@ const OFFER_CATEGORIES := {"food":"Speisen", "drink":"Getränke", "retail":"Souv
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
 const ReactionGame = preload("res://src/ui/reaction_game.gd")
+const MemoryGame=preload("res://src/ui/memory_game_042.gd")
+const Academy=preload("res://src/ui/staff_training_panel_042.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
@@ -696,11 +698,19 @@ func _mini_games(building: Dictionary) -> void:
 		return
 	var board := TicTacToeBoard.new()
 	board.style_id = str(hud.game.preferences.visual_style)
+	var selector:=OptionButton.new();selector.name="arcade_selector"
+	selector.fit_to_longest_item=false;selector.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;selector.custom_minimum_size.y=52
+	for caption in ["Tic-Tac-Toe","Reaktion","Bergpaare"]:selector.add_item(L.text(caption))
+	page.add_child(selector)
 	page.add_child(board)
-	hud._label(page,L.text("Echtes Brettspiel gegen den Computer. Ohne Einsatz, Geldprämien oder Zeitdruck."),15,hud.MUTED,true)
 	var reaction := ReactionGame.new()
 	reaction.style_id = str(hud.game.preferences.visual_style)
-	page.add_child(reaction)
+	page.add_child(reaction);reaction.hide()
+	var memory:=MemoryGame.new();memory.style_id=str(hud.game.preferences.visual_style)
+	page.add_child(memory);memory.hide()
+	selector.item_selected.connect(func(index:int):
+		board.visible=index==0;reaction.visible=index==1;memory.visible=index==2)
+	hud._label(page,L.text("Die Spiele sind freiwillig und verändern weder Resortgeld noch Karrierefortschritt."),15,hud.MUTED,true)
 
 func _activity(building: Dictionary) -> void:
 	var page := _page(L.text("Betriebstraining"))
@@ -712,7 +722,10 @@ func _activity(building: Dictionary) -> void:
 		hud._label(game_box,L.text("Hotel-Level %d / 20 · %d Geschichten · beste Schicht %d Punkte") % [int(progress.level),int(progress.visits),int(progress.best)],18,hud.TEAL,true)
 		hud._label(game_box,L.text("Dein Haus, seine Zimmerbelegung und das gewählte Frühstück beeinflussen die Geschichten. Die echten Zimmer werden hier nicht doppelt gebucht."),16,hud.MUTED,true)
 	hud._label(game_box, L.text("Die Resortzeit pausiert während deines Gebäudebesuchs."), 16, hud.MUTED, true)
-	hud._button(game_box, L.text("Hotelgeschichte starten · fünf Kapitel") if Hospitality.lodging(str(building.kind)) else L.text("Schicht starten · fünf Aufgaben"), _start_shift, true)
+	var shift_button:Button=hud._button(game_box, L.text("Hotelgeschichte starten · fünf Kapitel") if Hospitality.lodging(str(building.kind)) else L.text("Schicht starten · fünf Aufgaben"), _start_shift, true)
+	shift_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	shift_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	var academy:=Academy.new();page.add_child(academy);academy.setup(hud,asset_id)
 
 func _start_shift() -> void:
 	session = Activities.start(hud.game.model, asset_id)
@@ -728,6 +741,7 @@ func _next_task() -> void:
 	if task.is_empty(): return
 	picked.clear()
 	elapsed = 0.0
+	cursor=0.0
 	hud._label(game_box, L.text("Aufgabe %d / 5") % (int(session.step) + 1), 23, hud.TEAL)
 	if task.mode == "decision":
 		hud._label(game_box,L.text("BETRIEBSSIMULATION · ") + L.text(str(task.get("metric","Entscheidungsqualität"))),16,hud.TEAL,true)
@@ -798,11 +812,15 @@ func _submit(value: Variant) -> void:
 		hud._button(game_box, L.text("Noch eine Runde"), _start_shift, true)
 	else:
 		if task.get("mode","") == "decision":
-			hud.toast(L.text("Betriebsentscheidung · %d / 100 · %s") % [int(result.get("score",0)),L.text(str(task.get("metric","Service")))])
-		_next_task()
+			meter=null
+			for child in game_box.get_children():game_box.remove_child(child);child.queue_free()
+			hud._label(game_box,L.text("Betriebsentscheidung · %d / 100 · %s") % [int(result.get("score",0)),L.text(str(task.get("metric","Service")))],22,hud.TEAL,true)
+			hud._label(game_box,L.text("Passende Entscheidung: %s") % L.text(str(task.choices[int(task.answer)])),18,hud.INK,true)
+			hud._button(game_box,L.text("Verstanden · nächste Aufgabe"),_next_task,true).name="activity_continue"
+		else:_next_task()
 
 func _process(delta: float) -> void:
-	if not visible or not is_instance_valid(meter) or task.get("mode", "") != "timing": return
+	if not visible or not is_instance_valid(meter) or not meter.is_visible_in_tree() or task.get("mode", "") != "timing": return
 	elapsed += delta
 	cursor = (sin(elapsed * 1.9 - PI * 0.5) + 1.0) * 0.5
 	artwork.cursor = cursor

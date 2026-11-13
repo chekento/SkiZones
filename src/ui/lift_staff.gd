@@ -4,6 +4,7 @@ const L = preload("res://src/core/i18n.gd")
 const Ops = preload("res://src/core/operations.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
+const Academy=preload("res://src/ui/staff_training_panel_042.gd")
 var hud: CanvasLayer
 var lift_id := -1
 var body: VBoxContainer
@@ -14,6 +15,8 @@ var tabs: TabContainer
 var cards: Array = []
 var feedback: Label
 var expanded: Dictionary = {}
+var _back_button:Button
+var _footer:Label
 const OPTIONAL_CAP := 3
 func setup(interface: CanvasLayer) -> void:
 	hud = interface
@@ -28,8 +31,10 @@ func setup(interface: CanvasLayer) -> void:
 	body=hud._vbox(self,10)
 	var header:=HBoxContainer.new();body.add_child(header)
 	title=hud._label(header,L.text("ANLAGE & BETRIEB"),24,hud.ACCENT)
+	title.clip_text=true;title.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	hud._spacer(header,false)
-	hud._button(header,L.text("Zurück zur Anlage"),hide,true)
+	_back_button=hud._button(header,L.text("Zurück zur Anlage"),hide,true)
+	_back_button.name="staff_close"
 	summary=hud._label(body,"",19,hud.INK,true)
 	feedback=hud._label(body,"",16,hud.TEAL,true)
 	tabs=TabContainer.new();tabs.size_flags_vertical=Control.SIZE_EXPAND_FILL
@@ -42,8 +47,22 @@ func setup(interface: CanvasLayer) -> void:
 		control.add_theme_color_override("font_selected_color",hud.ACCENT)
 		control.add_theme_color_override("font_unselected_color",hud.MUTED)
 	body.add_child(tabs)
-	hud._label(body,L.text("Nach dem Schließen läuft die Zeit weiter. Reparaturen und Einsätze brauchen Arbeitszeit."),15,hud.MUTED,true)
+	_footer=hud._label(body,L.text("Nach dem Schließen läuft die Zeit weiter. Reparaturen und Einsätze brauchen Arbeitszeit."),15,hud.MUTED,true)
+	get_viewport().size_changed.connect(_fit_layout)
+	call_deferred("_fit_layout")
 	hide()
+func _fit_layout()->void:
+	if not is_inside_tree():return
+	var compact:bool=get_viewport_rect().size.x<580
+	var short_screen:bool=get_viewport_rect().size.y<500
+	offset_left=8 if compact else 42;offset_right=-8 if compact else -42
+	offset_top=8 if short_screen else 116;offset_bottom=-8 if short_screen else -24
+	for label in [summary,feedback,_footer]:
+		if is_instance_valid(label):label.visible=not short_screen
+	if is_instance_valid(_back_button):
+		_back_button.text="✕" if compact else L.text("Zurück zur Anlage")
+		_back_button.custom_minimum_size.x=52 if compact else 120
+	if is_instance_valid(title):title.add_theme_font_size_override("font_size",19 if compact else 24)
 func _page(caption: String) -> VBoxContainer:
 	var scroll:=DragScroll.new();scroll.name=caption
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;tabs.add_child(scroll)
@@ -117,6 +136,8 @@ func rebuild() -> void:
 	var safety:=_card(design,L.text("Gefahrenzone · dauerhaft"))
 	hud._label(safety,L.text("Abbau mit 25 % Erstattung erfordert eine gesonderte Bestätigung."),15,hud.MUTED,true)
 	hud._button(safety,L.text("Anlage abbauen"),_demolish).name="design_demolish"
+	var academy_page:=_page(L.text("Akademie"))
+	var academy:=Academy.new();academy_page.add_child(academy);academy.setup(hud,lift_id)
 	tabs.current_tab=clampi(previous,0,tabs.get_tab_count()-1);refresh_status()
 func _build_operation(parent: Node, item: Dictionary) -> void:
 	var model: RefCounted=hud.game.model
@@ -307,6 +328,7 @@ func _people(parent: Node, people: Array, target: String) -> void:
 	var model: RefCounted=hud.game.model
 	for person in people:
 		hud._label(parent,person.name+" · "+L.text(Ops.ROLES[person.role].name),17,hud.TEAL,true)
+		hud._label(parent,L.text("Qualifikation %d · Trainingserfahrung %d") % [int(person.qualification),int(person.get("training",{}).get("xp",0))],16,hud.TEAL,true)
 		hud._label(parent,L.text("Im Dienst") if Ops.on_duty(model,person) else L.text("Außer Dienst / Pause / Abwesenheit"),16,hud.MUTED,true)
 		var labels: Array=[]
 		for key in Ops.SHIFTS:labels.append(L.text(Ops.SHIFT_NAMES[key]))

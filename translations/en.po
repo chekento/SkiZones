@@ -10019,3 +10019,624 @@ msgstr "Duplicate module"
 
 msgid "Snowpark-Wartung · %s"
 msgstr "Snowpark maintenance · %s"
+
+msgid "Ein Kind erreicht den Einstieg mit einem verdrehten Skistock."
+msgstr "A child reaches the boarding area with a twisted ski pole."
+
+msgid "Einstieg sichern und beim Ordnen helfen"
+msgstr "Secure boarding and help sort the equipment"
+
+msgid "Den Einstieg beschleunigen"
+msgstr "Speed up boarding"
+
+msgid "Die Warteschlange ignorieren"
+msgstr "Ignore the queue"
+
+msgid "Ein sicherer Einstieg hat Vorrang vor einer kürzeren Warteschlange."
+msgstr "Safe boarding takes priority over a shorter queue."
+
+msgid "Eine Seilrolle meldet wiederholt ungewöhnliche Schwingungen."
+msgstr "A rope pulley repeatedly reports unusual vibration."
+
+msgid "Anlage sichern und die Ursache prüfen"
+msgstr "Secure the installation and check the cause"
+
+msgid "Nur den Alarm quittieren"
+msgstr "Only acknowledge the alarm"
+
+msgid "Die Geschwindigkeit erhöhen"
+msgstr "Increase the speed"
+
+msgid "Eine Störungsmeldung braucht eine geprüfte Ursache und eine dokumentierte Freigabe."
+msgstr "A fault report needs a verified cause and a documented clearance."
+
+msgid "Nach einem Ausfall soll eine Steuerung wieder freigegeben werden."
+msgstr "A control system needs clearance after a power failure."
+
+msgid "Gesicherte Prüfung und Freigabe dokumentieren"
+msgstr "Document the secured inspection and clearance"
+
+msgid "Die Sicherung ungeprüft überbrücken"
+msgstr "Bypass the fuse without checking"
+
+msgid "Den Alarm abschalten"
+msgstr "Switch off the alarm"
+
+msgid "Eine dokumentierte technische Prüfung gehört zur sicheren Wiederinbetriebnahme."
+msgstr "A documented technical inspection is part of safe recommissioning."
+
+msgid "Auf der vorgesehenen Präparierungsroute fahren noch Gäste."
+msgstr "Guests are still skiing on the planned grooming route."
+
+msgid "Piste räumen lassen und den Einsatz abstimmen"
+msgstr "Have the piste cleared and coordinate the operation"
+
+msgid "Mit der Pistenraupe dazwischenfahren"
+msgstr "Drive the groomer between the guests"
+
+msgid "Die Sperrung auslassen"
+msgstr "Skip closing the piste"
+
+msgid "Eine Präparierung beginnt erst auf einer freigegebenen, geräumten Strecke."
+msgstr "Grooming starts only on a cleared route approved for the operation."
+
+msgid "Ein Hilferuf kommt von der Mitte einer langen Abfahrt."
+msgstr "A call for help comes from the middle of a long descent."
+
+msgid "Zufahrt und Rücktransport gemeinsam prüfen"
+msgstr "Check both the approach and the return transport"
+
+msgid "Nur die Luftlinie betrachten"
+msgstr "Only consider the straight-line distance"
+
+msgid "Ohne Rückwegplanung starten"
+msgstr "Set off without planning the return"
+
+msgid "Zum Einsatz gehört ein erreichbarer Rückweg mit dem Patienten."
+msgstr "An accessible return route with the patient is part of the operation."
+
+msgid "Ein Rücktransport ist angekündigt, der Behandlungsplatz ist belegt."
+msgstr "A return transport is expected, but the treatment space is occupied."
+
+msgid "Übergabe und freien Behandlungsplatz koordinieren"
+msgstr "Coordinate the handover and an available treatment space"
+
+msgid "Die Ankunft unvorbereitet abwarten"
+msgstr "Wait for the arrival without preparing"
+
+msgid "Die Belegung verschweigen"
+msgstr "Conceal the occupied space"
+
+msgid "Eine abgestimmte Übergabe hält Rettungsweg und Versorgungskapazität verlässlich."
+msgstr "A coordinated handover keeps rescue access and treatment capacity reliable."
+
+msgid "Starker Wind treibt den erzeugten Schnee von der Piste."
+msgstr "Strong wind is blowing produced snow off the piste."
+
+msgid "Bedingungen prüfen und Beschneiung anpassen"
+msgstr "Check conditions and adjust snowmaking"
+
+msgid "Unverändert mehr Wasser einsetzen"
+msgstr "Use more water without changing anything"
+
+msgid "Die Wetterdaten ignorieren"
+msgstr "Ignore the weather data"
+
+msgid "Beschneiung muss zu Wetter und tatsächlichem Schneebedarf passen."
+msgstr "Snowmaking must suit the weather and the actual snow requirement."
+
+msgid "Eine Familie kommt an, ihr Zimmer ist noch nicht freigegeben."
+msgstr "A family arrives, but their room has not been cleared yet."
+
+msgid "Zimmerstatus prüfen und eine Warteoption anbieten"
+msgstr "Check the room status and offer somewhere to wait"
+
+msgid "Ein ungeprüftes Zimmer zuweisen"
+msgstr "Assign an unchecked room"
+
+msgid "Die Familie ohne Auskunft warten lassen"
+msgstr "Leave the family waiting without information"
+
+msgid "Eine verlässliche Auskunft und ein geprüfter Zimmerstatus verhindern Doppelbelegungen."
+msgstr "Reliable information and a verified room status prevent double bookings."
+
+msgid "Zwei Buchungen scheinen dasselbe Zimmer zu beanspruchen."
+msgstr "Two bookings appear to claim the same room."
+
+msgid "Belegung prüfen und eine verfügbare Alternative suchen"
+msgstr "Check occupancy and find an available alternative"
+
+msgid "Beide Schlüssel ausgeben"
+msgstr "Issue both keys"
+
+msgid "Eine Buchung ungeprüft löschen"
+msgstr "Delete a booking without checking"
+
+msgid "Erst die echte Belegung klären, dann eine nachvollziehbare Lösung anbieten."
+msgstr "Clarify actual occupancy first, then offer a clear solution."
+
+msgid "Ein gereinigtes Zimmer hat noch einen gemeldeten Defekt."
+msgstr "A cleaned room still has a reported defect."
+
+msgid "Defekt melden und Freigabe zurückhalten"
+msgstr "Report the defect and withhold clearance"
+
+msgid "Das Zimmer sofort freigeben"
+msgstr "Release the room immediately"
+
+msgid "Die Meldung entfernen"
+msgstr "Remove the report"
+
+msgid "Sauberkeit und technische Freigabe sind unterschiedliche Voraussetzungen."
+msgstr "Cleanliness and technical clearance are separate requirements."
+
+msgid "Eine Bestellung enthält einen Hinweis auf Unverträglichkeiten."
+msgstr "An order includes a note about food intolerances."
+
+msgid "Zutaten prüfen und Rückfrage mit der Küche halten"
+msgstr "Check ingredients and consult the kitchen"
+
+msgid "Die Zutaten erraten"
+msgstr "Guess the ingredients"
+
+msgid "Ein beliebiges Gericht servieren"
+msgstr "Serve an arbitrary dish"
+
+msgid "Unklare Zutaten werden geklärt, bevor die Bestellung ausgegeben wird."
+msgstr "Unclear ingredients are checked before the order is served."
+
+msgid "Eine Zutat ist ausgegangen, mehrere Bestellungen warten."
+msgstr "An ingredient has run out and several orders are waiting."
+
+msgid "Karte und Service über verfügbare Alternativen abstimmen"
+msgstr "Coordinate available alternatives with the service team"
+
+msgid "Die fehlende Zutat verschweigen"
+msgstr "Conceal the missing ingredient"
+
+msgid "Alle Bestellungen ungeprüft bestätigen"
+msgstr "Confirm all orders without checking"
+
+msgid "Küche und Service brauchen dieselbe Information über das reale Angebot."
+msgstr "Kitchen and service need the same information about the actual menu."
+
+msgid "Am Tisch warten zwei ähnliche Bestellungen mit verschiedenen Wünschen."
+msgstr "Two similar orders at a table have different special requests."
+
+msgid "Bestellung und Sonderwünsche vor dem Servieren abgleichen"
+msgstr "Match the orders and special requests before serving"
+
+msgid "Die Teller zufällig verteilen"
+msgstr "Distribute the plates at random"
+
+msgid "Die Sonderwünsche überspringen"
+msgstr "Skip the special requests"
+
+msgid "Ein kurzer Abgleich verhindert vermeidbare Reklamationen."
+msgstr "A short check prevents avoidable complaints."
+
+msgid "Zwei Kakaobestellungen wünschen unterschiedliche Milchsorten."
+msgstr "Two cocoa orders request different types of milk."
+
+msgid "Becher eindeutig zuordnen und Zutaten prüfen"
+msgstr "Label the cups clearly and check the ingredients"
+
+msgid "Beide Becher gleich befüllen"
+msgstr "Fill both cups the same way"
+
+msgid "Die Zuordnung dem Gast überlassen"
+msgstr "Leave identifying the cups to the guest"
+
+msgid "Klare Zuordnung und geprüfte Zutaten gehören zum Getränkeservice."
+msgstr "Clear identification and checked ingredients belong to beverage service."
+
+msgid "An der Bar bestellt ein minderjähriger Gast ein alkoholisches Getränk."
+msgstr "An underage guest orders an alcoholic drink at the bar."
+
+msgid "Ein alkoholfreies Getränk anbieten"
+msgstr "Offer a non-alcoholic drink"
+
+msgid "Trotzdem ausschenken"
+msgstr "Serve the alcohol anyway"
+
+msgid "Die Altersprüfung überspringen"
+msgstr "Skip the age check"
+
+msgid "Zum verantwortlichen Service gehört eine passende alkoholfreie Alternative."
+msgstr "Responsible service includes a suitable non-alcoholic alternative."
+
+msgid "Die Kasse zeigt mehr verkaufte Waren als im Regal verfügbar waren."
+msgstr "The till shows more items sold than were available on the shelf."
+
+msgid "Bestand und Buchungen abgleichen"
+msgstr "Reconcile stock and transactions"
+
+msgid "Den Bestand willkürlich erhöhen"
+msgstr "Increase stock arbitrarily"
+
+msgid "Die Differenz ignorieren"
+msgstr "Ignore the discrepancy"
+
+msgid "Verkauf und Warenbestand müssen auf denselben tatsächlichen Vorgängen beruhen."
+msgstr "Sales and stock must reflect the same actual transactions."
+
+msgid "Ein Gast sucht ein kleines, transportierbares Andenken."
+msgstr "A guest wants a small souvenir that is easy to carry."
+
+msgid "Passende verfügbare Artikel vergleichen"
+msgstr "Compare suitable available items"
+
+msgid "Nur den teuersten Artikel anbieten"
+msgstr "Only offer the most expensive item"
+
+msgid "Einen ausverkauften Artikel zusagen"
+msgstr "Promise an out-of-stock item"
+
+msgid "Ein passendes Angebot berücksichtigt den Wunsch und die echte Verfügbarkeit."
+msgstr "A suitable offer considers the request and real availability."
+
+msgid "Die ausgegebene Ausrüstung passt nicht zur angegebenen Nutzung."
+msgstr "The issued equipment does not suit the stated use."
+
+msgid "Eignung und Anpassung vor der Ausgabe prüfen"
+msgstr "Check suitability and adjustment before issuing"
+
+msgid "Die Ausrüstung ungeprüft herausgeben"
+msgstr "Hand out the equipment without checking"
+
+msgid "Nur die Farbe vergleichen"
+msgstr "Only compare the colour"
+
+msgid "Die Ausgabe folgt einer fachlichen Prüfung von Eignung und Anpassung."
+msgstr "Equipment is issued after a professional suitability and adjustment check."
+
+msgid "Ein Anfänger soll mit einer deutlich schnelleren Gruppe fahren."
+msgstr "A beginner is supposed to ski with a much faster group."
+
+msgid "Können prüfen und eine passende Gruppe wählen"
+msgstr "Assess ability and choose a suitable group"
+
+msgid "Sofort die schwerste Piste wählen"
+msgstr "Choose the hardest piste immediately"
+
+msgid "Das Lerntempo der Anfänger ignorieren"
+msgstr "Ignore the beginners' learning pace"
+
+msgid "Unterricht folgt dem tatsächlichen Können und einem erreichbaren Lernziel."
+msgstr "Lessons follow actual ability and an achievable learning goal."
+
+msgid "Ein Gast findet die vorgesehene Übung deutlich zu schwer."
+msgstr "A guest finds the planned exercise much too difficult."
+
+msgid "Eine passende leichtere Variante anbieten"
+msgstr "Offer a suitable easier variation"
+
+msgid "Die Belastung weiter erhöhen"
+msgstr "Increase the intensity further"
+
+msgid "Die Rückmeldung ignorieren"
+msgstr "Ignore the feedback"
+
+msgid "Eine angepasste Übung ermöglicht einen kontrollierten, verständlichen Einstieg."
+msgstr "An adapted exercise allows a controlled, understandable introduction."
+
+msgid "Eine beaufsichtigte Zone ist schlecht einsehbar."
+msgstr "A supervised area is difficult to see."
+
+msgid "Sicht und Zuständigkeit vor der Öffnung klären"
+msgstr "Clarify visibility and responsibility before opening"
+
+msgid "Die Zone unbeaufsichtigt öffnen"
+msgstr "Open the area unsupervised"
+
+msgid "Nur ein weiteres Schild aufstellen"
+msgstr "Only put up another sign"
+
+msgid "Aufsicht braucht eine einsehbare Zone und eine klare Zuständigkeit."
+msgstr "Supervision requires a visible area and clear responsibility."
+
+msgid "Zwei Wellness-Termine überschneiden sich im selben Raum."
+msgstr "Two wellness appointments overlap in the same room."
+
+msgid "Raumbelegung prüfen und einen Termin abstimmen"
+msgstr "Check room occupancy and coordinate an appointment"
+
+msgid "Beide gleichzeitig bestätigen"
+msgstr "Confirm both at once"
+
+msgid "Die Überschneidung verschweigen"
+msgstr "Conceal the overlap"
+
+msgid "Termine müssen zur verfügbaren Raum- und Personalkapazität passen."
+msgstr "Appointments must suit available rooms and staffing capacity."
+
+msgid "Eine Reparatur benötigt ein noch nicht verfügbares Ersatzteil."
+msgstr "A repair needs a replacement part that is not available yet."
+
+msgid "Teil und Liefertermin vor der Zusage prüfen"
+msgstr "Check the part and delivery date before making a promise"
+
+msgid "Eine sofortige Fertigstellung versprechen"
+msgstr "Promise immediate completion"
+
+msgid "Ein beliebiges Teil einsetzen"
+msgstr "Fit an arbitrary part"
+
+msgid "Ein verlässlicher Werkstattauftrag braucht passende Teile und realistische Termine."
+msgstr "A reliable workshop order needs suitable parts and realistic dates."
+
+msgid "Ein Auftrag verlangt ein anderes Material als das vorhandene."
+msgstr "An order requires a different material from the available stock."
+
+msgid "Eine geeignete Alternative mit dem Gast abstimmen"
+msgstr "Agree a suitable alternative with the guest"
+
+msgid "Das Material unbemerkt austauschen"
+msgstr "Change the material without mentioning it"
+
+msgid "Den Auftrag ungeprüft bestätigen"
+msgstr "Confirm the order without checking"
+
+msgid "Änderungen am Auftrag werden erklärt und gemeinsam abgestimmt."
+msgstr "Changes to an order are explained and agreed together."
+
+msgid "Die Vorschau einer neuen Ausgabe zeigt einen abgeschnittenen Rand."
+msgstr "The preview of a new edition shows a cropped margin."
+
+msgid "Druckvorlage vor dem Serienlauf korrigieren"
+msgstr "Correct the print layout before the production run"
+
+msgid "Die ganze Auflage trotzdem drucken"
+msgstr "Print the whole edition anyway"
+
+msgid "Nur die Auflage erhöhen"
+msgstr "Only increase the print run"
+
+msgid "Eine geprüfte Vorlage vermeidet Ausschuss in der gesamten Auflage."
+msgstr "A checked layout prevents waste across the whole edition."
+
+msgid "Eine wichtige Meldung enthält eine widersprüchliche Zeitangabe."
+msgstr "An important report contains a conflicting time."
+
+msgid "Quelle und Zeitpunkt vor Veröffentlichung prüfen"
+msgstr "Check the source and time before publication"
+
+msgid "Die erste Angabe ungeprüft übernehmen"
+msgstr "Use the first time without checking"
+
+msgid "Den Widerspruch verschweigen"
+msgstr "Conceal the contradiction"
+
+msgid "Eine belastbare Meldung braucht geprüfte Angaben und einen nachvollziehbaren Zeitpunkt."
+msgstr "A reliable report needs checked facts and a clear time."
+
+msgid "Ein vereister Zugang liegt auf dem Hauptweg der Gäste."
+msgstr "An icy entrance lies on the guests' main route."
+
+msgid "Bereich sichern und die Beseitigung koordinieren"
+msgstr "Secure the area and coordinate clearing it"
+
+msgid "Den Zugang offen lassen"
+msgstr "Leave the entrance open"
+
+msgid "Nur die Meldung schließen"
+msgstr "Only close the report"
+
+msgid "Eine gemeldete Gefahr bleibt gesichert, bis der Zugang wieder nutzbar ist."
+msgstr "A reported hazard stays secured until access is usable again."
+
+msgid "Der Füllstand eines Sanitärmoduls erreicht seine Betriebsgrenze."
+msgstr "A sanitation module is reaching its operating fill limit."
+
+msgid "Modul sichern und Entsorgung beauftragen"
+msgstr "Secure the module and arrange disposal"
+
+msgid "Weiter ohne Prüfung öffnen"
+msgstr "Keep it open without checking"
+
+msgid "Nur die Anzeige zurücksetzen"
+msgstr "Only reset the display"
+
+msgid "Reinigung, Entsorgung und Freigabe müssen zum tatsächlichen Zustand passen."
+msgstr "Cleaning, disposal and clearance must reflect the actual condition."
+
+msgid "Eine Störung ist gemeldet, gleichzeitig wartet ein Routineauftrag."
+msgstr "A fault has been reported while a routine job is waiting."
+
+msgid "Die Störung bewerten und Einsätze abstimmen"
+msgstr "Assess the fault and coordinate the work"
+
+msgid "Nur den kürzesten Auftrag wählen"
+msgstr "Only choose the shortest job"
+
+msgid "Die Störung aus der Liste löschen"
+msgstr "Delete the fault from the list"
+
+msgid "Dringlichkeit und Auswirkungen bestimmen die Reihenfolge."
+msgstr "Urgency and impact determine the order of work."
+
+msgid "Mehrere Gäste warten, eine Bestellung wurde falsch zugeordnet."
+msgstr "Several guests are waiting and an order was assigned incorrectly."
+
+msgid "Fehler klären und die wartenden Gäste informieren"
+msgstr "Resolve the error and inform the waiting guests"
+
+msgid "Den Fehler verbergen"
+msgstr "Conceal the error"
+
+msgid "Alle neuen Wünsche sofort zusagen"
+msgstr "Immediately promise every new request"
+
+msgid "Ein geklärter Fehler und transparente Wartezeiten machen den Service verlässlich."
+msgstr "Resolved errors and transparent waiting times make service reliable."
+
+msgid "Die nächste Gruppe wartet, die Übergabe der vorherigen ist unklar."
+msgstr "The next group is waiting, but the previous handover is unclear."
+
+msgid "Die Übergabe klären, bevor die nächste Betreuung beginnt"
+msgstr "Clarify the handover before the next supervision begins"
+
+msgid "Die Zuständigkeit offenlassen"
+msgstr "Leave responsibility unclear"
+
+msgid "Beide Gruppen ungeprüft zusammenlegen"
+msgstr "Merge both groups without checking"
+
+msgid "Eine klare Übergabe verhindert Lücken in der Betreuung."
+msgstr "A clear handover prevents gaps in supervision."
+
+msgid "Mehrere Aufträge konkurrieren um dasselbe knappe Material."
+msgstr "Several orders compete for the same scarce material."
+
+msgid "Bestand prüfen und realistische Termine abstimmen"
+msgstr "Check stock and agree realistic dates"
+
+msgid "Alle Aufträge sofort bestätigen"
+msgstr "Confirm every order immediately"
+
+msgid "Material doppelt verplanen"
+msgstr "Allocate the material twice"
+
+msgid "Ein vorhandener Bestand kann nicht gleichzeitig mehrfach eingesetzt werden."
+msgstr "Available stock cannot be used several times at once."
+
+msgid "Die Schicht endet mit einem noch offenen Auftrag."
+msgstr "The shift ends with an outstanding job."
+
+msgid "Status, Zuständigkeit und nächsten Schritt übergeben"
+msgstr "Hand over status, responsibility and the next step"
+
+msgid "Den Auftrag als erledigt markieren"
+msgstr "Mark the job as finished"
+
+msgid "Ohne Übergabe gehen"
+msgstr "Leave without a handover"
+
+msgid "Eine gute Übergabe benennt den realen Status und den nächsten verantwortlichen Schritt."
+msgstr "A good handover states the actual status and the next responsible step."
+
+msgid "Diese Fachkraft ist nicht mehr verfügbar."
+msgstr "This employee is no longer available."
+
+msgid "Ein laufender Rettungseinsatz hat Vorrang vor dem Training."
+msgstr "An active rescue operation takes priority over training."
+
+msgid "Heute sind beide Trainingsrunden dieser Fachkraft verbraucht."
+msgstr "This employee has used both training attempts today."
+
+msgid "Für dieses Training fehlen 90 € im Budget."
+msgstr "The budget needs another €90 for this training."
+
+msgid "Diese Trainingsrunde ist nicht mehr aktiv."
+msgstr "This training session is no longer active."
+
+msgid "Tic-Tac-Toe"
+msgstr "Tic-tac-toe"
+
+msgid "Reaktion"
+msgstr "Reaction"
+
+msgid "Bergpaare"
+msgstr "Mountain pairs"
+
+msgid "Die Spiele sind freiwillig und verändern weder Resortgeld noch Karrierefortschritt."
+msgstr "These games are optional and change neither resort cash nor career progress."
+
+msgid "Passende Entscheidung: %s"
+msgstr "Suitable decision: %s"
+
+msgid "Verstanden · nächste Aufgabe"
+msgstr "Understood · next task"
+
+msgid "Akademie"
+msgstr "Academy"
+
+msgid "MITARBEITER-AKADEMIE"
+msgstr "STAFF ACADEMY"
+
+msgid "Drei Praxisfälle · direkte Erklärungen · dauerhafte Qualifikation. Die Resortzeit pausiert während des Trainings."
+msgstr "Three practical cases · direct explanations · lasting qualifications. Resort time pauses during training."
+
+msgid "Stelle zuerst passende Fachkräfte für diese Anlage ein."
+msgstr "First hire suitable professionals for this facility."
+
+msgid "Qualifikation %d · Erfahrung %d / 240 · Bestwert %d %%"
+msgstr "Qualification %d · Experience %d / 240 · Best %d %%"
+
+msgid "Qualifikation 2 ab 100 Erfahrung, Stufe 3 ab 240. Passende Fachkräfte verbessern den Service; Technikkenntnisse beschleunigen echte Reparaturen. Maximal zwei Kurse pro Person und Tag."
+msgstr "Qualification 2 at 100 experience, level 3 at 240. Suitable professionals improve service; technical skills speed up actual repairs. Up to two courses per person per day."
+
+msgid "90 € Kursgebühr bei Beginn; im freien Modus kostenlos. Ein Abbruch beendet den bezahlten Versuch ohne Erfahrung."
+msgstr "€90 course fee at the start; free in sandbox mode. Cancelling ends the paid attempt without experience."
+
+msgid "Praxis-Training starten · 90 €"
+msgstr "Start practical training · €90"
+
+msgid "PRAXISFALL %d / 3"
+msgstr "PRACTICAL CASE %d / 3"
+
+msgid "Training abbrechen"
+msgstr "Cancel training"
+
+msgid "Gut entschieden"
+msgstr "Good decision"
+
+msgid "Hier lohnt sich ein anderer Weg"
+msgstr "Another approach would work better here"
+
+msgid "Kurs abgeschlossen · %d %% · +%d Erfahrung · Qualifikation %d"
+msgstr "Course complete · %d %% · +%d experience · Qualification %d"
+
+msgid "Zurück zum Team"
+msgstr "Back to the team"
+
+msgid "Verstanden · nächster Praxisfall"
+msgstr "Understood · next practical case"
+
+msgid "See"
+msgstr "Lake"
+
+msgid "Baum"
+msgstr "Tree"
+
+msgid "Sonne"
+msgstr "Sun"
+
+msgid "Hütte"
+msgstr "Hut"
+
+msgid "Stern"
+msgstr "Star"
+
+msgid "BERGPAARE · FIND DIE ZUSAMMENGEHÖRIGEN KARTEN"
+msgstr "MOUNTAIN PAIRS · FIND THE MATCHING CARDS"
+
+msgid "%d Paare"
+msgstr "%d pairs"
+
+msgid "Neue Karten mischen"
+msgstr "Shuffle new cards"
+
+msgid "Gefunden %d / %d · Züge %d"
+msgstr "Found %d / %d · Moves %d"
+
+msgid "Alle Paare gefunden! %d Züge · dein Bestwert %d"
+msgstr "All pairs found! %d moves · Your best %d"
+
+msgid "Diese Karten passen nicht zusammen. Merke dir ihre Position."
+msgstr "These cards do not match. Remember their positions."
+
+msgid "Tippe zwei Karten an. Kein Zeitlimit und kein Geldeinsatz."
+msgstr "Tap two cards. No time limit and no money at stake."
+
+msgid "Personaltraining · Mitarbeiter %d"
+msgstr "Staff training · Employee %d"
+
+msgid "Qualifikation %d · Trainingserfahrung %d"
+msgstr "Qualification %d \u00b7 Training experience %d"
+
+msgid "Praxis-Training starten · kostenlos"
+msgstr "Start practical training \u00b7 free"
+
+msgid "Fels"
+msgstr "Rock"

@@ -11,6 +11,7 @@ const Progression = preload("res://src/core/progression.gd")
 const CreditService = preload("res://src/core/credit_service_035.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
+const StaffTraining=preload("res://src/core/staff_training_042.gd")
 const ROLES := {
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
@@ -442,6 +443,10 @@ static func service_efficiency(model:RefCounted,building:Dictionary)->float:
 		extras+=maxi(0,count-int(required.get(role,0)))
 		proficiency+=float(model._duty_cache.get("qualification:"+role+":"+target,0.0))
 	return clampf(1.0+minf(0.60,float(extras)*0.15)+minf(0.15,proficiency),1.0,1.75)
+
+static func role_proficiency(model:RefCounted,role:String,target:String)->float:
+	if not model._duty_cache.get("_complete",false):refresh_duty(model)
+	return minf(0.15,float(model._duty_cache.get("qualification:"+role+":"+target,0.0)))
 
 static func building_shifts(model: RefCounted, kind: String) -> Array:
 	var shifts: Array = ["day", "evening", "night"] if kind in ["hotel", "grand_hotel", "guesthouse"] else (["day", "evening"] if kind in ["pool", "spa"] else ["evening"] if kind in ["disco", "bar", "maintenance"] else ["day"])
@@ -881,7 +886,8 @@ static func tick(model: RefCounted) -> void:
 					workshop = replacement
 					break
 		if workshop.is_empty() or not building_open(model, workshop): continue
-		task.remaining -= 1
+		var target:String="building:%d" % int(workshop.id)
+		task.remaining -= 1.0+minf(0.15,role_proficiency(model,"technician",target)+role_proficiency(model,"electrician",target))
 		if task.remaining <= 0:
 			var lift: Dictionary = model.asset(int(task.asset))
 			if not lift.is_empty():
@@ -1159,6 +1165,7 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		if person.wage != ROLES[person.role].wage or person.motivation > 100 or person.fatigue > 100 or person.id >= state.next_staff: return false
 	for person in state.staff:
 		if person.has("applicant_id") and (not person.applicant_id is String or person.applicant_id.length()>48):return false
+		if person.has("training") and not StaffTraining.valid(person.training):return false
 		if person.has("specialty") and (not person.specialty is String or person.specialty.length()>90):return false
 		if person.has("experience") and (not Terrain.number(person.experience) or person.experience<0 or person.experience>100 or person.experience!=floorf(person.experience)):return false
 	for vehicle in state.vehicles:
