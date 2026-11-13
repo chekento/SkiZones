@@ -281,7 +281,7 @@ func _career(page: VBoxContainer) -> void:
 		_card(page, L.text("Den nächsten Wintertag vorbereiten"), L.text("Erforsche die Bergwetterstation für eine Wettervorschau. Jeden Tag erscheinen neue Auftragsangebote. Am Ende eines 28-tägigen Winters erhältst du eine Wertung und eine Saisonprämie; dein Resort bleibt bestehen."))
 	_card(page, L.text("Karriere und freier Aufbau"), L.text("Karriere: Forschung schaltet neue Technik und Ausbaustufen frei. Im freien Aufbau sind die Anlagen direkt verfügbar; Aufträge, Forschungseffekte und Winterwertung bleiben nutzbar. Im Resort-Büro pausiert die Zeit, damit du in Ruhe planen kannst."))
 
-	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sechs Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."))
+	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."))
 	for id in LongGoals.SPECS:
 		var goal_id:String=id
 		var spec:Dictionary=LongGoals.SPECS[id]

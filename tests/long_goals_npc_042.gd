@@ -23,6 +23,19 @@ func run()->void:
   var broken:Dictionary=after.duplicate(true);broken.campaign.long_goal_claims=value
   var before:Dictionary=restored.snapshot()
   check(not restored.restore(broken).ok and restored.snapshot()==before,"Malformed goal claims reject atomically")
+ model.campaign.history=[{"day":1,"income":100.0,"costs":90.0,"rewards":0,"guests":20}]
+ check(Goals.ready(model,"first_profit") and not Goals.ready(model,"profit"),"First economic goal is available on day one")
+ var early_cash:float=model.money
+ check(Goals.claim(model,"first_profit").ok and model.money==early_cash+1000,"First profitable day pays an early 1000-euro accomplishment")
+ model.campaign.history.append({"day":2,"income":100.0,"costs":90.0,"rewards":0,"guests":20})
+ check(not Goals.ready(model,"profit"),"Second stage waits for three genuine profitable days")
+ model.campaign.history.append({"day":3,"income":100.0,"costs":90.0,"rewards":0,"guests":20})
+ check(Goals.claim(model,"profit").ok and model.money==early_cash+2500,"Third profitable day completes the unchanged economic reward budget")
+ model.campaign.long_goal_claims=["happy"]
+ early_cash=model.money
+ check(Goals.claim(model,"profit").ok and model.money==early_cash+2500 and not Goals.ready(model,"first_profit"),"Late collection settles both stages once without losing the early bonus")
+ model.campaign.long_goal_claims=["profit"]
+ check(not Goals.ready(model,"first_profit"),"Legacy fully rewarded economic milestone cannot gain a second retroactive payout")
  model.campaign.history=[]
  for day in range(1,11):model.campaign.history.append({"day":day,"income":100.0,"costs":110.0,"rewards":99999,"guests":20})
  check(Goals.progress(model,"profit")==0,"Reward-funded losses do not qualify as profitable operations")
