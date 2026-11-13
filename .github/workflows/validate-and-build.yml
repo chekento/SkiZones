@@ -387,6 +387,10 @@ jobs:
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Modular piste features, day pacing and sleeping guest regressions
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
+      - name: 0.42 real modular snowpark and touch placement release gate
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_modules_042.gd
+          xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/snowpark_workshop_042.gd
       - name: Combined hotel modules, annual events, spatial audio and scenario media
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/winter_festival_025.gd
