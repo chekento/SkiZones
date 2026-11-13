@@ -10689,8 +10689,6 @@ msgstr "Complete goal and collect bonus"
 msgid "Der erste wirtschaftliche Betriebstag"
 msgstr "The first profitable operating day"
 
-msgid "Drei wirtschaftliche Betriebstage"
-msgstr "Three profitable operating days"
 
 msgid "Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."
 msgstr "One-time milestones per resort. Up to €18,500 across all seven goals; no cash bonus in sandbox mode. Profitable days exclude rewards and use the last 28 reports."
