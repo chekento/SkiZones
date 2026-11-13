@@ -68,7 +68,8 @@ func _employee_details()->void:
 	var progress:=ProgressBar.new();progress.max_value=240;progress.value=mini(240,int(state.get("xp",0)));progress.show_percentage=false;progress.custom_minimum_size.y=14;content.add_child(progress)
 	_label(content,L.text("Qualifikation 2 ab 100 Erfahrung, Stufe 3 ab 240. Passende Fachkräfte verbessern den Service; Technikkenntnisse beschleunigen echte Reparaturen. Maximal zwei Kurse pro Person und Tag."),15)
 	_label(content,L.text("90 € Kursgebühr bei Beginn; im freien Modus kostenlos. Ein Abbruch beendet den bezahlten Versuch ohne Erfahrung."),15)
-	var start:=_button(content,L.text("Praxis-Training starten · 90 €"),_start)
+	var caption:String=L.text("Praxis-Training starten · kostenlos") if hud.game.model.campaign.get("mode","")=="free" else L.text("Praxis-Training starten · 90 €")
+	var start:=_button(content,caption,_start)
 	start.name="academy_start"
 	feedback=_label(content,"")
 

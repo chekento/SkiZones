@@ -46,7 +46,7 @@ real fee accounting, replay rejection, earned levels across days, actual
 save/restore and atomic malformed-save rejection, service duty bonuses,
 actual repair progression and absent-worker blocking, and pair game rules.
 Existing professional rescue: 44 passed. Existing expansion UI: 28 passed.
-Localization: 3,415 messages, complete placeholders and source coverage.
+Localization: 3,416 messages, complete placeholders and source coverage.
 
 `interactive_academy_scene_042.gd` exercises actual screen-touch events and
 the full scene in DE/EN at 360×740, 420×860 and 740×360. Renderer captures are

@@ -52,6 +52,7 @@ func setup(interface: CanvasLayer) -> void:
 	call_deferred("_fit_layout")
 	hide()
 func _fit_layout()->void:
+	if not is_inside_tree():return
 	var compact:bool=get_viewport_rect().size.x<580
 	var short_screen:bool=get_viewport_rect().size.y<500
 	offset_left=8 if compact else 42;offset_right=-8 if compact else -42
