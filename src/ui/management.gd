@@ -285,7 +285,7 @@ func _career(page: VBoxContainer) -> void:
 	for id in LongGoals.SPECS:
 		var goal_id:String=id
 		var spec:Dictionary=LongGoals.SPECS[id]
-		var claimed:bool=id in state.get("long_goal_claims",[])
+		var claimed:bool=id in state.get("long_goal_claims",[]) or (id=="first_profit" and "profit" in state.get("long_goal_claims",[]))
 		var reward:int=spec.reward if state.mode=="career" else 0
 		var card:=_card(page,L.text(str(spec.name)),L.text("Fortschritt %d / %d · einmalig %d €") % [mini(int(spec.target),LongGoals.progress(model,id)),int(spec.target),reward])
 		var goal_bar:=ProgressBar.new();goal_bar.max_value=int(spec.target);goal_bar.value=mini(int(spec.target),LongGoals.progress(model,id));goal_bar.custom_minimum_size.y=18;card.add_child(goal_bar)
