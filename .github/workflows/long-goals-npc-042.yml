@@ -1,0 +1,37 @@
+name: 0.42 long goals and NPC personality
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: goals-npc-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  goals:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Translation coverage
+        run: python3 tools/check_localization.py
+      - name: Goals, NPC decisions and existing service rules
+        run: |
+          python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
+          python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/guest_daily_rhythm_041.gd
+          python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/piste_side_visits_042.gd
+          python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd
