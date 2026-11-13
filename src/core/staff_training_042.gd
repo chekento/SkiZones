@@ -93,7 +93,7 @@ static func challenge(model:RefCounted,session:Dictionary)->Dictionary:
 	var step:int=session.step
 	var data:Array=CASES[str(session.role)] if step==0 else PRIORITIES[group(str(session.role))] if step==1 else HANDOFF
 	var choices:Array=[]
-	var offset:int=posmod(int(session.person)*7+int(session.serial)*11+step,3)
+	var offset:int=posmod(int(session.person)*7+int(session.get("serial",0))*11+step,3)
 	for i in range(3):choices.append(data[1+posmod(i+offset,3)])
 	return {"prompt":data[0],"choices":choices,"answer":posmod(-offset,3),"explanation":data[4]}
 
