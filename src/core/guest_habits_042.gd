@@ -33,7 +33,8 @@ static func _base_bonus(guest:Dictionary,kind:String,minute:int)->float:
 ## Shared party identity keeps group preferences coherent, without RNG writes.
 static func profile(guest:Dictionary)->Dictionary:
 	var identity:int=hash(str(guest.get("party_id",guest.get("id",0)))) & 0x7fffffff
-	return {"break_offset":posmod(identity,51)-25,"taste":posmod(identity/51,4)}
+	identity=posmod(identity*1103515245+12345,2147483647)
+	return {"break_offset":posmod(identity,51)-25,"taste":posmod(floori(float(identity)/51.0),4)}
 static func bonus(guest:Dictionary,kind:String,minute:int)->float:
 	var traits:=profile(guest)
 	var leisure:Array=SHOPS+["pool","spa","fitness","bar","disco"]
