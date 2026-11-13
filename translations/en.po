@@ -10640,3 +10640,9 @@ msgstr "Start practical training \u00b7 free"
 
 msgid "Fels"
 msgstr "Rock"
+
+msgid "Kostenlos üben · ohne Erfahrungspunkte"
+msgstr "Practise for free · no experience points"
+
+msgid "Übungsrunde abgeschlossen · %d %% · ohne Erfahrungspunkte"
+msgstr "Practice complete · %d %% · no experience points"
