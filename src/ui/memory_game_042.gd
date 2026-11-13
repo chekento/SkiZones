@@ -30,7 +30,7 @@ func _ready()->void:
 	var background:=StyleBoxFlat.new();background.bg_color=_base;background.border_color=_accent;background.set_border_width_all(2);background.set_corner_radius_all(clampi(int(palette.corner),0,18));background.set_content_margin_all(12)
 	surface.add_theme_stylebox_override("panel",background);add_child(surface)
 	var body:=VBoxContainer.new();body.add_theme_constant_override("separation",12);surface.add_child(body)
-	var title:=Label.new();title.text=L.text("BERGPAARE · FIND DIE ZUSAMMENGEHÖRIGEN KARTEN");title.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;title.add_theme_font_size_override("font_size",19);title.add_theme_color_override("font_color",_ink);body.add_child(title)
+	var title:=Label.new();title.text=L.text("Bergpaare");title.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;title.add_theme_font_size_override("font_size",19);title.add_theme_color_override("font_color",_ink);body.add_child(title)
 	difficulty.name="memory_difficulty";difficulty.custom_minimum_size.y=48;difficulty.fit_to_longest_item=false
 	for count in [4,6,8]:difficulty.add_item(L.text("%d Paare") % count)
 	difficulty.select(1);difficulty.item_selected.connect(func(_index:int):reset());body.add_child(difficulty)
