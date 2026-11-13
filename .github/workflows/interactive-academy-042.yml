@@ -1,0 +1,49 @@
+name: 0.42 interactive staff academy and mountain pairs
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: academy-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  academy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and compile
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Translation coverage
+        run: python3 tools/check_localization.py
+      - name: Real courses, fees, earned qualifications, repair speed and arcade rules
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/staff_training_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/professional_rescue_041.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/expansion_ui_035.gd
+      - name: Install software-rendered display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Genuine phone touches, course feedback, pausing and six bilingual layouts
+        run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/interactive_academy_scene_042.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: interactive-academy-042-visual-QA
+          path: |
+            build/qa/academy-042-*.png
+            build/qa/memory-042-*.png
+          if-no-files-found: ignore
+          retention-days: 30

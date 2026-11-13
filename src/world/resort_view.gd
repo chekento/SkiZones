@@ -786,7 +786,12 @@ func rebuild(progress: RefCounted = null) -> void:
 	_vehicle_counts.clear()
 	_vehicle_glass.clear()
 	_queue_labels.clear()
-	_pedestrian_snapshot = model.pedestrian_layout()
+	# Render the same compacted-snow access used by a mid-piste visit.
+	# This shallow copy leaves the routing graph's own layout unchanged.
+	_pedestrian_snapshot = model.pedestrian_layout().duplicate()
+	_pedestrian_snapshot.links = _pedestrian_snapshot.links.duplicate()
+	for stop in model.PisteStops.stops(model):
+		_pedestrian_snapshot.links.append({"from":"piste-stop-%d" % int(stop.building),"to":"d%d" % int(stop.building),"points":stop.points,"width":4.0,"surface":"snow"})
 	foot_wear.cover_layout(_pedestrian_snapshot)
 	if progress != null:
 		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
@@ -949,7 +954,9 @@ func _feature_transform(piste: Dictionary, feature: Dictionary) -> Transform3D:
 	var point := center+direction.orthogonal()*float(feature.lateral)
 	var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
 	var x := Vector3.UP.cross(z).normalized()
-	return Transform3D(Basis(x,z.cross(x).normalized(),z),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
+	var basis:=Basis(x,z.cross(x).normalized(),z)*Basis(Vector3.UP,deg_to_rad(float(feature.get("rotation",0))))
+	basis=basis.scaled(Vector3.ONE*float(feature.get("scale",1)))
+	return Transform3D(basis,ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
 
 func _feature_mesh(kind: String) -> ArrayMesh:
 	var key := "module/"+kind

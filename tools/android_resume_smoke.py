@@ -9,6 +9,7 @@ import subprocess
 import time
 from pathlib import Path
 from PIL import Image, ImageStat
+from android_log_health import engine_errors
 
 PACKAGE = "cloud.kosch.skizones"
 
@@ -322,8 +323,8 @@ def main():
         assert "SkiZonesSurface" in logs, "The patched native surface lifecycle was not exercised"
         assert "SkiZonesInput" in logs, "The final Android touch sample was not preserved before native release"
         assert "SCRIPT ERROR" not in logs and "FATAL EXCEPTION" not in logs, "Android reported a script or activity crash"
-        assert not any("E godot" in line and "ERROR:" in line for line in logs.splitlines()), \
-            "Android reported a renderer or engine error"
+        errors = engine_errors(logs)
+        assert not errors, "Android engine errors: " + json.dumps(errors, ensure_ascii=False)
         print(f"ANDROID RESUME: {len(evidence)} real activity/surface checks passed", flush=True)
     finally:
         for name, command in [
@@ -336,7 +337,11 @@ def main():
             except subprocess.SubprocessError:
                 pass
         try:
-            (args.output / "logcat.txt").write_bytes(adb("logcat", "-d"))
+            log_bytes = adb("logcat", "-d")
+            (args.output / "logcat.txt").write_bytes(log_bytes)
+            (args.output / "engine-errors.json").write_text(json.dumps(
+                engine_errors(log_bytes.decode(errors="replace")), indent=2,
+                ensure_ascii=False), encoding="utf-8")
         except subprocess.SubprocessError:
             pass
 

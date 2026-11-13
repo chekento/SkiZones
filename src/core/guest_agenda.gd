@@ -155,18 +155,24 @@ static func offer(model: RefCounted) -> Dictionary:
 	if model._audience_offer.get("key", "") == key: return model._audience_offer
 	var counts := [0, 0, 0]
 	var used: Dictionary = {}
+	var modular_park:=false
 	for route in model.routes_for(2):
 		counts[int(model.asset(int(route.target)).difficulty)] += 1
+		modular_park=modular_park or model.PisteFeatures.appeal(model.asset(int(route.target)),2)>0
 		for leg in route.legs:
 			if leg.kind == "lift": used[int(leg.id)] = true
-	var park := false
+	var park := modular_park
 	var food := false
 	var warm := false
 	for building in model.buildings:
 		if not model.Ops.building_open(model, building) or not Needs.SERVICES.has(building.kind): continue
 		var graph: Dictionary = model._routing_graph(2)
 		var door := "d%d" % int(building.id)
-		if not model._shortest(graph, "base", door).ok or not model._shortest(graph, door, "base").ok: continue
+		var connected:bool=model._shortest(graph,"base",door).ok and model._shortest(graph,door,"base").ok
+		if not connected:
+			for stop in model.PisteStops.stops(model):
+				if int(stop.building)==int(building.id) and model.routes_for(2).any(func(route):return route.legs.any(func(leg):return leg.kind=="ski" and int(leg.id)==int(stop.piste))):connected=true;break
+		if not connected:continue
 		park = park or building.kind == "snowpark"
 		food = food or Needs.SERVICES[building.kind].hunger >= 35
 		warm = warm or Needs.SERVICES[building.kind].warmth >= 35
