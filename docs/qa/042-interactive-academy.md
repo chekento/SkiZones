@@ -51,6 +51,9 @@ Localization: 3,416 messages, complete placeholders and source coverage.
 `interactive_academy_scene_042.gd` exercises actual screen-touch events and
 the full scene in DE/EN at 360×740, 420×860 and 740×360. Renderer captures are
 uploaded by `interactive-academy-042.yml` using pinned Godot 4.5.2.
+The UI harness disables background 3D drawing to isolate layout/input under
+software rendering; it does not disable 2D drawing, touch dispatch or model
+integration. World geometry and GPU performance remain separate QA work.
 Final-head CI and visual acceptance must be recorded in the pull request.
 The existing HUD test harness emits shutdown RID warnings; these counts are
 not evidence of long-running memory stability.

@@ -27,6 +27,9 @@ func capture(stem:String)->void:
 	DirAccess.make_dir_recursive_absolute("res://build/qa")
 	check(root.get_texture().get_image().save_png("res://build/qa/"+stem+".png")==OK,"Actual renderer capture saved")
 func run()->void:
+	# Exercise real rendered UI and input without spending the software GPU
+	# budget on the background resort. World rendering has its own QA gates.
+	root.disable_3d=true
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await settle()
 	game.start_game(true);game.set_process(false);game.view.set_process(false);game.model.Ops.enable(game.model)
 	# Do not overwrite a real career slot from this UI harness. Save and replay
