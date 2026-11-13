@@ -289,11 +289,17 @@ func _career(page: VBoxContainer) -> void:
 		var reward:int=spec.reward if state.mode=="career" else 0
 		var card:=_card(page,L.text(str(spec.name)),L.text("Fortschritt %d / %d · einmalig %d €") % [mini(int(spec.target),LongGoals.progress(model,id)),int(spec.target),reward])
 		var goal_bar:=ProgressBar.new();goal_bar.max_value=int(spec.target);goal_bar.value=mini(int(spec.target),LongGoals.progress(model,id));goal_bar.custom_minimum_size.y=18;card.add_child(goal_bar)
-		_action(card,L.text("Bereits abgeschlossen") if claimed else L.text("Ziel abschließen und Bonus abholen"),func():
-			var result:Dictionary=LongGoals.claim(model,goal_id)
-			if result.ok:game.save_game(false)
-			return result
-		,LongGoals.ready(model,id))
+		var claim_button:Button=hud._button(card,L.text("Bereits abgeschlossen") if claimed else L.text("Ziel abschließen und Bonus abholen"),func():_claim_long_goal.call_deferred(goal_id),true)
+		claim_button.disabled=not LongGoals.ready(model,id)
+		claim_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		claim_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+
+func _claim_long_goal(id:String)->void:
+	var result:Dictionary=LongGoals.claim(game.model,id)
+	_feedback=result.message
+	hud.toast(result.message)
+	if result.ok:game.save_game(false)
+	refresh()
 
 func _achievements(page: VBoxContainer) -> void:
 	# A virtual catalogue: show the chosen theme in detail instead of
