@@ -59,6 +59,7 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-regression-041
         run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/rescue_routes_042.gd
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd
           python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --script tests/family_holidays.gd
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/traffic_and_finances.gd
