@@ -50,8 +50,12 @@ func run()->void:
 			for step in range(3):
 				var task:Dictionary=Training.challenge(game.model,academy.session)
 				if task.is_empty():check(false,"Practical course still active");break
+				if step==0:
+					page.ensure_control_visible(academy.choices[0]);await settle()
+					await capture("academy-042-case-%s-%dx%d" % [language,dims.x,dims.y])
 				await tap(academy.choices[int(task.answer)],page)
 				check(int(academy.session.step)==step+1,"One actual finger choice advances exactly one practical case")
+				if step==0:await capture("academy-042-feedback-%s-%dx%d" % [language,dims.x,dims.y])
 				if step<2:
 					var next:Button=academy.find_child("academy_continue",true,false)
 					check(next!=null,"Explanation waits for explicit continuation")
