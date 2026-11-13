@@ -11,6 +11,8 @@ No stable release, physical Samsung approval or Android FPS claim.
   halfpipe, spine and transfer. Original three IDs remain valid.
 - [x] Shared dimensions for world geometry, riding height and placement.
   New modules fit within measured footprints; each uses one baked surface.
+  Blue edge markings trace new snow profiles for contrast against snow,
+  baked into that surface without extra nodes or materials.
 - [x] Rotation from −45° to +45° and uniform size from 70% to 140%, persisted
   with the module. This is not independent width/height/pitch editing.
 - [x] Longer approach/landing clearances, footprint-based spacing, clear

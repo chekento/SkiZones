@@ -501,6 +501,14 @@ func _park_module(kind:String)->ArrayMesh:
 			var y0:float=ParkModules.surface_height(kind,z0,x)
 			var y1:float=ParkModules.surface_height(kind,z1,x)
 			_facet([Vector3(x,0,z0),Vector3(x,y0,z0),Vector3(x,y1,z1),Vector3(x,0,z1)],Vector3(side,0,0),color.darkened(0.18))
+			if not rail:
+				# Blue course dye follows the real profile. Keep the markings
+				# inside the footprint and bake them into the existing surface.
+				var inner_x:float=x-side*minf(0.22,width*0.08)
+				var edge_points:Array=[Vector3(x,y0+0.025,z0),Vector3(inner_x,ParkModules.surface_height(kind,z0,inner_x)+0.025,z0),Vector3(inner_x,ParkModules.surface_height(kind,z1,inner_x)+0.025,z1),Vector3(x,y1+0.025,z1)]
+				var edge_normal:Vector3=(edge_points[3]-edge_points[0]).cross(edge_points[1]-edge_points[0]).normalized()
+				if edge_normal.y<0:edge_normal=-edge_normal
+				_facet(edge_points,edge_normal,Color("528fac"))
 	if rail:
 		for sign_value in [-1,1]:
 			var z:float=sign_value*length_value*0.33
