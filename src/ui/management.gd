@@ -107,7 +107,7 @@ func _ensure_pages() -> void:
 	# Language changes invalidate translated tab keys. Recreate only the
 	# inexpensive empty shells, not their expensive research/staff content.
 	if not _page_bodies.is_empty() and _operating_layout==operating and _page_language==L.language:return
-	var desired: int=clampi(tabs.current_tab,0,12)
+	var desired: int=maxi(tabs.current_tab,0)
 	_building_tabs=true
 	for child in tabs.get_children():
 		tabs.remove_child(child)
@@ -121,6 +121,7 @@ func _ensure_pages() -> void:
 		for title_value in ["Betrieb","Personal","Bewerbermarkt","Technik & Rettung","Kostenstellen"]:
 			_page(L.text(title_value))
 	_page(L.text("Meldungen"))
+	_page(L.text("Ziele"))
 	tabs.current_tab=mini(desired,tabs.get_tab_count()-1)
 	_building_tabs=false
 
@@ -181,6 +182,11 @@ func refresh() -> void:
 	for child in page.get_children():
 		page.remove_child(child)
 		child.queue_free()
+	if str(scroll.name)==L.text("Ziele"):
+		_long_goals(page)
+		scroll.set_deferred("scroll_vertical",old_offset)
+		_rendering_page=false
+		return
 	match current:
 		0: _career(page)
 		1: _achievements(page)
@@ -217,6 +223,8 @@ func _notification_entries(parent: VBoxContainer) -> void:
 			hud._button(item,L.text("Missionsübersicht öffnen"),func(): hud.show_management_page(L.text("Betrieb")))
 		elif kind in ["achievement","rank"]:
 			hud._button(item,L.text("Zu den Erfolgen"),func(): hud.show_management_page(L.text("Erfolge")))
+		elif kind=="goal":
+			hud._button(item,L.text("Zu den Zielen"),func(): hud.call_deferred("show_management_page",L.text("Ziele")))
 		elif kind in ["warning","finance"]:
 			hud._button(item,L.text("Finanzen prüfen"),func(): hud.show_management_page(L.text("Finanzen")))
 	if matches == 0:
@@ -224,7 +232,7 @@ func _notification_entries(parent: VBoxContainer) -> void:
 
 func _notifications(page: VBoxContainer) -> void:
 	_card(page,L.text("Deine Resort-Meldungen"),L.text("Songs, Szenariomissionen, Erfolge und wichtige Betriebswarnungen erscheinen im selben transparenten Banner. Hier kannst du die letzten 40 Meldungen dieser Spielsitzung nach Themen sortieren. Die Erfolgs- und Missionsstände selbst bleiben selbstverständlich im Spielstand erhalten."))
-	var filters := {"all":"Alle","achievement":"Erfolge & Medaillen","mission":"Missionen","music":"Radio","warning":"Warnungen","finance":"Finanzen","repair":"Reparaturen"}
+	var filters := {"all":"Alle","achievement":"Erfolge & Medaillen","mission":"Missionen","music":"Radio","warning":"Warnungen","finance":"Finanzen","repair":"Reparaturen","goal":"Langzeitziele"}
 	var picker := OptionButton.new()
 	picker.custom_minimum_size.y=52
 	for key in filters:
@@ -245,6 +253,10 @@ func _notifications(page: VBoxContainer) -> void:
 func _career(page: VBoxContainer) -> void:
 	var model: RefCounted = game.model
 	var state: Dictionary = model.campaign
+	var pending_count:int=LongGoals.pending(model).size()
+	var goals_card:=_card(page,L.text("Deine nächsten Meilensteine"),L.text("%d Ziele bereit · %d € verfügbar") % [pending_count,LongGoals.pending_reward(model)])
+	var open_goals:Button=hud._button(goals_card,L.text("Langzeitziele öffnen"),func():hud.call_deferred("show_management_page",L.text("Ziele")),true)
+	open_goals.name="open_goals"
 	var summary := _card(page, L.text("%s  ·  %s") % L.args(["★".repeat(state.rank), Progression.RANK_NAMES[state.rank - 1]]), L.text("Winter %d · Tag %d von 28\n%.0f Erfahrung · %d abgeschlossene Aufträge · %s € Budget") % L.args([Progression.season_number(model), Progression.season_day(model), state.xp, state.completed, hud.money_text(model.money)]))
 	if state.has("starting_tier"):
 		var starting: Dictionary = StartTiers.choice(int(state.starting_tier))
@@ -281,7 +293,14 @@ func _career(page: VBoxContainer) -> void:
 		_card(page, L.text("Den nächsten Wintertag vorbereiten"), L.text("Erforsche die Bergwetterstation für eine Wettervorschau. Jeden Tag erscheinen neue Auftragsangebote. Am Ende eines 28-tägigen Winters erhältst du eine Wertung und eine Saisonprämie; dein Resort bleibt bestehen."))
 	_card(page, L.text("Karriere und freier Aufbau"), L.text("Karriere: Forschung schaltet neue Technik und Ausbaustufen frei. Im freien Aufbau sind die Anlagen direkt verfügbar; Aufträge, Forschungseffekte und Winterwertung bleiben nutzbar. Im Resort-Büro pausiert die Zeit, damit du in Ruhe planen kannst."))
 
-	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."))
+func _long_goals(page:VBoxContainer)->void:
+	var model:RefCounted=game.model
+	var state:Dictionary=model.campaign
+	var available:=_card(page,L.text("%d Ziele bereit · %d € verfügbar") % [LongGoals.pending(model).size(),LongGoals.pending_reward(model)],"")
+	var collect:Button=hud._button(available,L.text("Alle verfügbaren Ziele abschließen"),func():_claim_all_goals.call_deferred(),true)
+	collect.name="claim_all_goals"
+	collect.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	collect.disabled=LongGoals.pending(model).is_empty()
 	for id in LongGoals.display_order(model):
 		var goal_id:String=id
 		var spec:Dictionary=LongGoals.SPECS[id]
@@ -293,12 +312,20 @@ func _career(page: VBoxContainer) -> void:
 		claim_button.disabled=not LongGoals.ready(model,id)
 		claim_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		claim_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Erreichte wirtschaftliche Tage bleiben dauerhaft erhalten; Prämien zählen nicht als Betriebserlös."))
 
 func _claim_long_goal(id:String)->void:
 	var result:Dictionary=LongGoals.claim(game.model,id)
 	_feedback=result.message
 	hud.toast(result.message)
 	if result.ok:game.save_game(false)
+	refresh()
+
+func _claim_all_goals()->void:
+	var result:Dictionary=LongGoals.claim_all(game.model)
+	_feedback=result.message
+	hud.toast(result.message)
+	if result.ok:game.call_deferred("save_game",false)
 	refresh()
 
 func _achievements(page: VBoxContainer) -> void:

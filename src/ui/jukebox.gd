@@ -23,16 +23,16 @@ var master_slider := HSlider.new()
 var enabled := CheckButton.new()
 var face := RadioFace.new()
 var dial := RadioDial.new()
-var area_label := Label.new()
-var station_info := Label.new()
-var playing_label := Label.new()
-var credits_label := Label.new()
+var area_label: Label
+var station_info: Label
+var playing_label: Label
+var credits_label: Label
 var power_button: Button
 var skip_button: Button
 var station_left: Button
 var station_right: Button
 var credits_button: Button
-var station_counter := Label.new()
+var station_counter: Label
 var _now_playing_timer := 0.0
 var preset_buttons: Dictionary = {}
 var volume_meters: Dictionary = {}

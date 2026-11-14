@@ -397,8 +397,11 @@ jobs:
           xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --audio-driver Dummy --resolution 1280x900 --script tests/perceptual_depth_scene_042.gd
       - name: 0.42 early goal balance, permanent progress and safe save restoration
         run: |
+          python3 -m unittest discover -s tests -p test_godot_runner.py
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
           python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/goal_feedback_042.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
       - name: Android version consistency and stale lifecycle rejection
         run: |
           python3 tools/check_android_versions.py
