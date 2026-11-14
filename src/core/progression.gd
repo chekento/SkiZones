@@ -391,6 +391,12 @@ static func finish_day(model: RefCounted) -> void:
 	var income: float = model.report.tickets + model.report.services
 	var investments: float = model.report.get("investments", 0.0)
 	state.profit += income - model.report.costs
+	# Goal progress outlives the rolling 28-day finance chart. Seed old careers
+	# from their known reports, then count each newly finalized operating day.
+	var profit_days: int = mini(3, LongGoals.progress(model, "profit"))
+	if income > model.report.costs and model.report.guests > 0 and not state.history.any(func(row): return int(row.day) == model.day):
+		profit_days = mini(3, profit_days + 1)
+	state.long_goal_profit_days = profit_days
 	state.history.append({"day": model.day, "income": income, "costs": model.report.costs, "rewards": model.report.rewards, "investments": investments, "net": income + model.report.rewards - model.report.costs - investments, "guests": model.report.guests, "rides": model.report.rides, "satisfaction": satisfaction})
 	if state.history.size() > 28:
 		state.history.pop_front()
@@ -405,6 +411,10 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 		return false
 	var state: Dictionary = value.duplicate(true)
 	if state.has("long_goal_claims") and not LongGoals.valid(state.long_goal_claims):return false
+	if state.has("long_goal_profit_days"):
+		var profit_days: Variant = state.long_goal_profit_days
+		if not Terrain.number(profit_days) or profit_days < 0 or profit_days > 3 or float(profit_days) != floorf(float(profit_days)): return false
+		state.long_goal_profit_days = int(profit_days)
 	# The 0.41 collection is optional: old v0.19–0.40.1 snapshots have no
 	# poster_discoveries key and remain byte-for-byte valid on first load.
 	# Reject spoofed/unknown IDs and duplicates rather than mutating saves.

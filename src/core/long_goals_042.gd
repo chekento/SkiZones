@@ -28,7 +28,7 @@ static func progress(model:RefCounted,id:String)->int:
    var days:Dictionary={}
    for row in model.campaign.get("history",[]):
     if float(row.income)>float(row.costs) and int(row.guests)>0:days[int(row.day)]=true
-   return days.size()
+   return maxi(int(model.campaign.get("long_goal_profit_days",0)),days.size())
  return 0
 static func ready(model:RefCounted,id:String)->bool:
  if id=="first_profit" and "profit" in model.campaign.get("long_goal_claims",[]):return false
