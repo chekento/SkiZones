@@ -2,6 +2,7 @@
 // there is no TIME/UV scrolling, screen warp or movement of the snow surface.
 uniform bool perceptual_snow = true;
 float snow_depth_detail(vec3 world, vec3 eye) {
+    if (!perceptual_snow) { return 0.0; }
     vec2 axis = vec2(0.82, 0.57236);
     float footprint = length(fwidth(world.xz));
     float visible = 1.0 - smoothstep(0.25, 1.25, footprint);
@@ -14,5 +15,5 @@ float snow_depth_detail(vec3 world, vec3 eye) {
     float local_patch = smoothstep(-0.35, 0.55,
         sin(world.x * 0.021) * cos(world.z * 0.017));
     // Maximum +/-4.4% local contrast, smoothly removed before subpixel aliasing.
-    return perceptual_snow ? visible * local_patch * (ripple * 0.024 + facet * 0.020) : 0.0;
+    return visible * local_patch * (ripple * 0.024 + facet * 0.020);
 }
