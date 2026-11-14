@@ -11,6 +11,7 @@ from pathlib import Path
 import subprocess
 import sys
 from prepare_android_surface import prepare
+from check_android_versions import project_version
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -26,6 +27,8 @@ def main():
     parser.add_argument("--version-code", type=int, help="Newer code for the private lifecycle update fixture only")
     parser.add_argument("--debug", action="store_true", help="Private development build only")
     args = parser.parse_args()
+    # Validate original source before the lifecycle fixture temporarily overrides its code.
+    project_version(ROOT)
     debug = args.debug or args.preset == "Android lifecycle test"
     if args.version_code is not None and args.preset != "Android lifecycle test":
         parser.error("Version overrides are allowed only for the private lifecycle fixture")

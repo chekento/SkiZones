@@ -17,7 +17,7 @@ The latest main branch at 6467c85e contains two newer download-information blobs
 
 - Reproduce and fix the intermittent Android 36 audio initialization failure.
 - Run the complete final-head pipeline on this integration branch.
-- Verify version name/code and upgrade compatibility before producing a 0.42 public release; current inherited application version is still 0.41.1.
+- Verify version name/code and upgrade compatibility before producing a 0.42 public release.
 - Physical Samsung touch/audio/resume and sustained performance acceptance remain outstanding.
 - No stable-release or overall completion-percentage claim follows from this integration.
 
@@ -28,4 +28,12 @@ Early goals and the NPC personality update from #117 are now included, as is unl
 
 Full run 43509601663 on the previous goals head passed, including Android API 30 and 36. This does not prove that the earlier intermittent OpenSL startup failure is fixed. The standalone snowpark UI run 43509602022 timed out while rendering the background resort; the UI script now disables background 3D rendering, just like academy UI QA. It still checks actual touch events and preview transforms. The separate twenty-model gallery retains real 3D rendering. Final-head validation is required again.
 
-The latest two download-information blobs from main are preserved. No public release or version bump is performed by this integration.
+The latest two download-information blobs from main are preserved. No public release is performed by this integration.
+
+## Versioned candidate, 2026-11-14
+
+Full integration run 43610431287 on 530109e9383a12378d5b51f3d15e3c25785c8fc7 passed all required jobs, including historic saves, career recovery and Android API 30/36. Separate goals/NPC and snowpark runs passed 144 and 357 targeted checks. These successful runs do not demonstrate that the intermittent OpenSL failure is fixed.
+
+The project and both Android presets now declare 0.42.0 / code 57. A shared pre-export and pre-package guard rejects stale lifecycle version names, divergent codes and invalid Android version codes. Seven regression tests exercise those failure paths. The private lifecycle update fixture remains allowed to increase its code after source validation.
+
+The final versioned head must pass the full pipeline again. Release notes are prepared in docs/releases/0.42.0.md and explicitly describe an unpublished candidate. Public download files and banners still point to the published version; do not advertise a nonexistent 0.42 download. Native audio startup and physical Samsung acceptance remain open.
