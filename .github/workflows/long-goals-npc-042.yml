@@ -32,6 +32,7 @@ jobs:
       - name: Goals, NPC decisions and existing service rules
         run: |
           python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
           python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/guest_daily_rhythm_041.gd
           python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/piste_side_visits_042.gd
           python3 tools/run_godot_test.py --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/guest_agendas.gd
