@@ -42,7 +42,32 @@ static func claim(model:RefCounted,id:String)->Dictionary:
  claims.append(id);model.campaign.long_goal_claims=claims
  var reward:int=amount if model.campaign.get("mode","")=="career" else 0
  if reward>0:model.Progression.pay_reward(model,reward)
- return model._result(true,L.text("Langzeitziel abgeschlossen · %d € Bonus") % reward)
+ var result:Dictionary=model._result(true,L.text("Langzeitziel abgeschlossen · %d € Bonus") % reward)
+ result.reward=reward
+ return result
+
+static func pending(model:RefCounted)->Array:
+ var result:Array=[]
+ for id in SPECS:
+  if ready(model,id):result.append(id)
+ return result
+
+static func pending_reward(model:RefCounted)->int:
+ if model.campaign.get("mode","")!="career":return 0
+ var amount:=0
+ for id in pending(model):amount+=int(SPECS[id].reward)
+ return amount
+
+static func claim_all(model:RefCounted)->Dictionary:
+ var count:=0
+ var amount:=0
+ for id in pending(model):
+  var settled:Dictionary=claim(model,id)
+  if settled.ok:count+=1;amount+=int(settled.reward)
+ if count==0:return model._result(false,L.text("Noch keine einlösbaren Ziele."))
+ var result:Dictionary=model._result(true,L.text("%d Ziele abgeschlossen · %d € Bonus") % [count,amount])
+ result.reward=amount;result.count=count
+ return result
 
 ## Ready accomplishments first, then early active goals; completed ones last.
 static func display_order(model:RefCounted)->Array:

@@ -1,0 +1,48 @@
+name: 0.42 goal feedback, day report and actual phone claims
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: goal-feedback-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  goals:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Check bilingual messages
+        run: python3 tools/check_localization.py
+      - name: Actual budgets, notice deduplication, saves and permanent progress
+        run: |
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/goal_feedback_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/status_banner_035.gd
+      - name: Install real UI renderer
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Real phone touches, claims and German/English report/office layouts
+        run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: goal-feedback-042-visual-QA
+          path: build/qa/goal-feedback-042-*.png
+          if-no-files-found: ignore
+          retention-days: 30

@@ -4,6 +4,8 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 
 const Catalog = preload("res://src/core/catalog.gd")
 const GuestProfile = preload("res://src/core/guest_profile.gd")
+const GoalNoticeFeed = preload("res://src/ui/goal_notice_feed_042.gd")
+var goal_notices := GoalNoticeFeed.new()
 const GuestFace = preload("res://src/ui/guest_face.gd")
 const BuildingBrowser = preload("res://src/ui/building_browser.gd")
 const PisteWorkshop = preload("res://src/ui/piste_workshop.gd")
@@ -1571,6 +1573,7 @@ func refresh() -> void:
 	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
 		_announce_radio_track()
 		_announce_finance_warning(model)
+		for event in goal_notices.collect(model): achievement_overlay.announce(event)
 	# Styling is synced before displaying queued achievements.
 	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
 	achievement_overlay.visible=show_achievement

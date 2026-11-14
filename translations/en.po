@@ -10692,3 +10692,42 @@ msgstr "The first profitable operating day"
 
 msgid "Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Wirtschaftliche Tage zählen ohne Prämien und innerhalb der letzten 28 Abschlüsse."
 msgstr "One-time milestones per resort. Up to €18,500 across all seven goals; no cash bonus in sandbox mode. Profitable days exclude rewards and use the last 28 reports."
+
+msgid "✓  LANGZEITZIEL ERREICHT"
+msgstr "✓  LONG-TERM GOAL REACHED"
+
+msgid "Alle verfügbaren Ziele abschließen"
+msgstr "Complete all available goals"
+
+msgid "%d Ziele bereit · %d € verfügbar"
+msgstr "%d goals ready · €%d available"
+
+msgid "Ziele"
+msgstr "Goals"
+
+msgid "Zu den Zielen"
+msgstr "View goals"
+
+msgid "Deine nächsten Meilensteine"
+msgstr "Your next milestones"
+
+msgid "Langzeitziele öffnen"
+msgstr "Open long-term goals"
+
+msgid "Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Erreichte wirtschaftliche Tage bleiben dauerhaft erhalten; Prämien zählen nicht als Betriebserlös."
+msgstr "One-time milestones per resort. Up to €18,500 across all seven goals; no cash bonus in free build. Earned profitable days are retained permanently; rewards do not count as operating revenue."
+
+msgid "%d Langzeitziele erreicht"
+msgstr "%d long-term goals reached"
+
+msgid "Im Resort-Büro unter Ziele abschließen."
+msgstr "Complete them under Goals in the resort office."
+
+msgid "%d € verfügbar · Im Resort-Büro unter Ziele abholen."
+msgstr "€%d available · Collect under Goals in the resort office."
+
+msgid "Noch keine einlösbaren Ziele."
+msgstr "No goals are ready to claim yet."
+
+msgid "%d Ziele abgeschlossen · %d € Bonus"
+msgstr "%d goals completed · €%d bonus"
