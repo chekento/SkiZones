@@ -25,6 +25,7 @@ const FootWear = preload("res://src/world/foot_wear.gd")
 const AlpineLake = preload("res://src/world/alpine_lake.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
+const PerceptualDepth = preload("res://src/world/perceptual_depth.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const LivingAssets = preload("res://src/world/living_assets.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
@@ -54,6 +55,8 @@ var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
 var _relief := Relief.material()
+var perceptual_depth := PerceptualDepth.new()
+var _perceptual_snow_enabled := true
 var _height_labels: Node3D
 var _art_cache: Dictionary = {}
 var _vehicle_sets: Dictionary = {}
@@ -420,6 +423,7 @@ func _build_terrain() -> void:
 	_label(landscape, "TALZUGANG", terrain.world(Terrain.unpack(model.portal_path[-1]) if not model.portal_path.is_empty() else Terrain.BASE + Vector2(0,65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
+	perceptual_depth.build(self, terrain)
 	scenery_instance = MeshInstance3D.new()
 	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
 	scenery_instance.material_override = _relief
@@ -454,6 +458,7 @@ func _build_height_labels() -> void:
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
+	_update_depth_context()
 	if slope_overlay == null:
 		_build_slope_overlay()
 	slope_overlay.visible = slopes_visible
@@ -1229,6 +1234,8 @@ func _update_atmosphere() -> void:
 	_snow.amount = flake_budget * (2 if weather_kind == 3 else 1)
 	_snow.emitting = effects_enabled and weather_kind in [1,3]
 	_snow.position = terrain.world(focus,130)
+	perceptual_depth.configure(_environment.fog_light_color, daylight, weather_kind, quality_tier, effects_enabled)
+	_update_depth_context()
 
 func _process(delta: float) -> void:
 	if model == null or loading_in_progress:
@@ -1762,6 +1769,15 @@ func _update_camera() -> void:
 		var pitch := deg_to_rad(pitch_degrees)
 		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 		camera.look_at(target)
+	_update_depth_context()
+
+func _update_depth_context() -> void:
+	var enabled: bool = effects_enabled and quality_tier > 0 and visual_style not in ["monochrome", "piste_map"]
+	perceptual_depth.set_camera_context(camera.projection == Camera3D.PROJECTION_PERSPECTIVE, camera_mode == 2 or slopes_visible, enabled, quality_tier)
+	if enabled != _perceptual_snow_enabled:
+		_perceptual_snow_enabled = enabled
+		_relief.set_shader_parameter("perceptual_snow", enabled)
+		snow_renderer.set_depth_detail(enabled)
 
 func pan_between(previous: Vector2, current: Vector2) -> void:
 	follow_guest = -1
@@ -1992,6 +2008,8 @@ func _apply_quality() -> void:
 	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	_atmosphere_tick = ""
+	if model != null: _update_atmosphere()
 
 func _adapt_quality(delta: float) -> void:
 	if quality != "auto" or delta <= 0:

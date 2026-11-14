@@ -5,6 +5,7 @@ const PisteMesh = preload("res://src/world/piste_mesh.gd")
 var surfaces: Dictionary = {}
 var uploads := 0
 var mesh_builds := 0
+var depth_detail_enabled := true
 var pick_frames: Dictionary = {}
 var pick_weights: Dictionary = {}
 var exclusions: Dictionary = {}
@@ -15,6 +16,7 @@ var shader := Shader.new()
 func _init() -> void:
 	shader.code = """
 shader_type spatial;
+#include "res://src/shaders/perceptual_snow.gdshaderinc"
 render_mode cull_disabled;
 uniform sampler2D relief_map : filter_linear, repeat_disable;
 uniform vec2 map_size;
@@ -32,6 +34,7 @@ void fragment() {
  float grain = sin(snow_world.x*13.1+snow_world.z*27.2)*sin(snow_world.x*35.3-snow_world.z*17.8);
  grain *= 0.007/(1.0+length(fwidth(snow_world.xz))*18.0);
  ALBEDO = COLOR.rgb * (1.0 + (trace_material ? 0.0 : groove*groomed*COLOR.a+grain));
+ if (!trace_material) { ALBEDO *= 1.0 + snow_depth_detail(snow_world, CAMERA_POSITION_WORLD); }
  if (!trace_material) {
   vec3 geometric_normal = normalize(cross(dFdx(VERTEX),dFdy(VERTEX)));
   if (dot(geometric_normal,NORMAL)<0.0) { geometric_normal = -geometric_normal; }
@@ -48,6 +51,12 @@ func reset() -> void:
 	pick_weights.clear()
 	exclusions.clear()
 	junction_grid.clear()
+
+func set_depth_detail(enabled: bool) -> void:
+	if enabled == depth_detail_enabled: return
+	depth_detail_enabled = enabled
+	for data in surfaces.values():
+		data.material.set_shader_parameter("perceptual_snow", enabled)
 
 func configure(pistes: Array) -> void:
 	# Partition overlapping snow corridors. Each square metre has exactly one
@@ -88,6 +97,7 @@ func update(piste: Dictionary) -> Dictionary:
 	if not surfaces.has(piste.id):
 		var material := ShaderMaterial.new()
 		material.shader = shader
+		material.set_shader_parameter("perceptual_snow", depth_detail_enabled)
 		var trace: ShaderMaterial = material.duplicate()
 		trace.set_shader_parameter("trace_material", true)
 		surfaces[piste.id] = {"material": material, "trace": trace, "revision": -1, "texture": null}

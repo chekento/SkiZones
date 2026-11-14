@@ -5,6 +5,7 @@ static func material() -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """
 shader_type spatial;
+#include "res://src/shaders/perceptual_snow.gdshaderinc"
 uniform bool contours = true;
 uniform float albedo_gain = 0.84;
 uniform float relief_strength = 0.30;
@@ -35,7 +36,7 @@ void fragment() {
   ink *= smoothstep(0.012,0.10,slope);
   snow = mix(snow, contour_color, ink);
  }
- ALBEDO = snow * albedo_gain;
+ ALBEDO = snow * albedo_gain * (1.0 + snow_depth_detail(ground_world, CAMERA_POSITION_WORLD));
  ROUGHNESS = 0.96;
  SPECULAR = 0.10;
 }

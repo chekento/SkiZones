@@ -1,0 +1,46 @@
+name: 0.42 PMDD depth strata and camera parallax
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: perceptual-depth-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  depth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and compile
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: World anchors, budgets, clear planning and actual camera integration
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/perceptual_depth_042.gd
+      - name: Install rendering dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Real renderer, stable pixels, occlusion and camera parallax
+        run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --audio-driver Dummy --resolution 1280x900 --script tests/perceptual_depth_scene_042.gd
+      - name: Existing terrain, geometry and snow regressions
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --script tests/piste_surfaces.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --headless --script tests/ground_surface_sampling_032.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perceptual-depth-042-visual-QA
+          path: build/qa/pmdd-042-*.png
+          if-no-files-found: ignore
+          retention-days: 30
