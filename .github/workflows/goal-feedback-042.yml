@@ -39,6 +39,10 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Real phone touches, claims and German/English report/office layouts
         run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
+      - name: Radio controls and calendar ownership regressions
+        run: |
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/radio_hardware_035.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/winter_festival_scene_025.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:

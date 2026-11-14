@@ -113,7 +113,7 @@ var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
-var cinema_title := Label.new()
+var cinema_title: Label
 var cinema_mode := false
 var attention_sliders: Array=[]
 var attention_labels: Array=[]

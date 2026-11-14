@@ -296,7 +296,6 @@ func _career(page: VBoxContainer) -> void:
 func _long_goals(page:VBoxContainer)->void:
 	var model:RefCounted=game.model
 	var state:Dictionary=model.campaign
-	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Erreichte wirtschaftliche Tage bleiben dauerhaft erhalten; Prämien zählen nicht als Betriebserlös."))
 	var available:=_card(page,L.text("%d Ziele bereit · %d € verfügbar") % [LongGoals.pending(model).size(),LongGoals.pending_reward(model)],"")
 	var collect:Button=hud._button(available,L.text("Alle verfügbaren Ziele abschließen"),func():_claim_all_goals.call_deferred(),true)
 	collect.name="claim_all_goals"
@@ -313,6 +312,7 @@ func _long_goals(page:VBoxContainer)->void:
 		claim_button.disabled=not LongGoals.ready(model,id)
 		claim_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		claim_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	_card(page,L.text("Langzeitziele"),L.text("Einmalige Meilensteine pro Resort. Maximal 18.500 € über alle sieben Ziele; im freien Aufbau ohne Geldbonus. Erreichte wirtschaftliche Tage bleiben dauerhaft erhalten; Prämien zählen nicht als Betriebserlös."))
 
 func _claim_long_goal(id:String)->void:
 	var result:Dictionary=LongGoals.claim(game.model,id)

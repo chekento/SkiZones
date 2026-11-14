@@ -24,6 +24,7 @@ func capture(name_value:String)->void:
 	DirAccess.make_dir_recursive_absolute("res://build/qa")
 	check(root.get_texture().get_image().save_png("res://build/qa/goal-feedback-042-"+name_value+".png")==OK,"Actual bilingual goal UI screenshot saved")
 func run()->void:
+	var orphan_baseline := Node.get_orphan_node_ids()
 	root.disable_3d=true
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await settle()
 	game.start_game(true);game.set_process(false);game.view.set_process(false)
@@ -75,4 +76,8 @@ func run()->void:
 			check(collect.disabled,"Settled office collection action is disabled")
 			office.hide()
 	game.queue_free();await settle()
+	var leaked: Array = []
+	for id in Node.get_orphan_node_ids():
+		if id not in orphan_baseline: leaked.append(id)
+	check(leaked.is_empty(),"Language changes and closing the resort leave no orphaned UI controls")
 	print("RESULT: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)

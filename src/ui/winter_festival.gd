@@ -9,7 +9,7 @@ var archive := AnnualFestival.new()
 var window := FloatingFrame.new()
 var scroll := ScrollContainer.new()
 var contents := VBoxContainer.new()
-var clock_label := Label.new()
+var clock_label: Label
 var _was_paused := false
 var _clock_bucket := -1
 var _calendar_state := ""
