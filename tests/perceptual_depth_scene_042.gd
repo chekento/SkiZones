@@ -40,9 +40,9 @@ func run() -> void:
 	var light := DirectionalLight3D.new(); scene.add_child(light)
 	light.rotation_degrees = Vector3(-48,-35,0); light.light_energy = 0.9
 	var builder := SurfaceTool.new(); builder.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for x in range(-800, 800, 40):
-		for z in range(-1800, 500, 40):
-			for offset in [Vector2(0,0),Vector2(40,0),Vector2(0,40),Vector2(40,0),Vector2(40,40),Vector2(0,40)]:
+	for x in range(-800, 800, 8):
+		for z in range(-1800, 500, 8):
+			for offset in [Vector2(0,0),Vector2(8,0),Vector2(0,8),Vector2(8,0),Vector2(8,8),Vector2(0,8)]:
 				builder.set_color(Color("e5eff7"))
 				builder.add_vertex(mountain.world(Vector2(x,z)+offset))
 	builder.generate_normals()

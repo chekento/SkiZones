@@ -34,7 +34,7 @@ void fragment() {
  float grain = sin(snow_world.x*13.1+snow_world.z*27.2)*sin(snow_world.x*35.3-snow_world.z*17.8);
  grain *= 0.007/(1.0+length(fwidth(snow_world.xz))*18.0);
  ALBEDO = COLOR.rgb * (1.0 + (trace_material ? 0.0 : groove*groomed*COLOR.a+grain));
- if (!trace_material) { ALBEDO *= 1.0 + snow_depth_detail(snow_world, CAMERA_POSITION_WORLD); }
+ if (!trace_material) { ALBEDO *= 1.0 + snow_depth_detail(snow_world, CAMERA_POSITION_WORLD) * (1.0 - 0.65 * groomed); }
  if (!trace_material) {
   vec3 geometric_normal = normalize(cross(dFdx(VERTEX),dFdy(VERTEX)));
   if (dot(geometric_normal,NORMAL)<0.0) { geometric_normal = -geometric_normal; }
