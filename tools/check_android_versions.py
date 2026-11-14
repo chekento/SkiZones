@@ -40,6 +40,21 @@ def project_version(root: Path = ROOT) -> tuple[str, int]:
                              (root / "export_presets.cfg").read_text(encoding="utf-8"))
 
 
+def validate_apk_identity(badging: str, version: str, code: int) -> None:
+    """Check actual compiled manifest/ABI; renaming a stale APK cannot pass."""
+    packages = re.findall(r"^package: (.+)$", badging, re.MULTILINE)
+    if len(packages) != 1:
+        raise ValueError("APK must have exactly one package identity")
+    fields = dict(re.findall(r"(\w+)='([^']*)'", packages[0]))
+    expected = {"name": "cloud.kosch.skizones", "versionName": version, "versionCode": str(code)}
+    for key, value in expected.items():
+        if fields.get(key) != value:
+            raise ValueError(f"Compiled APK {key} must be {value}")
+    native = re.findall(r"^native-code: (.+)$", badging, re.MULTILINE)
+    if len(native) != 1 or re.findall(r"'([^']+)'", native[0]) != ["arm64-v8a"]:
+        raise ValueError("Public APK must contain exactly the arm64-v8a architecture")
+
+
 if __name__ == "__main__":
     version, code = project_version()
     print(f"Android export versions agree: {version} (code {code})")

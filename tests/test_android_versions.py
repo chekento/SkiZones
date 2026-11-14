@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from check_android_versions import project_version, validate_versions
+from check_android_versions import project_version, validate_versions, validate_apk_identity
 
 PROJECT = 'config_version=5\n[application]\nconfig/version="0.42.0"\n'
 PRESETS = '''[preset.0]
@@ -59,6 +59,30 @@ class AndroidVersionConsistency(unittest.TestCase):
         version, code = project_version()
         self.assertRegex(version, r"^\d+\.\d+\.\d+$")
         self.assertGreater(code, 0)
+
+
+class CompiledApkIdentity(unittest.TestCase):
+    BADGING = ("package: name='cloud.kosch.skizones' versionCode='57' versionName='0.42.0' platformBuildVersionName='15'\n"
+               "sdkVersion:'24'\napplication-label:'SkiZones'\nnative-code: 'arm64-v8a'\n")
+
+    def test_release_identity(self):
+        validate_apk_identity(self.BADGING, "0.42.0", 57)
+
+    def test_stale_version_or_package_rejected(self):
+        for old, replacement in (("0.42.0", "0.41.1"), ("versionCode='57'", "versionCode='56'"),
+                                 ("cloud.kosch.skizones", "cloud.kosch.other")):
+            with self.subTest(field=old), self.assertRaises(ValueError):
+                validate_apk_identity(self.BADGING.replace(old, replacement), "0.42.0", 57)
+
+    def test_missing_or_ambiguous_manifest_rejected(self):
+        for text in ("", "native-code: 'arm64-v8a'", self.BADGING + self.BADGING):
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                validate_apk_identity(text, "0.42.0", 57)
+
+    def test_wrong_missing_or_multiple_architectures_rejected(self):
+        for value in ("'x86_64'", "'arm64-v8a' 'x86_64'", ""):
+            with self.subTest(architecture=value), self.assertRaises(ValueError):
+                validate_apk_identity(self.BADGING.replace("native-code: 'arm64-v8a'", "native-code: " + value), "0.42.0", 57)
 
 
 if __name__ == "__main__":
