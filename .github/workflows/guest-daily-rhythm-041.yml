@@ -47,6 +47,8 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-poster-collection-041
         run: python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/poster_collection_041.gd
+      - name: Long-term balanced goals and individual NPC leisure
+        run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
       - name: 0.41 needs-driven meal hours and save isolation
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-rhythm-041

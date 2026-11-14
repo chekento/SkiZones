@@ -71,10 +71,11 @@ func _employee_details()->void:
 	var caption:String=L.text("Praxis-Training starten · kostenlos") if hud.game.model.campaign.get("mode","")=="free" else L.text("Praxis-Training starten · 90 €")
 	var start:=_button(content,caption,_start)
 	start.name="academy_start"
+	_button(content,L.text("Kostenlos üben · ohne Erfahrungspunkte"),func():_start(true)).name="academy_practice"
 	feedback=_label(content,"")
 
-func _start()->void:
-	session=Training.start(hud.game.model,int(employees[selected.selected].id))
+func _start(practice:bool=false)->void:
+	session=Training.start(hud.game.model,int(employees[selected.selected].id),practice)
 	if not session.get("ok",false):feedback.text=str(session.get("message",""));return
 	_was_paused=hud.game.paused;_held_pause=not _was_paused;hud.game.paused=true
 	_save()
@@ -104,12 +105,14 @@ func _answer(index:int)->void:
 	_label(self,L.text(str(result.explanation)),18)
 	if result.finished:
 		_release_pause();_save()
-		_label(self,L.text("Kurs abgeschlossen · %d %% · +%d Erfahrung · Qualifikation %d") % [int(result.average),int(result.earned),int(result.qualification)],20)
+		if session.get("practice",false):_label(self,L.text("Übungsrunde abgeschlossen · %d %% · ohne Erfahrungspunkte") % int(result.average),20)
+		else:_label(self,L.text("Kurs abgeschlossen · %d %% · +%d Erfahrung · Qualifikation %d") % [int(result.average),int(result.earned),int(result.qualification)],20)
 		_button(self,L.text("Zurück zum Team"),func():session.clear();_rebuild()).name="academy_done"
 	else:
 		_button(self,L.text("Verstanden · nächster Praxisfall"),_show_task).name="academy_continue"
 
 func _save()->void:
+	if session.get("practice",false):return
 	if hud.game.has_game:hud.game.save_game()
 
 func _release_pause()->void:

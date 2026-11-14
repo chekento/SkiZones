@@ -2,6 +2,7 @@ extends RefCounted
 const L = preload("res://src/core/i18n.gd")
 ## Persistent career: research choices, contracts, upgrades and winter ratings.
 
+const LongGoals=preload("res://src/core/long_goals_042.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const AchievementBook = preload("res://src/core/achievement_book.gd")
@@ -403,6 +404,7 @@ static func restore(model: RefCounted, value: Variant) -> bool:
 	if not value is Dictionary or value.get("version") != 1 or value.get("mode") not in ["career", "free"]:
 		return false
 	var state: Dictionary = value.duplicate(true)
+	if state.has("long_goal_claims") and not LongGoals.valid(state.long_goal_claims):return false
 	# The 0.41 collection is optional: old v0.19–0.40.1 snapshots have no
 	# poster_discoveries key and remain byte-for-byte valid on first load.
 	# Reject spoofed/unknown IDs and duplicates rather than mutating saves.

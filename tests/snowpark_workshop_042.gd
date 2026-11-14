@@ -17,6 +17,9 @@ func drag(at:Vector2,from:Vector2)->void:
 	var event:=InputEventScreenDrag.new();event.index=0;event.position=root.get_screen_transform()*at;event.relative=root.get_screen_transform().basis_xform(at-from)
 	Input.parse_input_event(event);await process_frame
 func run()->void:
+	# Actual UI/input/preview-transform checks; world meshes are rendered
+	# separately by snowpark_gallery_042.gd, without disabling its 3D viewport.
+	root.disable_3d=true
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await settle()
 	game.start_game(true);game.set_process(false);game.view.set_process(false);game.paused=true
 	game.model.campaign.mode="free";game.hud.hide_menu()

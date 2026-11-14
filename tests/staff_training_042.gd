@@ -111,4 +111,15 @@ func run()->void:
 		check(state.done and state.moves==count+1 and state.matched.size()==count*2,"Finding all actual pairs finishes the match")
 		check(not Pairs.flip(state,0),"Completed match cannot accept further moves")
 	check(Pairs.new_match(7,rng).is_empty(),"Unsupported game size is rejected")
+
+	model.money=180;model.day+=1
+	for attempt in range(2):finish(model,Training.start(model,int(employee.id)),false)
+	var practice_before:String=JSON.stringify(model.snapshot())
+	check(not Training.start(model,int(employee.id)).ok,"Paid qualification course remains capped after two attempts")
+	var practice:Dictionary=Training.start(model,int(employee.id),true)
+	check(practice.ok and practice.practice,"Free practice remains available without money after the daily limit")
+	var exercise:Dictionary=finish(model,practice)
+	check(exercise.finished and exercise.earned==0 and not exercise.promoted,"Perfect practice reports quality without awarding qualifications")
+	check(JSON.stringify(model.snapshot())==practice_before,"Practice changes no money, XP, motivation, attempts, duty or saved resort state")
+	check(not Training.answer(model,practice,0).ok,"Finished practice cannot accept another answer")
 	print("RESULT: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)

@@ -20,3 +20,12 @@ The latest main branch at 6467c85e contains two newer download-information blobs
 - Verify version name/code and upgrade compatibility before producing a 0.42 public release; current inherited application version is still 0.41.1.
 - Physical Samsung touch/audio/resume and sustained performance acceptance remain outstanding.
 - No stable-release or overall completion-percentage claim follows from this integration.
+
+
+## Integration update, 2026-11-14
+
+Early goals and the NPC personality update from #117 are now included, as is unlimited free academy practice from #116. Economic bonuses arrive after the first and third profitable day. Ready goals are listed first, early active goals next and settled goals last.
+
+Full run 43509601663 on the previous goals head passed, including Android API 30 and 36. This does not prove that the earlier intermittent OpenSL startup failure is fixed. The standalone snowpark UI run 43509602022 timed out while rendering the background resort; the UI script now disables background 3D rendering, just like academy UI QA. It still checks actual touch events and preview transforms. The separate twenty-model gallery retains real 3D rendering. Final-head validation is required again.
+
+The latest two download-information blobs from main are preserved. No public release or version bump is performed by this integration.
