@@ -42,7 +42,7 @@ func run() -> void:
 	var builder := SurfaceTool.new(); builder.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for x in range(-800, 800, 40):
 		for z in range(-1800, 500, 40):
-			for offset in [Vector2(0,0),Vector2(0,40),Vector2(40,0),Vector2(40,0),Vector2(0,40),Vector2(40,40)]:
+			for offset in [Vector2(0,0),Vector2(40,0),Vector2(0,40),Vector2(40,0),Vector2(40,40),Vector2(0,40)]:
 				builder.set_color(Color("e5eff7"))
 				builder.add_vertex(mountain.world(Vector2(x,z)+offset))
 	builder.generate_normals()
@@ -102,11 +102,16 @@ func run() -> void:
 	relief.set_shader_parameter("perceptual_snow",false); snow.set_depth_detail(false)
 	var plain := await capture("snow-detail-off")
 	check(detailed.get_data() != plain.get_data(), "Shipping terrain and piste shaders expose camera-dependent snow facets")
+	camera.transform = camera_before
+	var occlusion_reference := await capture("occlusion-reference")
 	var hidden := MeshInstance3D.new(); scene.add_child(hidden)
 	hidden.mesh = SphereMesh.new(); hidden.material_override = depth.layers[0].material_override
-	hidden.position = mountain.world(Vector2(-120,0),-100)
-	hidden.scale = Vector3(50,10,50)
+	hidden.position = mountain.world(Vector2(0,-350),-150)
+	hidden.scale = Vector3(80,30,80)
 	var occluded := await capture("terrain-occlusion")
-	check(plain.get_data() == occluded.get_data(), "Terrain depth testing completely occludes an atmospheric volume below the ground")
+	check(occlusion_reference.get_data() == occluded.get_data(), "Terrain depth testing completely occludes an atmospheric volume below the ground")
+	hidden.position = mountain.world(Vector2(0,-350),90)
+	var visible_control := await capture("occlusion-visible-control")
+	check(visible_control.get_data() != occluded.get_data(), "The same volume is actually visible when moved above the terrain")
 	scene.queue_free(); await process_frame; await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed]); quit(1 if failed else 0)

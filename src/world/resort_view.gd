@@ -424,6 +424,7 @@ func _build_terrain() -> void:
 
 func _build_surroundings() -> void:
 	perceptual_depth.build(self, terrain)
+	_atmosphere_tick = ""
 	scenery_instance = MeshInstance3D.new()
 	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
 	scenery_instance.material_override = _relief
