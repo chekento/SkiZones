@@ -27,22 +27,24 @@ jobs:
         run: bash tools/install_godot.sh
       - name: Import
         run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Passing summaries cannot hide late engine errors
+        run: python3 -m unittest discover -s tests -p test_godot_runner.py
       - name: Check bilingual messages
         run: python3 tools/check_localization.py
       - name: Actual budgets, notice deduplication, saves and permanent progress
         run: |
-          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/goal_feedback_042.gd
-          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
-          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
-          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/status_banner_035.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/goal_feedback_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/status_banner_035.gd
       - name: Install real UI renderer
         run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Real phone touches, claims and German/English report/office layouts
-        run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
+        run: xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
       - name: Radio controls and calendar ownership regressions
         run: |
-          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/radio_hardware_035.gd
-          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/winter_festival_scene_025.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/radio_hardware_035.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/winter_festival_scene_025.gd
       - uses: actions/upload-artifact@v4
         if: always()
         with:

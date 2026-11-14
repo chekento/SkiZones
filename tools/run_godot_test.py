@@ -7,6 +7,8 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--timeout", type=int, default=180)
+parser.add_argument("--strict-engine-errors", action="store_true",
+                    help="Reject engine/shader/resource errors even after a passing summary")
 parser.add_argument("command", nargs=argparse.REMAINDER)
 args = parser.parse_args()
 command = args.command
@@ -23,5 +25,7 @@ print(result.stdout, end="", flush=True)
 summary = re.findall(r"(?:PACING AND OPERATIONS|VERSION018|RESULT|MAIN MODE|LIFE|PLANNING|JUNCTIONS|PLAZAS|COMFORT|CUSTOMIZATION|CYCLE|MOMENTUM|SPORTS|SCENE|REGIONS|SERVICES|I18N|SURFACES|WORLDS|OPERATIONS|SLOTS|UPDATES|PARTIES): (\d+) passed; (\d+) failed", result.stdout)
 failed = result.returncode or not summary or any(int(item[1]) for item in summary)
 failed = failed or "SCRIPT ERROR" in result.stdout or "Parse Error" in result.stdout
+if args.strict_engine_errors:
+    failed = failed or bool(re.search(r"(?m)^\s*(?:ERROR|SHADER ERROR|USER ERROR):", result.stdout))
 raise SystemExit(1 if failed else 0)
 
