@@ -20,15 +20,13 @@ func run() -> void:
 	game.set_process(false)
 	game.view.set_process(false)
 	game.paused = true
-	game.model.new_game(false)
-	game.model.money = 2000000
-	var build: Dictionary = game.model.build_lift("chair",Vector2(200,235),Vector2(200,-230))
-	check(bool(build.get("ok",false)),"Physical chairlift builds for offscreen camera regression")
-	if not build.get("ok",false):
+	# Use the real starter installation rather than destroying/recreating a
+	# second OpenGL world in the same scene. This also exercises default assets.
+	check(game.model.lifts.size() > 0,"Starter resort supplies a genuine built chairlift")
+	if game.model.lifts.is_empty():
 		quit(1)
 		return
-	game.view.rebuild()
-	var lift: Dictionary = game.model.lifts[-1]
+	var lift: Dictionary = game.model.lifts[0]
 	var data: Dictionary = game.view._vehicle_sets.get(lift.id,{})
 	check(not data.is_empty() and data.poses.size() > 0,"Actual Multimesh lift carriages are initialized")
 	if data.is_empty():
