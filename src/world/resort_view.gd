@@ -1272,13 +1272,15 @@ func _process(delta: float) -> void:
 		data.node.visible = shown
 		if data.glass != null:
 			data.glass.visible = shown
-		var target_clock: float=float(lift.get("clock",0.0))+(simulation_fraction if model.lift_running(lift) else 0.0)
+		var target_clock: float=float(lift.get("clock",0.0))
 		if not shown:
-			# Keeping the authoritative clock avoids a stale visual phase after
-			# a long camera excursion, without touching costly off-screen meshes.
+			# Keep the authoritative whole-tick phase without costly per-frame
+			# staffing/availability checks or MultiMesh updates for distant lifts.
+			# The exact fractional phase is restored on the first visible frame.
 			data.clock = target_clock
 			data.resync = true
 			continue
+		target_clock += simulation_fraction if model.lift_running(lift) else 0.0
 		var resync: bool=bool(data.get("resync",false))
 		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift),resync)
 		var changed: bool = resync or not is_equal_approx(data.clock, clock)
