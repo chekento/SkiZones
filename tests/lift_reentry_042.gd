@@ -34,7 +34,12 @@ func run() -> void:
 		quit(1)
 		return
 	var lift: Dictionary = game.model.lifts[0]
+	# The resort may invalidate its geometry after the starter scene's first
+	# draw. Let the view reconcile its revision before retaining the live
+	# per-lift dictionary used by the rendering loop.
+	game.view._process(0.0)
 	var data: Dictionary = game.view._vehicle_sets.get(lift.id,{})
+	check(game.view._seen_revision == game.model.revision,"View and resort use the same final revision before offscreen checks")
 	check(not data.is_empty() and data.poses.size() > 0,"Actual Multimesh lift carriages are initialized")
 	if data.is_empty():
 		quit(1)
@@ -45,6 +50,8 @@ func run() -> void:
 	game.view.zoom = 90
 	lift.clock = 600.0
 	game.view._process(0.016)
+	var current: Dictionary = game.view._vehicle_sets.get(lift.id,{})
+	print("LIFT DEBUG offscreen: model_revision=",game.model.revision," view_revision=",game.view._seen_revision," same_data=",current==data," visible=",current.get("node").visible if not current.is_empty() else "missing"," clock=",current.get("clock","missing")," snap_clock=",data.get("clock","missing")," resync=",current.get("resync","missing")," loading=",game.view.loading_in_progress)
 	check(not data.node.visible and bool(data.get("resync",false)),"Offscreen lift is hidden and marked for one-time pose reconstruction")
 	check(is_equal_approx(float(data.clock),600.0),"Offscreen carriers keep up with the simulation clock")
 	lift.clock = 1200.0
