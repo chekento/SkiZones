@@ -106,7 +106,7 @@ func run() -> void:
 	check(game.hud.piste_controls is HFlowContainer and game.hud.labels.status.visible and game.hud.undo_button.text == "↶" and game.hud.redo_button.text == "↷", "Compact build controls wrap into rows while retaining status, undo and redo")
 	game.hud._update_responsive_layout(1440.0)
 	check(not game.hud.compact_layout and game.hud.compact_header_columns.all(func(node): return node.visible) and game.hud.compact_camera_buttons.all(func(node): return node.visible), "Wide desktop HUD restores the full navigation and stats")
-	check(game.hud.undo_button.text == "Letzten Punkt zurück" and game.hud.redo_button.text == "Punkt wiederholen", "Desktop restores readable full-size build action labels")
+	check(game.hud.undo_button.text == "Bearbeitung rückgängig" and game.hud.redo_button.text == "Bearbeitung wiederholen", "Desktop restores readable full-size build action labels")
 	game.hud.management._apply_responsive_layout(920.0)
 	check(game.hud.management.compact_layout and game.hud.management.offset_left == 12 and game.hud.management.guest_button.text == "Gäste", "Compact resort office fits narrow screens while preserving the guest shortcut")
 	game.hud.management._apply_responsive_layout(1440.0)
@@ -124,20 +124,23 @@ func run() -> void:
 	game.points = [[220,-180],[260,30]]
 	game._update_plan()
 	var remembered: Array = game.points.duplicate(true)
+	# Test setup inserted coordinates without real taps. Register the
+	# equivalent one-step insertion explicitly with the transactional API.
+	game.plan_history.record([remembered[0]], remembered)
 	game.undo_point()
-	check(game.points.size() == remembered.size() - 1 and game.undone_points.size() == 1 and not game.hud.redo_button.disabled, "Undo preserves a removed piste point for explicit redo")
+	check(game.points.size() == remembered.size() - 1 and game.plan_history.can_redo() and not game.hud.redo_button.disabled, "Undo preserves a planned edit for explicit redo")
 	game.redo_point()
-	check(game.points == remembered and game.undone_points.is_empty() and game.hud.redo_button.disabled, "Redo accurately restores the removed piste waypoint")
+	check(game.points == remembered and not game.plan_history.can_redo() and game.hud.redo_button.disabled, "Redo accurately restores the planned waypoint")
 	# Tap jitter and interrupted multi-touch gestures must never shift a point.
 	var start_at: Vector2 = game.view.camera.unproject_position(game.view.surface_position(Terrain.unpack(game.points[0])))
 	var stable: Array = game.points.duplicate(true)
 	game.undo_point()
-	var previous_redo: Array = game.undone_points.duplicate(true)
+	var previous_redo: Array = game.plan_history._redo.duplicate(true)
 	game._begin_waypoint_drag(0, start_at)
 	game._drag_screen_offset = Vector2.ZERO
 	game._move_waypoint(start_at + Vector2(3, 4))
 	game._end_waypoint_drag()
-	check(game.points.size() == 1 and game.points[0] == stable[0] and game.undone_points == previous_redo, "Touch jitter selects an existing waypoint without shifting coordinates or clearing redo")
+	check(game.points.size() == 1 and game.points[0] == stable[0] and game.plan_history._redo == previous_redo, "Touch jitter selects an existing waypoint without shifting coordinates or clearing redo")
 	game._begin_waypoint_drag(0, start_at)
 	game._drag_screen_offset = Vector2.ZERO
 	game._move_waypoint(start_at + Vector2(28, 18))
@@ -150,14 +153,14 @@ func run() -> void:
 	key.ctrl_pressed = true
 	key.keycode = KEY_Z
 	game._input(key)
-	check(game.points.size() == remembered.size() - 1 and game.undone_points.size() == 1, "Ctrl+Z removes the latest planned waypoint")
+	check(game.points.size() == remembered.size() - 1 and game.plan_history.can_redo(), "Ctrl+Z undoes the latest route edit")
 	key.keycode = KEY_Y
 	game._input(key)
-	check(game.points == remembered and game.undone_points.is_empty(), "Ctrl+Y redoes the last planned waypoint")
+	check(game.points == remembered and not game.plan_history.can_redo(), "Ctrl+Y redoes the last route edit")
 	game.undo_point()
 	game.clear_plan()
 	game.redo_point()
-	check(game.tool == "inspect" and game.points.is_empty() and game.undone_points.is_empty(), "Canceling construction discards redo history without resurrecting a canceled plan")
+	check(game.tool == "inspect" and game.points.is_empty() and not game.plan_history.can_redo(), "Canceling construction discards redo history without resurrecting a canceled plan")
 	game.queue_free(); await process_frame; await process_frame
 	print("BUILD INPUT SCENE: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
