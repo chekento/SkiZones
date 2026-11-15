@@ -1027,7 +1027,7 @@ func _build_lift(lift: Dictionary) -> void:
 		group.set_meta("styled_vehicle",int(lift.id))
 		group.multimesh.visible_instance_count = count
 		asset_root.add_child(group)
-		var data := {"node": group, "glass": null, "poses": [], "clock": -INF}
+		var data := {"node": group, "glass": null, "poses": [], "clock": -INF, "resync": false}
 		if not _vehicles.has(lift.kind):
 			_vehicles[lift.kind] = group
 		if Fleet.family(lift) == "gondola":
@@ -1272,11 +1272,16 @@ func _process(delta: float) -> void:
 		data.node.visible = shown
 		if data.glass != null:
 			data.glass.visible = shown
-		if not shown:
-			continue
 		var target_clock: float=float(lift.get("clock",0.0))+(simulation_fraction if model.lift_running(lift) else 0.0)
-		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift))
-		var changed: bool = not is_equal_approx(data.clock, clock)
+		if not shown:
+			# Keeping the authoritative clock avoids a stale visual phase after
+			# a long camera excursion, without touching costly off-screen meshes.
+			data.clock = target_clock
+			data.resync = true
+			continue
+		var resync: bool=bool(data.get("resync",false))
+		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift),resync)
+		var changed: bool = resync or not is_equal_approx(data.clock, clock)
 		var profile: Dictionary=model.cable_profile(lift) if changed else {}
 		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
 		var family: String=Fleet.family(lift)
@@ -1300,6 +1305,7 @@ func _process(delta: float) -> void:
 					_tow_lines.multimesh.set_instance_color(tows,Color.WHITE)
 					tows+=1
 		data.clock = clock
+		data.resync = false
 	_tow_lines.multimesh.visible_instance_count = tows
 	if _label_tick != model.motion_tick or delta == 0:
 		_label_tick = model.motion_tick
