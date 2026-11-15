@@ -26,6 +26,10 @@ window/frame_pacing/android/enable_frame_pacing=false
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+; Godot GLES3 can intermittently read truncated persistent shader binaries on
+; repeated Android process starts. Recompile shaders instead of loading damaged
+; binary cache entries. Keep desktop caching intact and preserve driver checks.
+shader_compiler/shader_cache/enabled.android=false
 textures/default_filters/use_nearest_mipmap_filter=false
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.66, 0.79, 0.86, 1)
