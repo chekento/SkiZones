@@ -1,0 +1,219 @@
+name: Build downloadable SkiZones 0.42 test APK
+on:
+  push:
+    branches: ['test/042-complete-rc1']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: skizones-042-device-test-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot and Android templates
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import the exact test source with strict script diagnostics
+        run: |
+          python3 - <<'PYCODE'
+          import os, subprocess
+          result = subprocess.run([os.environ['GODOT_BIN'], '--headless', '--editor', '--import', '--quit'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=180)
+          print(result.stdout)
+          assert not result.returncode and 'SCRIPT ERROR' not in result.stdout and '\nERROR:' not in result.stdout
+          PYCODE
+      - name: Validate actual candidate identity, translations and build tools
+        run: |
+          python3 tools/check_android_versions.py
+          python3 tools/check_localization.py
+          python3 -m unittest discover -s tests -p 'test_android*.py'
+          python3 - <<'PYCODE'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          from check_android_versions import project_version
+          assert project_version(Path.cwd()) == ('0.42.0', 57)
+          PYCODE
+      - name: Simulation, historical format and safe repair regression gates
+        run: |
+          for test in run version018 save_repair_0382 save_rescue_free_slots_0332; do
+            python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+          done
+      - name: Rescue, real crowd, snowpark, skier contact, architecture and Android policy gates
+        run: |
+          for test in professional_rescue_041 rescue_routes_042 crowd_stress_042 snowpark_modules_042 snowpark_crowd_042 skier_surface_pose_042 winter_sports ski_traffic lift_frame_pacing_041 lift_reentry_042 facade_identity_042 style_asset_festival_032 android_shader_cache_042 plan_history_042; do
+            python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+          done
+      - name: Restore the established installation signer
+        uses: actions/cache@v4
+        with:
+          path: build/export-config/skizones-debug.keystore
+          key: skizones-ci-debug-keystore-v1
+      - name: Restore Android Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: skizones-gradle-4.5.2-sdk36-v2
+      - name: Export ordinary ARM64 gameplay APK
+        run: python3 tools/export_android.py
+      - name: Verify signature, permissions and compatibility with the installed public APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones.apk
+          python3 tools/verify_apk_security.py build/android/SkiZones.apk
+          python3 tools/verify_update_signing.py
+          python3 tools/package_android.py
+      - name: Label the downloadable candidate without changing its verified bytes
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          import hashlib, json
+          folder = Path('build/release')
+          source = folder / 'SkiZones-0.42.0-android-arm64.apk'
+          target = folder / 'SkiZones-0.42.0-test1-android-arm64.apk'
+          source.rename(target)
+          (folder / 'SkiZones-0.42.0-android-arm64.apk.sha256').unlink()
+          digest = hashlib.file_digest(target.open('rb'), 'sha256').hexdigest()
+          target.with_suffix('.apk.sha256').write_text(f'{digest}  {target.name}\n')
+          data = json.loads((folder / 'manifest.json').read_text())
+          assert data['sha256'] == digest and data['update_signing']['same_signer']
+          data.update(build_type='device-test-candidate', candidate='test1', file_name=target.name, stable=False)
+          (folder / 'manifest.json').write_text(json.dumps(data, indent=2)+'\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SkiZones-042-test1-ARM64
+          path: build/release/*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Export Android lifecycle fixtures for the same source
+        run: |
+          python3 tools/export_android.py --preset 'Android lifecycle test' --output build/android/SkiZones-lifecycle-x86_64.apk
+          python3 tools/export_android.py --preset 'Android lifecycle test' --version-code 58 --output build/android/SkiZones-update-x86_64.apk
+          "$JAVA_HOME/bin/keytool" -genkeypair -noprompt -keystore build/android/wrong-signer-test.keystore -alias fixture -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 7 -dname 'CN=SkiZones Rejection Test'
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks build/android/wrong-signer-test.keystore --ks-key-alias fixture --ks-pass pass:android --key-pass pass:android --out build/android/SkiZones-wrong-signer-x86_64.apk build/android/SkiZones-update-x86_64.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SkiZones-Android-lifecycle
+          path: |
+            build/android/SkiZones-lifecycle-x86_64.apk
+            build/android/SkiZones-update-x86_64.apk
+            build/android/SkiZones-wrong-signer-x86_64.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  android-lifecycle:
+    name: Android ${{ matrix.api }} lifecycle
+    needs: build-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      DISPLAY: ':99'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [30, 36]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install Pillow
+      - uses: actions/download-artifact@v4
+        with:
+          name: SkiZones-Android-lifecycle
+          path: build/lifecycle
+      - name: Enable hardware virtualization
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare Mesa host graphics for actual Android surfaces
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+          Xvfb :99 -screen 0 2048x2048x24 -ac -nolisten tcp > "$RUNNER_TEMP/android-display.log" 2>&1 &
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          # Godot uses GLES; avoid the unsupported Vulkan/browser path on CI hosts.
+          # https://developer.android.com/studio/run/emulator-troubleshooting
+          # The API 30 SwiftShader run 41856228949 displayed only the clear
+          # colour: its GLES linker reported GL_MAX_FRAGMENT_UNIFORM_VECTORS
+          # and hundreds of program errors. Use the same host GLES backend
+          # that rendered real gameplay on API 36; never relax pixel checks.
+          # Re-test all lifecycle and save-preservation gates before release.
+          emulator-options: '-no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none'
+          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa --cold-start-rounds 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SkiZones-Android-${{ matrix.api }}-resume-QA
+          path: build/android-qa/*
+          if-no-files-found: ignore
+          retention-days: 90
+
+  publish-test:
+    name: Publish the requested device test download
+    needs: [build-test, android-lifecycle]
+    if: github.ref == 'refs/heads/test/042-complete-rc1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: SkiZones-042-test1-ARM64
+          path: build/release
+      - name: Publish an immutable test release after Android 30 and 36 acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd build/release
+          sha256sum --check SkiZones-0.42.0-test1-android-arm64.apk.sha256
+          cd ../..
+          tag='v0.42.0-test.1'
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            existing_commit="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"
+            test "$existing_commit" = "$GITHUB_SHA"
+            echo 'The immutable device-test release already exists on this exact source.'
+          else
+            gh release create "$tag" build/release/* \
+              --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title 'SkiZones 0.42.0 · Test 1 für Android ARM64' \
+              --notes-file docs/releases/0.42.0-test1.md --prerelease --latest=false
+          fi

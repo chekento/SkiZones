@@ -1,0 +1,39 @@
+name: 0.42 GLES3 shader cache cold-start regression
+on:
+  pull_request:
+    paths:
+      - 'project.godot'
+      - 'tests/android_shader_cache_042.gd'
+      - 'tests/android_lifecycle_driver.gd'
+      - 'tools/android_resume_smoke.py'
+      - '.github/workflows/android-shader-cache-042.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: shader-cache-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  shader-policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Android GLES cache override is isolated, desktop retains normal caching
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 90 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/android_shader_cache_042.gd
+      - name: Existing Android error recognition remains strict
+        run: python3 -m unittest discover -s tests -p test_android_log_health.py
