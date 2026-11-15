@@ -145,7 +145,7 @@ func run() -> void:
 	game._drag_screen_offset = Vector2.ZERO
 	game._move_waypoint(start_at + Vector2(28, 18))
 	game._end_waypoint_drag(true)
-	check(game.points[0] == stable[0] and game.undone_points == previous_redo, "Canceled two-finger drag restores original waypoint and retains redo history")
+	check(game.points[0] == stable[0] and game.plan_history._redo == previous_redo, "Canceled two-finger drag restores original waypoint and retains redo history")
 	game.redo_point()
 	check(game.points == stable, "Redo remains available after canceled or tiny touch gestures")
 	var key := InputEventKey.new()
