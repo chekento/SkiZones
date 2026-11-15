@@ -1872,8 +1872,15 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			else:
 				guest.elapsed += movement * Parties.pace(self,guest) * (traffic.get(int(guest.id), 1.0) if leg.kind == "ski" else 1.0) * (1.0 if restroom_steps.get(int(guest.id),true) else 0.0)
 			if leg.kind == "ski":
-				Snow.touch(terrain, asset(leg.id), guest, ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])),1.0/time_divisor)
-				PisteFeatures.traverse(self,asset(int(leg.id)),guest,ski_fraction(leg,previous,guest.get("ski_motion",[])),ski_fraction(leg,guest.elapsed/duration,guest.get("ski_motion",[])))
+				# Both tracks and snowpark interaction use identical route fractions.
+				# Under 250 skiers, calculating the motion profile four times per
+				# tick needlessly repeats sample lookups and piste indexing.
+				var piste: Dictionary = asset(int(leg.id))
+				var ski_samples: Array = guest.get("ski_motion",[])
+				var from_fraction: float = ski_fraction(leg,previous,ski_samples)
+				var to_fraction: float = ski_fraction(leg,guest.elapsed/duration,ski_samples)
+				Snow.touch(terrain,piste,guest,from_fraction,to_fraction,1.0/time_divisor)
+				PisteFeatures.traverse(self,piste,guest,from_fraction,to_fraction)
 				snow_revision += 1
 			if guest.elapsed >= duration:
 				_finish_leg(guest)
