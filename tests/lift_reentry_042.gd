@@ -51,7 +51,6 @@ func run() -> void:
 	lift.clock = 600.0
 	game.view._process(0.016)
 	var current: Dictionary = game.view._vehicle_sets.get(lift.id,{})
-	print("LIFT DEBUG offscreen: model_revision=",game.model.revision," view_revision=",game.view._seen_revision," same_data=",current==data," visible=",current.get("node").visible if not current.is_empty() else "missing"," clock=",current.get("clock","missing")," snap_clock=",data.get("clock","missing")," resync=",current.get("resync","missing")," loading=",game.view.loading_in_progress)
 	check(not data.node.visible and bool(data.get("resync",false)),"Offscreen lift is hidden and marked for one-time pose reconstruction")
 	check(is_equal_approx(float(data.clock),600.0),"Offscreen carriers keep up with the simulation clock")
 	lift.clock = 1200.0
@@ -71,6 +70,15 @@ func run() -> void:
 	# A stopped cable must snap to its authoritative clock; smoothing during
 	# real operation is separately asserted in lift_frame_pacing_041.gd.
 	check(is_equal_approx(float(data.clock),1210.0),"Paused or unstaffed lift synchronizes immediately, without phantom animation")
+	# Explicitly release transient sky GPU resources before the OpenGL
+	# compatibility driver's shutdown. The test created this scene solely
+	# for QA and must not leave a viewport sky live at process termination.
+	for child in game.view.get_children():
+		if child is WorldEnvironment:
+			child.environment = null
+	game.view._environment.background_mode = Environment.BG_COLOR
+	game.view._environment.sky = null
+	await process_frame
 	game.queue_free()
 	await process_frame
 	await process_frame
