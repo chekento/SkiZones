@@ -34,6 +34,8 @@ def main():
     parser.add_argument("--wrong-signer-apk", type=Path, required=True)
     parser.add_argument("--update-apk", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--cold-start-rounds", type=int, default=3,
+                        help="Additional full process restarts to expose intermittent native audio failures")
     args = parser.parse_args()
     # Derive actual installed APK code and a synthetic newer patch release.
     import re
@@ -160,6 +162,37 @@ def main():
         state = wait_for(lambda s: playable(s) and s.get("frames", 0) >= 5 and s["minute"] > 560)
         assert {"ski", "snowboard", "snowblade"}.issubset(state["sports"])
         capture("launch", state)
+        # A successful initial launch is insufficient for an intermittent native
+        # OpenSL/AudioFlinger startup fault. Force actual new Android processes;
+        # ordinary HOME/resume checks below intentionally keep the same process.
+        if not 0 <= args.cold_start_rounds <= 6:
+            raise ValueError("--cold-start-rounds must be between 0 and 6")
+        for attempt in range(1, args.cold_start_rounds + 1):
+            previous_boot = state["boot"]
+            adb("shell", "am", "force-stop", PACKAGE)
+            launch()
+            state = wait_for(
+                lambda s: playable(s) and s["boot"] != previous_boot
+                and s.get("frames", 0) >= 5 and s["minute"] > 560,
+                seconds=90,
+            )
+            capture(f"cold-start-{attempt}", state)
+            # Keep the complete log and original error context for diagnosis.
+            # Never filter out a native engine fault or interpret a visible
+            # frame as evidence that audio initialization succeeded.
+            cold_log = adb("logcat", "-d").decode(errors="replace")
+            (args.output / f"cold-start-{attempt}-logcat.txt").write_text(
+                cold_log, encoding="utf-8"
+            )
+            cold_errors = engine_errors(cold_log)
+            (args.output / f"cold-start-{attempt}-engine-errors.json").write_text(
+                json.dumps(cold_errors, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            assert not cold_errors, (
+                f"Android engine errors by cold-start {attempt}: "
+                + json.dumps(cold_errors, ensure_ascii=False)
+            )
         if int(adb("shell", "getprop", "ro.build.version.sdk")) >= 36:
             # The new public assetsPaths flag prevents system theme/navigation
             # overlays from destroying an otherwise live Godot activity.
