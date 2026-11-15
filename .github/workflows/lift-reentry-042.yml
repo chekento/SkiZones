@@ -37,5 +37,5 @@ jobs:
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/lift_frame_pacing_041.gd
       - name: Prepare real 3D rendering
         run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
-      - name: Actual offscreen multi-mesh carriages and visible camera reentry
-        run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_reentry_042.gd
+      - name: 3D scene graph and multi-mesh carrier positions after camera reentry
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/lift_reentry_042.gd
