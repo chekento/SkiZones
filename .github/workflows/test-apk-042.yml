@@ -56,7 +56,7 @@ jobs:
       - name: Simulation, historical format and safe repair regression gates
         run: |
           for test in run version018 save_repair_0382 save_rescue_free_slots_0332; do
-            python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+            XDG_DATA_HOME="$RUNNER_TEMP/skizones-test-repair-0382-$test" python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
           done
       - name: Rescue, real crowd, snowpark, skier contact, architecture and Android policy gates
         run: |
