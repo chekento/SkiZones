@@ -230,6 +230,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
       - name: 0.32 direct compile of career, recruitment and panel dependency graph
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
+      - name: 0.42 reversible piste edits, dragged points and canceled touch gestures
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/plan_history_042.gd
       - name: 0.33 live offline radio clock, real seek, mute and background rejoining
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_live_033.gd
       - name: 0.33 immediate radio persistence and completed-building/piste inspector
