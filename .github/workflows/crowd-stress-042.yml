@@ -37,3 +37,7 @@ jobs:
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/ski_traffic.gd
       - name: Real resort graph with 250 concurrent skiers at 1x 4x and 8x
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/crowd_stress_042.gd
+      - name: Preserve piste wear, Snowpark users and accounting after fraction reuse
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/snowpark_crowd_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/traffic_and_finances.gd
