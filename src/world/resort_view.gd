@@ -12,6 +12,7 @@ const StyleAssets = preload("res://src/world/style_assets.gd")
 const LineArt = preload("res://src/world/line_art.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
+const SkierPose = preload("res://src/world/skier_pose_042.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const TowRope = preload("res://src/world/tow_rope.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
@@ -1367,7 +1368,7 @@ func _process(delta: float) -> void:
 				angle = personal.yaw
 				lean = personal.lean
 				pitch = personal.pitch
-				hiking = Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
+				hiking = SkierPose.hiking(guest,leg,guest.elapsed + simulation_fraction * guest.get("party_step",1.0) * guest.get("traffic_step",1.0))
 			elif leg.kind == "lift" and guest.phase == "moving":
 				var pose: Dictionary = _rider_pose(guest)
 				position_value = pose.transform.origin
@@ -1887,17 +1888,7 @@ func pick_asset(point: Vector2) -> int:
 	return id
 
 func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elapsed: float) -> Dictionary:
-	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
-	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
-	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
-	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
-	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	var before: Vector3 = ground_position(frame.before)
-	var ahead: Vector3 = ground_position(frame.ahead)
-	var lateral: float=(frame.point-center).dot(side)
-	before.y+=PisteFeatures.height_offset(piste,maxf(0,fraction-0.003),lateral,int(guest.ability))
-	ahead.y+=PisteFeatures.height_offset(piste,minf(1,fraction+0.003),lateral,int(guest.ability))
-	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05 + PisteFeatures.height_offset(piste,fraction,(frame.point-center).dot(side),int(guest.ability))), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
+	return SkierPose.frame(model, ground_surface, snow_renderer, piste, guest, leg, elapsed)
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)*guest.get("party_step",1.0)
