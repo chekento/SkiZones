@@ -55,8 +55,12 @@ func run() -> void:
 	# full geometry rebuild at a constant clock.
 	lift.clock = 1210.0
 	game.view._process(0.016)
-	check(float(data.clock) > 1200.0 and float(data.clock) < 1210.0,"Normal visible animation remains smooth after camera reentry")
+	# The scene is intentionally paused, and the lift has no hired operators.
+	# A stopped cable must snap to its authoritative clock; smoothing during
+	# real operation is separately asserted in lift_frame_pacing_041.gd.
+	check(is_equal_approx(float(data.clock),1210.0),"Paused or unstaffed lift synchronizes immediately, without phantom animation")
 	game.queue_free()
+	await process_frame
 	await process_frame
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
