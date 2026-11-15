@@ -1,5 +1,5 @@
 extends SceneTree
-## Rendering regression: a lift hidden by camera culling must advance its
+## Scene-graph regression: a lift hidden by camera culling must advance its
 ## simulation clock without updating meshes, then rebuild its poses on reentry.
 const Terrain = preload("res://src/core/terrain.gd")
 var passed := 0
@@ -14,6 +14,10 @@ func check(ok: bool, description: String) -> void:
 		push_error("FAIL ",description)
 
 func run() -> void:
+	# Exercise the actual 3D nodes and MultiMesh transforms without opening
+	# the driver viewport. Sky radiance maps are not part of this unit test;
+	# visual GPU acceptance is covered separately by rendered/Android suites.
+	RenderingServer.set_render_loop_enabled(false)
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await process_frame
