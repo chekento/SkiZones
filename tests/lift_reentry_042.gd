@@ -1,6 +1,7 @@
 extends SceneTree
 ## Rendering regression: a lift hidden by camera culling must advance its
 ## simulation clock without updating meshes, then rebuild its poses on reentry.
+const Terrain = preload("res://src/core/terrain.gd")
 var passed := 0
 var failed := 0
 
@@ -17,6 +18,12 @@ func run() -> void:
 	root.add_child(game)
 	await process_frame
 	game.start_game(true)
+	# ResortView.rebuild can yield while mounting scenery/materials. Do not
+	# assert camera culling against its in-progress state.
+	for frame in range(180):
+		if not game.view.loading_in_progress: break
+		await process_frame
+	check(not game.view.loading_in_progress,"Starter 3D world completes its asynchronous asset rebuild")
 	game.set_process(false)
 	game.view.set_process(false)
 	game.paused = true
@@ -43,7 +50,7 @@ func run() -> void:
 	lift.clock = 1200.0
 	game.view._process(0.016)
 	check(is_equal_approx(float(data.clock),1200.0),"Long hidden intervals never accumulate old visual time")
-	game.view.focus = Vector2(200,0)
+	game.view.focus = (Terrain.unpack(lift.bottom) + Terrain.unpack(lift.top)) * 0.5
 	game.view._process(0.016)
 	check(data.node.visible and not bool(data.get("resync",true)),"Returning camera redraws the carrier poses and clears the resync marker")
 	check(is_equal_approx(float(data.clock),1200.0),"First visible frame uses the latest cable position without catch-up lag")
