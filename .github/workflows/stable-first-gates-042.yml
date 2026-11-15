@@ -1,0 +1,51 @@
+name: 0.42 Stable First P0 release gates
+on:
+  pull_request:
+    paths:
+      - 'src/core/operations.gd'
+      - 'src/core/resort.gd'
+      - 'src/core/guest_traffic.gd'
+      - 'src/core/lift_fleet.gd'
+      - 'src/core/ski_motion.gd'
+      - 'tests/professional_rescue_041.gd'
+      - 'tests/rescue_routes_042.gd'
+      - 'tests/crowd_stress_042.gd'
+      - 'tests/snowpark_crowd_042.gd'
+      - 'tests/lift_frame_pacing_041.gd'
+      - '.github/workflows/stable-first-gates-042.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-p0-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-stable-gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import all resources
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Rescue on real connected slopes, stretcher return, treatment and save recovery
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/professional_rescue_041.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/rescue_routes_042.gd
+      - name: 250 active NPCs across real pistes and 1x 4x 8x
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/crowd_stress_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/snowpark_crowd_042.gd
+      - name: Day-two lift speed downshift and camera phase continuity
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/lift_frame_pacing_041.gd
