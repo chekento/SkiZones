@@ -15,7 +15,7 @@ concurrency:
 jobs:
   architectural-identity:
     runs-on: ubuntu-24.04
-    timeout-minutes: 14
+    timeout-minutes: 24
     env:
       SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
       XDG_DATA_HOME: /home/runner/skizones-godot/share
@@ -36,3 +36,17 @@ jobs:
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/facade_identity_042.gd
       - name: Existing ten-theme asset matrix and seasonal dressing
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/style_asset_festival_032.gd
+      - name: Install virtual display for actual theme screenshots
+        run: |
+          sudo apt-get update -qq -o Acquire::Retries=2
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Render all ten visual styles with real resort geometry
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 720 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/style_asset_festival_scene_032.gd
+      - name: Upload rendered design evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ski-zones-042-building-themes
+          path: build/qa/assets-032-*.png
+          retention-days: 14
+          if-no-files-found: warn
