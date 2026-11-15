@@ -76,7 +76,7 @@ func run() -> void:
 	game.clear_plan()
 	check(not game.plan_history.can_undo() and not game.plan_history.can_redo(), "Aborting construction clears its in-memory history")
 
-	print("PISTE HISTORY 0.42: %d passed; %d failed" % [passed, failed])
+	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
 
 func _init() -> void:
