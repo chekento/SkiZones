@@ -133,9 +133,17 @@ static func line_identity(lines: RefCounted, kind: String, width: float, depth: 
 		lines.box(Vector3(0, y, z), Vector3(5.5, 4.8, 0.2))
 		lines.line(Vector3(-2, y, z + 0.2), Vector3(2, y, z + 0.2))
 		lines.line(Vector3(0, y - 2, z + 0.2), Vector3(0, y + 2, z + 0.2))
-	elif kind in ["school", "rental"]:
+	elif kind == "school":
+		# Two crossed training skis, readable even with ink-only geometry.
 		for side in [-1, 1]:
 			lines.line(Vector3(float(side) * 3, y - 3, z), Vector3(float(-side) * 3, y + 3, z))
+	elif kind == "rental":
+		# Equipment shop: four vertical rental skis with fixed rack bars.
+		for ski in range(4):
+			var x := float(ski - 2) * 1.2 + 0.6
+			lines.line(Vector3(x, y - 3.4, z), Vector3(x, y + 3.5, z))
+		lines.line(Vector3(-3.4, y - 1.9, z), Vector3(3.4, y - 1.9, z))
+		lines.line(Vector3(-3.4, y + 2.0, z), Vector3(3.4, y + 2.0, z))
 	elif kind in ["hotel", "grand_hotel", "guesthouse", "apartment", "chalet", "cabin"]:
 		for floor_index in range(2):
 			var fy := minf(height_value - 2.5, 7.0 + floor_index * 5.2)
@@ -153,5 +161,21 @@ static func line_identity(lines: RefCounted, kind: String, width: float, depth: 
 	elif kind in ["restaurant","pizzeria","bar","disco","cocoa","schmarrn"]:
 		lines.box(Vector3(0, 7.0, z + 1), Vector3(width * 0.6, 0.4, 3))
 		for side in [-1,1]:lines.box(Vector3(float(side) * width * 0.3, 4, z), Vector3(3, 4, 0.2))
+	elif kind == "snowpark":
+		# Two ramp rails, pitched as separate elevation markers.
+		for side in [-1, 1]:
+			lines.line(Vector3(float(side) * 2.5, 1.2, z), Vector3(float(side) * 2.5, 5.2, z))
+		lines.line(Vector3(-3.0, 5.2, z), Vector3(3.0, 5.2, z))
+	elif kind == "bus":
+		# Front-facing bus shelter and its pictogram wheels.
+		lines.box(Vector3(0, 5.6, z), Vector3(8.0, 4.4, 0.3))
+		for side in [-1, 1]: lines.circle(Vector3(float(side) * 2.6, 3.0, z), 0.9)
+	elif kind in ["newsstand", "printing_press"]:
+		# Repeated inset pages distinguish the newspaper counter.
+		for column in [-1, 0, 1]:
+			var x := float(column) * width * 0.27
+			lines.box(Vector3(x, y, z), Vector3(3.2, 4.0, 0.2))
+			for row in range(3):
+				lines.line(Vector3(x - 1.2, y + 0.7 - row * 0.9, z + 0.15), Vector3(x + 1.2, y + 0.7 - row * 0.9, z + 0.15))
 	else:
 		lines.box(Vector3(0, y, z), Vector3(width * 0.4, 1.3, 0.2))
