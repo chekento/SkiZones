@@ -4,6 +4,7 @@ const Art=preload("res://src/world/alpine_art.gd")
 const Lines=preload("res://src/world/line_art.gd")
 const Styles=preload("res://src/core/visual_styles.gd")
 const Catalog=preload("res://src/core/catalog.gd")
+const Facade=preload("res://src/world/facade_identity_042.gd")
 static func dimensions(kind: String,level: int=1) -> Vector3:
 	if kind.begins_with("wc_"):
 		# A newly placed Portable Toilet visibly grows into the next sanitation
@@ -31,7 +32,14 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 			return drawing.finish()
 		var wc_kind: String=["wc_dixi","wc_cabin","wc_module","wc_house","wc_luxury"][clampi(level-1,0,4)] if kind=="wc_dixi" else kind
 		return Art.new().public_toilet(wc_kind,level,accent,style)
-	if style=="alpine": return Art.new().chalet(kind,level,accent)
+	if style=="alpine":
+		# Keep the original alpine mesh intact and bake recognisable 0.42 details
+		# into the same vertex-colored surface, not extra scene nodes.
+		var alpine:=Art.new()
+		alpine.add(Art.new().chalet(kind,level,accent),Vector3.ZERO,Color.WHITE,Vector3.ZERO,Vector3.ONE,true)
+		var base_size: Vector3=dimensions(kind,level)
+		Facade.decorate(alpine,kind,base_size.x,base_size.z,base_size.y,style,level)
+		return alpine.finish()
 	var s:=dimensions(kind,level)
 	var w:=s.x;var h:=s.y;var d:=s.z
 	if style=="monochrome":
@@ -46,6 +54,7 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 			for x in [-w*.28,w*.28]: a.box(Vector3(x,h*.6,d*.5+.05),Vector3(4,3,0.1))
 			if kind in ["first_aid","repair_office"]:
 				a.line(Vector3(-2,h+3,d*.5),Vector3(2,h+3,d*.5));a.line(Vector3(0,h+1,d*.5),Vector3(0,h+5,d*.5))
+		Facade.line_identity(a,kind,w,d,h)
 		return a.finish()
 	# Outdoor and mechanical objects retain recognisable function and a distinct
 	# themed canopy, instead of silently turning every service into a house.
@@ -61,6 +70,7 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 		elif style=="bauhaus":a.box(Vector3(2,7,-5),Vector3(8,3,2),trim);a.cone(Vector3(-4,8,-5),1.5,4,body,1.5)
 		elif style=="comic":a.cone(Vector3(0,8,-5),3.0,5,trim,.1)
 		else:a.box(Vector3(0,6+index*.2,-5),Vector3(11+index*.15,0.5+index*.09,1.0),trim)
+		Facade.decorate(a,kind,w,d,h,style,level)
 		return a.finish()
 	match style:
 		"comic":
@@ -127,6 +137,7 @@ static func building(kind: String,level: int,accent: Color,style: String) -> Arr
 	a._facade_details(kind,w,d,h,trim)
 	var sign_color:=Color("e35660") if kind=="first_aid" else trim
 	a.box(Vector3(0,h*.8,d*.5+.6),Vector3(6,1.1,.7),sign_color)
+	Facade.decorate(a,kind,w,d,h,style,level)
 	return a.finish()
 static func station(kind: String,level: int,livery: String,style: String) -> ArrayMesh:
 	var source:=Art.new().station(kind,level,livery)
