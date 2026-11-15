@@ -10731,3 +10731,9 @@ msgstr "No goals are ready to claim yet."
 
 msgid "%d Ziele abgeschlossen · %d € Bonus"
 msgstr "%d goals completed · €%d bonus"
+
+msgid "Bearbeitung rückgängig"
+msgstr "Undo edit"
+
+msgid "Bearbeitung wiederholen"
+msgstr "Redo edit"
