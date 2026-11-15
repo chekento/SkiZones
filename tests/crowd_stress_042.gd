@@ -50,6 +50,20 @@ func run() -> void:
 		visitor.incident = -1
 		model.guests.append(visitor)
 	model.guest_id = next_id
+	# An admitted tourist may choose only food or walking. For the dedicated
+	# piste-crowding worst case use one *actual* reachable ski itinerary from
+	# the current resort topology, never inventing a virtual piste ID.
+	var downhill_route: Dictionary = {}
+	for candidate in model.routes_for(0):
+		for segment in candidate.get("legs",[]):
+			if str(segment.get("kind","")) == "ski":
+				downhill_route = candidate.duplicate(true)
+				break
+		if not downhill_route.is_empty(): break
+	check(not downhill_route.is_empty(), "The live resort graph offers a reachable actual ski descent")
+	if downhill_route.is_empty():
+		finish()
+		return
 	# All riders are on actual available graph legs, rather than a fake piste.
 	var on_piste := 0
 	for visitor in model.guests:
@@ -58,6 +72,12 @@ func run() -> void:
 			if visitor.route.legs[index].kind == "ski":
 				ski_leg = index
 				break
+		if ski_leg < 0:
+			visitor.route = downhill_route.duplicate(true)
+			for index in range(visitor.route.legs.size()):
+				if visitor.route.legs[index].kind == "ski":
+					ski_leg = index
+					break
 		if ski_leg >= 0:
 			visitor.leg = ski_leg
 			model._start_leg(visitor)
