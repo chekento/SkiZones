@@ -245,6 +245,8 @@ static func add(office: Control, only: int = -1) -> void:
 		for centre in model.operations.cost_centres:
 			var name_value: String = centre
 			if str(centre).begins_with("building:"): name_value = L.asset_name(model.asset(str(centre).get_slice(":", 1).to_int()))
+			if str(centre).begins_with("snowpark:"):name_value=L.text("Snowpark-Wartung · %s") % L.asset_name(model.asset(str(centre).get_slice(":",1).to_int()))
+			if str(centre).begins_with("training:"):name_value=L.text("Personaltraining · Mitarbeiter %d") % str(centre).get_slice(":",1).to_int()
 			for target in targets:
 				if target.key == centre: name_value = target.name
 			var names := {"infrastructure": "Infrastruktur", "recruitment": "Einstellungen", "spare_parts": "Ersatzteile", "repairs": "Reparaturen", "grooming": "Präparierung", "vehicle_service": "Fahrzeugwartung"}

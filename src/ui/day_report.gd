@@ -2,12 +2,15 @@ extends Control
 const L = preload("res://src/core/i18n.gd")
 ## In-scene modal: no platform Window/subwindow, including on Android.
 const DragScroll = preload("res://src/ui/drag_scroll.gd")
+const Goals = preload("res://src/core/long_goals_042.gd")
 signal confirmed
 var panel := PanelContainer.new()
 var body := RichTextLabel.new()
 var scroll := DragScroll.new()
 var next_button: Button
 var hud: CanvasLayer
+var goal_summary := Label.new()
+var goal_claim: Button
 
 func setup(owner_hud: CanvasLayer) -> void:
 	hud = owner_hud
@@ -30,7 +33,15 @@ func setup(owner_hud: CanvasLayer) -> void:
 	body.mouse_filter = Control.MOUSE_FILTER_PASS
 	body.add_theme_color_override("default_color", hud.INK)
 	body.add_theme_font_size_override("normal_font_size", 18)
-	scroll.add_child(body)
+	var report_content: VBoxContainer = hud._vbox(scroll, 12)
+	report_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	goal_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	goal_summary.add_theme_color_override("font_color", hud.TEAL)
+	report_content.add_child(goal_summary)
+	goal_claim = hud._button(report_content, L.text("Alle verfügbaren Ziele abschließen"), func():_claim_goals.call_deferred(), true)
+	goal_claim.name = "day_report_claim_goals"
+	goal_claim.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	report_content.add_child(body)
 	next_button = hud._button(box, L.text("Nächsten Tag starten"), func():
 		hide()
 		confirmed.emit()
@@ -49,8 +60,19 @@ func _layout() -> void:
 
 func open(text_value: String) -> void:
 	body.text = text_value
+	var count: int = Goals.pending(hud.game.model).size()
+	goal_summary.visible = count > 0
+	goal_claim.visible = count > 0
+	goal_summary.text = L.text("%d Ziele bereit · %d € verfügbar") % [count, Goals.pending_reward(hud.game.model)]
 	show()
 	move_to_front()
 	_layout()
 	scroll.scroll_vertical = 0
 	next_button.grab_focus()
+
+func _claim_goals() -> void:
+	var result: Dictionary = Goals.claim_all(hud.game.model)
+	hud.toast(result.message)
+	if result.ok:
+		hud.game.call_deferred("save_game", false)
+		hud.show_report()

@@ -4,6 +4,7 @@ const Lines = preload("res://src/world/line_art.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
+const ParkModules=preload("res://src/core/park_modules_042.gd")
 
 var surface := SurfaceTool.new()
 
@@ -451,6 +452,7 @@ func wildlife(kind: int) -> ArrayMesh:
 	return finish()
 
 func piste_feature(kind: String) -> ArrayMesh:
+	if not ParkModules.legacy(kind) and ParkModules.SPECS.has(kind):return _park_module(kind)
 	if kind == "rail":
 		for z in [-2.3,2.3]:
 			for side in [-1,1]: link(Vector3(side*0.65,0,z),Vector3(side*0.45,0.85,z),0.09,Color("3f6771"))
@@ -470,6 +472,59 @@ func piste_feature(kind: String) -> ArrayMesh:
 		for side in [-1,1]:
 			link(Vector3(side*3,0,-4.4),Vector3(side*3,1.9,-4.4),0.06,Color("d99160"))
 			box(Vector3(side*3,1.6,-4.4),Vector3(0.7,0.45,0.08),Color("e9ae70"))
+	return finish()
+
+func _park_module(kind:String)->ArrayMesh:
+	var spec:Dictionary=ParkModules.spec(kind)
+	var length_value:float=spec.length
+	var width:float=spec.width
+	var rail:bool=str(spec.shape) in ["downrail","kink","rainbow","box","tube"]
+	var color:=Color("5797a5") if rail else Color("f0f6fa")
+	var sides:int=8 if str(spec.shape) in ["half","wall","tube","funbox","transfer"] else 2
+	var sections:int=32 if str(spec.shape)=="whoops" else 24
+	# One baked surface: no per-panel nodes or materials. The same grid
+	# functions drive a skier's actual height, including cross-slope walls.
+	for z_index in range(sections):
+		var z0:float=-length_value*0.5+length_value*z_index/sections
+		var z1:float=-length_value*0.5+length_value*(z_index+1)/sections
+		for x_index in range(sides):
+			var x0:float=-width*0.5+width*x_index/sides
+			var x1:float=-width*0.5+width*(x_index+1)/sides
+			var a:=Vector3(x0,ParkModules.surface_height(kind,z0,x0),z0)
+			var b:=Vector3(x1,ParkModules.surface_height(kind,z0,x1),z0)
+			var c:=Vector3(x1,ParkModules.surface_height(kind,z1,x1),z1)
+			var d:=Vector3(x0,ParkModules.surface_height(kind,z1,x0),z1)
+			var normal:Vector3=(d-a).cross(b-a).normalized()
+			_facet([a,b,c,d],normal,color)
+		for side in [-1,1]:
+			var x:float=side*width*0.5
+			var y0:float=ParkModules.surface_height(kind,z0,x)
+			var y1:float=ParkModules.surface_height(kind,z1,x)
+			_facet([Vector3(x,0,z0),Vector3(x,y0,z0),Vector3(x,y1,z1),Vector3(x,0,z1)],Vector3(side,0,0),color.darkened(0.18))
+			if not rail:
+				# Blue course dye follows the real profile. Keep the markings
+				# inside the footprint and bake them into the existing surface.
+				var inner_x:float=x-side*minf(0.22,width*0.08)
+				var edge_points:Array=[Vector3(x,y0+0.025,z0),Vector3(inner_x,ParkModules.surface_height(kind,z0,inner_x)+0.025,z0),Vector3(inner_x,ParkModules.surface_height(kind,z1,inner_x)+0.025,z1),Vector3(x,y1+0.025,z1)]
+				var edge_normal:Vector3=(edge_points[3]-edge_points[0]).cross(edge_points[1]-edge_points[0]).normalized()
+				if edge_normal.y<0:edge_normal=-edge_normal
+				_facet(edge_points,edge_normal,Color("528fac"))
+	if rail:
+		for sign_value in [-1,1]:
+			var z:float=sign_value*length_value*0.33
+			var height_value:float=ParkModules.surface_height(kind,z,0)
+			for side in [-1,1]:link(Vector3(side*width*0.32,0,z),Vector3(side*width*0.32,height_value,z),0.07,Color("3c5965"))
+		for sign_value in [-1,1]:
+			var z:float=sign_value*length_value*0.5
+			var y:float=ParkModules.surface_height(kind,z,0)
+			_facet([Vector3(-width*0.5,0,z),Vector3(width*0.5,0,z),Vector3(width*0.5,y,z),Vector3(-width*0.5,y,z)],Vector3(0,0,sign_value),color.darkened(0.1))
+	# Narrow safety flags remain inside the measured footprint.
+	for side in [-1,1]:
+		var x:float=side*(width*0.5-0.12)
+		var z:float=-length_value*0.42
+		var y:float=ParkModules.surface_height(kind,z,x)
+		link(Vector3(x,y,z),Vector3(x,y+1.1,z),0.035,Color("dd9256"))
+		box(Vector3(x,y+0.9,z),Vector3(0.18,0.3,0.07),Color("ebae62"))
 	return finish()
 
 func _ramp_profile(t: float) -> float:

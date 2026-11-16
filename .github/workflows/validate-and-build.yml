@@ -230,6 +230,8 @@ jobs:
         run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/cinematic_piste_map_032.gd
       - name: 0.32 direct compile of career, recruitment and panel dependency graph
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/compile_sensitive_032.gd
+      - name: 0.42 reversible piste edits, dragged points and canceled touch gestures
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/plan_history_042.gd
       - name: 0.33 live offline radio clock, real seek, mute and background rejoining
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/radio_live_033.gd
       - name: 0.33 immediate radio persistence and completed-building/piste inspector
@@ -387,6 +389,44 @@ jobs:
         run: 'python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --headless --script tests/run.gd'
       - name: Modular piste features, day pacing and sleeping guest regressions
         run: python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
+      - name: 0.42 real modular snowpark and touch placement release gate
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_modules_042.gd
+          xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/snowpark_workshop_042.gd
+      - name: 0.42 skier climbing, real snow contact and rotated park pitch
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/skier_surface_pose_042.gd
+      - name: 0.42 PMDD world anchors, camera parallax and actual snow shader rendering
+        run: |
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --headless --script tests/perceptual_depth_042.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --audio-driver Dummy --resolution 1280x900 --script tests/perceptual_depth_scene_042.gd
+      - name: 0.42 early goal balance, permanent progress and safe save restoration
+        run: |
+          python3 -m unittest discover -s tests -p test_godot_runner.py
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/long_goals_npc_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/persistent_profit_goals_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/goal_feedback_042.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --strict-engine-errors --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/goal_feedback_scene_042.gd
+      - name: 0.42 Android GLES3 cache policy and desktop compatibility
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 90 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/android_shader_cache_042.gd
+      - name: Android version consistency and stale lifecycle rejection
+        run: |
+          python3 tools/check_android_versions.py
+          python3 -m unittest discover -s tests -p test_android_versions.py
+      - name: Android engine error evidence preserves strict acceptance
+        run: python3 -m unittest discover -s tests -p test_android_log_health.py
+      - name: 0.42 interactive academy, actual qualifications and real phone input
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/staff_training_042.gd
+          xvfb-run -a -s '-screen 0 1440x1000x24' python3 tools/run_godot_test.py --timeout 420 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/interactive_academy_scene_042.gd
+      - name: 0.42 P0 rescue team, downhill return, 1-2h treatment and legacy saves
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/professional_rescue_041.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/rescue_routes_042.gd
+      - name: 0.42 P0 real 250-NPC load, snowpark accounting and 8x to 1x lift downshift
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/crowd_stress_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/snowpark_crowd_042.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/lift_frame_pacing_041.gd
       - name: Combined hotel modules, annual events, spatial audio and scenario media
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/winter_festival_025.gd
@@ -455,6 +495,10 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/integration_quality_026.gd
           xvfb-run -a -s '-screen 0 1536x900x24' python3 tools/run_godot_test.py --timeout 260 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1536x864 --script tests/winter_festival_scene_025.gd
+      - name: Strict lift scene-graph clock sync after camera reentry
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 150 -- "$GODOT_BIN" --language de --headless --script tests/lift_frame_pacing_041.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/lift_reentry_042.gd
       - name: Rendered lift occupants and station plazas
         run: xvfb-run -a -s '-screen 0 1440x900x24' python3 tools/run_godot_test.py -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/lift_scene.gd
       - name: Build cancellation, two-finger camera and pen/finger scrolling
@@ -559,7 +603,7 @@ jobs:
     name: Android ${{ matrix.api }} lifecycle
     needs: godot
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       DISPLAY: ':99'
       LIBGL_ALWAYS_SOFTWARE: '1'
@@ -606,7 +650,7 @@ jobs:
           # that rendered real gameplay on API 36; never relax pixel checks.
           # Re-test all lifecycle and save-preservation gates before release.
           emulator-options: '-no-window -gpu host -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -camera-back none'
-          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa
+          script: python3 tools/android_resume_smoke.py --apk build/lifecycle/SkiZones-lifecycle-x86_64.apk --update-apk build/lifecycle/SkiZones-update-x86_64.apk --wrong-signer-apk build/lifecycle/SkiZones-wrong-signer-x86_64.apk --output build/android-qa --cold-start-rounds 3
       - uses: actions/upload-artifact@v4
         if: always()
         with:

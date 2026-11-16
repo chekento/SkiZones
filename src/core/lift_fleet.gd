@@ -97,7 +97,8 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 ## 8x -> 1x downshift, release accumulated visual distance over several frames
 ## instead of drawing a frozen carrier followed by a multi-metre jump.
 ## A stopped or reset cable synchronizes exactly to the simulation.
-static func visual_clock(previous: float, target: float, delta: float, units_per_second: float, running: bool = true) -> float:
+static func visual_clock(previous: float, target: float, delta: float, units_per_second: float, running: bool = true, force_sync: bool = false) -> float:
+	if force_sync: return target
 	if not running or not is_finite(previous) or previous < 0.0 or target <= previous:return target
 	var frame_time: float=clampf(delta,0.0,0.1)
 	var maximum_step: float=maxf(0.02,frame_time*maxf(units_per_second,0.0)*1.8)

@@ -12,6 +12,7 @@ const StyleAssets = preload("res://src/world/style_assets.gd")
 const LineArt = preload("res://src/world/line_art.gd")
 const VisualStyles = preload("res://src/core/visual_styles.gd")
 const Motion = preload("res://src/core/ski_motion.gd")
+const SkierPose = preload("res://src/world/skier_pose_042.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const TowRope = preload("res://src/world/tow_rope.gd")
 const Fleet = preload("res://src/core/lift_fleet.gd")
@@ -25,6 +26,7 @@ const FootWear = preload("res://src/world/foot_wear.gd")
 const AlpineLake = preload("res://src/world/alpine_lake.gd")
 const GroundSurface = preload("res://src/world/ground_surface.gd")
 const Relief = preload("res://src/world/terrain_relief.gd")
+const PerceptualDepth = preload("res://src/world/perceptual_depth.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const LivingAssets = preload("res://src/world/living_assets.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
@@ -54,6 +56,8 @@ var _hotel_connector_nodes: Array = []
 var wildlife_enabled := true
 var contours_enabled := true
 var _relief := Relief.material()
+var perceptual_depth := PerceptualDepth.new()
+var _perceptual_snow_enabled := true
 var _height_labels: Node3D
 var _art_cache: Dictionary = {}
 var _vehicle_sets: Dictionary = {}
@@ -420,6 +424,8 @@ func _build_terrain() -> void:
 	_label(landscape, "TALZUGANG", terrain.world(Terrain.unpack(model.portal_path[-1]) if not model.portal_path.is_empty() else Terrain.BASE + Vector2(0,65), 8), Color("446774"))
 
 func _build_surroundings() -> void:
+	perceptual_depth.build(self, terrain)
+	_atmosphere_tick = ""
 	scenery_instance = MeshInstance3D.new()
 	scenery_instance.mesh = _land_mesh(terrain.bounds.grow(1200), maxi(80, ceili(maxf(terrain.bounds.size.x, terrain.bounds.size.y) / 100)), true)
 	scenery_instance.material_override = _relief
@@ -454,6 +460,7 @@ func _build_height_labels() -> void:
 
 func toggle_slopes() -> void:
 	slopes_visible = not slopes_visible
+	_update_depth_context()
 	if slope_overlay == null:
 		_build_slope_overlay()
 	slope_overlay.visible = slopes_visible
@@ -786,7 +793,12 @@ func rebuild(progress: RefCounted = null) -> void:
 	_vehicle_counts.clear()
 	_vehicle_glass.clear()
 	_queue_labels.clear()
-	_pedestrian_snapshot = model.pedestrian_layout()
+	# Render the same compacted-snow access used by a mid-piste visit.
+	# This shallow copy leaves the routing graph's own layout unchanged.
+	_pedestrian_snapshot = model.pedestrian_layout().duplicate()
+	_pedestrian_snapshot.links = _pedestrian_snapshot.links.duplicate()
+	for stop in model.PisteStops.stops(model):
+		_pedestrian_snapshot.links.append({"from":"piste-stop-%d" % int(stop.building),"to":"d%d" % int(stop.building),"points":stop.points,"width":4.0,"surface":"snow"})
 	foot_wear.cover_layout(_pedestrian_snapshot)
 	if progress != null:
 		progress.report(83.0, L.text("Fußwege und Vorplätze gestalten …"))
@@ -949,7 +961,9 @@ func _feature_transform(piste: Dictionary, feature: Dictionary) -> Transform3D:
 	var point := center+direction.orthogonal()*float(feature.lateral)
 	var z: Vector3=(ground_position(point+direction*2)-ground_position(point-direction*2)).normalized()
 	var x := Vector3.UP.cross(z).normalized()
-	return Transform3D(Basis(x,z.cross(x).normalized(),z),ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
+	var basis:=Basis(x,z.cross(x).normalized(),z)*Basis(Vector3.UP,deg_to_rad(float(feature.get("rotation",0))))
+	basis=basis.scaled(Vector3.ONE*float(feature.get("scale",1)))
+	return Transform3D(basis,ground_position(point,snow_renderer.height_offset(piste,point,fraction,feature.lateral)))
 
 func _feature_mesh(kind: String) -> ArrayMesh:
 	var key := "module/"+kind
@@ -1014,7 +1028,7 @@ func _build_lift(lift: Dictionary) -> void:
 		group.set_meta("styled_vehicle",int(lift.id))
 		group.multimesh.visible_instance_count = count
 		asset_root.add_child(group)
-		var data := {"node": group, "glass": null, "poses": [], "clock": -INF}
+		var data := {"node": group, "glass": null, "poses": [], "clock": -INF, "resync": false}
 		if not _vehicles.has(lift.kind):
 			_vehicles[lift.kind] = group
 		if Fleet.family(lift) == "gondola":
@@ -1222,6 +1236,8 @@ func _update_atmosphere() -> void:
 	_snow.amount = flake_budget * (2 if weather_kind == 3 else 1)
 	_snow.emitting = effects_enabled and weather_kind in [1,3]
 	_snow.position = terrain.world(focus,130)
+	perceptual_depth.configure(_environment.fog_light_color, daylight, weather_kind, quality_tier, effects_enabled)
+	_update_depth_context()
 
 func _process(delta: float) -> void:
 	if model == null or loading_in_progress:
@@ -1257,11 +1273,18 @@ func _process(delta: float) -> void:
 		data.node.visible = shown
 		if data.glass != null:
 			data.glass.visible = shown
+		var target_clock: float=float(lift.get("clock",0.0))
 		if not shown:
+			# Keep the authoritative whole-tick phase without costly per-frame
+			# staffing/availability checks or MultiMesh updates for distant lifts.
+			# The exact fractional phase is restored on the first visible frame.
+			data.clock = target_clock
+			data.resync = true
 			continue
-		var target_clock: float=float(lift.get("clock",0.0))+(simulation_fraction if model.lift_running(lift) else 0.0)
-		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift))
-		var changed: bool = not is_equal_approx(data.clock, clock)
+		target_clock += simulation_fraction if model.lift_running(lift) else 0.0
+		var resync: bool=bool(data.get("resync",false))
+		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift),resync)
+		var changed: bool = resync or not is_equal_approx(data.clock, clock)
 		var profile: Dictionary=model.cable_profile(lift) if changed else {}
 		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
 		var family: String=Fleet.family(lift)
@@ -1285,6 +1308,7 @@ func _process(delta: float) -> void:
 					_tow_lines.multimesh.set_instance_color(tows,Color.WHITE)
 					tows+=1
 		data.clock = clock
+		data.resync = false
 	_tow_lines.multimesh.visible_instance_count = tows
 	if _label_tick != model.motion_tick or delta == 0:
 		_label_tick = model.motion_tick
@@ -1344,7 +1368,7 @@ func _process(delta: float) -> void:
 				angle = personal.yaw
 				lean = personal.lean
 				pitch = personal.pitch
-				hiking = Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),fraction)
+				hiking = SkierPose.hiking(guest,leg,guest.elapsed + simulation_fraction * guest.get("party_step",1.0) * guest.get("traffic_step",1.0))
 			elif leg.kind == "lift" and guest.phase == "moving":
 				var pose: Dictionary = _rider_pose(guest)
 				position_value = pose.transform.origin
@@ -1755,6 +1779,15 @@ func _update_camera() -> void:
 		var pitch := deg_to_rad(pitch_degrees)
 		camera.position = target + Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 		camera.look_at(target)
+	_update_depth_context()
+
+func _update_depth_context() -> void:
+	var enabled: bool = effects_enabled and quality_tier > 0 and visual_style not in ["monochrome", "piste_map"]
+	perceptual_depth.set_camera_context(camera.projection == Camera3D.PROJECTION_PERSPECTIVE, camera_mode == 2 or slopes_visible, enabled, quality_tier)
+	if enabled != _perceptual_snow_enabled:
+		_perceptual_snow_enabled = enabled
+		_relief.set_shader_parameter("perceptual_snow", enabled)
+		snow_renderer.set_depth_detail(enabled)
 
 func pan_between(previous: Vector2, current: Vector2) -> void:
 	follow_guest = -1
@@ -1855,17 +1888,7 @@ func pick_asset(point: Vector2) -> int:
 	return id
 
 func _exact_ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary, elapsed: float) -> Dictionary:
-	var fraction: float = model.ski_fraction(leg,clampf(elapsed/guest.duration,0,1),guest.get("ski_motion",[]))
-	var frame := Motion.frame(terrain, piste, guest.id, guest.ability, fraction, guest.loops,leg.get("start_fraction",0),leg.get("end_fraction",1),guest.get("walk_ranges",[]),guest.get("sport","ski"),float(guest.get("traffic_lateral", INF)))
-	if Motion.hiking(guest.get("ski_motion",leg.get("motion",[])),elapsed/guest.duration): frame.lean = 0.0
-	var center: Vector2 = terrain.point_on_path(piste.points, fraction)
-	var side: Vector2 = (terrain.point_on_path(piste.points, minf(1, fraction + 0.005)) - terrain.point_on_path(piste.points, maxf(0, fraction - 0.005))).normalized().orthogonal()
-	var before: Vector3 = ground_position(frame.before)
-	var ahead: Vector3 = ground_position(frame.ahead)
-	var lateral: float=(frame.point-center).dot(side)
-	before.y+=PisteFeatures.height_offset(piste,maxf(0,fraction-0.003),lateral,int(guest.ability))
-	ahead.y+=PisteFeatures.height_offset(piste,minf(1,fraction+0.003),lateral,int(guest.ability))
-	return {"position": ground_position(frame.point, snow_renderer.height_offset(piste, frame.point, fraction, (frame.point - center).dot(side)) - 0.05 + PisteFeatures.height_offset(piste,fraction,(frame.point-center).dot(side),int(guest.ability))), "yaw": frame.yaw, "lean": frame.lean, "pitch": atan2(before.y - ahead.y, Vector2(ahead.x - before.x, ahead.z - before.z).length())}
+	return SkierPose.frame(model, ground_surface, snow_renderer, piste, guest, leg, elapsed)
 
 func _ski_pose(piste: Dictionary, guest: Dictionary, leg: Dictionary) -> Dictionary:
 	var elapsed: float = guest.elapsed + simulation_fraction * guest.get("traffic_step", 1.0)*guest.get("party_step",1.0)
@@ -1985,6 +2008,8 @@ func _apply_quality() -> void:
 	if _snow.amount != flakes: _snow.amount = flakes
 	forest.update(focus, zoom, quality_tier)
 	landscape_details.update(self)
+	_atmosphere_tick = ""
+	if model != null: _update_atmosphere()
 
 func _adapt_quality(delta: float) -> void:
 	if quality != "auto" or delta <= 0:

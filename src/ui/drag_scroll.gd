@@ -7,6 +7,7 @@ var _origin := Vector2.ZERO
 var _last := Vector2.ZERO
 var _dragging := false
 var _velocity := 0.0
+var gesture_exclusions: Array[Control] = []
 
 static func click_allowed() -> bool:
 	return not dragging_any and Time.get_ticks_msec() - last_drag_release > 80
@@ -20,6 +21,8 @@ func _begin(at: Vector2, contact: int) -> void:
 	last_drag_release = -1000
 	if not is_visible_in_tree() or not get_global_rect().has_point(at):
 		return
+	for control in gesture_exclusions:
+		if is_instance_valid(control) and control.is_visible_in_tree() and control.get_global_rect().has_point(at):return
 	_contact = contact
 	_origin = at
 	_last = at

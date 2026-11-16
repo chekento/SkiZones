@@ -19,6 +19,7 @@ const ResortView = preload("res://src/world/resort_view.gd")
 const Preferences = preload("res://src/core/preferences.gd")
 const AppUpdater = preload("res://src/core/app_updater.gd")
 const ResortHUD = preload("res://src/ui/hud.gd")
+const PlanHistory = preload("res://src/core/plan_history_042.gd")
 
 var updater := AppUpdater.new()
 var preferences := Preferences.new()
@@ -47,11 +48,12 @@ var _stroke_too_long := false
 var _committing := false
 var _plan_dirty := false
 var points: Array = []
-var undone_points: Array = []
+var plan_history := PlanHistory.new()
 var last_plan_check: Dictionary = {}
 var selected_waypoint := -1
 var _drag_waypoint := -1
 var _drag_original: Array = []
+var _drag_before_points: Array = []
 var _drag_press_position := Vector2.INF
 var _drag_has_moved := false
 var snap_target: Dictionary = {}
@@ -580,7 +582,7 @@ func set_tool(value: String) -> void:
 	tool = "piste" if value in ["blue", "red", "black"] else value
 	if tool == "lift": _begin_lift_camera()
 	points.clear()
-	undone_points.clear()
+	plan_history.clear()
 	selected_waypoint = -1
 	_drag_waypoint = -1
 	snap_target = {}
@@ -595,28 +597,32 @@ func clear_plan() -> void:
 	set_tool("inspect")
 	hud.toast(L.text("Planung beendet. Es wurde nichts ausgegeben."))
 
+func _remember_plan_change(before: Array) -> void:
+	# Changes stay purely in the transient plan until the player confirms.
+	# One drag or gesture is one undo step, not dozens of finger samples.
+	plan_history.record(before, points)
+
 func undo_point() -> void:
-	if tool not in ["piste", "lift", "walkway"] or points.is_empty():
+	if tool not in ["piste", "lift", "walkway"] or not plan_history.can_undo():
 		return
-	undone_points.append(points.pop_back())
+	points = plan_history.undo(points)
 	selected_waypoint = -1
 	snap_target = {}
 	_update_plan()
 
 func redo_point() -> void:
-	if tool not in ["piste", "lift", "walkway"] or undone_points.is_empty():
+	if tool not in ["piste", "lift", "walkway"] or not plan_history.can_redo():
 		return
-	if points.size() >= (2 if tool == "lift" else 64):
-		return
-	points.append(undone_points.pop_back())
+	points = plan_history.redo(points)
 	selected_waypoint = -1
 	snap_target = {}
 	_update_plan()
 
 func delete_waypoint() -> void:
 	if selected_waypoint >= 0 and selected_waypoint < points.size():
+		var before: Array = points.duplicate(true)
 		points.remove_at(selected_waypoint)
-		undone_points.clear()
+		_remember_plan_change(before)
 	selected_waypoint = -1
 	snap_target = {}
 	_update_plan()
@@ -650,6 +656,7 @@ func set_piste_width(value: float) -> void:
 	_update_plan()
 
 func _begin_waypoint_drag(index: int, pressed_at: Vector2 = Vector2.INF) -> void:
+	_drag_before_points = points.duplicate(true)
 	_drag_waypoint = index
 	selected_waypoint = index
 	_drag_original = points[index].duplicate()
@@ -678,11 +685,11 @@ func _end_waypoint_drag(canceled: bool = false) -> void:
 	if canceled and _drag_waypoint >= 0 and _drag_waypoint < points.size():
 		points[_drag_waypoint] = _drag_original.duplicate()
 	elif _drag_has_moved:
-		# Do not discard redo history when the user only selected the point,
-		# or canceled a two-finger gesture halfway through a drag.
-		undone_points.clear()
+		# Selection and cancelled multi-touch gestures must retain redo history.
+		_remember_plan_change(_drag_before_points)
 	_drag_waypoint = -1
 	_drag_original = []
+	_drag_before_points.clear()
 	_drag_press_position = Vector2.INF
 	_drag_has_moved = false
 	_update_plan()
@@ -714,8 +721,9 @@ func suggest_route() -> void:
 	var context: RefCounted=model if editing_id == -1 else model.Edit.context(model,editing_id)
 	var result: Dictionary=context.Planner.suggest_walk(context, points) if tool == "walkway" else context.suggest_piste(points,chosen_piste_width())
 	if result.ok:
-		undone_points.clear()
+		var before: Array = points.duplicate(true)
 		points=result.points.duplicate(true)
+		_remember_plan_change(before)
 		selected_waypoint=-1
 		snap_target={}
 		_update_plan()
@@ -726,8 +734,9 @@ func suggest_site() -> void:
 	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
 	var result: Dictionary = context.suggest_building(hud.building_kind() if editing_id == -1 else model.asset(editing_id).kind, Terrain.unpack(points[0]))
 	if result.ok:
-		undone_points.clear()
+		var before: Array = points.duplicate(true)
 		points = [result.point]
+		_remember_plan_change(before)
 		edit_rotation = int(result.rotation)
 		snap_target = {}
 		_update_plan()
@@ -735,8 +744,9 @@ func suggest_site() -> void:
 
 func reverse_route() -> void:
 	if tool != "piste" or points.size() < 2: return
-	undone_points.clear()
+	var before: Array = points.duplicate(true)
 	points.reverse()
+	_remember_plan_change(before)
 	selected_waypoint=-1
 	snap_target={}
 	_update_plan()
@@ -746,8 +756,9 @@ func smooth_route() -> void:
 	var context: RefCounted = model if editing_id == -1 else model.Edit.context(model, editing_id)
 	var result: Dictionary = model.Planner.smooth(context, points, chosen_piste_width())
 	if result.ok:
-		undone_points.clear()
+		var before: Array = points.duplicate(true)
 		points = result.points.duplicate(true)
+		_remember_plan_change(before)
 		selected_waypoint = -1
 		snap_target = {}
 		_update_plan()
@@ -824,7 +835,7 @@ func confirm_plan() -> void:
 		Progression.refresh(model)
 		_clear_input()
 		points.clear()
-		undone_points.clear()
+		plan_history.clear()
 		selected_waypoint = -1
 		snap_target = {}
 		editing_id = -1
@@ -875,7 +886,7 @@ func _map_tap(position_value: Vector2) -> void:
 			hud.show_context(tool, view.pick_asset(point))
 		return
 	point = _snap_point(point, position_value)
-	undone_points.clear()
+	var before: Array = points.duplicate(true)
 	if tool in ["building", "plaza"]:
 		points = [Terrain.pack(point)]
 		if tool == "building" and editing_id == -1: edit_rotation = model.building_orientation(hud.building_kind(), point)
@@ -883,6 +894,7 @@ func _map_tap(position_value: Vector2) -> void:
 		points[1] = Terrain.pack(point)
 	elif points.size() < 64:
 		points.append(Terrain.pack(point))
+	_remember_plan_change(before)
 	selected_waypoint = -1
 	_update_plan()
 
@@ -926,7 +938,7 @@ func _end_stroke(screen: Vector2, canceled: bool = false) -> void:
 		var generated := WalkwayDesign.waypoints(combined)
 		if not generated.is_empty():
 			points = generated
-			undone_points.clear()
+			_remember_plan_change(_stroke_original)
 			selected_waypoint = -1
 		else: hud.toast(L.text("Zeichnung zu dicht. Den Weg in kürzere Abschnitte teilen."))
 	if _stroke_too_long and not canceled: hud.toast(L.text("Zeichnung zu dicht. Den Weg in kürzere Abschnitte teilen."))
@@ -1491,7 +1503,7 @@ func begin_edit(id: int, title: String, color: String, rotation_value: int, widt
 	var item: Dictionary = model.asset(id)
 	if item.is_empty(): return false
 	_clear_input()
-	undone_points.clear()
+	plan_history.clear()
 	var continuing := editing_id == id
 	editing_id = id
 	edit_title = title

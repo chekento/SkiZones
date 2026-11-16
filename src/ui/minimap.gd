@@ -25,7 +25,7 @@ var _down := false
 var _dragged := false
 var _alerts: Array=[]
 var _summits: Array=[]
-var _expand_button := Button.new()
+var _expand_button: Button
 
 func _ready() -> void:
 	clip_contents=true
@@ -35,6 +35,7 @@ func _ready() -> void:
 	set_process(game!=null)
 	if game!=null: frame_resort()
 	if interactive and game!=null and not expanded:
+		_expand_button = Button.new()
 		_expand_button.text="⤢"
 		_expand_button.tooltip_text=L.text("Pistenplan vergrößern")
 		_expand_button.custom_minimum_size=Vector2(36,30)

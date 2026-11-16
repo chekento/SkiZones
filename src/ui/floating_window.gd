@@ -51,6 +51,10 @@ func setup(hud: CanvasLayer, caption: String) -> void:
 		for offset in [10,17,24]: grip.draw_line(Vector2(offset,28),Vector2(28,offset),Color("74968c"),2,true)
 	)
 	get_viewport().size_changed.connect(_fit)
+	# Viewport resize precedes anchored parent layout. Refit when that
+	# parent has actually settled, including the first phone-sized opening.
+	var parent:=get_parent() as Control
+	if parent!=null:parent.resized.connect(_fit)
 	call_deferred("_fit")
 
 func _bounds() -> Vector2:

@@ -278,10 +278,11 @@ func update(view: Node3D,delta: float) -> void:
 		var pos:Vector2=Ops.rescue_location(view.model,incident)
 		if pos.distance_to(view.focus)>maxf(view.zoom*2.0,240):continue
 		var forward:Vector2=Terrain.unpack(incident.point)-Terrain.unpack(station.point)
-		var path:Array=incident.get("route_points",[])
+		var path:Array=Ops.rescue_active_path(incident)
 		if path.size()>=2:
 			var fraction:float=Ops.rescue_fraction(incident)
-			var next_fraction:float=clampf(fraction+(0.015 if stage=="responding" else -0.015),0,1)
+			var forward_path:bool=stage=="responding" or incident.has("return_route_points")
+			var next_fraction:float=clampf(fraction+(0.015 if forward_path else -0.015),0,1)
 			forward=Ops.rescue_path_point(path,next_fraction)-pos
 		var heading:float=atan2(forward.x,forward.y) if forward.length_squared()>0.001 else 0.0
 		var transform_value:=Transform3D(Basis(Vector3.UP,heading),view.terrain.world(pos,0.45))

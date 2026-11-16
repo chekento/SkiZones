@@ -7,8 +7,8 @@ const L = preload("res://src/core/i18n.gd")
 const DISPLAY_SECONDS := 5.4
 const MAX_QUEUE := 12
 const MAX_HISTORY := 40
-const EVENT_DURATIONS := {"music":3.8,"mission":6.3,"medal":6.8,"warning":7.4,"repair":4.8,"finance":5.8,"achievement":5.4,"rank":5.4,"poster":4.8}
-const EVENT_PRIORITIES := {"warning":100,"mission":95,"medal":90,"achievement":80,"rank":80,"repair":55,"finance":50,"music":10,"poster":76}
+const EVENT_DURATIONS := {"music":3.8,"mission":6.3,"medal":6.8,"warning":7.4,"repair":4.8,"finance":5.8,"achievement":5.4,"rank":5.4,"poster":4.8,"goal":6.8}
+const EVENT_PRIORITIES := {"warning":100,"mission":95,"medal":90,"achievement":80,"rank":80,"repair":55,"finance":50,"music":10,"poster":76,"goal":85}
 var waiting: Array = []
 var history: Array = []
 var reserved_top := 0.0
@@ -74,6 +74,7 @@ static func caption(kind: String) -> String:
 		"rank": return L.text("✦  MEISTERSCHAFTSRANG")
 		"achievement": return L.text("✦  ACHIEVEMENT FREIGESCHALTET")
 		"poster": return L.text("✦  PLAKAT ENTDECKT")
+		"goal": return L.text("✓  LANGZEITZIEL ERREICHT")
 		"medal": return L.text("◆  SZENARIOMEDAILLE")
 		"mission": return L.text("✓  MISSION ABGESCHLOSSEN")
 		"music": return L.text("♫  JETZT IM RADIO")

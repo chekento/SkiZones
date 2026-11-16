@@ -4,6 +4,8 @@ const DragScroll = preload("res://src/ui/drag_scroll.gd")
 
 const Catalog = preload("res://src/core/catalog.gd")
 const GuestProfile = preload("res://src/core/guest_profile.gd")
+const GoalNoticeFeed = preload("res://src/ui/goal_notice_feed_042.gd")
+var goal_notices := GoalNoticeFeed.new()
 const GuestFace = preload("res://src/ui/guest_face.gd")
 const BuildingBrowser = preload("res://src/ui/building_browser.gd")
 const PisteWorkshop = preload("res://src/ui/piste_workshop.gd")
@@ -111,7 +113,7 @@ var daily_dialog := DayReport.new()
 var help_dialog := AcceptDialog.new()
 var camera_dialog := Control.new()
 var cinema_overlay := PanelContainer.new()
-var cinema_title := Label.new()
+var cinema_title: Label
 var cinema_mode := false
 var attention_sliders: Array=[]
 var attention_labels: Array=[]
@@ -486,12 +488,12 @@ func _update_responsive_layout(available_width: float) -> void:
 	if labels.has("weather"):
 		labels.weather.custom_minimum_size.x = 100 if compact_layout else 145
 	if is_instance_valid(undo_button):
-		undo_button.text = "↶" if compact_layout else L.text("Letzten Punkt zurück")
-		undo_button.tooltip_text = L.text("Letzten Punkt zurück")
+		undo_button.text = "↶" if compact_layout else L.text("Bearbeitung rückgängig")
+		undo_button.tooltip_text = L.text("Bearbeitung rückgängig")
 		undo_button.custom_minimum_size.x = 44 if compact_layout else 0
 	if is_instance_valid(redo_button):
-		redo_button.text = "↷" if compact_layout else L.text("Punkt wiederholen")
-		redo_button.tooltip_text = L.text("Punkt wiederholen")
+		redo_button.text = "↷" if compact_layout else L.text("Bearbeitung wiederholen")
+		redo_button.tooltip_text = L.text("Bearbeitung wiederholen")
 		redo_button.custom_minimum_size.x = 44 if compact_layout else 0
 	if is_instance_valid(delete_point_button):
 		delete_point_button.text = "✕" if compact_layout else L.text("Punkt löschen")
@@ -775,8 +777,8 @@ func _build_plan_bar() -> void:
 	box.add_child(actions)
 	confirm_button = _button(actions, L.text("Bauen"), game.confirm_plan, true)
 	confirm_button.custom_minimum_size.x = 165
-	undo_button = _button(actions, L.text("Letzten Punkt zurück"), game.undo_point)
-	redo_button = _button(actions, L.text("Punkt wiederholen"), game.redo_point)
+	undo_button = _button(actions, L.text("Bearbeitung rückgängig"), game.undo_point)
+	redo_button = _button(actions, L.text("Bearbeitung wiederholen"), game.redo_point)
 	delete_point_button = _button(actions, L.text("Punkt löschen"), game.delete_waypoint)
 	suggest_route_button = _button(piste_controls,L.text("Verlauf verbessern"),game.suggest_route)
 	suggest_route_button.add_theme_font_size_override("font_size",16)
@@ -1571,6 +1573,7 @@ func refresh() -> void:
 	if game.has_game and not menu.visible and not cinema_mode and not piste_map_window.visible and not jukebox.visible:
 		_announce_radio_track()
 		_announce_finance_warning(model)
+		for event in goal_notices.collect(model): achievement_overlay.announce(event)
 	# Styling is synced before displaying queued achievements.
 	var show_achievement: bool=not cinema_mode and not piste_map_window.visible and not achievement_overlay.active.is_empty()
 	achievement_overlay.visible=show_achievement
@@ -1639,9 +1642,9 @@ func plan(message: String, can_build: bool, point_count: int, cost: float = 0) -
 	confirm_button.disabled = not can_build
 	confirm_button.visible = current_tool != "inspect"
 	undo_button.visible = current_tool in ["piste","lift","walkway"]
-	undo_button.disabled = point_count == 0
+	undo_button.disabled = not game.plan_history.can_undo()
 	redo_button.visible = current_tool in ["piste", "lift", "walkway"]
-	redo_button.disabled = game.undone_points.is_empty()
+	redo_button.disabled = not game.plan_history.can_redo()
 	delete_point_button.visible = current_tool in ["piste","walkway"]
 	delete_point_button.disabled = game.selected_waypoint < 0 or game.selected_waypoint >= point_count
 	waypoint_choice.visible = game.tool == "piste" and point_count > 0

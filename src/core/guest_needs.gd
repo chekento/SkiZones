@@ -2,6 +2,8 @@ extends RefCounted
 ## Persisted personal needs, changed by activity and completed visits.
 const Terrain = preload("res://src/core/terrain.gd")
 const SERVICES := {
+	"town_hall":{"hunger":0,"warmth":15,"energy":5,"joy":18,"minutes":8,"places":12},
+	"printing_press":{"hunger":0,"warmth":10,"energy":0,"joy":22,"minutes":12,"places":6},
 	# Public toilets are standalone service visits. Hotel and restaurant
 	# bathrooms are included with those buildings, without a WC upgrade tab.
 	"wc_dixi":{"hunger":0,"warmth":0,"energy":0,"joy":0,"minutes":3,"places":1},

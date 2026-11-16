@@ -1,0 +1,50 @@
+name: 0.42 modular snowpark, touch editor and real park use
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: snowpark-042-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  snowpark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned engine
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Compile and import
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Verify translated interface
+        run: python3 tools/check_localization.py
+      - name: Real geometry, usage, upkeep, maintenance, safety and historic modules
+        run: |
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_modules_042.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_crowd_042.gd
+          python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --headless --script tests/landscape_rhythm.gd
+          python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/piste_side_visits_042.gd
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Actual phone touches and six bilingual workshop screenshots
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/snowpark_workshop_042.gd
+      - name: Render all twenty shipping module geometries for visual review
+        run: xvfb-run -a -s '-screen 0 1600x1200x24' python3 tools/run_godot_test.py --timeout 180 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1600x1200 --script tests/snowpark_gallery_042.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snowpark-042-visual-QA
+          path: build/qa/snowpark-*.png
+          if-no-files-found: ignore
+          retention-days: 30
