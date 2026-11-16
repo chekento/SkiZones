@@ -30,7 +30,18 @@ func setup(resort: RefCounted, hotel: int, room: int) -> void:
 	var ancestor:Node=get_parent()
 	while ancestor!=null:
 		if ancestor is DragScroll:ancestor.gesture_exclusions.append(self)
+		if ancestor is ScrollContainer:
+			ancestor.resized.connect(_fit_height.bind(ancestor))
+			_fit_height.call_deferred(ancestor)
+			break
 		ancestor=ancestor.get_parent()
+
+func _fit_height(scroll: ScrollContainer) -> void:
+	custom_minimum_size.y=clampf(scroll.size.y,180.0,390.0)
+	queue_redraw()
+
+func room_origin() -> float:
+	return 52.0 if size.y<300 else 88.0
 
 func valid_room() -> bool:
 	if model==null:return false
@@ -50,7 +61,7 @@ func _notification(what: int) -> void:
 		cancel_gesture()
 
 func _point(at: Vector2) -> Vector2:
-	return Vector2(at.x/maxf(size.x,1.0),(at.y-88.0)/maxf(size.y-104.0,1.0))
+	return Vector2(at.x/maxf(size.x,1.0),(at.y-room_origin())/maxf(size.y-room_origin()-16.0,1.0))
 
 func _gui_input(event: InputEvent) -> void:
 	if committed:return
@@ -121,12 +132,12 @@ func _draw() -> void:
 	draw_string(font,Vector2(14,25),L.text("HOUSEKEEPING · ZIMMER %d")%room_id,HORIZONTAL_ALIGNMENT_LEFT,-1,17,Color("244e4b"))
 	var hint: String=note if note!="" else L.text(HINTS[stage])
 	# The parent supplies a wrapping instruction label; canvas text is short.
-	draw_string(font,Vector2(14,76),L.text("Schritt %d / 3")%mini(3,stage+1),HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("244e4b"))
+	draw_string(font,Vector2(14,room_origin()-12),L.text("Schritt %d / 3")%mini(3,stage+1),HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("244e4b"))
 	if stage==3:
 		draw_style_box(_panel(Color("285c53")),Rect2(12,44,maxf(0,size.x-24),40))
 		draw_string(font,Vector2(20,70),L.text("Reinigung bestätigen · 8 €"),HORIZONTAL_ALIGNMENT_LEFT,-1,16,Color.WHITE)
-	var scale_value:=Vector2(size.x,maxf(1,size.y-104))
-	var origin:=Vector2(0,88)
+	var scale_value:=Vector2(size.x,maxf(1,size.y-room_origin()-16))
+	var origin:=Vector2(0,room_origin())
 	for column in range(1,10):draw_line(origin+Vector2(column/10.0,0)*scale_value,origin+Vector2(column/10.0,1)*scale_value,Color("d7cbb9"),1)
 	draw_rect(Rect2(origin+Vector2(0.30,0.08)*scale_value,Vector2(0.36,0.70)*scale_value),Color("715c4c"))
 	for i in range(3):

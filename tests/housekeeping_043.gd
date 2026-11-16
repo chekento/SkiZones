@@ -8,7 +8,7 @@ func _init()->void:call_deferred("run")
 func check(ok:bool,label:String)->void:
 	if ok:passed+=1;print("PASS ",label)
 	else:failed+=1;push_error("FAIL "+label)
-func at(work:Control,p:Vector2)->Vector2:return Vector2(p.x*work.size.x,88+p.y*(work.size.y-104))
+func at(work:Control,p:Vector2)->Vector2:return Vector2(p.x*work.size.x,work.room_origin()+p.y*(work.size.y-work.room_origin()-16))
 func touch(work:Control,p:Vector2,pressed:bool,index:int=0)->void:
 	var event:=InputEventScreenTouch.new();event.position=at(work,p);event.pressed=pressed;event.index=index
 	work._gui_input(event)
@@ -110,6 +110,10 @@ func run()->void:
 		if canvas!=null:
 			print("LAYOUT ",dimensions," canvas=",canvas.size)
 			check(canvas.size.x<=dimensions.x and canvas.size.x>200,"Workbench fits actual mobile layout "+str(dimensions))
+			if dimensions.x==844:
+				var scroll:Node=canvas.get_parent()
+				while scroll!=null and not scroll is ScrollContainer:scroll=scroll.get_parent()
+				check(scroll!=null and canvas.size.y<=scroll.size.y,"Entire landscape room fits the usable scroll viewport")
 			if dimensions.x==390:
 				var ancestor:Node=canvas.get_parent()
 				while ancestor!=null:
