@@ -28,14 +28,17 @@ def releases(repo):
         page += 1
 
 
-def summarize(rows):
+def summarize(rows, official_only=False):
     public = [r for r in rows if not r['draft']]
     pairs = [(r, a) for r in public for a in r['assets']
              if a['name'].lower().endswith('.apk') and a.get('state', 'uploaded') == 'uploaded']
     if not pairs:
         raise ValueError('No published APK asset found; preserve previous links and counts')
     # Asset timestamps also support rolling releases published long ago.
-    release, apk = max(pairs, key=lambda pair: (
+    candidates = [(r, a) for r, a in pairs if not official_only or re.fullmatch(r"v\d+\.\d+\.\d+", r["tag_name"])]
+    if not candidates:
+        raise ValueError("No regular published APK; preserve existing download")
+    release, apk = max(candidates, key=lambda pair: (
         pair[1].get('created_at', pair[0]['published_at']),
         pair[0]['published_at'], pair[1]['name']))
     return dict(tag=release['tag_name'], prerelease=release['prerelease'],
@@ -218,7 +221,7 @@ def sync(snapshot=None, ski=False):
         return summarize(snapshot[repo] if snapshot is not None else releases(repo))
     if ski:
         ski_rows = snapshot['SkiZones'] if snapshot is not None else releases('SkiZones')
-        release = summarize(ski_rows)
+        release = summarize(ski_rows, official_only=True)
         text = Path('README.md').read_text()
         content = f'''[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)]({release['url']})
 

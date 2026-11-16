@@ -13,6 +13,7 @@ on:
     paths:
       - '.github/workflows/sync-release-presentation.yml'
       - 'tools/sync_releases.py'
+      - 'docs/releases/0.42.0.md'
   schedule:
     - cron: '23 * * * *'
 
@@ -38,6 +39,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/sync_releases.py --ski
+      - name: Align published 0.42 release notes with the approved release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v0.42.0 --repo "$GITHUB_REPOSITORY" >/dev/null
+          gh release edit v0.42.0 --repo "$GITHUB_REPOSITORY" --notes-file docs/releases/0.42.0.md
       - name: Save presentation updates
         run: |
           git config user.name 'github-actions[bot]'
