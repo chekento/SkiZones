@@ -11,11 +11,11 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 ## ⬇️ Neueste öffentliche Android-APK
 
 <!-- APK-DOWNLOAD:START -->
-[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.41.1/SkiZones-0.41.1-android-arm64.apk)
+[![Download APK · neueste veröffentlichte Android-Preview](docs/images/download-apk.svg)](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk)
 
-**Aktueller Download: v0.41.1 · Android ARM64 · Preview**
+**Aktueller Download: v0.42.0 · Android ARM64 · Preview**
 
-[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.41.1) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
+[Release & Installation](https://github.com/chekento/SkiZones/releases/tag/v0.42.0) · [Alle Versionen](https://github.com/chekento/SkiZones/releases) · [Download-Statistik](docs/downloads.json)
 
 ![APK-Downloads über alle öffentlichen Releases](docs/images/apk-downloads.svg)
 
@@ -186,23 +186,24 @@ GitHub Discussions ist zusätzlich vorbereitet und kann nach Aktivierung unter *
 ## Versionshistorie und APK-Archiv
 
 <!-- VERSION-ARCHIVE:START -->
-Für **51 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
+Für **53 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhanden. Jede Version kann separat heruntergeladen werden.
 
 **[Vollständiges, detailliertes Changelog](CHANGELOG.md)** · [GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.42.0](https://github.com/chekento/SkiZones/releases/tag/v0.42.0)** | 16.11.2026 | Release-Kandidat in Vorbereitung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk) | [Details](docs/releases/0.42.0.md) |
 | **[v0.41.1](https://github.com/chekento/SkiZones/releases/tag/v0.41.1)** | 11.11.2026 | Android Preview · Rettungs- und Personal-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.41.1/SkiZones-0.41.1-android-arm64.apk) | [Details](docs/releases/0.41.1.md) |
 | **[v0.40.1](https://github.com/chekento/SkiZones/releases/tag/v0.40.1)** | 10.11.2026 | Karriere-Rettung und Saisontermine | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk) | [Details](docs/releases/0.40.1.md) |
 | **[v0.40.0](https://github.com/chekento/SkiZones/releases/tag/v0.40.0)** | 09.11.2026 | Alpine Renaissance, sichere Spielstände und Skischulkurse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) |
 | **[v0.39.1](https://github.com/chekento/SkiZones/releases/tag/v0.39.1)** | 08.11.2026 | Stabilisierungs-Hotfix für bestehende Resorts | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.1/SkiZones-0.39.1-android-arm64.apk) | [Details](docs/releases/0.39.1.md) |
-| **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
 
 <details>
-<summary>Ältere APK-Versionen anzeigen (46)</summary>
+<summary>Ältere APK-Versionen anzeigen (48)</summary>
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.39.0](https://github.com/chekento/SkiZones/releases/tag/v0.39.0)** | 07.11.2026 | Spielstände, sichere Reparatur und Vollbildverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.39.0/SkiZones-0.39.0-android-arm64.apk) | [Details](docs/releases/0.39.0.md) |
 | **[v0.38.2](https://github.com/chekento/SkiZones/releases/tag/v0.38.2)** | 07.11.2026 | Lesbare Spielstände und wirksame Reparatur | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.2/SkiZones-0.38.2-android-arm64.apk) | [Details](docs/releases/0.38.2.md) |
 | **[v0.38.1](https://github.com/chekento/SkiZones/releases/tag/v0.38.1)** | 07.11.2026 | WC-Service respektiert Personalabwesenheit | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.1/SkiZones-0.38.1-android-arm64.apk) | [Details](docs/releases/0.38.1.md) |
 | **[v0.38.0](https://github.com/chekento/SkiZones/releases/tag/v0.38.0)** | 07.11.2026 | Alpenwelt und übersichtlichere Resortverwaltung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.38.0/SkiZones-0.38.0-android-arm64.apk) | [Details](docs/releases/0.38.0.md) |
@@ -249,6 +250,7 @@ Für **51 veröffentlichte Android-Preview-Versionen** sind APK-Dateien vorhande
 | **[v0.3.0](https://github.com/chekento/SkiZones/releases/tag/v0.3.0)** | 27.10.2026 | Spuren im Schnee | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk) | [Details](docs/releases/0.3.0.md) |
 | **[v0.2.0](https://github.com/chekento/SkiZones/releases/tag/v0.2.0)** | 27.10.2026 | Alpen und Karriere | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.2.0/SkiZones-0.2.0-android-arm64.apk) | [Details](docs/releases/0.2.0.md) |
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
+| **[v0.42.0-test.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1)** | 15.11.2026 | Test 1 für Android ARM64 | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) |
 
 </details>
 

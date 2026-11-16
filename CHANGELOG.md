@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **51 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **53 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.42.0](https://github.com/chekento/SkiZones/releases/tag/v0.42.0)** | 16.11.2026 | Release-Kandidat in Vorbereitung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk) | [Details](docs/releases/0.42.0.md) |
 | **[v0.41.1](https://github.com/chekento/SkiZones/releases/tag/v0.41.1)** | 11.11.2026 | Android Preview · Rettungs- und Personal-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.41.1/SkiZones-0.41.1-android-arm64.apk) | [Details](docs/releases/0.41.1.md) |
 | **[v0.40.1](https://github.com/chekento/SkiZones/releases/tag/v0.40.1)** | 10.11.2026 | Karriere-Rettung und Saisontermine | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk) | [Details](docs/releases/0.40.1.md) |
 | **[v0.40.0](https://github.com/chekento/SkiZones/releases/tag/v0.40.0)** | 09.11.2026 | Alpine Renaissance, sichere Spielstände und Skischulkurse | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.0/SkiZones-0.40.0-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.40.0) |
@@ -59,8 +60,75 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 | **[v0.3.0](https://github.com/chekento/SkiZones/releases/tag/v0.3.0)** | 27.10.2026 | Spuren im Schnee | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.3.0/SkiZones-0.3.0-android-arm64.apk) | [Details](docs/releases/0.3.0.md) |
 | **[v0.2.0](https://github.com/chekento/SkiZones/releases/tag/v0.2.0)** | 27.10.2026 | Alpen und Karriere | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.2.0/SkiZones-0.2.0-android-arm64.apk) | [Details](docs/releases/0.2.0.md) |
 | **[v0.1.1](https://github.com/chekento/SkiZones/releases/tag/v0.1.1)** | 27.10.2026 | Android Preview | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.1.1/SkiZones-0.1.1-android-arm64.apk) | [Details](docs/releases/0.1.1.md) |
+| **[v0.42.0-test.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1)** | 15.11.2026 | Test 1 für Android ARM64 | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.42.0 · Release-Kandidat in Vorbereitung (16.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.0) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.0/manifest.json) · [Originalnotizen](docs/releases/0.42.0.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.0)
+
+Noch nicht veröffentlicht. Android-VersionCode 57, direkter Upgrade-Pfad ab 0.41.1 (Code 56) vorgesehen. Die vollständige Prüfung dieses versionierten Stands steht noch aus. Ein gelegentlich beobachteter OpenSL-Fehler beim Android-Start ist weiterhin offen; ein stabiler Release ist damit noch nicht freigegeben.
+
+### Gäste und Pistenpausen
+
+- Individuelle Tagesgewohnheiten mit versetzten Pausenzeiten und Vorlieben für Einkauf, Erholung, Wellness oder Nachtleben. Familien behalten gemeinsame Gewohnheiten; Alters- und Bedürfnisregeln gelten weiterhin.
+- Erreichbare Gebäude an der Piste werden über kurze, sanfte und freie Zugänge besucht. Gäste unterbrechen ihre Abfahrt, gehen zum Gebäude und setzen anschließend dieselbe Piste fort.
+- Ausgaben entstehen durch tatsächlich abgeschlossene Besuche. Öffnungszeiten, Kapazität, Budget, Wegverbindungen und notwendige Pausen begrenzen die Nutzung.
+- Freizeitbesuche haben eine gemeinsame Abklingzeit. Sehr erschöpfte Gäste gehen ihren dringenden Bedürfnissen nach.
+
+### Skifahrer: Kontakt mit Schnee und Snowpark (Prüfkandidat)
+
+- Bergaufgehende Gäste folgen ihrer tatsächlichen Pistenmitte ohne seitliches Carven, Schräglage oder Sprunghöhe von Snowpark-Modulen.
+- Ski und Boards neigen sich nach den tatsächlich abgetasteten Schnee- und Modulhöhen. Gedrehte Rampen und schmale Rails verwenden an beiden Enden der Fahrtrichtung eigene Kontaktpunkte.
+- Teilstrecken bleiben auch beim Neigen an ihren eigenen Endpunkten. Die Änderung betrifft die Darstellung; Routen, Geld und Spielstandformat behalten ihre bestehende Logik.
+
+### Frühe Erfolge und langfristige Ziele
+
+- Der erste profitable abgeschlossene Betriebstag bringt 1.000 €, der dritte weitere 1.500 €. Es ist keine Wartezeit bis Tag zehn erforderlich.
+- Erreichter Wirtschaftsfortschritt bleibt dauerhaft erhalten, auch wenn die ursprünglichen Tagesberichte nach 28 Tagen aus dem Finanzverlauf verschwinden. Profitable Tage dürfen zeitlich auseinanderliegen.
+- Weitere Ziele: 1.000 Gäste, 5.000 Abfahrten, 500 glückliche Abschiede, acht qualifizierte zugewiesene Fachkräfte und drei abgeschlossene Winter.
+- Insgesamt maximal 18.500 € einmaliges Bonusgeld pro Resort. Kein täglicher Geldkreislauf, keine Geldprämien im freien Modus und keine Doppelzahlung durch erneutes Laden oder nachträgliches Einlösen.
+- Einlösbare Ziele stehen zuerst, frühe offene Ziele folgen. Erledigte Ziele stehen am Ende.
+- Eigene Zielübersicht im Resort-Büro mit direktem Karriere-Einstieg, gebündelte Meldungen für neu erreichte Ziele und gemeinsames Abholen bereits verdienter Prämien. Auch im Tagesbericht können verfügbare Ziele vor dem nächsten Tag eingelöst werden; das tatsächlich ausgezahlte Geld erscheint sofort in den Finanzwerten.
+
+### Interaktive Mitarbeiterakademie und Spiele
+
+- 28 berufsbezogene Praxisfälle mit Entscheidungen, Prioritäten und Übergaben. Drei Entscheidungen pro Kurs mit verständlicher Auswertung.
+- Bezahlte Kurse kosten 90 € und sind auf zwei Versuche pro Person und Tag begrenzt. Erarbeitete Qualifikationen verbessern den tatsächlichen Betrieb innerhalb gedeckelter Grenzen.
+- Kostenloses Üben ist unbegrenzt möglich, auch bei leerer Kasse oder ausgeschöpften Tageskursen. Es erzeugt keine Erfahrung, Geld- oder Motivationsprämien.
+- Bergpaare mit 4/6/8 Paaren ergänzt die Spielauswahl. Das Reaktionsspiel misst echte Eingabezeit und verwirft unterbrochene Runden beim Appwechsel.
+- Überarbeitete Bedienung auf schmalen und niedrigen Bildschirmen, passende Mitarbeiterauswahl auch an Liften.
+- Karten, Radio, Kameraleiste und Winterkalender legen unbenutzte UI-Platzhalter nicht mehr an. Wiederholte Sprachwechsel lassen dadurch weniger verwaiste Bedienelemente und zugehörige Grafik-/Schriftressourcen zurück.
+
+### Snowparks und Rettung
+
+- Zwanzig platzierbare Snowpark-Module mit Drehung, Größe, Kosten, Verschleiß und Wartung. Tatsächliche Nutzung hängt vom Fahrkönnen ab; ungeeignete Hindernisse werden umfahren.
+- Pistenrettung prüft Hin- und Rückweg, bevor ein Einsatz beginnt. Zwei Retter bringen Verletzte über zulässige gerichtete Routen zur Station; die Behandlung bleibt bei ein bis zwei Spielstunden.
+
+### Pisteneditor: sichere Bearbeitungshistorie (Integrationskandidat)
+
+- Punkt setzen, vorhandene nummerierte Punkte per Touch ziehen, löschen, Strecken glätten/umkehren und automatische Routenänderungen lassen sich über die bereits vorhandenen Rückgängig-/Wiederholen-Knöpfe als einzelne Bearbeitungsschritte zurücknehmen und wiederherstellen.
+- Eine abgebrochene Touch- oder Zweifinger-Geste legt keinen Schein-Schritt an und verwirft keine bestehende Wiederholen-Historie. Pro Planung sind höchstens 64 Bearbeitungsschritte im Arbeitsspeicher gespeichert; eine neue oder abgebrochene Planung startet ohne alte Undo-Daten.
+- Diese Historie bearbeitet nur die unbestätigte Bauvorschau; erst „Übernehmen“ darf echte Anlagen, Geld und Spielstand verändern. Die neue Godot-Regression ist Teil der vollständigen Android-Build-Pipeline.
+- Die Änderung ist vor Veröffentlichung zu prüfen; sie ist keine Behauptung, dass alle geplanten Pisten- und Gebäude-Asset-Überarbeitungen bereits fertig sind.
+
+### Gebäude- und Theme-Grafik 0.42 (unveröffentlichter Integrationskandidat)
+
+- Gebäudetypen erhalten aus der Kamera erkennbare, eigenständige Architekturmerkmale statt bloßer Umfärbung: Bergwacht mit großem Rettungskreuz, Skischule mit gekreuzten Skiern, Verleih mit Ski-Racks, Hotels und Unterkünfte mit Balkonen und mehrstöckigen Fensterreihen, Gastronomie mit Vordach und Karte, Wartungsgebäude mit sichtbaren Werkstatttoren, Rathaus mit Uhr und Zeitungsstände mit Auslagen.
+- Auch mechanische und Freizeitgebäude, darunter Snowpark, Skibus-Terminal, Beschneiung und Spa, bekommen zusätzliche themenspezifische Details. Alle zehn vorhandenen Stile einschließlich Comic, Pistenatlas, Aurora Ink, Bauhaus, Alpin und echtem Monochrom-Linienlook sind berücksichtigt.
+- Die Details sind direkt in vorhandene 3D-Meshes eingebacken. Keine neuen Einzelobjekte, dynamischen Lichtquellen oder pro Frame laufenden Dekorationsskripte; Kollision, Baukosten, Gebäudearten, Weggraph und Speicherformat bleiben unverändert.
+- Der fokussierte Modelltest mit 140 Prüfungen und der bestehende 71-Punkte-Themekatalogtest wurden auf dem neuen Entwicklungszweig bestanden. Für die Veröffentlichung sind gerenderte Bildvergleiche, ein vollständiger Android-Gesamtlauf und die Samsung-Abnahme weiterhin erforderlich.
+
+### Prüfung und bekannte Grenzen
+
+Der vorherige Integrationsstand 530109e9 bestand den vollständigen Lauf 43610431287 einschließlich historischer Spielstände, Karriere-Reparatur und Android API 30/36. Das ersetzt weder die Prüfung der neuen Versionskennung noch eine Abnahme auf einem physischen Samsung-Gerät.
+
+Alle Android-Presets werden vor Export und Paketierung gemeinsam gegen die Projektversion geprüft. Vor dem Erstellen der Download-Datei werden zusätzlich Paketname, Versionsangaben und ARM64-Architektur aus der tatsächlich kompilierten APK überprüft; eine bloß umbenannte alte APK wird abgelehnt. Der Lifecycle-Upgrade-Test darf seine private Versionsnummer weiterhin kontrolliert erhöhen. Android-Enginefehler werden mit Originalkontext gesichert und führen weiterhin zum Fehlschlag der Prüfung.
+
+Noch offen: Ursache und Behebung des gelegentlichen nativen Audio-Startfehlers sowie Samsung-Abnahme für Ton, Touch, Wiederaufnahme und längere Spielsitzungen. Keine Aussage über garantierte Bildrate oder vollständige Umsetzung aller 0.42-Wünsche.
+
+---
 
 ## v0.41.1 · Android Preview · Rettungs- und Personal-Hotfix (11.11.2026)
 
@@ -2073,5 +2141,33 @@ Die APK ist mit einem Testschlüssel signiert. Der Versionscode wurde auf 2 erh�
 Godot-Import, Simulations-, Speicherstand-, UI- und Touch-Tests sowie der Android-Export werden vor der Veröffentlichung durch GitHub Actions geprüft. Die APK-Signatur und das Archiv werden verifiziert. `manifest.json` enthält Dateigröße, SHA-256 und den zugehörigen Quellcode-Commit.
 
 Dies ist eine frühe spielbare Testversion. Eine Prüfung auf einem physischen Android-Gerät steht noch aus. Personal, Forschung, echte Hotelbuchungen und Geländebearbeitung sind weitere Ausbaustufen.
+
+---
+
+## v0.42.0-test.1 · Test 1 für Android ARM64 (15.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/manifest.json) · [Originalnotizen](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.0-test.1)
+
+Diese APK ist der gemeinsame Gerätetest für KoSch, noch keine Stable-Freigabe. Sie enthält die 0.42-Integration einschließlich Rettung, Pisteneditor mit Undo/Redo, frühe und dauerhafte Ziele, NPC-Tagesabläufe, Snowpark mit zwanzig Modulen, Akademie und PMDD sowie die zehn überarbeiteten Gebäude-Themes, korrigierten NPC-Schneekontakt und die Android-spezifische Shader-Cache-Anpassung.
+
+### Installation
+
+Die normale Spiel-APK ist für ARM64-Geräte wie Samsung Galaxy geeignet und enthält keinen automatisierten Lifecycle-Testmodus. Vor der Bereitstellung werden die Paketkennung, Version 0.42.0 / Code 57, Signatur und Übereinstimmung mit dem bisherigen öffentlichen Signierer geprüft. Sie ist als Update über 0.41.1 vorgesehen. Die vorhandene Installation zum Testen nicht deinstallieren: Android würde dabei ihre lokalen Spielstände entfernen.
+
+### Prüfung
+
+Die gemeinsame Quelle durchläuft Modell-, Reparatur-, Rettungs-, 250-Gäste-, Lift-, Snowpark-, Architektur- und NPC-Kontaktprüfungen. Android API 30 und 36 müssen auf derselben Quelle sichtbares Gameplay, drei zusätzliche Prozess-Kaltstarts, Appwechsel sowie Erhaltung der Spielstände und Updateprüfungen bestehen, bevor dieser Testdownload veröffentlicht wird. Die ARM64-Download-Datei erhält zusätzlich SHA-256 und ein Manifest mit dem genauen Quellcommit.
+
+Diese begrenzte Prüfung beweist keine ursächliche Behebung aller früheren OpenSL-/Grafikfehler und keine bestimmte Samsung-Bildrate. Die physische Sicht-, Touch-, Ton- und Langzeitprüfung soll mit dieser Datei erfolgen.
+
+### Bitte beim Gerätetest prüfen
+
+- Bestehenden Spielstand laden und nach erneutem Start fortsetzen.
+- An Tag zwei zwischen 1×, 4×, 8× und zurück auf 1× wechseln; Kamera vom Lift weg- und zurückbewegen.
+- Einen Rettungseinsatz vom Unfall über zwei Retter und die Trage bis Behandlung und Entlassung beobachten.
+- Radio einschalten, App in den Hintergrund legen und wieder öffnen.
+- Gebäude-Themes, Pisteneditor sowie NPCs auf Rampen und Rails prüfen.
+
+Der öffentliche Stable-/Standarddownload und die Banner bleiben unverändert. Für die spätere Stable-Ausgabe sollte der Android-Code über 57 angehoben werden, damit auch diese Testinstallation ein neueres Update erkennt.
 
 ---
