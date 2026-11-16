@@ -110,6 +110,24 @@ func run()->void:
 		if canvas!=null:
 			print("LAYOUT ",dimensions," canvas=",canvas.size)
 			check(canvas.size.x<=dimensions.x and canvas.size.x>200,"Workbench fits actual mobile layout "+str(dimensions))
+			if dimensions.x==390:
+				var ancestor:Node=canvas.get_parent()
+				while ancestor!=null:
+					if ancestor is ScrollContainer:ancestor.ensure_control_visible(canvas)
+					ancestor=ancestor.get_parent()
+				for i in range(5):await process_frame
+				var pixel:Vector2=canvas.get_global_transform_with_canvas()*at(canvas,Work.ITEMS[0])
+				var press:=InputEventScreenTouch.new();press.index=0;press.position=pixel;press.pressed=true;Input.parse_input_event(press)
+				await process_frame
+				press=InputEventScreenTouch.new();press.index=0;press.position=pixel;press.pressed=false;Input.parse_input_event(press)
+				await process_frame
+				check(canvas.done==[0],"Viewport-dispatched touch reaches the actual hotel workbench through its scroll container")
+				var protected:=false
+				ancestor=canvas.get_parent()
+				while ancestor!=null:
+					if ancestor is ScrollContainer and ancestor.get("gesture_exclusions")!=null:protected=ancestor.gesture_exclusions.has(canvas)
+					ancestor=ancestor.get_parent()
+				check(protected,"Room gestures are excluded from the page's drag-to-scroll capture")
 			if DisplayServer.get_name()!="headless":
 				var ancestor:Node=canvas.get_parent()
 				while ancestor!=null:

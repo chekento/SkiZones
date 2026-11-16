@@ -1,6 +1,7 @@
 extends Control
 ## Gesture state is transient. Only an explicitly confirmed finished room is billed.
 const L = preload("res://src/core/i18n.gd")
+const DragScroll = preload("res://src/ui/drag_scroll.gd")
 const Rooms = preload("res://src/core/hotel_rooms.gd")
 signal completed(result: Dictionary)
 signal updated
@@ -26,6 +27,10 @@ func setup(resort: RefCounted, hotel: int, room: int) -> void:
 	custom_minimum_size=Vector2(0,390)
 	mouse_filter=Control.MOUSE_FILTER_STOP
 	name="housekeeping_canvas"
+	var ancestor:Node=get_parent()
+	while ancestor!=null:
+		if ancestor is DragScroll:ancestor.gesture_exclusions.append(self)
+		ancestor=ancestor.get_parent()
 
 func valid_room() -> bool:
 	if model==null:return false
