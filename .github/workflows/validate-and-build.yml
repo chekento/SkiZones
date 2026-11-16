@@ -393,6 +393,8 @@ jobs:
         run: |
           python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --headless --script tests/snowpark_modules_042.gd
           xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 240 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1440x900 --script tests/snowpark_workshop_042.gd
+      - name: Hands-on hotel housekeeping, real room costs and mobile layout
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/housekeeping_043.gd
       - name: 0.42 skier climbing, real snow contact and rotated park pitch
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/skier_surface_pose_042.gd
       - name: 0.42 PMDD world anchors, camera parallax and actual snow shader rendering

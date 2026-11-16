@@ -1,0 +1,54 @@
+name: 0.43 hands-on housekeeping and current Town Hall
+on:
+  pull_request:
+    paths:
+      - 'src/ui/housekeeping_043.gd'
+      - 'src/ui/building_experience.gd'
+      - 'src/core/town_hall.gd'
+      - 'tests/housekeeping_043.gd'
+      - '.github/workflows/housekeeping-043.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: housekeeping-043-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  actual-skier-contact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import all resources
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Hotel touch gestures, accounting, cancellation and shipping mobile UI
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/housekeeping_043.gd
+      - name: Existing rooms, hotel simulator and read-only Town Hall
+        run: |
+          for test in hotel_room_operations_036 hotel_simulator_038 editorial_townhall_031; do
+            python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+          done
+          python3 tools/check_localization.py
+      - name: Render real hotel interaction at phone and landscape sizes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+          xvfb-run -a python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/housekeeping_043.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: housekeeping-043-mobile
+          path: build/qa/housekeeping-*.png
+          if-no-files-found: warn

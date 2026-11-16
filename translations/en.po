@@ -10737,3 +10737,69 @@ msgstr "Undo edit"
 
 msgid "Bearbeitung wiederholen"
 msgstr "Redo edit"
+
+msgid "Tippe die drei herumliegenden Gegenstände an."
+msgstr "Tap the three loose items."
+
+msgid "Ziehe die drei Wäschestücke links auf die markierten Bettflächen."
+msgstr "Drag the three linen pieces on the left onto the marked bed areas."
+
+msgid "Wische mehrfach über jeden der drei Flecken."
+msgstr "Wipe repeatedly across each of the three stains."
+
+msgid "Zimmer fertig: Reinigung bestätigen · 8 €"
+msgstr "Room ready: confirm cleaning · €8"
+
+msgid "Nur ein vollständig bearbeitetes, freies und schmutziges Zimmer kann abgeschlossen werden."
+msgstr "Only a fully serviced, vacant and dirty room can be completed."
+
+msgid "HOUSEKEEPING · ZIMMER %d"
+msgstr "HOUSEKEEPING · ROOM %d"
+
+msgid "Schritt %d / 3"
+msgstr "Step %d / 3"
+
+msgid "Reinigung bestätigen · 8 €"
+msgstr "Confirm cleaning · €8"
+
+msgid "Ausgewählte veröffentlichte Etappen bis 0.42.0 · älteste zuerst; die aktuelle APK steht bei GitHub."
+msgstr "Selected published milestones up to 0.42.0 · oldest first; the current APK is on GitHub."
+
+msgid "Rathaus · Nächste Vorhaben"
+msgstr "Town Hall · Next projects"
+
+msgid "NÄCHSTE VORHABEN · FORTSCHRITT STATT WARTEFRISTEN"
+msgstr "NEXT PROJECTS · PROGRESS WITHOUT WAITING PERIODS"
+
+msgid "Planungsstand 16.11.2026 · Fertige Bausteine werden nach Prüfung vorgezogen. Die bisherigen Kalenderphasen sind keine frühesten Umsetzungstermine."
+msgstr "Plan updated 16 November 2026 · Completed features move forward after testing. Previous calendar phases are not earliest implementation dates."
+
+msgid "Zimmer selbst aufräumen und Betten beziehen"
+msgstr "Tidy rooms and make beds yourself"
+
+msgid "Gegenstände antippen, Bettwäsche auf das Bett ziehen und Flecken mit kurzen Bewegungen wegwischen. Erst der Abschluss reinigt dieses echte Zimmer für 8 €. Abbrechen verändert nichts."
+msgstr "Tap loose items, drag linen onto the bed and wipe stains with short strokes. Only confirmation cleans this actual room for €8. Cancelling changes nothing."
+
+msgid "Alpenwelt, NPCs und Pistenwerkstatt"
+msgstr "Alpine world, NPCs and piste workshop"
+
+msgid "Die Gemeinde eröffnet die überarbeitete Pistenwerkstatt mit Rückgängig und Wiederholen, zwanzig Snowpark-Modulen, individuellen Gästeabläufen, neuer Gebäudearchitektur, Akademie und frühen Zielen. Nach Android-Prüfung und Gerätetest wurde die Version freigegeben."
+msgstr "The town opens the revised piste workshop with undo and redo, twenty snowpark modules, individual guest routines, new building architecture, an academy and early goals. The version was released after Android and device testing."
+
+msgid "Feste Zimmerbuchungen, Reinigung und mobiler Etagenplan sind in Entwicklung geprüft; direktes Bettenbeziehen und Zimmeraufräumen für den nächsten geprüften Build implementiert"
+msgstr "Fixed room bookings, cleaning and a mobile floor plan have development tests; direct bed making and room tidying are implemented for the next tested build"
+
+msgid "Implementiert · Prüfung für das nächste Update"
+msgstr "Implemented · testing for the next update"
+
+msgid "Im Hotel unter Zimmer & Gäste: Gegenstände antippen, Bettwäsche aufziehen und Flecken wegwischen. Erst der bestätigte Abschluss reinigt das ausgewählte Zimmer für die bestehenden 8 € Kosten. Abbrechen zahlt keine Prämie und verändert nichts."
+msgstr "In the hotel under Rooms & Guests: tap loose items, place linen and wipe stains. Only confirmation cleans the selected room for the existing €8 cost. Cancelling pays no reward and changes nothing."
+
+msgid "Kochabläufe und Getränke zubereiten"
+msgstr "Cooking and preparing drinks"
+
+msgid "Offen · vorgezogen"
+msgstr "Open · brought forward"
+
+msgid "Vorhandene Bestell-, Timing- und Entscheidungsaufgaben bleiben spielbar. Mehrstufiges Kochen und Mixen mit direkter Handhabung ist noch nicht abgeschlossen."
+msgstr "Existing order, timing and decision activities remain playable. Multi-step cooking and mixing with direct interaction are not yet completed."
