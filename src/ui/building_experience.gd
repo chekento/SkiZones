@@ -13,6 +13,7 @@ const MemoryGame=preload("res://src/ui/memory_game_042.gd")
 const Academy=preload("res://src/ui/staff_training_panel_042.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
+const Housekeeping = preload("res://src/ui/housekeeping_043.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
@@ -338,7 +339,7 @@ func _town_hall(_building: Dictionary) -> void:
 	archive.add_child(museum)
 	var mu: VBoxContainer=hud._vbox(museum,6)
 	hud._label(mu,L.text("BEGLAUBIGTES ARCHIV"),14,accent,true)
-	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.32.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
+	hud._label(mu,L.text("Ausgewählte veröffentlichte Etappen bis 0.42.0 · älteste zuerst; die aktuelle APK steht bei GitHub."),14,ink,true)
 	hud._label(mu,L.text(TownHall.DEVELOPMENT_NOTICE),13,ink,true)
 	for event in TownHall.history(false):
 		var row:=PanelContainer.new()
@@ -348,9 +349,12 @@ func _town_hall(_building: Dictionary) -> void:
 		hud._label(inner,L.text("RATHAUSAKTE · VERSION %s · %s") % [str(event.version),str(event.date)],12,accent,true)
 		hud._label(inner,L.text(str(event.topic)),18,ink,true)
 		hud._label(inner,L.text(str(event.story)),15,ink,true)
-	var plans: VBoxContainer=_page(L.text("Rathaus · Bauplan bis Januar"))
-	hud._label(plans,L.text("ZWEI MONATE ZUKUNFT · NOVEMBER BIS JANUAR"),22,accent,true)
-	hud._label(plans,L.text("Planungsstand 04.11.2026 · Ziele sind keine Zusagen oder veröffentlichten Funktionen. Jede Phase erhält eigene Freigabetests."),15,ink,true)
+	var plans: VBoxContainer=_page(L.text("Rathaus · Nächste Vorhaben"))
+	hud._label(plans,L.text("NÄCHSTE VORHABEN · FORTSCHRITT STATT WARTEFRISTEN"),22,accent,true)
+	hud._label(plans,L.text("Planungsstand 16.11.2026 · Fertige Bausteine werden nach Prüfung vorgezogen. Die bisherigen Kalenderphasen sind keine frühesten Umsetzungstermine."),15,ink,true)
+	for item in TownHall.current_work():
+		var work := _card(plans,L.text(item.title),L.text(item.status))
+		hud._label(work,L.text(item.detail),16,ink,true)
 	for phase in TownHall.roadmap():
 		var chapter:=PanelContainer.new()
 		chapter.add_theme_stylebox_override("panel",hud._style(paper,4,15,accent))
@@ -502,6 +506,14 @@ func _room_management(page: VBoxContainer, building: Dictionary) -> void:
 		hud._label(detail,(L.text("Reisegruppe %d") if owner.begins_with("party:") else L.text("Gast %d")) % int(owner.get_slice(":",1)),18,hud.TEAL,true)
 		hud._label(detail,L.text("Das Zimmer ist noch belegt. Die Buchung bleibt erhalten."),17,hud.MUTED,true)
 		return
+	if not selected.clean:
+		var practice := _card(page,L.text("Zimmer selbst aufräumen und Betten beziehen"),L.text("Gegenstände antippen, Bettwäsche auf das Bett ziehen und Flecken mit kurzen Bewegungen wegwischen. Erst der Abschluss reinigt dieses echte Zimmer für 8 €. Abbrechen verändert nichts."))
+		var instructions: Label=hud._label(practice,L.text(Housekeeping.HINTS[0]),16,hud.TEAL,true)
+		var workbench:=Housekeeping.new()
+		practice.add_child(workbench)
+		workbench.setup(model,asset_id,_selected_room)
+		workbench.updated.connect(func():instructions.text=workbench.note if workbench.note!="" else L.text(Housekeeping.HINTS[workbench.stage]))
+		workbench.completed.connect(func(result:Dictionary):hud.toast(result.message);call_deferred("_rebuild"))
 	_action(detail,L.text("Zimmer reinigen · 8 €"),func():return HotelRooms.clean_room(model,asset_id,_selected_room)).name="clean_selected_room"
 	(detail.get_node("clean_selected_room") as Button).disabled=bool(selected.clean)
 	_action(detail,L.text("Zimmer freigeben") if selected.closed else L.text("Zimmer sperren"),func():return HotelRooms.set_closed(model,asset_id,_selected_room,not bool(selected.closed))).name="close_selected_room"

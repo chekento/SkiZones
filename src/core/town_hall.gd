@@ -44,7 +44,8 @@ const HISTORY: Array = [
 	{"version":"0.33.1","date":"05.11.2026","topic":"Lesbare Alpine Arcade","story":"Der Arcade-Hotfix erhöhte Kontraste und machte die Spieltafeln auf kleinen Bildschirmen besser bedienbar."},
 	{"version":"0.33.2","date":"05.11.2026","topic":"Alte Bauakten und vier freie Speicherplätze","story":"Der Sicherungsdienst erhielt vier freie Speicherplätze, eine deutlichere Speicheranzeige und die geschützte Wiederherstellung alter Resorts."},
 	{"version":"0.34.0","date":"05.11.2026","topic":"Alpenwelt, Offline-Radio und direkte Bauansicht","story":"Neue freie Musik, persistente Schneespuren im laufenden Resort und die direkte Ansicht fertig gebauter Anlagen verbesserten den Winteralltag."},
-	{"version":"0.34.1","date":"05.11.2026","topic":"Neue Tagesgäste und gestaffelte Hotelmorgen","story":"Der Tageswechsel lässt wieder echte Besucher anreisen. Hotelgäste starten verteilt zwischen sieben und neun Uhr; Familien bleiben zusammen."}
+	{"version":"0.34.1","date":"05.11.2026","topic":"Neue Tagesgäste und gestaffelte Hotelmorgen","story":"Der Tageswechsel lässt wieder echte Besucher anreisen. Hotelgäste starten verteilt zwischen sieben und neun Uhr; Familien bleiben zusammen."},
+	{"version":"0.42.0","date":"16.11.2026","topic":"Alpenwelt, NPCs und Pistenwerkstatt","story":"Die Gemeinde eröffnet die überarbeitete Pistenwerkstatt mit Rückgängig und Wiederholen, zwanzig Snowpark-Modulen, individuellen Gästeabläufen, neuer Gebäudearchitektur, Akademie und frühen Zielen. Nach Android-Prüfung und Gerätetest wurde die Version freigegeben."}
 ]
 const DEVELOPMENT_NOTICE := "Die Chronik dokumentiert ausgewählte veröffentlichte Etappen. Der Bauplan ist eine Vorschau, kein Release-Nachweis; die neueste APK steht bei GitHub-Releases."
 const ROADMAP: Array = [
@@ -59,7 +60,7 @@ const ROADMAP: Array = [
 	{"from":"18.11.2026","to":"02.12.2026","phase":"II · Spielerisches Winterdorf und Advent","target":"Zimmerbetrieb, Touch-Spiele und Advent","status":"Teilweise umgesetzt · aktiv im Ausbau","deliverables":[
 		"Tic-Tac-Toe und Reaktionsspiel sind spielbar; Kochspiele und weitere echte Touch-Minispiele weiter ausbauen",
 		"Bar und Restaurants erhalten kleine grafische Barkeeper- und Kochspiele; Donut Ring Toss am Süßwarenstand als Prototyp",
-		"Feste Zimmerbuchungen, Reinigung und mobiler Etagenplan sind in Entwicklung geprüft; Bettenbeziehen und Zimmeraufräumen weiter ausarbeiten",
+		"Feste Zimmerbuchungen, Reinigung und mobiler Etagenplan sind in Entwicklung geprüft; direktes Bettenbeziehen und Zimmeraufräumen für den nächsten geprüften Build implementiert",
 		"Premium-Alpine- und Après-Ski-Design statt kindlicher Optik; Stil-Assets einschließlich Monochrom-Strichlinien konsequent unterscheiden",
 		"Adventskalender ab 1. Dezember prüfen; November-Werbekästen und winterliche Ortsdekoration ohne Pistenkollision",
 		"Neue Gäste-, Bau- und Gebäudeinteraktionen über klare Touch-Menüs erreichbar halten"],
@@ -81,6 +82,13 @@ const ROADMAP: Array = [
 		"Alte Karrieren, Szenariospielstände, Bildschirmwechsel und In-App-Downloads über mehrere Android-Versionen erneut testen"],
 		"acceptance":"Nachweisbarer veröffentlichter Android-Build, sichere Altspielstände und Updates, stabile FPS und keine kritischen Bau-, Audio- oder NPC-Fehler"}
 ]
+
+const CURRENT_WORK := [
+	{"title":"Zimmer selbst aufräumen und Betten beziehen","status":"Implementiert · Prüfung für das nächste Update","detail":"Im Hotel unter Zimmer & Gäste: Gegenstände antippen, Bettwäsche aufziehen und Flecken wegwischen. Erst der bestätigte Abschluss reinigt das ausgewählte Zimmer für die bestehenden 8 € Kosten. Abbrechen zahlt keine Prämie und verändert nichts."},
+	{"title":"Kochabläufe und Getränke zubereiten","status":"Offen · vorgezogen","detail":"Vorhandene Bestell-, Timing- und Entscheidungsaufgaben bleiben spielbar. Mehrstufiges Kochen und Mixen mit direkter Handhabung ist noch nicht abgeschlossen."}
+]
+static func current_work() -> Array:
+	return CURRENT_WORK.duplicate(true)
 
 static func history(newest_first: bool = true) -> Array:
 	var ledger: Array = HISTORY.duplicate(true)
