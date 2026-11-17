@@ -7,7 +7,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 ## Nächstes Update · noch nicht als APK veröffentlicht
 
 - Hotelzimmer direkt aufräumen, Betten beziehen und wischen; bestätigte Reinigung über die bestehenden 8 € Kosten. Vollständig geprüft und in Main integriert (PR #132).
-- Praktische Kochschichten für Restaurant und Kaiserschmarrn: Zutaten ziehen, schneiden bzw. rühren, Garzeit stoppen, Teller servieren. Gemeinsame bestehende Tagesprämiengrenze mit Betriebstraining; keine erfundenen Gästeverkäufe und kein neues Saveformat. Abnahme läuft.
+- Praktische Kochschichten für Restaurant und Kaiserschmarrn: Zutaten ziehen, schneiden bzw. rühren, Garzeit stoppen, Teller servieren. Gemeinsame bestehende Tagesprämiengrenze mit Betriebstraining; keine erfundenen Gästeverkäufe und kein neues Saveformat. Geprüftes Entwicklungspaket; vollständige Android-Abnahme und neue APK gesondert.
 - Rathaus-Aufgaben getrennt mit Abschluss-Haken, aktuellem Stand und weiterhin offenem Getränke-Mixen. Historische Kalenderphasen sind keine Wartefristen.
 
 ## Versionen und Downloads

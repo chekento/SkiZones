@@ -104,7 +104,7 @@ func _draw()->void:
 	if task.is_empty():return
 	var caption:String=L.text("Zutaten auf das Brett ziehen")
 	if stage==1:caption=(L.text("Rühren · %d / 6") if task.mix else L.text("Schneiden · %d / 6"))%prep
-	elif stage==2:caption=L.text("Garpunkt · im grünen Bereich stoppen")
+	elif stage==2:caption=L.text("Garpunkt · grün stoppen")
 	elif stage==3:caption=L.text("Teller zur Ausgabe ziehen")
 	draw_string(ThemeDB.fallback_font,Vector2(12,22),caption,HORIZONTAL_ALIGNMENT_LEFT,size.x-24,14,Color("244e4b"))
 	if stage==0:

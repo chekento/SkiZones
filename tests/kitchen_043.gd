@@ -134,14 +134,16 @@ func run()->void:
 			check(canvas.stage==2 and canvas.prep==6,"Actual viewport drags complete preparation through the live scroll container")
 			canvas.stage=0;canvas.prep=0;canvas.ingredients.clear();canvas.updated.emit();canvas.queue_redraw()
 		if DisplayServer.get_name()!="headless":
+			canvas.ingredients=[canvas.task.ingredients[0]];canvas.queue_redraw()
+			for i in range(5):await process_frame
 			await RenderingServer.frame_post_draw;DirAccess.make_dir_recursive_absolute("res://build/qa")
 			check(root.get_texture().get_image().save_png("res://build/qa/kitchen-%d.png"%dimensions.x)==OK,"Actual kitchen view rendered")
 			for phase in range(1,4):
-				canvas.stage=phase;canvas.prep=3;canvas.heat=0.6;canvas.updated.emit();canvas.queue_redraw()
+				canvas.stage=phase;canvas.prep=3;canvas.heat=0.6;canvas.heating=phase==2;canvas.updated.emit();canvas.queue_redraw()
 				for i in range(5):await process_frame
 				await RenderingServer.frame_post_draw
 				check(root.get_texture().get_image().save_png("res://build/qa/kitchen-%d-step-%d.png"%[dimensions.x,phase+1])==OK,"Additional practical stage rendered")
-			canvas.stage=0;canvas.prep=0;canvas.heat=0;canvas.updated.emit();canvas.queue_redraw()
+			canvas.stage=0;canvas.prep=0;canvas.heat=0;canvas.heating=false;canvas.updated.emit();canvas.queue_redraw()
 	for i in range(5):
 		var current:Control=game.hud.experience.find_child("kitchen_workbench",true,false)
 		current.completed.emit(proof(current.task));await process_frame
