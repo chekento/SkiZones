@@ -8,4 +8,6 @@ Uses the existing Activities ledger: same three rewarded shifts per building/day
 
 Town Hall marks the fully Android-tested, merged housekeeping package completed; cooking is labelled implemented/in acceptance; drink mixing remains separately open. A completion check is a development milestone, not a claim that a new APK has shipped.
 
-Local pinned Godot 4.5.2: 36 new kitchen assertions; 67 existing hospitality, 186 sector training, 27 housekeeping and 44 Town Hall assertions (360 overall). Real shipping UI exercised at 390×844 and 844×390; viewport-dispatched touch and drag-scroll exclusion checked. Full rendered phone/landscape evidence is produced by kitchen-043.yml and inspected before closing the work package. The full Android pipeline also runs the new regression.
+Local pinned Godot 4.5.2: 37 new kitchen assertions; 67 existing hospitality, 186 sector training, 27 housekeeping and 44 Town Hall assertions (361 overall). Real shipping UI exercised at 390×844 and 844×390; viewport-dispatched touch and drag-scroll exclusion checked. Full rendered phone/landscape evidence is produced by kitchen-043.yml and inspected before closing the work package. The full Android pipeline also runs the new regression.
+
+Visual refinement after initial rendering: distinct ingredient drawings remain visible on the board; every stage retains a short instruction inside the canvas for landscape use. All four stages are rendered at both sizes. Preparation is additionally tested through actual viewport touch/drag events.

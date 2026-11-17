@@ -25,9 +25,9 @@ func shift(model:RefCounted,id:int,hands_on:bool)->Dictionary:
 		result=Activities.answer(model,session,value)
 	return result
 func send(work:Control,p:Vector2,pressed:bool,index:int=0)->void:
-	var event:=InputEventScreenTouch.new();event.index=index;event.position=p*work.size;event.pressed=pressed;work._gui_input(event)
+	var event:=InputEventScreenTouch.new();event.index=index;event.position=work.point(p);event.pressed=pressed;work._gui_input(event)
 func drag(work:Control,p:Vector2,index:int=0)->void:
-	var event:=InputEventScreenDrag.new();event.index=index;event.position=p*work.size;work._gui_input(event)
+	var event:=InputEventScreenDrag.new();event.index=index;event.position=work.point(p);work._gui_input(event)
 func prepare(work:Control)->void:
 	for p in Work.BOWLS:send(work,p,true);drag(work,Vector2(0.5,0.65));send(work,Vector2(0.5,0.65),false)
 	for i in range(6):
@@ -38,7 +38,10 @@ func prepare(work:Control)->void:
 			for n in range(3):drag(work,Vector2(0.4,0.25+(n+1)*0.08))
 		send(work,work.last,false)
 func viewport_touch(work:Control,p:Vector2,pressed:bool)->void:
-	var event:=InputEventScreenTouch.new();event.position=work.get_global_transform_with_canvas()*(p*work.size);event.index=0;event.pressed=pressed;Input.parse_input_event(event)
+	var event:=InputEventScreenTouch.new();event.position=work.get_global_transform_with_canvas()*work.point(p);event.index=0;event.pressed=pressed;Input.parse_input_event(event)
+	await process_frame
+func viewport_drag(work:Control,p:Vector2)->void:
+	var event:=InputEventScreenDrag.new();event.position=work.get_global_transform_with_canvas()*work.point(p);event.index=0;Input.parse_input_event(event)
 	await process_frame
 func run()->void:
 	RenderingServer.set_render_loop_enabled(DisplayServer.get_name()!="headless")
@@ -120,9 +123,25 @@ func run()->void:
 			await viewport_touch(canvas,Work.BOWLS[0],true)
 			await viewport_touch(canvas,Vector2(0.5,0.65),false)
 			check(canvas.ingredients.size()==1 and scroll.gesture_exclusions.has(canvas),"Viewport touch drag reaches actual workbench without page-scroll capture")
+			for i in [1,2]:
+				await viewport_touch(canvas,Work.BOWLS[i],true)
+				await viewport_drag(canvas,Vector2(0.5,0.65))
+				await viewport_touch(canvas,Vector2(0.5,0.65),false)
+			for i in range(6):
+				await viewport_touch(canvas,Vector2(0.4,0.25),true)
+				for n in range(3):await viewport_drag(canvas,Vector2(0.4,0.25+(n+1)*0.08))
+				await viewport_touch(canvas,Vector2(0.4,0.49),false)
+			check(canvas.stage==2 and canvas.prep==6,"Actual viewport drags complete preparation through the live scroll container")
+			canvas.stage=0;canvas.prep=0;canvas.ingredients.clear();canvas.updated.emit();canvas.queue_redraw()
 		if DisplayServer.get_name()!="headless":
 			await RenderingServer.frame_post_draw;DirAccess.make_dir_recursive_absolute("res://build/qa")
 			check(root.get_texture().get_image().save_png("res://build/qa/kitchen-%d.png"%dimensions.x)==OK,"Actual kitchen view rendered")
+			for phase in range(1,4):
+				canvas.stage=phase;canvas.prep=3;canvas.heat=0.6;canvas.updated.emit();canvas.queue_redraw()
+				for i in range(5):await process_frame
+				await RenderingServer.frame_post_draw
+				check(root.get_texture().get_image().save_png("res://build/qa/kitchen-%d-step-%d.png"%[dimensions.x,phase+1])==OK,"Additional practical stage rendered")
+			canvas.stage=0;canvas.prep=0;canvas.heat=0;canvas.updated.emit();canvas.queue_redraw()
 	for i in range(5):
 		var current:Control=game.hud.experience.find_child("kitchen_workbench",true,false)
 		current.completed.emit(proof(current.task));await process_frame

@@ -37,7 +37,9 @@ func hint()->String:
 	if stage==1:return (L.text("Rühre mit kurzen Bewegungen im Teig · %d / 6") if task.mix else L.text("Schneide mit sechs Abwärtsbewegungen · %d / 6"))%prep
 	if stage==2:return L.text("Erhitzen starten und im grünen Bereich stoppen.")
 	return L.text("Ziehe den fertigen Teller in die grüne Ausgabe.")
-func normalized(at:Vector2)->Vector2:return at/Vector2(maxf(1,size.x),maxf(1,size.y))
+func field_size()->Vector2:return Vector2(size.x,maxf(1,size.y-32))
+func point(p:Vector2)->Vector2:return Vector2(0,32)+p*field_size()
+func normalized(at:Vector2)->Vector2:return (at-Vector2(0,32))/Vector2(maxf(1,size.x),maxf(1,size.y-32))
 func cancel_gesture()->void:pointer=-2;source=-1;travel=0;queue_redraw()
 func _notification(what:int)->void:
 	if what==NOTIFICATION_APPLICATION_FOCUS_OUT or what==NOTIFICATION_VISIBILITY_CHANGED:
@@ -94,36 +96,70 @@ func _process(delta:float)->void:
 		heat=minf(1,heat+clampf(delta,0,0.10)/7.0);queue_redraw()
 func panel(color:Color)->StyleBoxFlat:
 	var result:=StyleBoxFlat.new();result.bg_color=color;result.set_corner_radius_all(12);return result
-func box(rect:Rect2,color:Color)->void:draw_style_box(panel(color),Rect2(rect.position*size,rect.size*size))
+func box(rect:Rect2,color:Color)->void:draw_style_box(panel(color),Rect2(point(rect.position),rect.size*field_size()))
 func text_at(p:Vector2,value:String,font_size:int=16,color:Color=Color("244e4b"),width:float=-1)->void:
-	draw_string(ThemeDB.fallback_font,p*size,value,HORIZONTAL_ALIGNMENT_LEFT,width,font_size,color)
+	draw_string(ThemeDB.fallback_font,point(p),value,HORIZONTAL_ALIGNMENT_LEFT,width,font_size,color)
 func _draw()->void:
-	box(Rect2(0,0,1,1),Color("e9e3d8"))
+	draw_style_box(panel(Color("e9e3d8")),Rect2(Vector2.ZERO,size))
 	if task.is_empty():return
+	var caption:String=L.text("Zutaten auf das Brett ziehen")
+	if stage==1:caption=(L.text("Rühren · %d / 6") if task.mix else L.text("Schneiden · %d / 6"))%prep
+	elif stage==2:caption=L.text("Garpunkt · im grünen Bereich stoppen")
+	elif stage==3:caption=L.text("Teller zur Ausgabe ziehen")
+	draw_string(ThemeDB.fallback_font,Vector2(12,22),caption,HORIZONTAL_ALIGNMENT_LEFT,size.x-24,14,Color("244e4b"))
 	if stage==0:
 		box(BOARD,Color("b99269"))
-		text_at(Vector2(0.18,0.66),L.text("Zutaten vorbereiten"),16)
+		for line in range(1,6):
+			draw_line(point(Vector2(0.15,0.40+line*0.07)),point(Vector2(0.85,0.40+line*0.07)),Color("b28a60"),1)
+		for i in range(ingredients.size()):
+			food(point(Vector2(0.28+i*0.23,0.68)),str(ingredients[i]),minf(20,field_size().y*0.10))
 		for i in range(3):
 			if ingredients.has(task.ingredients[i]):continue
 			var p:Vector2=last if source==i else BOWLS[i]
-			draw_circle(p*size,24,Color("759b87"));draw_circle(p*size,17,Color("e9c579"))
-			text_at(p+Vector2(-0.13,0.15),L.text(str(task.ingredients[i])),13,Color("244e4b"),size.x*0.30)
+			var radius:float=minf(24,field_size().y*0.085)
+			draw_circle(point(p),radius,Color("f5f1e7"));draw_arc(point(p),radius,0,TAU,28,Color("759b87"),2)
+			food(point(p),str(task.ingredients[i]),radius*0.65)
+			text_at(p+Vector2(-0.13,0.18),L.text(str(task.ingredients[i])),13,Color("244e4b"),size.x*0.30)
 	elif stage==1:
 		box(PREP_AREA,Color("b99269"))
 		for i in range(6):
 			var p:=Vector2(0.25+(i%3)*0.24,0.32+int(i/3)*0.30)
-			draw_circle(p*size,16,Color("739c72") if i<prep else Color("e9c579"))
+			food(point(p),str(task.ingredients[i%3]),minf(16,field_size().y*0.10))
+			if i<prep:draw_line(point(p)-Vector2(12,0),point(p)+Vector2(12,0),Color("faf8ef"),2)
 		if pointer!=-2 and source==0:
-			draw_line(last*size-Vector2(20,5),last*size+Vector2(20,5),Color("f9fbfa"),7)
+			draw_line(point(last)-Vector2(20,5),point(last)+Vector2(20,5),Color("f9fbfa"),7)
 	elif stage==2:
-		draw_circle(Vector2(0.5,0.26)*size,minf(size.y*0.18,65),Color("485956"))
-		draw_circle(Vector2(0.5,0.26)*size,minf(size.y*0.14,50),Color("c59156"))
+		draw_circle(point(Vector2(0.5,0.26)),minf(field_size().y*0.18,65),Color("485956"))
+		draw_circle(point(Vector2(0.5,0.26)),minf(field_size().y*0.14,50),Color("6c4930") if heat>0.9 else Color("c59156"))
+		draw_line(point(Vector2(0.5,0.26))+Vector2(25,0),point(Vector2(0.5,0.26))+Vector2(65,0),Color("485956"),9)
+		for i in range(3):food(point(Vector2(0.47+i*0.025,0.23+(i%2)*0.05)),str(task.ingredients[i]),6)
 		box(Rect2(0.08,0.50,0.84,0.09),Color("bfb6a7"))
 		box(Rect2(0.08+(float(task.target)-0.1)*0.84,0.50,0.168,0.09),Color("74ad89"))
 		box(Rect2(0.08+heat*0.82,0.47,0.02,0.15),Color("244e4b"))
 		box(FIRE_BUTTON,Color("285c53"))
 		text_at(Vector2(0.13,0.84),L.text("Jetzt stoppen") if heating else L.text("Erhitzen starten"),17,Color.WHITE,size.x*0.75)
 	else:
-		box(PASS,Color("a4cbb1"));text_at(Vector2(0.61,0.33),L.text("Ausgabe"),16)
+		box(PASS,Color("a4cbb1"));text_at(Vector2(0.61,0.33),L.text("Ausgabe"),16,Color("244e4b"),size.x*0.28)
 		var p:Vector2=last if source==0 else PLATE
-		draw_circle(p*size,32,Color("faf8ef"));draw_circle(p*size,23,Color("c79960"))
+		draw_circle(point(p),32,Color("faf8ef"));draw_circle(point(p),23,Color("c79960"))
+
+		for i in range(3):food(point(p)+Vector2((i-1)*13,(i%2)*8-4),str(task.ingredients[i]),7)
+
+func food(at:Vector2,ingredient:String,radius:float)->void:
+	match ingredient:
+		"Zwiebeln":
+			draw_circle(at,radius,Color("b68b9b"));draw_arc(at,radius*0.65,0,TAU,20,Color("f1d9dd"),2);draw_arc(at,radius*0.3,0,TAU,16,Color("f1d9dd"),1)
+		"Pilze":
+			draw_rect(Rect2(at+Vector2(-radius*0.2,0),Vector2(radius*0.4,radius)),Color("f2e2ca"));draw_circle(at,radius,Color("aa8060"));draw_line(at-Vector2(radius,0),at+Vector2(radius,0),Color("634936"),2)
+		"Kartoffeln":
+			draw_circle(at,radius,Color("c5a36e"));draw_circle(at+Vector2(-radius*0.3,radius*0.2),1.5,Color("95724a"));draw_circle(at+Vector2(radius*0.4,-radius*0.3),1.5,Color("95724a"))
+		"Eier":
+			draw_circle(at,radius,Color("f2e7ca"));draw_circle(at+Vector2(radius*0.2,0),radius*0.4,Color("e2b64f"))
+		"Milch":
+			draw_rect(Rect2(at-Vector2(radius*0.6,radius),Vector2(radius*1.2,radius*2)),Color("f8f5e9"));draw_rect(Rect2(at-Vector2(radius*0.6,radius*0.5),Vector2(radius*1.2,radius*0.5)),Color("81aaa8"))
+		"Mehl":
+			draw_colored_polygon(PackedVector2Array([at+Vector2(-radius,radius*0.7),at+Vector2(0,-radius),at+Vector2(radius,radius*0.7)]),Color("faf5e4"))
+		"Brühe":
+			draw_circle(at,radius,Color("c7a655"));draw_arc(at,radius*0.6,0,PI,16,Color("ebd994"),2)
+		_:
+			draw_circle(at+Vector2(-radius*0.35,0),radius*0.65,Color("739569"));draw_circle(at+Vector2(radius*0.35,radius*0.25),radius*0.6,Color("c57e51"));draw_circle(at+Vector2(0,-radius*0.35),radius*0.5,Color("a8b779"))

@@ -10887,3 +10887,18 @@ msgstr "Planning status 17 November 2026 · Completed means tested and integrate
 
 msgid "Diese Kochschicht ist nicht mehr verfügbar. Starte sie erneut."
 msgstr "This cooking shift is no longer available. Please start it again."
+
+msgid "Zutaten auf das Brett ziehen"
+msgstr "Drag ingredients onto the board"
+
+msgid "Rühren · %d / 6"
+msgstr "Stir · %d / 6"
+
+msgid "Schneiden · %d / 6"
+msgstr "Chop · %d / 6"
+
+msgid "Garpunkt · im grünen Bereich stoppen"
+msgstr "Cooking · stop in the green zone"
+
+msgid "Teller zur Ausgabe ziehen"
+msgstr "Drag the plate to the serving counter"
