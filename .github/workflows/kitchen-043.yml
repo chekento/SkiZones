@@ -1,0 +1,56 @@
+name: 0.43 practical kitchen, shared shift rewards and Town Hall
+on:
+  pull_request:
+    paths:
+      - 'src/core/kitchen_043.gd'
+      - 'src/core/building_activities.gd'
+      - 'src/ui/kitchen_workbench_043.gd'
+      - 'src/ui/building_experience.gd'
+      - 'src/core/town_hall.gd'
+      - 'tests/kitchen_043.gd'
+      - '.github/workflows/kitchen-043.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kitchen-043-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  practical-kitchen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import all resources
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Cooking gestures, shared rewards, cancellation and shipping mobile UI
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/kitchen_043.gd
+      - name: Existing hospitality, sector training, housekeeping and Town Hall
+        run: |
+          for test in village_hospitality sector_sim_028 housekeeping_043 editorial_townhall_031; do
+            python3 tools/run_godot_test.py --strict-engine-errors --timeout 180 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script "tests/$test.gd"
+          done
+          python3 tools/check_localization.py
+      - name: Render real kitchen interaction at phone and landscape sizes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+          xvfb-run -a python3 tools/run_godot_test.py --timeout 300 -- "$GODOT_BIN" --language de --audio-driver Dummy --resolution 1280x900 --script tests/kitchen_043.gd
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kitchen-043-mobile
+          path: build/qa/kitchen-*.png
+          if-no-files-found: warn

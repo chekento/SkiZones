@@ -5,6 +5,7 @@ const Catalog = preload("res://src/core/catalog.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const SectorCases = preload("res://src/core/sector_decisions.gd")
+const Kitchen = preload("res://src/core/kitchen_043.gd")
 const ACTIVITIES := {
 	"wc_dixi":{"title":"Dixi-Service-Runde","mode":"orders","hint":"Prüfe mobile Toiletten: Tank, Reinigung, Papier und Frostschutz.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
 	"wc_cabin":{"title":"Kabinen-Servicerunde","mode":"orders","hint":"Ordne den richtigen Wartungsauftrag den Winter-Kabinen zu.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
@@ -44,14 +45,16 @@ static func spec(kind: String) -> Dictionary:
 	if Hospitality.lodging(kind): return {"title":"Rezeption & Zimmerservice", "mode":"orders", "hint":"Erfülle die Wünsche deiner Übernachtungsgäste.", "choices":["Check-in", "Frühstück", "Handtücher", "Gepäck"]}
 	return ACTIVITIES.get(kind, {})
 
-static func start(model: RefCounted, id: int) -> Dictionary:
+static func start(model: RefCounted, id: int, hands_on: bool = false) -> Dictionary:
 	var building: Dictionary = model.asset(id)
 	if not Catalog.BUILDINGS.has(building.get("kind", "")) or spec(str(building.kind)).is_empty() or not building.enabled: return {"ok":false, "message":L.text("Zuerst das Gebäude errichten und öffnen.")}
-	return {"ok":true, "id":id, "day":model.day, "step":0, "score":0, "answers":[], "finished":false}
+	if hands_on and not Kitchen.supported(str(building.kind)):return {"ok":false}
+	return {"ok":true, "id":id, "day":model.day, "step":0, "score":0, "answers":[], "finished":false,"hands_on":hands_on}
 
 static func challenge(model: RefCounted, session: Dictionary) -> Dictionary:
 	var building: Dictionary = model.asset(int(session.get("id", -1)))
 	if building.is_empty() or int(session.get("step", 5)) >= 5: return {}
+	if session.get("hands_on",false):return Kitchen.recipe(building,int(session.day),int(session.step))
 	var definition := spec(str(building.kind))
 	var seed_value: int = int(building.id) * 31 + int(session.day) * 17 + int(session.step) * 13
 	var choices: Array = definition.choices.duplicate()
@@ -68,10 +71,16 @@ static func challenge(model: RefCounted, session: Dictionary) -> Dictionary:
 
 static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Dictionary:
 	if not session.get("ok", false) or session.get("finished", false): return {"ok":false}
+	if session.get("hands_on",false):
+		var kitchen_building:Dictionary=model.asset(int(session.get("id",-1)))
+		if not kitchen_building.get("enabled",false) or int(session.get("day",-1))!=int(model.day):return {"ok":false}
 	var task := challenge(model, session)
 	if task.is_empty(): return {"ok":false}
 	var score := 0
-	if task.mode == "hotel_story":
+	if task.mode == "cooking":
+		if not Kitchen.valid_proof(task,input):return {"ok":false}
+		score=Kitchen.score(task,input)
+	elif task.mode == "hotel_story":
 		score = HotelWorld.score(task,input)
 	elif task.mode == "decision":
 		if input is int and input >= 0 and input < task.choices.size():

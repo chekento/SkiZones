@@ -84,8 +84,9 @@ const ROADMAP: Array = [
 ]
 
 const CURRENT_WORK := [
-	{"title":"Zimmer selbst aufräumen und Betten beziehen","status":"Implementiert · Prüfung für das nächste Update","detail":"Im Hotel unter Zimmer & Gäste: Gegenstände antippen, Bettwäsche aufziehen und Flecken wegwischen. Erst der bestätigte Abschluss reinigt das ausgewählte Zimmer für die bestehenden 8 € Kosten. Abbrechen zahlt keine Prämie und verändert nichts."},
-	{"title":"Kochabläufe und Getränke zubereiten","status":"Offen · vorgezogen","detail":"Vorhandene Bestell-, Timing- und Entscheidungsaufgaben bleiben spielbar. Mehrstufiges Kochen und Mixen mit direkter Handhabung ist noch nicht abgeschlossen."}
+	{"title":"Zimmer selbst aufräumen und Betten beziehen","done":true,"status":"Abgehakt · Android-geprüft und in Main","detail":"Im Hotel unter Zimmer & Gäste: Gegenstände antippen, Bettwäsche aufziehen und Flecken wegwischen. Erst der bestätigte Abschluss reinigt das ausgewählte Zimmer für die bestehenden 8 € Kosten. Abbrechen zahlt keine Prämie und verändert nichts."},
+	{"title":"Kochschicht mit direkter Zubereitung","done":false,"status":"Implementiert · Abnahme für das nächste Update","detail":"Restaurant: Zutaten aufziehen und schneiden. Kaiserschmarrn: Teig rühren. Danach den Garpunkt treffen und den Teller zur Ausgabe ziehen. Fünf Gerichte teilen die bestehende Tagesprämiengrenze mit dem Betriebstraining; keine zusätzlichen Verkäufe oder Save-Felder."},
+	{"title":"Getränke mehrstufig zubereiten","done":false,"status":"Offen · als Nächstes","detail":"Bar und Disco besitzen weiterhin das bestehende Ausschank- und Entscheidungstraining. Direktes mehrstufiges Mixen ist noch offen."}
 ]
 static func current_work() -> Array:
 	return CURRENT_WORK.duplicate(true)

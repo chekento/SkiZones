@@ -14,6 +14,8 @@ const Academy=preload("res://src/ui/staff_training_panel_042.gd")
 const TicTacToeBoard = preload("res://src/ui/tic_tac_toe_board.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const Housekeeping = preload("res://src/ui/housekeeping_043.gd")
+const Kitchen = preload("res://src/core/kitchen_043.gd")
+const KitchenWorkbench = preload("res://src/ui/kitchen_workbench_043.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
@@ -351,9 +353,9 @@ func _town_hall(_building: Dictionary) -> void:
 		hud._label(inner,L.text(str(event.story)),15,ink,true)
 	var plans: VBoxContainer=_page(L.text("Rathaus · Nächste Vorhaben"))
 	hud._label(plans,L.text("NÄCHSTE VORHABEN · FORTSCHRITT STATT WARTEFRISTEN"),22,accent,true)
-	hud._label(plans,L.text("Planungsstand 16.11.2026 · Fertige Bausteine werden nach Prüfung vorgezogen. Die bisherigen Kalenderphasen sind keine frühesten Umsetzungstermine."),15,ink,true)
+	hud._label(plans,L.text("Planungsstand 17.11.2026 · Abgehakt bedeutet im Entwicklungsstand geprüft und integriert. Eine neue APK wird gesondert freigegeben. Kalenderphasen sind keine Wartefristen."),15,ink,true)
 	for item in TownHall.current_work():
-		var work := _card(plans,L.text(item.title),L.text(item.status))
+		var work := _card(plans,("✓ " if item.get("done",false) else "○ ")+L.text(item.title),L.text(item.status))
 		hud._label(work,L.text(item.detail),16,ink,true)
 	for phase in TownHall.roadmap():
 		var chapter:=PanelContainer.new()
@@ -737,10 +739,14 @@ func _activity(building: Dictionary) -> void:
 	var shift_button:Button=hud._button(game_box, L.text("Hotelgeschichte starten · fünf Kapitel") if Hospitality.lodging(str(building.kind)) else L.text("Schicht starten · fünf Aufgaben"), _start_shift, true)
 	shift_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	shift_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	if Kitchen.supported(str(building.kind)):
+		var kitchen_button:Button=hud._button(game_box,L.text("Kochschicht starten · fünf Gerichte"),func():_start_shift(true),true)
+		kitchen_button.name="start_kitchen_shift";kitchen_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		hud._label(game_box,L.text("Zutaten aufs Brett ziehen, vorbereiten, den Garpunkt treffen und den Teller zur Ausgabe ziehen. Koch- und Trainingsschichten teilen sich die drei Tagesprämien."),16,hud.MUTED,true)
 	var academy:=Academy.new();page.add_child(academy);academy.setup(hud,asset_id)
 
-func _start_shift() -> void:
-	session = Activities.start(hud.game.model, asset_id)
+func _start_shift(hands_on:bool=false) -> void:
+	session = Activities.start(hud.game.model, asset_id,hands_on)
 	if not session.get("ok", false): hud.toast(session.get("message", "")); return
 	_next_task()
 
@@ -759,6 +765,15 @@ func _next_task() -> void:
 		hud._label(game_box,L.text("BETRIEBSSIMULATION · ") + L.text(str(task.get("metric","Entscheidungsqualität"))),16,hud.TEAL,true)
 		hud._label(game_box,L.text(str(task.get("context",""))),16,hud.MUTED,true)
 	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode in ["hotel_story","decision"] else 32, hud.INK, true)
+	if task.mode=="cooking":
+		var workbench:=KitchenWorkbench.new()
+		var instructions:Label=hud._label(game_box,"",16,hud.TEAL,true)
+		game_box.add_child(workbench);workbench.setup(task)
+		instructions.text=workbench.hint()
+		workbench.updated.connect(func():instructions.text=workbench.hint())
+		workbench.completed.connect(func(proof:Dictionary):_submit(proof))
+		status=hud._label(game_box,L.text("Punkte bisher: %d")%int(session.score),18,hud.MUTED)
+		return
 	if task.mode == "hotel_story":
 		hud._label(game_box,L.text(str(task.title)),22,hud.TEAL,true)
 		var story_art := HotelStoryArt.new()
@@ -810,7 +825,10 @@ func _next_task() -> void:
 
 func _submit(value: Variant) -> void:
 	var result := Activities.answer(hud.game.model, session, value)
-	if not result.get("ok", false): return
+	if not result.get("ok", false):
+		if task.get("mode","")=="cooking":
+			hud.toast(L.text("Diese Kochschicht ist nicht mehr verfügbar. Starte sie erneut."));call_deferred("_rebuild")
+		return
 	if result.get("finished", false):
 		meter = null
 		for child in game_box.get_children():
@@ -821,7 +839,7 @@ func _submit(value: Variant) -> void:
 		if Hospitality.lodging(str(hud.game.model.asset(asset_id).get("kind",""))):
 			var progress: Dictionary = HotelWorld.chapter_progress(hud.game.model.asset(asset_id))
 			hud._label(game_box,L.text("Hotelgeschichte Level %d · %d Erfahrung · beste Runde %d Punkte") % [int(progress.level),int(progress.xp),int(progress.best)],20,hud.TEAL,true)
-		hud._button(game_box, L.text("Noch eine Runde"), _start_shift, true)
+		hud._button(game_box, L.text("Noch eine Runde"),func():_start_shift(bool(session.get("hands_on",false))),true).name="restart_activity_shift"
 	else:
 		if task.get("mode","") == "decision":
 			meter=null

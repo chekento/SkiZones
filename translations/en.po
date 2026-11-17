@@ -10803,3 +10803,87 @@ msgstr "Open · brought forward"
 
 msgid "Vorhandene Bestell-, Timing- und Entscheidungsaufgaben bleiben spielbar. Mehrstufiges Kochen und Mixen mit direkter Handhabung ist noch nicht abgeschlossen."
 msgstr "Existing order, timing and decision activities remain playable. Multi-step cooking and mixing with direct interaction are not yet completed."
+
+msgid "Gemüsesuppe"
+msgstr "Vegetable soup"
+
+msgid "Kartoffelpfanne"
+msgstr "Potato skillet"
+
+msgid "Pilzpfanne"
+msgstr "Mushroom skillet"
+
+msgid "Gemüse"
+msgstr "Vegetables"
+
+msgid "Brühe"
+msgstr "Broth"
+
+msgid "Kartoffeln"
+msgstr "Potatoes"
+
+msgid "Eier"
+msgstr "Eggs"
+
+msgid "Mehl"
+msgstr "Flour"
+
+msgid "Milch"
+msgstr "Milk"
+
+msgid "Ziehe die drei Zutaten auf das Brett."
+msgstr "Drag the three ingredients onto the board."
+
+msgid "Rühre mit kurzen Bewegungen im Teig · %d / 6"
+msgstr "Stir the batter with short strokes · %d / 6"
+
+msgid "Schneide mit sechs Abwärtsbewegungen · %d / 6"
+msgstr "Cut with six downward strokes · %d / 6"
+
+msgid "Erhitzen starten und im grünen Bereich stoppen."
+msgstr "Start heating and stop in the green zone."
+
+msgid "Ziehe den fertigen Teller in die grüne Ausgabe."
+msgstr "Drag the finished plate to the green serving counter."
+
+msgid "Zutaten vorbereiten"
+msgstr "Prepare ingredients"
+
+msgid "Erhitzen starten"
+msgstr "Start heating"
+
+msgid "Ausgabe"
+msgstr "Serving counter"
+
+msgid "Kochschicht starten · fünf Gerichte"
+msgstr "Start cooking shift · five dishes"
+
+msgid "Zutaten aufs Brett ziehen, vorbereiten, den Garpunkt treffen und den Teller zur Ausgabe ziehen. Koch- und Trainingsschichten teilen sich die drei Tagesprämien."
+msgstr "Drag ingredients to the board, prepare them, get the cooking time right and drag the plate to the serving counter. Cooking and training shifts share the three daily rewards."
+
+msgid "Abgehakt · Android-geprüft und in Main"
+msgstr "Completed · Android tested and merged into Main"
+
+msgid "Kochschicht mit direkter Zubereitung"
+msgstr "Hands-on cooking shift"
+
+msgid "Implementiert · Abnahme für das nächste Update"
+msgstr "Implemented · acceptance for the next update"
+
+msgid "Restaurant: Zutaten aufziehen und schneiden. Kaiserschmarrn: Teig rühren. Danach den Garpunkt treffen und den Teller zur Ausgabe ziehen. Fünf Gerichte teilen die bestehende Tagesprämiengrenze mit dem Betriebstraining; keine zusätzlichen Verkäufe oder Save-Felder."
+msgstr "Restaurant: drag and chop ingredients. Kaiserschmarrn: stir the batter. Then get the cooking time right and drag the plate to the serving counter. Five dishes share the existing daily reward limit with business training; no additional sales or save fields."
+
+msgid "Getränke mehrstufig zubereiten"
+msgstr "Prepare drinks in several steps"
+
+msgid "Offen · als Nächstes"
+msgstr "Open · next"
+
+msgid "Bar und Disco besitzen weiterhin das bestehende Ausschank- und Entscheidungstraining. Direktes mehrstufiges Mixen ist noch offen."
+msgstr "The bar and disco retain their existing pouring and decision training. Hands-on mixing in several steps is still open."
+
+msgid "Planungsstand 17.11.2026 · Abgehakt bedeutet im Entwicklungsstand geprüft und integriert. Eine neue APK wird gesondert freigegeben. Kalenderphasen sind keine Wartefristen."
+msgstr "Planning status 17 November 2026 · Completed means tested and integrated in development. A new APK is approved separately. Calendar phases do not impose waiting periods."
+
+msgid "Diese Kochschicht ist nicht mehr verfügbar. Starte sie erneut."
+msgstr "This cooking shift is no longer available. Please start it again."
