@@ -16,6 +16,9 @@ const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const Housekeeping = preload("res://src/ui/housekeeping_043.gd")
 const Kitchen = preload("res://src/core/kitchen_043.gd")
 const KitchenWorkbench = preload("res://src/ui/kitchen_workbench_043.gd")
+const Beverages = preload("res://src/core/beverages_043.gd")
+const BarWorkbench = preload("res://src/ui/bar_workbench_043.gd")
+const RingToss = preload("res://src/ui/donut_ring_toss_043.gd")
 const HotelRooms = preload("res://src/core/hotel_rooms.gd")
 const HotelSimulator = preload("res://src/core/hotel_simulator.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
@@ -45,6 +48,7 @@ var cursor := 0.0
 var elapsed := 0.0
 var picked: Array = []
 var status: Label
+var shift_journal: Label
 var was_paused := false
 var _recipes: Array = []
 var _recipe_names: Array = []
@@ -353,7 +357,7 @@ func _town_hall(_building: Dictionary) -> void:
 		hud._label(inner,L.text(str(event.story)),15,ink,true)
 	var plans: VBoxContainer=_page(L.text("Rathaus · Nächste Vorhaben"))
 	hud._label(plans,L.text("NÄCHSTE VORHABEN · FORTSCHRITT STATT WARTEFRISTEN"),22,accent,true)
-	hud._label(plans,L.text("Planungsstand 17.11.2026 · Abgehakt bedeutet im Entwicklungsstand geprüft und integriert. Eine neue APK wird gesondert freigegeben. Kalenderphasen sind keine Wartefristen."),15,ink,true)
+	hud._label(plans,L.text("Planungsstand 18.11.2026 · Haken kennzeichnen geprüfte und integrierte Entwicklungsbausteine. Neue Funktionen und Übersetzungen werden vor der nächsten APK gesondert abgenommen."),15,ink,true)
 	for item in TownHall.current_work():
 		var work := _card(plans,("✓ " if item.get("done",false) else "○ ")+L.text(item.title),L.text(item.status))
 		hud._label(work,L.text(item.detail),16,ink,true)
@@ -703,6 +707,15 @@ func _mini_games(building: Dictionary) -> void:
 	# Unlike the sector training shifts, the arcade contains genuine playable
 	# local games. It does not pay cash and cannot alter operating balances.
 	var kind: String = str(building.kind)
+	if kind=="schmarrn":
+		var sweets_page:=_page(L.text("Spielecke"))
+		if not RingToss.available(building):
+			_card(sweets_page,L.text("Donut-Ringwurf"),L.text("Mit Berg-Donuts ab Gebäudestufe 3 freigeschaltet."))
+			return
+		hud._label(sweets_page,L.text("Donut-Ringwurf · fünf Würfe"),23,hud.TEAL,true)
+		hud._label(sweets_page,L.text("Ziehe den Donut nach unten und seitlich zum Zielen. Loslassen wirft ihn auf die Holzstifte; die Punkte zeigen die Flugbahn. Fünf Würfe, kein Einsatz und keine Geldprämie."),16,hud.MUTED,true)
+		var toss:=RingToss.new();toss.style_id=str(hud.game.preferences.visual_style);sweets_page.add_child(toss)
+		return
 	if kind not in ["lodge","bar","disco"] and not Hospitality.lodging(kind): return
 	var page: VBoxContainer = _page(L.text("Spielecke"))
 	var requirement: int = 2 if kind=="disco" or Hospitality.lodging(kind) else 1
@@ -743,7 +756,18 @@ func _activity(building: Dictionary) -> void:
 		var kitchen_button:Button=hud._button(game_box,L.text("Kochschicht starten · fünf Gerichte"),func():_start_shift(true),true)
 		kitchen_button.name="start_kitchen_shift";kitchen_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		hud._label(game_box,L.text("Zutaten aufs Brett ziehen, vorbereiten, den Garpunkt treffen und den Teller zur Ausgabe ziehen. Koch- und Trainingsschichten teilen sich die drei Tagesprämien."),16,hud.MUTED,true)
+	if Beverages.supported(str(building.kind)):
+		var mix_button:Button=hud._button(game_box,L.text("Mixschicht starten · fünf Getränke"),func():_start_shift(true),true)
+		mix_button.name="start_mixing_shift";mix_button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		mix_button.disabled=not Beverages.available(building)
+		hud._label(game_box,L.text("Zutaten ziehen, schütteln, dosiert ausschenken, garnieren und servieren. Wird mit dem Mocktail-Angebot ab Gebäudestufe %d freigeschaltet.")%Beverages.unlock_level(str(building.kind)),16,hud.MUTED,true)
+	var journal_box:=_card(page,L.text("Dein Schichtjournal"))
+	shift_journal=hud._label(journal_box,_journal_text(),17,hud.TEAL,true)
 	var academy:=Academy.new();page.add_child(academy);academy.setup(hud,asset_id)
+
+func _journal_text()->String:
+	var info:Dictionary=Activities.journal(hud.game.model,asset_id)
+	return L.text("Heute %d / 3 Tagesprämien · %d übrig\nBeste Schicht: %d Punkte · Servicebonus heute: +%d %%")%[info.plays,info.remaining,info.best,info.bonus]
 
 func _start_shift(hands_on:bool=false) -> void:
 	session = Activities.start(hud.game.model, asset_id,hands_on)
@@ -765,8 +789,8 @@ func _next_task() -> void:
 		hud._label(game_box,L.text("BETRIEBSSIMULATION · ") + L.text(str(task.get("metric","Entscheidungsqualität"))),16,hud.TEAL,true)
 		hud._label(game_box,L.text(str(task.get("context",""))),16,hud.MUTED,true)
 	hud._label(game_box, L.text(str(task.prompt)), 24 if task.mode in ["hotel_story","decision"] else 32, hud.INK, true)
-	if task.mode=="cooking":
-		var workbench:=KitchenWorkbench.new()
+	if task.mode in ["cooking","mixing"]:
+		var workbench:Control=BarWorkbench.new() if task.mode=="mixing" else KitchenWorkbench.new()
 		var instructions:Label=hud._label(game_box,"",16,hud.TEAL,true)
 		game_box.add_child(workbench);workbench.setup(task)
 		instructions.text=workbench.hint()
@@ -826,10 +850,11 @@ func _next_task() -> void:
 func _submit(value: Variant) -> void:
 	var result := Activities.answer(hud.game.model, session, value)
 	if not result.get("ok", false):
-		if task.get("mode","")=="cooking":
-			hud.toast(L.text("Diese Kochschicht ist nicht mehr verfügbar. Starte sie erneut."));call_deferred("_rebuild")
+		if task.get("mode","") in ["cooking","mixing"]:
+			hud.toast(L.text("Diese Praxisschicht ist nicht mehr verfügbar. Starte sie erneut."));call_deferred("_rebuild")
 		return
 	if result.get("finished", false):
+		if is_instance_valid(shift_journal):shift_journal.text=_journal_text()
 		meter = null
 		for child in game_box.get_children():
 			game_box.remove_child(child)
