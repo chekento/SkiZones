@@ -275,12 +275,13 @@ func update(view: Node3D,delta: float) -> void:
 		if outbound_count>=MAX_VISIBLE_RESCUE and transport_count>=MAX_VISIBLE_RESCUE:break
 		var station:Dictionary=view.model.asset(int(incident.get("station",-1)))
 		if station.is_empty():continue
-		var pos:Vector2=Ops.rescue_location(view.model,incident)
+		var visual_minute_fraction:float=view.model.clock_fraction+view.simulation_fraction/float(view.model.time_divisor)
+		var pos:Vector2=Ops.rescue_location(view.model,incident,visual_minute_fraction)
 		if pos.distance_to(view.focus)>maxf(view.zoom*2.0,240):continue
 		var forward:Vector2=Terrain.unpack(incident.point)-Terrain.unpack(station.point)
 		var path:Array=Ops.rescue_active_path(incident)
 		if path.size()>=2:
-			var fraction:float=Ops.rescue_fraction(incident)
+			var fraction:float=Ops.rescue_fraction(incident,visual_minute_fraction)
 			var forward_path:bool=stage=="responding" or incident.has("return_route_points")
 			var next_fraction:float=clampf(fraction+(0.015 if forward_path else -0.015),0,1)
 			forward=Ops.rescue_path_point(path,next_fraction)-pos
