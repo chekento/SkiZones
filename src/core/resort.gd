@@ -1830,11 +1830,17 @@ func _advance_tick(arrivals: bool, empty_calendar_step: bool) -> void:
 			Ops.admit_evening(self)
 		# Demand is an interest counter, NOT an invisible visitor or ticket sale.
 		# It survives midnight/save and can never grow beyond a small dawn wave.
-		if arrivals and Ops.continuous(self) and time_divisor > 1 and (minute >= DayRhythm.QUIET_FROM or minute < 120) and minute % 30 == 0:
+		# No physical visitors enter after 20:00. Overnight interest is
+		# bounded and only materialises as real, routed arrivals after opening.
+		if arrivals and Ops.continuous(self) and time_divisor > 1 and (minute >= DayRhythm.QUIET_FROM or minute < OPENING) and minute % 30 == 0:
 			operations.pending_arrivals = mini(24, int(operations.get("pending_arrivals", 0)) + 1)
-		if arrivals and Ops.continuous(self) and int(operations.get("pending_arrivals", 0)) > 0 and minute >= OPENING and minute < OPENING + 120 and minute % 12 == 0 and guests.size() < MAX_GUESTS:
-			var morning_intent: String = Agenda.sample(self)
-			if morning_intent != "" and admit_guest(int(Agenda.TYPES[morning_intent].comfort), morning_intent):
+		if arrivals and Ops.continuous(self) and int(operations.get("pending_arrivals", 0)) > 0 and minute >= OPENING and minute < OPENING + 45 and minute % 5 == 0 and guests.size() < MAX_GUESTS:
+			# Four actual parties per five-minute wave, no ghost ticket income.
+			var morning_quota:int=mini(4,int(operations.pending_arrivals))
+			for wave in range(morning_quota):
+				if guests.size()>=MAX_GUESTS:break
+				var morning_intent: String = Agenda.sample(self)
+				if morning_intent == "" or not admit_guest(int(Agenda.TYPES[morning_intent].comfort), morning_intent):break
 				operations.pending_arrivals = int(operations.pending_arrivals) - 1
 		# Unfulfilled interest expires rather than piling up across winters.
 		if Ops.continuous(self) and minute == OPENING + 120: operations.pending_arrivals = 0
