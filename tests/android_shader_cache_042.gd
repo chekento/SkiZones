@@ -12,7 +12,7 @@ func run() -> void:
 	check(ProjectSettings.get_setting(key + ".android", true) == false, "Android persistent GLES3 shader binary cache disabled")
 	var actual: bool = bool(ProjectSettings.get_setting_with_override(key))
 	check(actual == (not OS.has_feature("android")), "Feature override leaves desktop shader caching on and Android caching off")
-	check(str(ProjectSettings.get_setting("application/config/version", "")) == "0.42.0", "Same 0.42 app version and save identity used")
+	check(str(ProjectSettings.get_setting("application/config/version", "")).begins_with("0.42."), "0.42 patch series preserves app and save identity")
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
 func _init() -> void: call_deferred("run")

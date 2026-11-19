@@ -4,6 +4,7 @@ const Resort=preload("res://src/core/resort.gd")
 const Ops=preload("res://src/core/operations.gd")
 const Foot=preload("res://src/core/foot_network.gd")
 const Terrain=preload("res://src/core/terrain.gd")
+const Motion=preload("res://src/core/ski_motion.gd")
 var passed:=0
 var failed:=0
 func _init()->void:call_deferred("run")
@@ -36,6 +37,18 @@ func run()->void:
 	var event:Dictionary=state.event
 	var guest:Dictionary=state.guest
 	check(Ops.dispatch(model,int(event.id)).ok,"Both legs of the rescue are reachable")
+	# The arrival clock uses the same slope physics as regular NPC skiers.
+	var downhill:Array=model.pistes[0].points
+	var ordinary:float=Motion.travel_profile(model.terrain,downhill,1).minutes/float(model.time_divisor)
+	var emergency:float=Ops.rescue_travel_minutes(model,downhill)
+	check(emergency<=maxf(1.0,ordinary) and emergency>=1.0,"Rescue ski travel is comparable to or slightly faster than normal intermediate skiers")
+	var interpolation:Dictionary={"status":"responding","remaining":3.0,"response_duration":4.0}
+	check(Ops.rescue_fraction(interpolation,0.5)>Ops.rescue_fraction(interpolation),"Rescue crew visibly moves between calendar minute ticks")
+	interpolation.status="returning"
+	interpolation.return_duration=4.0
+	interpolation.transport_remaining=3.0
+	interpolation.return_route_points=downhill
+	check(Ops.rescue_fraction(interpolation,0.5)>Ops.rescue_fraction(interpolation),"Loaded stretcher visibly moves between calendar minute ticks")
 	var returning:Array=event.get("return_route_points",[])
 	check(returning.size()>=2,"Patient has a separate downhill return route")
 	if returning.size()>=2:

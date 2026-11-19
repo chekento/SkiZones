@@ -90,6 +90,11 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 	if family(lift) == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
 	return {"transform": Transform3D(body_basis, origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
 
+## motion_rate from src/main.gd already includes the 24-substep career-day
+## multiplier. Apply MINUTES_PER_SECOND exactly once; do not double-count it.
+static func visual_units_per_second(motion_rate: float) -> float:
+	return maxf(0.0,motion_rate) * 0.5
+
 ## Cable samples are cumulative, sorted distances. Binary lookup avoids
 ## scanning every pylon for every gondola/chair every rendered frame.
 ## Keep the exact same linear interpolation used by the physical schedule.

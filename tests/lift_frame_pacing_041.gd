@@ -46,6 +46,21 @@ func run()->void:
 		attached=attached and is_finite(next)
 		previous=next
 	check(monotonic and attached,"Day-two 8x -> 1x lift phase remains monotonic with no overshoot")
+	# Later days had very large clock values: relative epsilon wrongly hid
+	# sub-frame movement, especially at 1x and 4x.
+	for playback_speed in [1.0,4.0]:
+		var rate:float=Fleet.visual_units_per_second(playback_speed*DayRhythm.playback(720,"balanced")*4.0)
+		var expected_rate:float=playback_speed*DayRhythm.playback(720,"balanced")*Resort.MINUTES_PER_SECOND*4.0
+		check(is_equal_approx(rate,expected_rate),"0.42.1 lift frame speed follows the full gameplay clock at %dx" % int(playback_speed))
+		var drawn:float=160000.0
+		var target_clock:float=drawn
+		var moving:=true
+		for frame in range(180):
+			target_clock+=rate/60.0
+			var next:float=Fleet.visual_clock(drawn,target_clock,1.0/60.0,rate)
+			moving=moving and next>drawn and absf(next-drawn)>0.00001 and is_equal_approx(next,target_clock)
+			drawn=next
+		check(moving,"0.42.1 lift vehicles advance at %dx on late resort days" % int(playback_speed))
 	check(bounded,"Dropped Android frames cannot generate a multi-step vehicle teleport")
 	check(absf(Fleet.visual_clock(1.0,8.0,0.1,4.0,false)-8.0)<0.000001,"Stopped cable synchronizes exactly without animation drift")
 	check(absf(Fleet.visual_clock(20.0,19.75,0.016,4.0)-19.75)<0.000001,"Loading an older save resets animation without invalid forward extrapolation")

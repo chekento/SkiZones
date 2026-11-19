@@ -1283,8 +1283,10 @@ func _process(delta: float) -> void:
 			continue
 		target_clock += simulation_fraction if model.lift_running(lift) else 0.0
 		var resync: bool=bool(data.get("resync",false))
-		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,motion_rate*0.5,motion_running and model.lift_running(lift),resync)
-		var changed: bool = resync or not is_equal_approx(data.clock, clock)
+		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,Fleet.visual_units_per_second(motion_rate),motion_running and model.lift_running(lift),resync)
+		# Relative epsilon grows with lift uptime and can hide every small 1x/4x frame.
+		# Use absolute movement ticks so even late resort days redraw correctly.
+		var changed: bool = resync or absf(float(data.clock)-clock) > 0.00001
 		var profile: Dictionary=model.cable_profile(lift) if changed else {}
 		var schedule: Dictionary=model.fleet_layout(lift) if changed else {}
 		var family: String=Fleet.family(lift)
