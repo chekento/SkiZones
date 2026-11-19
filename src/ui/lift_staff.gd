@@ -206,7 +206,14 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 			var choice:=_choice(garage,labels)
 			_button(garage,L.text("Präparieren · 220 €"),func():return Ops.groom(model,int(model.pistes[choice.selected].id),lift_id))
 	if item.kind=="first_aid":
-		_card(parent,L.text("Bergwacht"),L.text("Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter.") % (1800*int(item.get("level",1))))
+		var target:String="building:%d" % lift_id
+		var employed:int=model.operations.staff.filter(func(p):return str(p.get("assignment",""))==target and str(p.get("role",""))=="rescue").size()
+		var free:int=Ops.free_rescue_crew(model,lift_id).size()
+		var active_cases:int=model.operations.incidents.filter(func(e):return int(e.get("station",-1))==lift_id and str(e.get("status","")) in ["responding","returning"]).size()
+		var treating:int=model.operations.incidents.filter(func(e):return int(e.get("station",-1))==lift_id and str(e.get("status",""))=="treating").size()
+		var info:VBoxContainer=_card(parent,L.text("Bergwacht"),L.text("Einsatzradius: %.0f m · Wege, Personal und Wetter entscheiden.") % (1800*int(item.get("level",1))))
+		hud._label(info,L.text("%d Rettungskräfte · %d im Dienst · %d freie Zweierteams") % [employed,Ops.duty(model,"rescue",target),int(free/2)],16,hud.TEAL,true)
+		hud._label(info,L.text("%d Teams unterwegs · %d Patienten in Behandlung") % [active_cases,treating],15,hud.MUTED,true)
 		for event in model.operations.incidents:
 			if event.status=="resolved":continue
 			if event.status!="waiting" and int(event.station)!=lift_id:continue
@@ -285,6 +292,10 @@ func _building_people(parent: Node, item: Dictionary) -> void:
 	if not others.is_empty():_people(_card(parent,L.text("Zusätzliche Besetzung")),others,"building:%d" % lift_id)
 	_build_optional_positions(parent,item)
 
+func _optional_limit(item:Dictionary,role:String)->int:
+	if str(item.get("kind",""))=="first_aid" and role=="rescue":return 4*maxi(1,int(item.get("level",1)))
+	return OPTIONAL_CAP
+
 func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 	var model: RefCounted=hud.game.model
 	if not Ops.ROLES.has(role) or not Ops.SHIFTS.has(shift):return model._result(false,L.text("Diese Personalzuweisung ist nicht möglich."))
@@ -296,7 +307,8 @@ func _optional_hire(role: String,target: String,shift: String) -> Dictionary:
 	else:
 		for row in Ops.building_team(model,model.asset(lift_id)):
 			if str(row.role)==role and str(row.shift)==shift:required=int(row.minimum)
-	if count-required>=OPTIONAL_CAP:return model._result(false,L.text("Maximal drei Zusatzkräfte pro Rolle und Schicht."))
+	var limit:int=_optional_limit(model.asset(lift_id),role)
+	if count-required>=limit:return model._result(false,L.text("Maximal %d Zusatzkräfte pro Rolle und Schicht.") % limit)
 	return Ops.hire(model,role,target,shift)
 
 func _build_optional_positions(parent: Node,item: Dictionary) -> void:
@@ -312,8 +324,9 @@ func _build_optional_positions(parent: Node,item: Dictionary) -> void:
 		for row in Ops.building_team(model,item):
 			if row.role==role and row.shift==shift:minimum=int(row.minimum)
 		var extra: int=maxi(0,count-minimum)
-		var label_text: String=L.text("%s · optional %d/%d · %.0f €/h") % [L.text(str(Ops.ROLES[role].name)),extra,OPTIONAL_CAP,float(Ops.ROLES[role].wage)]
-		var button: Button=_button(box,L.text("+ Einstellen · 180 €  |  ")+label_text,func():return _optional_hire(str(role),target,shift),model.money>=180 and extra<OPTIONAL_CAP)
+		var limit:int=_optional_limit(item,str(role))
+		var label_text: String=L.text("%s · optional %d/%d · %.0f €/h") % [L.text(str(Ops.ROLES[role].name)),extra,limit,float(Ops.ROLES[role].wage)]
+		var button: Button=_button(box,L.text("+ Einstellen · 180 €  |  ")+label_text,func():return _optional_hire(str(role),target,shift),model.money>=180 and extra<limit)
 		button.name="optional_"+str(role)
 
 func _fill_role(role: String, shift: String) -> Dictionary:
