@@ -197,7 +197,14 @@ static func add(office: Control, only: int = -1) -> void:
 				office._action(body, L.text("Pistenraupe kaufen · 65.000 €"), func(): return Ops.buy_groomer(model, int(building.id)),model.money>=65000)
 				office._action(body, L.text("Drei Pistenraupen kaufen · 195.000 €"), func(): return Ops.buy_groomers(model, int(building.id),3),model.money>=195000 and model.operations.vehicles.size()<=21)
 				office._action(body, L.text("Zusätzlichen Pistenraupenfahrer einstellen · 180 €"), func(): return Ops.hire(model,"driver","building:%d" % int(building.id),"evening"),model.money>=180)
-			if building.kind == "first_aid": hud._label(body, L.text("Einsatzradius: %.0f m · Reaktionszeit folgt den tatsächlichen Wegen und dem Wetter.") % (1800 * int(building.get("level", 1))), 16, hud.TEAL, true)
+			if building.kind == "first_aid":
+				var target:String="building:%d" % int(building.id)
+				var employed:int=model.operations.staff.filter(func(p):return str(p.get("assignment",""))==target and str(p.get("role",""))=="rescue").size()
+				var free:int=Ops.free_rescue_crew(model,int(building.id)).size()
+				var travelling:int=model.operations.incidents.filter(func(e):return int(e.get("station",-1))==int(building.id) and str(e.get("status","")) in ["responding","returning"]).size()
+				var treating:int=model.operations.incidents.filter(func(e):return int(e.get("station",-1))==int(building.id) and str(e.get("status",""))=="treating").size()
+				hud._label(body,L.text("%d Rettungskräfte eingestellt · %d im Dienst · %d freie Zweierteams") % [employed,Ops.duty(model,"rescue",target),free/2],16,hud.TEAL,true)
+				hud._label(body,L.text("%d Teams unterwegs · %d Patienten in Behandlung · Einsatzradius %.0f m") % [travelling,treating,1800*int(building.get("level",1))],15,hud.MUTED,true)
 		for vehicle in model.operations.vehicles:
 			var body: VBoxContainer = office._card(services, L.text("Pistenraupe %d") % int(vehicle.id), L.text("%.1f Betriebsstunden · %.0f %% Energie · %.0f %% Verschleiß") % [float(vehicle.hours), float(vehicle.fuel), float(vehicle.wear)])
 			if vehicle.piste < 0 or vehicle.fuel <= 0 or vehicle.wear >= 100: office._action(body, L.text("Warten und auftanken · 800 €"), func(): return Ops.service_vehicle(model, int(vehicle.id)))
@@ -212,11 +219,7 @@ static func add(office: Control, only: int = -1) -> void:
 			office._action(body, L.text("Präparieren · 220 €"), func(): return Ops.groom(model, int(piste.id)))
 		for event in model.operations.incidents:
 			if event.status == "resolved": continue
-			var status_text:String=L.text("Wartet auf Hilfe")
-			match str(event.status):
-				"responding":status_text=L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten") % maxf(0,float(event.remaining))
-				"returning":status_text=L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten") % maxf(0,float(event.get("transport_remaining",0)))
-				"treating":status_text=L.text("Behandlung in der Bergwacht · %.0f Minuten") % maxf(0,float(event.get("treatment_remaining",0)))
+			var status_text:String=Ops.rescue_status(event)
 			var body: VBoxContainer = office._card(services, L.text("Hilferuf · Gast %d") % int(event.guest), status_text)
 			if event.status=="waiting":
 				office._action(body, L.text("Rettung entsenden"), func(): return Ops.dispatch(model, int(event.id)))
