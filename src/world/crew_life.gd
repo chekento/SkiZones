@@ -266,7 +266,7 @@ func build(view: Node3D) -> void:
 		var crew: ArrayMesh=human_mesh(view.visual_style,group)
 		crew.surface_set_material(0,view._solid)
 		var node:=MultiMeshInstance3D.new()
-		node.name="Crew "+group
+		node.name="crew_"+group
 		node.multimesh=view._multimesh(crew,MAX_VISIBLE_STAFF)
 		node.multimesh.visible_instance_count=0
 		root.add_child(node)
@@ -376,7 +376,7 @@ func update(view: Node3D,delta: float) -> void:
 			amount+=1
 			if label_count<staff_labels.size() and view.zoom<220.0:
 				var tag:Label3D=staff_labels[label_count]
-				tag.text=str(worker.get("name","Crew"))+" · "+str(Ops.ROLES.get(str(worker.role),{}).get("name",worker.role))
+				tag.text=str(worker.get("name",worker.id))+" · "+str(Ops.ROLES.get(str(worker.role),{}).get("name",worker.role))
 				tag.position=view.terrain.world(pos,4.8)
 				tag.visible=true
 				label_count+=1
