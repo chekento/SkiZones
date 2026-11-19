@@ -783,10 +783,15 @@ static func _mobile_climb_safe(model:RefCounted,points:Array)->bool:
 
 static func snowmobile_travel_minutes(model:RefCounted,points:Array)->float:
 	if points.size()<2 or not _mobile_climb_safe(model,points):return INF
-	var metres:=0.0
+	var seconds:=0.0
 	for i in range(1,points.size()):
-		metres+=Terrain.unpack(points[i-1]).distance_to(Terrain.unpack(points[i]))
-	return maxf(1.0,metres/500.0*60.0/maxf(1.0,float(model.time_divisor)))
+		var a:Vector2=Terrain.unpack(points[i-1])
+		var b:Vector2=Terrain.unpack(points[i])
+		var uphill:bool=model.terrain.height(b)>model.terrain.height(a)+0.5
+		# About 32 km/h on the open piste and 22 km/h uphill.
+		seconds+=a.distance_to(b)/(6.0 if uphill else 9.0)
+	# Keep vehicle and skier timing in the exact same simulation clock.
+	return maxf(1.0,seconds*0.5*Terrain.journey_clock_scale(model.terrain)/30.0/maxf(1.0,float(model.time_divisor)))
 
 static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
