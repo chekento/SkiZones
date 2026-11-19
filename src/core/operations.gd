@@ -309,7 +309,7 @@ static func assign(model: RefCounted, id: int, target: String, shift: String) ->
 	for person in model.operations.staff:
 		if int(person.id) == id:
 			if _assigned_active_rescue(model,person):
-				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Rückkehr mit dem Patienten im Einsatz."))
 			if not suitable_assignment(model,str(person.role),target):return model._result(false,L.text("Diese Aufgabe passt fachlich nicht zu diesem Gebäude oder dieser Station."))
 			person.assignment = target
 			person.shift = shift
@@ -324,13 +324,17 @@ static func _assigned_active_rescue(model:RefCounted,person:Dictionary)->bool:
 	if not place.begins_with("building:"):return false
 	var id_text:String=place.trim_prefix("building:")
 	if not id_text.is_valid_int():return false
-	return model.operations.incidents.any(func(e):return int(e.get("station",-1))==int(id_text) and str(e.get("status","")) in ["responding","returning","treating"])
+	for event in model.operations.incidents:
+		if int(event.get("station",-1))!=int(id_text) or str(event.get("status","")) not in ["responding","returning"]:continue
+		if not event.has("crew_ids"):return str(person.get("role",""))=="rescue"
+		if event.crew_ids.has(int(person.get("id",-1))):return true
+	return false
 
 static func dismiss(model: RefCounted, id: int) -> Dictionary:
 	for person in model.operations.staff:
 		if int(person.id) == id:
 			if _assigned_active_rescue(model,person):
-				return model._result(false,L.text("Die Rettungskraft ist bis zur Entlassung des Patienten im Einsatz."))
+				return model._result(false,L.text("Die Rettungskraft ist bis zur Rückkehr mit dem Patienten im Einsatz."))
 			model.operations.staff.erase(person)
 			model._duty_cache.clear()
 			model._operational_change()
@@ -683,8 +687,8 @@ static func rescue_active_path(event:Dictionary)->Array:
 
 static func rescue_status(event:Dictionary)->String:
 	match str(event.get("status","")):
-		"responding":return L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten") % maxf(0,float(event.remaining))
-		"returning":return L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten") % maxf(0,float(event.get("transport_remaining",0)))
+		"responding":return (L.text("Snowmobil auf dem Hinweg · %.0f Minuten") if str(event.get("vehicle","skis"))=="snowmobile" else L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten")) % maxf(0,float(event.remaining))
+		"returning":return (L.text("Snowmobil mit Patient im Rücktransport · %.0f Minuten") if str(event.get("vehicle","skis"))=="snowmobile" else L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten")) % maxf(0,float(event.get("transport_remaining",0)))
 		"treating":return L.text("Behandlung in der Bergwacht · %.0f Minuten") % maxf(0,float(event.get("treatment_remaining",0)))
 	if event.get("dispatch_blocked",false):return L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege.")
 	return L.text("Wartet auf Hilfe")
@@ -727,6 +731,74 @@ static func _rescue_transport(model:RefCounted,graph:Dictionary,station:Dictiona
 	if points.size()>512 or Terrain.unpack(points[-1]).distance_to(Foot.door(station))>0.01:return {}
 	return {"points":points,"minutes":rescue_travel_minutes(model,points)}
 
+## Only outbound/returning responders are reserved. Treatment frees the team.
+## Legacy saves without IDs conservatively reserve two responders per incident.
+static func free_rescue_crew(model:RefCounted,station_id:int)->Array:
+	var place:String="building:%d" % station_id
+	var busy:Dictionary={}
+	var legacy:int=0
+	for event in model.operations.incidents:
+		if int(event.get("station",-1))!=station_id or str(event.get("status","")) not in ["responding","returning"]:continue
+		if event.has("crew_ids"):
+			for person_id in event.crew_ids:busy[int(person_id)]=true
+		else:legacy+=2
+	var available:Array=[]
+	for person in model.operations.staff:
+		if str(person.get("role",""))=="rescue" and str(person.get("assignment",""))==place and on_duty(model,person) and not busy.has(int(person.id)):
+			available.append(int(person.id))
+	available.sort()
+	if legacy>0:available=available.slice(mini(legacy,available.size()))
+	return available
+
+## Only existing connected ski and walk edges can carry the snowmobile.
+## Reversing a piste edge is permitted when its ascent is below 32%.
+static func _mobile_graph(model:RefCounted,graph:Dictionary)->Dictionary:
+	var edges:Dictionary={}
+	for key in graph.edges:
+		edges[key]=[]
+		for leg in graph.edges[key]:
+			if str(leg.get("kind","")) in ["walk","ski"]:edges[key].append(leg)
+	for key in graph.edges:
+		for leg in graph.edges[key]:
+			if str(leg.get("kind",""))!="ski":continue
+			var reverse_points:Array=leg.points.duplicate(true)
+			reverse_points.reverse()
+			if not _mobile_climb_safe(model,reverse_points):continue
+			var reversed_edge:Dictionary=leg.duplicate(true)
+			reversed_edge.from=leg.to
+			reversed_edge.to=leg.from
+			reversed_edge.points=reverse_points
+			reversed_edge.minutes=maxf(0.15,float(leg.minutes)*1.15)
+			if edges.has(str(leg.to)):edges[str(leg.to)].append(reversed_edge)
+	return {"nodes":graph.nodes,"edges":edges}
+
+static func _mobile_climb_safe(model:RefCounted,points:Array)->bool:
+	if points.size()<2:return false
+	for i in range(1,points.size()):
+		var a:Vector2=Terrain.unpack(points[i-1])
+		var b:Vector2=Terrain.unpack(points[i])
+		var span:float=a.distance_to(b)
+		if span>0.01 and (model.terrain.height(b)-model.terrain.height(a))/span>0.32:return false
+	return true
+
+static func rescue_path_metres(points:Array)->float:
+	var metres:=0.0
+	for i in range(1,points.size()):
+		metres+=Terrain.unpack(points[i-1]).distance_to(Terrain.unpack(points[i]))
+	return metres
+
+static func snowmobile_travel_minutes(model:RefCounted,points:Array)->float:
+	if points.size()<2 or not _mobile_climb_safe(model,points):return INF
+	var seconds:=0.0
+	for i in range(1,points.size()):
+		var a:Vector2=Terrain.unpack(points[i-1])
+		var b:Vector2=Terrain.unpack(points[i])
+		var uphill:bool=model.terrain.height(b)>model.terrain.height(a)+0.5
+		# About 32 km/h on the open piste and 22 km/h uphill.
+		seconds+=a.distance_to(b)/(6.0 if uphill else 9.0)
+	# Keep vehicle and skier timing in the exact same simulation clock.
+	return maxf(1.0,seconds*0.5*Terrain.journey_clock_scale(model.terrain)/30.0/maxf(1.0,float(model.time_divisor)))
+
 static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
 		if int(event.id) != id or event.status != "waiting": continue
@@ -735,14 +807,17 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 		var best_points:Array=[]
 		var best_transport:Dictionary={}
 		var best_response:=0.0
+		var best_crew:Array=[]
+		var best_vehicle:String="skis"
 		var position:=Terrain.unpack(event.point)
 		var graph:Dictionary=model._routing_graph(2)
 		var transport_graph:Dictionary=_rescue_transport_graph(graph)
+		var mobile_graph:Dictionary=_mobile_graph(model,graph)
 		var candidates:Array=_rescue_slope_candidates(graph,position)
 		for building in model.buildings:
 			if building.kind != "first_aid" or (station_id >= 0 and int(building.id) != station_id) or not building_open(model, building): continue
-			var busy: bool = model.operations.incidents.any(func(e): return str(e.status) in ["responding","returning","treating"] and int(e.station) == int(building.id))
-			if busy: continue
+			var crew:Array=free_rescue_crew(model,int(building.id))
+			if crew.size()<2:continue
 			var distance := Terrain.unpack(building.point).distance_to(position)
 			if distance > 1800 * int(building.get("level", 1)): continue
 			var route:Dictionary={}
@@ -780,6 +855,26 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 				if points.is_empty():continue
 			if points.is_empty() or transport.is_empty():continue
 			var time:float=rescue_travel_minutes(model,points)
+			var vehicle:String="skis"
+			for candidate in candidates:
+				var lower_piste:Array=candidate.return_points.duplicate(true)
+				lower_piste.reverse()
+				# A casualty halfway down the slope can be reached from either
+				# end. The second option climbs only the remaining lower section.
+				for approach in [{"node":candidate.from,"tail":candidate.points},
+					{"node":candidate.to,"tail":lower_piste}]:
+					var mobile_route:Dictionary=model._shortest(mobile_graph,"d%d" % int(building.id),str(approach.node))
+					if not mobile_route.ok:continue
+					var combined:Array=mobile_route.legs.duplicate()
+					combined.append({"points":approach.tail})
+					var mobile_points:Array=_rescue_route_points(model,building,{"legs":combined},position)
+					if mobile_points.is_empty():continue
+					var mobile_eta:float=snowmobile_travel_minutes(model,mobile_points)
+					var shorter_route:bool=is_equal_approx(mobile_eta,time) and rescue_path_metres(mobile_points)<rescue_path_metres(points)*0.8
+					if mobile_eta<time or shorter_route:
+						time=mobile_eta
+						points=mobile_points
+						vehicle="snowmobile"
 			time*=1.5 if model.weather_index in [2,3] else 1.0
 			transport.minutes*=1.5 if model.weather_index in [2,3] else 1.0
 			if time+float(transport.minutes) < best:
@@ -788,11 +883,15 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 				station = int(building.id)
 				best_points=points
 				best_transport=transport
+				best_crew=crew.slice(0,2)
+				best_vehicle=vehicle
 		if station < 0:
 			event.dispatch_blocked=true
 			return model._result(false, L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege."))
 		event.erase("dispatch_blocked")
 		event.station = station
+		event.crew_ids=best_crew
+		event.vehicle=best_vehicle
 		event.remaining = best_response
 		event.response_duration = best_response
 		event.response_started = clock(model)
@@ -807,7 +906,7 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 		# Bandages, heat blankets and on-slope consumables are an actual
 		# case-based expense, separate from already accounted staff payroll.
 		_charge(model,90.0 if str(event.reason) in ["fatigue","navigation"] else 165.0,"rescue:%d" % station)
-		return model._result(true, L.text("Zwei Ski-Rettungskräfte sind unterwegs. Trage, Rücktransport und Behandlung folgen."))
+		return model._result(true, L.text("Zwei Rettungskräfte sind unterwegs. Rücktransport und Behandlung folgen."))
 	return model._result(false, L.text("Kein offener Hilferuf gefunden."))
 
 static func _expense(model: RefCounted, amount: float, centre: String) -> bool:
@@ -967,10 +1066,11 @@ static func tick(model: RefCounted) -> void:
 				continue
 			# Do not interrupt a rescue already in progress if that clinic
 			# was closed on an earlier game version.
-			if not building_open(model,station):
+			if not building_open(model,station) and str(event.status) in ["responding","returning"]:
 				var overtime_count:=0
 				for person in model.operations.staff:
 					if str(person.role)!="rescue" or str(person.assignment)!="building:%d" % int(station.id) or on_duty(model,person):continue
+					if event.has("crew_ids") and not event.crew_ids.has(int(person.id)):continue
 					if overtime_count>=2:break
 					var overtime:float=float(person.wage)/60.0
 					_charge(model,overtime,"building:%d" % int(station.id))
@@ -1181,6 +1281,12 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 	for event in state.incidents:
 		if not event is Dictionary or event.get("status") not in ["waiting","responding","returning","treating","resolved"]: return false
 		if event.has("dispatch_blocked") and not event.dispatch_blocked is bool:return false
+		if event.has("vehicle") and str(event.vehicle) not in ["skis","snowmobile"]:return false
+		if event.has("crew_ids"):
+			if not event.crew_ids is Array or event.crew_ids.size()!=2 or event.crew_ids[0]==event.crew_ids[1]:return false
+			for crew_id in event.crew_ids:
+				if not Terrain.number(crew_id) or crew_id<0 or crew_id!=floorf(crew_id) or crew_id>=state.next_staff:return false
+				if str(event.status) in ["responding","returning"] and not ids.has(int(crew_id)):return false
 		for field in ["response_duration","response_started","return_duration","transport_remaining","treatment_duration","treatment_remaining"]:
 			if event.has(field) and (not Terrain.number(event[field]) or event[field]<0 or event[field]>1000000000):return false
 		for key in ["id", "guest", "created", "station", "remaining"]:

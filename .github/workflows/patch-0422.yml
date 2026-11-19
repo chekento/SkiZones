@@ -1,0 +1,52 @@
+name: 0.42.2 rescue teams, staff and night regressions
+on:
+  pull_request:
+    paths:
+      - 'src/core/operations.gd'
+      - 'src/core/resort.gd'
+      - 'src/core/day_rhythm.gd'
+      - 'src/main.gd'
+      - 'src/world/crew_life.gd'
+      - 'src/ui/operating_pages.gd'
+      - 'src/ui/lift_staff.gd'
+      - 'tests/patch_0422.gd'
+      - 'tests/professional_rescue_041.gd'
+      - 'tests/rescue_routes_042.gd'
+      - 'tests/quiet_night_033.gd'
+      - '.github/workflows/patch-0422.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: patch-0422-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import project
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: 0.42.2 actual employees, parallel dispatch, assets and saves
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/patch_0422.gd
+      - name: 0.42.1 rescue and route compatibility
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/professional_rescue_041.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/rescue_routes_042.gd
+      - name: Empty-night and morning guest capacity
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/quiet_night_033.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/pacing_and_nights.gd
