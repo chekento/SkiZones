@@ -10908,3 +10908,33 @@ msgstr "Completed \u00b7 cooking flow tested in development"
 
 msgid "Garpunkt · grün stoppen"
 msgstr "Cooking \u00b7 stop in green"
+
+msgid "Die Rettungskraft ist bis zur Rückkehr mit dem Patienten im Einsatz."
+msgstr "The rescuer is on duty until the patient has been returned."
+
+msgid "Snowmobil auf dem Hinweg · %.0f Minuten"
+msgstr "Snowmobile en route · %.0f minutes"
+
+msgid "Snowmobil mit Patient im Rücktransport · %.0f Minuten"
+msgstr "Snowmobile transporting the patient · %.0f minutes"
+
+msgid "Zwei Rettungskräfte sind unterwegs. Rücktransport und Behandlung folgen."
+msgstr "Two rescuers have been dispatched. Patient transport and treatment will follow."
+
+msgid "Einsatzradius: %.0f m · Wege, Personal und Wetter entscheiden."
+msgstr "Service radius: %.0f m · Access routes, staffing and weather determine response."
+
+msgid "%d Rettungskräfte · %d im Dienst · %d freie Zweierteams"
+msgstr "%d rescuers · %d on duty · %d available two-person teams"
+
+msgid "%d Teams unterwegs · %d Patienten in Behandlung"
+msgstr "%d teams in the field · %d patients in treatment"
+
+msgid "Maximal %d Zusatzkräfte pro Rolle und Schicht."
+msgstr "Maximum %d additional staff per role and shift."
+
+msgid "%d Rettungskräfte eingestellt · %d im Dienst · %d freie Zweierteams"
+msgstr "%d rescuers employed · %d on duty · %d available two-person teams"
+
+msgid "%d Teams unterwegs · %d Patienten in Behandlung · Einsatzradius %.0f m"
+msgstr "%d teams in the field · %d patients in treatment · service radius %.0f m"
