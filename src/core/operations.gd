@@ -5,6 +5,7 @@ const Terrain = preload("res://src/core/terrain.gd")
 const Catalog = preload("res://src/core/catalog.gd")
 const PublicWC = preload("res://src/core/public_wc.gd")
 const Foot = preload("res://src/core/foot_network.gd")
+const Motion = preload("res://src/core/ski_motion.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const Snow = preload("res://src/core/snow_surface.gd")
 const Progression = preload("res://src/core/progression.gd")
@@ -667,11 +668,12 @@ static func rescue_path_point(points:Array,ratio:float)->Vector2:
 		traveled+=span
 	return Terrain.unpack(points[-1])
 
-static func rescue_fraction(event:Dictionary)->float:
+## Interpolate a rescue between full calendar minutes, preserving save format.
+static func rescue_fraction(event:Dictionary,minute_fraction:float=0.0)->float:
 	match str(event.get("status","")):
-		"responding":return clampf(1.0-float(event.get("remaining",0))/maxf(1.0,float(event.get("response_duration",1))),0,1)
+		"responding":return clampf(1.0-(float(event.get("remaining",0))-clampf(minute_fraction,0.0,1.0))/maxf(0.001,float(event.get("response_duration",1))),0,1)
 		"returning":
-			var remaining:float=clampf(float(event.get("transport_remaining",0))/maxf(1.0,float(event.get("return_duration",1))),0,1)
+			var remaining:float=clampf((float(event.get("transport_remaining",0))-clampf(minute_fraction,0.0,1.0))/maxf(0.001,float(event.get("return_duration",1))),0,1)
 			return 1.0-remaining if event.has("return_route_points") else remaining
 	return 0.0
 
@@ -687,15 +689,23 @@ static func rescue_status(event:Dictionary)->String:
 	if event.get("dispatch_blocked",false):return L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege.")
 	return L.text("Wartet auf Hilfe")
 
-static func rescue_location(model:RefCounted,event:Dictionary)->Vector2:
+static func rescue_location(model:RefCounted,event:Dictionary,minute_fraction:float=0.0)->Vector2:
 	if str(event.get("status","")) in ["treating","resolved"]:
 		var clinic:Dictionary=model.asset(int(event.get("station",-1)))
 		if not clinic.is_empty():return Foot.door(clinic)
 	var points:Array=rescue_active_path(event)
-	if points.size()>=2:return rescue_path_point(points,rescue_fraction(event))
+	if points.size()>=2:return rescue_path_point(points,rescue_fraction(event,minute_fraction))
 	var station:Dictionary=model.asset(int(event.get("station",-1)))
 	if station.is_empty():return Terrain.unpack(event.point)
-	return Terrain.unpack(station.point).lerp(Terrain.unpack(event.point),rescue_fraction(event))
+	return Terrain.unpack(station.point).lerp(Terrain.unpack(event.point),rescue_fraction(event,minute_fraction))
+
+## Derive rescue travel from the same terrain-dependent motion used by an
+## intermediate skier NPC; trained rescuers gain a modest 8% speed bonus.
+## Motion minutes are movement ticks, converted to the calendar clock.
+static func rescue_travel_minutes(model:RefCounted,points:Array)->float:
+	if points.size()<2:return 1.0
+	var motion:Dictionary=Motion.travel_profile(model.terrain,points,1,1.08)
+	return maxf(1.0,float(motion.minutes)/maxf(1.0,float(model.time_divisor)))
 
 ## Loaded stretchers use downhill ski and pedestrian links, never a reversed tow.
 static func _rescue_transport_graph(graph:Dictionary)->Dictionary:
@@ -709,16 +719,13 @@ static func _rescue_transport(model:RefCounted,graph:Dictionary,station:Dictiona
 	var start:Vector2=Terrain.unpack(suffix[0]) if not suffix.is_empty() else Terrain.unpack(graph.nodes[node])
 	var points:Array=Foot.path_between(position,start,model.buildings,model.lifts)
 	if points.size()<2:return {}
-	var minutes:float=4.0+Terrain.polyline_length(points)/60.0
 	for point in suffix:
 		if points[-1]!=point:points.append(point.duplicate())
-	minutes+=Terrain.polyline_length(suffix)/60.0
 	for leg in home.legs:
-		minutes+=float(leg.minutes)/model.time_divisor
 		for point in leg.points:
 			if points[-1]!=point:points.append(point.duplicate())
 	if points.size()>512 or Terrain.unpack(points[-1]).distance_to(Foot.door(station))>0.01:return {}
-	return {"points":points,"minutes":maxf(8.0,minutes*1.25)}
+	return {"points":points,"minutes":rescue_travel_minutes(model,points)}
 
 static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictionary:
 	for event in model.operations.incidents:
@@ -742,7 +749,6 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 			var points:Array=[]
 			var transport:Dictionary={}
 			var delta:=INF
-			var slope_fraction:=0.0
 			# First try the piste centerline. Graph nodes may exist only
 			# at top/bottom while the skier is injured halfway down.
 			for candidate in candidates:
@@ -755,8 +761,6 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 				points=_rescue_route_points(model,building,{"legs":combined},position)
 				if points.is_empty():continue
 				delta=float(candidate.off)
-				for i in range(1,candidate.points.size()):
-					slope_fraction+=Terrain.unpack(candidate.points[i-1]).distance_to(Terrain.unpack(candidate.points[i]))/60.0
 				break
 			# Fallback for a footpath, lift evacuation, or an accident near
 			# a connected graph node outside the defined piste corridor.
@@ -775,8 +779,7 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 				points=_rescue_route_points(model,building,route,position)
 				if points.is_empty():continue
 			if points.is_empty() or transport.is_empty():continue
-			var time:=4.0+delta/60.0+slope_fraction+absf(model.terrain.height(Terrain.unpack(building.point))-model.terrain.height(position))/100.0
-			for leg in route.legs:time+=float(leg.minutes)/model.time_divisor
+			var time:float=rescue_travel_minutes(model,points)
 			time*=1.5 if model.weather_index in [2,3] else 1.0
 			transport.minutes*=1.5 if model.weather_index in [2,3] else 1.0
 			if time+float(transport.minutes) < best:
@@ -979,7 +982,7 @@ static func tick(model: RefCounted) -> void:
 				if event.remaining<=0:
 					event.remaining=0.0
 					event.status="returning"
-					event.return_duration=maxf(8.0,float(event.get("return_duration",float(event.get("response_duration",12.0))*1.25)))
+					event.return_duration=maxf(1.0,float(event.get("return_duration",float(event.get("response_duration",12.0))*1.25)))
 					event.transport_remaining=event.return_duration
 			elif event.status == "returning":
 				event.transport_remaining=float(event.get("transport_remaining",8.0))-1.0
