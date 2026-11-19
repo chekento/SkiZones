@@ -4,6 +4,7 @@ const Resort=preload("res://src/core/resort.gd")
 const Ops=preload("res://src/core/operations.gd")
 const Foot=preload("res://src/core/foot_network.gd")
 const Terrain=preload("res://src/core/terrain.gd")
+const Motion=preload("res://src/core/ski_motion.gd")
 var passed:=0
 var failed:=0
 func _init()->void:call_deferred("run")
