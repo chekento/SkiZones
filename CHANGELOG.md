@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **54 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **55 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.42.2](https://github.com/chekento/SkiZones/releases/tag/v0.42.2)** | 19.11.2026 | Personal, Bergwacht und beschleunigte Nächte | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.2/SkiZones-0.42.2-android-arm64.apk) | [Details](docs/releases/0.42.2.md) |
 | **[v0.42.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.1)** | 19.11.2026 | Hotfix für Liftbewegung und Pistenrettung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.1/SkiZones-0.42.1-android-arm64.apk) | [Details](docs/releases/0.42.1.md) |
 | **[v0.42.0](https://github.com/chekento/SkiZones/releases/tag/v0.42.0)** | 16.11.2026 | Alpenwelt, NPCs und Pistenwerkstatt | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk) | [Details](docs/releases/0.42.0.md) |
 | **[v0.41.1](https://github.com/chekento/SkiZones/releases/tag/v0.41.1)** | 11.11.2026 | Android Preview · Rettungs- und Personal-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.41.1/SkiZones-0.41.1-android-arm64.apk) | [Details](docs/releases/0.41.1.md) |
@@ -64,6 +65,30 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 | **[v0.42.0-test.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1)** | 15.11.2026 | Test 1 für Android ARM64 | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.42.2 · Personal, Bergwacht und beschleunigte Nächte (19.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.2) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.2/SkiZones-0.42.2-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.2/SkiZones-0.42.2-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.2/manifest.json) · [Originalnotizen](docs/releases/0.42.2.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.2)
+
+Android ARM64 · VersionCode **59**. Basiert auf dem veröffentlichten Patch **0.42.1**. **Vor dem öffentlichen Download sind grüne CI, Android-Signaturkontinuität und die Bestandsspielstände Pflicht.**
+
+### Änderungen
+
+- **Personal ist tatsächlich besetzt:** Alle eingestellten Mitarbeiter bleiben individuelle, lohnpflichtige Personen mit zugewiesenem Gebäude bzw. Liftstation und konkreter Schicht. Die Bergwacht zeigt die eingestellten, diensthabenden und verfügbaren Rettungskräfte sowie aktive Teams und behandelte Patienten. Die zusätzliche Bergwacht-Besetzung wächst mit dem Gebäudelevel.
+- **Mehrere Bergwachten / parallele Rettung:** Pro Hilferuf werden zwei tatsächlich verfügbare, diensthabende Retter über ihre Personal-IDs reserviert. Weitere qualifizierte Zweierteams aus demselben Gebäude oder aus anderen Bergwachen können gleichzeitig ausrücken. Nach Ankunft mit dem Patienten in der Bergwacht sind die beiden Retter wieder disponibel; die Behandlung läuft als eigener Fall weiter. Kein Doppelzählen einzelner Mitarbeiter. Aktive Teams können nicht versetzt oder entlassen werden.
+- **Snowmobil:** Eine Schneemobil-Anfahrt nutzt ausschließlich zusammenhängende vorhandene Wege/Pisten; auf geeigneten Pisten sind sichere bergauf verlaufende Teilstrecken möglich. Auswahl nur wenn die Modell-Reisezeit tatsächlich günstiger ist; Ski-Teams bleiben als Alternative. Eigenständige Fahrzeug- und Patientengrafik.
+- **Nacht:** Wenn keine unsicheren Außeneinsätze mehr laufen, bekommt die nächtliche Kalenderbeschleunigung ein größeres, aber weiterhin begrenztes Rechenbudget. Es werden keine nächtlichen Ski-NPCs erzeugt; statt dessen wird maximal 24-mal Nachfrage vorgemerkt und nach Öffnung in begrenzten Besucherwellen zu realen Gästen mit realen Routen.
+- **Crew-Assets:** Sechs differenzierte Berufsgruppen mit typischer Ausrüstung/Uniform, kleine Bewegungen im Gebäudeumfeld, schichtbasierter Arbeitsweg und bedarfsabhängige Namens-/Rollenbeschriftungen. Rendering in GPU-Instanzen mit Distanzbegrenzung.
+
+### Kompatibilität und Freigabe
+
+- Keine neue Pflichtstruktur im Spielstand. Ältere Rettungsvorgänge ohne Team-IDs oder Fahrzeugtyp bleiben ladbar.
+- Reale Fälle inkl. paralleler Rücktransporte, mehrerer Gebäude, laufender Behandlung, Schichtwechseln und Save/Restore testen.
+- Frühere Karriere-Spielstände ab den unterstützten Releases müssen ladbar und reparierbar bleiben.
+- Android 30/36, Updatesignatur zu 0.42.1 sowie Bedien-/Performanceprüfung auf dem Gerät durchführen.
+- Erst nach vollständiger Freigabe ist die reguläre **SkiZones 0.42.2 APK** verfügbar.
+
+---
 
 ## v0.42.1 · Hotfix für Liftbewegung und Pistenrettung (19.11.2026)
 
