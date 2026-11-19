@@ -95,5 +95,5 @@ func run()->void:
 	finish()
 
 func finish()->void:
-	print("0.42.2 PATCH: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
