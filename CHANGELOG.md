@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **53 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **54 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.42.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.1)** | 19.11.2026 | Hotfix für Liftbewegung und Pistenrettung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.1/SkiZones-0.42.1-android-arm64.apk) | [Details](docs/releases/0.42.1.md) |
 | **[v0.42.0](https://github.com/chekento/SkiZones/releases/tag/v0.42.0)** | 16.11.2026 | Alpenwelt, NPCs und Pistenwerkstatt | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0/SkiZones-0.42.0-android-arm64.apk) | [Details](docs/releases/0.42.0.md) |
 | **[v0.41.1](https://github.com/chekento/SkiZones/releases/tag/v0.41.1)** | 11.11.2026 | Android Preview · Rettungs- und Personal-Hotfix | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.41.1/SkiZones-0.41.1-android-arm64.apk) | [Details](docs/releases/0.41.1.md) |
 | **[v0.40.1](https://github.com/chekento/SkiZones/releases/tag/v0.40.1)** | 10.11.2026 | Karriere-Rettung und Saisontermine | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.40.1/SkiZones-0.40.1-android-arm64.apk) | [Details](docs/releases/0.40.1.md) |
@@ -63,6 +64,29 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 | **[v0.42.0-test.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1)** | 15.11.2026 | Test 1 für Android ARM64 | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.42.1 · Hotfix für Liftbewegung und Pistenrettung (19.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.1) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.1/SkiZones-0.42.1-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.1/SkiZones-0.42.1-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.1/manifest.json) · [Originalnotizen](docs/releases/0.42.1.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.1)
+
+Hotfix-Kandidat vom 19. November 2026. Android ARM64 · VersionCode **58**. Release erst nach erfolgreichen CI-, Android- und Spielstandsprüfungen.
+
+### Fehlerbehebungen
+
+- **Lifte bei 1× und 4×:** Die Darstellung übernimmt die tatsächliche Bewegungsschrittfrequenz des Spiels, auch bei 24 Bewegungsschritten pro Kalenderminute. Die Prüfung auf Positionsänderungen nutzt eine absolute Schwelle, sodass lange Spielstände mit großen Lift-Zeitwerten nicht scheinbar einfrieren. Fahrgäste, Stationslogik, 8×, Pause und Kamera-Rückkehr bleiben mit der Simulation gekoppelt.
+- **Pistenrettung:** Anfahrt und beladener Rücktransport erhalten die gleiche Bewegungskurve wie normale Skifahrer mittlerer Stufe, mit **8 % Geschwindigkeitsvorteil**. Statt pauschaler Reisezeit-Aufschläge wird die Strecke anhand der tatsächlichen Geländegeometrie berechnet. Die Darstellung interpoliert zwischen Kalenderminuten.
+- **Unverändert:** Sicherer Rücktransport zur Klinik, Personaleinsatz, Patient und Trage, Behandlung von 60–120 Spielminuten, gespeicherte Rettungsvorgänge und Spielstandformat.
+
+### Regressionen vor Freigabe
+
+- Liftanimation 1× und 4× auch an späten Spieltagen, Rückschalten 8× auf 1×
+- Skifahrer-/Rettungs-Geschwindigkeitsvergleich; Hin- und Rückweg einschließlich Trage
+- Pistenrettung und alle historischen Spielstände
+- Android-Paket mit Versionscode 58, App-Signatur und Installation über Version 0.42.0
+
+Die öffentliche Download-Verlinkung bleibt bis zur Verifikation auf Version 0.42.0.
+
+---
 
 ## v0.42.0 · Alpenwelt, NPCs und Pistenwerkstatt (16.11.2026)
 
