@@ -687,8 +687,8 @@ static func rescue_active_path(event:Dictionary)->Array:
 
 static func rescue_status(event:Dictionary)->String:
 	match str(event.get("status","")):
-		"responding":return L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten") % maxf(0,float(event.remaining))
-		"returning":return L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten") % maxf(0,float(event.get("transport_remaining",0)))
+		"responding":return (L.text("Snowmobil auf dem Hinweg · %.0f Minuten") if str(event.get("vehicle","skis"))=="snowmobile" else L.text("Zwei Skiretter auf dem Hinweg · %.0f Minuten")) % maxf(0,float(event.remaining))
+		"returning":return (L.text("Snowmobil mit Patient im Rücktransport · %.0f Minuten") if str(event.get("vehicle","skis"))=="snowmobile" else L.text("Verletzter auf Trage im Rücktransport · %.0f Minuten")) % maxf(0,float(event.get("transport_remaining",0)))
 		"treating":return L.text("Behandlung in der Bergwacht · %.0f Minuten") % maxf(0,float(event.get("treatment_remaining",0)))
 	if event.get("dispatch_blocked",false):return L.text("Kein freies, besetztes Rettungsteam erreicht diesen Ort über sichere Wege.")
 	return L.text("Wartet auf Hilfe")
