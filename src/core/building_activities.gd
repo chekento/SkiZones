@@ -6,6 +6,7 @@ const Hospitality = preload("res://src/core/hospitality.gd")
 const HotelWorld = preload("res://src/core/hotel_microworld.gd")
 const SectorCases = preload("res://src/core/sector_decisions.gd")
 const Kitchen = preload("res://src/core/kitchen_043.gd")
+const Beverages = preload("res://src/core/beverages_043.gd")
 const ACTIVITIES := {
 	"wc_dixi":{"title":"Dixi-Service-Runde","mode":"orders","hint":"Prüfe mobile Toiletten: Tank, Reinigung, Papier und Frostschutz.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
 	"wc_cabin":{"title":"Kabinen-Servicerunde","mode":"orders","hint":"Ordne den richtigen Wartungsauftrag den Winter-Kabinen zu.","choices":["Tank leeren","Desinfizieren","Papier auffüllen","Frostschutz prüfen"]},
@@ -48,13 +49,14 @@ static func spec(kind: String) -> Dictionary:
 static func start(model: RefCounted, id: int, hands_on: bool = false) -> Dictionary:
 	var building: Dictionary = model.asset(id)
 	if not Catalog.BUILDINGS.has(building.get("kind", "")) or spec(str(building.kind)).is_empty() or not building.enabled: return {"ok":false, "message":L.text("Zuerst das Gebäude errichten und öffnen.")}
-	if hands_on and not Kitchen.supported(str(building.kind)):return {"ok":false}
+	if hands_on and not Kitchen.supported(str(building.kind)) and not Beverages.available(building):return {"ok":false,"message":L.text("Für diese Praxisschicht zuerst das passende Angebot freischalten.")}
 	return {"ok":true, "id":id, "day":model.day, "step":0, "score":0, "answers":[], "finished":false,"hands_on":hands_on}
 
 static func challenge(model: RefCounted, session: Dictionary) -> Dictionary:
 	var building: Dictionary = model.asset(int(session.get("id", -1)))
 	if building.is_empty() or int(session.get("step", 5)) >= 5: return {}
-	if session.get("hands_on",false):return Kitchen.recipe(building,int(session.day),int(session.step))
+	if session.get("hands_on",false):
+		return Beverages.recipe(building,int(session.day),int(session.step)) if Beverages.supported(str(building.kind)) else Kitchen.recipe(building,int(session.day),int(session.step))
 	var definition := spec(str(building.kind))
 	var seed_value: int = int(building.id) * 31 + int(session.day) * 17 + int(session.step) * 13
 	var choices: Array = definition.choices.duplicate()
@@ -80,6 +82,9 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 	if task.mode == "cooking":
 		if not Kitchen.valid_proof(task,input):return {"ok":false}
 		score=Kitchen.score(task,input)
+	elif task.mode == "mixing":
+		if not Beverages.valid_proof(task,input):return {"ok":false}
+		score=Beverages.score(task,input)
 	elif task.mode == "hotel_story":
 		score = HotelWorld.score(task,input)
 	elif task.mode == "decision":
@@ -135,4 +140,11 @@ static func answer(model: RefCounted, session: Dictionary, input: Variant) -> Di
 		state["hotel_story_best"] = maxi(int(previous.get("hotel_story_best",0)),average)
 	building.activity = state
 	return {"ok":true, "finished":true, "score":average, "reward":reward, "bonus":state.bonus, "message":L.text("Schicht beendet · %d Punkte · %d € Prämie · +%d %% Service heute") % [average, reward, int(state.bonus)]}
+
+static func journal(model:RefCounted,id:int)->Dictionary:
+	var building:Dictionary=model.asset(id)
+	var state:Dictionary=building.get("activity",{})
+	var current:bool=int(state.get("day",-1))==int(model.day)
+	var plays:int=clampi(int(state.get("plays",0)),0,3) if current else 0
+	return {"plays":plays,"remaining":3-plays,"best":int(state.get("best",0)) if current else 0,"bonus":int(state.get("bonus",0)) if current else 0}
 

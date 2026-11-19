@@ -10908,3 +10908,144 @@ msgstr "Completed \u00b7 cooking flow tested in development"
 
 msgid "Garpunkt · grün stoppen"
 msgstr "Cooking \u00b7 stop in green"
+
+msgid "Alpen-Mocktail"
+msgstr "Alpine mocktail"
+
+msgid "Limettensaft"
+msgstr "Lime juice"
+
+msgid "Mineralwasser"
+msgstr "Sparkling water"
+
+msgid "Limette"
+msgstr "Lime"
+
+msgid "Beeren-Spritz"
+msgstr "Berry spritz"
+
+msgid "Beerensaft"
+msgstr "Berry juice"
+
+msgid "Zitronensaft"
+msgstr "Lemon juice"
+
+msgid "Minze"
+msgstr "Mint"
+
+msgid "Winterorange"
+msgstr "Winter orange"
+
+msgid "Orangensaft"
+msgstr "Orange juice"
+
+msgid "Orange"
+msgstr "Orange"
+
+msgid "Für diese Praxisschicht zuerst das passende Angebot freischalten."
+msgstr "Unlock the matching offer before starting this practical shift."
+
+msgid "Donut-Ringwurf"
+msgstr "Donut ring toss"
+
+msgid "Mit Berg-Donuts ab Gebäudestufe 3 freigeschaltet."
+msgstr "Unlocks with Alpine donuts at building level 3."
+
+msgid "Donut-Ringwurf · fünf Würfe"
+msgstr "Donut ring toss · five throws"
+
+msgid "Ziehe den Donut nach unten und seitlich zum Zielen. Loslassen wirft ihn auf die Holzstifte; die Punkte zeigen die Flugbahn. Fünf Würfe, kein Einsatz und keine Geldprämie."
+msgstr "Pull the donut down and sideways to aim. Release to throw at the wooden pegs; the dots show the trajectory. Five throws, no stake or cash reward."
+
+msgid "Mixschicht starten · fünf Getränke"
+msgstr "Start mixing shift · five drinks"
+
+msgid "Zutaten ziehen, schütteln, dosiert ausschenken, garnieren und servieren. Wird mit dem Mocktail-Angebot ab Gebäudestufe %d freigeschaltet."
+msgstr "Drag ingredients, shake, pour carefully, garnish and serve. Unlocks with the mocktail offer at building level %d."
+
+msgid "Dein Schichtjournal"
+msgstr "Your shift journal"
+
+msgid "Heute %d / 3 Tagesprämien · %d übrig\nBeste Schicht: %d Punkte · Servicebonus heute: +%d %%"
+msgstr "Today %d / 3 daily rewards · %d remaining\nBest shift: %d points · service bonus today: +%d %%"
+
+msgid "Diese Praxisschicht ist nicht mehr verfügbar. Starte sie erneut."
+msgstr "This practical shift is no longer available. Please start it again."
+
+msgid "Treffer · +%d Punkte"
+msgstr "Hit · +%d points"
+
+msgid "Knapp vorbei · nächster Wurf"
+msgstr "Just missed · next throw"
+
+msgid "Ringwurf · %d / 5 · %d Punkte"
+msgstr "Ring toss · %d / 5 · %d points"
+
+msgid "Neue fünf Würfe"
+msgstr "Five new throws"
+
+msgid "Ziehe die drei Zutaten in den Shaker."
+msgstr "Drag the three ingredients into the shaker."
+
+msgid "Schüttle mit sechs kurzen seitlichen Bewegungen · %d / 6"
+msgstr "Shake with six short sideways motions · %d / 6"
+
+msgid "Ausschank gedrückt halten und bei der grünen Markierung loslassen."
+msgstr "Hold to pour and release at the green mark."
+
+msgid "Ziehe die Garnitur auf das gefüllte Glas."
+msgstr "Drag the garnish onto the filled glass."
+
+msgid "Ziehe das fertige Getränk in die grüne Ausgabe."
+msgstr "Drag the finished drink to the green serving counter."
+
+msgid "Zutaten in den Shaker ziehen"
+msgstr "Drag ingredients into the shaker"
+
+msgid "Schütteln · %d / 6"
+msgstr "Shake · %d / 6"
+
+msgid "Halten · bei Grün loslassen"
+msgstr "Hold · release in green"
+
+msgid "Garnitur auf das Glas ziehen"
+msgstr "Drag garnish onto the glass"
+
+msgid "Getränk zur Ausgabe ziehen"
+msgstr "Drag drink to the serving counter"
+
+msgid "%d / 3"
+msgstr "%d / 3"
+
+msgid "Gedrückt halten"
+msgstr "Hold to pour"
+
+msgid "Lokal geprüft · weitere Abnahme offen"
+msgstr "Locally tested · further acceptance pending"
+
+msgid "Zutaten einfüllen, schütteln, dosieren, garnieren und servieren. Die Mixschicht ist an das echte Mocktail-Angebot von Bar und Disco gebunden und teilt deren Tagesprämiengrenze."
+msgstr "Add ingredients, shake, measure, garnish and serve. Mixing shifts follow the actual bar and disco mocktail offers and share their daily reward limit."
+
+msgid "Donut-Ringwurf am Süßwarenstand"
+msgstr "Donut ring toss at the sweet stand"
+
+msgid "Fünf Würfe mit Flugbahn, Treffern und Punkten. Mit dem vorhandenen Donut-Angebot ab Gebäudestufe 3 verfügbar; kein Einsatz und keine Geldprämie."
+msgstr "Five throws with a trajectory, hits and points. Available with the existing donut offer from building level 3; no stake or cash reward."
+
+msgid "Gemeinsames Schichtjournal"
+msgstr "Shared shift journal"
+
+msgid "Zeigt tatsächlich verbrauchte Tagesprämien, übrige belohnte Schichten und den heutigen Servicebonus. Normales Training, Kochen und Mixen verwenden dasselbe bestehende Schichtkonto."
+msgstr "Shows daily rewards actually used, remaining rewarded shifts and today’s service bonus. Normal training, cooking and mixing use the same existing shift ledger."
+
+msgid "Automatische Übersetzung in die Gerätesprache"
+msgstr "Automatic translation into the device language"
+
+msgid "Geplant · Google-Anbindung noch offen"
+msgstr "Planned · Google integration still open"
+
+msgid "Google Cloud Translation ist vorgesehen. Bisher werden Deutsch und Englisch unterstützt. Weitere Sprachen, gespeicherte Übersetzungen und die automatische Sprachauswahl müssen noch erweitert und geprüft werden."
+msgstr "Google Cloud Translation is planned. German and English are currently supported. More languages, stored translations and automatic language selection still need to be extended and tested."
+
+msgid "Planungsstand 18.11.2026 · Haken kennzeichnen geprüfte und integrierte Entwicklungsbausteine. Neue Funktionen und Übersetzungen werden vor der nächsten APK gesondert abgenommen."
+msgstr "Planning status 18 November 2026 · Checkmarks identify tested and integrated development packages. New features and translations are accepted separately before the next APK."

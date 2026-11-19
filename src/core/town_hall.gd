@@ -85,8 +85,11 @@ const ROADMAP: Array = [
 
 const CURRENT_WORK := [
 	{"title":"Zimmer selbst aufräumen und Betten beziehen","done":true,"status":"Abgehakt · Android-geprüft und in Main","detail":"Im Hotel unter Zimmer & Gäste: Gegenstände antippen, Bettwäsche aufziehen und Flecken wegwischen. Erst der bestätigte Abschluss reinigt das ausgewählte Zimmer für die bestehenden 8 € Kosten. Abbrechen zahlt keine Prämie und verändert nichts."},
-	{"title":"Kochschicht mit direkter Zubereitung","done":true,"status":"Abgehakt · Kochablauf im Entwicklungsstand geprüft","detail":"Restaurant: Zutaten aufziehen und schneiden. Kaiserschmarrn: Teig rühren. Danach den Garpunkt treffen und den Teller zur Ausgabe ziehen. Fünf Gerichte teilen die bestehende Tagesprämiengrenze mit dem Betriebstraining; keine zusätzlichen Verkäufe oder Save-Felder."},
-	{"title":"Getränke mehrstufig zubereiten","done":false,"status":"Offen · als Nächstes","detail":"Bar und Disco besitzen weiterhin das bestehende Ausschank- und Entscheidungstraining. Direktes mehrstufiges Mixen ist noch offen."}
+	{"title":"Kochschicht mit direkter Zubereitung","done":true,"status":"Abgehakt · Android-geprüft und in Main","detail":"Restaurant: Zutaten aufziehen und schneiden. Kaiserschmarrn: Teig rühren. Danach den Garpunkt treffen und den Teller zur Ausgabe ziehen. Fünf Gerichte teilen die bestehende Tagesprämiengrenze mit dem Betriebstraining; keine zusätzlichen Verkäufe oder Save-Felder."},
+	{"title":"Getränke mehrstufig zubereiten","done":false,"status":"Lokal geprüft · weitere Abnahme offen","detail":"Zutaten einfüllen, schütteln, dosieren, garnieren und servieren. Die Mixschicht ist an das echte Mocktail-Angebot von Bar und Disco gebunden und teilt deren Tagesprämiengrenze."},
+	{"title":"Donut-Ringwurf am Süßwarenstand","done":false,"status":"Lokal geprüft · weitere Abnahme offen","detail":"Fünf Würfe mit Flugbahn, Treffern und Punkten. Mit dem vorhandenen Donut-Angebot ab Gebäudestufe 3 verfügbar; kein Einsatz und keine Geldprämie."},
+	{"title":"Gemeinsames Schichtjournal","done":false,"status":"Lokal geprüft · weitere Abnahme offen","detail":"Zeigt tatsächlich verbrauchte Tagesprämien, übrige belohnte Schichten und den heutigen Servicebonus. Normales Training, Kochen und Mixen verwenden dasselbe bestehende Schichtkonto."},
+	{"title":"Automatische Übersetzung in die Gerätesprache","done":false,"status":"Geplant · Google-Anbindung noch offen","detail":"Google Cloud Translation ist vorgesehen. Bisher werden Deutsch und Englisch unterstützt. Weitere Sprachen, gespeicherte Übersetzungen und die automatische Sprachauswahl müssen noch erweitert und geprüft werden."}
 ]
 static func current_work() -> Array:
 	return CURRENT_WORK.duplicate(true)

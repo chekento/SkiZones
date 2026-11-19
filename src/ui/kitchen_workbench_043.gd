@@ -23,7 +23,7 @@ const PLATE:=Vector2(0.25,0.64)
 const PASS:=Rect2(0.57,0.10,0.36,0.40)
 func setup(order:Dictionary)->void:
 	task=order.duplicate(true);name="kitchen_workbench"
-	custom_minimum_size=Vector2(0,340);mouse_filter=Control.MOUSE_FILTER_STOP
+	custom_minimum_size=Vector2(0,340);mouse_filter=Control.MOUSE_FILTER_STOP;clip_contents=true
 	var ancestor:Node=get_parent()
 	while ancestor!=null:
 		if ancestor is DragScroll:ancestor.gesture_exclusions.append(self)
