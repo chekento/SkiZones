@@ -8,11 +8,16 @@ const Terrain=preload("res://src/core/terrain.gd")
 const Foot=preload("res://src/core/foot_network.gd")
 const Art=preload("res://src/world/alpine_art.gd")
 const Styles=preload("res://src/core/visual_styles.gd")
-const MAX_VISIBLE_STAFF := 56
+const MAX_VISIBLE_STAFF := 224
+const CREW_GROUPS := ["service","hospitality","slope","medical","technical","security"]
 const MAX_VISIBLE_RESCUE := 12
 var root: Node3D
 var lodge_point := Vector2.INF
 var staff_mesh: MultiMeshInstance3D
+var staff_meshes: Dictionary={}
+var snowmobile_mesh: MultiMeshInstance3D
+var snowmobile_patient_mesh: MultiMeshInstance3D
+var staff_labels:Array=[]
 var emergency_mesh: MultiMeshInstance3D
 var stretcher_mesh: MultiMeshInstance3D
 var casualty_mesh: MultiMeshInstance3D
@@ -64,24 +69,95 @@ static func progress(model: RefCounted, staff: Dictionary) -> float:
 	if duration-since<45:return clampf(float(duration-since)/45.0,0,1)
 	return 1.0
 
-static func human_mesh(style: String) -> ArrayMesh:
+static func group_for_role(role:String)->String:
+	if role in ["rescue","medic","lifeguard","therapist"]:return "medical"
+	if role in ["operator","ski_instructor"]:return "slope"
+	if role in ["hotel","housekeeper","receptionist","chef","waiter","barista","bartender"]:return "hospitality"
+	if role in ["technician","electrician","driver","snow","sanitation","artisan","printer","watchmaker"]:return "technical"
+	if role=="security":return "security"
+	return "service"
+
+## Each professional has distinctive workwear rather than a shared placeholder.
+## These are vertex-coloured meshes, instanced without per-employee draw calls.
+static func human_mesh(style:String,group:String="service")->ArrayMesh:
 	if style=="monochrome":
-		var lines:=Lines.new();lines.circle(Vector3(0,3.3,0),.6)
-		lines.line(Vector3(0,1.3,0),Vector3(0,2.7,0))
+		var lines:=Lines.new()
+		lines.circle(Vector3(0,3.3,0),0.6)
+		lines.line(Vector3(0,1.2,0),Vector3(0,2.8,0))
 		for side in [-1,1]:
-			lines.line(Vector3(0,1.3,0),Vector3(side*.6,0,0))
-			lines.line(Vector3(0,2.3,0),Vector3(side*1,1.6,0))
+			lines.line(Vector3(0,1.2,0),Vector3(float(side)*0.6,0,0))
+			lines.line(Vector3(0,2.3,0),Vector3(float(side)*0.9,1.5,0))
+		if group=="medical":lines.box(Vector3(0,2.35,-0.52),Vector3(0.8,0.8,0.15))
+		if group=="technical":lines.box(Vector3(0,3.85,0),Vector3(1.7,0.3,1.3))
 		return lines.finish()
 	var art:=Art.new()
-	var tint:Dictionary=Styles.detail_tints(style)
-	var coat:=Color(str(tint.metal))
-	art.sphere(Vector3(0,3.15,0),0.70,Color("e6bf9e"))
-	art.cone(Vector3(0,1.9,0),0.90,1.85,coat,0.72)
-	art.box(Vector3(0,3.65,0),Vector3(1.5,0.50,1.2),coat.darkened(0.2))
+	var uniforms:Dictionary={
+		"service":Color("4778a4"),"hospitality":Color("e1c6a0"),
+		"slope":Color("267eaf"),"medical":Color("e55437"),
+		"technical":Color("f1a331"),"security":Color("384653")}
+	var coat:Color=uniforms.get(group,uniforms.service)
+	if style=="piste_map":coat=coat.darkened(0.16)
+	var trousers:=Color("344452")
+	var boots:=Color("1f2e3c")
 	for side in [-1,1]:
-		art.box(Vector3(side*0.45,0.75,0),Vector3(0.42,1.5,0.55),Color("394e59"))
-		art.box(Vector3(side*1.05,2.15,0),Vector3(0.40,1.3,0.46),Color("d4dde0"))
-	art.sphere(Vector3(0,3.75,0),0.12,Color("ffe19f"))
+		var s:float=float(side)
+		art.box(Vector3(s*0.40,0.73,0),Vector3(0.42,1.45,0.55),trousers)
+		art.box(Vector3(s*0.40,0.18,-0.14),Vector3(0.55,0.35,0.93),boots)
+		art.link(Vector3(s*0.73,2.70,0),Vector3(s*0.92,1.68,-0.20),0.24,coat.darkened(0.08))
+		art.sphere(Vector3(s*0.92,1.62,-0.21),0.17,Color("edc9ac"))
+	art.cone(Vector3(0,2.10,0),0.75,1.65,coat,0.85)
+	art.box(Vector3(0,1.36,0),Vector3(1.38,0.21,0.92),trousers)
+	art.sphere(Vector3(0,3.27,0),0.59,Color("edc9ac"))
+	art.box(Vector3(0,3.76,0),Vector3(1.25,0.36,1.07),coat.darkened(0.20))
+	# Visually readable helmet, apron, cross, radio or insignia by occupation.
+	match group:
+		"medical":
+			art.box(Vector3(0,2.33,-0.69),Vector3(0.22,0.74,0.13),Color.WHITE)
+			art.box(Vector3(0,2.33,-0.72),Vector3(0.72,0.20,0.15),Color.WHITE)
+			art.box(Vector3(0,3.90,0),Vector3(1.55,0.26,1.28),Color("ecf2ef"))
+		"technical":
+			art.box(Vector3(0,3.94,0),Vector3(1.62,0.34,1.22),Color("eac43d"))
+			art.box(Vector3(0,2.20,-0.65),Vector3(1.05,0.20,0.12),Color("f6e27b"))
+			art.box(Vector3(0.73,1.92,-0.44),Vector3(0.21,0.68,0.28),Color("59686e"))
+		"hospitality":
+			art.box(Vector3(0,1.94,-0.64),Vector3(1.15,1.36,0.16),Color("f3f0e9"))
+			art.box(Vector3(0,2.62,-0.76),Vector3(0.25,0.29,0.10),Color("897064"))
+		"slope":
+			art.box(Vector3(0,3.90,0),Vector3(1.66,0.30,1.35),Color("e8e7d5"))
+			art.box(Vector3(0,3.26,-0.53),Vector3(1.18,0.20,0.17),Color("273a55"))
+		"security":
+			art.box(Vector3(-0.40,2.45,-0.65),Vector3(0.30,0.31,0.12),Color("e8d18f"))
+			art.box(Vector3(0.72,2.50,-0.23),Vector3(0.20,0.44,0.21),Color("7b8990"))
+		_:
+			art.box(Vector3(0,2.55,-0.65),Vector3(0.46,0.21,0.14),Color("eff3f6"))
+	return art.finish()
+
+## Purpose-built vehicle with a loaded rescue sled, recognisable in both
+## outward and return phases. It never changes incident routing/save physics.
+static func snowmobile_art(style:String,loaded:bool=false)->ArrayMesh:
+	if style=="monochrome":
+		var lines:=Lines.new()
+		lines.box(Vector3(0,1.0,0),Vector3(2.5,1.0,4.8))
+		for side in [-1,1]:lines.line(Vector3(float(side)*1.1,0.3,-2.4),Vector3(float(side)*1.1,0.3,2.6))
+		if loaded:lines.box(Vector3(0,1.0,3.1),Vector3(1.8,0.5,3.0))
+		return lines.finish()
+	var art:=Art.new()
+	for side in [-1,1]:
+		var s:float=float(side)
+		art.box(Vector3(s*0.92,0.25,-0.35),Vector3(0.22,0.23,5.1),Color("25343d"))
+		art.link(Vector3(s*0.78,0.35,1.9),Vector3(s*0.6,1.1,1.3),0.12,Color("cbd6dc"))
+	art.box(Vector3(0,0.85,0),Vector3(2.0,0.85,3.4),Color("d94532"))
+	art.box(Vector3(0,1.25,-0.65),Vector3(1.35,0.30,1.6),Color("333f49"))
+	art.box(Vector3(0,1.0,1.45),Vector3(1.9,0.45,1.5),Color("e1e8ec"))
+	art.link(Vector3(-0.8,1.8,-1.3),Vector3(0.8,1.8,-1.3),0.12,Color("364e61"))
+	art.sphere(Vector3(0,2.57,-0.62),0.43,Color("ead3ac"))
+	art.box(Vector3(0,2.93,-0.62),Vector3(1.00,0.26,0.96),Color("e95436"))
+	if loaded:
+		for side in [-1,1]:
+			art.box(Vector3(float(side)*0.86,0.46,3.13),Vector3(0.13,0.18,3.0),Color("cbd6dc"))
+		art.box(Vector3(0,0.72,3.1),Vector3(1.64,0.30,3.0),Color("eac564"))
+		art.box(Vector3(0,1.03,3.22),Vector3(1.22,0.43,1.72),Color("548db1"))
+		art.sphere(Vector3(0,1.13,2.16),0.38,Color("e8c5ad"))
 	return art.finish()
 
 ## Two visibly separate alpine rescuers on skis, not the old red
@@ -185,12 +261,27 @@ func build(view: Node3D) -> void:
 		dorm.mesh.surface_set_material(0,view._solid)
 		dorm.position=view.terrain.world(lodge_point,0.3)
 		root.add_child(dorm)
-	var crew:=human_mesh(view.visual_style)
-	crew.surface_set_material(0,view._solid)
-	staff_mesh=MultiMeshInstance3D.new()
-	staff_mesh.multimesh=view._multimesh(crew,MAX_VISIBLE_STAFF)
-	staff_mesh.multimesh.visible_instance_count=0
-	root.add_child(staff_mesh)
+	staff_meshes.clear()
+	for group in CREW_GROUPS:
+		var crew: ArrayMesh=human_mesh(view.visual_style,group)
+		crew.surface_set_material(0,view._solid)
+		var node:=MultiMeshInstance3D.new()
+		node.name="Crew "+group
+		node.multimesh=view._multimesh(crew,MAX_VISIBLE_STAFF)
+		node.multimesh.visible_instance_count=0
+		root.add_child(node)
+		staff_meshes[group]=node
+	staff_mesh=staff_meshes["service"]
+	staff_labels.clear()
+	for i in range(12):
+		var tag:=Label3D.new()
+		tag.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		tag.font_size=24
+		tag.pixel_size=0.018
+		tag.modulate=Color("e9f3fa")
+		tag.visible=false
+		root.add_child(tag)
+		staff_labels.append(tag)
 	var rescue:=rescue_mesh(view.visual_style,false)
 	rescue.surface_set_material(0,view._solid)
 	emergency_mesh=MultiMeshInstance3D.new()
@@ -203,6 +294,18 @@ func build(view: Node3D) -> void:
 	stretcher_mesh.multimesh=view._multimesh(return_scene,MAX_VISIBLE_RESCUE)
 	stretcher_mesh.multimesh.visible_instance_count=0
 	root.add_child(stretcher_mesh)
+	var mobile_art:=snowmobile_art(view.visual_style,false)
+	mobile_art.surface_set_material(0,view._solid)
+	snowmobile_mesh=MultiMeshInstance3D.new()
+	snowmobile_mesh.multimesh=view._multimesh(mobile_art,MAX_VISIBLE_RESCUE)
+	snowmobile_mesh.multimesh.visible_instance_count=0
+	root.add_child(snowmobile_mesh)
+	var patient_art:=snowmobile_art(view.visual_style,true)
+	patient_art.surface_set_material(0,view._solid)
+	snowmobile_patient_mesh=MultiMeshInstance3D.new()
+	snowmobile_patient_mesh.multimesh=view._multimesh(patient_art,MAX_VISIBLE_RESCUE)
+	snowmobile_patient_mesh.multimesh.visible_instance_count=0
+	root.add_child(snowmobile_patient_mesh)
 	var casualty_art:=casualty_mesh_geometry(view.visual_style)
 	casualty_art.surface_set_material(0,view._solid)
 	casualty_mesh=MultiMeshInstance3D.new()
@@ -213,6 +316,12 @@ func build(view: Node3D) -> void:
 func _person_pos(view: Node3D, staff: Dictionary) -> Vector2:
 	var destination_value:Vector2=destination(view.model,staff)
 	var progress_value:float=progress(view.model,staff)
+	if progress_value>=0.99 and Ops.on_duty(view.model,staff):
+		# On-site colleagues stay distinct and perform short forecourt patrols.
+		var phase:float=(float(view.model.minute)+float(view.model.clock_fraction))*0.11+float(int(staff.id))*2.399
+		var radius:float=1.8+float(int(staff.id)%5)*0.55
+		var candidate:=destination_value+Vector2(cos(phase),sin(phase))*radius
+		if view.terrain.contains(candidate) and Foot.free_of_buildings(candidate,view.model.buildings,0.8):return candidate
 	if not lodge_point.is_finite() or lodge_point.distance_to(destination_value)<1:
 		return destination_value
 	var id:int=int(staff.id)
@@ -246,17 +355,35 @@ func update(view: Node3D,delta: float) -> void:
 	_tick+=maxf(0,delta)
 	if _tick<0.20:return
 	_tick=0.0
+	var counts:Dictionary={}
+	for group in CREW_GROUPS:counts[group]=0
 	var amount:=0
+	var label_count:=0
 	if lodge_point.is_finite():
 		for worker in view.model.operations.staff:
 			if amount>=MAX_VISIBLE_STAFF:break
+			# Responders are drawn at their real case position, not at their office.
+			if Ops._assigned_active_rescue(view.model,worker):continue
 			var pos:=_person_pos(view,worker)
 			if pos.distance_to(view.focus)>maxf(view.zoom*1.6,190.0):continue
-			var wobble:=Vector2(sin(float(view.model.minute+int(worker.id))*0.17),cos(float(view.model.minute+int(worker.id))*0.13))*0.8
-			staff_mesh.multimesh.set_instance_transform(amount,Transform3D(Basis.IDENTITY,view.terrain.world(pos+wobble,0.6)))
-			staff_mesh.multimesh.set_instance_color(amount,Color.WHITE)
+			var group:String=group_for_role(str(worker.role))
+			var index:int=int(counts[group])
+			var node:MultiMeshInstance3D=staff_meshes[group]
+			var rotation:float=sin((float(view.model.minute)+int(worker.id))*0.08)*0.30
+			node.multimesh.set_instance_transform(index,Transform3D(Basis(Vector3.UP,rotation),view.terrain.world(pos,0.6)))
+			node.multimesh.set_instance_color(index,Color.WHITE)
+			counts[group]=index+1
 			amount+=1
-	staff_mesh.multimesh.visible_instance_count=amount
+			if label_count<staff_labels.size() and view.zoom<220.0:
+				var tag:Label3D=staff_labels[label_count]
+				tag.text=str(worker.get("name","Crew"))+" · "+str(Ops.ROLES.get(str(worker.role),{}).get("name",worker.role))
+				tag.position=view.terrain.world(pos,4.8)
+				tag.visible=true
+				label_count+=1
+	for group in CREW_GROUPS:
+		var node:MultiMeshInstance3D=staff_meshes[group]
+		node.multimesh.visible_instance_count=int(counts[group])
+	for index in range(staff_labels.size()):staff_labels[index].visible=index<label_count
 	var stranded_count:=0
 	for case in view.model.operations.incidents:
 		if str(case.get("status","")) not in ["waiting","responding"]:continue
@@ -269,6 +396,8 @@ func update(view: Node3D,delta: float) -> void:
 	casualty_mesh.multimesh.visible_instance_count=stranded_count
 	var outbound_count:=0
 	var transport_count:=0
+	var mobile_count:=0
+	var mobile_patient_count:=0
 	for incident in view.model.operations.incidents:
 		var stage:String=str(incident.get("status",""))
 		if stage not in ["responding","returning"]:continue
@@ -287,7 +416,16 @@ func update(view: Node3D,delta: float) -> void:
 			forward=Ops.rescue_path_point(path,next_fraction)-pos
 		var heading:float=atan2(forward.x,forward.y) if forward.length_squared()>0.001 else 0.0
 		var transform_value:=Transform3D(Basis(Vector3.UP,heading),view.terrain.world(pos,0.45))
-		if stage=="responding" and outbound_count<MAX_VISIBLE_RESCUE:
+		if str(incident.get("vehicle","skis"))=="snowmobile":
+			if stage=="responding" and mobile_count<MAX_VISIBLE_RESCUE:
+				snowmobile_mesh.multimesh.set_instance_transform(mobile_count,transform_value)
+				snowmobile_mesh.multimesh.set_instance_color(mobile_count,Color.WHITE)
+				mobile_count+=1
+			elif stage=="returning" and mobile_patient_count<MAX_VISIBLE_RESCUE:
+				snowmobile_patient_mesh.multimesh.set_instance_transform(mobile_patient_count,transform_value)
+				snowmobile_patient_mesh.multimesh.set_instance_color(mobile_patient_count,Color.WHITE)
+				mobile_patient_count+=1
+		elif stage=="responding" and outbound_count<MAX_VISIBLE_RESCUE:
 			emergency_mesh.multimesh.set_instance_transform(outbound_count,transform_value)
 			emergency_mesh.multimesh.set_instance_color(outbound_count,Color.WHITE)
 			outbound_count+=1
@@ -297,3 +435,5 @@ func update(view: Node3D,delta: float) -> void:
 			transport_count+=1
 	emergency_mesh.multimesh.visible_instance_count=outbound_count
 	stretcher_mesh.multimesh.visible_instance_count=transport_count
+	snowmobile_mesh.multimesh.visible_instance_count=mobile_count
+	snowmobile_patient_mesh.multimesh.visible_instance_count=mobile_patient_count
