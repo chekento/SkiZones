@@ -90,6 +90,11 @@ static func pose(mountain: RefCounted, lift: Dictionary, profile: Dictionary, cl
 	if family(lift) == "gondola" and seats(lift) > 8: body_basis = body_basis.scaled(Vector3(1.15, 1, maxf(1, ceilf(float(seats(lift)) / 6) / 4)))
 	return {"transform": Transform3D(body_basis, origin), "grip": grip, "fraction": fraction, "outbound": outbound, "phase": phase, "carrier": carrier}
 
+## Match the actual movement clock of src/main.gd, including the fourfold
+## 24-substep career-day playback; never interpolate at legacy half-rate.
+static func visual_units_per_second(playback_rate: float, time_divisor: int) -> float:
+	return maxf(0.0,playback_rate) * 0.5 * (4.0 if time_divisor > 1 else 1.0)
+
 ## Cable samples are cumulative, sorted distances. Binary lookup avoids
 ## scanning every pylon for every gondola/chair every rendered frame.
 ## Keep the exact same linear interpolation used by the physical schedule.
