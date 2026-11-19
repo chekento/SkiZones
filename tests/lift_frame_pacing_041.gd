@@ -49,7 +49,7 @@ func run()->void:
 	# Later days had very large clock values: relative epsilon wrongly hid
 	# sub-frame movement, especially at 1x and 4x.
 	for playback_speed in [1.0,4.0]:
-		var rate:float=Fleet.visual_units_per_second(playback_speed*DayRhythm.playback(720,"balanced"),24)
+		var rate:float=Fleet.visual_units_per_second(playback_speed*DayRhythm.playback(720,"balanced")*4.0)
 		var expected_rate:float=playback_speed*DayRhythm.playback(720,"balanced")*Resort.MINUTES_PER_SECOND*4.0
 		check(is_equal_approx(rate,expected_rate),"0.42.1 lift frame speed follows the full gameplay clock at %dx" % int(playback_speed))
 		var drawn:float=160000.0
