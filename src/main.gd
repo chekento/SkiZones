@@ -166,10 +166,13 @@ func _process(delta: float) -> void:
 		_update_plan()
 	if simulation_running():
 		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0) * DayRhythm.playback(model.minute, preferences.day_length)
-		var budget_end := Time.get_ticks_usec() + 6000
-		if preferences.night_forward and model.empty_night():
+		var safe_empty_night:bool=preferences.night_forward and model.empty_night()
+		# An empty resort receives a larger bounded per-frame simulation budget,
+		# but never blocks the UI indefinitely or skips wages/midnight processing.
+		var budget_end := Time.get_ticks_usec() + (12000 if safe_empty_night else 6000)
+		if safe_empty_night:
 			var night_day: int=model.day
-			for step in range(180):
+			for step in range(720):
 				if Time.get_ticks_usec()>=budget_end or not model.advance_empty_minute(): break
 			if model.day!=night_day: call_deferred("save_game")
 		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
