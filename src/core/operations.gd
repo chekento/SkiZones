@@ -781,6 +781,12 @@ static func _mobile_climb_safe(model:RefCounted,points:Array)->bool:
 		if span>0.01 and (model.terrain.height(b)-model.terrain.height(a))/span>0.32:return false
 	return true
 
+static func rescue_path_metres(points:Array)->float:
+	var metres:=0.0
+	for i in range(1,points.size()):
+		metres+=Terrain.unpack(points[i-1]).distance_to(Terrain.unpack(points[i]))
+	return metres
+
 static func snowmobile_travel_minutes(model:RefCounted,points:Array)->float:
 	if points.size()<2 or not _mobile_climb_safe(model,points):return INF
 	var seconds:=0.0
@@ -851,17 +857,24 @@ static func dispatch(model: RefCounted, id: int, station_id: int = -1) -> Dictio
 			var time:float=rescue_travel_minutes(model,points)
 			var vehicle:String="skis"
 			for candidate in candidates:
-				var mobile_route:Dictionary=model._shortest(mobile_graph,"d%d" % int(building.id),str(candidate.from))
-				if not mobile_route.ok:continue
-				var combined:Array=mobile_route.legs.duplicate()
-				combined.append({"points":candidate.points})
-				var mobile_points:Array=_rescue_route_points(model,building,{"legs":combined},position)
-				if mobile_points.is_empty():continue
-				var mobile_eta:float=snowmobile_travel_minutes(model,mobile_points)
-				if mobile_eta<time:
-					time=mobile_eta
-					points=mobile_points
-					vehicle="snowmobile"
+				var lower_piste:Array=candidate.return_points.duplicate(true)
+				lower_piste.reverse()
+				# A casualty halfway down the slope can be reached from either
+				# end. The second option climbs only the remaining lower section.
+				for approach in [{"node":candidate.from,"tail":candidate.points},
+					{"node":candidate.to,"tail":lower_piste}]:
+					var mobile_route:Dictionary=model._shortest(mobile_graph,"d%d" % int(building.id),str(approach.node))
+					if not mobile_route.ok:continue
+					var combined:Array=mobile_route.legs.duplicate()
+					combined.append({"points":approach.tail})
+					var mobile_points:Array=_rescue_route_points(model,building,{"legs":combined},position)
+					if mobile_points.is_empty():continue
+					var mobile_eta:float=snowmobile_travel_minutes(model,mobile_points)
+					var shorter_route:bool=is_equal_approx(mobile_eta,time) and rescue_path_metres(mobile_points)<rescue_path_metres(points)*0.8
+					if mobile_eta<time or shorter_route:
+						time=mobile_eta
+						points=mobile_points
+						vehicle="snowmobile"
 			time*=1.5 if model.weather_index in [2,3] else 1.0
 			transport.minutes*=1.5 if model.weather_index in [2,3] else 1.0
 			if time+float(transport.minutes) < best:
