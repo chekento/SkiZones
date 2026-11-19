@@ -1267,7 +1267,8 @@ static func valid(state: Variant, model: RefCounted) -> bool:
 		if event.has("crew_ids"):
 			if not event.crew_ids is Array or event.crew_ids.size()!=2 or event.crew_ids[0]==event.crew_ids[1]:return false
 			for crew_id in event.crew_ids:
-				if not Terrain.number(crew_id) or crew_id<0 or crew_id!=floorf(crew_id) or not ids.has(int(crew_id)):return false
+				if not Terrain.number(crew_id) or crew_id<0 or crew_id!=floorf(crew_id) or crew_id>=state.next_staff:return false
+				if str(event.status) in ["responding","returning"] and not ids.has(int(crew_id)):return false
 		for field in ["response_duration","response_started","return_duration","transport_remaining","treatment_duration","treatment_remaining"]:
 			if event.has(field) and (not Terrain.number(event[field]) or event[field]<0 or event[field]>1000000000):return false
 		for key in ["id", "guest", "created", "station", "remaining"]:
