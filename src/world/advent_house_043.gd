@@ -91,7 +91,7 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 		number_plate.font_size=50
 		number_plate.pixel_size=0.012
 		number_plate.outline_size=7
-		number_plate.modulate=Color("f8f7e7")
+		number_plate.modulate=Color("e5e5e5") if style=="monochrome" else Color("f8f7e7")
 		number_plate.position=Vector3(DOOR_WIDTH*0.5,0,0.19)
 		pivot.add_child(number_plate)
 		if claimed.has(number):pivot.rotation.y=-1.15
