@@ -31,7 +31,11 @@ static func staff_home(view: Node3D) -> Vector2:
 	# Provided scenery on every resort map, without changing an old career save.
 	# Place the dormitory near the public pedestrian hub: workers must
 	# join an actual marked walkway instead of crossing the mountain.
-	for offset in [Vector2(-55,36),Vector2(-62,-24),Vector2(54,28),Vector2(-35,-62),Vector2(42,-49),Vector2(-80,14)]:
+	# Prefer short public-path connections, but keep the original proven
+	# accommodation sites as a safe fallback on starter/legacy terrains.
+	# Without them, all nearby sites can be excluded by path clearances,
+	# leaving no lodge or forest clearing at all.
+	for offset in [Vector2(-55,36),Vector2(-62,-24),Vector2(54,28),Vector2(-35,-62),Vector2(42,-49),Vector2(-80,14),Vector2(-115,55),Vector2(-145,-40),Vector2(120,85),Vector2(-110,-95),Vector2(130,-110),Vector2(-210,90)]:
 		var candidate:Vector2=Terrain.BASE+offset
 		if not view.terrain.contains(candidate) or not view.piste_clear(candidate,40):continue
 		if not Foot.free_of_buildings(candidate,view.model.buildings,42) or view.terrain.slope_percent(candidate)>28:continue
@@ -380,7 +384,9 @@ func _route(view:Node3D,staff:Dictionary,returning:bool)->Array:
 	var target:String=_staff_target_key(view,staff,graph)
 	var connection:Array=[]
 	var anchor:String=""
-	var shortest:float=160.0
+	# A valid fallback home may sit beyond the short candidate radius.
+	# The connection must still be a real, gentle, obstruction-free footpath.
+	var shortest:float=260.0
 	for node in foot.nodes:
 		if not view.model.pedestrian_layout().rooted.has(node):continue
 		var at:Vector2=Terrain.unpack(foot.nodes[node])
