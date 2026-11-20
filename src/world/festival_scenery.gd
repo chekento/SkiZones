@@ -146,6 +146,7 @@ func build(view: Node3D) -> void:
 			var at:Vector2=Terrain.BASE+Vector2.from_angle(angle)*radius
 			if not _free_decoration_site(view,at,20.0,occupied):continue
 			advent_house=AdventHouse.create(view.visual_style,store.overview(now).claimed,view._solid)
+			advent_house.set_meta("festival_clearance",20.0)
 			advent_house.position=view.terrain.world(at,0.35)
 			var toward_village:Vector2=(Terrain.BASE-at).normalized()
 			advent_house.rotation.y=atan2(toward_village.x,toward_village.y)
