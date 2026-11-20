@@ -87,5 +87,6 @@ func run()->void:
 	finish()
 
 func finish()->void:
-	print("0.42.3 REGRESSIONS: %d passed; %d failed" % [passed,failed])
+	print("SkiZones 0.42.3 operational regressions")
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
