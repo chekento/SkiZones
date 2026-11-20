@@ -16,7 +16,7 @@ func configure(role:String,step:int)->void:
 	stage=step
 	_selected=-1
 	active=true
-	custom_minimum_size=Vector2(380,228)
+	custom_minimum_size=Vector2(0,218)
 	size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	mouse_filter=Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
@@ -31,7 +31,7 @@ func _process(delta:float)->void:
 		queue_redraw()
 
 func _draw()->void:
-	var w:float=maxf(size.x,310.0)
+	var w:float=maxf(size.x,220.0)
 	var h:float=maxf(size.y,225.0)
 	draw_rect(Rect2(Vector2.ZERO,Vector2(w,h)),Color("112536"))
 	# Three layers: distant alpine silhouette, middle-distant village,
