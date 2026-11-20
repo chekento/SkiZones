@@ -42,9 +42,10 @@ func run()->void:
 	model.operations.incidents.clear()
 	var day:int=model.day
 	var visits:int=model.total_guests
-	for i in range(1440-DayRhythm.QUIET_FROM+model.OPENING):
+	for i in range(1440-DayRhythm.QUIET_FROM+model.OPENING-1):
 		if not model.advance_empty_minute():break
-	check(model.day==day+1 and model.minute==model.OPENING and model.total_guests==visits,"Safe accelerated night reaches 08:00 without invented visitors")
+	check(model.day==day+1 and model.minute==model.OPENING-1 and model.total_guests==visits,"Overnight travel is genuinely visitor-free until 07:59")
+	check(model.advance_empty_minute() and model.minute==model.OPENING,"Safe forwarding stops at 08:00 and lets real morning demand resume")
 	var restaurant:Dictionary=place(model,"restaurant")
 	check(not restaurant.is_empty(),"Place a working restaurant")
 	if restaurant.is_empty():finish();return
