@@ -45,7 +45,7 @@ static func _door_material(style:String,opened:bool,special:bool)->StandardMater
 
 static func create(style:String,claimed:Array,solid:Material)->Node3D:
 	var root:=Node3D.new()
-	root.name="Adventshaus – 24 echte Türchen"
+	root.name="advent_house_24"
 	root.set_meta("festival_kind","advent_house")
 	var tone:Dictionary=Styles.detail_tints(style)
 	var accent:Color=Color(str(Styles.ui_palette(style).accent))
@@ -64,7 +64,7 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 	for x in [-11.8,11.8]:
 		a.cone(Vector3(x,31.8,1.1),1.1,3.2,accent,0.35)
 	var model:=MeshInstance3D.new()
-	model.name="Timber, roof and festival detailing"
+	model.name="advent_timber_roof"
 	model.mesh=a.finish()
 	model.mesh.surface_set_material(0,solid)
 	model.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -77,7 +77,7 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 		pivot.position=center-Vector3(DOOR_WIDTH*0.5,0,0)
 		root.add_child(pivot)
 		var leaf:=MeshInstance3D.new()
-		leaf.name="Hinged door"
+		leaf.name="advent_door_leaf"
 		var box:=BoxMesh.new()
 		box.size=Vector3(DOOR_WIDTH,DOOR_HEIGHT,0.28)
 		leaf.mesh=box
@@ -86,7 +86,7 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 		leaf.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		pivot.add_child(leaf)
 		var number_plate:=Label3D.new()
-		number_plate.name="Number "+str(number)
+		number_plate.name="advent_number_"+str(number)
 		number_plate.text=str(number)
 		number_plate.font_size=50
 		number_plate.pixel_size=0.012
@@ -101,7 +101,7 @@ static func reveal(house:Node3D,number:int)->void:
 	if number<1 or number>DOOR_COUNT or not is_instance_valid(house):return
 	var pivot:Node3D=house.get_node_or_null("door_"+str(number))
 	if pivot==null or pivot.rotation.y< -1.0:return
-	var leaf:=pivot.get_node_or_null("Hinged door") as MeshInstance3D
+	var leaf:=pivot.get_node_or_null("advent_door_leaf") as MeshInstance3D
 	if leaf!=null:leaf.material_override=_door_material("alpine",true,number in [6,24])
 	if pivot.is_inside_tree():
 		var tween:Tween=pivot.create_tween()
