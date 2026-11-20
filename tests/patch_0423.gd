@@ -6,7 +6,12 @@ const Crew=preload("res://src/world/crew_life.gd")
 const DayRhythm=preload("res://src/core/day_rhythm.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const SceneBoard=preload("res://src/ui/staff_training_scene_0423.gd")
-const ResortView=preload("res://src/world/resort_view.gd")
+## No renderer nodes are constructed for model-only routing regressions.
+## A full ResortView retains independent render resources under Godot --headless.
+class CrewRouteFixture extends Node3D:
+	var model:RefCounted
+	var terrain:RefCounted
+	var _pedestrian_snapshot:Dictionary={}
 var passed:int=0
 var failed:int=0
 
@@ -85,7 +90,7 @@ func run()->void:
 	board.free()
 	# The actual employee commute must be a chain of existing connected
 	# public graph segments, not the old straight line across slopes.
-	var view:Node3D=ResortView.new()
+	var view:=CrewRouteFixture.new()
 	view.model=model
 	view.terrain=model.terrain
 	var crew:Crew=Crew.new()
