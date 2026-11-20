@@ -362,14 +362,14 @@ static func _staff_target_key(view:Node3D,staff:Dictionary,graph:Dictionary)->St
 		if id_text.is_valid_int():
 			var key:String="d"+id_text
 			if graph.nodes.has(key):return key
-	var destination_value:Vector2=destination(view.model,staff)
-	var best:float=18.0
-	var selected:String=""
-	for key in graph.nodes:
-		if not str(key).begins_with("l"):continue
-		var distance:float=destination_value.distance_to(Terrain.unpack(graph.nodes[key]))
-		if distance<best:best=distance;selected=str(key)
-	return selected
+	# Station assignment uses the same actual station keys as Operations,
+	# not an approximate 18-metre spatial guess near a lift.
+	for lift in view.model.lifts:
+		for station in Ops.station_demands(lift):
+			if str(station.key)!=assignment:continue
+			var key:String="l%d%s" % [int(lift.id),"t" if bool(station.top) else "b"]
+			if graph.nodes.has(key):return key
+	return ""
 
 func _route(view:Node3D,staff:Dictionary,returning:bool)->Array:
 	var key:String=str(staff.get("assignment",""))+("::return" if returning else "::out")+":"+str(view.model.revision)+":"+str(view.model.day)
