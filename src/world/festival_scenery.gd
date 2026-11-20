@@ -5,6 +5,7 @@ const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
 const Calendar = preload("res://src/core/annual_festival.gd")
 const Posters = preload("res://src/core/holiday_poster_catalog.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
+const AdventHouse = preload("res://src/world/advent_house_043.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 var store := Calendar.new()
@@ -14,6 +15,7 @@ func date_now() -> Dictionary:
 	return qa_date_override if not qa_date_override.is_empty() else Calendar.device_now()
 var root: Node3D
 var clock_label: Label3D
+var advent_house:Node3D
 var _world_key := ""
 var _poll := 0.0
 var _seconds := 0.0
@@ -34,6 +36,14 @@ func poster_art_at(at: Vector2) -> String:
 		if at.distance_to(poster_sites[i])<17.0:
 			return str(poster_paths[i]) if i<poster_paths.size() else ""
 	return ""
+
+## Picking targets individual hinged 3D doors, not just a rectangle on the
+## resort ground. Mobile ray projection works in all camera pitch modes.
+func pick_advent_door(camera:Camera3D,screen:Vector2)->int:
+	return AdventHouse.pick(advent_house,camera,screen)
+
+func reveal_advent_door(number:int)->void:
+	AdventHouse.reveal(advent_house,number)
 
 func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
 	if not view.terrain.contains(at) or not Foot.free_of_buildings(at,view.model.buildings,clearance): return false
@@ -60,6 +70,7 @@ func build(view: Node3D) -> void:
 	root.name="Winterfest Ambient Art"
 	view.add_child(root)
 	clock_label=null
+	advent_house=null
 	firework_nodes.clear()
 	poster_sites.clear()
 	poster_paths.clear()
@@ -125,6 +136,21 @@ func build(view: Node3D) -> void:
 			clock_label.outline_size=6
 			clock_label.position=Vector3(0,9.7,0.85)
 			node.add_child(clock_label)
+	# The Advent house is an actual 3D building with 24 individually labelled
+	# hinged doors. It is independent of the resort's construction/save schema.
+	# Previously claimed doors open visually on load or scene regeneration.
+	if int(now.get("month",0))==12 and int(now.get("day",0))>=1:
+		for try_site in range(90):
+			var angle:float=0.45+float(try_site)*2.399963229728653
+			var radius:float=96.0+float(try_site%6)*24.0
+			var at:Vector2=Terrain.BASE+Vector2.from_angle(angle)*radius
+			if not _free_decoration_site(view,at,20.0,occupied):continue
+			advent_house=AdventHouse.create(view.visual_style,store.overview(now).claimed,view._solid)
+			advent_house.position=view.terrain.world(at,0.35)
+			var toward_village:Vector2=(Terrain.BASE-at).normalized()
+			advent_house.rotation.y=atan2(toward_village.x,toward_village.y)
+			root.add_child(advent_house)
+			break
 	if stage in ["new_year_eve","new_year"] and int(now.get("hour",0))>=23 or stage=="new_year":
 		var fx := FestivalArt.make("firework",view.visual_style)
 		fx.surface_set_material(0,view._solid)
