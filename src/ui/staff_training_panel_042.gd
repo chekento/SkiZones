@@ -2,6 +2,7 @@ extends VBoxContainer
 ## One visible, pausing practical course; fees and qualifications live in model.
 const L=preload("res://src/core/i18n.gd")
 const Training=preload("res://src/core/staff_training_042.gd")
+const PracticeScene=preload("res://src/ui/staff_training_scene_0423.gd")
 var hud:CanvasLayer
 var asset_id:=-1
 var session:Dictionary={}
@@ -90,6 +91,16 @@ func _show_task()->void:
 	_label(self,str(employee.name)+" · "+L.text(str(hud.game.model.Ops.ROLES[employee.role].name)),16)
 	var progress:=ProgressBar.new();progress.max_value=3;progress.value=int(session.step);progress.show_percentage=false;progress.custom_minimum_size.y=14;add_child(progress)
 	_label(self,L.text(str(task.prompt)),22)
+	# A touchable, animated scenario with three distinct action zones.
+	# Keep the full-text alternatives below for keyboard accessibility.
+	var scene:Control=PracticeScene.new()
+	scene.configure(str(session.role),int(session.step))
+	scene.choice_pressed.connect(func(choice:int):
+		if _pending_action:return
+		_pending_action=true
+		_dispatch_action.call_deferred(func():_answer(choice))
+	)
+	add_child(scene)
 	for index in range(3):
 		var chosen:int=index
 		var button:=_button(self,L.text(str(task.choices[index])),func():_answer(chosen))
