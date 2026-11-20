@@ -456,6 +456,10 @@ static func service_efficiency(model:RefCounted,building:Dictionary)->float:
 		var prep_role:String="barista" if kind=="cocoa" else "chef"
 		var chefs:int=duty(model,prep_role,target)
 		var waiters:int=duty(model,"waiter",target)
+		# A closed kitchen has neutral efficiency (not a production bonus).
+		# Building_open() rejects missing essential workers separately.
+		# Keep the established off-duty accounting/API contract at 1.0.
+		if chefs==0:return 1.0
 		var kitchen:float=0.75+float(chefs)*0.35+float(maxi(0,chefs-1))*0.17
 		var floor:float=0.38+float(waiters)*0.67+float(maxi(0,waiters-1))*0.18
 		return clampf(minf(kitchen,floor)*(1.0+minf(0.15,proficiency)),0.38,2.8)
