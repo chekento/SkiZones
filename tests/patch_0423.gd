@@ -6,6 +6,7 @@ const Crew=preload("res://src/world/crew_life.gd")
 const DayRhythm=preload("res://src/core/day_rhythm.gd")
 const Terrain=preload("res://src/core/terrain.gd")
 const SceneBoard=preload("res://src/ui/staff_training_scene_0423.gd")
+const ResortView=preload("res://src/world/resort_view.gd")
 var passed:int=0
 var failed:int=0
 
@@ -82,6 +83,28 @@ func run()->void:
 	board.configure("chef",1)
 	check(board.custom_minimum_size.y>=200 and board.profession=="chef","Interactive vocational training board can display the cooking station")
 	board.free()
+	# The actual employee commute must be a chain of existing connected
+	# public graph segments, not the old straight line across slopes.
+	var view:Node3D=ResortView.new()
+	view.model=model
+	view.terrain=model.terrain
+	var crew:Crew=Crew.new()
+	crew.lodge_point=Terrain.BASE
+	var resort_lodges:Array=model.buildings.filter(func(z):return str(z.kind)=="lodge")
+	check(not resort_lodges.is_empty(),"Starter resort has an actual staffed, walkable service building")
+	if not resort_lodges.is_empty():
+		var lodge:Dictionary=resort_lodges[0]
+		var workers:Array=model.operations.staff.filter(func(p):return str(p.assignment)=="building:%d" % int(lodge.id))
+		check(not workers.is_empty(),"Starter lodge contains named real employees")
+		if not workers.is_empty():
+			var foot_legs:Array=crew._route(view,workers[0],false)
+			check(not foot_legs.is_empty(),"A worker can commute along a connected resort graph")
+			check(foot_legs.all(func(leg):return str(leg.get("kind","")) in ["walk","ski","lift"] and leg.get("points",[]).size()>=2),"Commute contains only real walking, skiing and lift sections")
+			if not foot_legs.is_empty():
+				var final_leg:Dictionary=foot_legs.back()
+				var endpoint:Vector2=Terrain.unpack(final_leg.points.back())
+				check(endpoint.distance_to(Terrain.unpack(model.pedestrian_graph().nodes["d%d" % int(lodge.id)]))<0.1,"Commute terminates at the actual workplace door")
+	view.free()
 	var snap:Dictionary=JSON.parse_string(JSON.stringify(model.snapshot()))
 	check(Resort.new().restore(snap).ok,"New staffing policy preserves existing career save schema")
 	finish()
