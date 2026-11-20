@@ -72,7 +72,10 @@ func _init() -> void:
 		model.advance_minute(false)
 		check(model.guest_position(guest).distance_to(position) < 0.01, "a guest awaiting rescue remains at the incident location")
 		var event: Dictionary = model.operations.incidents[-1]
-		check(Ops.dispatch(model, int(event.id)).ok, "staffed patrol dispatches via the actual route graph")
+		# The new one-minute auto-dispatch can already send the crew on the
+		# preceding tick; manual dispatch must not be required twice.
+		var underway:bool=str(event.status)=="responding"
+		check(underway or Ops.dispatch(model, int(event.id)).ok, "staffed patrol automatically or manually dispatches via the actual route graph")
 		check(event.get("route_points",[]).size()>=2 and float(event.get("response_duration",0))>0, "ski patrol has an actual non-empty approach route")
 		# Exercise every emergency phase with bounded simulated time. The
 		# original direct-healing assertion was invalid once patients gained
