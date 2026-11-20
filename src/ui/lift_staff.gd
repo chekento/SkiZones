@@ -157,7 +157,8 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 			var prep_role:String="barista" if item.kind=="cocoa" else "chef"
 			var cooks:int=Ops.duty(model,prep_role,target)
 			var waiters:int=Ops.duty(model,"waiter",target)
-			hud._label(general,"%s: %d   ·   %s: %d" % [L.text(str(Ops.ROLES[prep_role].name)),cooks,L.text(str(Ops.ROLES.waiter.name)),waiters],16,hud.TEAL,true)
+			var kitchen_summary:String=L.text(str(Ops.ROLES[prep_role].name))+": "+str(cooks)+"   ·   "+L.text(str(Ops.ROLES.waiter.name))+": "+str(waiters)
+			hud._label(general,kitchen_summary,16,hud.TEAL,true)
 			var productivity:=ProgressBar.new()
 			productivity.min_value=0
 			productivity.max_value=280
