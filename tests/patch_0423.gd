@@ -64,7 +64,7 @@ func run()->void:
 	var with_team:float=Ops.service_efficiency(model,restaurant)
 	check(with_team>with_waiter,"A second chef and waiter raise throughput beyond a single pair")
 	model.minute=1140;model._duty_cache.clear()
-	check(Ops.service_efficiency(model,restaurant)<=without_waiter,"Off-duty employees do not create imaginary restaurant capacity")
+	check(not Ops.building_open(model,restaurant) and is_equal_approx(Ops.service_efficiency(model,restaurant),1.0),"Off-duty kitchen is closed, with neutral accounting baseline")
 	model.minute=420
 	var staff:Dictionary={"shift":"day"}
 	var morning:Dictionary=Crew._commute_phase(model,staff,20.0)
