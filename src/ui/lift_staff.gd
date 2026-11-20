@@ -152,6 +152,19 @@ func _build_operation(parent: Node, item: Dictionary) -> void:
 		var seats: int=model.service_capacity(item) if model.Needs.SERVICES.has(str(item.kind)) else 0
 		hud._label(general,L.text("GÄSTE  %d/%d  ·  BESUCHE  %d  ·  UMSATZ  %s €") % [current,seats,int(item.get("visits",0)),hud.money_text(balance.sales)],19,hud.TEAL,true)
 		hud._label(general,L.text("KOSTEN  %s €  ·  SALDO  %s €") % [hud.money_text(balance.costs),hud.money_text(balance.net)],18,hud.MUTED,true)
+		if str(item.kind) in ["restaurant","lodge","schmarrn","pizzeria","cocoa"] and Ops.active(model):
+			var target:String="building:%d" % int(item.id)
+			var prep_role:String="barista" if item.kind=="cocoa" else "chef"
+			var cooks:int=Ops.duty(model,prep_role,target)
+			var waiters:int=Ops.duty(model,"waiter",target)
+			hud._label(general,"%s: %d   ·   %s: %d" % [L.text(str(Ops.ROLES[prep_role].name)),cooks,L.text(str(Ops.ROLES.waiter.name)),waiters],16,hud.TEAL,true)
+			var productivity:=ProgressBar.new()
+			productivity.min_value=0
+			productivity.max_value=280
+			productivity.value=Ops.service_efficiency(model,item)*100.0
+			productivity.show_percentage=false
+			productivity.custom_minimum_size.y=14
+			general.add_child(productivity)
 	if item.has("bottom"):
 		var parts:=Ops.line_lifts(model,item)
 		_button(general,L.text("Liftverbund schließen") if parts.any(func(part):return part.enabled) else L.text("Liftverbund öffnen"),_toggle_line)
