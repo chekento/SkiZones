@@ -413,10 +413,15 @@ static func _path_length(points:Array)->float:
 
 static func _travel_time(legs:Array)->float:
 	var minutes:float=0.0
+	var uses_skis:bool=false
 	for leg in legs:
-		var rate:float=9.0 if str(leg.get("kind",""))=="ski" else 4.5 if str(leg.get("kind",""))=="lift" else 2.4
+		var kind:String=str(leg.get("kind",""))
+		if kind=="ski":uses_skis=true
+		var rate:float=9.0 if kind=="ski" else 4.5 if kind=="lift" else 2.4
 		minutes+=_path_length(leg.get("points",[]))/rate/60.0
-	return clampf(minutes+3.0,7.0,50.0)
+	# Skis must save time even on the short downhill commute from a hill
+	# restaurant; the former universal 7-min floor erased that difference.
+	return clampf(minutes+2.0,4.0 if uses_skis else 7.0,50.0)
 
 static func _commute_phase(model:RefCounted,staff:Dictionary,travel:float)->Dictionary:
 	var times:Array=Ops.SHIFTS.get(str(staff.get("shift","day")),Ops.SHIFTS.day)
