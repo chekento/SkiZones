@@ -1,4 +1,4 @@
-name: Sync v0.42.4 release notes after QA
+name: Synchronize published v0.42.4 release notes
 on:
   push:
     branches: [main]
