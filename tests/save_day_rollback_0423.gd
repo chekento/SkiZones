@@ -93,6 +93,8 @@ func run()->void:
 		var blocked:Dictionary=Saves.load_game(Resort.new(),PATH)
 		check(not blocked.get("ok",false) and int(blocked.get("newer_primary_day",0))==9 and int(blocked.get("backup_day",0))==7,"Unrepairable day 9 is protected from silent day 7 fallback")
 		check(FileAccess.get_sha256(PATH)==protected_sha,"Failed recovery does not overwrite the newer primary")
+		var stale_world:RefCounted=snapshot_at(7,900)
+		check(not Saves.save_game(stale_world,PATH).ok and FileAccess.get_sha256(PATH)==protected_sha,"An older save is refused even when the newer checksum-valid primary cannot restore")
 	clear_files()
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
