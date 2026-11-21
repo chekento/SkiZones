@@ -126,6 +126,7 @@ func run() -> void:
 	var resort_path: String=game.SaveStore.path_for_map(game.model.map_id)
 	var saved_resort: Dictionary=game.SaveStore._read(resort_path)
 	var checkpoint: Dictionary=game.app_session.read_state()
+	print("LIFECYCLE SAVE COMPARISON: saved_day=",saved_resort.data.get("day",-1) if saved_resort.get("ok",false) else -1," saved_minute=",saved_resort.data.get("minute",-1) if saved_resort.get("ok",false) else -1," current_day=",game.model.day," current_minute=",game.model.minute," direct_save_probe=",game.SaveStore.save_game(game.model,resort_path))
 	var replay_probe=game.model.get_script().new()
 	var replay: Dictionary=replay_probe.restore(saved_resort.data.duplicate(true)) if saved_resort.get("ok",false) else {"ok":false,"message":"Resort file unreadable"}
 	print("LIFECYCLE SAVE DIAGNOSTIC: resort_exists=",FileAccess.file_exists(resort_path)," resort_read=",saved_resort.get("ok",false)," replay=",replay," day=",game.model.day," checkpoint_present=",not checkpoint.is_empty()," checkpoint_match=",game.SaveStore.session_source_matches(game.model.map_id,game.SaveStore.active_slot,str(checkpoint.get("checksum",""))) if not checkpoint.is_empty() else false," save_failed=",game._save_failed)
