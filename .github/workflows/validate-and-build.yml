@@ -431,6 +431,10 @@ jobs:
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 360 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/patch_0423.gd
       - name: P0 verified Android save reloading – never return from day 9 to day 7
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/save_day_rollback_0423.gd
+      - name: P0 0.42.4 newest verified backup must beat older primary
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-test-newest-backup-0424
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/save_newest_backup_0424.gd
       - name: 0.42 P0 real 250-NPC load, snowpark accounting and 8x to 1x lift downshift
         run: |
           python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --language de --headless --audio-driver Dummy --script tests/crowd_stress_042.gd
