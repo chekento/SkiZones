@@ -1,0 +1,35 @@
+name: Sync v0.42.4 release notes after QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/releases/0.42.4.md'
+      - '.github/workflows/sync-0424-release-notes.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync-verified-hotfix-notes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace stale draft wording in the already published v0.42.4 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -s docs/releases/0.42.4.md
+          gh release view v0.42.4 --repo "$GH_REPO" --json tagName,isDraft,assets > /tmp/skizones-0424.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/skizones-0424.json', encoding='utf-8') as stream:
+              data=json.load(stream)
+          assert data['tagName']=='v0.42.4', 'Wrong GitHub release'
+          assert not data['isDraft'], 'Release not public'
+          names={a['name'] for a in data['assets']}
+          assert {'SkiZones-0.42.4-android-arm64.apk', 'SkiZones-0.42.4-android-arm64.apk.sha256', 'manifest.json'}.issubset(names), 'APK, checksum or manifest missing'
+          PY
+          gh release edit v0.42.4 --repo "$GH_REPO" --notes-file docs/releases/0.42.4.md
+          gh release view v0.42.4 --repo "$GH_REPO" --json body --jq '.body' | grep -F 'Öffentliches Android-ARM64-Preview'
