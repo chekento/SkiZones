@@ -123,6 +123,12 @@ func run() -> void:
 	game.paused=true;game.view.focus=Vector2(235,40);game.view.yaw=1.1;game.view.zoom=250;game.view._update_camera()
 	game._suspend_application()
 	var before:Dictionary=game.model.snapshot()
+	var resort_path: String=game.SaveStore.path_for_map(game.model.map_id)
+	var saved_resort: Dictionary=game.SaveStore._read(resort_path)
+	var checkpoint: Dictionary=game.app_session.read_state()
+	var replay_probe=game.model.get_script().new()
+	var replay: Dictionary=replay_probe.restore(saved_resort.data.duplicate(true)) if saved_resort.get("ok",false) else {"ok":false,"message":"Resort file unreadable"}
+	print("LIFECYCLE SAVE DIAGNOSTIC: resort_exists=",FileAccess.file_exists(resort_path)," resort_read=",saved_resort.get("ok",false)," replay=",replay," day=",game.model.day," checkpoint_present=",not checkpoint.is_empty()," checkpoint_match=",game.SaveStore.session_source_matches(game.model.map_id,game.SaveStore.active_slot,str(checkpoint.get("checksum",""))) if not checkpoint.is_empty() else false," save_failed=",game._save_failed)
 	var restored=load("res://scenes/main.tscn").instantiate();root.add_child(restored);await process_frame
 	restored.set_process(false);restored.app_session.path=game.app_session.path
 	check(restored.app_session.restore(restored),"A newly created game process restores its saved resort session")
