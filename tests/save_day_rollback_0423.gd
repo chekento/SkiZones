@@ -4,6 +4,7 @@ extends SceneTree
 ## day 7, and NEVER claim success for a new save that cannot be reloaded.
 const Resort=preload("res://src/core/resort.gd")
 const Saves=preload("res://src/core/save_store.gd")
+const SaveManager=preload("res://src/core/save_management_038.gd")
 var passed:int=0
 var failed:int=0
 const PATH:="user://regression_save_day_rollback_0423.json"
@@ -44,6 +45,7 @@ func run()->void:
 	var main_read:Dictionary=Saves._read(PATH)
 	var backup_read:Dictionary=Saves._read(PATH+".bak")
 	check(main_read.get("ok",false) and int(main_read.data.day)==9 and backup_read.get("ok",false) and int(backup_read.data.day)==7,"Day 9 is primary while day 7 remains a valid backup")
+	check(SaveManager._older_than_primary(main_read,backup_read) and not SaveManager._older_than_primary(backup_read,main_read),"Manual Save Manager must also reject stale day-7 promotion over day 9")
 	var from_disk:RefCounted=Resort.new()
 	var loaded:Dictionary=Saves.load_game(from_disk,PATH)
 	check(loaded.get("ok",false) and int(from_disk.day)==9 and int(from_disk.minute)==1020,"Normal fresh-process loader resumes exact day 9 progress")
