@@ -263,15 +263,16 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 		if previous.get("ok", false):
 			var prior_probe: RefCounted = model.get_script().new()
 			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok", false))
-		if previous_loadable:
-			# An old or wrong-slot in-memory world must not destroy a more
-			# advanced valid career on disk. Explicit New Career archives the
-			# slot first and is unaffected by this guard.
+		# Even when the newest primary fails a *semantic* restore, its valid
+		# checksum and higher game time still win over an older runtime save.
+		# This is precisely how day 9 can be erased by a day 7 fallback.
+		if previous.get("ok",false) and str(previous.data.get("map_id",""))==str(model.map_id):
 			var old_clock:int=int(previous.data.get("day",0))*1440+int(previous.data.get("minute",0))
 			var new_clock:int=int(model.day)*1440+int(model.minute)
-			if str(previous.data.get("map_id",""))==str(model.map_id) and old_clock>new_clock:
+			if old_clock>new_clock:
 				DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
 				return {"ok":false,"message":L.text("Ein neuerer Spielstand liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
+		if previous_loadable:
 			# Stage and verify before replacing the previous known-good backup.
 			var backup_stage: String = path + ".bak.tmp"
 			var backup_stage_abs: String = ProjectSettings.globalize_path(backup_stage)
