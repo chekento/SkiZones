@@ -259,14 +259,14 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# An old installed APK may leave day 7 as the valid primary but retain
 	# day 9 in .bak. A fresh day-7 autosave must NEVER rotate this only
 	# remaining day-9 source out of existence.
-	var new_clock:int=int(model.day)*1440+int(model.minute)
+	var requested_clock:int=int(model.day)*1440+int(model.minute)
 	for existing_path in [path,path+".bak"]:
 		var existing:Dictionary=_read(existing_path)
 		if not existing.get("ok",false):continue
 		if str(existing.data.get("map_id",""))!=str(model.map_id):continue
 		if _free_data(existing.data)!=_free_data(temporary_read.data):continue
 		var existing_clock:int=int(existing.data.get("day",0))*1440+int(existing.data.get("minute",0))
-		if existing_clock>new_clock:
+		if existing_clock>requested_clock:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
 			return {"ok":false,"message":L.text("Ein neuerer Spielstand oder eine neuere Sicherung liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
 	var absolute := ProjectSettings.globalize_path(path)
@@ -459,13 +459,13 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	# build could have rotated files in precisely that order. Compare the
 	# checksum-verified timestamps before trying any semantic restores.
 	var backup_is_newer:bool=false
-	var primary_read:Dictionary=_read(path)
-	var backup_read:Dictionary=_read(path+".bak")
-	if primary_read.get("ok",false) and backup_read.get("ok",false):
-		if str(primary_read.data.get("map_id",""))==str(backup_read.data.get("map_id","")) and _free_data(primary_read.data)==_free_data(backup_read.data):
-			var primary_clock:int=int(primary_read.data.get("day",0))*1440+int(primary_read.data.get("minute",0))
-			var backup_clock:int=int(backup_read.data.get("day",0))*1440+int(backup_read.data.get("minute",0))
-			backup_is_newer=backup_clock>primary_clock
+	var ordered_primary:Dictionary=_read(path)
+	var ordered_backup:Dictionary=_read(path+".bak")
+	if ordered_primary.get("ok",false) and ordered_backup.get("ok",false):
+		if str(ordered_primary.data.get("map_id",""))==str(ordered_backup.data.get("map_id","")) and _free_data(ordered_primary.data)==_free_data(ordered_backup.data):
+			var ordered_primary_clock:int=int(ordered_primary.data.get("day",0))*1440+int(ordered_primary.data.get("minute",0))
+			var ordered_backup_clock:int=int(ordered_backup.data.get("day",0))*1440+int(ordered_backup.data.get("minute",0))
+			backup_is_newer=ordered_backup_clock>ordered_primary_clock
 			if backup_is_newer:
 				sources[0]=path+".bak"
 				sources[1]=path
@@ -480,7 +480,7 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			if backup_is_newer and candidate==path:
 				# Even if day 9 was semantically damaged, never claim success
 				# by silently switching to a strict but older day-7 primary.
-				return {"ok":false,"newer_backup_day":int(backup_read.data.get("day",0)),"primary_day":int(read.data.get("day",0)),"source":path+".bak","message":L.text("Eine neuere Sicherung liegt vor, konnte aber nicht automatisch repariert werden. Die ältere Hauptdatei wird nicht darüber gespeichert.")}
+				return {"ok":false,"newer_backup_day":int(ordered_backup.data.get("day",0)),"primary_day":int(read.data.get("day",0)),"source":path+".bak","message":L.text("Eine neuere Sicherung liegt vor, konnte aber nicht automatisch repariert werden. Die ältere Hauptdatei wird nicht darüber gespeichert.")}
 			if candidate==path:newest_primary=read.data.duplicate(true)
 			# A 9th-day primary with old geometry or a damaged guest route
 			# MUST be repaired before loading its 7th-day backup. In this
