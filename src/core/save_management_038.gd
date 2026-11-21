@@ -104,15 +104,26 @@ static func inspect(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		list.append({"name":source.get_file(),"source":source,"checksum":valid,"loadable":normal,"recoverable":salvage,"message":detail,"reason":diagnostic.get("reason", "unknown"),"bytes":diagnostic.get("bytes", 0),"version":diagnostic.get("version", -1),"semantic_error":semantic_error})
 	return {"ok":not list.is_empty(),"files":list,"verified":good,"loadable":exact,"recoverable":recovery,"damaged":not list.is_empty() and exact==0 and recovery==0}
 
-## Prefer intact backups, then normalize a recoverable checksum-verified source.
-## Every replacement must pass a complete normal restore before activation.
+## Safe ordering for manual repair: the newest checksum-verified game day
+## outranks a strictly loadable but older backup. It may require compatible
+## geometry or a reset of transient guest routes; never silently roll back.
+static func _older_than_primary(primary:Dictionary,candidate:Dictionary)->bool:
+	if not primary.get("ok",false) or not candidate.get("ok",false):return false
+	if str(primary.data.get("map_id",""))!=str(candidate.data.get("map_id","")):return false
+	var first:int=int(primary.data.get("day",0))*1440+int(primary.data.get("minute",0))
+	var second:int=int(candidate.data.get("day",0))*1440+int(candidate.data.get("minute",0))
+	return second<first
+
+## Repair the most advanced verified career, never silently replace it with an
+## older restore-only backup. Every replacement must pass semantic validation.
 static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var paths: Array=recovery_sources(id,slot,free_slot)
 	if paths.is_empty():return {"ok":false,"message":L.text("Ungültiger Spielstand.")}
 	var target: String=Saves.path_for_map(id,slot,free_slot)
 	var existing: Dictionary=Saves._read(target) if FileAccess.file_exists(target) else {"ok":false}
 	var probe_script: Script=load("res://src/core/resort.gd")
-	if correct_mode(existing,id,slot):
+	var newest_readable:bool=correct_mode(existing,id,slot)
+	if newest_readable:
 		var current: RefCounted=probe_script.new()
 		if current.restore(existing.data.duplicate(true)).ok:
 			return {"ok":true,"changed":false,"message":L.text("Hauptspielstand vollständig ladbar. Keine Reparatur nötig.")}
@@ -120,6 +131,7 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		if candidate==target or not FileAccess.file_exists(candidate):continue
 		var read: Dictionary=Saves._read(candidate)
 		if not correct_mode(read,id,slot):continue
+		if newest_readable and _older_than_primary(existing,read):continue
 		var check: RefCounted=probe_script.new()
 		if not check.restore(read.data.duplicate(true)).ok:continue
 		var staged: String=target+".rescue.tmp"
@@ -145,6 +157,7 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		if not FileAccess.file_exists(candidate):continue
 		var read:Dictionary=Saves._read(candidate)
 		if not correct_mode(read,id,slot):continue
+		if newest_readable and candidate!=target and _older_than_primary(existing,read):continue
 		var recovered:Dictionary=Saves.probe_restore(read.data,probe_script,true)
 		if not recovered.ok:continue
 		var staged:String=target+".repair-%d.tmp" % Time.get_ticks_usec()
