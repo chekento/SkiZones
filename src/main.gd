@@ -67,6 +67,7 @@ var _lift_camera_manual := false
 var _lift_slopes_manual := false
 var _last_saved_marker := ""
 var _last_saved_at := 0
+var _last_save_attempt_at := 0
 var _save_failed := false
 var has_game := false
 var _accumulator := 0.0
@@ -199,6 +200,13 @@ func _process(delta: float) -> void:
 		# repeatedly behind opaque overlays on low-end Android devices.
 		if not hud.menu.visible and not hud.management.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen):
 			hud.refresh()
+	# A phone can run many in-game days between Android lifecycle callbacks.
+	# Save genuine progress at most every 90 real seconds, independently
+	# of notification callbacks and without writing an unchanged state.
+	# Rate-limit failed attempts as well: never retry every render frame.
+	if has_game and not _app_background and not hud.loading.visible and Time.get_ticks_msec()-_last_save_attempt_at>=90000:
+		if _save_state_marker()!=_last_saved_marker:
+			save_game(false)
 
 func simulation_running() -> bool:
 	return has_game and not _app_background and not paused and points.is_empty() and not _stroke_drawn and not hud.piste_workshop.visible and not (hud.building_browser.visible and hud.building_browser.window.fullscreen) and not hud.experience.visible and not hud.winter_festival.visible and not hud.seasonal_poster.visible and not hud.piste_map_window.visible and not hud.jukebox.visible and not hud.medal_cabinet.visible and not hud.update_dialog.visible and not hud.career_slots.visible and not hud.audience.visible and not hud.lift_staff.visible and not hud.asset_editor.visible and not hud.display_options.visible and not hud.menu.visible and not hud.camera_dialog.visible and not hud.help_dialog.visible and not hud.daily_dialog.visible and not hud.management.visible and not hud.atlas.visible and not hud.scenarios.visible and not hud.credits.visible and not hud.loading.visible and not model.day_finished()
@@ -485,25 +493,28 @@ func _save_state_marker() -> String:
 
 func save_game(show_feedback: bool = true) -> bool:
 	if has_game:
-		# Freeze only the bounded visible snow-wear state alongside the same
-		# checksum-protected resort snapshot. Old versions remain readable.
+		_last_save_attempt_at=Time.get_ticks_msec()
+		# Persist the CAREER first, not its secondary metaprogression passport.
+		# A failed passport backup used to abort the entire resort save.
 		if view.model == model: model.foot_wear_cells = view.foot_wear.export_state()
-		passport.record(model)
-		if not passport.save_to(SaveStore.passport_path()):
-			_save_failed = true
-			hud.toast(L.text("Die Sicherung ist fehlgeschlagen. Die Karriere bleibt erhalten."))
+		var result:Dictionary=SaveStore.save_game(model,SaveStore.path_for_map(model.map_id))
+		if not result.get("ok",false):
+			_save_failed=true
+			hud.toast(str(result.get("message",L.text("Spielstand konnte nicht geschrieben werden."))))
+			hud.refresh()
 			return false
-		var result := SaveStore.save_game(model, SaveStore.path_for_map(model.map_id))
-		if result.ok:
-			_last_saved_marker = _save_state_marker()
-			_last_saved_at = Time.get_ticks_msec()
-			_save_failed = false
-			app_session.save(self)
-		else:
-			_save_failed = true
-		if show_feedback or not result.ok:hud.toast(result.message)
+		_last_saved_marker=_save_state_marker()
+		_last_saved_at=Time.get_ticks_msec()
+		_save_failed=false
+		passport.record(model)
+		var passport_ok:bool=passport.save_to(SaveStore.passport_path())
+		app_session.save(self)
+		if not passport_ok:
+			hud.toast(L.text("Resort sicher gespeichert; Bergpass-Sicherung konnte nicht aktualisiert werden."))
+		elif show_feedback:
+			hud.toast(str(result.message))
 		hud.refresh()
-		return result.ok
+		return true
 	return false
 
 func toggle_pause() -> void:
