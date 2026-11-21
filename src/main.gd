@@ -877,6 +877,13 @@ func demolish_asset(id: int) -> void:
 	_update_plan()
 
 func _map_tap(position_value: Vector2) -> void:
+	if tool=="inspect":
+		# Screen-space camera ray, not a ground-plane guess: 24 physical
+		# doors have their own 3D positions on the actual Advent house.
+		var christmas_door:int=view.festival_scene.pick_advent_door(view.camera,position_value)
+		if christmas_door>0:
+			hud.winter_festival.open_world_door(christmas_door)
+			return
 	var point := view.map_point(position_value)
 	if not model.terrain.contains(point):
 		return

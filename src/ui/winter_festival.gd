@@ -49,6 +49,17 @@ func open() -> void:
 	show()
 	window._fit()
 
+## Opening a physical 3D door uses the same atomically stored claim as
+## the menu; tapping a locked or previously opened door grants nothing.
+func open_world_door(number:int)->bool:
+	if number<1 or number>24 or not AnnualFestival.visible(current_date()):return false
+	var answer:Dictionary=archive.claim(number,current_date())
+	if bool(answer.get("ok",false)):
+		hud.game.view.festival_scene.reveal_advent_door(number)
+	hud.toast(L.text(str(answer.get("message",""))))
+	open()
+	return bool(answer.get("ok",false))
+
 func close() -> void:
 	if visible: hud.game.paused=_was_paused
 	hide()
@@ -78,10 +89,25 @@ func _rebuild(date: Dictionary = {}) -> void:
 			var can_open: bool=AnnualFestival.unlocked(now,number) and not owned
 			var button: Button=hud._button(grid,("★ " if number in [6,24] else "❄ ") + str(number) + (" ✓" if owned else ""),func(): pass)
 			button.custom_minimum_size=Vector2(90,68)
+			# Wooden door panels with a distinct open/locked state instead
+			# of bare text: the same 4-by-6 facade as the 3D Advent house.
+			var panel:=StyleBoxFlat.new()
+			panel.bg_color=Color("7b9a92") if owned else Color("ba9059") if number in [6,24] else Color("89614d")
+			panel.border_color=Color("eee2be")
+			panel.set_border_width_all(3)
+			panel.set_corner_radius_all(5)
+			panel.content_margin_left=10
+			panel.content_margin_right=10
+			button.add_theme_stylebox_override("normal",panel)
+			button.add_theme_stylebox_override("disabled",panel)
+			button.add_theme_color_override("font_color",Color("fff8e7"))
+			button.add_theme_color_override("font_disabled_color",Color("e4d9c4"))
 			button.disabled=not can_open
 			button.pressed.connect(func():
 				var answer=archive.claim(number,current_date())
 				hud.toast(L.text(str(answer.message)))
+				if bool(answer.get("ok",false)):
+					hud.game.view.festival_scene.reveal_advent_door(number)
 				_rebuild()
 			)
 	if stage=="new_year_eve":
