@@ -442,12 +442,30 @@ static func service_efficiency(model:RefCounted,building:Dictionary)->float:
 	var extras:=0
 	var proficiency:=0.0
 	for role in building_optional_roles(str(building.kind)):
-		# The duty ledger is already refreshed once per simulation minute.
-		# Never scan all 1200 employees for each prospective guest visit.
+		# Live employees on the selected shift, not the number hired on paper.
 		var count:int=duty(model,role,target)
 		extras+=maxi(0,count-int(required.get(role,0)))
 		proficiency+=float(model._duty_cache.get("qualification:"+role+":"+target,0.0))
-	return clampf(1.0+minf(0.60,float(extras)*0.15)+minf(0.15,proficiency),1.0,1.75)
+	var kind:String=str(building.kind)
+	if kind in ["restaurant","lodge","schmarrn","pizzeria","cocoa"]:
+		# Two independently staffed workstations: cooking/preparation and
+		# front-of-house. A fast kitchen cannot serve customers without a
+		# waiter; five waiters cannot produce meals from one tiny kitchen.
+		# An older career with chefs but no waiter remains operational at
+		# reduced self-service capacity instead of being invalidated.
+		var prep_role:String="barista" if kind=="cocoa" else "chef"
+		var chefs:int=duty(model,prep_role,target)
+		var waiters:int=duty(model,"waiter",target)
+		# A closed kitchen has neutral efficiency (not a production bonus).
+		# Building_open() rejects missing essential workers separately.
+		# Keep the established off-duty accounting/API contract at 1.0.
+		if chefs==0:return 1.0
+		var kitchen:float=0.75+float(chefs)*0.35+float(maxi(0,chefs-1))*0.17
+		var floor:float=0.38+float(waiters)*0.67+float(maxi(0,waiters-1))*0.18
+		return clampf(minf(kitchen,floor)*(1.0+minf(0.15,proficiency)),0.38,2.8)
+	# Non-catering trades retain their own professional bottlenecks, with
+	# staffed bonus slots increasing transactions but also real payroll.
+	return clampf((1.0+minf(1.2,float(extras)*0.20))*(1.0+minf(0.15,proficiency)),1.0,2.5)
 
 static func role_proficiency(model:RefCounted,role:String,target:String)->float:
 	if not model._duty_cache.get("_complete",false):refresh_duty(model)
@@ -1047,7 +1065,10 @@ static func tick(model: RefCounted) -> void:
 			model.snow_revision += 1
 			model._operational_change()
 	for event in model.operations.incidents:
-		if event.status == "waiting" and model.minute % 5 == 0:
+		# Dispatch at the next *simulation minute* whenever two qualified
+		# responders are on duty; do not make injured skiers wait another
+		# five minutes after an earlier team brings its patient home.
+		if event.status == "waiting" and int(model._duty_cache.get("rescue:",0)) >= 2:
 			dispatch(model,int(event.id))
 		elif str(event.status) in ["responding","returning","treating"]:
 			var station:Dictionary=model.asset(int(event.station))

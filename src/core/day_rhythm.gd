@@ -3,11 +3,11 @@ extends RefCounted
 ## needs, queues and wages per game minute in existing saves.
 const PRESETS := ["balanced", "compact", "cozy"]
 const DAY_SPEED := {"balanced":1.8, "compact":2.2, "cozy":1.35}
-const QUIET_FROM := 1200 # 20:00, but only after every visible outdoor trip is safely complete
+const QUIET_FROM := 1140 # 19:00, only when there is no outdoor trip, queue, skier or outbound rescue
 const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenir", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
 
 static func playback(minute: int, preset: String = "balanced") -> float:
-	# Keep an unhurried 17–22h evening after the shorter skiing day.
+	# Keep an unhurried evening until 19:00; afterward empty slopes can fast-forward.
 	return 1.0 if minute >= 1020 and minute < QUIET_FROM else float(DAY_SPEED.get(preset, 1.8))
 
 ## Only foot traffic to a real exit/overnight/after-ski destination can be
@@ -33,10 +33,19 @@ static func _safe_foot_destination(model: RefCounted, guest: Dictionary) -> bool
 static func indoors_only(model: RefCounted) -> bool:
 	# A casualty cannot be silently fast-forwarded simply because the
 	# associated visitor was temporarily removed during a save migration.
-	if model.operations.get("incidents",[]).any(func(e):return str(e.get("status",""))!="resolved"):return false
+	# A patient already inside the staffed clinic may continue receiving
+	# treatment during the quiet-night simulation. Never hide an injured
+	# skier still waiting on a piste or travelling on the rescue sled.
+	var safe_patients:Dictionary={}
+	for event in model.operations.get("incidents",[]):
+		var status:String=str(event.get("status",""))
+		if status in ["waiting","responding","returning"]:return false
+		if status=="treating":safe_patients[int(event.get("guest",-1))]=true
 	var now: int = model.Ops.clock(model)
 	for guest in model.guests:
-		if int(guest.get("incident", -1)) >= 0: return false
+		if int(guest.get("incident", -1)) >= 0:
+			if safe_patients.has(int(guest.get("id",-1))):continue
+			return false
 		if guest.phase == "leaving": continue
 		if guest.phase == "waiting" and guest.get("waiting_reason", "") == "hotel" and int(guest.get("hotel_sleep_until", 0)) > now: continue
 		if guest.phase != "moving" or int(guest.leg) >= guest.route.legs.size(): return false

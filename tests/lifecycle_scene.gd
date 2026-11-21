@@ -120,9 +120,22 @@ func run() -> void:
 	var expected_minutes:int=(fractional_before+expected_steps)/game.model.time_divisor
 	print("LIFECYCLE PACING: expected %d ticks/%d minutes, got %d ticks/%d minutes (remainder %.2f)" % [expected_steps,expected_minutes,actual_steps,game.model.minute-minute,game._accumulator])
 	check(absi(actual_steps-expected_steps)<=3 and absi(game.model.minute-minute-expected_minutes)<=1 and game._accumulator<1.0,"Ten background seconds at 4× follow the selected 0.23 day-length speed without duplicated movement or clock drift")
+	# Earlier integration suites leave a valid day-2 fixture in this shared CI user:// directory.
+	# This lifecycle test starts a fresh day-1 resort: its background save must not
+	# silently overwrite that newer fixture. Advance this synthetic test resort
+	# beyond the existing fixture instead of weakening the production rollback guard.
+	var fixture_path: String=game.SaveStore.path_for_map(game.model.map_id)
+	var existing_fixture: Dictionary=game.SaveStore._read(fixture_path)
+	if existing_fixture.get("ok",false):
+		var existing_clock: int=int(existing_fixture.data.get("day",0))*1440+int(existing_fixture.data.get("minute",0))
+		var test_clock: int=game.model.day*1440+game.model.minute
+		if existing_clock>=test_clock:
+			game.model.day=int(existing_fixture.data.get("day",0))+1
 	game.paused=true;game.view.focus=Vector2(235,40);game.view.yaw=1.1;game.view.zoom=250;game.view._update_camera()
 	game._suspend_application()
 	var before:Dictionary=game.model.snapshot()
+	var checkpoint: Dictionary=game.app_session.read_state()
+	check(not game._save_failed and not checkpoint.is_empty(), "Lifecycle checkpoint follows a semantically verified resort save")
 	var restored=load("res://scenes/main.tscn").instantiate();root.add_child(restored);await process_frame
 	restored.set_process(false);restored.app_session.path=game.app_session.path
 	check(restored.app_session.restore(restored),"A newly created game process restores its saved resort session")

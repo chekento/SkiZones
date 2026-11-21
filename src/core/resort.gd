@@ -1354,7 +1354,11 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		# A weak, time-dependent meal preference adds human routine without
 		# bypassing personal hunger, cooldown, route, capacity or opening checks.
 		if not GuestHabits.allowed(guest,str(building.kind)):continue
+		# Better developed venues attract proportionally more appropriate
+		# visitors, but only a fully staffed kitchen/front-of-house can serve
+		# the extra demand. Paid visits, not attraction, create income.
 		var utility := service_utility(guest,str(building.kind))
+		utility*=1.0+minf(0.65,maxf(0.0,float(building.get("level",1))-1.0)*0.13)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
 		if building.kind == "snowpark": utility += Agenda.park_utility(guest) if guest.age - guest.service_history.get("snowpark", -10000) >= 55 else 0

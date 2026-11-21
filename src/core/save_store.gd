@@ -241,6 +241,17 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	var temporary_read: Dictionary = _read(path + ".tmp")
 	if not temporary_read.get("ok", false) or FileAccess.get_sha256(path + ".tmp") != envelope.sha256_text():
 		return {"ok": false, "message": L.text("Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten.")}
+	# A valid checksum proves only the JSON survived the write. It does NOT
+	# prove this specific career can be loaded back. Never replace day 7
+	# with a checksum-valid but semantically unrestorable day 9 snapshot.
+	var fresh:RefCounted=model.get_script().new()
+	var restored:Dictionary=fresh.restore(temporary_read.data.duplicate(true))
+	if not restored.get("ok",false):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
+		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Der neue Spielstand konnte nicht erneut geladen werden. Der bisherige Spielstand bleibt erhalten.")}
+	if int(fresh.day)!=int(model.day) or int(fresh.minute)!=int(model.minute) or str(fresh.map_id)!=str(model.map_id):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
+		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Spieltag oder Gebiet stimmen nach der Prüfung nicht überein.")}
 	var absolute := ProjectSettings.globalize_path(path)
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
@@ -252,6 +263,15 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 		if previous.get("ok", false):
 			var prior_probe: RefCounted = model.get_script().new()
 			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok", false))
+		# Even when the newest primary fails a *semantic* restore, its valid
+		# checksum and higher game time still win over an older runtime save.
+		# This is precisely how day 9 can be erased by a day 7 fallback.
+		if previous.get("ok",false) and str(previous.data.get("map_id",""))==str(model.map_id):
+			var old_clock:int=int(previous.data.get("day",0))*1440+int(previous.data.get("minute",0))
+			var new_clock:int=int(model.day)*1440+int(model.minute)
+			if old_clock>new_clock:
+				DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
+				return {"ok":false,"message":L.text("Ein neuerer Spielstand liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
 		if previous_loadable:
 			# Stage and verify before replacing the previous known-good backup.
 			var backup_stage: String = path + ".bak.tmp"
@@ -397,6 +417,7 @@ static func _persist_repaired_game(model: RefCounted, path: String) -> Dictionar
 static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: RefCounted = null) -> Dictionary:
 	model.load_progress = progress
 	var verified: Array = []
+	var newest_primary:Dictionary={}
 	var sources: Array = [path,path+".bak"]
 	var failures: Array = []
 	# Pre-slot saves remain a final, read-only fallback. Never load a former
@@ -424,6 +445,16 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			continue
 		if read.ok:
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
+			if candidate==path:newest_primary=read.data.duplicate(true)
+			# A 9th-day primary with old geometry or a damaged guest route
+			# MUST be repaired before loading its 7th-day backup. In this
+			# order the current implementation previously lost two days.
+			if candidate!=path and not newest_primary.is_empty():
+				var primary_clock:int=int(newest_primary.get("day",0))*1440+int(newest_primary.get("minute",0))
+				var backup_clock:int=int(read.data.get("day",0))*1440+int(read.data.get("minute",0))
+				if backup_clock<primary_clock:
+					return {"ok":false,"newer_primary_day":int(newest_primary.get("day",0)),"backup_day":int(read.data.get("day",0)),"source":candidate,"message":L.text("Ein neuerer Hauptspielstand konnte nicht repariert werden. Die ältere Sicherung wurde NICHT automatisch geladen oder darüber gespeichert. Bitte den Reparaturdialog prüfen.")}
+
 			if candidate in sources.slice(2) and not legacy_scenario and (_free_data(read.data) != expected_free):
 				continue
 			verified.append({"path":candidate,"data":read.data})
@@ -437,6 +468,25 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 						return {"ok":true,"recovered":true,"auto_saved":true,"source":candidate,"archive":persisted.archive,"message":L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
 					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text(L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."))}
 				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Resort geladen.")}
+			if candidate==path:
+				# Recover a NEWER broken primary before a stale backup, but do
+				# not reset active guests when a complete, equally current
+				# backup has exactly the same day/minute and restores intact.
+				var equivalent_backup:bool=false
+				var backup_read:Dictionary=_read(path+".bak")
+				if backup_read.get("ok",false) and str(backup_read.data.get("map_id",""))==str(read.data.get("map_id","")):
+					var primary_clock:int=int(read.data.get("day",0))*1440+int(read.data.get("minute",0))
+					var backup_clock:int=int(backup_read.data.get("day",0))*1440+int(backup_read.data.get("minute",0))
+					if backup_clock>=primary_clock:
+						var backup_probe:RefCounted=model.get_script().new()
+						equivalent_backup=bool(backup_probe.restore(backup_read.data.duplicate(true)).get("ok",false))
+				if not equivalent_backup:
+					var preferred:Dictionary=probe_restore(read.data,model.get_script(),true,progress)
+					if preferred.get("ok",false) and model.restore(preferred.model.snapshot()).get("ok",false):
+						var promoted:Dictionary=_persist_repaired_game(model,path)
+						if promoted.get("ok",false):
+							return {"ok":true,"recovered":true,"auto_saved":true,"source":path,"archive":promoted.archive,"reset_visitors":preferred.reset_visitors,"message":L.text("Aktueller Spielstand erfolgreich repariert. Spieltag und Karrierefortschritt wurden erhalten.")}
+						return {"ok":true,"recovered":true,"auto_saved":false,"source":path,"message":L.text("Aktueller Spielstand geladen, aber automatische Reparaturdatei konnte nicht gesichert werden. Original bleibt erhalten.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
 	# unchecked bytes: the envelope checksum and model validation still apply.
