@@ -123,7 +123,11 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var existing: Dictionary=Saves._read(target) if FileAccess.file_exists(target) else {"ok":false}
 	var probe_script: Script=load("res://src/core/resort.gd")
 	var newest_readable:bool=correct_mode(existing,id,slot)
-	if newest_readable:
+	var backup_read:Dictionary=Saves._read(target+".bak")
+	# The previous repair dialog returned "no repair needed" for a
+	# perfectly loadable day-7 primary, even if day-9 backup survived.
+	var backup_is_newer:bool=correct_mode(backup_read,id,slot) and (not newest_readable or _older_than_primary(backup_read,existing))
+	if newest_readable and not backup_is_newer:
 		var current: RefCounted=probe_script.new()
 		if current.restore(existing.data.duplicate(true)).ok:
 			return {"ok":true,"changed":false,"message":L.text("Hauptspielstand vollständig ladbar. Keine Reparatur nötig.")}
@@ -132,6 +136,7 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		var read: Dictionary=Saves._read(candidate)
 		if not correct_mode(read,id,slot):continue
 		if newest_readable and _older_than_primary(existing,read):continue
+		if backup_is_newer and candidate!=target+".bak":continue
 		var check: RefCounted=probe_script.new()
 		if not check.restore(read.data.duplicate(true)).ok:continue
 		var staged: String=target+".rescue.tmp"
@@ -158,6 +163,7 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 		var read:Dictionary=Saves._read(candidate)
 		if not correct_mode(read,id,slot):continue
 		if newest_readable and candidate!=target and _older_than_primary(existing,read):continue
+		if backup_is_newer and candidate!=target+".bak":continue
 		var recovered:Dictionary=Saves.probe_restore(read.data,probe_script,true)
 		if not recovered.ok:continue
 		var staged:String=target+".repair-%d.tmp" % Time.get_ticks_usec()
