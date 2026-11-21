@@ -1,0 +1,36 @@
+name: P0 Android save day9/day7 rollback prevention
+on:
+  pull_request:
+    paths:
+      - 'src/core/save_store.gd'
+      - 'src/main.gd'
+      - 'tests/save_day_rollback_0423.gd'
+      - '.github/workflows/save-rollback-0423.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: save-day-regression-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify-roundtrip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import all game scripts
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: P0 day 9 versus old backup day 7 and actual reload integrity
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_day_rollback_0423.gd
