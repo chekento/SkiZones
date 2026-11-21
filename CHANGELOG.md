@@ -1,6 +1,6 @@
 # SkiZones – vollständiges Changelog und APK-Versionsarchiv
 
-Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **56 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
+Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **57 veröffentlichte Android-Previews**. Die Einträge stammen aus versionierten Dateien unter docs/releases/ oder, falls keine Datei vorliegt, aus dem jeweiligen GitHub-Release. Die tatsächlich vorhandenen APK-Dateien werden direkt verlinkt. Neueste Version zuerst.
 
 [Spielübersicht](README.md) · [Alle GitHub-Releases](https://github.com/chekento/SkiZones/releases)
 
@@ -8,6 +8,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 
 | Version | Datum (UTC) | Schwerpunkt | APK | Detaillierte Notizen |
 |---|---|---|---|---|
+| **[v0.42.4](https://github.com/chekento/SkiZones/releases/tag/v0.42.4)** | 21.11.2026 | Spielstandsicherheit: neuestes Backup gewinnt | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.4/SkiZones-0.42.4-android-arm64.apk) | [Details](docs/releases/0.42.4.md) |
 | **[v0.42.3](https://github.com/chekento/SkiZones/releases/tag/v0.42.3)** | 21.11.2026 | P0-Spielstandsicherheit, Personalwege, Rettung und schnelle Nächte | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.3/SkiZones-0.42.3-android-arm64.apk) | [Details](docs/releases/0.42.3.md) |
 | **[v0.42.2](https://github.com/chekento/SkiZones/releases/tag/v0.42.2)** | 19.11.2026 | Personal, Bergwacht und beschleunigte Nächte | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.2/SkiZones-0.42.2-android-arm64.apk) | [Details](docs/releases/0.42.2.md) |
 | **[v0.42.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.1)** | 19.11.2026 | Hotfix für Liftbewegung und Pistenrettung | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.1/SkiZones-0.42.1-android-arm64.apk) | [Details](docs/releases/0.42.1.md) |
@@ -66,6 +67,35 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 | **[v0.42.0-test.1](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1)** | 15.11.2026 | Test 1 für Android ARM64 | [APK ARM64](https://github.com/chekento/SkiZones/releases/download/v0.42.0-test.1/SkiZones-0.42.0-test1-android-arm64.apk) | [Details](https://github.com/chekento/SkiZones/releases/tag/v0.42.0-test.1) |
 
 ## Ausführliches Änderungsprotokoll
+
+## v0.42.4 · Spielstandsicherheit: neuestes Backup gewinnt (21.11.2026)
+
+**Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.4) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.4/SkiZones-0.42.4-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.4/SkiZones-0.42.4-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.4/manifest.json) · [Originalnotizen](docs/releases/0.42.4.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.4)
+
+**Hotfix-Kandidat. Nicht öffentlich freigegeben, solange die GitHub-Actions- und Android-Prüfungen noch laufen.**
+
+### Rücksprung-Sonderfall aus 0.42.2/0.42.3
+
+Ein älterer Android-Spielstand kann aus historischen Gründen die Hauptdatei auf **Tag 7**, aber die gültige Datei **`.bak` auf Tag 9** gesetzt haben. Die 0.42.3 prüft vor allem *neuere Hauptdateien*; ihre Hauptdatei erhält auch dann den Vorrang, wenn das vorhandene Backup neuer ist. Diese Version korrigiert diesen Sonderfall.
+
+- Die gültigen Originale und Backups werden **vor** der Auswahl verglichen: das neueste Datum aus Tag und Minute wird bevorzugt. Danach muss auch der komplette semantische Godot-Restore erfolgreich sein; bei beschädigter, aber checksum-validierter Geometrie darf der neuere Stand sicher repariert werden.
+- Ist das neuere Backup selbst nicht wiederherstellbar, wird **nicht stillschweigend** die ältere Hauptdatei gestartet. Der Spieler erhält eine Fehlermeldung; die Dateien bleiben erhalten.
+- Autosave / manuelles Speichern des älteren Spieltags werden verweigert, wenn auf dem Gerät noch ein neueres Backup existiert. Das verhindert, dass beim Rotieren der Sicherungen die letzten Tag-9-Daten überschrieben werden.
+- Spielstandübersicht und manueller Reparaturdialog berücksichtigen das neuere `.bak`, selbst wenn die ältere Hauptdatei noch lesbar ist.
+- Englische Fehlermeldungen und genau dieser Ablauf sind im neuen Test `tests/save_newest_backup_0424.gd` abgedeckt.
+- **Keine neue Speicherstruktur.** Bestehende 0.19–0.42.3-Spielstände bleiben das Ziel; Originaldateien werden nicht stillschweigend gelöscht.
+- Android-Paketversion auf **0.42.4 / versionCode 61** erhöht, damit die bestehende App ohne Deinstallation aktualisiert werden kann.
+
+### Auslieferungskontrollen
+
+- [ ] Neuer Tag-7-Hauptdatei/Tag-9-Backup-Regressionslauf besteht.
+- [ ] Die vorherige Tag-9-Hauptdatei/Tag-7-Backup-Regressionssuite besteht.
+- [ ] Historische Save-Kompatibilität, vollständiger Godot-Lauf, Android 30/36, Update-Signatur und APK-Prüfsumme erfolgreich.
+- [ ] Reales Samsung-Gerät: Vorhandene Daten nicht löschen, Backup-Quelle nach dem Laden anzeigen, Änderungen erneut sichern und nach App-Neustart prüfen.
+
+**Die konkrete Tag-9-Datei des Nutzers ist nicht aus GitHub zugänglich. Der Hotfix kann sie nur wiederherstellen, wenn ihre Daten auf dem Telefon noch vorhanden und genügend intakt sind.**
+
+---
 
 ## v0.42.3 · P0-Spielstandsicherheit, Personalwege, Rettung und schnelle Nächte (21.11.2026)
 
