@@ -52,6 +52,18 @@ func seed_day7_primary_day9_backup()->void:
 	check(int(Saves._read(PATH).data.get("day",0))==7 and int(Saves._read(PATH+".bak").data.get("day",0))==9,"Reproduce real day 7 primary with newer day 9 backup")
 
 func run()->void:
+	# Reported Samsung screenshot: day 7 at 19:59, no outdoor guests and
+	# a substantial operating resort. This must save and reload when no
+	# newer archive is present; the red header must not be an unconditional
+	# "after closing" false positive.
+	purge()
+	var late_world:RefCounted=create_day(7,1199)
+	var late_saved:Dictionary=Saves.save_game(late_world,PATH)
+	check(late_saved.get("ok",false),"Day 7 at 19:59 can still be saved when it is the latest valid career")
+	if late_saved.get("ok",false):
+		var late_reload:RefCounted=Resort.new()
+		var loaded_late:Dictionary=Saves.load_game(late_reload,PATH)
+		check(loaded_late.get("ok",false) and late_reload.day==7 and late_reload.minute==1199,"A fresh loader restores the exact day-7 19:59 checkpoint")
 	seed_day7_primary_day9_backup()
 	var original_day9:String=FileAccess.get_sha256(PATH+".bak")
 	var original_day7:String=FileAccess.get_sha256(PATH)
