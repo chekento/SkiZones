@@ -672,7 +672,7 @@ func _update_save_status() -> void:
 	var saved: bool = not game._last_saved_marker.is_empty() and game._last_saved_marker == game._save_state_marker()
 	if game._save_failed:
 		header_save_button.text = "!" if _header_micro else L.text("Speicherfehler")
-		header_save_button.tooltip_text = L.text("Speichern fehlgeschlagen – bitte erneut versuchen.")
+		header_save_button.tooltip_text = game._last_save_error if not game._last_save_error.is_empty() else L.text("Speichern fehlgeschlagen – bitte erneut versuchen.")
 		header_save_button.modulate = Color("d65a4c")
 	elif saved:
 		var recently: bool = game._last_saved_at > 0 and Time.get_ticks_msec() - game._last_saved_at < 30000

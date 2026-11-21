@@ -69,6 +69,7 @@ var _last_saved_marker := ""
 var _last_saved_at := 0
 var _last_save_attempt_at := 0
 var _save_failed := false
+var _last_save_error:String=""
 var has_game := false
 var _accumulator := 0.0
 var _refresh_timer := 0.0
@@ -246,6 +247,7 @@ func start_game(starter: bool, area: String = "sonnenhang", prepared: RefCounted
 	has_game = true
 	_last_saved_marker = _save_state_marker() if prepared != null else ""
 	_save_failed = false
+	_last_save_error=""
 	paused = false
 	speed = 1
 	_accumulator = 0
@@ -500,9 +502,11 @@ func save_game(show_feedback: bool = true) -> bool:
 		var result:Dictionary=SaveStore.save_game(model,SaveStore.path_for_map(model.map_id))
 		if not result.get("ok",false):
 			_save_failed=true
-			hud.toast(str(result.get("message",L.text("Spielstand konnte nicht geschrieben werden."))))
+			_last_save_error=str(result.get("message",L.text("Spielstand konnte nicht geschrieben werden.")))
+			hud.toast(_last_save_error)
 			hud.refresh()
 			return false
+		_last_save_error=""
 		_last_saved_marker=_save_state_marker()
 		_last_saved_at=Time.get_ticks_msec()
 		_save_failed=false

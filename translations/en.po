@@ -10959,3 +10959,9 @@ msgstr "Latest save repaired successfully. Game day and career progress were pre
 
 msgid "Aktueller Spielstand geladen, aber automatische Reparaturdatei konnte nicht gesichert werden. Original bleibt erhalten."
 msgstr "Latest save loaded, but automatic repair could not be written. The original remains intact."
+
+msgid "Ein neuerer Spielstand oder eine neuere Sicherung liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert."
+msgstr "A newer save or backup already exists. The older game day was not written over it."
+
+msgid "Eine neuere Sicherung liegt vor, konnte aber nicht automatisch repariert werden. Die ältere Hauptdatei wird nicht darüber gespeichert."
+msgstr "A newer backup exists but could not be repaired automatically. The older primary will not replace it."
