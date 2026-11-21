@@ -124,7 +124,7 @@ static func repair(id: String,slot: int,free_slot: int = 1) -> Dictionary:
 	var probe_script: Script=load("res://src/core/resort.gd")
 	var newest_readable:bool=correct_mode(existing,id,slot)
 	var backup_read:Dictionary=Saves._read(target+".bak")
-	# The previous repair dialog returned "no repair needed" for a
+	# The previous repair dialog reported no repair was needed for a
 	# perfectly loadable day-7 primary, even if day-9 backup survived.
 	var backup_is_newer:bool=correct_mode(backup_read,id,slot) and (not newest_readable or _older_than_primary(backup_read,existing))
 	if newest_readable and not backup_is_newer:
