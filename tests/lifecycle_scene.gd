@@ -120,16 +120,22 @@ func run() -> void:
 	var expected_minutes:int=(fractional_before+expected_steps)/game.model.time_divisor
 	print("LIFECYCLE PACING: expected %d ticks/%d minutes, got %d ticks/%d minutes (remainder %.2f)" % [expected_steps,expected_minutes,actual_steps,game.model.minute-minute,game._accumulator])
 	check(absi(actual_steps-expected_steps)<=3 and absi(game.model.minute-minute-expected_minutes)<=1 and game._accumulator<1.0,"Ten background seconds at 4× follow the selected 0.23 day-length speed without duplicated movement or clock drift")
+	# Earlier integration suites leave a valid day-2 fixture in this shared CI user:// directory.
+	# This lifecycle test starts a fresh day-1 resort: its background save must not
+	# silently overwrite that newer fixture. Advance this synthetic test resort
+	# beyond the existing fixture instead of weakening the production rollback guard.
+	var fixture_path: String=game.SaveStore.path_for_map(game.model.map_id)
+	var existing_fixture: Dictionary=game.SaveStore._read(fixture_path)
+	if existing_fixture.get("ok",false):
+		var existing_clock: int=int(existing_fixture.data.get("day",0))*1440+int(existing_fixture.data.get("minute",0))
+		var test_clock: int=game.model.day*1440+game.model.minute
+		if existing_clock>=test_clock:
+			game.model.day=int(existing_fixture.data.get("day",0))+1
 	game.paused=true;game.view.focus=Vector2(235,40);game.view.yaw=1.1;game.view.zoom=250;game.view._update_camera()
 	game._suspend_application()
 	var before:Dictionary=game.model.snapshot()
-	var resort_path: String=game.SaveStore.path_for_map(game.model.map_id)
-	var saved_resort: Dictionary=game.SaveStore._read(resort_path)
 	var checkpoint: Dictionary=game.app_session.read_state()
-	print("LIFECYCLE SAVE COMPARISON: saved_day=",saved_resort.data.get("day",-1) if saved_resort.get("ok",false) else -1," saved_minute=",saved_resort.data.get("minute",-1) if saved_resort.get("ok",false) else -1," current_day=",game.model.day," current_minute=",game.model.minute," direct_save_probe=",game.SaveStore.save_game(game.model,resort_path))
-	var replay_probe=game.model.get_script().new()
-	var replay: Dictionary=replay_probe.restore(saved_resort.data.duplicate(true)) if saved_resort.get("ok",false) else {"ok":false,"message":"Resort file unreadable"}
-	print("LIFECYCLE SAVE DIAGNOSTIC: resort_exists=",FileAccess.file_exists(resort_path)," resort_read=",saved_resort.get("ok",false)," replay=",replay," day=",game.model.day," checkpoint_present=",not checkpoint.is_empty()," checkpoint_match=",game.SaveStore.session_source_matches(game.model.map_id,game.SaveStore.active_slot,str(checkpoint.get("checksum",""))) if not checkpoint.is_empty() else false," save_failed=",game._save_failed)
+	check(not game._save_failed and not checkpoint.is_empty(), "Lifecycle checkpoint follows a semantically verified resort save")
 	var restored=load("res://scenes/main.tscn").instantiate();root.add_child(restored);await process_frame
 	restored.set_process(false);restored.app_session.path=game.app_session.path
 	check(restored.app_session.restore(restored),"A newly created game process restores its saved resort session")
