@@ -1,0 +1,45 @@
+name: P0 0.42.4 newer backup recovery
+on:
+  pull_request:
+    paths:
+      - 'src/core/save_store.gd'
+      - 'src/core/save_management_038.gd'
+      - 'tests/save_newest_backup_0424.gd'
+      - 'translations/en.po'
+      - '.github/workflows/save-newest-0424.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: newest-backup-0424-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify-newest-backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Godot import and script validation
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Validate both languages
+        run: python3 tools/check_localization.py
+      - name: Reproduce day 7 primary with day 9 backup
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-newest-backup-0424
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_newest_backup_0424.gd
+      - name: Prevent the original day 9 to day 7 rollback
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-old-day-rollback-0424
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_day_rollback_0423.gd
