@@ -54,16 +54,14 @@ func run()->void:
 	# A semantically impossible fresh snapshot must be refused even if its
 	# JSON and SHA-256 checksum are internally consistent.
 	var invalid_live:RefCounted=snapshot_at(10)
-	for attempt in range(8):
-		if invalid_live.admit_guest(2):break
-	if not invalid_live.guests.is_empty():
-		invalid_live.guests[0].route_index=999999
-		var bad_restore:Dictionary=Resort.new().restore(invalid_live.snapshot())
-		check(not bad_restore.get("ok",false),"Fixture really is semantically unrestorable, despite well-formed JSON")
-		var invalid_write:Dictionary=Saves.save_game(invalid_live,PATH)
-		check(not invalid_write.get("ok",false) and FileAccess.get_sha256(PATH)==main_sha,"Invalid day 10 cannot replace valid day 9 or poison its backup")
-	else:
-		check(false,"Fixture needs at least one real skier with a route")
+	# A guest is not guaranteed to be admitted before lifts open. Deliberately
+	# damage an actual permanent piste coordinate instead: this failure
+	# mode is reproducible independently of ski operations.
+	invalid_live.pistes[0].points[0]=[99999999,99999999]
+	var bad_restore:Dictionary=Resort.new().restore(invalid_live.snapshot())
+	check(not bad_restore.get("ok",false),"Fixture really is semantically unrestorable, despite well-formed JSON")
+	var invalid_write:Dictionary=Saves.save_game(invalid_live,PATH)
+	check(not invalid_write.get("ok",false) and FileAccess.get_sha256(PATH)==main_sha,"Invalid day 10 cannot replace valid day 9 or poison its backup")
 	# The exact user bug: a valid checksum on day 9 but a construction
 	# rule from the prior version rejects a strict restore. Recovery must
 	# first preserve day 9, before consulting the older day 7 .bak.
