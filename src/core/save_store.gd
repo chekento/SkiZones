@@ -83,9 +83,13 @@ static func saved_resorts(slot: int = -1, free_slot: int = -1) -> Array:
 			# Pre-career originals use the same free mode as the model loader.
 			var progress: Dictionary = read.data.campaign if read.data.get("campaign") is Dictionary else {}
 			var modified: int = FileAccess.get_modified_time(source)
-			entry = {"occupied": true, "map": id, "day": read.data.get("day", 1), "money": read.data.get("money", 0), "rank": progress.get("rank", 1), "saved_at": modified, "source": source, "damaged": false}
-			# The loader uses primary, backup, then pre-slot originals in this order.
-			break
+			var candidate_clock:int=int(read.data.get("day",0))*1440+int(read.data.get("minute",0))
+			var current_clock:int=int(entry.get("day",0))*1440+int(entry.get("minute",0))
+			if entry.is_empty() or candidate_clock>current_clock:
+				entry = {"occupied": true, "map": id, "day": read.data.get("day", 1), "minute": read.data.get("minute",0), "money": read.data.get("money", 0), "rank": progress.get("rank", 1), "saved_at": modified, "source": source, "damaged": false}
+			# The highest verified day/minute wins, even when an older app
+			# accidentally overwrote the primary with day 7 but left a day 9
+			# backup. Keep both files untouched until explicitly restored.
 		if not entry.is_empty():
 			result.append(entry)
 		elif has_any_save(id, selected, free_slot):
@@ -252,6 +256,19 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	if int(fresh.day)!=int(model.day) or int(fresh.minute)!=int(model.minute) or str(fresh.map_id)!=str(model.map_id):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
 		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Spieltag oder Gebiet stimmen nach der Prüfung nicht überein.")}
+	# An old installed APK may leave day 7 as the valid primary but retain
+	# day 9 in .bak. A fresh day-7 autosave must NEVER rotate this only
+	# remaining day-9 source out of existence.
+	var new_clock:int=int(model.day)*1440+int(model.minute)
+	for existing_path in [path,path+".bak"]:
+		var existing:Dictionary=_read(existing_path)
+		if not existing.get("ok",false):continue
+		if str(existing.data.get("map_id",""))!=str(model.map_id):continue
+		if _free_data(existing.data)!=_free_data(temporary_read.data):continue
+		var existing_clock:int=int(existing.data.get("day",0))*1440+int(existing.data.get("minute",0))
+		if existing_clock>new_clock:
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
+			return {"ok":false,"message":L.text("Ein neuerer Spielstand oder eine neuere Sicherung liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
 	var absolute := ProjectSettings.globalize_path(path)
 	# Never destroy a malformed/unsupported primary during a later save.
 	# Preserve its original bytes, independently of the ordinary .bak.
@@ -437,6 +454,21 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 	if Maps.MAPS.has(legacy_id):
 		sources.append(legacy_path(legacy_id))
 		sources.append(legacy_path(legacy_id)+".bak")
+	# The 0.42.3 loader protected a newer *primary*, but still trusted a
+	# valid day-7 primary ahead of a newer day-9 backup. The older Android
+	# build could have rotated files in precisely that order. Compare the
+	# checksum-verified timestamps before trying any semantic restores.
+	var backup_is_newer:bool=false
+	var primary_read:Dictionary=_read(path)
+	var backup_read:Dictionary=_read(path+".bak")
+	if primary_read.get("ok",false) and backup_read.get("ok",false):
+		if str(primary_read.data.get("map_id",""))==str(backup_read.data.get("map_id","")) and _free_data(primary_read.data)==_free_data(backup_read.data):
+			var primary_clock:int=int(primary_read.data.get("day",0))*1440+int(primary_read.data.get("minute",0))
+			var backup_clock:int=int(backup_read.data.get("day",0))*1440+int(backup_read.data.get("minute",0))
+			backup_is_newer=backup_clock>primary_clock
+			if backup_is_newer:
+				sources[0]=path+".bak"
+				sources[1]=path
 	for candidate in sources:
 		if progress != null and candidate.ends_with(".bak"): progress.detail(L.text("Vorherige Sicherung prüfen …"))
 		var read := _read(candidate, progress)
@@ -445,6 +477,10 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 			continue
 		if read.ok:
 			if legacy_scenario and str(read.data.get("map_id","sonnenhang"))!=legacy_id:continue
+			if backup_is_newer and candidate==path:
+				# Even if day 9 was semantically damaged, never claim success
+				# by silently switching to a strict but older day-7 primary.
+				return {"ok":false,"newer_backup_day":int(backup_read.data.get("day",0)),"primary_day":int(read.data.get("day",0)),"source":path+".bak","message":L.text("Eine neuere Sicherung liegt vor, konnte aber nicht automatisch repariert werden. Die ältere Hauptdatei wird nicht darüber gespeichert.")}
 			if candidate==path:newest_primary=read.data.duplicate(true)
 			# A 9th-day primary with old geometry or a damaged guest route
 			# MUST be repaired before loading its 7th-day backup. In this
@@ -468,8 +504,9 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 						return {"ok":true,"recovered":true,"auto_saved":true,"source":candidate,"archive":persisted.archive,"message":L.text(L.text("Spielstand automatisch repariert. Das Original wurde gesichert."))}
 					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text(L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."))}
 				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Resort geladen.")}
-			if candidate==path:
-				# Recover a NEWER broken primary before a stale backup, but do
+			if candidate==path or backup_is_newer and candidate==path+".bak":
+				# Recover a NEWER broken primary or backup before an older file,
+				# but do
 				# not reset active guests when a complete, equally current
 				# backup has exactly the same day/minute and restores intact.
 				var equivalent_backup:bool=false
