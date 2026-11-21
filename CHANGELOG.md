@@ -72,7 +72,7 @@ Dieses Dokument enthält die ausführlichen technischen Release-Notizen für **5
 
 **Veröffentlichung:** [GitHub Release](https://github.com/chekento/SkiZones/releases/tag/v0.42.4) · **[APK herunterladen](https://github.com/chekento/SkiZones/releases/download/v0.42.4/SkiZones-0.42.4-android-arm64.apk)** (179.9 MiB, ARM64) · [SHA-256-Datei](https://github.com/chekento/SkiZones/releases/download/v0.42.4/SkiZones-0.42.4-android-arm64.apk.sha256) · [Build-Manifest](https://github.com/chekento/SkiZones/releases/download/v0.42.4/manifest.json) · [Originalnotizen](docs/releases/0.42.4.md) · [Quellcode zum Tag](https://github.com/chekento/SkiZones/tree/v0.42.4)
 
-**Hotfix-Kandidat. Nicht öffentlich freigegeben, solange die GitHub-Actions- und Android-Prüfungen noch laufen.**
+**Öffentliches Android-ARM64-Preview seit 21.11.2026, 17:23 Uhr MEZ.** Der vollständige Godot-/Save-Testlauf, Android API 30 und API 36 sowie Signatur- und APK-Prüfungen sind bestanden. Das konkrete Nutzergerät muss weiterhin separat getestet werden.
 
 ### Rücksprung-Sonderfall aus 0.42.2/0.42.3
 
@@ -88,9 +88,9 @@ Ein älterer Android-Spielstand kann aus historischen Gründen die Hauptdatei au
 
 ### Auslieferungskontrollen
 
-- [ ] Neuer Tag-7-Hauptdatei/Tag-9-Backup-Regressionslauf besteht.
-- [ ] Die vorherige Tag-9-Hauptdatei/Tag-7-Backup-Regressionssuite besteht.
-- [ ] Historische Save-Kompatibilität, vollständiger Godot-Lauf, Android 30/36, Update-Signatur und APK-Prüfsumme erfolgreich.
+- [x] Neuer Tag-7-Hauptdatei/Tag-9-Backup-Regressionslauf besteht.
+- [x] Die vorherige Tag-9-Hauptdatei/Tag-7-Backup-Regressionssuite besteht.
+- [x] Historische Save-Kompatibilität, vollständiger Godot-Lauf, Android 30/36, Update-Signatur und APK-Prüfsumme erfolgreich.
 - [ ] Reales Samsung-Gerät: Vorhandene Daten nicht löschen, Backup-Quelle nach dem Laden anzeigen, Änderungen erneut sichern und nach App-Neustart prüfen.
 
 **Die konkrete Tag-9-Datei des Nutzers ist nicht aus GitHub zugänglich. Der Hotfix kann sie nur wiederherstellen, wenn ihre Daten auf dem Telefon noch vorhanden und genügend intakt sind.**
