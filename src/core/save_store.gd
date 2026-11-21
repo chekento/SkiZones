@@ -469,14 +469,24 @@ static func load_game(model: RefCounted, path: String = DEFAULT_PATH, progress: 
 					return {"ok":true,"recovered":true,"auto_saved":false,"source":candidate,"message":L.text(L.text("Spielstand geladen, aber die automatische Sicherung ist fehlgeschlagen. Originaldateien bleiben unverändert."))}
 				return {"ok":true,"recovered":false,"source":candidate,"legacy":candidate in sources.slice(2) or read.get("legacy_raw", false),"message":L.text("Resort geladen.")}
 			if candidate==path:
-				# The checksum-verified primary has priority for safe repair,
-				# even if the older .bak restores strictly without repairs.
-				var preferred:Dictionary=probe_restore(read.data,model.get_script(),true,progress)
-				if preferred.get("ok",false) and model.restore(preferred.model.snapshot()).get("ok",false):
-					var promoted:Dictionary=_persist_repaired_game(model,path)
-					if promoted.get("ok",false):
-						return {"ok":true,"recovered":true,"auto_saved":true,"source":path,"archive":promoted.archive,"reset_visitors":preferred.reset_visitors,"message":L.text("Aktueller Spielstand erfolgreich repariert. Spieltag und Karrierefortschritt wurden erhalten.")}
-					return {"ok":true,"recovered":true,"auto_saved":false,"source":path,"message":L.text("Aktueller Spielstand geladen, aber automatische Reparaturdatei konnte nicht gesichert werden. Original bleibt erhalten.")}
+				# Recover a NEWER broken primary before a stale backup, but do
+				# not reset active guests when a complete, equally current
+				# backup has exactly the same day/minute and restores intact.
+				var equivalent_backup:bool=false
+				var backup_read:Dictionary=_read(path+".bak")
+				if backup_read.get("ok",false) and str(backup_read.data.get("map_id",""))==str(read.data.get("map_id","")):
+					var primary_clock:int=int(read.data.get("day",0))*1440+int(read.data.get("minute",0))
+					var backup_clock:int=int(backup_read.data.get("day",0))*1440+int(backup_read.data.get("minute",0))
+					if backup_clock>=primary_clock:
+						var backup_probe:RefCounted=model.get_script().new()
+						equivalent_backup=bool(backup_probe.restore(backup_read.data.duplicate(true)).get("ok",false))
+				if not equivalent_backup:
+					var preferred:Dictionary=probe_restore(read.data,model.get_script(),true,progress)
+					if preferred.get("ok",false) and model.restore(preferred.model.snapshot()).get("ok",false):
+						var promoted:Dictionary=_persist_repaired_game(model,path)
+						if promoted.get("ok",false):
+							return {"ok":true,"recovered":true,"auto_saved":true,"source":path,"archive":promoted.archive,"reset_visitors":preferred.reset_visitors,"message":L.text("Aktueller Spielstand erfolgreich repariert. Spieltag und Karrierefortschritt wurden erhalten.")}
+						return {"ok":true,"recovered":true,"auto_saved":false,"source":path,"message":L.text("Aktueller Spielstand geladen, aber automatische Reparaturdatei konnte nicht gesichert werden. Original bleibt erhalten.")}
 	# First retain the exact old geometry and active guests even when modern
 	# construction clearances have changed. This opt-in recovery never trusts
 	# unchecked bytes: the envelope checksum and model validation still apply.
