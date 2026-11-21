@@ -10938,3 +10938,24 @@ msgstr "%d rescuers employed · %d on duty · %d available two-person teams"
 
 msgid "%d Teams unterwegs · %d Patienten in Behandlung · Einsatzradius %.0f m"
 msgstr "%d teams in the field · %d patients in treatment · service radius %.0f m"
+
+msgid "Resort sicher gespeichert; Bergpass-Sicherung konnte nicht aktualisiert werden."
+msgstr "Resort saved safely, but the mountain-pass backup could not be updated."
+
+msgid "Speichern fehlgeschlagen: Der neue Spielstand konnte nicht erneut geladen werden. Der bisherige Spielstand bleibt erhalten."
+msgstr "Save failed: the new save could not be restored. Your previous save remains intact."
+
+msgid "Speichern fehlgeschlagen: Spieltag oder Gebiet stimmen nach der Prüfung nicht überein."
+msgstr "Save failed: the game day or resort did not match after verification."
+
+msgid "Ein neuerer Spielstand liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert."
+msgstr "A newer save already exists. The older game day was not written over it."
+
+msgid "Ein neuerer Hauptspielstand konnte nicht repariert werden. Die ältere Sicherung wurde NICHT automatisch geladen oder darüber gespeichert. Bitte den Reparaturdialog prüfen."
+msgstr "A newer primary save could not be repaired. The older backup was NOT loaded or promoted automatically. Check the repair dialog."
+
+msgid "Aktueller Spielstand erfolgreich repariert. Spieltag und Karrierefortschritt wurden erhalten."
+msgstr "Latest save repaired successfully. Game day and career progress were preserved."
+
+msgid "Aktueller Spielstand geladen, aber automatische Reparaturdatei konnte nicht gesichert werden. Original bleibt erhalten."
+msgstr "Latest save loaded, but automatic repair could not be written. The original remains intact."
