@@ -24,6 +24,16 @@ Ein eigenständiger 3D Ski Resort Tycoon für Android · **Deutsch / English**. 
 
 > **Wichtig:** Das Banner führt immer direkt zur zuletzt *tatsächlich veröffentlichten* GitHub-APK, nicht zu einem nur geplanten oder laufenden Build. Installiere Updates über die vorhandene App, ohne sie zu deinstallieren. Sichere wichtige Spielstände vorher.
 
+### Aktuell: SkiZones 0.42.3 – dringender Spielstand-Hotfix
+
+**Spielstandsicherheit:** Neue Saves werden vor dem Ersetzen des bisherigen Spielstands tatsächlich testweise geladen. Beim Wiederherstellen wird ein neuerer Spielstand (z. B. Tag 9) zuerst geprüft und repariert, statt stillschweigend die ältere Sicherung (z. B. Tag 7) zu öffnen. Ein älterer Stand darf einen neueren nicht unbemerkt überschreiben. Zusätzlich werden veränderte Spielstände ungefähr alle 90 Real-Sekunden gesichert.
+
+**Spiel und Betrieb:** Mitarbeiter nutzen reale Fuß-, Ski- und Liftwege, Köche und Servicekräfte bestimmen getrennt die Kapazität, freie Bergrettungsteams werden schneller eingesetzt und ein sicheres leeres Resort kann ab 19 Uhr beschleunigt in den Morgen wechseln.
+
+**Wichtiger Hinweis bei bereits zurückgesetztem Spieltag:** [Aktuelle v0.42.3-APK](https://github.com/chekento/SkiZones/releases/download/v0.42.3/SkiZones-0.42.3-android-arm64.apk) **über die bestehende App installieren**, nicht deinstallieren und keine App-Daten löschen. Der tatsächlich verlorene Stand kann nur dann wiederhergestellt werden, wenn er noch in einer Original-, Backup- oder Wiederherstellungsdatei auf dem Gerät liegt. Ein erfolgreiches CI-Ergebnis ersetzt keinen Gerätetest.
+
+[**Änderungen 0.42.3**](docs/releases/0.42.3.md) · [**Geprüftes Android-Release**](https://github.com/chekento/SkiZones/releases/tag/v0.42.3)
+
 ### Neu in SkiZones 0.42.0 – mehr Leben, mehr Gestaltung, mehr Spieltiefe
 
 - **Pistenwerkstatt:** Touch-Bearbeitung mit Rückgängig und Wiederholen für Punkte, Glätten und Routenänderungen.
