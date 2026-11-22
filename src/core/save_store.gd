@@ -230,85 +230,102 @@ static func archive_slot(slot: int) -> bool:
 		if FileAccess.file_exists(path) and DirAccess.remove_absolute(ProjectSettings.globalize_path(path))!=OK:return false
 	return true
 
+## Archive any newer checkpoint before the player deliberately saves an older
+## game day. A later day is not a write lock: it is a separate recovery copy.
+## The exact original bytes are protected with SHA-256 verification.
+static func _archive_before_rewind(source: String) -> bool:
+	if not FileAccess.file_exists(source): return true
+	var folder: String = "user://save-recovery"
+	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder)) != OK: return false
+	var destination: String = folder + "/" + source.get_file() + "-%d-%d.before-rewind" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
+	if DirAccess.copy_absolute(ProjectSettings.globalize_path(source),ProjectSettings.globalize_path(destination)) != OK: return false
+	return FileAccess.get_sha256(source) == FileAccess.get_sha256(destination)
+
 static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Dictionary:
-	var payload := JSON.stringify(model.snapshot(),"",true,true)
-	var envelope := JSON.stringify({"format": "SkiZones", "checksum": payload.sha256_text(), "payload": payload})
+	var world: Dictionary = model.snapshot()
+	# Check the complete model before touching the last working file.
+	# Transient guest-route data from an older runtime may be safely normalized,
+	# but invalid permanent piste/building geometry must still be rejected.
+	var fresh: RefCounted = model.get_script().new()
+	var restored: Dictionary = fresh.restore(world.duplicate(true))
+	var normalized_visitors: bool = false
+	if not restored.get("ok",false):
+		var salvage: Dictionary = probe_restore(world,model.get_script(),true)
+		if not salvage.get("ok",false):
+			return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Der neue Spielstand konnte nicht erneut geladen werden. Der bisherige Spielstand bleibt erhalten.") + " " + str(salvage.get("message",""))}
+		world = salvage.model.snapshot()
+		normalized_visitors = bool(salvage.get("reset_visitors",false))
+		fresh = model.get_script().new()
+		restored = fresh.restore(world.duplicate(true))
+	if not restored.get("ok",false):
+		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Der neue Spielstand konnte nicht erneut geladen werden. Der bisherige Spielstand bleibt erhalten.")}
+	if int(fresh.day)!=int(model.day) or int(fresh.minute)!=int(model.minute) or str(fresh.map_id)!=str(model.map_id):
+		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Spieltag oder Gebiet stimmen nach der Prüfung nicht überein.")}
+	var payload: String = JSON.stringify(world,"",true,true)
+	var envelope: String = JSON.stringify({"format":"SkiZones","checksum":payload.sha256_text(),"payload":payload})
 	if envelope.to_utf8_buffer().size() > MAX_BYTES:
-		return {"ok": false, "message": L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
-	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
+		return {"ok":false,"message":L.text("Dieser Spielstand überschreitet die unterstützte Dateigröße. Das bisherige Resort bleibt gespeichert.")}
+	var file: FileAccess = FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null:
-		return {"ok": false, "message": L.text("Spielstand konnte nicht geschrieben werden.")}
+		return {"ok":false,"message":L.text("Spielstand konnte nicht geschrieben werden.")}
 	file.store_string(envelope)
 	file.flush()
 	file.close()
-	# A failed or partial write must never replace an existing career.
-	var temporary_read: Dictionary = _read(path + ".tmp")
-	if not temporary_read.get("ok", false) or FileAccess.get_sha256(path + ".tmp") != envelope.sha256_text():
-		return {"ok": false, "message": L.text("Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten.")}
-	# A valid checksum proves only the JSON survived the write. It does NOT
-	# prove this specific career can be loaded back. Never replace day 7
-	# with a checksum-valid but semantically unrestorable day 9 snapshot.
-	var fresh:RefCounted=model.get_script().new()
-	var restored:Dictionary=fresh.restore(temporary_read.data.duplicate(true))
-	if not restored.get("ok",false):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
-		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Der neue Spielstand konnte nicht erneut geladen werden. Der bisherige Spielstand bleibt erhalten.")}
-	if int(fresh.day)!=int(model.day) or int(fresh.minute)!=int(model.minute) or str(fresh.map_id)!=str(model.map_id):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
-		return {"ok":false,"message":L.text("Speichern fehlgeschlagen: Spieltag oder Gebiet stimmen nach der Prüfung nicht überein.")}
-	# An old installed APK may leave day 7 as the valid primary but retain
-	# day 9 in .bak. A fresh day-7 autosave must NEVER rotate this only
-	# remaining day-9 source out of existence.
-	var requested_clock:int=int(model.day)*1440+int(model.minute)
+	var temporary_read: Dictionary = _read(path+".tmp")
+	if not temporary_read.get("ok",false) or FileAccess.get_sha256(path+".tmp") != envelope.sha256_text():
+		return {"ok":false,"message":L.text("Die neue Speicherdatei konnte nicht verifiziert werden. Der bisherige Spielstand bleibt erhalten.")}
+	# The player's active world is authoritative for a manual save or autosave.
+	# A future game day in the primary OR backup is not grounds to refuse it.
+	# Preserve future bytes first, then make the newly saved world the primary.
+	var requested_clock: int = int(model.day)*1440+int(model.minute)
+	var rewind: bool = false
 	for existing_path in [path,path+".bak"]:
-		var existing:Dictionary=_read(existing_path)
-		if not existing.get("ok",false):continue
-		if str(existing.data.get("map_id",""))!=str(model.map_id):continue
-		if _free_data(existing.data)!=_free_data(temporary_read.data):continue
-		var existing_clock:int=int(existing.data.get("day",0))*1440+int(existing.data.get("minute",0))
+		var existing: Dictionary = _read(existing_path)
+		if not existing.get("ok",false): continue
+		if str(existing.data.get("map_id",""))!=str(model.map_id): continue
+		if _free_data(existing.data)!=_free_data(world): continue
+		var existing_clock: int = int(existing.data.get("day",0))*1440+int(existing.data.get("minute",0))
 		if existing_clock>requested_clock:
-			DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
-			return {"ok":false,"message":L.text("Ein neuerer Spielstand oder eine neuere Sicherung liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
-	var absolute := ProjectSettings.globalize_path(path)
-	# Never destroy a malformed/unsupported primary during a later save.
-	# Preserve its original bytes, independently of the ordinary .bak.
+			rewind=true
+			if not _archive_before_rewind(existing_path):
+				return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+	var absolute: String = ProjectSettings.globalize_path(path)
+	var backup_stage: String = path+".bak.tmp"
+	var backup_required: bool = rewind
+	var backup_source: String = path+".tmp" if rewind else path
+	# A regular forward save rotates the last loadable primary into .bak.
+	# A deliberate rewind instead stages the NEW checkpoint in .bak as well:
+	# otherwise the newer old .bak would silently win again during loading.
 	if FileAccess.file_exists(path):
 		var previous: Dictionary = _read(path)
-		# A structurally valid but unrestorable primary must not overwrite a
-		# potentially working .bak checkpoint.
 		var previous_loadable: bool = false
-		if previous.get("ok", false):
+		if previous.get("ok",false):
 			var prior_probe: RefCounted = model.get_script().new()
-			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok", false))
-		# Even when the newest primary fails a *semantic* restore, its valid
-		# checksum and higher game time still win over an older runtime save.
-		# This is precisely how day 9 can be erased by a day 7 fallback.
-		if previous.get("ok",false) and str(previous.data.get("map_id",""))==str(model.map_id):
-			var old_clock:int=int(previous.data.get("day",0))*1440+int(previous.data.get("minute",0))
-			var new_clock:int=int(model.day)*1440+int(model.minute)
-			if old_clock>new_clock:
-				DirAccess.remove_absolute(ProjectSettings.globalize_path(path+".tmp"))
-				return {"ok":false,"message":L.text("Ein neuerer Spielstand liegt bereits vor. Der ältere Spieltag wurde nicht darüber gespeichert.")}
-		if previous_loadable:
-			# Stage and verify before replacing the previous known-good backup.
-			var backup_stage: String = path + ".bak.tmp"
-			var backup_stage_abs: String = ProjectSettings.globalize_path(backup_stage)
-			var backup_error: Error = DirAccess.copy_absolute(absolute, backup_stage_abs)
-			if backup_error != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(backup_stage):
-				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
-			if DirAccess.rename_absolute(backup_stage_abs, absolute + ".bak") != OK:
-				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
-		else:
-			var rescue_dir := "user://save-recovery"
+			previous_loadable = bool(prior_probe.restore(previous.data.duplicate(true)).get("ok",false))
+		if previous_loadable and not rewind:
+			backup_required=true
+		elif not previous_loadable:
+			var rescue_dir: String = "user://save-recovery"
 			if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(rescue_dir)) != OK:
-				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
-			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(), Time.get_ticks_usec()]
-			if DirAccess.copy_absolute(absolute, ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(path) != FileAccess.get_sha256(archive):
-				return {"ok": false, "message": L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
-	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
-		return {"ok": false, "message": L.text("Spielstand konnte nicht atomar ersetzt werden.")}
+				return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+			var archive: String = rescue_dir + "/" + path.get_file() + "-%d-%d.broken" % [Time.get_unix_time_from_system(),Time.get_ticks_usec()]
+			if DirAccess.copy_absolute(absolute,ProjectSettings.globalize_path(archive)) != OK or FileAccess.get_sha256(path)!=FileAccess.get_sha256(archive):
+				return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+	# On a rewind, any existing newer .bak has already been preserved.
+	# Replace the backup BEFORE the primary: an interrupted commit still
+	# leaves at least one playable checkpoint and never hides a newer primary.
+	if backup_required:
+		if FileAccess.file_exists(path+".bak") and not _read(path+".bak").get("ok",false):
+			if not _archive_before_rewind(path+".bak"):
+				return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+		if DirAccess.copy_absolute(ProjectSettings.globalize_path(backup_source),ProjectSettings.globalize_path(backup_stage)) != OK or FileAccess.get_sha256(backup_source)!=FileAccess.get_sha256(backup_stage):
+			return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+		if DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_stage),absolute+".bak") != OK:
+			return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
+	if DirAccess.rename_absolute(absolute+".tmp",absolute) != OK:
+		return {"ok":false,"message":L.text("Spielstand konnte nicht atomar ersetzt werden.")}
 	if model.map_id in Maps.FANTASY_MAPS and path==path_for_map(model.map_id): _write_index(model,active_slot)
-	return {"ok": true, "message": L.text("Resort gespeichert.")}
+	return {"ok":true,"message":L.text("Resort gespeichert."),"normalized_visitors":normalized_visitors}
 
 ## Read-only diagnostics for Android recovery. Never repairs or rewrites the source.
 ## This can also inspect malformed originals which the normal loader rejects.
