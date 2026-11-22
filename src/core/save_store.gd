@@ -315,6 +315,18 @@ static func save_game(model: RefCounted, path: String = DEFAULT_PATH) -> Diction
 	# Replace the backup BEFORE the primary: an interrupted commit still
 	# leaves at least one playable checkpoint and never hides a newer primary.
 	if backup_required:
+		# Protect a backup that is newer than the old primary EVEN when
+		# the requested new save has advanced beyond both. Otherwise rotating
+		# day 7 over a surviving day-9 backup would destroy real progress.
+		if not rewind:
+			var pending_backup: Dictionary = _read(path+".bak")
+			var pending_primary: Dictionary = _read(path)
+			if pending_backup.get("ok",false) and pending_primary.get("ok",false):
+				if str(pending_backup.data.get("map_id",""))==str(model.map_id) and _free_data(pending_backup.data)==_free_data(world):
+					var backup_clock: int = int(pending_backup.data.get("day",0))*1440+int(pending_backup.data.get("minute",0))
+					var primary_clock: int = int(pending_primary.data.get("day",0))*1440+int(pending_primary.data.get("minute",0))
+					if backup_clock>primary_clock and not _archive_before_rewind(path+".bak"):
+						return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
 		if FileAccess.file_exists(path+".bak") and not _read(path+".bak").get("ok",false):
 			if not _archive_before_rewind(path+".bak"):
 				return {"ok":false,"message":L.text("Die Sicherung des bisherigen Spielstands ist fehlgeschlagen.")}
