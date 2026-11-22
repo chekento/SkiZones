@@ -3,7 +3,12 @@ extends RefCounted
 ## needs, queues and wages per game minute in existing saves.
 const PRESETS := ["balanced", "compact", "cozy"]
 const DAY_SPEED := {"balanced":1.8, "compact":2.2, "cozy":1.35}
-const QUIET_FROM := 1140 # 19:00, only when there is no outdoor trip, queue, skier or outbound rescue
+const QUIET_FROM := 1140 # 19:00 — normal evening demand ends, night acceleration begins
+const EMPTY_EVENING_FROM := 1020 # 17:00 — a completely deserted resort may skip early
+const MORNING_READY := 410 # 06:50 — never skip the final pre-opening 70 minutes
+const NIGHT_CLEANUP_TICKS_PER_SECOND := 144.0 # Independent of UI 1× / 4× / 8×
+const NIGHT_FRAME_BUDGET_US := 16000 # Keep Android touch, UI and rendering responsive
+const NIGHT_MAX_BATCH := 144 # Bound work even on a fast desktop
 const INDOOR := ["hotel", "grand_hotel", "guesthouse", "cabin", "apartment", "chalet", "restaurant", "pizzeria", "lodge", "cocoa", "schmarrn", "disco", "bar", "rental", "souvenir", "watchmaker", "craftshop", "fitness", "printing_press", "newsstand", "first_aid"]
 
 static func playback(minute: int, preset: String = "balanced") -> float:
@@ -55,6 +60,15 @@ static func indoors_only(model: RefCounted) -> bool:
 		return false
 	return true
 
+## The clock window is independent of the user's daytime 1×/4×/8× choice.
+## Even if an injured skier blocks the *safe* skip, a separate accelerated
+## regular-tick cleanup in main.gd runs until the mountain becomes clear.
+static func night_window(model: RefCounted) -> bool:
+	return model.time_divisor > 1 and model.Ops.continuous(model) and (int(model.minute) < MORNING_READY or int(model.minute) >= QUIET_FROM)
+
 static func quiet_night(model: RefCounted) -> bool:
-	return model.time_divisor > 1 and model.Ops.continuous(model) and (int(model.minute) < int(model.OPENING) or int(model.minute) >= QUIET_FROM) and indoors_only(model)
+	if model.time_divisor <= 1 or not model.Ops.continuous(model): return false
+	var minute:int=int(model.minute)
+	var deserted_early:bool=minute>=EMPTY_EVENING_FROM and minute<QUIET_FROM and model.guests.is_empty()
+	return (night_window(model) or deserted_early) and indoors_only(model)
 

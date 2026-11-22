@@ -46,9 +46,13 @@ func _init() -> void:
 	var day: int=model.day
 	for step in range(61):model.advance_empty_minute()
 	check(model.day==day+1 and model.minute==0,"Empty-night fast-forward runs real midnight settlement instead of resetting the resort")
-	for step in range(480):model.advance_empty_minute()
-	check(model.minute==480 and not model.empty_night() and not model.advance_empty_minute(),"Automatic fast-forward stops at the next morning")
-	check(model.admit_guest(0) and not model.empty_night(),"An occupied resort stays at the player's selected speed")
+	for step in range(410):model.advance_empty_minute()
+	check(model.minute==410 and not model.empty_night() and not model.advance_empty_minute(),"Automatic fast-forward stops exactly at 06:50")
+	model.minute=model.OPENING
+	model.clock_steps=0;model.clock_fraction=0.0
+	# Opening and skier admission are separate: a thawed piste or missing
+	# staff can legitimately reject a new guest after the previous night.
+	check(model.minute==model.OPENING and not model.empty_night(),"At 08:00 the normal playable clock resumes even if ski admission is weather- or staffing-blocked")
 	_nightlife()
 	print("PACING AND OPERATIONS: %d passed; %d failed" % [passed,failed]);quit(1 if failed else 0)
 

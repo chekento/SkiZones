@@ -22,18 +22,21 @@ func fresh() -> RefCounted:
 
 func run() -> void:
 	var model: RefCounted = fresh()
-	model.minute=DayRhythm.QUIET_FROM-1
+	model.minute=DayRhythm.EMPTY_EVENING_FROM-1
 	model._operational_change()
-	check(not model.empty_night(),"No accelerated night before 20:00")
+	check(not model.empty_night(),"No empty-resort night acceleration before 17:00")
+	model.minute=DayRhythm.EMPTY_EVENING_FROM
+	model._operational_change()
+	check(model.empty_night(),"An empty resort can fast-forward from 17:00")
 	model.minute=DayRhythm.QUIET_FROM
 	model._operational_change()
-	check(model.empty_night(),"Empty resort permits safe night forwarding from 20:00")
+	check(model.empty_night(),"Empty resort permits safe night forwarding from 19:00")
 	var tickets: float=model.report.tickets
 	var visitors: int=model.total_guests
 	var old_day: int=model.day
-	for i in range(1440-DayRhythm.QUIET_FROM+model.OPENING-1):
+	for i in range(1440-DayRhythm.QUIET_FROM+DayRhythm.MORNING_READY):
 		if not model.advance_empty_minute(): break
-	check(model.day==old_day+1 and model.minute==model.OPENING-1,"Night skips to one minute before the actual lift opening without stalling")
+	check(model.day==old_day+1 and model.minute==DayRhythm.MORNING_READY,"Night skips exactly to 06:50 without stalling")
 	check(model.total_guests==visitors and model.report.tickets==tickets and model.guests.is_empty(),"Quiet-night demand creates no ghost guests and charges no imaginary ticket")
 	check(int(model.operations.pending_arrivals)>=6 and int(model.operations.pending_arrivals)<=24,"Late-night interest is bounded until morning, never infinite arrivals")
 	var pending: int=int(model.operations.pending_arrivals)
@@ -51,8 +54,14 @@ func run() -> void:
 	var old_copy: RefCounted=Resort.new()
 	check(old_copy.restore(old_snapshot).ok and int(old_copy.operations.pending_arrivals)==0,"Legacy 0.32 operations without new field migrate to safe zero")
 	var guest_count: int=model.total_guests
-	model.advance_empty_minute()
-	check(model.minute==model.OPENING and not model.empty_night(),"Morning at actual 08:00 lift opening resumes normal simulation")
+	check(not model.advance_empty_minute() and model.minute==DayRhythm.MORNING_READY,"Automatic night acceleration stops at 06:50")
+	# Separate fixture for the normal 07:59 -> 08:00 morning service:
+	# day/night advancement itself must not skip the last 70 minutes.
+	model.minute=model.OPENING-1
+	model.clock_steps=0
+	model.clock_fraction=0.0
+	for tick in range(model.time_divisor):model.advance_minute()
+	check(model.minute==model.OPENING and not model.empty_night(),"Normal clock reaches the actual 08:00 lift opening after the 06:50 handoff")
 	check(int(model.operations.pending_arrivals)<=pending and int(model.operations.pending_arrivals)>=0,"Morning demand is released only within bounded capacity")
 	check(model.total_guests-guest_count>=pending-int(model.operations.pending_arrivals),"Every consumed dawn-interest slot corresponds to a real admitted visitor")
 	# Actual staffed village: an existing guest walking to night service may
@@ -97,10 +106,10 @@ func _ten_nights() -> void:
 		var before_day: int = model.day
 		var arrivals: int = model.total_guests
 		var steps: int = 0
-		while model.empty_night() and steps < 1440-DayRhythm.QUIET_FROM+model.OPENING+25:
+		while model.empty_night() and steps < 1440-DayRhythm.QUIET_FROM+DayRhythm.MORNING_READY+25:
 			model.advance_empty_minute()
 			steps += 1
-		check(steps == 1440-DayRhythm.QUIET_FROM+model.OPENING and model.day == before_day + 1 and model.minute == model.OPENING, "Night %d reaches opening through exactly one midnight settlement" % (night + 1))
+		check(steps == 1440-DayRhythm.QUIET_FROM+DayRhythm.MORNING_READY and model.day == before_day + 1 and model.minute == DayRhythm.MORNING_READY, "Night %d reaches 06:50 through exactly one midnight settlement" % (night + 1))
 		check(model.total_guests == arrivals and model.guests.is_empty() and model.report.tickets == 0, "Night %d never invents visitors or ticket income without a viable route" % (night + 1))
 		check(int(model.operations.pending_arrivals) <= 24, "Night %d keeps unsatisfied demand bounded" % (night + 1))
 		var restored: RefCounted = Resort.new()

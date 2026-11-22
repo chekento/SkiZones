@@ -37,10 +37,12 @@ func place(model:RefCounted,kind:String)->Dictionary:
 
 func run()->void:
 	var model:RefCounted=fresh()
-	model.minute=DayRhythm.QUIET_FROM-1
-	check(not model.empty_night(),"Fast-forward is not forced before 19:00")
+	model.minute=DayRhythm.EMPTY_EVENING_FROM-1
+	check(not model.empty_night(),"Daytime pacing remains normal before the 17:00 empty-resort window")
+	model.minute=DayRhythm.EMPTY_EVENING_FROM
+	check(model.empty_night(),"A completely empty resort can safely fast-forward from 17:00")
 	model.minute=DayRhythm.QUIET_FROM
-	check(model.empty_night(),"Empty pistes may safely fast-forward at 19:00")
+	check(model.empty_night(),"Empty pistes accelerate at 19:00 regardless of selected 1x/4x/8x speed")
 	model.operations.incidents.append({"id":30,"guest":-1,"status":"treating"})
 	check(model.empty_night(),"Indoor patient treatment need not stall a deserted resort")
 	model.operations.incidents.back().status="returning"
@@ -48,10 +50,10 @@ func run()->void:
 	model.operations.incidents.clear()
 	var day:int=model.day
 	var visits:int=model.total_guests
-	for i in range(1440-DayRhythm.QUIET_FROM+model.OPENING-1):
+	for i in range(1440-DayRhythm.QUIET_FROM+DayRhythm.MORNING_READY):
 		if not model.advance_empty_minute():break
-	check(model.day==day+1 and model.minute==model.OPENING-1 and model.total_guests==visits,"Overnight travel is genuinely visitor-free until 07:59")
-	check(model.advance_empty_minute() and model.minute==model.OPENING,"Safe forwarding stops at 08:00 and lets real morning demand resume")
+	check(model.day==day+1 and model.minute==DayRhythm.MORNING_READY and model.total_guests==visits,"Overnight travel advances exactly to 06:50 without changing visitor totals")
+	check(not model.empty_night() and not model.advance_empty_minute(),"Fast-forward stops exactly at 06:50; normal clock handles the rest of the morning")
 	var restaurant:Dictionary=place(model,"restaurant")
 	check(not restaurant.is_empty(),"Place a working restaurant")
 	if restaurant.is_empty():finish();return

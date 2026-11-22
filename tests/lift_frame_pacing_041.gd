@@ -72,11 +72,13 @@ func run()->void:
 	model.new_game(true,20261110,"sonnenhang")
 	Ops.enable(model)
 	model.enable_runtime_rules()
+	model.minute=DayRhythm.EMPTY_EVENING_FROM-1
+	check(not model.empty_night(),"A pre-17:00 resort runs at the normal gameplay speed")
 	model.minute=DayRhythm.QUIET_FROM-1
-	check(not model.empty_night(),"19:59 never triggers the safe overnight skip")
+	check(model.empty_night(),"A deserted resort can start safe overnight acceleration before 19:00")
 	model.minute=DayRhythm.QUIET_FROM
-	check(model.empty_night(),"20:00 starts the safe overnight skip on an empty resort")
+	check(model.empty_night(),"19:00 starts the safe overnight skip even without an earlier empty window")
 	var snapshot:Dictionary=model.snapshot()
-	check(Resort.new().restore(JSON.parse_string(JSON.stringify(snapshot))).ok,"20:00 checkpoint preserves a valid legacy-compatible save format")
+	check(Resort.new().restore(JSON.parse_string(JSON.stringify(snapshot))).ok,"19:00 checkpoint preserves a valid legacy-compatible save format")
 	print("RESULT: %d passed; %d failed"%[passed,failed])
 	quit(1 if failed else 0)
