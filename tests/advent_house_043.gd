@@ -36,6 +36,9 @@ func run()->void:
 	check(not archive.claim(24,six).ok and archive.claim(24,christmas).ok,"Christmas Eve door unlocks only on December 24")
 	var facade:=House.create("alpine",[6,24],StandardMaterial3D.new())
 	check(facade.get_child_count()==25 and facade.get_node_or_null("door_24")!=null,"3D Advent architecture has 24 individual hinged and numbered doors")
+	var lanterns:=facade.get_node_or_null("advent_timber_roof/roof_fairy_lights") as MultiMeshInstance3D
+	check(lanterns!=null and lanterns.multimesh.instance_count==36,"PMDD roof lights are batched into one hardware instancing draw")
+	check(facade.get_node_or_null("door_8/advent_door_knob") is MeshInstance3D,"Each 3D door has a real metal handle attached to its hinge")
 	var opened:=facade.get_node_or_null("door_6") as Node3D
 	var closed:=facade.get_node_or_null("door_7") as Node3D
 	check(opened!=null and closed!=null and opened.rotation.y< -1.0 and is_zero_approx(closed.rotation.y),"Already claimed doors visually stay open after world reload")
@@ -43,6 +46,12 @@ func run()->void:
 		House.reveal(facade,7)
 		check(closed.rotation.y< -1.0,"Door opening updates the 3D hinge even before scene attachment")
 	facade.free()
+	var mono:=House.create("monochrome",[],StandardMaterial3D.new())
+	check(str(mono.get_meta("advent_style",""))=="monochrome","Advent depth facade retains its selected theme")
+	House.reveal(mono,1)
+	var mono_leaf:=mono.get_node_or_null("door_1/advent_door_leaf") as MeshInstance3D
+	check(mono_leaf!=null and (mono_leaf.material_override as StandardMaterial3D).albedo_color==Color("b5b5b5"),"Opening a 3D door preserves monochrome rather than switching to alpine")
+	mono.free()
 	var new_year:=Calendar.new()
 	new_year.path=archive.path
 	check(new_year.overview(christmas).claimed.has(6) and new_year.overview(christmas).claimed.has(24),"World and UI doors share persistent rewards")
