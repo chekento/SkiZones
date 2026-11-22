@@ -151,6 +151,19 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	)
 	check.name="check_save_038"
 	check.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	# Read-only diagnostics can be pasted directly into a support conversation
+	# from a Samsung phone. No game save, backup or archive is touched.
+	var copy_diagnostic: Button=hud._button(section,L.text("Diagnose kopieren"),func():
+		if not diagnostic.visible or diagnostic.text.is_empty():
+			hud.toast(L.text("Zuerst den Spielstand prüfen."))
+			return
+		var version:String=str(ProjectSettings.get_setting("application/config/version",""))
+		var label:String="SkiZones %s · %s · %d\n%s" % [version,map_id,free_slot if slot==0 else slot,diagnostic.text]
+		DisplayServer.clipboard_set(label)
+		hud.toast(L.text("Diagnose in die Zwischenablage kopiert."))
+	)
+	copy_diagnostic.name="copy_save_diagnostic_0425"
+	copy_diagnostic.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var rescue: Button=hud._button(section,L.text("Reparieren"),func():
 		if hud.game.has_game and Saves.active_slot==slot and (slot!=0 or Saves.active_free_slot==free_slot) and hud.game.model.map_id==map_id:
 			hud.toast(L.text("Aktives Resort: zuerst einen anderen Spielstand laden."))
@@ -185,7 +198,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 	remove.add_theme_stylebox_override("hover",hud._style(Color("edbcb0"),9,10))
 	remove.add_theme_stylebox_override("pressed",hud._style(Color("e9ad9e"),9,10))
 	remove.tooltip_text=L.text("Mit geprüfter Sicherung aus diesem Platz entfernen.")
-	for button in [check,rescue,copy,remove]:
+	for button in [check,copy_diagnostic,rescue,copy,remove]:
 		button.add_theme_font_size_override("font_size",16)
 		button.custom_minimum_size=Vector2(144,50)
 		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
