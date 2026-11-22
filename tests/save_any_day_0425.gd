@@ -20,6 +20,13 @@ func make_world(day:int,minute:int)->RefCounted:
 	model.minute=minute
 	return model
 
+func make_career_world(day:int,minute:int)->RefCounted:
+	var model:RefCounted=Resort.new()
+	model.new_game(false,20261122,"sonnenhang",true)
+	model.day=day
+	model.minute=minute
+	return model
+
 func clear_files()->void:
 	for suffix in ["",".tmp",".bak",".bak.tmp"]:
 		var path:String=PATH+suffix
@@ -71,9 +78,9 @@ func run()->void:
 	for suffix in ["",".bak",".tmp",".bak.tmp"]:
 		if FileAccess.file_exists(career_path+suffix):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(career_path+suffix))
-	check(Saves.save_game(make_world(7,810),career_path).get("ok",false),"Career slot 2 saves day 7")
+	check(Saves.save_game(make_career_world(7,810),career_path).get("ok",false),"Career slot 2 saves day 7")
 	var saved_session_sha:String=FileAccess.get_sha256(career_path)
-	check(Saves.save_game(make_world(9,1000),career_path).get("ok",false),"Career slot 2 saves day 9")
+	check(Saves.save_game(make_career_world(9,1000),career_path).get("ok",false),"Career slot 2 saves day 9")
 	check(Saves.session_source_matches("sonnenhang",2,saved_session_sha),"Session checksum matching checks older backup after newer primary")
 	check(Saves.session_source_matches("sonnenhang",2,FileAccess.get_sha256(career_path)),"Session checksum also accepts current primary")
 	check(not Saves.session_source_matches("sonnenhang",2,"invalid-checksum"),"Unmatched session checksum is safely rejected")
