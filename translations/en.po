@@ -10974,3 +10974,9 @@ msgstr "Check the save first."
 
 msgid "Diagnose in die Zwischenablage kopiert."
 msgstr "Diagnostics copied to clipboard."
+
+msgid "Nacht-Zeitraffer bis 06:50 Uhr"
+msgstr "Night fast-forward to 06:50"
+
+msgid "Ab leerem Resort oder spätestens 19 Uhr. Auf 1×, 4× und 8× gleich schnell; laufende Rettungen werden sicher weiter simuliert."
+msgstr "When the resort is empty or from 19:00. Equally fast at 1x, 4x or 8x; ongoing rescues continue safely."
