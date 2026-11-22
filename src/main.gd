@@ -167,23 +167,34 @@ func _process(delta: float) -> void:
 		_plan_dirty = false
 		_update_plan()
 	if simulation_running():
-		_accumulator += minf(delta, 0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0) * DayRhythm.playback(model.minute, preferences.day_length)
 		var safe_empty_night:bool=preferences.night_forward and model.empty_night()
-		# Spend a bounded 24 ms per frame when the entire outdoor resort
-		# is safe to skip. Each calendar minute still runs payroll, incidents,
-		# guest needs, hotel care and exactly one midnight settlement.
-		# No 24-substep loop or new night arrivals during this phase.
-		var budget_end := Time.get_ticks_usec() + (24000 if safe_empty_night else 6000)
+		var night_cleanup:bool=preferences.night_forward and DayRhythm.night_window(model) and not safe_empty_night
+		# Night is a *calendar* fast-forward, never selected-speed multiplication:
+		# 1×, 4× and 8× all arrive at precisely 06:50. Simulate every calendar
+		# minute for payroll, treatments, housekeeping, costs and visitor needs.
+		# Keep a frame-time budget so a Samsung still accepts touches and draws.
+		var budget_end:int=Time.get_ticks_usec() + (DayRhythm.NIGHT_FRAME_BUDGET_US if safe_empty_night or night_cleanup else 6000)
 		if safe_empty_night:
-			var night_day: int=model.day
-			for step in range(1440):
+			_accumulator=0.0 # No old 8× catch-up can overshoot the 06:50 handoff.
+			var night_day:int=model.day
+			for step in range(DayRhythm.NIGHT_MAX_BATCH):
 				if Time.get_ticks_usec()>=budget_end or not model.advance_empty_minute(): break
 			if model.day!=night_day: call_deferred("save_game")
-		while _accumulator >= 1.0 and not model.day_finished() and Time.get_ticks_usec() < budget_end:
-			_accumulator -= 1.0
-			var previous_day: int = model.day
-			model.advance_minute()
-			if model.day != previous_day: call_deferred("save_game")
+		else:
+			# When outdoor visitors or a rescue still occupy the piste at 19:00,
+			# use real simulation ticks to finish them safely. Do not teleport,
+			# silently delete guests or skip a patient waiting on the mountain.
+			# This cleanup is ALSO independent of the 1×/4×/8× setting.
+			var added:float=minf(delta,0.25) * DayRhythm.NIGHT_CLEANUP_TICKS_PER_SECOND if night_cleanup else minf(delta,0.25) * speed * Resort.MINUTES_PER_SECOND * (4.0 if model.time_divisor>1 else 1.0) * DayRhythm.playback(model.minute,preferences.day_length)
+			_accumulator=minf(48.0,_accumulator+added) if night_cleanup else _accumulator+added
+			while _accumulator>=1.0 and not model.day_finished() and Time.get_ticks_usec()<budget_end:
+				_accumulator-=1.0
+				var previous_day:int=model.day
+				model.advance_minute()
+				if model.day!=previous_day: call_deferred("save_game")
+				if preferences.night_forward and model.empty_night():
+					_accumulator=0.0 # Switch to accelerated calendar minutes next frame.
+					break
 	simulation_fraction = fmod(_accumulator,1.0)
 	view.simulation_fraction = simulation_fraction
 	view.motion_running = simulation_running()
