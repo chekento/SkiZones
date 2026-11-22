@@ -82,6 +82,20 @@ func run()->void:
 	var manual:Dictionary=Manager.repair("sonnenhang",3)
 	check(manual.get("ok",false) and manual.get("changed",false),"Repair button promotes day 9 even when day 7 primary is structurally valid")
 	check(int(Saves._read(PATH).data.get("day",0))==9 and int(Saves._read(PATH+".bak").data.get("day",0))==9,"Manual repair archives old primary without deleting newer backup")
+	# The newer backup must ALSO survive when the player has since advanced
+	# past it: old day-7 primary + good day-9 backup -> fresh day-10 save.
+	seed_day7_primary_day9_backup()
+	var precious_day9:String=FileAccess.get_sha256(PATH+".bak")
+	var day10_save:Dictionary=Saves.save_game(create_day(10,1200),PATH)
+	check(day10_save.get("ok",false),"Forward save to day 10 works after earlier day-7/day-9 split")
+	var archived_day9:bool=false
+	var before_forward:DirAccess=DirAccess.open("user://save-recovery")
+	if before_forward!=null:
+		for entry in before_forward.get_files():
+			if entry.begins_with(PATH.get_file()+".bak-") and entry.ends_with(".before-rewind") and FileAccess.get_sha256("user://save-recovery/"+entry)==precious_day9:
+				archived_day9=true
+	check(archived_day9,"Newer day-9 backup is archived before day-10 rotation replaces it")
+	check(int(Saves._read(PATH).data.get("day",0))==10 and Saves.load_game(Resort.new(),PATH).get("ok",false),"Day-10 primary remains loadable")
 	# A checksum-correct but unrestorable day-9 backup must never trigger an
 	# invisible day-7 rollback or destruction of the only day-9 bytes.
 	seed_day7_primary_day9_backup()
