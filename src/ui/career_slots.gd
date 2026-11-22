@@ -158,7 +158,7 @@ func _management_actions(parent:VBoxContainer,map_id:String,slot:int,free_slot:i
 			hud.toast(L.text("Zuerst den Spielstand prüfen."))
 			return
 		var version:String=str(ProjectSettings.get_setting("application/config/version",""))
-		var label:String="SkiZones %s · %s · %d\n%s" % [version,map_id,free_slot if slot==0 else slot,diagnostic.text]
+		var label:String="SkiZones" + (" %s · %s · %d\n%s" % [version,map_id,free_slot if slot==0 else slot,diagnostic.text])
 		DisplayServer.clipboard_set(label)
 		hud.toast(L.text("Diagnose in die Zwischenablage kopiert."))
 	)
