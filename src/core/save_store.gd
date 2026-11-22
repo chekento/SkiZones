@@ -114,7 +114,9 @@ static func session_source_matches(id: String, slot: int, checksum: String, free
 		if not read.ok: continue
 		if str(read.data.get("map_id", "sonnenhang")) != id: continue
 		if id in Maps.FANTASY_MAPS and _free_data(read.data) != (slot == 0): continue
-		return FileAccess.get_sha256(source) == checksum
+		# A session may reference the last valid .bak after a crash or interrupted
+		# save. Checking only the first valid primary would falsely reject it.
+		if FileAccess.get_sha256(source) == checksum: return true
 	return false
 
 static func passport_path(slot: int = -1, free_slot: int = -1) -> String:
