@@ -10965,3 +10965,12 @@ msgstr "A newer save or backup already exists. The older game day was not writte
 
 msgid "Eine neuere Sicherung liegt vor, konnte aber nicht automatisch repariert werden. Die ältere Hauptdatei wird nicht darüber gespeichert."
 msgstr "A newer backup exists but could not be repaired automatically. The older primary will not replace it."
+
+msgid "Diagnose kopieren"
+msgstr "Copy diagnostics"
+
+msgid "Zuerst den Spielstand prüfen."
+msgstr "Check the save first."
+
+msgid "Diagnose in die Zwischenablage kopiert."
+msgstr "Diagnostics copied to clipboard."
