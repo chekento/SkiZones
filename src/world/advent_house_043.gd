@@ -68,8 +68,8 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 	for door_number in range(1,DOOR_COUNT+1):
 		var at:Vector3=door_center(door_number)
 		var frame_tone:Color=accent.lightened(0.16) if door_number in [6,24] else wood.darkened(0.18)
-		a.box(at+Vector3(0,0,-0.36),Vector3(DOOR_WIDTH-0.18,DOOR_HEIGHT-0.15,0.18),wood.darkened(0.65))
-		a.box(at+Vector3(0,-0.38,-0.24),Vector3(1.15,0.62,0.23),accent.lightened(0.34))
+		a.box(at+Vector3(0,0,0.02),Vector3(DOOR_WIDTH-0.18,DOOR_HEIGHT-0.15,0.10),wood.darkened(0.65))
+		a.box(at+Vector3(0,-0.38,0.10),Vector3(1.15,0.62,0.06),accent.lightened(0.34))
 		for side in [-1.0,1.0]:
 			a.box(at+Vector3(side*(DOOR_WIDTH*0.5+0.16),0,0.03),Vector3(0.32,DOOR_HEIGHT+0.48,0.68),frame_tone)
 			a.box(at+Vector3(0,side*(DOOR_HEIGHT*0.5+0.15),0.03),Vector3(DOOR_WIDTH+0.62,0.30,0.68),frame_tone)
