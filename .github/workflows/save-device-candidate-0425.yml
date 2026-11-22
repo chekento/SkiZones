@@ -1,0 +1,91 @@
+name: P0 0.42.5 signed Android device candidate
+on:
+  pull_request:
+    paths:
+      - 'src/core/save_store.gd'
+      - 'src/core/app_session.gd'
+      - 'src/main.gd'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'tests/save_any_day_0425.gd'
+      - 'tests/save_day_rollback_0423.gd'
+      - 'tests/save_newest_backup_0424.gd'
+      - '.github/workflows/save-device-candidate-0425.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: skizones-0425-device-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  device-candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install Godot 4.5.2 and pinned Android templates
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Import and version verification
+        run: |
+          "$GODOT_BIN" --headless --editor --import --quit
+          python3 tools/check_android_versions.py
+          python3 tools/check_localization.py
+      - name: Save/load and recovery first — no APK if broken
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-0425-save
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_any_day_0425.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_day_rollback_0423.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_newest_backup_0424.gd
+      - name: Android SDK 35/36 + build tools
+        run: |
+          python3 - <<'PYCODE'
+          import os, subprocess
+          sdkmanager = os.path.join(os.environ['ANDROID_HOME'],'cmdline-tools/latest/bin/sdkmanager')
+          subprocess.run([sdkmanager,'--licenses'],input=('y\n'*100).encode(),check=True)
+          subprocess.run([sdkmanager,'platform-tools','platforms;android-35','platforms;android-36','build-tools;35.0.0','build-tools;35.0.1'],check=True)
+          PYCODE
+      - name: Restore the identical installed signing key
+        uses: actions/cache@v4
+        with:
+          path: build/export-config/skizones-debug.keystore
+          key: skizones-ci-debug-keystore-v1
+      - name: Cache Android Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: skizones-gradle-4.5.2-sdk36-v2
+      - name: Export 0.42.5 arm64 APK
+        run: python3 tools/export_android.py
+      - name: Verify APK signature, security and in-place 0.42.4 compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose build/android/SkiZones.apk
+          unzip -t build/android/SkiZones.apk | tail -1
+          python3 tools/verify_apk_security.py build/android/SkiZones.apk
+          python3 tools/verify_update_signing.py
+          python3 tools/package_android.py
+      - name: Publish INTERNAL 0.42.5 test APK artifact only (not a public release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkiZones-0.42.5-signed-device-candidate
+          path: build/release/*
+          if-no-files-found: error
+          retention-days: 14
