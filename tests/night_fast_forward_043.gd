@@ -67,5 +67,5 @@ func run()->void:
 	check(not early.empty_night(),"Pre-17:00 normal clock is preserved")
 	early.minute=Rhythm.EMPTY_EVENING_FROM
 	check(early.empty_night(),"A completely deserted resort can skip from 17:00")
-	print("NIGHT 0.43: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
