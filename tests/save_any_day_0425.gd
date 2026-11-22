@@ -65,6 +65,21 @@ func run()->void:
 	invalid.pistes[0].points[0]=[99999999,99999999]
 	check(not Saves.save_game(invalid,PATH).get("ok",false),"Unrestorable permanent geometry is rejected safely")
 	check(FileAccess.get_sha256(PATH)==good_sha and reload_is(8,1000),"An invalid attempted write does not damage the playable career")
+	# Resume handoff: UI checkpoints can be tied to a known-good backup,
+	# even when the newer primary is also checksum-valid.
+	var career_path:String=Saves.path_for_map("sonnenhang",2)
+	for suffix in ["",".bak",".tmp",".bak.tmp"]:
+		if FileAccess.file_exists(career_path+suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(career_path+suffix))
+	check(Saves.save_game(make_world(7,810),career_path).get("ok",false),"Career slot 2 saves day 7")
+	var saved_session_sha:String=FileAccess.get_sha256(career_path)
+	check(Saves.save_game(make_world(9,1000),career_path).get("ok",false),"Career slot 2 saves day 9")
+	check(Saves.session_source_matches("sonnenhang",2,saved_session_sha),"Session checksum matching checks older backup after newer primary")
+	check(Saves.session_source_matches("sonnenhang",2,FileAccess.get_sha256(career_path)),"Session checksum also accepts current primary")
+	check(not Saves.session_source_matches("sonnenhang",2,"invalid-checksum"),"Unmatched session checksum is safely rejected")
+	for suffix in ["",".bak",".tmp",".bak.tmp"]:
+		if FileAccess.file_exists(career_path+suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(career_path+suffix))
 	clear_files()
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
