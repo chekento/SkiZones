@@ -22,7 +22,8 @@ func make_world(day:int,minute:int)->RefCounted:
 
 func make_career_world(day:int,minute:int)->RefCounted:
 	var model:RefCounted=Resort.new()
-	model.new_game(false,20261122,"sonnenhang",true)
+	# Starter infrastructure is seeded only for career mode. Free build is false.
+	model.new_game(true,20261122,"sonnenhang",true)
 	model.day=day
 	model.minute=minute
 	return model
