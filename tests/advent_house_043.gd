@@ -41,12 +41,17 @@ func run()->void:
 	var lanterns:=facade.get_node_or_null("advent_timber_roof/roof_fairy_lights") as MultiMeshInstance3D
 	check(lanterns!=null and lanterns.multimesh.instance_count==36,"PMDD roof lights are batched into one hardware instancing draw")
 	check(facade.get_node_or_null("door_8/advent_door_knob") is MeshInstance3D,"Each 3D door has a real metal handle attached to its hinge")
+	var gift6:=facade.get_node_or_null("advent_timber_roof/reward_preview_6") as MeshInstance3D
+	var gift7:=facade.get_node_or_null("advent_timber_roof/reward_preview_7") as MeshInstance3D
+	check(gift6!=null and gift7!=null and gift6.visible and not gift7.visible,"Only archived open Advent doors reveal actual 3D presents")
+	check(gift6!=null and gift7!=null and gift6.mesh==gift7.mesh,"All 24 Advent gift displays reuse one themed mesh")
 	var opened:=facade.get_node_or_null("door_6") as Node3D
 	var closed:=facade.get_node_or_null("door_7") as Node3D
 	check(opened!=null and closed!=null and opened.rotation.y< -1.0 and is_zero_approx(closed.rotation.y),"Already claimed doors visually stay open after world reload")
 	if closed!=null:
 		House.reveal(facade,7)
 		check(closed.rotation.y< -1.0,"Door opening updates the 3D hinge even before scene attachment")
+		check(gift7!=null and gift7.visible,"Revealing an Advent door also displays its 3D present")
 	facade.free()
 	var mono:=House.create("monochrome",[],StandardMaterial3D.new())
 	check(str(mono.get_meta("advent_style",""))=="monochrome","Advent depth facade retains its selected theme")
