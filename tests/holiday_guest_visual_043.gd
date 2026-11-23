@@ -10,7 +10,7 @@ func _init()->void:call_deferred("run")
 func run()->void:
 	var people:Array=[
 		{"id":1,"phase":"moving","leg":0,"years":36,"route":{"legs":[{"kind":"walk"}]},
-		 "family":[{"years":36},{"years":9},{"years":38}]},
+		 "family":[{"years":9},{"years":38},{"years":36}]},
 		{"id":2,"phase":"moving","leg":0,"route":{"legs":[{"kind":"ski"}]}},
 		{"id":3,"phase":"moving","leg":0,"route":{"legs":[{"kind":"lift"}]}},
 		{"id":4,"phase":"waiting","leg":0,"route":{"legs":[{"kind":"visit"}]}},
