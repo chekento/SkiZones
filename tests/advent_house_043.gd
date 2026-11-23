@@ -4,6 +4,7 @@ extends SceneTree
 const House=preload("res://src/world/advent_house_043.gd")
 const Calendar=preload("res://src/core/annual_festival.gd")
 const Scenery=preload("res://src/world/festival_scenery.gd")
+const CalendarUI=preload("res://src/ui/winter_festival.gd")
 var passed:int=0
 var failed:int=0
 
@@ -20,6 +21,7 @@ func run()->void:
 		check(selected==number and not recognized.has(selected),"Door %d has an individually pickable 3D center" % number)
 		recognized[selected]=true
 	check(recognized.size()==24,"All 24 doors are unique and mapped on the physical house")
+	check(House.COLUMNS==4 and CalendarUI.door_button_width(360.0)==64.0 and CalendarUI.door_button_width(1280.0)==90.0,"Calendar uses narrow mobile touch cells while retaining the physical 4-column facade")
 	check(House.door_at(Vector3(0,0,House.FRONT_Z))==0,"A tap on facade wood cannot grant a door reward")
 	check(House.door_at(Vector3(40,20,House.FRONT_Z))==0,"Taps beyond the building select no holiday door")
 	check(House.door_at(Vector3(0,20,0))==0,"3D picking rejects points behind the Advent facade")
