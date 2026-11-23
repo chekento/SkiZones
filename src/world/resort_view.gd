@@ -29,6 +29,7 @@ const Relief = preload("res://src/world/terrain_relief.gd")
 const PerceptualDepth = preload("res://src/world/perceptual_depth.gd")
 const LandscapeDetails = preload("res://src/world/landscape_details.gd")
 const LivingAssets = preload("res://src/world/living_assets.gd")
+const HolidayGuestVisual = preload("res://src/world/holiday_guest_visual_043.gd")
 const FestivalScenery = preload("res://src/world/festival_scenery.gd")
 const CrewLife=preload("res://src/world/crew_life.gd")
 const CinematicTour = preload("res://src/world/cinematic_tour.gd")
@@ -47,6 +48,7 @@ var piste_furniture: Array = []
 var forest := ForestLOD.new()
 var landscape_details := LandscapeDetails.new()
 var living_assets := LivingAssets.new()
+var holiday_guest_visual := HolidayGuestVisual.new()
 var festival_scene := FestivalScenery.new()
 var village_dressing := VillageDressing.new()
 var crew_life:=CrewLife.new()
@@ -184,6 +186,7 @@ void fragment() {
 	for node in [trees, rocks, asset_root, preview_root, visitor_mesh, _riders, _cabin_riders, _walkers, _climbers, _tow_lines, _groomers, _swimmers, _track_mesh, foot_wear]:
 		add_child(node)
 	foot_wear.setup()
+	holiday_guest_visual.setup(self,_solid)
 	visitor_mesh.multimesh = _multimesh(Art.new().skier(false), model.MAX_GUESTS * 5,true)
 	visitor_mesh.material_override = _people_material
 	visitor_mesh.multimesh.visible_instance_count = 0
@@ -1468,6 +1471,7 @@ func _process(delta: float) -> void:
 			focus = Vector2(_follow_position.x, _follow_position.z)
 			_update_camera()
 	_guest_positions = next_positions
+	holiday_guest_visual.update(self,next_positions,_family_positions)
 	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
 	if _selection.visible:
