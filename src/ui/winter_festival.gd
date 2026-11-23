@@ -4,6 +4,7 @@ extends Control
 const L = preload("res://src/core/i18n.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const FloatingFrame = preload("res://src/ui/floating_window.gd")
+const AdventHouse = preload("res://src/world/advent_house_043.gd")
 var hud: CanvasLayer
 var archive := AnnualFestival.new()
 var window := FloatingFrame.new()
@@ -13,6 +14,11 @@ var clock_label: Label
 var _was_paused := false
 var _clock_bucket := -1
 var _calendar_state := ""
+
+## Keep the calendar aligned with the actual four-column, six-row 3D facade.
+## Narrow phone widths use smaller touch-safe cells instead of clipping doors.
+static func door_button_width(viewport_width:float)->float:
+	return 64.0 if viewport_width<450.0 else 90.0
 
 func current_date() -> Dictionary:
 	return AnnualFestival.device_now()
@@ -81,14 +87,14 @@ func _rebuild(date: Dictionary = {}) -> void:
 	hud._label(contents,L.text("Wintertaler: %d · Jahr %d") % [int(state.coins),int(state.year)],22,hud.INK,true)
 	if stage=="advent" or stage=="christmas" or stage=="new_year_eve":
 		var grid:=GridContainer.new()
-		grid.columns=4 if get_viewport_rect().size.x<1100 else 6
+		grid.columns=AdventHouse.COLUMNS
 		contents.add_child(grid)
 		for door in range(1,25):
 			var number: int=door
 			var owned: bool=state.claimed.has(number)
 			var can_open: bool=AnnualFestival.unlocked(now,number) and not owned
 			var button: Button=hud._button(grid,("★ " if number in [6,24] else "❄ ") + str(number) + (" ✓" if owned else ""),func(): pass)
-			button.custom_minimum_size=Vector2(90,68)
+			button.custom_minimum_size=Vector2(door_button_width(get_viewport_rect().size.x),68)
 			# Wooden door panels with a distinct open/locked state instead
 			# of bare text: the same 4-by-6 facade as the 3D Advent house.
 			var panel:=StyleBoxFlat.new()
