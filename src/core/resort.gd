@@ -19,6 +19,8 @@ const Traffic = preload("res://src/core/guest_traffic.gd")
 const Needs = preload("res://src/core/guest_needs.gd")
 const GuestRhythm = preload("res://src/core/guest_daily_rhythm.gd")
 const GuestHabits = preload("res://src/core/guest_habits_042.gd")
+const HolidayGuestRhythm = preload("res://src/core/holiday_guest_rhythm_043.gd")
+const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const PisteStops = preload("res://src/core/piste_stops_042.gd")
 var _piste_stops_revision: int = -1
 var _piste_stops: Array = []
@@ -1349,6 +1351,9 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 	var graph := _routing_graph(Agenda.comfort(guest),true)
 	var best: Dictionary = {}
 	var best_score := 0.0
+	# Sample the local holiday once per route decision (not once per venue).
+	# A festive preference does not create guests, bypass closures or book sales.
+	var holiday_event:String=HolidayGuestRhythm.event_for(AnnualFestival.device_now())
 	for building in buildings:
 		if not Ops.building_open(self, building): continue
 		# A weak, time-dependent meal preference adds human routine without
@@ -1358,6 +1363,7 @@ func service_route(guest: Dictionary, source: String = "base") -> Dictionary:
 		# visitors, but only a fully staffed kitchen/front-of-house can serve
 		# the extra demand. Paid visits, not attraction, create income.
 		var utility := service_utility(guest,str(building.kind))
+		if holiday_event!="":utility+=HolidayGuestRhythm.bonus(guest,str(building.kind),minute,holiday_event)
 		utility*=1.0+minf(0.65,maxf(0.0,float(building.get("level",1))-1.0)*0.13)
 		var night_activity: bool=guest.get("night_out",false) and time_divisor>1 and (minute>=1020 or minute<360) and building.kind in ["disco","bar","pool","spa"]
 		if night_activity: utility+=45.0 if building.kind=="disco" else 28.0
