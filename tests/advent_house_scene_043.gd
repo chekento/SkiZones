@@ -50,6 +50,14 @@ func run()->void:
 			var surface:Vector3=house.to_global(AdventHouse.door_center(number))
 			var tap:Vector2=camera.unproject_position(surface)
 			check(scene.pick_advent_door(camera,tap)==number,style+" camera touch selects numbered door "+str(number))
+		# From behind, a screen ray can intersect the facade plane through
+		# the building. It must not award an invisible December door.
+		camera.global_position=house.to_global(Vector3(0,17,-96))
+		camera.look_at(house.to_global(Vector3(0,15,0)),Vector3.UP)
+		var rear_tap:Vector2=camera.unproject_position(house.to_global(AdventHouse.door_center(6)))
+		check(scene.pick_advent_door(camera,rear_tap)==0,style+" rear camera cannot pick a hidden Advent door")
+		camera.global_position=house.to_global(Vector3(0,17,96))
+		camera.look_at(house.to_global(Vector3(0,15,0)),Vector3.UP)
 		await capture(style)
 	check(scene.store.claim(6,{"year":2026,"month":12,"day":6}).ok,"December 6 door opens in real annual archive")
 	scene.build(game.view)
