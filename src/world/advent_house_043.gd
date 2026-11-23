@@ -28,6 +28,9 @@ static func door_at(local:Vector3)->int:
 
 static func pick(house:Node3D,camera:Camera3D,screen:Vector2)->int:
 	if not is_instance_valid(house) or not is_instance_valid(camera):return 0
+	# A camera behind the facade must never select a hidden door through the
+	# building. The ray-plane intersection alone is not an occlusion test.
+	if house.to_local(camera.global_position).z<=FRONT_Z+0.05:return 0
 	var front:Vector3=house.to_global(Vector3(0,0,FRONT_Z))
 	var normal:Vector3=house.global_transform.basis.z.normalized()
 	var plane:=Plane(normal,normal.dot(front))
