@@ -46,6 +46,21 @@ static func _door_material(style:String,opened:bool,special:bool)->StandardMater
 	elif style=="piste_map":material.albedo_color=material.albedo_color.darkened(0.22)
 	return material
 
+## One shared low-poly mesh for all rewards: displays are cosmetic and never
+## grant tokens or change a career save.
+static func _gift_mesh(style:String,solid:Material)->ArrayMesh:
+	var art:=Art.new()
+	var paper:=Color("8b8b8b") if style=="monochrome" else Color("cc555a") if style=="comic" else Color("ac4354")
+	var ribbon:=Color("dadada") if style=="monochrome" else Color("f3d28a")
+	art.box(Vector3(0,0.34,0),Vector3(1.35,0.68,1.0),paper)
+	art.box(Vector3(0,0.35,0),Vector3(0.22,0.76,1.14),ribbon)
+	art.box(Vector3(0,0.35,0),Vector3(1.47,0.76,0.20),ribbon)
+	art.sphere(Vector3(-0.26,0.84,0),0.24,ribbon)
+	art.sphere(Vector3(0.26,0.84,0),0.24,ribbon)
+	var mesh:ArrayMesh=art.finish()
+	mesh.surface_set_material(0,solid)
+	return mesh
+
 static func create(style:String,claimed:Array,solid:Material)->Node3D:
 	var root:=Node3D.new()
 	root.name="advent_house_24"
@@ -112,6 +127,7 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 	strand.material_override=glow
 	strand.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	model.add_child(strand)
+	var shared_reward_mesh:ArrayMesh=_gift_mesh(style,solid)
 	for number in range(1,DOOR_COUNT+1):
 		var center:Vector3=door_center(number)
 		var pivot:=Node3D.new()
@@ -152,6 +168,15 @@ static func create(style:String,claimed:Array,solid:Material)->Node3D:
 		number_plate.modulate=Color("e5e5e5") if style=="monochrome" else Color("f8f7e7")
 		number_plate.position=Vector3(DOOR_WIDTH*0.5,0,0.19)
 		pivot.add_child(number_plate)
+		# The present stays behind an intact door and appears only once the
+		# existing annual archive confirms that the door was claimed.
+		var reward_preview:=MeshInstance3D.new()
+		reward_preview.name="reward_preview_"+str(number)
+		reward_preview.mesh=shared_reward_mesh
+		reward_preview.position=center+Vector3(0,-0.43,0.57)
+		reward_preview.visible=claimed.has(number)
+		reward_preview.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		model.add_child(reward_preview)
 		if claimed.has(number):pivot.rotation.y=-1.15
 	return root
 
@@ -161,6 +186,13 @@ static func reveal(house:Node3D,number:int)->void:
 	if pivot==null or pivot.rotation.y< -1.0:return
 	var leaf:=pivot.get_node_or_null("advent_door_leaf") as MeshInstance3D
 	if leaf!=null:leaf.material_override=_door_material(str(house.get_meta("advent_style","alpine")),true,number in [6,24])
+	var reward_preview:=house.get_node_or_null("advent_timber_roof/reward_preview_"+str(number)) as MeshInstance3D
+	if reward_preview!=null:
+		reward_preview.visible=true
+		if reward_preview.is_inside_tree():
+			reward_preview.scale=Vector3.ONE*0.25
+			var preview_tween:Tween=reward_preview.create_tween()
+			preview_tween.tween_property(reward_preview,"scale",Vector3.ONE,0.56).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if pivot.is_inside_tree():
 		var tween:Tween=pivot.create_tween()
 		tween.tween_property(pivot,"rotation:y",-1.15,0.45).set_trans(Tween.TRANS_SINE)
