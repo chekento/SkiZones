@@ -56,5 +56,5 @@ func run()->void:
 		for kind in ["cocoa","kiosk","restaurant","pizzeria","schmarrn","souvenir","craftshop","watchmaker"]:
 			Holiday.bonus(g,kind,780,event)
 	check(g==baseline,"Holiday preferences are pure and add no save, money, guest or RNG fields")
-	print("HOLIDAY GUEST RHYTHM: %d passed; %d failed" % [passed,failed])
+	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)
