@@ -55,7 +55,7 @@ func setup(parent:Node3D,solid:Material)->void:
 	instance.mesh=mesh
 	instance.instance_count=MAX_VISIBLE
 	instance.visible_instance_count=0
-	node.name="Actual Holiday Guest Hats"
+	node.name="holiday_guest_hats_043"
 	node.multimesh=instance
 	node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(node)
