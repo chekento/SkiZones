@@ -10980,3 +10980,22 @@ msgstr "Night fast-forward to 06:50"
 
 msgid "Ab leerem Resort oder spätestens 19 Uhr. Auf 1×, 4× und 8× gleich schnell; laufende Rettungen werden sicher weiter simuliert."
 msgstr "When the resort is empty or from 19:00. Equally fast at 1x, 4x or 8x; ongoing rescues continue safely."
+
+msgid "Festtags-Kakao"
+msgstr "Festive hot cocoa"
+
+msgid "Weihnachtspunsch"
+msgstr "Christmas punch"
+
+msgid "Festtags-Schmarrn"
+msgstr "Festive Kaiserschmarrn"
+
+msgid "Weihnachtsmenü"
+msgstr "Christmas menu"
+
+msgid "Weihnachtsgeschenk"
+msgstr "Christmas gift"
+
+msgid "Holz-Weihnachtsstern"
+msgstr "Wooden Christmas star"
+
