@@ -5,6 +5,7 @@ const Resort=preload("res://src/core/resort.gd")
 const Offers=preload("res://src/core/building_offers_035.gd")
 const Holiday=preload("res://src/core/holiday_market_sales_043.gd")
 const Ops=preload("res://src/core/operations.gd")
+const Stock=preload("res://src/core/holiday_inventory_043.gd")
 const L=preload("res://src/core/i18n.gd")
 var passed:=0
 var failed:=0
@@ -61,20 +62,9 @@ func run()->void:
 	model.operations.staff=[]
 	model._duty_cache.clear()
 	check(not Ops.building_open(model,shop),"Seasonal cocoa is closed without a qualified barista on duty")
-	var selected_id:int=-1
-	var sale:Dictionary={}
-	for id in range(25,100):
-		var candidate:Dictionary=Offers.visit_sale(shop,_guest(id,int(shop.id)),christmas)
-		if str(candidate.get("id",""))=="holiday_cocoa":
-			selected_id=id
-			sale=candidate
-			break
-	check(selected_id>0 and sale.quantity==2 and float(sale.cost)>0,"A real two-person purchase can select the festive cocoa recipe")
-	if selected_id<0:
-		print("RESULT: %d passed; %d failed" % [passed,failed])
-		quit(1)
-		return
-	var blocked:Dictionary=_guest(selected_id,int(shop.id))
+	check(Stock.valid(shop) and not Stock.available(shop,2),"Older saves have no phantom seasonal inventory")
+	check(Stock.order(model,shop,christmas)==false,"Unstaffed cocoa stand cannot spend money on festive stock")
+	var blocked:Dictionary=_guest(25,int(shop.id))
 	var blocked_money:float=model.money
 	var blocked_cost:float=model.report.costs
 	model._finish_leg(blocked,christmas)
@@ -83,22 +73,49 @@ func run()->void:
 	var hired:Dictionary=Ops.hire(model,"barista","building:%d" % int(shop.id),"day",true)
 	Ops.refresh_duty(model)
 	check(hired.ok and Ops.building_open(model,shop),"Real qualified employee opens the festive cocoa shop")
+	var purchase_cash:float=model.money
+	var purchase_cost:float=model.report.costs
+	check(Stock.order(model,shop,christmas),"Staffed cocoa shop prepays a real 24-unit delivery")
+	var prepaid:float=snappedf(float(Stock.ORDER_UNITS)*float(Holiday.ITEMS.cocoa.cost),0.01)
+	check(is_equal_approx(purchase_cash-model.money,prepaid) and is_equal_approx(model.report.costs-purchase_cost,prepaid),
+		"Supply order charges cash and cost centre exactly once at purchase")
+	check(not Stock.order(model,shop,christmas) and not Stock.available(shop,1),
+		"Duplicate orders are forbidden and pending deliveries are not saleable")
+	model.minute+=Stock.DELIVERY_MINUTES-1
+	check(not Stock.receive(model,shop),"Delivery remains locked until its actual game-time arrival")
+	model.minute+=1
+	check(Stock.receive(model,shop) and Stock.available(shop,2),"Stock arrives only after 45 simulated minutes")
+	var selected_id:int=-1
+	var sale:Dictionary={}
+	for id in range(25,100):
+		var candidate:Dictionary=Offers.visit_sale(shop,_guest(id,int(shop.id)),christmas)
+		if str(candidate.get("id",""))=="holiday_cocoa":
+			selected_id=id
+			sale=candidate
+			break
+	check(selected_id>0 and sale.quantity==2 and float(sale.cost)>0,"A real two-person purchase selects delivered festive cocoa")
+	if selected_id<0:
+		print("RESULT: %d passed; %d failed" % [passed,failed])
+		quit(1)
+		return
 	var guest:Dictionary=_guest(selected_id,int(shop.id))
 	var money_before:float=model.money
 	var costs_before:float=model.report.costs
 	var services_before:float=model.report.services
 	model._finish_leg(guest,christmas)
-	check(is_equal_approx(model.money-money_before,float(sale.revenue)-float(sale.cost)),
-		"Completed two-person festive sale changes cash by real gross revenue minus unit costs")
+	check(is_equal_approx(model.money-money_before,float(sale.revenue)),
+		"Prepaid festive purchase receives only gross checkout revenue, without double supply costs")
 	check(is_equal_approx(model.report.services-services_before,float(sale.revenue)),
 		"Festival income is a replacement product sale, never a second flat tariff")
-	check(is_equal_approx(model.report.costs-costs_before,float(sale.cost)),
-		"Exactly one ingredient or merchandise expense enters daily operating costs")
+	check(is_equal_approx(model.report.costs-costs_before,0.0),
+		"No second ingredient charge is made after prepaid inventory has been received")
+	check(Stock.available(shop,Stock.ORDER_UNITS-2) and not Stock.available(shop,Stock.ORDER_UNITS-1),
+		"Sold family portions subtract two delivered units and cannot be oversold")
 	var recorded:Dictionary=shop.get("product_sales",{}).get("holiday_cocoa",{})
 	check(recorded.get("quantity",0)==2 and is_equal_approx(float(recorded.get("cost",0)),float(sale.cost)),
 		"Product ledger records the actual quantity and supply cost")
-	check(Offers.valid_sales(shop) and is_equal_approx(float(Ops.business_balance(model,shop).supplies),float(sale.cost)),
-		"Seasonal SKU is validated and its real supplies lower business profit")
+	check(Offers.valid_sales(shop) and Stock.valid(shop) and is_equal_approx(float(Ops.business_balance(model,shop).supplies),prepaid),
+		"Validated seasonal inventory and prepaid order cost lower business profit once")
 	check(guest.leg==1,"Completed festive service resumes the guest itinerary normally")
 	var saved:Dictionary=model.snapshot()
 	var restored:=Resort.new()
@@ -107,7 +124,12 @@ func run()->void:
 	if restored.buildings.size()>0:
 		var again:Dictionary=restored.buildings[0].get("product_sales",{}).get("holiday_cocoa",{})
 		check(int(again.get("quantity",0))==2 and is_equal_approx(float(again.get("cost",0)),float(sale.cost)),
-			"Recovered careers preserve exact season stock-consumption counters and ingredient expenses")
+			"Recovered careers preserve exact sold-quantity and item-cost journal")
+		check(Stock.available(restored.buildings[0],Stock.ORDER_UNITS-2),
+			"Recovered careers preserve physically remaining festive stock")
+	var corrupted:Dictionary=model.snapshot()
+	corrupted.buildings[0].holiday_inventory.stock=-1
+	check(not restored.restore(corrupted).ok,"Negative festive stock is rejected during complete career loading")
 	L.configure("en")
 	check(L.text("Weihnachtsmenü")=="Christmas menu" and L.text("Festtags-Kakao")=="Festive hot cocoa",
 		"Festive item names have complete English translations")
