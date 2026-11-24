@@ -20,6 +20,7 @@ const Needs = preload("res://src/core/guest_needs.gd")
 const GuestRhythm = preload("res://src/core/guest_daily_rhythm.gd")
 const GuestHabits = preload("res://src/core/guest_habits_042.gd")
 const HolidayGuestRhythm = preload("res://src/core/holiday_guest_rhythm_043.gd")
+const HolidayInventory = preload("res://src/core/holiday_inventory_043.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const PisteStops = preload("res://src/core/piste_stops_042.gd")
 var _piste_stops_revision: int = -1
@@ -1569,6 +1570,9 @@ func _finish_leg(guest: Dictionary, retail_date: Dictionary = {}) -> void:
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
 			var product_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else BuildingOffers.visit_sale(building,guest,retail_date)
+			if not product_sale.is_empty() and HolidayInventory.seasonal(product_sale):
+				# Only physically delivered units are sold; no double charge at checkout.
+				if not HolidayInventory.consume(building,int(product_sale.quantity)):product_sale={}
 			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
 			if not product_sale.is_empty():
 				# Opt-in per-recipe prices: actual gross menu sale replaces the old
@@ -1583,7 +1587,8 @@ func _finish_leg(guest: Dictionary, retail_date: Dictionary = {}) -> void:
 			if not product_sale.is_empty():
 				# Inventory costing happens exactly once per actual customer visit.
 				# Revenue stays gross, ingredient purchase is a recorded operating cost.
-				Ops._charge(self,float(product_sale.cost),"supplies:%d" % int(building.id))
+				if not HolidayInventory.seasonal(product_sale):
+					Ops._charge(self,float(product_sale.cost),"supplies:%d" % int(building.id))
 				BuildingOffers.record_sale(building,product_sale)
 			report.services += revenue
 			campaign.turnover += revenue
@@ -2580,7 +2585,7 @@ func _restore_checked(data: Dictionary, legacy_geometry: bool = false) -> Dictio
 				for field in ["daily_revenue", "last_day_revenue", "last_day_cost"]:
 					if not Terrain.number(item.get(field, 0.0)) or item.get(field, 0.0) < 0 or item.get(field, 0.0) > 1000000000: return invalid
 				if not Terrain.number(item.get("last_day_profit", 0.0)) or absf(float(item.get("last_day_profit", 0.0))) > 1000000000: return invalid
-				if not Hospitality.valid_building(item): return invalid
+				if not Hospitality.valid_building(item) or not HolidayInventory.valid(item): return invalid
 				if item.has("room_operations") and int(item.room_operations.last_service) > (int(data.day)-1)*1440+int(data.minute): return invalid
 				item.visits = item.get("visits", 0)
 				item.revenue = item.get("revenue", 0.0)
