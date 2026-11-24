@@ -8,6 +8,8 @@ on:
       - 'src/world/resort_view.gd'
       - 'src/core/holiday_guest_rhythm_043.gd'
       - 'src/core/holiday_market_sales_043.gd'
+      - 'src/core/holiday_inventory_043.gd'
+      - 'src/core/operations.gd'
       - 'src/core/building_offers_035.gd'
       - 'translations/en.po'
       - 'src/core/resort.gd'
