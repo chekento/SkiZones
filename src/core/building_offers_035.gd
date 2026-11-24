@@ -4,6 +4,7 @@ extends RefCounted
 ## items or service upgrades. This table does NOT mutate legacy save files.
 const Catalog = preload("res://src/core/catalog.gd")
 const HolidaySales = preload("res://src/core/holiday_market_sales_043.gd")
+const HolidayInventory = preload("res://src/core/holiday_inventory_043.gd")
 const MAX_LEVEL := 5
 const OFFERS := {
 	"wc_dixi": [
@@ -1677,15 +1678,15 @@ const RETAIL_KINDS := ["cocoa", "schmarrn", "restaurant", "kiosk", "bar", "disco
 
 static func visit_sale(building: Dictionary, guest: Dictionary, date: Dictionary = {}) -> Dictionary:
 	if str(building.get("kind", "")) not in RETAIL_KINDS: return {}
+	var count: int = clampi(int(guest.get("group_size", 1)), 1, 20)
 	var choices: Array = active(str(building.kind), int(building.get("level", 1)), date).filter(
-		func(offer): return str(offer.category) in ["food", "drink", "retail"] and float(offer.price) > 0.0)
+		func(offer): return str(offer.category) in ["food", "drink", "retail"] and float(offer.price) > 0.0 and (not HolidayInventory.seasonal(offer) or HolidayInventory.available(building,count)))
 	if choices.is_empty(): return {}
 	var index: int = posmod(int(guest.get("id", 0)) + int(building.get("visits", 0)), choices.size())
 	var offer: Dictionary = choices[index]
-	var quantity: int = clampi(int(guest.get("group_size", 1)), 1, 20)
-	return {"id":str(offer.id), "name":str(offer.name), "quantity":quantity,
-		"revenue":snappedf(float(offer.price) * quantity, 0.01),
-		"cost":snappedf(float(offer.cost) * quantity, 0.01)}
+	return {"id":str(offer.id), "name":str(offer.name), "quantity":count,
+		"revenue":snappedf(float(offer.price) * count, 0.01),
+		"cost":snappedf(float(offer.cost) * count, 0.01)}
 
 static func record_sale(building: Dictionary, sale: Dictionary) -> void:
 	if sale.is_empty(): return
