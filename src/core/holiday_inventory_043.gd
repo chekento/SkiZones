@@ -61,7 +61,7 @@ static func receive(model:RefCounted,building:Dictionary)->bool:
 
 static func order(model:RefCounted,building:Dictionary,date:Dictionary={},quantity:int=ORDER_UNITS)->bool:
 	var kind:String=str(building.get("kind",""))
-	if not Market.ITEMS.has(kind) or quantity<1 or quantity>ORDER_UNITS:return false
+	if not Market.ITEMS.has(kind) or quantity<1 or quantity>ORDER_UNITS or not model.Ops.active(model):return false
 	var now:Dictionary=Calendar.device_now() if date.is_empty() else date
 	if Market.active(kind,now).is_empty():return false
 	if not bool(building.get("enabled",false)) or not model.Ops.building_open(model,building):return false
