@@ -959,8 +959,9 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 
 static func tick(model: RefCounted) -> void:
 	if not active(model): return
-	HolidayInventory.tick(model)
 	refresh_duty(model)
+	# Ordering uses today's refreshed staff roster, never yesterday's shifts.
+	HolidayInventory.tick(model)
 	model.HotelRooms.tick(model)
 	var now := clock(model)
 	if model.operations.scenario != "" and model.minute == 510 and int(model.operations.event_day) != model.day:
