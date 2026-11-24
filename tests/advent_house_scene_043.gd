@@ -33,12 +33,14 @@ func run()->void:
 	scene.qa_date_override={"year":2026,"month":11,"day":30,"hour":12,"minute":0,"second":0}
 	scene.build(game.view)
 	check(scene.advent_house==null,"No Advent house before December 1")
+	check(scene.holiday_plaza==null,"No Nikolaus or Christmas host is spawned in November")
 	scene.qa_date_override={"year":2026,"month":12,"day":6,"hour":12,"minute":0,"second":0}
 	for style in ["alpine","comic","monochrome"]:
 		game.view.set_visual_style(style)
 		scene.build(game.view)
 		var house:Node3D=scene.advent_house
 		check(is_instance_valid(house),style+" generates an actual 24-door resort building")
+		check(is_instance_valid(scene.holiday_plaza) and scene.holiday_plaza.get_meta("festival_event","")=="nikolaus",style+" places the Nikolaus sculpture at the real winter market")
 		if not is_instance_valid(house):continue
 		check(house.get_meta("festival_clearance",0.0)==20.0 and house.get_meta("festival_kind","")=="advent_house",style+" records a non-overlapping holiday building footprint")
 		var camera:Camera3D=game.view.camera
@@ -62,9 +64,13 @@ func run()->void:
 	check(scene.store.claim(6,{"year":2026,"month":12,"day":6}).ok,"December 6 door opens in real annual archive")
 	scene.build(game.view)
 	check(scene.advent_house!=null and (scene.advent_house.get_node("door_6") as Node3D).rotation.y< -1.0,"Rebuilding the real resort leaves a claimed 3D door open")
+	scene.qa_date_override={"year":2026,"month":12,"day":25,"hour":12,"minute":0,"second":0}
+	scene.build(game.view)
+	check(is_instance_valid(scene.holiday_plaza) and scene.holiday_plaza.get_meta("festival_event","")=="christmas_day","The resort market switches from Nikolaus to its Christmas sculpture")
 	scene.qa_date_override={"year":2027,"month":1,"day":2}
 	scene.build(game.view)
 	check(scene.advent_house==null,"Advent house disappears after January 1 without modifying the career")
+	check(scene.holiday_plaza==null,"Holiday plaza automatically disappears after Christmas, independent of career saves")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(scene.store.path))
 	game.queue_free()
 	await process_frame
