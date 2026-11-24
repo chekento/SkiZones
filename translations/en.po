@@ -10999,3 +10999,30 @@ msgstr "Christmas gift"
 msgid "Holz-Weihnachtsstern"
 msgstr "Wooden Christmas star"
 
+msgid "Speisen, Getränke und Souvenirs werden nach echten Besuchen verkauft. Normale Warenkosten fallen je Verkauf an; saisonale Vorräte werden beim Bestellen bezahlt. Kurse und kostenlose Grunddienste behalten ihre Betriebsregeln."
+msgstr "Food, drinks and souvenirs are sold after actual visits. Ordinary supply costs are charged per sale; seasonal inventory is paid for when ordering. Courses and free basic services keep their existing operating rules."
+
+msgid "Lagerbestand: %d Stück · in Lieferung: %d Stück · Einkaufspreis %.2f € je Stück."
+msgstr "Stock: %d units · on order: %d units · purchase cost %.2f € per unit."
+
+msgid "Saisonware wird bei Bestellung bezahlt. Der spätere Verkauf verbraucht nur den vorhandenen Bestand."
+msgstr "Seasonal goods are prepaid when ordered. Later sales only consume available stock."
+
+msgid "Lieferung in %d Spielminuten."
+msgstr "Delivery in %d game minutes."
+
+msgid "Außerhalb der Saison bleibt der Vorrat für die nächste Weihnachtszeit erhalten."
+msgstr "Outside the season, stock is retained for the next Christmas period."
+
+msgid "Weihnachtslager & Nachschub"
+msgstr "Christmas stock & deliveries"
+
+msgid "24 Einheiten bestellen · %.2f €"
+msgstr "Order 24 units · %.2f €"
+
+msgid "Lieferung bestellt."
+msgstr "Delivery ordered."
+
+msgid "Bestellung derzeit nicht möglich."
+msgstr "Ordering is currently unavailable."
+
