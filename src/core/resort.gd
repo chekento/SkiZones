@@ -1538,7 +1538,7 @@ func _start_leg(guest: Dictionary) -> void:
 	if leg.kind == "lift":
 		guest.queue_since = movement_clock()
 
-func _finish_leg(guest: Dictionary) -> void:
+func _finish_leg(guest: Dictionary, retail_date: Dictionary = {}) -> void:
 	var leg: Dictionary = guest.route.legs[guest.leg]
 	if leg.kind == "lift": Agenda.record_lift(guest, int(leg.id))
 	if leg.kind == "ski":
@@ -1568,7 +1568,7 @@ func _finish_leg(guest: Dictionary) -> void:
 		var building := asset(leg.id)
 		if not building.is_empty() and Ops.building_open(self, building) and Needs.SERVICES.has(building.kind):
 			Needs.ensure(guest,weather().temperature)
-			var product_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else BuildingOffers.visit_sale(building,guest)
+			var product_sale: Dictionary = Hospitality.pizza_sale(building,guest) if str(building.kind) == "pizzeria" else BuildingOffers.visit_sale(building,guest,retail_date)
 			var base_revenue: float = Hospitality.night_charge(self, building, guest) if Hospitality.lodging(str(building.kind)) and Ops.active(self) else float(Catalog.BUILDINGS[building.kind].income) * int(guest.get("group_size", 1))
 			if not product_sale.is_empty():
 				# Opt-in per-recipe prices: actual gross menu sale replaces the old
