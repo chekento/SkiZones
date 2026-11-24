@@ -1472,6 +1472,7 @@ func _process(delta: float) -> void:
 			_update_camera()
 	_guest_positions = next_positions
 	holiday_guest_visual.update(self,next_positions,_family_positions)
+	festival_scene.update_celebration(self,next_positions,delta)
 	foot_wear.update_visuals(self, delta)
 	_selection.visible = next_positions.has(selected_guest)
 	if _selection.visible:
