@@ -24,7 +24,10 @@ static func valid(building:Dictionary)->bool:
 	if inv.get("sku")!=sku_for(str(building.kind)):return false
 	for field in ["stock","pending","arrival_at"]:
 		var value:Variant=inv.get(field)
-		if not value is int:return false
+		# Godot JSON.parse_string may decode integral JSON values as floats.
+		# Accept only finite exact integers, never fractions, NaN or strings.
+		if not value is int and not value is float:return false
+		if not is_finite(float(value)) or float(value)!=floorf(float(value)):return false
 	var stock:int=int(inv.stock)
 	var pending:int=int(inv.pending)
 	var eta:int=int(inv.arrival_at)
