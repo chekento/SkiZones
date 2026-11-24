@@ -5,6 +5,8 @@ var window := FloatingFrame.new()
 const L = preload("res://src/core/i18n.gd")
 const Hospitality = preload("res://src/core/hospitality.gd")
 const BuildingOffers = preload("res://src/core/building_offers_035.gd")
+const HolidayInventory = preload("res://src/core/holiday_inventory_043.gd")
+const HolidayMarket = preload("res://src/core/holiday_market_sales_043.gd")
 const OFFER_CATEGORIES := {"food":"Speisen", "drink":"Getränke", "retail":"Souvenirs & Waren", "service":"Service", "upgrade":"Ausstattung", "training":"Kurse & Training", "rental":"Verleih", "event":"Veranstaltungen", "lodging":"Übernachtung", "rescue":"Rettung"}
 const ActivityArt = preload("res://src/ui/building_activity_art.gd")
 const Activities = preload("res://src/core/building_activities.gd")
@@ -211,7 +213,29 @@ func _offers(building: Dictionary) -> void:
 	var offered: Array = BuildingOffers.active(kind,level)
 	var pending: Array = BuildingOffers.locked(kind,level)
 	_card(page,L.text("Betrieb · Stufe %d") % maxi(1,level),
-		L.text("Speisen, Getränke und Souvenirs werden nach echten Besuchen verkauft. Wareneinsatz wird einmal je Verkauf abgebucht. Kurse, Ausrüstung und kostenlose Grunddienste folgen ihren bestehenden Betriebsregeln."))
+		L.text("Speisen, Getränke und Souvenirs werden nach echten Besuchen verkauft. Normale Warenkosten fallen je Verkauf an; saisonale Vorräte werden beim Bestellen bezahlt. Kurse und kostenlose Grunddienste behalten ihre Betriebsregeln."))
+	# Status for the actual persisted seasonal inventory, not a fake
+	# merchandising score. Manual orders work alongside automatic restock.
+	if HolidayMarket.ITEMS.has(kind):
+		var inventory:Dictionary=building.get("holiday_inventory",{})
+		var stock:int=int(inventory.get("stock",0))
+		var pending_delivery:int=int(inventory.get("pending",0))
+		var unit_cost:float=float(HolidayMarket.ITEMS[kind].cost)
+		var stock_summary:String=L.text("Lagerbestand: %d Stück · in Lieferung: %d Stück · Einkaufspreis %.2f € je Stück.") % [stock,pending_delivery,unit_cost]
+		stock_summary+="\n"+L.text("Saisonware wird bei Bestellung bezahlt. Der spätere Verkauf verbraucht nur den vorhandenen Bestand.")
+		if pending_delivery>0:
+			var clock:int=(int(hud.game.model.day)-1)*1440+int(hud.game.model.minute)
+			var minutes_left:int=maxi(0,int(inventory.get("arrival_at",-1))-clock)
+			stock_summary+="\n"+L.text("Lieferung in %d Spielminuten.") % minutes_left
+		if HolidayMarket.active(kind).is_empty():
+			stock_summary+="\n"+L.text("Außerhalb der Saison bleibt der Vorrat für die nächste Weihnachtszeit erhalten.")
+		var seasonal_card:VBoxContainer=_card(page,L.text("Weihnachtslager & Nachschub"),stock_summary)
+		var order_cost:float=snappedf(float(HolidayInventory.ORDER_UNITS)*unit_cost,0.01)
+		var button:Button=_action(seasonal_card,L.text("24 Einheiten bestellen · %.2f €") % order_cost,func():
+			var accepted:bool=HolidayInventory.order(hud.game.model,building)
+			return {"ok":accepted,"message":L.text("Lieferung bestellt.") if accepted else L.text("Bestellung derzeit nicht möglich.")}
+		)
+		button.disabled=not hud.game.model.Ops.active(hud.game.model) or not hud.game.model.Ops.building_open(hud.game.model,building) or HolidayMarket.active(kind).is_empty() or pending_delivery>0 or not hud.game.model.can_afford(order_cost) or stock+HolidayInventory.ORDER_UNITS>HolidayInventory.MAX_UNITS
 	var upgrade: Dictionary = hud.game.model.upgrade_check(int(building.id))
 	var upgrade_button: Button = _action(page,str(upgrade.message),func():
 		var result: Dictionary = hud.game.model.upgrade_asset(int(building.id))
