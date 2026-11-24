@@ -23,7 +23,7 @@ func run()->void:
 		{"id":7,"phase":"waiting","leg":0,"route":{"legs":[{"kind":"visit"}]}}
 	]
 	var before:Array=walkers.duplicate(true)
-	var positions:Dictionary={1:Vector3(10,0,10),2:Vector3(45,0,20),3:Vector3(10,0,15),4:Vector3(2,0,2),5:Vector3(1,0,1),6:Vector3(2,0,0),7:Vector3(4,0,4)}
+	var positions:Dictionary={1:Vector3(8,0,7),2:Vector3(45,0,20),3:Vector3(10,0,15),4:Vector3(2,0,2),5:Vector3(1,0,1),6:Vector3(2,0,0),7:Vector3(4,0,4)}
 	var plaza:=Vector3.ZERO
 	check(Market.nearby_visitors(walkers,positions,plaza,60.0)==2,"Only two physically present pedestrians activate the market")
 	check(Market.nearby_visitors(walkers,positions,plaza,12.0)==1,"Audience proximity uses real world positions, not visitor totals")
