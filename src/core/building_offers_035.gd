@@ -3,6 +3,7 @@ extends RefCounted
 ## Every existing building has its own actual baseline and 2+ unlockable
 ## items or service upgrades. This table does NOT mutate legacy save files.
 const Catalog = preload("res://src/core/catalog.gd")
+const HolidaySales = preload("res://src/core/holiday_market_sales_043.gd")
 const MAX_LEVEL := 5
 const OFFERS := {
 	"wc_dixi": [
@@ -1612,13 +1613,18 @@ const OFFERS := {
 }
  
 static func all_for(kind: String) -> Array:
-	return (OFFERS.get(kind, []) as Array).duplicate(true)
+	# Keep holiday SKU IDs recognizable to the legacy-safe sales ledger
+	# even after the December selection window has ended.
+	return (OFFERS.get(kind, []) as Array).duplicate(true) + HolidaySales.all_for(kind)
 
-static func active(kind: String, level: int) -> Array:
+static func active(kind: String, level: int, date: Dictionary = {}) -> Array:
 	var result: Array = []
 	for item in OFFERS.get(kind, []):
 		if int(item.level) <= clampi(level, 1, MAX_LEVEL):
 			result.append(item.duplicate(true))
+	# Ordinary services still work year-round. Only actual holiday dates add
+	# an extra *choice*; they never grant a second transaction.
+	result.append_array(HolidaySales.active(kind, date))
 	return result
 
 static func locked(kind: String, level: int) -> Array:
@@ -1631,11 +1637,11 @@ static func locked(kind: String, level: int) -> Array:
 static func sale_margin(item: Dictionary) -> float:
 	return float(item.get("price", 0.0)) - float(item.get("cost", 0.0))
 
-static func price_report(kind: String, level: int) -> Dictionary:
+static func price_report(kind: String, level: int, date: Dictionary = {}) -> Dictionary:
 	var turnover := 0.0
 	var direct_cost := 0.0
 	var sellable := 0
-	for item in active(kind, level):
+	for item in active(kind, level, date):
 		if float(item.price) <= 0.0: continue
 		turnover += float(item.price)
 		direct_cost += float(item.cost)
@@ -1669,9 +1675,9 @@ static func valid_catalog() -> bool:
 ## training, upgrades and rooms keep their own existing operational models.
 const RETAIL_KINDS := ["cocoa", "schmarrn", "restaurant", "kiosk", "bar", "disco", "souvenir", "watchmaker", "craftshop"]
 
-static func visit_sale(building: Dictionary, guest: Dictionary) -> Dictionary:
+static func visit_sale(building: Dictionary, guest: Dictionary, date: Dictionary = {}) -> Dictionary:
 	if str(building.get("kind", "")) not in RETAIL_KINDS: return {}
-	var choices: Array = active(str(building.kind), int(building.get("level", 1))).filter(
+	var choices: Array = active(str(building.kind), int(building.get("level", 1)), date).filter(
 		func(offer): return str(offer.category) in ["food", "drink", "retail"] and float(offer.price) > 0.0)
 	if choices.is_empty(): return {}
 	var index: int = posmod(int(guest.get("id", 0)) + int(building.get("visits", 0)), choices.size())
