@@ -1,0 +1,52 @@
+name: 0.43 interactive 3D Advent house QA
+on:
+  pull_request:
+    paths:
+      - 'src/world/advent_house_043.gd'
+      - 'src/world/festival_scenery.gd'
+      - 'src/ui/winter_festival.gd'
+      - 'src/main.gd'
+      - 'tests/advent_house_043.gd'
+      - 'tests/advent_house_scene_043.gd'
+      - '.github/workflows/advent-house-043.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: advent-house-043-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  advent-house:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SKIZONES_TOOLS_DIR: /home/runner/skizones-godot
+      XDG_DATA_HOME: /home/runner/skizones-godot/share
+      GODOT_BIN: /home/runner/skizones-godot/Godot_v4.5.2-stable_linux.x86_64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: godot-cache
+        with:
+          path: /home/runner/skizones-godot
+          key: godot-4.5.2-linux-android-source-v2
+      - name: Install pinned Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install_godot.sh
+      - name: Godot import and all 0.43 GDScript parse checks
+        run: '"$GODOT_BIN" --headless --editor --import --quit'
+      - name: Numbered doors, reopening and annual security
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 240 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/advent_house_043.gd
+      - name: Existing Advent calendar, November posters and holiday persistence
+        run: |
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/winter_festival_025.gd
+          python3 tools/run_godot_test.py --strict-engine-errors --timeout 300 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/seasonal_posters_0401.gd
+      - name: Real 3D resort Advent house, camera touch ray and visual proof
+        run: xvfb-run -a -s '-screen 0 1536x1000x24' python3 tools/run_godot_test.py --timeout 360 -- "$GODOT_BIN" --audio-driver Dummy --resolution 1200x900 --script tests/advent_house_scene_043.gd
+      - name: Upload 0.43 Advent house actual-frame proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: advent-house-043-visual-proof
+          path: build/qa/advent-house-043-*.png
+          if-no-files-found: ignore
