@@ -78,11 +78,32 @@ func build(view: Node3D) -> void:
 	update(view)
 
 func update(view: Node3D) -> void:
+	# All ground props and wildlife are already below their visual cutoffs
+	# in a wide panorama. Hide their shared parent once instead of submitting
+	# thousands of individual renderer property writes every frame.
+	var show_details: bool = view.zoom < 1500
+	if root.visible != show_details:
+		root.visible = show_details
+	if not show_details:
+		return
+	var radius: float = maxf(260.0, view.zoom * 1.6)
+	var density: float = [0.4, 0.75, 1.0][clampi(view.quality_tier, 0, 2)]
 	for group in groups:
-		group.node.visible=group.center.distance_to(view.focus)<maxf(260,view.zoom*1.6) and view.zoom<1500
-		group.node.multimesh.visible_instance_count=int(group.node.multimesh.instance_count*(0.4 if view.quality_tier==0 else 0.75 if view.quality_tier==1 else 1.0))
-	for node in wildlife_groups: node.visible=view.wildlife_enabled and view.zoom<1100
-	if not view.wildlife_enabled: return
+		var node: MultiMeshInstance3D = group.node
+		var shown: bool = group.center.distance_to(view.focus) < radius
+		if node.visible != shown:
+			node.visible = shown
+		if not shown:
+			continue
+		var count := int(node.multimesh.instance_count * density)
+		if node.multimesh.visible_instance_count != count:
+			node.multimesh.visible_instance_count = count
+	var show_wildlife: bool = view.wildlife_enabled and view.zoom < 1100
+	for node in wildlife_groups:
+		if node.visible != show_wildlife:
+			node.visible = show_wildlife
+	if not show_wildlife:
+		return
 	var clock: float=view.model.movement_clock()+view.simulation_fraction
 	for animal in animals:
 		var phase: float=clock*0.025+animal.phase
