@@ -62,6 +62,9 @@ func build(view: Node3D) -> void:
 	var map_id: String = view.model.map_id
 	var id := "%s/%d" % [map_id, mountain.generation]
 	if not candidates.has(id):
+		# Only the active mountain needs its deterministic candidate pool.
+		# Retaining 15,000 dictionaries per previously visited map wastes RAM.
+		candidates.clear()
 		var entries: Array = []
 		var random := RandomNumberGenerator.new()
 		random.seed = 73628
