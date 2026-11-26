@@ -10,6 +10,15 @@ var layers: Array[MultiMeshInstance3D] = []
 var anchors: Array[Transform3D] = []
 var builds := 0
 
+## The compact original resort keeps its existing artwork. Larger maps
+## widen the atmospheric silhouettes in world space, not the camera.
+## A fixed upper bound limits transparent fill on mobile GPUs.
+static func horizontal_scale(bounds: Rect2, layer: int) -> float:
+	var extent := maxf(bounds.size.x, bounds.size.y)
+	var weight := smoothstep(3400.0, 11000.0, extent)
+	var maximum: float = [1.30, 1.55, 1.80][clampi(layer, 0, 2)]
+	return lerpf(1.0, maximum, weight)
+
 func build(parent: Node3D, mountain: RefCounted) -> void:
 	if root.get_parent() != null: root.get_parent().remove_child(root)
 	parent.add_child(root)
@@ -42,6 +51,9 @@ func build(parent: Node3D, mountain: RefCounted) -> void:
 			var v := fposmod(0.13 + i * 0.414214 + layer * 0.37, 1.0)
 			var point := bounds.position + bounds.size * Vector2(0.08 + u * 0.84, 0.08 + v * 0.84)
 			var scale_value: Vector3 = STRATA[layer] * (0.80 + 0.05 * i)
+			var spread := horizontal_scale(bounds, layer)
+			scale_value.x *= spread
+			scale_value.z *= spread
 			var basis_value := Basis(Vector3.UP, float(i) * 0.83 + layer).scaled_local(scale_value)
 			var transform_value := Transform3D(basis_value, mountain.world(point, HEIGHTS[layer]))
 			node.multimesh.set_instance_transform(i, transform_value)
