@@ -54,6 +54,26 @@ func run() -> void:
 	check(transforms(depth) == anchored, "Weather, quality and camera context never scroll any world anchor")
 	depth.build(parent, mountain)
 	check(transforms(depth) == anchored and parent.get_child_count() == 1 and depth.root.get_child_count() == 3, "Rebuilding produces identical placement without accumulating layers")
+	# Large real mountain maps retain the same count and height anchoring;
+	# only horizontal world-space silhouettes become progressively broader.
+	var compact := Rect2(-750,-950,1500,1900)
+	var broad := Rect2(-6000,-6000,12000,12000)
+	check(Depth.horizontal_scale(compact,0)==1.0 and Depth.horizontal_scale(compact,2)==1.0, "Compact map atmospheric art is unchanged")
+	check(Depth.horizontal_scale(broad,0)>1.0 and Depth.horizontal_scale(broad,2)>Depth.horizontal_scale(broad,0), "Distant ridges receive broader silhouettes than foreground strata")
+	check(Depth.horizontal_scale(Rect2(0,0,50000,50000),2)<=1.8, "Large-map horizontal spread has a hard fill budget")
+	var old_bounds := mountain.bounds
+	mountain.bounds = broad
+	depth.build(parent,mountain)
+	check(depth.anchors.size()==24 and depth.layers.size()==3, "Expanded panorama adds neither instances nor draw groups")
+	for layer in range(3):
+		var expected: float = Depth.STRATA[layer].x * 0.8 * Depth.horizontal_scale(broad,layer)
+		var anchor: Transform3D = depth.anchors[layer*8]
+		check(is_equal_approx(anchor.basis.x.length(),expected), "Large-map stratum %d uses its intended horizontal extent" % layer)
+		check(is_equal_approx(anchor.basis.y.length(),Depth.STRATA[layer].y*0.8), "Large-map stratum %d preserves vertical extent" % layer)
+		check(is_equal_approx(anchor.origin.y-mountain.height(Vector2(anchor.origin.x,anchor.origin.z)),Depth.HEIGHTS[layer]), "Large-map stratum %d preserves terrain height lock" % layer)
+	mountain.bounds = old_bounds
+	depth.build(parent,mountain)
+	check(transforms(depth)==anchored, "Switching back to a compact map restores deterministic original anchors")
 	var view := View.new()
 	parent.add_child(view)
 	view.terrain = mountain

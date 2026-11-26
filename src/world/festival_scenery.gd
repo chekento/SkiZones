@@ -5,6 +5,8 @@ const FestiveBuildings=preload("res://src/world/festive_buildings.gd")
 const Calendar = preload("res://src/core/annual_festival.gd")
 const Posters = preload("res://src/core/holiday_poster_catalog.gd")
 const FestivalArt = preload("res://src/world/festival_art.gd")
+const AdventHouse = preload("res://src/world/advent_house_043.gd")
+const HolidayPlaza = preload("res://src/world/holiday_plaza_043.gd")
 const Terrain = preload("res://src/core/terrain.gd")
 const Foot = preload("res://src/core/foot_network.gd")
 var store := Calendar.new()
@@ -14,6 +16,10 @@ func date_now() -> Dictionary:
 	return qa_date_override if not qa_date_override.is_empty() else Calendar.device_now()
 var root: Node3D
 var clock_label: Label3D
+var advent_house:Node3D
+var holiday_plaza:Node3D
+var holiday_plaza_site:=Vector3.INF
+var _holiday_animation_time:=0.0
 var _world_key := ""
 var _poll := 0.0
 var _seconds := 0.0
@@ -34,6 +40,14 @@ func poster_art_at(at: Vector2) -> String:
 		if at.distance_to(poster_sites[i])<17.0:
 			return str(poster_paths[i]) if i<poster_paths.size() else ""
 	return ""
+
+## Picking targets individual hinged 3D doors, not just a rectangle on the
+## resort ground. Mobile ray projection works in all camera pitch modes.
+func pick_advent_door(camera:Camera3D,screen:Vector2)->int:
+	return AdventHouse.pick(advent_house,camera,screen)
+
+func reveal_advent_door(number:int)->void:
+	AdventHouse.reveal(advent_house,number)
 
 func _valid_place(view: Node3D, at: Vector2,clearance: float=9.0) -> bool:
 	if not view.terrain.contains(at) or not Foot.free_of_buildings(at,view.model.buildings,clearance): return false
@@ -60,6 +74,10 @@ func build(view: Node3D) -> void:
 	root.name="Winterfest Ambient Art"
 	view.add_child(root)
 	clock_label=null
+	advent_house=null
+	holiday_plaza=null
+	holiday_plaza_site=Vector3.INF
+	_holiday_animation_time=0.0
 	firework_nodes.clear()
 	poster_sites.clear()
 	poster_paths.clear()
@@ -92,6 +110,7 @@ func build(view: Node3D) -> void:
 		k+=1
 	var meshes: Dictionary={}
 	var occupied: Array=[]
+	var event:String=HolidayPlaza.event_for(now)
 	for item in schedule:
 		var kind: String=item.kind
 		# The countdown board is meaningful only at the year change.
@@ -117,6 +136,13 @@ func build(view: Node3D) -> void:
 		node.position=view.terrain.world(center,0.4)
 		node.rotation.y=float(item.angle)
 		root.add_child(node)
+		# Reuse a verified decorative market location; neither the host nor
+		# the audience modifies navigation or the player's owned buildings.
+		if kind=="market" and event!="":
+			holiday_plaza=HolidayPlaza.make(view.visual_style,event,view._solid)
+			holiday_plaza.position=Vector3(0.0,0.0,6.2)
+			node.add_child(holiday_plaza)
+			holiday_plaza_site=node.global_position
 		if kind=="clock":
 			clock_label=Label3D.new()
 			clock_label.text="00:00:00"
@@ -125,6 +151,22 @@ func build(view: Node3D) -> void:
 			clock_label.outline_size=6
 			clock_label.position=Vector3(0,9.7,0.85)
 			node.add_child(clock_label)
+	# The Advent house is an actual 3D building with 24 individually labelled
+	# hinged doors. It is independent of the resort's construction/save schema.
+	# Previously claimed doors open visually on load or scene regeneration.
+	if int(now.get("month",0))==12 and int(now.get("day",0))>=1:
+		for try_site in range(90):
+			var angle:float=0.45+float(try_site)*2.399963229728653
+			var radius:float=96.0+float(try_site%6)*24.0
+			var at:Vector2=Terrain.BASE+Vector2.from_angle(angle)*radius
+			if not _free_decoration_site(view,at,20.0,occupied):continue
+			advent_house=AdventHouse.create(view.visual_style,store.overview(now).claimed,view._solid)
+			advent_house.set_meta("festival_clearance",20.0)
+			advent_house.position=view.terrain.world(at,0.35)
+			var toward_village:Vector2=(Terrain.BASE-at).normalized()
+			advent_house.rotation.y=atan2(toward_village.x,toward_village.y)
+			root.add_child(advent_house)
+			break
 	if stage in ["new_year_eve","new_year"] and int(now.get("hour",0))>=23 or stage=="new_year":
 		var fx := FestivalArt.make("firework",view.visual_style)
 		fx.surface_set_material(0,view._solid)
@@ -142,6 +184,14 @@ func _update_clock(now: Dictionary) -> void:
 	if not is_instance_valid(clock_label): return
 	var seconds:=Calendar.countdown(now)
 	clock_label.text="%02d:%02d:%02d" % [seconds/3600,(seconds%3600)/60,seconds%60] if seconds>=0 else "00:00:00"
+
+func update_celebration(view:Node3D,real_positions:Dictionary,delta:float)->void:
+	if not is_instance_valid(holiday_plaza) or holiday_plaza.is_queued_for_deletion():return
+	_holiday_animation_time+=maxf(0.0,delta)
+	var visitors:int=0
+	if view.effects_enabled and view.quality_tier>0 and view.zoom<1000.0:
+		visitors=HolidayPlaza.nearby_visitors(view.model.guests,real_positions,holiday_plaza_site)
+	HolidayPlaza.animate(holiday_plaza,visitors>0,_holiday_animation_time)
 
 func update(view: Node3D, delta: float) -> void:
 	_seconds+=maxf(0.0,delta)

@@ -78,7 +78,8 @@ func setup(owner_hud: CanvasLayer) -> void:
 	hud._label(box,L.text("Alle Gäste, Fahrten und Betriebskosten folgen derselben Spielzeit. Von 17 bis 22 Uhr bleibt der Abend gemütlich."),15,hud.MUTED,true)
 	contours.text=L.text("Dezente Höhenlinien auf dem Gelände")
 	wildlife.text=L.text("Rehe, Füchse und Schneehasen darstellen")
-	night_forward.text=L.text("Ruhige Nächte automatisch bis zum Morgen vorspulen")
+	night_forward.text=L.text("Nacht-Zeitraffer bis 06:50 Uhr")
+	night_forward.tooltip_text=L.text("Ab leerem Resort oder spätestens 19 Uhr. Auf 1×, 4× und 8× gleich schnell; laufende Rettungen werden sicher weiter simuliert.")
 	snow.text = L.text("Fallenden Schnee darstellen")
 	smoothing.text = L.text("Verfolgungskamera sanft bewegen")
 	for control in [contours,wildlife,night_forward,snow,smoothing]:

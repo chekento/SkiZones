@@ -13,6 +13,7 @@ const CreditService = preload("res://src/core/credit_service_035.gd")
 const Geo = preload("res://src/core/real_resorts.gd")
 const ScenarioMedals = preload("res://src/core/scenario_medals.gd")
 const StaffTraining=preload("res://src/core/staff_training_042.gd")
+const HolidayInventory=preload("res://src/core/holiday_inventory_043.gd")
 const ROLES := {
 	"operator": {"name": "Liftbedienung", "wage": 18.0},
 	"technician": {"name": "Seilbahntechnik", "wage": 27.0},
@@ -959,6 +960,8 @@ static func business_balance(model: RefCounted, building: Dictionary) -> Diction
 static func tick(model: RefCounted) -> void:
 	if not active(model): return
 	refresh_duty(model)
+	# Ordering uses today's refreshed staff roster, never yesterday's shifts.
+	HolidayInventory.tick(model)
 	model.HotelRooms.tick(model)
 	var now := clock(model)
 	if model.operations.scenario != "" and model.minute == 510 and int(model.operations.event_day) != model.day:

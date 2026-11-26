@@ -4,6 +4,7 @@ extends Control
 const L = preload("res://src/core/i18n.gd")
 const AnnualFestival = preload("res://src/core/annual_festival.gd")
 const FloatingFrame = preload("res://src/ui/floating_window.gd")
+const AdventHouse = preload("res://src/world/advent_house_043.gd")
 var hud: CanvasLayer
 var archive := AnnualFestival.new()
 var window := FloatingFrame.new()
@@ -13,6 +14,11 @@ var clock_label: Label
 var _was_paused := false
 var _clock_bucket := -1
 var _calendar_state := ""
+
+## Keep the calendar aligned with the actual four-column, six-row 3D facade.
+## Narrow phone widths use smaller touch-safe cells instead of clipping doors.
+static func door_button_width(viewport_width:float)->float:
+	return 64.0 if viewport_width<450.0 else 90.0
 
 func current_date() -> Dictionary:
 	return AnnualFestival.device_now()
@@ -49,6 +55,17 @@ func open() -> void:
 	show()
 	window._fit()
 
+## Opening a physical 3D door uses the same atomically stored claim as
+## the menu; tapping a locked or previously opened door grants nothing.
+func open_world_door(number:int)->bool:
+	if number<1 or number>24 or not AnnualFestival.visible(current_date()):return false
+	var answer:Dictionary=archive.claim(number,current_date())
+	if bool(answer.get("ok",false)):
+		hud.game.view.festival_scene.reveal_advent_door(number)
+	hud.toast(L.text(str(answer.get("message",""))))
+	open()
+	return bool(answer.get("ok",false))
+
 func close() -> void:
 	if visible: hud.game.paused=_was_paused
 	hide()
@@ -70,18 +87,33 @@ func _rebuild(date: Dictionary = {}) -> void:
 	hud._label(contents,L.text("Wintertaler: %d · Jahr %d") % [int(state.coins),int(state.year)],22,hud.INK,true)
 	if stage=="advent" or stage=="christmas" or stage=="new_year_eve":
 		var grid:=GridContainer.new()
-		grid.columns=4 if get_viewport_rect().size.x<1100 else 6
+		grid.columns=AdventHouse.COLUMNS
 		contents.add_child(grid)
 		for door in range(1,25):
 			var number: int=door
 			var owned: bool=state.claimed.has(number)
 			var can_open: bool=AnnualFestival.unlocked(now,number) and not owned
 			var button: Button=hud._button(grid,("★ " if number in [6,24] else "❄ ") + str(number) + (" ✓" if owned else ""),func(): pass)
-			button.custom_minimum_size=Vector2(90,68)
+			button.custom_minimum_size=Vector2(door_button_width(get_viewport_rect().size.x),68)
+			# Wooden door panels with a distinct open/locked state instead
+			# of bare text: the same 4-by-6 facade as the 3D Advent house.
+			var panel:=StyleBoxFlat.new()
+			panel.bg_color=Color("7b9a92") if owned else Color("ba9059") if number in [6,24] else Color("89614d")
+			panel.border_color=Color("eee2be")
+			panel.set_border_width_all(3)
+			panel.set_corner_radius_all(5)
+			panel.content_margin_left=10
+			panel.content_margin_right=10
+			button.add_theme_stylebox_override("normal",panel)
+			button.add_theme_stylebox_override("disabled",panel)
+			button.add_theme_color_override("font_color",Color("fff8e7"))
+			button.add_theme_color_override("font_disabled_color",Color("e4d9c4"))
 			button.disabled=not can_open
 			button.pressed.connect(func():
 				var answer=archive.claim(number,current_date())
 				hud.toast(L.text(str(answer.message)))
+				if bool(answer.get("ok",false)):
+					hud.game.view.festival_scene.reveal_advent_door(number)
 				_rebuild()
 			)
 	if stage=="new_year_eve":
