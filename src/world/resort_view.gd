@@ -320,10 +320,16 @@ func _build_environment() -> void:
 	add_child(_snow)
 
 func _ground_color(point: Vector2, height_value: float, grade: float = -1) -> Color:
+	return _ground_color_sample(point, height_value, grade, _ground_base_height(), Color(Maps.spec(model.map_id).ground))
+
+func _ground_base_height() -> float:
+	return terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0.0
+
+func _ground_color_sample(point: Vector2, height_value: float, grade: float, base_height: float, ground_color: Color) -> Color:
 	if grade < 0:
 		grade = terrain.slope_percent(point)
-	var relative_height: float = height_value - (terrain.height(Terrain.BASE) if model.map_id in Geo.IDS else 0.0)
-	var snow := Color(Maps.spec(model.map_id).ground).lerp(Color("f4f5fc"), clampf(relative_height / 420.0, 0, 1))
+	var relative_height: float = height_value - base_height
+	var snow := ground_color.lerp(Color("f4f5fc"), clampf(relative_height / 420.0, 0, 1))
 	# Banded rock ledges and sheltered blue valleys add visible topographic
 	# detail without changing the collision mesh, lift cables or saved routes.
 	var wind_ripple := sin(point.x * 0.027 + point.y * 0.017) * cos(point.y * 0.039 - point.x * 0.013)
@@ -356,6 +362,9 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 	var colors := PackedColorArray()
 	var normals := PackedVector3Array()
 	var indices := PackedInt32Array()
+	# Map palette and base elevation are invariant during this synchronous mesh build.
+	var base_height := _ground_base_height()
+	var ground_color := Color(Maps.spec(model.map_id).ground)
 	for z in range(nz):
 		for x in range(nx):
 			var point := bounds.position + Vector2(minf(x * step_size, bounds.size.x), minf(z * step_size, bounds.size.y))
@@ -370,7 +379,7 @@ func _land_mesh(bounds: Rect2, step_size: int, outside: bool = false) -> ArrayMe
 			var normal := (far_value - near_value).cross(right - left).normalized()
 			normals.append(normal)
 			var grade := Vector2(normal.x, normal.z).length() / maxf(normal.y, 0.01) * 100
-			colors.append(_ground_color(Vector2(vertices[i].x, vertices[i].z), vertices[i].y, grade))
+			colors.append(_ground_color_sample(Vector2(vertices[i].x, vertices[i].z), vertices[i].y, grade, base_height, ground_color))
 			if x == nx - 1 or z == nz - 1:
 				continue
 			var center := Vector2(vertices[i].x + step_size * 0.5, vertices[i].z + step_size * 0.5)
@@ -1273,8 +1282,9 @@ func _process(delta: float) -> void:
 		var data: Dictionary = _vehicle_sets[lift.id]
 		var near := Geometry2D.get_closest_point_to_segment(focus, Terrain.unpack(lift.bottom), Terrain.unpack(lift.top))
 		var shown := near.distance_to(focus) < maxf(zoom * 1.8, 260)
-		data.node.visible = shown
-		if data.glass != null:
+		if data.node.visible != shown:
+			data.node.visible = shown
+		if data.glass != null and data.glass.visible != shown:
 			data.glass.visible = shown
 		var target_clock: float=float(lift.get("clock",0.0))
 		if not shown:
@@ -1284,9 +1294,10 @@ func _process(delta: float) -> void:
 			data.clock = target_clock
 			data.resync = true
 			continue
-		target_clock += simulation_fraction if model.lift_running(lift) else 0.0
+		var running: bool = model.lift_running(lift)
+		target_clock += simulation_fraction if running else 0.0
 		var resync: bool=bool(data.get("resync",false))
-		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,Fleet.visual_units_per_second(motion_rate),motion_running and model.lift_running(lift),resync)
+		var clock: float=Fleet.visual_clock(float(data.clock),target_clock,delta,Fleet.visual_units_per_second(motion_rate),motion_running and running,resync)
 		# Relative epsilon grows with lift uptime and can hide every small 1x/4x frame.
 		# Use absolute movement ticks so even late resort days redraw correctly.
 		var changed: bool = resync or absf(float(data.clock)-clock) > 0.00001
@@ -1940,11 +1951,13 @@ func _recolor_ground_mesh(source: Mesh) -> ArrayMesh:
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var colors := PackedColorArray()
 	colors.resize(vertices.size())
+	var base_height := _ground_base_height()
+	var ground_color := Color(Maps.spec(model.map_id).ground)
 	for index in range(vertices.size()):
 		var point: Vector3 = vertices[index]
 		var normal: Vector3 = normals[index]
 		var grade: float = Vector2(normal.x, normal.z).length() / maxf(normal.y, 0.01) * 100.0
-		colors[index] = _ground_color(Vector2(point.x, point.z), point.y, grade)
+		colors[index] = _ground_color_sample(Vector2(point.x, point.z), point.y, grade, base_height, ground_color)
 	arrays[Mesh.ARRAY_COLOR] = colors
 	var recolored := ArrayMesh.new()
 	recolored.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
@@ -2026,11 +2039,15 @@ func _adapt_quality(delta: float) -> void:
 	if _quality_timer < 1.5:
 		return
 	_quality_timer = 0
+	var previous_tier := quality_tier
 	if _frame_average > frame_target * 1.4:
 		quality_tier = maxi(0, quality_tier - 1)
 	elif _frame_average < frame_target * 1.05:
 		quality_tier = mini(1, quality_tier + 1)
-	_apply_quality()
+	# Atmosphere handles weather independently; do not reconfigure MSAA,
+	# forest and effects when adaptive quality has not changed.
+	if quality_tier != previous_tier:
+		_apply_quality()
 
 func _lift_art(lift: Dictionary, type: String) -> ArrayMesh:
 	var key := "%s/%s/%d/%s/%s" % [type, lift.kind, lift.get("level", 1), lift.get("color", ""),visual_style]
