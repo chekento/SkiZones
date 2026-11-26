@@ -1,5 +1,15 @@
 extends SceneTree
 const Forest = preload("res://src/world/forest_lod.gd")
+const Details = preload("res://src/world/landscape_details.gd")
+
+class FakeView extends Node3D:
+	var zoom := 1800.0
+	var focus := Vector2.ZERO
+	var quality_tier := 1
+	var wildlife_enabled := true
+	var model = null
+	var simulation_fraction := 0.0
+
 var failed := 0
 var passed := 0
 
@@ -44,5 +54,35 @@ func run() -> void:
 	check(mesh.instance_count == 100, "Rendering never deletes forest transforms")
 	node.free()
 	forest.root.free()
+	var details := Details.new()
+	var view := FakeView.new()
+	var prop := MultiMeshInstance3D.new()
+	var prop_mesh := MultiMesh.new()
+	prop_mesh.transform_format = MultiMesh.TRANSFORM_3D
+	prop_mesh.mesh = BoxMesh.new()
+	prop_mesh.instance_count = 20
+	prop_mesh.visible_instance_count = 20
+	prop.multimesh = prop_mesh
+	details.root.add_child(prop)
+	details.groups = [{"node": prop, "center": Vector2.ZERO}]
+	var animal := MultiMeshInstance3D.new()
+	details.root.add_child(animal)
+	details.wildlife_groups.append(animal)
+	details.update(view)
+	check(not details.root.visible and prop_mesh.visible_instance_count == 20, "Wide panorama hides parent without updating individual props or wildlife")
+	view.zoom = 1200.0
+	details.update(view)
+	check(details.root.visible and prop.visible and prop_mesh.visible_instance_count == 15, "Returning from panorama restores detail and current quality")
+	check(not animal.visible, "Wildlife work stays suspended below its own visibility cutoff")
+	view.zoom = 900.0
+	view.wildlife_enabled = false
+	view.quality_tier = 2
+	details.update(view)
+	check(prop_mesh.visible_instance_count == 20 and not animal.visible, "Close detail restores full density while respecting disabled wildlife")
+	view.focus = Vector2(10000, 10000)
+	details.update(view)
+	check(not prop.visible, "Distant detail chunk remains culled")
+	details.root.free()
+	view.free()
 	print("RESULT: %d passed; %d failed" % [passed, failed])
 	quit(1 if failed else 0)
