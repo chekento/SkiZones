@@ -155,19 +155,42 @@ func apply_style(view: Node3D) -> void:
 		for i in range(view.rocks.multimesh.instance_count):
 			view.rocks.multimesh.set_instance_color(i, tint)
 
+## Wide views use a deterministic rendering-only density budget. Keep at
+## least one instance per nonempty chunk/species so silhouettes do not vanish.
+static func overview_density(zoom: float, tier: int) -> float:
+	var base := 0.65 if tier <= 0 else 1.0
+	var wide := smoothstep(1000.0, 3400.0, zoom)
+	var distant_density: float = [0.30, 0.50, 0.75][clampi(tier, 0, 2)]
+	return lerpf(base, distant_density, wide)
+
+static func visible_tree_count(total: int, zoom: float, tier: int) -> int:
+	if total <= 0:
+		return 0
+	return clampi(ceili(float(total) * overview_density(zoom, tier)), 1, total)
+
 func update(focus: Vector2, zoom: float, tier: int) -> void:
 	if wind_material != null and _wind_tier != tier:
 		_wind_tier = tier
 		# Vertex-only gusts; reduced on low-end phones, no per-tree CPU updates.
 		wind_material.set_shader_parameter("sway_metres", [0.14, 0.27, 0.38][clampi(tier, 0, 2)])
+	var density := overview_density(zoom, tier)
+	var visible_radius := maxf(zoom * 2.5, 360) + CHUNK
 	for group in groups:
 		var distance: float = group.center.distance_to(focus)
-		group.node.visible = distance < maxf(zoom * 2.5, 360) + CHUNK
+		var shown: bool = distance < visible_radius
+		var node: MultiMeshInstance3D = group.node
+		if node.visible != shown:
+			node.visible = shown
+		if not shown:
+			continue
 		var detail: bool = tier > 0 and zoom < 700 and distance < (360 if tier == 2 else 210)
 		if detail != group.detail:
 			group.detail = detail
-			group.node.multimesh.mesh = variants[group.species].near if detail else variants[group.species].far
-		group.node.multimesh.visible_instance_count = int(group.node.multimesh.instance_count * (0.65 if tier == 0 else 1.0))
-		group.node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if detail and tier == 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-
-
+			node.multimesh.mesh = variants[group.species].near if detail else variants[group.species].far
+		var total: int = node.multimesh.instance_count
+		var count := clampi(ceili(float(total) * density), 1, total) if total > 0 else 0
+		if node.multimesh.visible_instance_count != count:
+			node.multimesh.visible_instance_count = count
+		var shadows := GeometryInstance3D.SHADOW_CASTING_SETTING_ON if detail and tier == 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if node.cast_shadow != shadows:
+			node.cast_shadow = shadows
