@@ -51,8 +51,17 @@ func run()->void:
 	check(loaded.get("ok",false) and int(from_disk.day)==9 and int(from_disk.minute)==1020,"Normal fresh-process loader resumes exact day 9 progress")
 	var main_sha:String=FileAccess.get_sha256(PATH)
 	var earlier:RefCounted=snapshot_at(8)
-	var refused:Dictionary=Saves.save_game(earlier,PATH)
-	check(not refused.get("ok",false) and FileAccess.get_sha256(PATH)==main_sha,"Stale in-memory day 8 can never overwrite verified day 9")
+	var rewound:Dictionary=Saves.save_game(earlier,PATH)
+	check(rewound.get("ok",false),"A valid player-requested day 8 is not locked by an earlier day-9 checkpoint")
+	var rewind_loaded:RefCounted=Resort.new()
+	check(Saves.load_game(rewind_loaded,PATH).get("ok",false) and rewind_loaded.day==8,"The day-8 checkpoint loads correctly after rewinding")
+	# Restore the original day-7/day-9 fixture for the independent semantic
+	# recovery test below, which must never silently choose its older backup.
+	clear_files()
+	check(Saves.save_game(base,PATH).get("ok",false) and Saves.save_game(current,PATH).get("ok",false),"Day-7/day-9 fixture restored for semantic recovery regression")
+	main_read=Saves._read(PATH)
+	backup_read=Saves._read(PATH+".bak")
+	main_sha=FileAccess.get_sha256(PATH)
 	# A semantically impossible fresh snapshot must be refused even if its
 	# JSON and SHA-256 checksum are internally consistent.
 	var invalid_live:RefCounted=snapshot_at(10)
@@ -94,7 +103,16 @@ func run()->void:
 		check(not blocked.get("ok",false) and int(blocked.get("newer_primary_day",0))==9 and int(blocked.get("backup_day",0))==7,"Unrepairable day 9 is protected from silent day 7 fallback")
 		check(FileAccess.get_sha256(PATH)==protected_sha,"Failed recovery does not overwrite the newer primary")
 		var stale_world:RefCounted=snapshot_at(7,900)
-		check(not Saves.save_game(stale_world,PATH).ok and FileAccess.get_sha256(PATH)==protected_sha,"An older save is refused even when the newer checksum-valid primary cannot restore")
+		check(Saves.save_game(stale_world,PATH).ok,"A valid day-7 save can replace a broken newer day-9 primary after archiving it")
+		var rescued_day7:RefCounted=Resort.new()
+		check(Saves.load_game(rescued_day7,PATH).get("ok",false) and rescued_day7.day==7,"The newly saved day-7 checkpoint remains normally loadable")
+		var archived:bool=false
+		var archives:DirAccess=DirAccess.open("user://save-recovery")
+		if archives!=null:
+			for filename in archives.get_files():
+				if filename.begins_with(PATH.get_file()+"-") and filename.ends_with(".before-rewind") and FileAccess.get_sha256("user://save-recovery/"+filename)==protected_sha:
+					archived=true
+		check(archived,"Corrupted day-9 primary remains byte-for-byte preserved in the recovery archive")
 	clear_files()
 	print("RESULT: %d passed; %d failed" % [passed,failed])
 	quit(1 if failed else 0)

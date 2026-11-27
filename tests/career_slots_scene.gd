@@ -57,6 +57,11 @@ func run() -> void:
 	(populated_card.find_child("check_save_038",true,false) as Button).pressed.emit()
 	var diagnostic:Label=populated_card.find_child("save_diagnostics",true,false) as Label
 	check(diagnostic.text.contains("ladbar") and FileAccess.get_sha256(source_path)==source_hash,"The actual diagnostic action confirms loadability while preserving the original bytes")
+	var export_diagnostic:Button=populated_card.find_child("copy_save_diagnostic_0425",true,false) as Button
+	check(export_diagnostic!=null,"Save Manager provides a dedicated read-only diagnostic copy action")
+	if export_diagnostic!=null:
+		export_diagnostic.pressed.emit()
+		check(FileAccess.get_sha256(source_path)==source_hash and DisplayServer.clipboard_get().contains("SkiZones") and DisplayServer.clipboard_get().contains("sonnenhang") and DisplayServer.clipboard_get().contains("ladbar"),"Copying full troubleshooting diagnostics never rewrites original career bytes")
 	var target_path:String=Saves.path_for_map("sonnenhang",2)
 	var target_hash:String=FileAccess.get_sha256(target_path)
 	var copy_target:OptionButton=populated_card.find_child("copy_target",true,false) as OptionButton

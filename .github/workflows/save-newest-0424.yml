@@ -1,10 +1,12 @@
-name: P0 0.42.4 newer backup recovery
+name: P0 Save reliability and arbitrary game-day roundtrips
 on:
   pull_request:
     paths:
       - 'src/core/save_store.gd'
       - 'src/core/save_management_038.gd'
       - 'tests/save_newest_backup_0424.gd'
+      - 'tests/save_day_rollback_0423.gd'
+      - 'tests/save_any_day_0425.gd'
       - 'translations/en.po'
       - '.github/workflows/save-newest-0424.yml'
   workflow_dispatch:
@@ -43,3 +45,8 @@ jobs:
         env:
           XDG_DATA_HOME: ${{ runner.temp }}/skizones-old-day-rollback-0424
         run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_day_rollback_0423.gd
+
+      - name: Roundtrip save/load on any game day, including backward saves
+        env:
+          XDG_DATA_HOME: ${{ runner.temp }}/skizones-any-day-0425
+        run: python3 tools/run_godot_test.py --strict-engine-errors --timeout 320 -- "$GODOT_BIN" --headless --audio-driver Dummy --script tests/save_any_day_0425.gd
